@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Post Request - Agbalumo</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ff5f0f",
+                        "background-light": "#f8f6f5",
+                        "background-dark": "#23160f",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hiding for cleaner mobile look */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display antialiased text-slate-900 dark:text-white selection:bg-primary/30">
+<div class="relative flex min-h-screen w-full flex-col overflow-hidden pb-24">
+<!-- Header -->
+<header class="sticky top-0 z-10 flex items-center justify-between bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm p-4 pt-6 border-b border-slate-200 dark:border-slate-800">
+<button class="flex size-10 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-900 dark:text-white text-[24px]">close</span>
+</button>
+<h1 class="text-lg font-bold leading-tight tracking-tight text-center flex-1 pr-10">Post Request</h1>
+</header>
+<!-- Content -->
+<main class="flex-1 w-full max-w-md mx-auto px-4 pt-6">
+<!-- Intro Text -->
+<div class="mb-8">
+<p class="text-slate-600 dark:text-slate-300 text-base font-normal leading-relaxed">
+                    Ask the Agbalumo community for recommendations, services, or help.
+                </p>
+</div>
+<!-- Form Fields -->
+<form class="flex flex-col gap-6">
+<!-- Request Title -->
+<div class="flex flex-col gap-2">
+<label class="text-base font-semibold text-slate-900 dark:text-white" for="title">What do you need?</label>
+<div class="relative">
+<input class="w-full rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-primary focus:ring-1 focus:ring-primary h-14 px-4 text-base placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-sm" id="title" placeholder="e.g., Catering for a naming ceremony" type="text"/>
+</div>
+</div>
+<!-- Category -->
+<div class="flex flex-col gap-2">
+<label class="text-base font-semibold text-slate-900 dark:text-white" for="category">Category</label>
+<div class="relative">
+<select class="w-full appearance-none rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-primary focus:ring-1 focus:ring-primary h-14 px-4 pr-10 text-base text-slate-900 dark:text-white transition-all shadow-sm" id="category">
+<option disabled="" selected="" value="">Select a category</option>
+<option value="services">Services &amp; Labor</option>
+<option value="events">Events &amp; Party</option>
+<option value="housing">Housing &amp; Stay</option>
+<option value="advice">Advice &amp; Info</option>
+<option value="items">Items for Sale/Swap</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4">
+<span class="material-symbols-outlined text-slate-500">arrow_drop_down</span>
+</div>
+</div>
+</div>
+<!-- Description -->
+<div class="flex flex-col gap-2">
+<div class="flex justify-between items-center">
+<label class="text-base font-semibold text-slate-900 dark:text-white" for="description">Details</label>
+<span class="text-xs text-slate-400 dark:text-slate-500 font-normal">0/500</span>
+</div>
+<textarea class="w-full min-h-[140px] resize-none rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-primary focus:ring-1 focus:ring-primary p-4 text-base placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-sm" id="description" placeholder="Describe what you are looking for in detail..."></textarea>
+</div>
+<!-- Deadline Date Picker -->
+<div class="flex flex-col gap-2">
+<label class="text-base font-semibold text-slate-900 dark:text-white" for="deadline">When do you need this by?</label>
+<div class="relative group">
+<input class="w-full rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-primary focus:ring-1 focus:ring-primary h-14 px-4 text-base text-slate-900 dark:text-white placeholder:text-slate-400 transition-all shadow-sm uppercase tracking-wide cursor-pointer" id="deadline" type="date"/>
+<!-- Custom icon overlay for better styling if needed, though native date picker handles it on mobile -->
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4">
+<span class="material-symbols-outlined text-primary">calendar_today</span>
+</div>
+</div>
+<!-- Warning / Info Text -->
+<div class="flex items-start gap-2 mt-1 px-1">
+<span class="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5">info</span>
+<p class="text-sm text-slate-500 dark:text-slate-400">
+                            Requests are active for a <span class="font-medium text-primary">maximum of 90 days</span> to keep the community feed fresh.
+                        </p>
+</div>
+</div>
+<!-- Spacer to push content above fixed footer -->
+<div class="h-8"></div>
+</form>
+</main>
+<!-- Sticky Footer -->
+<div class="fixed bottom-0 left-0 right-0 z-20 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-lg border-t border-slate-200/50 dark:border-slate-800/50 p-4 pb-8 safe-area-bottom">
+<button class="w-full max-w-md mx-auto flex items-center justify-center rounded-xl bg-primary hover:bg-orange-600 text-white font-bold text-lg h-14 shadow-lg shadow-orange-500/20 active:scale-[0.98] transition-all duration-200">
+                Post Request
+            </button>
+</div>
+</div>
+</body></html>

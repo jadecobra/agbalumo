@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Market Square - Agbalumo</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#FF5E0E", // Agbalumo Orange
+                        "secondary": "#2D5A27", // Palm Leaf Green
+                        "background-light": "#FFF2EB", // Pale Agbalumo Orange Tint
+                        "background-dark": "#23160f", // Dark Warm Brown
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#2f221c",
+                        "text-main": "#181310",
+                        "text-sub": "#8d6d5e",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>.no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }.no-scrollbar {
+            -ms-overflow-style: none;scrollbar-width: none;}
+    </style>
+<style>
+        body {
+          min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-text-main antialiased selection:bg-primary/20">
+<div class="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden max-w-md mx-auto bg-background-light dark:bg-background-dark shadow-2xl">
+<div class="sticky top-0 z-30 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm border-b border-orange-100/50 dark:border-stone-800/50">
+<div class="flex items-center justify-between p-4 pb-2">
+<h2 class="text-secondary dark:text-green-400 text-2xl font-bold leading-tight tracking-tight flex-1">Agbalumo</h2>
+<button class="flex items-center justify-center bg-primary hover:bg-orange-600 transition-colors text-white px-4 py-2 rounded-full shadow-sm active:scale-95">
+<span class="text-sm font-bold leading-normal">Post +</span>
+</button>
+</div>
+<div class="px-4 py-2">
+<div class="relative flex items-center w-full h-12 rounded-xl bg-white dark:bg-surface-dark shadow-sm border border-stone-100 dark:border-stone-800 group focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+<div class="grid place-items-center h-full w-12 text-text-sub">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="peer h-full w-full outline-none text-sm text-text-main dark:text-stone-100 bg-transparent pr-2 placeholder:text-stone-400" id="search" placeholder="Find jollof, legal help, braiding..." type="text"/>
+</div>
+</div>
+<div class="flex gap-3 px-4 py-3 overflow-x-auto no-scrollbar">
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-secondary text-white px-5 shadow-sm transition-transform active:scale-95">
+<p class="text-sm font-medium whitespace-nowrap">All</p>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-5 transition-transform active:scale-95 hover:bg-stone-50 dark:hover:bg-stone-800">
+<p class="text-text-main dark:text-stone-200 text-sm font-medium whitespace-nowrap">Food 🍲</p>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-5 transition-transform active:scale-95 hover:bg-stone-50 dark:hover:bg-stone-800">
+<p class="text-text-main dark:text-stone-200 text-sm font-medium whitespace-nowrap">Fashion 👗</p>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-5 transition-transform active:scale-95 hover:bg-stone-50 dark:hover:bg-stone-800">
+<p class="text-text-main dark:text-stone-200 text-sm font-medium whitespace-nowrap">Legal ⚖️</p>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-5 transition-transform active:scale-95 hover:bg-stone-50 dark:hover:bg-stone-800">
+<p class="text-text-main dark:text-stone-200 text-sm font-medium whitespace-nowrap">Health 🏥</p>
+</button>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-5 p-4 pb-24">
+<div class="flex flex-col rounded-2xl bg-white dark:bg-surface-dark shadow-soft overflow-hidden group">
+<div class="relative w-full aspect-[16/9] overflow-hidden">
+<div class="w-full h-full bg-center bg-cover transform group-hover:scale-105 transition-transform duration-500" data-alt="Close up of delicious jollof rice dish" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB-JKhAqr2dq76Q5B6OJdWgW-XL8OqvC6oW4WhfM0GPq1nP_6SoAKQZfMX6OcG4HBHpbmUWg4ab8tHDcWHp2y6io6XagLIvfRfd4Rrxm2ruI_ftVJ9QI8vd3K8MmQ60G7q94mT63m9n6WoqVAN9VH_9w8VvrAaA2KQmU9V4vkT0l7KaFqQxZI1e8jhlonHsV_b7bVGlRq73kSFXtA1t8RaLlIlcGfkabR4qyimY7txug9RSCFmRjvMjZE4TaWcNz5PSmMbdeqxtjhx1");'>
+</div>
+<div class="absolute top-3 right-3 bg-white/90 dark:bg-black/80 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-secondary dark:text-green-400 border border-green-100 dark:border-green-900 shadow-sm">
+                        Open Now
+                    </div>
+</div>
+<div class="flex flex-col gap-3 p-4">
+<div class="flex justify-between items-start">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-[10px] uppercase font-bold px-2 py-0.5 rounded-md tracking-wider">Food &amp; Dining</span>
+<span class="text-text-sub dark:text-stone-400 text-xs flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span>
+                                    North Dallas
+                                </span>
+</div>
+<h3 class="text-xl font-bold text-text-main dark:text-white leading-tight">Lagos Spot Kitchen <span class="text-xl align-middle">🇳🇬</span></h3>
+</div>
+</div>
+<p class="text-text-sub dark:text-stone-400 text-sm leading-relaxed line-clamp-2">
+                        Authentic Naija jollof and suya spots in the heart of Dallas. Come taste the tradition.
+                    </p>
+<button class="mt-2 w-full flex items-center justify-center gap-2 bg-primary hover:bg-orange-600 text-white font-medium h-11 rounded-xl transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined text-[20px]">call</span>
+                        Contact
+                    </button>
+</div>
+</div>
+<div class="flex flex-col rounded-2xl bg-white dark:bg-surface-dark shadow-soft overflow-hidden group">
+<div class="relative w-full aspect-[16/9] overflow-hidden">
+<div class="w-full h-full bg-center bg-cover transform group-hover:scale-105 transition-transform duration-500" data-alt="Legal books and gavel on a wooden desk" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBMEkn0aBa0bE0TzYEFquRQC40ueqHVWxCn91nGvdlmJW8yaePfqNQLNbLq3K_2i2_RafVUNx-F8Km6omIbNXXb7r91dnKa3fdBcyGdMTn5WICxJIzLhdrJIVvkIKfjIm-1jnKzDsgpVdB6dJOSYLjEpx3f5zu0E3-qjYEjpPW1YsKkIDEdP0_GUhxxmlkOzkuKg4_vO902yxVDlmIx03aa1yooZX7tJqiy6ZcFi6NhoY72ZVVG8Cw5h02TPyvnltvpAm2KExjQzEob");'>
+</div>
+</div>
+<div class="flex flex-col gap-3 p-4">
+<div class="flex justify-between items-start">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[10px] uppercase font-bold px-2 py-0.5 rounded-md tracking-wider">Legal Services</span>
+<span class="text-text-sub dark:text-stone-400 text-xs flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span>
+                                    Downtown
+                                </span>
+</div>
+<h3 class="text-xl font-bold text-text-main dark:text-white leading-tight">Kofi's Legal Aid <span class="text-xl align-middle">🇬🇭</span></h3>
+</div>
+</div>
+<p class="text-text-sub dark:text-stone-400 text-sm leading-relaxed line-clamp-2">
+                        Immigration and small business legal consultation specializing in diaspora affairs.
+                    </p>
+<button class="mt-2 w-full flex items-center justify-center gap-2 bg-primary hover:bg-orange-600 text-white font-medium h-11 rounded-xl transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined text-[20px]">mail</span>
+                        Contact
+                    </button>
+</div>
+</div>
+<div class="flex flex-col rounded-2xl bg-white dark:bg-surface-dark shadow-soft overflow-hidden group">
+<div class="relative w-full aspect-[16/9] overflow-hidden">
+<div class="w-full h-full bg-center bg-cover transform group-hover:scale-105 transition-transform duration-500" data-alt="Colorful African fabric patterns and textiles" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCFSIKBpNU-sC1HddUJjykMXyDkPMc9pYJuCtSjDRQ3PDNbi-JD2gnASPJS5GXNbQuPkZZd-Gxp_3cftE1nehfUGJRpJaxR_duHpDsQRcf7DH_gdWdGFR2Mmhp2kg31cyRFLys8MzgRJZceXiKaB1HXCvitKBOSb_W19RLil86bAWk-0ER-ksaw27jj9qwFNvUrQaCAoPNdFUwTBOt6d2EhJTrO6AjrSsGAX2qwA72xZvsvKA08C-PkVKNM9A1cGXNvYWLqty29QeAT");'>
+</div>
+</div>
+<div class="flex flex-col gap-3 p-4">
+<div class="flex justify-between items-start">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 text-[10px] uppercase font-bold px-2 py-0.5 rounded-md tracking-wider">Fashion</span>
+<span class="text-text-sub dark:text-stone-400 text-xs flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span>
+                                    Arlington
+                                </span>
+</div>
+<h3 class="text-xl font-bold text-text-main dark:text-white leading-tight">Ada's Threads <span class="text-xl align-middle">🇳🇬</span></h3>
+</div>
+</div>
+<p class="text-text-sub dark:text-stone-400 text-sm leading-relaxed line-clamp-2">
+                        Bespoke Aso Ebi and modern African wear for weddings and special occasions.
+                    </p>
+<button class="mt-2 w-full flex items-center justify-center gap-2 bg-primary hover:bg-orange-600 text-white font-medium h-11 rounded-xl transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined text-[20px]">storefront</span>
+                        View Shop
+                    </button>
+</div>
+</div>
+<div class="h-4"></div>
+</div>
+<div class="fixed bottom-0 w-full max-w-md bg-white dark:bg-surface-dark border-t border-stone-100 dark:border-stone-800 pb-safe">
+<div class="flex justify-around items-center h-16">
+<button class="flex flex-col items-center justify-center w-full h-full gap-1 text-primary">
+<span class="material-symbols-outlined filled" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
+<span class="material-symbols-outlined">favorite</span>
+<span class="text-[10px] font-medium">Saved</span>
+</button>
+<button class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
+<span class="material-symbols-outlined">map</span>
+<span class="text-[10px] font-medium">Map</span>
+</button>
+<button class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</button>
+</div>
+<div class="h-4 w-full bg-white dark:bg-surface-dark"></div>
+</div>
+</div>
+
+</body></html>

@@ -1,0 +1,102 @@
+<dialog id="create-listing-modal"
+    class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-sm m-auto rounded-3xl shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in">
+    <div
+        class="bg-background-light dark:bg-background-dark p-6 rounded-3xl border border-orange-100 dark:border-stone-800 shadow-soft relative overflow-hidden">
+        <!-- Decorative Background -->
+        <div
+            class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -z-10 transform translate-x-10 -translate-y-10">
+        </div>
+
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold text-text-main dark:text-white">New Listing</h3>
+            <button onclick="document.getElementById('create-listing-modal').close()"
+                class="p-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 transition-colors">
+                <span class="material-symbols-outlined text-[20px]">close</span>
+            </button>
+        </div>
+
+        <form hx-post="/listings" hx-swap="afterbegin transition:true" hx-target="#listings-container" method="POST"
+            enctype="multipart/form-data" class="flex flex-col gap-4"
+            onsubmit="document.getElementById('create-listing-modal').close()">
+
+            <!-- Type (No Request) -->
+            <div class="flex flex-col gap-1.5">
+                <label
+                    class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Type</label>
+                <select name="type"
+                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white appearance-none">
+                    <option value="Business">Business</option>
+                    <option value="Service">Service</option>
+                    <option value="Product">Product</option>
+                </select>
+            </div>
+
+            <!-- Title -->
+            <div class="flex flex-col gap-1.5">
+                <label
+                    class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Title</label>
+                <input required name="title" type="text" placeholder="e.g., Mama's Kitchen"
+                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+            </div>
+
+            <!-- Origin -->
+            <div class="flex flex-col gap-1.5">
+                <label
+                    class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Origin</label>
+                <select name="owner_origin"
+                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white appearance-none">
+                    <option value="Nigeria">Nigeria 🇳🇬</option>
+                    <option value="Ghana">Ghana 🇬🇭</option>
+                    <option value="Senegal">Senegal 🇸🇳</option>
+                    <option value="Other">Other 🌍</option>
+                </select>
+            </div>
+
+            <!-- Image Upload -->
+            <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Photo
+                    (Optional)</label>
+                <input name="image" type="file" accept="image/*"
+                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all text-text-sub">
+            </div>
+
+            <!-- Description -->
+            <div class="flex flex-col gap-1.5">
+                <label
+                    class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Description</label>
+                <textarea required name="description" rows="3" placeholder="Tell us about your listing..."
+                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white resize-none"></textarea>
+            </div>
+
+            <!-- Contact Section -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label
+                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Email</label>
+                    <input name="contact_email" type="email" placeholder="Email"
+                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label
+                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Phone/WhatsApp</label>
+                    <input name="contact_phone" type="tel" placeholder="+1..."
+                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                </div>
+            </div>
+
+            <!-- Website (Optional) -->
+            <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Website
+                    (Optional)</label>
+                <input name="website_url" type="url" placeholder="https://..."
+                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+            </div>
+
+            <button type="submit"
+                class="mt-2 w-full flex items-center justify-center gap-2 bg-primary hover:bg-orange-600 text-white font-bold h-12 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-orange-500/20">
+                <span class="material-symbols-outlined text-[20px]">send</span>
+                Post Listing
+            </button>
+        </form>
+    </div>
+</dialog>

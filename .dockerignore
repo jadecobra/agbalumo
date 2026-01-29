@@ -1,0 +1,20 @@
+# Binaries
+bin/
+*.exe
+*.test
+*.out
+
+# IDEs
+.vscode
+.idea
+
+# OS
+.DS_Store
+
+# Version Control
+.git
+
+# Data (Don't copy local DB to image, let it be created or mounted)
+agbalumo.db
+agbalumo.db-journal
+agbalumo.db-wal
