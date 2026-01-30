@@ -1,5 +1,4 @@
-<dialog id="detail-modal-{{.ID}}"
-    class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-sm m-auto rounded-3xl shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in"
+<dialog id="detail-modal-{{.Listing.ID}}"
     class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-sm m-auto rounded-3xl shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in">
     <div
         class="bg-background-light dark:bg-background-dark p-0 rounded-3xl border border-orange-100 dark:border-stone-800 shadow-soft relative overflow-hidden flex flex-col max-h-[90vh]">
@@ -7,7 +6,7 @@
         <!-- Header Image with Back/Close -->
         <div class="relative w-full aspect-video shrink-0">
             <div class="w-full h-full bg-center bg-cover"
-                style='background-image: url("{{ if .ImageURL }}{{ .ImageURL }}{{ else }}https://lh3.googleusercontent.com/aida-public/AB6AXuB-JKhAqr2dq76Q5B6OJdWgW-XL8OqvC6oW4WhfM0GPq1nP_6SoAKQZfMX6OcG4HBHpbmUWg4ab8tHDcWHp2y6io6XagLIvfRfd4Rrxm2ruI_ftVJ9QI8vd3K8MmQ60G7q94mT63m9n6WoqVAN9VH_9w8VvrAaA2KQmU9V4vkT0l7KaFqQxZI1e8jhlonHsV_b7bVGlRq73kSFXtA1t8RaLlIlcGfkabR4qyimY7txug9RSCFmRjvMjZE4TaWcNz5PSmMbdeqxtjhx1{{ end }}");'>
+                style='background-image: url("{{ if .Listing.ImageURL }}{{ .Listing.ImageURL }}{{ else }}https://lh3.googleusercontent.com/aida-public/AB6AXuB-JKhAqr2dq76Q5B6OJdWgW-XL8OqvC6oW4WhfM0GPq1nP_6SoAKQZfMX6OcG4HBHpbmUWg4ab8tHDcWHp2y6io6XagLIvfRfd4Rrxm2ruI_ftVJ9QI8vd3K8MmQ60G7q94mT63m9n6WoqVAN9VH_9w8VvrAaA2KQmU9V4vkT0l7KaFqQxZI1e8jhlonHsV_b7bVGlRq73kSFXtA1t8RaLlIlcGfkabR4qyimY7txug9RSCFmRjvMjZE4TaWcNz5PSmMbdeqxtjhx1{{ end }}");'>
             </div>
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
 
@@ -20,56 +19,65 @@
                 <div class="flex items-center gap-2 mb-1">
                     <span
                         class="bg-primary/90 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-md tracking-wider shadow-sm">{{
-                        .Type }}</span>
-                    {{ if eq .OwnerOrigin "Nigeria" }}<span class="text-xl shadow-sm">🇳🇬</span>{{ else if eq
-                    .OwnerOrigin "Ghana" }}<span class="text-xl shadow-sm">🇬🇭</span>{{ else }}<span
+                        .Listing.Type }}</span>
+                    {{ if eq .Listing.OwnerOrigin "Nigeria" }}<span class="text-xl shadow-sm">🇳🇬</span>{{ else if eq
+                    .Listing.OwnerOrigin "Ghana" }}<span class="text-xl shadow-sm">🇬🇭</span>{{ else }}<span
                         class="text-xl shadow-sm">🌍</span>{{ end }}
                 </div>
-                <h2 class="text-2xl font-bold leading-tight">{{ .Title }}</h2>
+                <h2 class="text-2xl font-bold leading-tight">{{ .Listing.Title }}</h2>
             </div>
         </div>
 
         <!-- Scrollable Content -->
         <div class="p-6 overflow-y-auto">
-            <div class="flex items-center gap-2 text-text-sub dark:text-stone-400 mb-4 text-sm">
-                <span class="material-symbols-outlined text-[16px]">location_on</span>
-                {{ .Neighborhood }}
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2 text-text-sub dark:text-stone-400 text-sm">
+                    <span class="material-symbols-outlined text-[16px]">location_on</span>
+                    {{ .Listing.Neighborhood }}
+                </div>
+
+                {{ if and .User (eq .User.ID .Listing.OwnerID) }}
+                <button hx-get="/listings/{{.Listing.ID}}/edit" hx-target="body" hx-swap="beforeend"
+                    class="bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold px-3 py-1 rounded-full border border-stone-200 transition-colors">
+                    Edit Listing
+                </button>
+                {{ end }}
             </div>
 
             <h4 class="font-bold text-text-main dark:text-white mb-2 text-sm uppercase tracking-wide">About</h4>
             <p class="text-text-main dark:text-stone-300 text-sm leading-relaxed whitespace-pre-line mb-6">
-                {{ .Description }}
+                {{ .Listing.Description }}
             </p>
 
             <!-- Contact Section -->
             <h4 class="font-bold text-text-main dark:text-white mb-2 text-sm uppercase tracking-wide">Contact</h4>
             <div class="flex flex-col gap-3">
-                {{ if .ContactWhatsApp }}
-                <a href="https://wa.me/{{ .ContactWhatsApp }}" target="_blank"
+                {{ if .Listing.ContactWhatsApp }}
+                <a href="https://wa.me/{{ .Listing.ContactWhatsApp }}" target="_blank"
                     class="flex items-center gap-3 p-3 rounded-xl bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors border border-green-100 dark:border-green-800">
                     <span class="material-symbols-outlined">chat</span>
                     <span class="font-medium text-sm">WhatsApp</span>
                 </a>
                 {{ end }}
 
-                {{ if .ContactPhone }}
-                <a href="tel:{{ .ContactPhone }}"
+                {{ if .Listing.ContactPhone }}
+                <a href="tel:{{ .Listing.ContactPhone }}"
                     class="flex items-center gap-3 p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors border border-blue-100 dark:border-blue-800">
                     <span class="material-symbols-outlined">call</span>
-                    <span class="font-medium text-sm">Call {{ .ContactPhone }}</span>
+                    <span class="font-medium text-sm">Call {{ .Listing.ContactPhone }}</span>
                 </a>
                 {{ end }}
 
-                {{ if .ContactEmail }}
-                <a href="mailto:{{ .ContactEmail }}"
+                {{ if .Listing.ContactEmail }}
+                <a href="mailto:{{ .Listing.ContactEmail }}"
                     class="flex items-center gap-3 p-3 rounded-xl bg-stone-50 dark:bg-stone-800 text-text-main dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors border border-stone-200 dark:border-stone-700">
                     <span class="material-symbols-outlined">mail</span>
                     <span class="font-medium text-sm">Email</span>
                 </a>
                 {{ end }}
 
-                {{ if .WebsiteURL }}
-                <a href="{{ .WebsiteURL }}" target="_blank"
+                {{ if .Listing.WebsiteURL }}
+                <a href="{{ .Listing.WebsiteURL }}" target="_blank"
                     class="flex items-center gap-3 p-3 rounded-xl bg-primary/5 dark:bg-primary/10 text-primary hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors border border-primary/20">
                     <span class="material-symbols-outlined">language</span>
                     <span class="font-medium text-sm">Visit Website</span>
@@ -80,5 +88,5 @@
     </div>
 </dialog>
 <script>
-    document.getElementById("detail-modal-{{.ID}}").showModal();
+    document.getElementById("detail-modal-{{.Listing.ID}}").showModal();
 </script>

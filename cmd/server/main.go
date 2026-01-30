@@ -5,23 +5,23 @@ import (
 	"html/template"
 	"io"
 	"log"
-	"net/http"
-	"os"
 	"time"
 
-	"github.com/google/uuid"
+	"github.com/gorilla/sessions"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/moderator"
+	"github.com/jadecobra/agbalumo/internal/handler"
+	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-// TemplateRenderer implements echo.Renderer
+// TemplateRenderer is a custom html/template renderer for Echo framework
 type TemplateRenderer struct {
 	templates *template.Template
 }
 
+// Render renders a template document
 func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
 	return t.templates.ExecuteTemplate(w, name, data)
 }
@@ -34,15 +34,34 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
+	// Session Middleware
+	store := sessions.NewCookieStore([]byte("secret-key")) // In prod use env var
+	e.Use(customMiddleware.SessionMiddleware(store))
+
 	// Database Initialization
 	repo, err := sqlite.NewSQLiteRepository("agbalumo.db")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to initialize database: %v", err)
 	}
+	// ...
+	// Handlers
+	listingHandler := handler.NewListingHandler(repo)
+	adminHandler := handler.NewAdminHandler(repo)
+	authHandler := handler.NewAuthHandler(repo) // New Auth Handler
+
+	// Auth Routes
+	e.GET("/auth/dev", authHandler.DevLogin)
+	e.GET("/auth/logout", authHandler.Logout)
+
+	// Routes
+	e.Use(authHandler.OptionalAuth) // Inject user if logged in
+	e.GET("/", listingHandler.HandleHome)
+	// ...
 
 	// Seed Data (if empty)
 	ctx := context.Background()
-	existing, _ := repo.FindAll(ctx, "")
+	var existing []domain.Listing
+	existing, _ = repo.FindAll(ctx, "", "", true)
 	if len(existing) == 0 {
 		seedData(ctx, repo)
 	}
@@ -64,147 +83,25 @@ func main() {
 	e.Renderer = renderer
 
 	// Routes
-	e.GET("/", func(c echo.Context) error {
-		listings, err := repo.FindAll(c.Request().Context(), "")
-		if err != nil {
-			return c.String(http.StatusInternalServerError, err.Error())
-		}
+	e.GET("/", listingHandler.HandleHome)
+	e.GET("/listings/fragment", listingHandler.HandleFragment)
+	e.GET("/listings/:id", listingHandler.HandleDetail)
+	e.POST("/listings", listingHandler.HandleCreate)
+	// Edit Routes
+	e.Use(authHandler.OptionalAuth) // Ensure user is available for check
+	e.GET("/listings/:id/edit", listingHandler.HandleEdit, authHandler.RequireAuth)
+	e.PUT("/listings/:id", listingHandler.HandleUpdate, authHandler.RequireAuth)
+	e.POST("/listings/:id", listingHandler.HandleUpdate, authHandler.RequireAuth) // Fallback support for POST? HTMX sends PUT if requested.
 
-		return c.Render(http.StatusOK, "index.html", map[string]interface{}{
-			"Listings": listings,
-		})
-	})
+	// Admin Routes
+	adminGroup := e.Group("/admin")
+	adminGroup.Use(adminHandler.AuthMiddleware)
 
-	e.GET("/listings/fragment", func(c echo.Context) error {
-		filterType := c.QueryParam("type")
-		listings, err := repo.FindAll(c.Request().Context(), filterType)
-		if err != nil {
-			return c.String(http.StatusInternalServerError, err.Error())
-		}
+	e.GET("/admin/login", adminHandler.HandleLoginView)
+	e.POST("/admin/login", adminHandler.HandleLoginAction)
 
-		// Render just the fragment loop
-		// We need to loop over listings and render "listing_card.html" for each.
-		// Since our "listing_card" partial expects a single listing, we iterate here.
-		// Alternatively, pass the slice to a new "listing_list.html" partial.
-		// For simplicity/performance: use a dedicated partial for the list or iterate in code.
-		// Let's create a partial for the list to keep templates clean, OR iterate here writing to response.
-		// Echo's Render doesn't support multiple calls easily for streaming.
-		// Best practice: Create a partial "partials/listing_list.html" that iterates.
-		return c.Render(http.StatusOK, "listing_list.html", map[string]interface{}{
-			"Listings": listings,
-		})
-	})
-
-	// Endpoint for detail modal
-	e.GET("/listings/:id", func(c echo.Context) error {
-		id := c.Param("id")
-		listing, err := repo.FindByID(c.Request().Context(), id)
-		if err != nil {
-			return c.String(http.StatusNotFound, "Listing not found")
-		}
-
-		return c.Render(http.StatusOK, "modal_detail.html", listing)
-	})
-
-	e.POST("/listings", func(c echo.Context) error {
-		// New: Handle Multipart Form manually to support file upload + strict logic
-		var l domain.Listing
-		l.ID = uuid.New().String()
-		now := time.Now()
-		l.CreatedAt = now
-		l.IsActive = true
-
-		// Bind Form Values
-		l.Title = c.FormValue("title")
-		l.Type = domain.Category(c.FormValue("type"))
-		l.OwnerOrigin = c.FormValue("owner_origin")
-		l.Description = c.FormValue("description")
-		l.Neighborhood = c.FormValue("neighborhood") // Add if in UI, or keep default?
-		l.ContactEmail = c.FormValue("contact_email")
-		l.ContactPhone = c.FormValue("contact_phone")
-		l.ContactWhatsApp = c.FormValue("contact_whatsapp")
-		l.WebsiteURL = c.FormValue("website_url")
-
-		// Handle Image Upload
-		file, err := c.FormFile("image")
-		if err == nil {
-			src, err := file.Open()
-			if err != nil {
-				return c.String(http.StatusInternalServerError, "Image Upload Error")
-			}
-			defer src.Close()
-
-			// Simple file save (Production would use object storage)
-			// Ensure directory exists: ui/static/uploads
-			// Create unique name
-			ext := ".jpg" // Default or parse file.Filename (security risk to trust directly)
-			// MVP: Simplistic extension check or just use uuid
-			filename := l.ID + ext
-			dstPath := "ui/static/uploads/" + filename
-			dst, err := os.Create(dstPath)
-			if err != nil {
-				return c.String(http.StatusInternalServerError, "Image Save Error")
-			}
-			defer dst.Close()
-
-			if _, err = io.Copy(dst, src); err != nil {
-				return c.String(http.StatusInternalServerError, "Image Copy Error")
-			}
-			l.ImageURL = "/static/uploads/" + filename
-		}
-
-		// Handle Deadline Logic
-		if l.Type == domain.Request {
-			dateStr := c.FormValue("deadline_date")
-			if dateStr != "" {
-				parsedTime, err := time.Parse("2006-01-02", dateStr)
-				if err != nil {
-					return c.String(http.StatusBadRequest, "Invalid Date Format")
-				}
-				// Set time to end of day? Or same time as now?
-				// content of Parse is 00:00 UTC usually.
-				l.Deadline = parsedTime
-
-				// Validate < 90 days from Now
-				limit := now.Add(90 * 24 * time.Hour)
-				if l.Deadline.After(limit) {
-					return c.String(http.StatusBadRequest, "Validation Error: Deadline cannot be more than 90 days away")
-				}
-
-				// Validate > Now (not in past) - Optional but good UX
-				if l.Deadline.Before(now.Add(-24 * time.Hour)) { // Allow today
-					return c.String(http.StatusBadRequest, "Validation Error: Deadline cannot be in the past")
-				}
-
-			} else {
-				l.Deadline = now.Add(90*24*time.Hour - time.Minute) // Default < 90 days
-			}
-		}
-
-		// Validation
-		if err := l.Validate(); err != nil {
-			return c.String(http.StatusBadRequest, "Validation Error: "+err.Error())
-		}
-
-		// Moderation
-		mod, err := moderator.NewGeminiModerator(c.Request().Context())
-		if err != nil {
-			log.Println("Moderator Init Error:", err)
-		} else {
-			if err := mod.CheckListing(c.Request().Context(), l); err != nil {
-				return c.String(http.StatusBadRequest, "Content Moderation Failed: "+err.Error())
-			}
-		}
-
-		// Save
-		if err := repo.Save(c.Request().Context(), l); err != nil {
-			return c.String(http.StatusInternalServerError, "Database Error: "+err.Error())
-		}
-
-		// Return just the new card fragment
-		// Note: The template expects a struct that has .ImageURL populated correctly.
-		return c.Render(http.StatusOK, "listing_card.html", l)
-	})
+	adminGroup.GET("", adminHandler.HandleDashboard)
+	adminGroup.DELETE("/listings/:id", adminHandler.HandleDelete)
 
 	// Start server
 	log.Println("Starting server on :8080")

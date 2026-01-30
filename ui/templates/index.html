@@ -68,14 +68,32 @@
         class="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden max-w-md mx-auto bg-background-light dark:bg-background-dark shadow-2xl">
         <div
             class="sticky top-0 z-30 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm border-b border-orange-100/50 dark:border-stone-800/50">
-            <!-- Row 1: Logo Centered -->
-            <div class="flex justify-center p-4 pb-2">
-                <img src="/static/images/logo.png" alt="Agbalumo Logo" class="h-20 w-auto object-contain">
+            <!-- Row 1: Logo & Auth -->
+            <div class="flex justify-between items-center p-4 pb-2">
+                <div class="w-10"></div> <!-- Spacer -->
+                <img src="/static/images/logo.png" alt="Agbalumo Logo" class="h-12 object-contain">
+                <div class="w-10 flex justify-end">
+                    {{ if .User }}
+                    <a href="/auth/logout" class="block relative group">
+                        <img src="{{ .User.AvatarURL }}" alt="{{ .User.Name }}"
+                            class="w-8 h-8 rounded-full border border-orange-200">
+                        <div
+                            class="absolute right-0 top-full mt-1 hidden group-hover:block bg-white dark:bg-stone-800 text-xs p-2 rounded shadow-lg whitespace-nowrap z-50">
+                            Logout
+                        </div>
+                    </a>
+                    {{ else }}
+                    <a href="/auth/dev" class="text-xs font-medium text-primary hover:underline">
+                        Sign In
+                    </a>
+                    {{ end }}
+                </div>
             </div>
 
             <!-- Row 2: Controls (Ask | Search | Post) -->
             <div class="flex items-center gap-2 px-4 py-2">
-                <button onclick="document.getElementById('create-request-modal').showModal()"
+                <button
+                    onclick="{{ if .User }}document.getElementById('create-request-modal').showModal(){{ else }}window.location.href='/auth/dev'{{ end }}"
                     class="shrink-0 flex items-center justify-center bg-secondary hover:bg-green-700 transition-colors text-white px-5 h-10 rounded-full shadow-sm active:scale-95">
                     <span class="text-sm font-bold leading-normal">Ask</span>
                 </button>
@@ -87,10 +105,12 @@
                     </div>
                     <input
                         class="peer h-full w-full outline-none text-sm text-text-main dark:text-stone-100 bg-transparent pr-2 placeholder:text-stone-400"
-                        id="search" placeholder="Search..." type="text" />
+                        id="search" name="q" placeholder="Search..." type="search" hx-get="/listings/fragment"
+                        hx-target="#listings-container" hx-trigger="keyup changed delay:500ms, search" />
                 </div>
 
-                <button onclick="document.getElementById('create-listing-modal').showModal()"
+                <button
+                    onclick="{{ if .User }}document.getElementById('create-listing-modal').showModal(){{ else }}window.location.href='/auth/dev'{{ end }}"
                     class="shrink-0 flex items-center justify-center bg-primary hover:bg-orange-600 transition-colors text-white px-5 h-10 rounded-full shadow-sm active:scale-95">
                     <span class="text-sm font-bold leading-normal">Post</span>
                 </button>

@@ -54,6 +54,9 @@ agents:
 
 # Global rules for the entire squad
 rules:
+  - Strict TDD. "Never write implementation code without a failing test case in listing_test.go."
+  - Go Performance. "Always use native Go concurrency (goroutines) for external API calls like Gemini or Supabase."
   - "Always run 'go test ./...' before proposing a merge artifact."
   - "Contact cards must include at least one valid method: WhatsApp, Email, or Phone."
   - "Neighborhood data should prioritize Dallas-area locations for the MVP."
+  - Cultural Tone. "All placeholder data must reflect West African naming conventions and Dallas-area geography."

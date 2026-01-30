@@ -25,6 +25,7 @@ var (
 // Listing represents a directory entry or request.
 type Listing struct {
 	ID              string    `json:"id" form:"id"`
+	OwnerID         string    `json:"owner_id" form:"owner_id"`         // Link to User.ID
 	OwnerOrigin     string    `json:"owner_origin" form:"owner_origin"` // Required: Country of Origin
 	Type            Category  `json:"type" form:"type"`
 	Anchor          string    `json:"anchor" form:"anchor"` // Food, Professional, etc.
@@ -43,7 +44,8 @@ type Listing struct {
 
 // Validate enforces domain rules for the Listing.
 func (l *Listing) Validate() error {
-	if l.OwnerOrigin == "" {
+	// Origin is required only for non-Requests
+	if l.Type != Request && l.OwnerOrigin == "" {
 		return ErrMissingOrigin
 	}
 
