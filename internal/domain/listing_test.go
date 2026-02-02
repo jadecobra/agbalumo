@@ -153,3 +153,39 @@ func TestOriginValidation(t *testing.T) {
 		})
 	}
 }
+
+func TestRequestRequiresOrigin(t *testing.T) {
+	// 10x Engineer Standard: Strict TDD - Requests MUST have an origin.
+	// This test asserts that the exemption in the current code is removed.
+
+	l := Listing{
+		ID:           "req-1",
+		Type:         Request,
+		Title:        "Looking for Palm Wine",
+		ContactEmail: "seeker@example.com",
+		OwnerOrigin:  "", // Deliberately empty
+		CreatedAt:    time.Now(),
+		Deadline:     time.Now().Add(24 * time.Hour),
+		IsActive:     true,
+	}
+
+	err := l.Validate()
+	assert.ErrorIs(t, err, ErrMissingOrigin, "Requests must require an OwnerOrigin as per spec.md")
+}
+
+func BenchmarkValidate(b *testing.B) {
+	l := Listing{
+		ID:           "bench-1",
+		OwnerOrigin:  "Nigeria",
+		Type:         Business,
+		Title:        "Benchmark Business",
+		ContactEmail: "bench@example.com",
+		CreatedAt:    time.Now(),
+		IsActive:     true,
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = l.Validate()
+	}
+}

@@ -83,7 +83,7 @@
                         </div>
                     </a>
                     {{ else }}
-                    <a href="/auth/dev" class="text-xs font-medium text-primary hover:underline">
+                    <a href="/auth/google/login" class="text-xs font-medium text-primary hover:underline">
                         Sign In
                     </a>
                     {{ end }}
@@ -93,7 +93,7 @@
             <!-- Row 2: Controls (Ask | Search | Post) -->
             <div class="flex items-center gap-2 px-4 py-2">
                 <button
-                    onclick="{{ if .User }}document.getElementById('create-request-modal').showModal(){{ else }}window.location.href='/auth/dev'{{ end }}"
+                    onclick="{{ if .User }}document.getElementById('create-request-modal').showModal(){{ else }}window.location.href='/auth/google/login'{{ end }}"
                     class="shrink-0 flex items-center justify-center bg-secondary hover:bg-green-700 transition-colors text-white px-5 h-10 rounded-full shadow-sm active:scale-95">
                     <span class="text-sm font-bold leading-normal">Ask</span>
                 </button>
@@ -110,7 +110,7 @@
                 </div>
 
                 <button
-                    onclick="{{ if .User }}document.getElementById('create-listing-modal').showModal(){{ else }}window.location.href='/auth/dev'{{ end }}"
+                    onclick="{{ if .User }}document.getElementById('create-listing-modal').showModal(){{ else }}window.location.href='/auth/google/login'{{ end }}"
                     class="shrink-0 flex items-center justify-center bg-primary hover:bg-orange-600 transition-colors text-white px-5 h-10 rounded-full shadow-sm active:scale-95">
                     <span class="text-sm font-bold leading-normal">Post</span>
                 </button>
@@ -141,46 +141,7 @@
         <div class="flex-1 flex flex-col gap-5 p-4 pb-24" id="listings-container">
 
             {{ range .Listings }}
-            <div class="flex flex-col rounded-2xl bg-white dark:bg-surface-dark shadow-soft overflow-hidden group cursor-pointer active:scale-[0.99] transition-transform"
-                hx-get="/listings/{{ .ID }}" hx-target="body" hx-swap="beforeend">
-                <div class="relative w-full aspect-[16/9] overflow-hidden">
-                    <div class="w-full h-full bg-center bg-cover transform group-hover:scale-105 transition-transform duration-500"
-                        data-alt="{{ .Title }}"
-                        style='background-image: url("{{ if .ImageURL }}{{ .ImageURL }}{{ else }}https://lh3.googleusercontent.com/aida-public/AB6AXuB-JKhAqr2dq76Q5B6OJdWgW-XL8OqvC6oW4WhfM0GPq1nP_6SoAKQZfMX6OcG4HBHpbmUWg4ab8tHDcWHp2y6io6XagLIvfRfd4Rrxm2ruI_ftVJ9QI8vd3K8MmQ60G7q94mT63m9n6WoqVAN9VH_9w8VvrAaA2KQmU9V4vkT0l7KaFqQxZI1e8jhlonHsV_b7bVGlRq73kSFXtA1t8RaLlIlcGfkabR4qyimY7txug9RSCFmRjvMjZE4TaWcNz5PSmMbdeqxtjhx1{{ end }}");'>
-                    </div>
-                    <div
-                        class="absolute top-3 right-3 bg-white/90 dark:bg-black/80 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-secondary dark:text-green-400 border border-green-100 dark:border-green-900 shadow-sm">
-                        Open Now
-                    </div>
-                </div>
-                <div class="flex flex-col gap-3 p-4">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <span
-                                    class="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-[10px] uppercase font-bold px-2 py-0.5 rounded-md tracking-wider">{{
-                                    .Type }}</span>
-                                <span class="text-text-sub dark:text-stone-400 text-xs flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-[14px]">location_on</span>
-                                    {{ .Neighborhood }}
-                                </span>
-                            </div>
-                            <h3 class="text-xl font-bold text-text-main dark:text-white leading-tight">{{ .Title }}
-                                <span class="text-xl align-middle">{{ if eq .OwnerOrigin "Nigeria" }}🇳🇬{{ else if eq
-                                    .OwnerOrigin "Ghana" }}🇬🇭{{ else }}🌍{{ end }}</span>
-                            </h3>
-                        </div>
-                    </div>
-                    <p class="text-text-sub dark:text-stone-400 text-sm leading-relaxed line-clamp-2">
-                        {{ .Description }}
-                    </p>
-                    <button
-                        class="mt-2 w-full flex items-center justify-center gap-2 bg-primary hover:bg-orange-600 text-white font-medium h-11 rounded-xl transition-all active:scale-[0.98]">
-                        <span class="material-symbols-outlined text-[20px]">call</span>
-                        Contact
-                    </button>
-                </div>
-            </div>
+            {{ template "listing_card.html" dict "Listing" . "User" $.User }}
             {{ end }}
 
             <div class="h-4"></div>

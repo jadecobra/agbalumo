@@ -42,34 +42,33 @@ type Listing struct {
 	IsActive        bool      `json:"is_active" form:"is_active"`
 }
 
+var ValidOrigins = map[string]bool{
+	"Nigeria":       true,
+	"Ghana":         true,
+	"Senegal":       true,
+	"Benin":         true,
+	"Burkina Faso":  true,
+	"Cape Verde":    true,
+	"Cote d'Ivoire": true,
+	"Gambia":        true,
+	"Guinea":        true,
+	"Guinea-Bissau": true,
+	"Liberia":       true,
+	"Mali":          true,
+	"Niger":         true,
+	"Sierra Leone":  true,
+	"Togo":          true,
+	"Other":         true,
+}
+
 // Validate enforces domain rules for the Listing.
 func (l *Listing) Validate() error {
-	// Origin is required only for non-Requests
-	if l.Type != Request && l.OwnerOrigin == "" {
+	// Origin is required for ALL types
+	if l.OwnerOrigin == "" {
 		return ErrMissingOrigin
 	}
 
-	// Validate Origin Whitelist (West African Countries)
-	validOrigins := map[string]bool{
-		"Nigeria":       true,
-		"Ghana":         true,
-		"Senegal":       true,
-		"Benin":         true,
-		"Burkina Faso":  true,
-		"Cape Verde":    true,
-		"Cote d'Ivoire": true,
-		"Gambia":        true,
-		"Guinea":        true,
-		"Guinea-Bissau": true,
-		"Liberia":       true,
-		"Mali":          true,
-		"Niger":         true,
-		"Sierra Leone":  true,
-		"Togo":          true,
-		"Other":         true,
-	}
-
-	if !validOrigins[l.OwnerOrigin] {
+	if !ValidOrigins[l.OwnerOrigin] {
 		return ErrInvalidOrigin
 	}
 
@@ -78,14 +77,20 @@ func (l *Listing) Validate() error {
 	}
 
 	if l.Type == Request {
-		// Calculate duration between CreatedAt and Deadline
-		// If CreatedAt is zero (e.g. new struct), use Now()?
-		// Ideally logic uses l.CreatedAt. If l.CreatedAt is not set, we might assume Now.
-		// However, for strict validation, let's assume CreatedAt must be set or compare Deadline to strict 90 days from "now"
-		// isn't precise if the object was created previously.
-		// Spec says "within 90 days of CreatedAt".
+		// Deadline cannot be in the past (allow for small clock skew/today)
+		// Using a 24h buffer for "today" logic as implied by previous handler logic
+		if !l.Deadline.IsZero() && l.Deadline.Before(time.Now().Add(-24*time.Hour)) {
+			return errors.New("deadline cannot be in the past")
+		}
 
-		limit := l.CreatedAt.Add(90 * 24 * time.Hour)
+		// Calculate duration between CreatedAt and Deadline
+		// If CreatedAt is zero, use Now as a fallback for validation context
+		start := l.CreatedAt
+		if start.IsZero() {
+			start = time.Now()
+		}
+		
+		limit := start.Add(90 * 24 * time.Hour)
 		if l.Deadline.After(limit) {
 			return ErrInvalidDeadline
 		}

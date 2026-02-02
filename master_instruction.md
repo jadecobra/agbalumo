@@ -3,7 +3,7 @@
 > **Task:** Initialize the "Agbalumo" Diaspora Directory project in Go using a multi-agent TDD workflow.
 > **Core Objective:** Build a high-performance, low-cost directory and request platform for the West African diaspora. Use Go (Golang) for the backend and a Test-Driven Development (TDD) cycle.
 > **Project Rules (SOP):**
-> 1. **TDD Protocol:** Never write implementation code without a failing test case. Red (Fail) → Green (Pass) → Refactor.
+> 1. **TDD Protocol:** strict "Red-Green-Refactor" cycle. You must pass `./scripts/pre-commit.sh` locally before submitting any code.
 > 2. **Tech Stack:** Go (Standard Library + Gin/Echo), SQLite/Postgres for DB.
 > 3. **Validation Rules:** >    * 'Requests' must have a deadline  days.
 > * All listings must have a 'Country of Origin' and at least one contact method (WhatsApp, Email, or Phone).

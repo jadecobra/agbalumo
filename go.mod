@@ -7,7 +7,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/labstack/echo/v4 v4.15.0
 	github.com/stretchr/testify v1.11.1
-	google.golang.org/api v0.263.0
+	google.golang.org/api v0.264.0
 	modernc.org/sqlite v1.44.3
 )
 

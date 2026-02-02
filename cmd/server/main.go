@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"html/template"
 	"io"
 	"log"
@@ -52,6 +53,8 @@ func main() {
 	// Auth Routes
 	e.GET("/auth/dev", authHandler.DevLogin)
 	e.GET("/auth/logout", authHandler.Logout)
+	e.GET("/auth/google/login", authHandler.GoogleLogin)
+	e.GET("/auth/google/callback", authHandler.GoogleCallback)
 
 	// Routes
 	e.Use(authHandler.OptionalAuth) // Inject user if logged in
@@ -71,7 +74,24 @@ func main() {
 
 	// Template Renderer
 	// Parse both templates and partials
-	tmpl := template.Must(template.New("").Parse("{{define \"base\"}}{{end}}")) // Base to allow appending
+	tmpl := template.New("").Funcs(template.FuncMap{
+		"dict": func(values ...interface{}) (map[string]interface{}, error) {
+			if len(values)%2 != 0 {
+				return nil, errors.New("invalid dict call")
+			}
+			dict := make(map[string]interface{}, len(values)/2)
+			for i := 0; i < len(values); i += 2 {
+				key, ok := values[i].(string)
+				if !ok {
+					return nil, errors.New("dict keys must be strings")
+				}
+				dict[key] = values[i+1]
+			}
+			return dict, nil
+		},
+	})
+	// Base to allow appending
+	template.Must(tmpl.Parse("{{define \"base\"}}{{end}}")) 
 	// Note: ParseGlob might error if no files match, so be careful.
 	// For simplicity, let's parse specific globs.
 	template.Must(tmpl.ParseGlob("ui/templates/*.html"))
