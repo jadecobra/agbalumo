@@ -12,6 +12,7 @@ const (
 	Business Category = "Business"
 	Service  Category = "Service"
 	Product  Category = "Product"
+	Job      Category = "Job"
 	Request  Category = "Request"
 )
 
@@ -89,7 +90,7 @@ func (l *Listing) Validate() error {
 		if start.IsZero() {
 			start = time.Now()
 		}
-		
+
 		limit := start.Add(90 * 24 * time.Hour)
 		if l.Deadline.After(limit) {
 			return ErrInvalidDeadline

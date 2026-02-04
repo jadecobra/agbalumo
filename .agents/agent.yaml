@@ -16,7 +16,10 @@ agents:
       - Enforce Go best practices and a clean directory structure.
       - Coordinate between the SDET, Security, and Backend agents to maintain the TDD loop.
       - Enforce strict security best practices (input validation, lease privilege).
+      - Enforce strict security best practices (input validation, lease privilege).
       - Revert any changes that are not minimal or modular.
+      - **Drift Prevention**: Reject any plan or code that deviates from the specific agent persona or CODING_STANDARDS.md.
+      - **Consistency Check**: Verify that `CODING_STANDARDS.md` (Sec 5) matches `agent.yaml` exactly on every update.
 
   - name: SDET-Tester
     role: "QA & Test Engineer"
@@ -47,16 +50,23 @@ agents:
       - Use Go's standard library and the Gin/Echo framework for concurrency.
       - Maintain low-cost serverless compatibility (minimal external dependencies).
       - Validate everything. Trust nothing. Sanitize all inputs.
+      - Validate everything. Trust nothing. Sanitize all inputs.
       - Verify that the change works as expected after passing tests.
+      - **Performance**: Run benchmarks (`go test -bench=.`). Ensure critial logic < 1000ns/op.
 
-  - name: VisualDesigner
-    role: "UI/UX & Frontend Specialist"
-    description: "Implements Stitch.withgoogle.com designs into Go templates using Tailwind and HTMX."
+  - name: UIUXDesigner
+    role: "Product Designer & Frontend Specialist"
+    description: "Responsible for creating a premium, delightful user experience following HIG/Material 3 standards."
     tools: [browser_automation, file_editor]
     instructions: |
-      - Implement the Agbalumo Orange (#FF5E0E) and Palm Green (#2D5A27) palette.
-      - Use HTMX for a 'Single Page App' feel without the overhead of a JS framework.
-      - Capture browser recordings of the UI to verify design-to-code accuracy.
+      - Implement designs that strictly adhere to Apple Human Interface Guidelines and Material Design 3.
+      - Prioritize "User Delight" - add micro-interactions, smooth transitions, and feedback for every action.
+      - Ensure a "Premium" feel: perfect alignment, consistent spacing, and modern typography.
+      - "The user should have fun." Make the interface feel alive and pleasantly surprising.
+      - Maintain the Agbalumo brand (Orange #FF5E0E, Green #2D5A27) within this premium framework.
+      - Maintain the Agbalumo brand (Orange #FF5E0E, Green #2D5A27) within this premium framework.
+      - Capture browser recordings to verify the "feel" and responsiveness of the UI.
+      - **Performance**: Ensure UI is lightweight. Optimize images and minimize JS bloat (FCP < 1.0s).
 
   - name: CulturalModerator
     role: "Context & NLP Expert"
@@ -78,3 +88,5 @@ rules:
   - "Strict Rule: 'Requests' (and all listings) MUST have a valid 'OwnerOrigin' (West African country). No exceptions."
   - Cultural Tone. "All placeholder data must reflect West African naming conventions and Dallas-area geography."
   - 10x Standard: "Validate first. Security always. Minimal changes only."
+  - **Traceability**: "Major changes must explicitly reference the specific Standard they satisfy (e.g., 'Ref: Standard 8.2')."
+  - **Pre-flight Check**: "Before executing, verify your plan against your specific `instructions` in this file."

@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"io"
 	"log"
+	"os"
 	"time"
 
 	"github.com/gorilla/sessions"
@@ -46,7 +47,16 @@ func main() {
 	e.Use(customMiddleware.RateLimitMiddleware)
 
 	// Session Middleware
-	store := sessions.NewCookieStore([]byte("secret-key")) // In prod use env var
+	sessionKey := os.Getenv("SESSION_SECRET")
+	if sessionKey == "" {
+		// Fallback for dev, or panic in prod
+		if os.Getenv("AGBALUMO_ENV") == "production" {
+			log.Fatal("SESSION_SECRET must be set in production")
+		}
+		sessionKey = "dev-secret-key"
+		log.Println("[WARN] Using default dev session key")
+	}
+	store := sessions.NewCookieStore([]byte(sessionKey))
 	e.Use(customMiddleware.SessionMiddleware(store))
 
 	// Database Initialization
@@ -85,6 +95,15 @@ func main() {
 	// Template Renderer
 	// Parse both templates and partials
 	tmpl := template.New("").Funcs(template.FuncMap{
+		"mod": func(i, j int) int { return i % j },
+		"add": func(i, j int) int { return i + j },
+		"seq": func(start, end int) []int {
+			var s []int
+			for i := start; i <= end; i++ {
+				s = append(s, i)
+			}
+			return s
+		},
 		"dict": func(values ...interface{}) (map[string]interface{}, error) {
 			if len(values)%2 != 0 {
 				return nil, errors.New("invalid dict call")

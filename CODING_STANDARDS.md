@@ -30,6 +30,8 @@
 *   **SDET Agent**: Owns the `*_test.go` files (Functional/Integration). Backend Agent CANNOT edit test logic without SDET approval.
 *   **Security Engineer**: Owns `security_test.go` and security policy. specific audits.
 *   **Backend Agent**: Writes code to pass SDET tests.
+*   **UI/UX Designer**: Owns the specific look and feel, ensuring HIG/Material 3 compliance.
+*   **Cultural Moderator**: Ensures all content and data respects the West African context.
 
 ## 6. Security Best Practices (Zero Trust)
 *   **Input Validation**: Validate ALL inputs at the boundary. No implicit trust.
@@ -41,3 +43,21 @@
 *   **Minimal/Modular**: Changes must be the smallest possible increment that passes the test. Avoid over-engineering.
 *   **Validate**: A change is not done until it is verified to pass the test AND perform as expected (manual or automated check).
 *   **Test First**: No code is written without a failing test. This is non-negotiable.
+
+## 8. UI/UX Standards (Premium & Delightful)
+*   **Standards**: Follow [Apple HIG](https://developer.apple.com/design/human-interface-guidelines) and [Material 3](https://m3.material.io/).
+*   **Delight Rule**: Every interaction (click, hover, focus) MUST have visual feedback.
+*   **Premium Rule**: Pixel-perfect alignment, consistent spacing (8pt grid), and thoughtful typography.
+*   **Fun Rule**: The app should feel alive. Use transitions and micro-animations to surprise and delight (e.g., confetti on success, smooth ease-in/out).
+
+## 9. Performance Standards (Latency is the Enemy)
+*   **Backend**: Critical path operations (Validation, Parsing) must be benchmarked. Budget: < 1000ns/op for strict logic.
+*   **API**: 99p response time must be under 100ms.
+*   **Frontend**: First Contentful Paint (FCP) < 1.0s. Minimize client-side JS (Use HTMX).
+*   **Database**: No N+1 queries. Use `EXPLAIN` on all complex queries.
+
+## 10. Drift Prevention Protocol
+*   **Traceability**: Every Pull Request or major artifact update must cite the specific Standard it adheres to (e.g., "Implements Standard 8.2: Delight Rule").
+*   **Enforcement**: The Lead Architect validates that the implementation matches the Plan and the Persona.
+*   **Pre-flight**: Agents must self-correct by reviewing their specific instructions before determining the plan.
+*   **Sync Rule**: Changes to `.agents/agent.yaml` MUST be mirrored in Section 5 of this document immediately. "Double-Commit" is required.

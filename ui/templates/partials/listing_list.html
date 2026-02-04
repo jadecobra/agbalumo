@@ -1,3 +1,11 @@
-{{ range .Listings }}
-{{ template "listing_card.html" dict "Listing" . "User" $.User }}
+{{ range $i, $e := .Listings }}
+{{ $gridClass := "" }}
+{{ $mod := mod $i 6 }}
+{{ if eq $mod 0 }}
+{{ $gridClass = "lg:col-span-2 lg:row-span-2" }}
+{{ else if eq $mod 3 }}
+{{ $gridClass = "lg:col-span-2 lg:row-span-2 lg:col-start-2" }}
+{{ end }}
+
+{{ template "listing_card.html" dict "Listing" . "User" $.User "GridClass" $gridClass "Index" $i }}
 {{ end }}
