@@ -56,98 +56,174 @@
         }
     </style>
     <style>
+    </style>
+    <style>
         body {
             min-height: max(884px, 100dvh);
+        }
+
+        /* Bento Grid Logic - 3 Column repeating pattern */
+        /* Only apply on LG screens (desktop) */
+        @media (min-width: 1024px) {
+            /* 6-Item repeating cycle */
+
+            /* Item 1: Big Left (positions 1, 7, 13...) */
+            #listings-container>div:nth-child(6n+1) {
+                grid-column: span 2 !important;
+                grid-row: span 2 !important;
+            }
+
+            /* Item 6: Big Right (positions 6, 12, 18...) */
+            #listings-container>div:nth-child(6n+6) {
+                grid-column: span 2 !important;
+                grid-row: span 2 !important;
+                grid-column-start: 2 !important;
+                /* Force right alignment to ensure zig-zag */
+            }
         }
     </style>
 </head>
 
 <body
     class="bg-background-light dark:bg-background-dark font-display text-text-main antialiased selection:bg-primary/20">
+    <!-- Main App Container -->
     <div
-        class="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden max-w-md mx-auto bg-background-light dark:bg-background-dark shadow-2xl">
-        <div
-            class="sticky top-0 z-30 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm border-b border-orange-100/50 dark:border-stone-800/50">
-            <!-- Row 1: Logo & Auth -->
-            <div class="flex justify-between items-center p-4 pb-2">
-                <div class="w-10"></div> <!-- Spacer -->
-                <img src="/static/images/logo.png" alt="Agbalumo Logo" class="h-12 object-contain">
-                <div class="w-10 flex justify-end">
-                    {{ if .User }}
-                    <a href="/auth/logout" class="block relative group">
-                        <img src="{{ .User.AvatarURL }}" alt="{{ .User.Name }}"
-                            class="w-8 h-8 rounded-full border border-orange-200">
-                        <div
-                            class="absolute right-0 top-full mt-1 hidden group-hover:block bg-white dark:bg-stone-800 text-xs p-2 rounded shadow-lg whitespace-nowrap z-50">
-                            Logout
+        class="relative flex h-full min-h-screen w-full bg-background-light dark:bg-background-dark shadow-2xl overflow-hidden">
+
+        <!-- Desktop Sidebar (Hidden on Mobile) -->
+        <aside
+            class="hidden md:flex flex-col w-64 h-screen sticky top-0 border-r border-orange-100/50 dark:border-stone-800/50 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm z-40">
+            <!-- Sidebar Logo -->
+            <div class="p-6">
+                <img src="/static/images/logo.png" alt="Agbalumo Logo" class="h-10 object-contain">
+            </div>
+
+            <!-- Sidebar Nav -->
+            <nav class="flex-1 px-4 flex flex-col gap-2">
+                <button
+                    class="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-primary bg-orange-50 dark:bg-orange-900/10 font-medium transition-colors">
+                    <span class="material-symbols-outlined filled"
+                        style="font-variation-settings: 'FILL' 1;">home</span>
+                    Home
+                </button>
+                <button
+                    class="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-secondary transition-colors font-medium">
+                    <span class="material-symbols-outlined">favorite</span>
+                    Saved
+                </button>
+                <button
+                    class="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-secondary transition-colors font-medium">
+                    <span class="material-symbols-outlined">map</span>
+                    Map
+                </button>
+            </nav>
+
+            <!-- Sidebar Footer (Auth) -->
+            <div class="p-4 border-t border-orange-100/50 dark:border-stone-800/50">
+                {{ if .User }}
+                <a href="/auth/logout"
+                    class="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-red-50 dark:hover:bg-red-900/10 hover:text-red-600 transition-colors">
+                    <img src="{{ .User.AvatarURL }}" alt="{{ .User.Name }}"
+                        class="w-6 h-6 rounded-full border border-orange-200">
+                    <div class="flex flex-col items-start">
+                        <span class="text-xs font-bold text-text-main dark:text-stone-200">{{ .User.Name }}</span>
+                        <span class="text-[10px] font-medium">Logout</span>
+                    </div>
+                </a>
+                {{ else }}
+                <a href="/auth/google/login"
+                    class="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-secondary transition-colors font-medium">
+                    <span class="material-symbols-outlined">login</span>
+                    Sign In
+                </a>
+                {{ end }}
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col h-screen overflow-y-auto no-scrollbar relative w-full">
+            <!-- Top Header (Sticky) -->
+            <div
+                class="sticky top-0 z-30 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm border-b border-orange-100/50 dark:border-stone-800/50">
+                <!-- Mobile Logo (Hidden on Desktop) -->
+                <div class="md:hidden flex justify-between items-center p-4 pb-2">
+                    <div class="w-10"></div> <!-- Spacer -->
+                    <img src="/static/images/logo.png" alt="Agbalumo Logo" class="h-12 object-contain">
+                    <div class="w-10"></div> <!-- Spacer -->
+                </div>
+
+                <!-- Controls (Ask | Search | Post) -->
+                <div class="flex items-center gap-2 px-4 py-2 md:py-4 max-w-5xl mx-auto w-full">
+                    <button
+                        onclick="{{ if .User }}document.getElementById('create-request-modal').showModal(){{ else }}window.location.href='/auth/google/login'{{ end }}"
+                        class="shrink-0 flex items-center justify-center bg-secondary hover:bg-green-700 transition-colors text-white px-5 h-10 rounded-full shadow-sm active:scale-95">
+                        <span class="text-sm font-bold leading-normal">Ask</span>
+                    </button>
+
+                    <div
+                        class="relative flex items-center flex-1 h-12 rounded-xl bg-white dark:bg-surface-dark shadow-sm border border-stone-100 dark:border-stone-800 group focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+                        <div class="grid place-items-center h-full w-10 text-text-sub">
+                            <span class="material-symbols-outlined text-[20px]">search</span>
                         </div>
-                    </a>
-                    {{ else }}
-                    <a href="/auth/google/login" class="text-xs font-medium text-primary hover:underline">
-                        Sign In
-                    </a>
+                        <input
+                            class="peer h-full w-full outline-none text-sm text-text-main dark:text-stone-100 bg-transparent pr-2 placeholder:text-stone-400"
+                            id="search" name="q" placeholder="Search..." type="search" hx-get="/listings/fragment"
+                            hx-target="#listings-container" hx-trigger="keyup changed delay:500ms, search" />
+                    </div>
+
+                    <button
+                        onclick="{{ if .User }}document.getElementById('create-listing-modal').showModal(){{ else }}window.location.href='/auth/google/login'{{ end }}"
+                        class="shrink-0 flex items-center justify-center bg-primary hover:bg-orange-600 transition-colors text-white px-5 h-10 rounded-full shadow-sm active:scale-95">
+                        <span class="text-sm font-bold leading-normal">Post</span>
+                    </button>
+                </div>
+
+                <!-- Filters -->
+                <div class="flex gap-3 px-4 py-3 overflow-x-auto no-scrollbar max-w-5xl mx-auto w-full">
+                    <button hx-get="/listings/fragment" hx-target="#listings-container"
+                        class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-stone-100 dark:bg-stone-800 text-text-main dark:text-stone-200 px-5 shadow-sm transition-transform active:scale-95 focus:ring-2 focus:ring-offset-1 focus:ring-stone-400">
+                        <p class="text-sm font-medium whitespace-nowrap">All</p>
+                    </button>
+                    <button hx-get="/listings/fragment?type=Business" hx-target="#listings-container"
+                        class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-5 transition-transform active:scale-95 hover:bg-stone-50 dark:hover:bg-stone-800 focus:ring-2 focus:ring-offset-1 focus:ring-primary">
+                        <p class="text-text-main dark:text-stone-200 text-sm font-medium whitespace-nowrap">Business
+                            💼</p>
+                    </button>
+                    <button hx-get="/listings/fragment?type=Service" hx-target="#listings-container"
+                        class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-5 transition-transform active:scale-95 hover:bg-stone-50 dark:hover:bg-stone-800 focus:ring-2 focus:ring-offset-1 focus:ring-primary">
+                        <p class="text-text-main dark:text-stone-200 text-sm font-medium whitespace-nowrap">Service 🔧
+                        </p>
+                    </button>
+                    <button hx-get="/listings/fragment?type=Product" hx-target="#listings-container"
+                        class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-5 transition-transform active:scale-95 hover:bg-stone-50 dark:hover:bg-stone-800 focus:ring-2 focus:ring-offset-1 focus:ring-primary">
+                        <p class="text-text-main dark:text-stone-200 text-sm font-medium whitespace-nowrap">Product 🛍️
+                        </p>
+                    </button>
+                    <button hx-get="/listings/fragment?type=Request" hx-target="#listings-container"
+                        class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-5 transition-transform active:scale-95 hover:bg-stone-50 dark:hover:bg-stone-800 focus:ring-2 focus:ring-offset-1 focus:ring-primary">
+                        <p class="text-text-main dark:text-stone-200 text-sm font-medium whitespace-nowrap">Requests
+                            📣</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Listings Grid (Bento) -->
+            <div class="flex-1 p-4 pb-24 md:pb-8 w-full max-w-7xl mx-auto">
+                <div id="listings-container"
+                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-[300px] grid-flow-dense">
+
+                    {{ range .Listings }}
+                    {{ template "listing_card.html" dict "Listing" . "User" $.User }}
                     {{ end }}
                 </div>
+                <!-- Spacer for bottom nav on mobile -->
+                <div class="h-4 md:hidden"></div>
             </div>
+        </main>
 
-            <!-- Row 2: Controls (Ask | Search | Post) -->
-            <div class="flex items-center gap-2 px-4 py-2">
-                <button
-                    onclick="{{ if .User }}document.getElementById('create-request-modal').showModal(){{ else }}window.location.href='/auth/google/login'{{ end }}"
-                    class="shrink-0 flex items-center justify-center bg-secondary hover:bg-green-700 transition-colors text-white px-5 h-10 rounded-full shadow-sm active:scale-95">
-                    <span class="text-sm font-bold leading-normal">Ask</span>
-                </button>
-
-                <div
-                    class="relative flex items-center flex-1 h-12 rounded-xl bg-white dark:bg-surface-dark shadow-sm border border-stone-100 dark:border-stone-800 group focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-                    <div class="grid place-items-center h-full w-10 text-text-sub">
-                        <span class="material-symbols-outlined text-[20px]">search</span>
-                    </div>
-                    <input
-                        class="peer h-full w-full outline-none text-sm text-text-main dark:text-stone-100 bg-transparent pr-2 placeholder:text-stone-400"
-                        id="search" name="q" placeholder="Search..." type="search" hx-get="/listings/fragment"
-                        hx-target="#listings-container" hx-trigger="keyup changed delay:500ms, search" />
-                </div>
-
-                <button
-                    onclick="{{ if .User }}document.getElementById('create-listing-modal').showModal(){{ else }}window.location.href='/auth/google/login'{{ end }}"
-                    class="shrink-0 flex items-center justify-center bg-primary hover:bg-orange-600 transition-colors text-white px-5 h-10 rounded-full shadow-sm active:scale-95">
-                    <span class="text-sm font-bold leading-normal">Post</span>
-                </button>
-            </div>
-            <div class="flex gap-3 px-4 py-3 overflow-x-auto no-scrollbar">
-                <button hx-get="/listings/fragment" hx-target="#listings-container"
-                    class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-stone-100 dark:bg-stone-800 text-text-main dark:text-stone-200 px-5 shadow-sm transition-transform active:scale-95 focus:ring-2 focus:ring-offset-1 focus:ring-stone-400">
-                    <p class="text-sm font-medium whitespace-nowrap">All</p>
-                </button>
-                <button hx-get="/listings/fragment?type=Business" hx-target="#listings-container"
-                    class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-5 transition-transform active:scale-95 hover:bg-stone-50 dark:hover:bg-stone-800 focus:ring-2 focus:ring-offset-1 focus:ring-primary">
-                    <p class="text-text-main dark:text-stone-200 text-sm font-medium whitespace-nowrap">Business 💼</p>
-                </button>
-                <button hx-get="/listings/fragment?type=Service" hx-target="#listings-container"
-                    class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-5 transition-transform active:scale-95 hover:bg-stone-50 dark:hover:bg-stone-800 focus:ring-2 focus:ring-offset-1 focus:ring-primary">
-                    <p class="text-text-main dark:text-stone-200 text-sm font-medium whitespace-nowrap">Service 🔧</p>
-                </button>
-                <button hx-get="/listings/fragment?type=Product" hx-target="#listings-container"
-                    class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-5 transition-transform active:scale-95 hover:bg-stone-50 dark:hover:bg-stone-800 focus:ring-2 focus:ring-offset-1 focus:ring-primary">
-                    <p class="text-text-main dark:text-stone-200 text-sm font-medium whitespace-nowrap">Product 🛍️</p>
-                </button>
-                <button hx-get="/listings/fragment?type=Request" hx-target="#listings-container"
-                    class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-5 transition-transform active:scale-95 hover:bg-stone-50 dark:hover:bg-stone-800 focus:ring-2 focus:ring-offset-1 focus:ring-primary">
-                    <p class="text-text-main dark:text-stone-200 text-sm font-medium whitespace-nowrap">Requests 📣</p>
-                </button>
-            </div>
-        </div>
-        <div class="flex-1 flex flex-col gap-5 p-4 pb-24" id="listings-container">
-
-            {{ range .Listings }}
-            {{ template "listing_card.html" dict "Listing" . "User" $.User }}
-            {{ end }}
-
-            <div class="h-4"></div>
-        </div>
+        <!-- Mobile Bottom Nav (Hidden on Desktop) -->
         <div
-            class="fixed bottom-0 w-full max-w-md bg-white dark:bg-surface-dark border-t border-stone-100 dark:border-stone-800 pb-safe">
+            class="md:hidden fixed bottom-0 w-full bg-white dark:bg-surface-dark border-t border-stone-100 dark:border-stone-800 pb-safe z-50">
             <div class="flex justify-around items-center h-16">
                 <button class="flex flex-col items-center justify-center w-full h-full gap-1 text-primary">
                     <span class="material-symbols-outlined filled"
@@ -164,13 +240,21 @@
                     <span class="material-symbols-outlined">map</span>
                     <span class="text-[10px] font-medium">Map</span>
                 </button>
-                <button
+                {{ if .User }}
+                <a href="/auth/logout"
                     class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
-                    <span class="material-symbols-outlined">person</span>
-                    <span class="text-[10px] font-medium">Profile</span>
-                </button>
+                    <img src="{{ .User.AvatarURL }}" alt="{{ .User.Name }}"
+                        class="w-6 h-6 rounded-full border border-orange-200">
+                    <span class="text-[10px] font-medium">Logout</span>
+                </a>
+                {{ else }}
+                <a href="/auth/google/login"
+                    class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
+                    <span class="material-symbols-outlined">login</span>
+                    <span class="text-[10px] font-medium">Sign In</span>
+                </a>
+                {{ end }}
             </div>
-            <div class="h-4 w-full bg-white dark:bg-surface-dark"></div>
         </div>
     </div>
 

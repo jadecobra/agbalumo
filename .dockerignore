@@ -18,3 +18,4 @@ bin/
 agbalumo.db
 agbalumo.db-journal
 agbalumo.db-wal
+.env

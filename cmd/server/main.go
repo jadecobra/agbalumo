@@ -13,6 +13,7 @@ import (
 	"github.com/jadecobra/agbalumo/internal/handler"
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -28,12 +29,21 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 }
 
 func main() {
+	// Load .env file
+	// Try loading from local .env or the scripts location
+	godotenv.Load(".env")
+	if err := godotenv.Load("../scripts/agbalumo/.env"); err != nil {
+		log.Printf("Error loading ../scripts/agbalumo/.env: %v", err)
+	}
+
 	// Initialize Echo instance
 	e := echo.New()
 
 	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+	e.Use(customMiddleware.SecureHeaders)
+	e.Use(customMiddleware.RateLimitMiddleware)
 
 	// Session Middleware
 	store := sessions.NewCookieStore([]byte("secret-key")) // In prod use env var
@@ -48,7 +58,7 @@ func main() {
 	// Handlers
 	listingHandler := handler.NewListingHandler(repo)
 	adminHandler := handler.NewAdminHandler(repo)
-	authHandler := handler.NewAuthHandler(repo) // New Auth Handler
+	authHandler := handler.NewAuthHandler(repo, nil) // New Auth Handler with default provider
 
 	// Auth Routes
 	e.GET("/auth/dev", authHandler.DevLogin)
@@ -91,7 +101,7 @@ func main() {
 		},
 	})
 	// Base to allow appending
-	template.Must(tmpl.Parse("{{define \"base\"}}{{end}}")) 
+	template.Must(tmpl.Parse("{{define \"base\"}}{{end}}"))
 	// Note: ParseGlob might error if no files match, so be careful.
 	// For simplicity, let's parse specific globs.
 	template.Must(tmpl.ParseGlob("ui/templates/*.html"))

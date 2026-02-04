@@ -23,6 +23,9 @@ WORKDIR /app
 # Install CA certificates for external API calls (Gemini)
 RUN apk --no-cache add ca-certificates tzdata
 
+# Create a non-root user
+RUN adduser -D -g '' appuser
+
 # Copy binary from builder
 COPY --from=builder /app/server .
 
@@ -31,6 +34,9 @@ COPY --from=builder /app/ui ./ui
 
 # Expose port
 EXPOSE 8080
+
+# Use non-root user
+USER appuser
 
 # Run the server
 CMD ["./server"]

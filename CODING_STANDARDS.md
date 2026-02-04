@@ -27,5 +27,17 @@
 
 ## 5. Agent Protocol
 *   **Lead Architect**: Enforces this document.
-*   **SDET Agent**: Owns the `*_test.go` files. Backend Agent CANNOT edit test logic without SDET approval.
+*   **SDET Agent**: Owns the `*_test.go` files (Functional/Integration). Backend Agent CANNOT edit test logic without SDET approval.
+*   **Security Engineer**: Owns `security_test.go` and security policy. specific audits.
 *   **Backend Agent**: Writes code to pass SDET tests.
+
+## 6. Security Best Practices (Zero Trust)
+*   **Input Validation**: Validate ALL inputs at the boundary. No implicit trust.
+*   **Secure Headers**: Ensure all HTTP responses include secure headers (HSTS, CSP, etc.).
+*   **Dependency Auditing**: Regularly check for vulnerabilities in dependencies.
+*   **Least Privilege**: Application parts should only have the permissions they absolutely need.
+
+## 7. 10x Operational Standards
+*   **Minimal/Modular**: Changes must be the smallest possible increment that passes the test. Avoid over-engineering.
+*   **Validate**: A change is not done until it is verified to pass the test AND perform as expected (manual or automated check).
+*   **Test First**: No code is written without a failing test. This is non-negotiable.

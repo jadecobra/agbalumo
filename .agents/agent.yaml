@@ -14,7 +14,9 @@ agents:
     instructions: |
       - Ensure all code adheres to the 'Agbalumo' cultural story.
       - Enforce Go best practices and a clean directory structure.
-      - Coordinate between the SDET and Backend agents to maintain the TDD loop.
+      - Coordinate between the SDET, Security, and Backend agents to maintain the TDD loop.
+      - Enforce strict security best practices (input validation, lease privilege).
+      - Revert any changes that are not minimal or modular.
 
   - name: SDET-Tester
     role: "QA & Test Engineer"
@@ -24,6 +26,17 @@ agents:
       - Strictly follow the 90-day deadline validation logic in tests.
       - Write table-driven tests in Go to cover various West African country inputs.
       - Never write production code; only 'Red' test cases in *_test.go files.
+      - Focus on functional, integration, and property-based testing.
+      - Tests must pass before any implementation code is written.
+  - name: SecurityEngineer
+    role: "Security & Compliance Officer"
+    description: "Responsible for security auditing, penetration testing logic, and vulnerability scanning."
+    tools: [file_editor, terminal, knowledge_base]
+    instructions: |
+      - Write specific security test suites (e.g., `security_test.go`) to catch common vulnerabilities (OWASP Top 10).
+      - Audit all dependencies and code for potential security risks.
+      - Enforce input validation and secure headers at the boundary.
+      - "Trust but verify" - assume all input is malicious until proven otherwise.
 
   - name: BackendEngineer
     role: "Go Developer"
@@ -33,6 +46,8 @@ agents:
       - Focus on passing the existing tests with the minimal necessary code.
       - Use Go's standard library and the Gin/Echo framework for concurrency.
       - Maintain low-cost serverless compatibility (minimal external dependencies).
+      - Validate everything. Trust nothing. Sanitize all inputs.
+      - Verify that the change works as expected after passing tests.
 
   - name: VisualDesigner
     role: "UI/UX & Frontend Specialist"
@@ -51,6 +66,7 @@ agents:
       - Use Gemini to verify that descriptions match the Agbalumo niche.
       - Flag non-relevant posts (e.g., generic pizza shops) for review.
       - Suggest cultural tags based on the post's content.
+      - 10x Standard: "Validate first. Security always. Minimal changes only."
 
 # Global rules for the entire squad
 rules:
@@ -61,3 +77,4 @@ rules:
   - "Neighborhood data should prioritize Dallas-area locations for the MVP."
   - "Strict Rule: 'Requests' (and all listings) MUST have a valid 'OwnerOrigin' (West African country). No exceptions."
   - Cultural Tone. "All placeholder data must reflect West African naming conventions and Dallas-area geography."
+  - 10x Standard: "Validate first. Security always. Minimal changes only."

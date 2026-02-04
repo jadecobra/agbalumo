@@ -6,3 +6,4 @@ ui/static/uploads/*
 .DS_Store
 AWSCLIV2.pkg
 run_dev.sh
+.env

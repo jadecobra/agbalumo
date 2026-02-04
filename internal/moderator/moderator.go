@@ -20,10 +20,20 @@ type Moderator interface {
 	CheckListing(ctx context.Context, listing domain.Listing) error
 }
 
+// GenAIModel abstracts the content generation for testing
+type GenAIModel interface {
+	GenerateContent(ctx context.Context, parts ...genai.Part) (*genai.GenerateContentResponse, error)
+}
+
+// Check if *genai.GenerativeModel implements interface (runtime check)
+// Actually *genai.GenerativeModel struct does not implicitly implement our interface if the methods don't match exactly or if we don't wrap it.
+// .GenerateContent takes (ctx, parts...)
+// So we can use the interface directly if the signature matches.
+
 // GeminiModerator uses Google's Gemini Pro model to moderate content.
 type GeminiModerator struct {
 	client *genai.Client
-	model  *genai.GenerativeModel
+	model  GenAIModel
 }
 
 // NewGeminiModerator creates a new instance of GeminiModerator.
@@ -41,12 +51,17 @@ func NewGeminiModerator(ctx context.Context) (*GeminiModerator, error) {
 	}
 
 	model := client.GenerativeModel("gemini-2.5-flash")
-	return &GeminiModerator{client: client, model: model}, nil
+	return NewWithModel(client, model), nil
+}
+
+// NewWithModel creates a moderator with a specific model (useful for testing)
+func NewWithModel(client *genai.Client, model GenAIModel) *GeminiModerator {
+	return &GeminiModerator{client: client, model: model}
 }
 
 // CheckListing sends the listing content to Gemini to check for cultural relevancy.
 func (m *GeminiModerator) CheckListing(ctx context.Context, listing domain.Listing) error {
-	if m == nil || m.client == nil {
+	if m == nil || m.model == nil {
 		log.Println("[Moderator] Stub Check: GEMINI_API_KEY was missing. Content allowed.")
 		return nil
 	}
@@ -75,6 +90,8 @@ Respond with exactly one word: "PERMIT" or "DENY".
 	if len(resp.Candidates) == 0 || resp.Candidates[0].Content == nil {
 		return nil
 	}
+
+	log.Printf("[Moderator] Inspecting %d parts", len(resp.Candidates[0].Content.Parts))
 
 	for _, part := range resp.Candidates[0].Content.Parts {
 		if txt, ok := part.(genai.Text); ok {
