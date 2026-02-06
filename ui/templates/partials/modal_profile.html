@@ -1,0 +1,99 @@
+<dialog id="profile-modal"
+    class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-2xl m-auto rounded-3xl shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in">
+    <div
+        class="bg-background-light dark:bg-background-dark p-0 rounded-3xl border border-orange-100 dark:border-stone-800 shadow-soft relative overflow-hidden flex flex-col max-h-[90vh]">
+
+        <!-- Header -->
+        <div
+            class="flex items-center justify-between p-4 border-b border-stone-100 dark:border-stone-800 bg-white/50 dark:bg-stone-900/50 backdrop-blur-sm">
+            <h2 class="text-xl font-bold font-display text-text-main dark:text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">account_circle</span>
+                My Profile
+            </h2>
+            <button onclick="this.closest('dialog').close()"
+                class="p-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <!-- Profile Info -->
+        <div
+            class="p-6 bg-orange-50/50 dark:bg-stone-900/50 flex items-center gap-4 border-b border-orange-100/50 dark:border-stone-800">
+            <div class="relative group">
+                <img src="{{ .User.AvatarURL }}" alt="{{ .User.Name }}"
+                    class="w-16 h-16 rounded-full border-2 border-primary shadow-md object-cover">
+                <div class="absolute inset-0 rounded-full border-2 border-primary/20"></div>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-text-main dark:text-white flex items-center gap-2">
+                    {{ .User.Name }}
+                    <span
+                        class="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] uppercase font-bold tracking-wider">Member</span>
+                </h3>
+                <p class="text-sm text-text-sub flex items-center gap-1 mt-0.5">
+                    <span class="material-symbols-outlined text-[14px]">mail</span>
+                    {{ .User.Email }}
+                </p>
+                <p class="text-xs text-stone-400 mt-2 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[12px]">calendar_today</span>
+                    Joined {{ .User.CreatedAt.Format "January 2006" }}
+                </p>
+            </div>
+            <div class="ml-auto">
+                <a href="/auth/logout"
+                    class="flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 text-red-600 font-bold text-sm hover:bg-red-50 dark:hover:bg-red-900/10 transition-all shadow-sm hover:shadow-md hover:scale-105">
+                    <span class="material-symbols-outlined text-[18px]">logout</span>
+                    Sign Out
+                </a>
+            </div>
+        </div>
+
+        <!-- My Listings -->
+        <div class="flex-1 overflow-y-auto p-6 bg-background-light dark:bg-background-dark">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold flex items-center gap-2 text-text-main dark:text-white">
+                    <span class="material-symbols-outlined text-secondary">list_alt</span>
+                    My Listings & Requests
+                </h3>
+                <span class="text-xs font-bold text-stone-400 bg-stone-100 dark:bg-stone-800 px-2 py-1 rounded-md">{{
+                    len .Listings }} Items</span>
+            </div>
+
+            {{ if .Listings }}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {{ range .Listings }}
+                {{ template "listing_card.html" dict "Listing" . "User" $.User "GridClass" "border border-stone-100 dark:border-stone-700" }}
+                {{ end }}
+            </div>
+            {{ else }}
+            <div
+                class="text-center py-16 px-4 rounded-3xl bg-white/50 dark:bg-surface-dark/50 border border-dashed border-stone-300 dark:border-stone-700">
+                <div
+                    class="w-16 h-16 bg-orange-100 dark:bg-orange-900/20 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
+                    <span class="material-symbols-outlined text-3xl">post_add</span>
+                </div>
+                <h3 class="text-lg font-bold text-text-main dark:text-stone-200 mb-1">No Listings Yet</h3>
+                <p class="text-stone-500 text-sm mb-6 max-w-xs mx-auto">You haven't posted any businesses, services, or
+                    requests yet. Start connecting with the community!</p>
+                <div class="flex gap-3 justify-center">
+                    <button
+                        onclick="document.getElementById('create-listing-modal').showModal(); document.getElementById('profile-modal').close()"
+                        class="px-5 py-2.5 bg-primary text-white rounded-full font-bold shadow-soft hover:shadow-lg hover:bg-orange-600 transition-all text-sm flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                        Post Listing
+                    </button>
+                    <button
+                        onclick="document.getElementById('create-request-modal').showModal(); document.getElementById('profile-modal').close()"
+                        class="px-5 py-2.5 bg-secondary text-white rounded-full font-bold shadow-soft hover:shadow-lg hover:bg-green-800 transition-all text-sm flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">campaign</span>
+                        Ask Request
+                    </button>
+                </div>
+            </div>
+            {{ end }}
+        </div>
+    </div>
+</dialog>
+<script>
+    document.getElementById("profile-modal").showModal();
+</script>

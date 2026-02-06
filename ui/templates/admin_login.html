@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Admin Login - Agbalumo</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#FF5E0E",
+                        "secondary": "#2D5A27",
+                        "background-light": "#FFF2EB",
+                        "background-dark": "#23160f",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#2f221c",
+                        "text-main": "#181310",
+                        "text-sub": "#8d6d5e",
+                        "brand-orange": "#FF5E0E",
+                        "brand-orange-dark": "#E64A00",
+                        "border-default": "#E5E7EB",
+                        "surface-50": "#F9FAFB",
+                        "text-muted": "#6B7280"
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark font-display text-text-main antialiased h-screen flex items-center justify-center">
+    <div class="w-full max-w-md p-6 bg-white dark:bg-surface-dark rounded-2xl shadow-xl">
+        <div class="flex flex-col items-center justify-center gap-6">
+            <div class="flex flex-col items-center gap-2">
+                <h1 class="text-2xl font-medium text-text-main dark:text-stone-100">Admin Access</h1>
+                <p class="text-text-muted dark:text-stone-400">Enter the access code</p>
+            </div>
+
+            <form method="POST" action="/admin/login" class="flex flex-col gap-4 w-full">
+                {{if .Error}}
+                <div class="bg-red-50 text-red-600 p-3 rounded-xl text-sm border border-red-100 text-center">
+                    {{.Error}}
+                </div>
+                {{end}}
+
+                <div class="flex flex-col gap-1">
+                    <input type="password" name="code" placeholder="Access Code" required
+                        class="w-full h-12 px-4 bg-surface-50 dark:bg-stone-800 border border-border-default dark:border-stone-700 rounded-xl outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange transition-all placeholder:text-text-muted">
+                </div>
+
+                <button type="submit"
+                    class="h-12 w-full bg-brand-orange text-white font-medium rounded-xl hover:bg-brand-orange-dark active:scale-[0.98] transition-all">
+                    Enter Dashboard
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

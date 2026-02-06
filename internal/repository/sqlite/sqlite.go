@@ -41,7 +41,9 @@ func (r *SQLiteRepository) migrate() error {
 		description TEXT,
 		type TEXT,
 		owner_origin TEXT,
-		neighborhood TEXT,
+
+		city TEXT,
+		address TEXT,
 		is_active BOOLEAN,
 		created_at DATETIME,
 		image_url TEXT,
@@ -71,21 +73,27 @@ func (r *SQLiteRepository) migrate() error {
 		return err
 	}
 
+	// Migration: Add address column if missing (simple check)
+	// We ignore error if column exists (naive but works for dev SQLite)
+	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN address TEXT;")
+	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN city TEXT;")
+
 	return nil
 }
 
 // Save inserts or updates a listing.
 func (r *SQLiteRepository) Save(ctx context.Context, l domain.Listing) error {
 	query := `
-	INSERT INTO listings (id, owner_id, title, description, type, owner_origin, neighborhood, is_active, created_at, image_url, contact_email, contact_phone, contact_whatsapp, website_url, deadline)
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	INSERT INTO listings (id, owner_id, title, description, type, owner_origin, city, address, is_active, created_at, image_url, contact_email, contact_phone, contact_whatsapp, website_url, deadline)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	ON CONFLICT(id) DO UPDATE SET
 		owner_id = excluded.owner_id,
 		title = excluded.title,
 		description = excluded.description,
 		type = excluded.type,
 		owner_origin = excluded.owner_origin,
-		neighborhood = excluded.neighborhood,
+		city = excluded.city,
+		address = excluded.address,
 		is_active = excluded.is_active,
 		image_url = excluded.image_url,
 		contact_email = excluded.contact_email,
@@ -96,14 +104,14 @@ func (r *SQLiteRepository) Save(ctx context.Context, l domain.Listing) error {
 	`
 
 	_, err := r.db.ExecContext(ctx, query,
-		l.ID, l.OwnerID, l.Title, l.Description, l.Type, l.OwnerOrigin, l.Neighborhood, l.IsActive, l.CreatedAt,
+		l.ID, l.OwnerID, l.Title, l.Description, l.Type, l.OwnerOrigin, l.City, l.Address, l.IsActive, l.CreatedAt,
 		l.ImageURL, l.ContactEmail, l.ContactPhone, l.ContactWhatsApp, l.WebsiteURL, l.Deadline,
 	)
 	return err
 }
 
 func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, queryText string, includeInactive bool) ([]domain.Listing, error) {
-	query := `SELECT id, owner_id, owner_origin, type, title, description, neighborhood, contact_email, contact_phone, contact_whatsapp, website_url, image_url, created_at, deadline, is_active FROM listings WHERE 1=1`
+	query := `SELECT id, owner_id, owner_origin, type, title, description, city, COALESCE(address, ''), contact_email, contact_phone, contact_whatsapp, website_url, image_url, created_at, deadline, is_active FROM listings WHERE 1=1`
 	var args []interface{}
 
 	if !includeInactive {
@@ -116,7 +124,7 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 	}
 
 	if queryText != "" {
-		query += ` AND (title LIKE ? OR description LIKE ? OR neighborhood LIKE ?)`
+		query += ` AND (title LIKE ? OR description LIKE ? OR city LIKE ?)`
 		likeQuery := "%" + queryText + "%"
 		args = append(args, likeQuery, likeQuery, likeQuery)
 	}
@@ -134,7 +142,7 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 		var l domain.Listing
 		if err := rows.Scan(
 			&l.ID, &l.OwnerID, &l.OwnerOrigin, &l.Type, &l.Title, &l.Description,
-			&l.Neighborhood, &l.ContactEmail, &l.ContactPhone, &l.ContactWhatsApp,
+			&l.City, &l.Address, &l.ContactEmail, &l.ContactPhone, &l.ContactWhatsApp,
 			&l.WebsiteURL, &l.ImageURL, &l.CreatedAt, &l.Deadline, &l.IsActive,
 		); err != nil {
 			return nil, err
@@ -146,7 +154,7 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 
 func (r *SQLiteRepository) FindByID(ctx context.Context, id string) (domain.Listing, error) {
 	query := `
-		SELECT id, owner_id, title, description, type, owner_origin, neighborhood, is_active, created_at, image_url, contact_email, contact_phone, contact_whatsapp, website_url, deadline
+		SELECT id, owner_id, title, description, type, owner_origin, city, COALESCE(address, ''), is_active, created_at, image_url, contact_email, contact_phone, contact_whatsapp, website_url, deadline
 		FROM listings
 		WHERE id = ?
 	`
@@ -155,7 +163,7 @@ func (r *SQLiteRepository) FindByID(ctx context.Context, id string) (domain.List
 	var l domain.Listing
 	err := row.Scan(
 		&l.ID, &l.OwnerID, &l.Title, &l.Description, &l.Type, &l.OwnerOrigin,
-		&l.Neighborhood, &l.IsActive, &l.CreatedAt,
+		&l.City, &l.Address, &l.IsActive, &l.CreatedAt,
 		&l.ImageURL, &l.ContactEmail, &l.ContactPhone, &l.ContactWhatsApp, &l.WebsiteURL, &l.Deadline,
 	)
 	if err == sql.ErrNoRows {
@@ -204,4 +212,47 @@ func (r *SQLiteRepository) FindUserByID(ctx context.Context, id string) (domain.
 		return domain.User{}, errors.New("user not found")
 	}
 	return u, err
+}
+
+func (r *SQLiteRepository) FindAllByOwner(ctx context.Context, ownerID string) ([]domain.Listing, error) {
+	query := `SELECT id, owner_id, owner_origin, type, title, description, city, COALESCE(address, ''), contact_email, contact_phone, contact_whatsapp, website_url, image_url, created_at, deadline, is_active 
+              FROM listings 
+              WHERE owner_id = ? 
+              ORDER BY created_at DESC`
+
+	rows, err := r.db.QueryContext(ctx, query, ownerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var listings []domain.Listing
+	for rows.Next() {
+		var l domain.Listing
+		if err := rows.Scan(
+			&l.ID, &l.OwnerID, &l.OwnerOrigin, &l.Type, &l.Title, &l.Description,
+			&l.City, &l.Address, &l.ContactEmail, &l.ContactPhone, &l.ContactWhatsApp,
+			&l.WebsiteURL, &l.ImageURL, &l.CreatedAt, &l.Deadline, &l.IsActive,
+		); err != nil {
+			return nil, err
+		}
+		listings = append(listings, l)
+	}
+	return listings, nil
+}
+
+func (r *SQLiteRepository) Delete(ctx context.Context, id string) error {
+	query := `DELETE FROM listings WHERE id = ?`
+	result, err := r.db.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return errors.New("listing not found")
+	}
+	return nil
 }

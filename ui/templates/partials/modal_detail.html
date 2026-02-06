@@ -11,7 +11,7 @@
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
 
             <button onclick="this.closest('dialog').remove()"
-                class="absolute top-4 right-4 bg-black/40 hover:bg-black/60 text-white p-2 rounded-full backdrop-blur-md transition-colors">
+                class="absolute top-4 right-4 bg-black/40 hover:bg-black/60 text-white p-3 rounded-full backdrop-blur-md transition-colors z-50">
                 <span class="material-symbols-outlined">close</span>
             </button>
 
@@ -21,8 +21,7 @@
                         class="bg-primary/90 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-md tracking-wider shadow-sm">{{
                         .Listing.Type }}</span>
                     {{ if eq .Listing.OwnerOrigin "Nigeria" }}<span class="text-xl shadow-sm">🇳🇬</span>{{ else if eq
-                    .Listing.OwnerOrigin "Ghana" }}<span class="text-xl shadow-sm">🇬🇭</span>{{ else }}<span
-                        class="text-xl shadow-sm">🌍</span>{{ end }}
+                    .Listing.OwnerOrigin "Ghana" }}<span class="text-xl shadow-sm">🇬🇭</span>{{ end }}
                 </div>
                 <h2 class="text-2xl font-bold leading-tight">{{ .Listing.Title }}</h2>
             </div>
@@ -31,9 +30,14 @@
         <!-- Scrollable Content -->
         <div class="p-6 overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center gap-2 text-text-sub dark:text-stone-400 text-sm">
-                    <span class="material-symbols-outlined text-[16px]">location_on</span>
-                    {{ .Listing.Neighborhood }}
+                <div class="flex items-start gap-2 text-text-sub dark:text-stone-400 text-sm">
+                    <span class="material-symbols-outlined text-[18px] mt-0.5">location_on</span>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-text-main dark:text-stone-200 leading-tight">{{
+                            .Listing.City }}</span>
+                        {{ if .Listing.Address }}<span class="text-xs opacity-80 font-medium">{{ .Listing.Address
+                            }}</span>{{ end }}
+                    </div>
                 </div>
 
                 {{ if and .User (eq .User.ID .Listing.OwnerID) }}

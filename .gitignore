@@ -7,3 +7,8 @@ ui/static/uploads/*
 AWSCLIV2.pkg
 run_dev.sh
 .env
+main
+certs/
+*.out
+.idea/
+.vscode/

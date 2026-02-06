@@ -27,7 +27,7 @@
                         "surface-light": "#ffffff",
                         "surface-dark": "#2f221c",
                         "text-main": "#181310",
-                        "text-sub": "#8d6d5e",
+                        "text-sub": "#6d4c41",
                     },
                     fontFamily: {
                         "display": ["Lexend", "sans-serif"]
@@ -102,17 +102,18 @@
                                 <span class="material-symbols-outlined text-[18px] md:text-[20px]">search</span>
                             </div>
                             <input
-                                class="peer h-full w-full outline-none text-sm text-text-main dark:text-stone-100 bg-transparent pr-4 placeholder:text-stone-400 font-medium"
-                                id="search" name="q" placeholder="Search... (e.g. 'Jollof', 'Mechanic')" type="search"
+                                class="peer h-full w-full outline-none text-sm text-text-main dark:text-stone-100 bg-transparent pr-4 placeholder:text-stone-400 font-medium focus:outline-none focus:ring-0 focus:border-0 focus:shadow-none"
+                                style="box-shadow: none !important; outline: none !important;" id="search" name="q"
+                                placeholder="Search... (e.g. 'Jollof', 'Mechanic')" type="search"
                                 hx-get="/listings/fragment" hx-target="#listings-container"
-                                hx-trigger="keyup changed delay:500ms, search" />
+                                hx-indicator="#listings-loading" hx-trigger="keyup changed delay:500ms, search" />
                         </div>
                     </div>
 
                     <!-- Right Controls (Desktop Only) -->
                     <div class="hidden md:flex items-center gap-4 shrink-0">
                         <!-- Navigation Links -->
-                        <nav class="flex items-center gap-1 mr-2">
+                        <nav class="flex items-center gap-1">
                             <button
                                 class="p-2 rounded-full text-stone-500 hover:text-primary hover:bg-orange-50 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors"
                                 title="Saved">
@@ -137,30 +138,22 @@
                         </div>
 
                         <!-- User Profile / Auth -->
-                        <div class="pl-2">
+                        <div class="flex items-center gap-3">
                             {{ if .User }}
                             <div class="group relative">
-                                <button class="flex items-center gap-2">
+                                <button class="flex items-center gap-2" hx-get="/profile" hx-target="body"
+                                    hx-swap="beforeend">
                                     <img src="{{ .User.AvatarURL }}" alt="Profile"
                                         class="w-9 h-9 rounded-full border-2 border-white dark:border-stone-700 shadow-sm object-cover">
                                 </button>
-                                <!-- Dropdown (Simple implementation) -->
-                                <div
-                                    class="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-surface-dark rounded-xl shadow-xl border border-stone-100 dark:border-stone-800 p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all transform origin-top-right scale-95 group-hover:scale-100">
-                                    <div class="px-3 py-2 border-b border-stone-100 dark:border-stone-800 mb-1">
-                                        <p class="text-xs font-bold text-text-main dark:text-white truncate">{{
-                                            .User.Name }}</p>
-                                    </div>
-                                    <a href="/auth/logout"
-                                        class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
-                                        <span class="material-symbols-outlined text-[16px]">logout</span>
-                                        Sign Out
-                                    </a>
-                                </div>
+                                <!-- Dropdown Removed in favor of Profile Modal -->
                             </div>
                             {{ else }}
                             <a href="/auth/google/login"
-                                class="text-sm font-bold text-text-sub hover:text-primary transition-colors">Sign In</a>
+                                class="flex items-center gap-2 bg-secondary/10 hover:bg-secondary/20 text-secondary dark:text-green-400 dark:hover:bg-green-900/30 px-4 h-10 rounded-full transition-all font-semibold font-display text-sm whitespace-nowrap">
+                                <span class="material-symbols-outlined text-[18px]">login</span>
+                                Sign In
+                            </a>
                             {{ end }}
                         </div>
                     </div>
@@ -182,115 +175,132 @@
                         <!-- Filters will go here, shifted from below -->
                         <!-- Re-using existing filters HTML structure but updating classes for the new position -->
                         <button hx-get="/listings/fragment" hx-target="#listings-container"
-                            class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-stone-900 text-white dark:bg-white dark:text-stone-900 px-4 shadow-sm transition-transform active:scale-95 text-xs font-bold">
+                            hx-indicator="#listings-loading"
+                            class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-stone-900 text-white dark:bg-white dark:text-stone-900 px-4 shadow-sm transition-transform active:scale-95 text-xs font-bold uppercase">
                             All
                         </button>
+                        <button hx-get="/listings/fragment?type=Food" hx-target="#listings-container"
+                            hx-indicator="#listings-loading"
+                            class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
+                            <span>Food</span>
+                            <span class="material-symbols-outlined text-[14px] text-text-sub">restaurant</span>
+                        </button>
                         <button hx-get="/listings/fragment?type=Business" hx-target="#listings-container"
-                            class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold">
-                            Business 💼
+                            hx-indicator="#listings-loading"
+                            class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
+                            <span>Business</span>
+                            <span class="material-symbols-outlined text-[14px] text-text-sub">storefront</span>
                         </button>
                         <button hx-get="/listings/fragment?type=Service" hx-target="#listings-container"
-                            class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold">
-                            Service 🔧
+                            hx-indicator="#listings-loading"
+                            class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
+                            <span>Services</span>
+                            <span class="material-symbols-outlined text-[14px] text-text-sub">construction</span>
                         </button>
                         <button hx-get="/listings/fragment?type=Product" hx-target="#listings-container"
-                            class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold">
-                            Product 🛍️
+                            hx-indicator="#listings-loading"
+                            class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
+                            <span>Products</span>
+                            <span class="material-symbols-outlined text-[14px] text-text-sub">shopping_bag</span>
+                        </button>
+                        <button hx-get="/listings/fragment?type=Event" hx-target="#listings-container"
+                            hx-indicator="#listings-loading"
+                            class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
+                            <span>Events</span>
+                            <span class="material-symbols-outlined text-[14px] text-text-sub">event</span>
+                        </button>
+                        <button hx-get="/listings/fragment?type=Job" hx-target="#listings-container"
+                            hx-indicator="#listings-loading"
+                            class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
+                            <span>Jobs</span>
+                            <span class="material-symbols-outlined text-[14px] text-text-sub">work</span>
                         </button>
                         <button hx-get="/listings/fragment?type=Request" hx-target="#listings-container"
-                            class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold">
-                            Requests 📣
+                            hx-indicator="#listings-loading"
+                            class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
+                            <span>Requests</span>
+                            <span class="material-symbols-outlined text-[14px] text-text-sub">campaign</span>
                         </button>
                     </div>
                 </div>
             </header>
 
             <!-- Filters Removed (Moved to Header) -->
-    </div>
 
-    <!-- Listings Grid (Bento) -->
-    <div class="flex-1 p-4 pb-24 md:pb-8 w-full max-w-7xl mx-auto">
-        <div id="listings-container"
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-[300px] grid-flow-dense">
+            <!-- Listings Grid (Bento) -->
+            <div class="relative flex-1 px-4 pb-24 md:pb-8 pt-0 w-full max-w-7xl mx-auto">
+                <div id="listings-loading"
+                    class="htmx-indicator absolute inset-0 z-50 flex items-center justify-center bg-background-light/50 dark:bg-background-dark/50 backdrop-blur-sm transition-all duration-300 opacity-0 pointer-events-none [&.htmx-request]:opacity-100 [&.htmx-request]:pointer-events-auto">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                </div>
+                <div id="listings-container"
+                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-[300px] grid-flow-dense transition-opacity duration-300">
 
-            {{ range $i, $e := .Listings }}
-            {{ $gridClass := "" }}
+                    {{ range $i, $e := .Listings }}
+                    {{ $gridClass := "" }}
 
-            {{ $mod := mod $i 6 }}
-            {{ if eq $mod 0 }}
-            {{ $gridClass = "lg:col-span-2 lg:row-span-2" }}
-            {{ else if eq $mod 3 }}
-            {{ $gridClass = "lg:col-span-2 lg:row-span-2 lg:col-start-2" }}
-            {{ end }}
+                    {{ $mod := mod $i 6 }}
+                    {{ if eq $mod 0 }}
+                    {{ $gridClass = "lg:col-span-2 lg:row-span-2" }}
+                    {{ else if eq $mod 3 }}
+                    {{ $gridClass = "lg:col-span-2 lg:row-span-2 lg:col-start-2" }}
+                    {{ end }}
 
-            {{ template "listing_card.html" dict "Listing" . "User" $.User "GridClass" $gridClass "Index" $i }}
-            {{ end }}
+                    {{ template "listing_card.html" dict "Listing" . "User" $.User "GridClass" $gridClass "Index" $i }}
+                    {{ end }}
+                </div>
+                <!-- Spacer for bottom nav on mobile -->
+                <div class="h-4 md:hidden"></div>
+            </div>
+        </main>
+
+        <!-- Mobile Bottom Nav (Hidden on Desktop) -->
+        <div id="mobile-bottom-nav"
+            class="md:hidden fixed bottom-0 w-full bg-white dark:bg-surface-dark border-t border-stone-100 dark:border-stone-800 pb-safe z-50 transition-transform duration-300">
+            <div class="flex justify-around items-center h-16">
+                <button class="flex flex-col items-center justify-center w-full h-full gap-1 text-primary">
+                    <span class="material-symbols-outlined filled"
+                        style="font-variation-settings: 'FILL' 1;">home</span>
+                    <span class="text-[10px] font-medium">Home</span>
+                </button>
+                <button
+                    class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
+                    <span class="material-symbols-outlined">favorite</span>
+                    <span class="text-[10px] font-medium">Saved</span>
+                </button>
+                {{ if .User }}
+                <a href="/auth/logout"
+                    class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
+                    <img src="{{ .User.AvatarURL }}" alt="{{ .User.Name }}"
+                        class="w-6 h-6 rounded-full border border-orange-200">
+                    <span class="text-[10px] font-medium">Logout</span>
+                </a>
+                {{ end }}
+            </div>
         </div>
-        <!-- Spacer for bottom nav on mobile -->
-        <div class="h-4 md:hidden"></div>
-    </div>
-    </main>
-
-    <!-- Mobile Bottom Nav (Hidden on Desktop) -->
-    <div id="mobile-bottom-nav"
-        class="md:hidden fixed bottom-0 w-full bg-white dark:bg-surface-dark border-t border-stone-100 dark:border-stone-800 pb-safe z-50 transition-transform duration-300">
-        <div class="flex justify-around items-center h-16">
-            <button class="flex flex-col items-center justify-center w-full h-full gap-1 text-primary">
-                <span class="material-symbols-outlined filled" style="font-variation-settings: 'FILL' 1;">home</span>
-                <span class="text-[10px] font-medium">Home</span>
-            </button>
-            <button
-                class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
-                <span class="material-symbols-outlined">favorite</span>
-                <span class="text-[10px] font-medium">Saved</span>
-            </button>
-            {{ if .User }}
-            <a href="/auth/logout"
-                class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
-                <img src="{{ .User.AvatarURL }}" alt="{{ .User.Name }}"
-                    class="w-6 h-6 rounded-full border border-orange-200">
-                <span class="text-[10px] font-medium">Logout</span>
-            </a>
-            {{ else }}
-            <a href="/auth/google/login"
-                class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
-                <span class="material-symbols-outlined">login</span>
-                <span class="text-[10px] font-medium">Sign In</span>
-            </a>
-            {{ end }}
-        </div>
-    </div>
     </div>
 
 
     {{ template "modal_create_listing.html" . }}
     {{ template "modal_create_request.html" . }}
-    <!-- Navigation Logic (Scroll to Hide) -->
     <script>
-        const scrollContainer = document.querySelector('main');
-        const header = document.querySelector('header');
-        const bottomNav = document.getElementById('mobile-bottom-nav');
-        let lastScrollTop = 0;
-        const threshold = 100; // Minimum scroll before hiding
+        // Modal Click Outside Logic
+        document.addEventListener('click', (event) => {
+            if (event.target.tagName === 'DIALOG') {
+                const dialog = event.target;
+                // Check if the click is actually on the dialog background (backdrop)
+                const rect = dialog.getBoundingClientRect();
+                const isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
+                    rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
 
-        scrollContainer.addEventListener('scroll', () => {
-            const scrollTop = scrollContainer.scrollTop;
-
-            // Respect safe area bounce
-            if (scrollTop < 0) return;
-
-            // Determine Scroll Direction
-            if (scrollTop > lastScrollTop && scrollTop > threshold) {
-                // Scrolling DOWN -> HIDE
-                header.classList.add('-translate-y-full'); // Move Header Up
-                if (bottomNav) bottomNav.classList.add('translate-y-full'); // Move Bottom Nav Down
-            } else {
-                // Scrolling UP -> SHOW
-                header.classList.remove('-translate-y-full');
-                if (bottomNav) bottomNav.classList.remove('translate-y-full');
+                // If the click is inside the rect but target is DIALOG, it might be padding or backdrop.
+                // Standard dialog backdrop clicks often register on the dialog element itself.
+                dialog.close();
+                // Clean up dynamic modals
+                if (dialog.id.startsWith('detail-modal-') || dialog.id.startsWith('edit-modal-')) {
+                    dialog.remove();
+                }
             }
-
-            lastScrollTop = scrollTop;
         });
     </script>
 </body>

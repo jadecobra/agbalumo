@@ -44,7 +44,13 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(customMiddleware.SecureHeaders)
-	e.Use(customMiddleware.RateLimitMiddleware)
+
+	// Rate Limiter
+	rateLimiter := customMiddleware.NewRateLimiter(customMiddleware.RateLimitConfig{
+		Rate:  20,
+		Burst: 40,
+	})
+	e.Use(rateLimiter.Middleware())
 
 	// Session Middleware
 	sessionKey := os.Getenv("SESSION_SECRET")
@@ -141,6 +147,10 @@ func main() {
 	e.GET("/listings/:id/edit", listingHandler.HandleEdit, authHandler.RequireAuth)
 	e.PUT("/listings/:id", listingHandler.HandleUpdate, authHandler.RequireAuth)
 	e.POST("/listings/:id", listingHandler.HandleUpdate, authHandler.RequireAuth) // Fallback support for POST? HTMX sends PUT if requested.
+	e.DELETE("/listings/:id", listingHandler.HandleDelete, authHandler.RequireAuth)
+
+	// Profile
+	e.GET("/profile", listingHandler.HandleProfile, authHandler.RequireAuth)
 
 	// Admin Routes
 	adminGroup := e.Group("/admin")
@@ -153,7 +163,20 @@ func main() {
 	adminGroup.DELETE("/listings/:id", adminHandler.HandleDelete)
 
 	// Start server
-	log.Println("Starting server on :8080")
+	certFile := "certs/cert.pem"
+	keyFile := "certs/key.pem"
+
+	if _, err := os.Stat(certFile); err == nil {
+		if _, err := os.Stat(keyFile); err == nil {
+			log.Println("Starting Secure Server on :8443 (HTTPS)")
+			if err := e.StartTLS(":8443", certFile, keyFile); err != nil {
+				e.Logger.Fatal(err)
+			}
+			return
+		}
+	}
+
+	log.Println("Starting Server on :8080 (HTTP)")
 	if err := e.Start(":8080"); err != nil {
 		e.Logger.Fatal(err)
 	}
@@ -166,7 +189,8 @@ func seedData(ctx context.Context, repo domain.ListingRepository) {
 			Title:           "Lagos Spot Kitchen",
 			OwnerOrigin:     "Nigeria",
 			Type:            domain.Business,
-			Neighborhood:    "North Dallas",
+			City:            "Dallas",
+			Address:         "1234 Greenville Ave, Dallas, TX 75206",
 			Description:     "Authentic Naija jollof and suya spots in the heart of Dallas.",
 			ContactEmail:    "info@lagosspot.com",
 			ContactWhatsApp: "+12145550100",
@@ -178,7 +202,8 @@ func seedData(ctx context.Context, repo domain.ListingRepository) {
 			Title:           "Kofi's Legal Aid",
 			OwnerOrigin:     "Ghana",
 			Type:            domain.Service,
-			Neighborhood:    "Downtown",
+			City:            "Dallas",
+			Address:         "500 Main St, Dallas, TX 75202",
 			Description:     "Immigration and small business legal consultation.",
 			ContactEmail:    "kofi@legalaid.com",
 			ContactWhatsApp: "+12145550200",

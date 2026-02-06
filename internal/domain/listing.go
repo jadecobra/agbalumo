@@ -14,6 +14,8 @@ const (
 	Product  Category = "Product"
 	Job      Category = "Job"
 	Request  Category = "Request"
+	Food     Category = "Food"
+	Event    Category = "Event"
 )
 
 var (
@@ -32,7 +34,8 @@ type Listing struct {
 	Anchor          string    `json:"anchor" form:"anchor"` // Food, Professional, etc.
 	Title           string    `json:"title" form:"title"`
 	Description     string    `json:"description" form:"description"`
-	Neighborhood    string    `json:"neighborhood" form:"neighborhood"`
+	City            string    `json:"city" form:"city"`
+	Address         string    `json:"address" form:"address"`     // New: Specific Business Address
 	ImageURL        string    `json:"image_url" form:"image_url"` // New: Uploaded or Default Image
 	ContactEmail    string    `json:"contact_email" form:"contact_email"`
 	ContactPhone    string    `json:"contact_phone" form:"contact_phone"` // New: Validation alternative

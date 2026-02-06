@@ -1,0 +1,199 @@
+<dialog id="edit-listing-modal-{{.ID}}"
+    class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-sm m-auto rounded-3xl shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in">
+    <div
+        class="bg-background-light dark:bg-background-dark p-6 rounded-3xl border border-orange-100 dark:border-stone-800 shadow-soft relative overflow-hidden">
+        <!-- Decorative Background -->
+        <div
+            class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -z-10 transform translate-x-10 -translate-y-10">
+        </div>
+
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold text-text-main dark:text-white">Edit Listing</h3>
+            <button onclick="this.closest('dialog').remove()"
+                class="p-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 transition-colors">
+                <span class="material-symbols-outlined text-[20px]">close</span>
+            </button>
+        </div>
+
+        <form hx-put="/listings/{{.ID}}" hx-swap="outerHTML" hx-target="#listing-{{.ID}}" method="POST"
+            enctype="multipart/form-data" class="flex flex-col gap-4" onsubmit="this.closest('dialog').remove()">
+
+            <!-- Type -->
+            <div class="flex flex-col gap-1.5">
+                <label
+                    class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Type</label>
+                <select name="type"
+                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white appearance-none">
+                    <option value="Business" {{ if eq .Type "Business" }}selected{{ end }}>Business</option>
+                    <option value="Service" {{ if eq .Type "Service" }}selected{{ end }}>Service</option>
+                    <option value="Product" {{ if eq .Type "Product" }}selected{{ end }}>Product</option>
+                    <option value="Food" {{ if eq .Type "Food" }}selected{{ end }}>Food (Restaurant/Catering)</option>
+                    <option value="Event" {{ if eq .Type "Event" }}selected{{ end }}>Event</option>
+                    <option value="Request" {{ if eq .Type "Request" }}selected{{ end }}>Request</option>
+                </select>
+            </div>
+
+            <!-- Title -->
+            <div class="flex flex-col gap-1.5">
+                <label
+                    class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Title</label>
+                <input required name="title" type="text" value="{{ .Title }}" placeholder="e.g., Mama's Kitchen"
+                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+            </div>
+
+            <!-- Origin -->
+            <div class="flex flex-col gap-1.5">
+                <label
+                    class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Origin</label>
+                <select name="owner_origin"
+                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white appearance-none">
+                    <option value="Nigeria" {{ if eq .OwnerOrigin "Nigeria" }}selected{{ end }}>Nigeria 🇳🇬</option>
+                    <option value="Benin" {{ if eq .OwnerOrigin "Benin" }}selected{{ end }}>Benin 🇧🇯</option>
+                    <option value="Burkina Faso" {{ if eq .OwnerOrigin "Burkina Faso" }}selected{{ end }}>Burkina Faso
+                        🇧🇫</option>
+                    <option value="Cabo Verde" {{ if eq .OwnerOrigin "Cabo Verde" }}selected{{ end }}>Cabo Verde 🇨🇻
+                    </option>
+                    <option value="Cote d'Ivoire" {{ if eq .OwnerOrigin "Cote d'Ivoire" }}selected{{ end }}>Côte
+                        d'Ivoire 🇨🇮</option>
+                    <option value="Gambia" {{ if eq .OwnerOrigin "Gambia" }}selected{{ end }}>Gambia 🇬🇲</option>
+                    <option value="Ghana" {{ if eq .OwnerOrigin "Ghana" }}selected{{ end }}>Ghana 🇬🇭</option>
+                    <option value="Guinea" {{ if eq .OwnerOrigin "Guinea" }}selected{{ end }}>Guinea 🇬🇳</option>
+                    <option value="Guinea-Bissau" {{ if eq .OwnerOrigin "Guinea-Bissau" }}selected{{ end }}>
+                        Guinea-Bissau 🇬🇼</option>
+                    <option value="Liberia" {{ if eq .OwnerOrigin "Liberia" }}selected{{ end }}>Liberia 🇱🇷</option>
+                    <option value="Mali" {{ if eq .OwnerOrigin "Mali" }}selected{{ end }}>Mali 🇲🇱</option>
+                    <option value="Mauritania" {{ if eq .OwnerOrigin "Mauritania" }}selected{{ end }}>Mauritania 🇲🇷
+                    </option>
+                    <option value="Niger" {{ if eq .OwnerOrigin "Niger" }}selected{{ end }}>Niger 🇳🇪</option>
+                    <option value="Senegal" {{ if eq .OwnerOrigin "Senegal" }}selected{{ end }}>Senegal 🇸🇳</option>
+                    <option value="Sierra Leone" {{ if eq .OwnerOrigin "Sierra Leone" }}selected{{ end }}>Sierra Leone
+                        🇸🇱</option>
+                    <option value="Togo" {{ if eq .OwnerOrigin "Togo" }}selected{{ end }}>Togo 🇹🇬</option>
+                    <option value="Other" {{ if eq .OwnerOrigin "Other" }}selected{{ end }}>Other 🌍</option>
+                </select>
+            </div>
+
+            <!-- Image Upload -->
+            <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Photo
+                    (Optional)</label>
+                {{ if .ImageURL }}
+                <div class="mb-2">
+                    <img src="{{ .ImageURL }}" class="h-16 w-16 object-cover rounded-lg border border-stone-200">
+                </div>
+                {{ end }}
+                <input name="image" type="file" accept="image/*"
+                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all text-text-sub">
+            </div>
+
+            <!-- Description -->
+            <div class="flex flex-col gap-1.5">
+                <label
+                    class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Description</label>
+                <textarea required name="description" rows="3" placeholder="Tell us about your listing..."
+                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white resize-none">{{ .Description }}</textarea>
+            </div>
+
+            <!-- Neighborhood -->
+            <!-- Location Section -->
+            <div class="grid grid-cols-1 gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label
+                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Address
+                        (Validated)</label>
+                    <input id="edit-address-input-{{.Listing.ID}}" required name="address" type="text"
+                        value="{{ .Listing.Address }}" placeholder="Start typing address..."
+                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                    <input type="hidden" id="edit-city-input-{{.Listing.ID}}" name="city" value="{{ .Listing.City }}">
+                </div>
+            </div>
+
+            <script>
+                (function () {
+                    function initEditMaps() {
+                        const input = document.getElementById('edit-address-input-{{.Listing.ID}}');
+                        if (!input) return;
+
+                        const options = {
+                            fields: ["address_components", "geometry", "formatted_address"],
+                            types: ["address"],
+                        };
+                        const autocomplete = new google.maps.places.Autocomplete(input, options);
+                        autocomplete.addListener("place_changed", () => {
+                            const place = autocomplete.getPlace();
+                            let city = "";
+                            for (const component of place.address_components) {
+                                const types = component.types;
+                                if (types.includes("locality")) {
+                                    city = component.long_name;
+                                    break;
+                                }
+                                if (types.includes("postal_town")) {
+                                    city = component.long_name;
+                                }
+                                if (!city && types.includes("administrative_area_level_2")) {
+                                    city = component.long_name;
+                                }
+                            }
+
+                            if (city) {
+                                document.getElementById('edit-city-input-{{.Listing.ID}}').value = city;
+                            }
+
+                            if (place.formatted_address) {
+                                input.value = place.formatted_address;
+                            }
+                        });
+                    }
+
+                    if (typeof google === 'object' && typeof google.maps === 'object') {
+                        initEditMaps();
+                    } else {
+                        // Fallback if script isn't loaded yet (unlikely if index loaded it, but safe)
+                        // For edit modal, we assume base loaded it. If not, we might have issue.
+                        // But Create Modal logic handles loading.
+                    }
+                })();
+            </script>
+
+            <!-- Contact Section -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label
+                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Email</label>
+                    <input name="contact_email" type="email" value="{{ .ContactEmail }}"
+                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label
+                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Phone</label>
+                    <input name="contact_phone" type="tel" value="{{ .ContactPhone }}"
+                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+                <label
+                    class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">WhatsApp</label>
+                <input name="contact_whatsapp" type="tel" value="{{ .ContactWhatsApp }}"
+                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+            </div>
+
+            <!-- Website (Optional) -->
+            <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Website
+                    (Optional)</label>
+                <input name="website_url" type="url" value="{{ .WebsiteURL }}"
+                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+            </div>
+
+            <button type="submit"
+                class="mt-2 w-full flex items-center justify-center gap-2 bg-primary hover:bg-orange-600 text-white font-bold h-12 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-orange-500/20">
+                Save Changes
+            </button>
+        </form>
+    </div>
+</dialog>
+<script>
+    document.getElementById("edit-listing-modal-{{.ID}}").showModal();
+</script>

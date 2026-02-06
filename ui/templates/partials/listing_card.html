@@ -8,7 +8,7 @@
     <div
         class="relative w-full aspect-[16/9] md:aspect-auto md:flex-1 overflow-hidden pointer-events-none group-hover:flex-[1.5] transition-all duration-500 ease-out">
         <!-- Placeholder image logic -->
-        <div class="w-full h-full bg-center bg-cover transform group-hover:scale-105 transition-transform duration-500"
+        <div class="w-full h-full bg-center transform group-hover:scale-105 transition-transform duration-500 {{ if .Listing.ImageURL }}bg-cover{{ else }}bg-contain bg-no-repeat p-8 bg-origin-content opacity-80{{ end }}"
             data-alt="{{ .Listing.Title }}"
             style='background-image: url("{{ if .Listing.ImageURL }}{{ .Listing.ImageURL }}{{ else }}/static/images/logo.png{{ end }}");'>
         </div>
@@ -24,6 +24,12 @@
             hx-get="/listings/{{ .Listing.ID }}/edit" hx-target="body" hx-swap="beforeend">
             Edit
         </button>
+        <button
+            class="absolute top-3 left-16 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm hover:scale-105 transition-transform z-20 pointer-events-auto"
+            hx-delete="/listings/{{ .Listing.ID }}" hx-confirm="Are you sure you want to delete this listing?">
+            Delete
+        </button>
+
         {{ end }}
     </div>
     <div class="flex flex-col gap-3 p-6 pointer-events-none">
@@ -35,13 +41,13 @@
                         .Listing.Type }}</span>
                     <span class="text-text-sub dark:text-stone-400 text-xs flex items-center gap-1">
                         <span class="material-symbols-outlined text-[14px]">location_on</span>
-                        {{ .Listing.Neighborhood }}
+                        {{ .Listing.City }}{{ if .Listing.Address }} • {{ .Listing.Address }}{{ end }}
                     </span>
                 </div>
-                <h3 class="text-xl font-bold text-text-main dark:text-white leading-tight">{{ .Listing.Title }} <span
-                        class="text-xl align-middle">{{ if eq .Listing.OwnerOrigin "Nigeria" }}🇳🇬{{ else if eq
+                <h3 class="text-xl font-bold text-text-main dark:text-white leading-tight uppercase">{{ .Listing.Title
+                    }} <span class="text-xl align-middle">{{ if eq .Listing.OwnerOrigin "Nigeria" }}🇳🇬{{ else if eq
                         .Listing.OwnerOrigin
-                        "Ghana" }}🇬🇭{{ else }}🌍{{ end }}</span></h3>
+                        "Ghana" }}🇬🇭{{ end }}</span></h3>
             </div>
         </div>
         <p class="text-text-sub dark:text-stone-400 text-sm leading-relaxed line-clamp-2">
@@ -77,7 +83,8 @@
             {{ else }}
             <!-- Fallback View Button (Also relative z-20, though redundant if overlay works, but good for explicit UI affordance) -->
             <button
-                class="mt-2 w-full flex items-center justify-center gap-2 bg-primary hover:bg-orange-600 text-white font-medium h-11 rounded-xl transition-all active:scale-[0.98]">
+                class="mt-2 w-full flex items-center justify-center gap-2 bg-primary hover:bg-orange-600 text-white font-medium h-11 rounded-xl transition-all active:scale-[0.98]"
+                hx-get="/listings/{{ .Listing.ID }}" hx-target="body" hx-swap="beforeend">
                 <span class="material-symbols-outlined text-[20px]">visibility</span>
                 View Details
             </button>

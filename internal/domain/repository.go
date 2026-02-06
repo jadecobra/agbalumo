@@ -7,6 +7,8 @@ type ListingRepository interface {
 	Save(ctx context.Context, listing Listing) error
 	FindAll(ctx context.Context, filterType string, queryText string, includeInactive bool) ([]Listing, error)
 	FindByID(ctx context.Context, id string) (Listing, error)
+	FindAllByOwner(ctx context.Context, ownerID string) ([]Listing, error)
+	Delete(ctx context.Context, id string) error
 
 	// User Methods
 	SaveUser(ctx context.Context, user User) error
