@@ -26,12 +26,12 @@
 *   **Cultural Context**: All placeholder data and "mock" content must reflect West African culture (Nigerian/Ghanaian focus).
 
 ## 5. Agent Protocol
-*   **Lead Architect**: Enforces this document.
-*   **SDET Agent**: Owns the `*_test.go` files (Functional/Integration). Backend Agent CANNOT edit test logic without SDET approval.
-*   **Security Engineer**: Owns `security_test.go` and security policy. specific audits.
-*   **Backend Agent**: Writes code to pass SDET tests.
-*   **UI/UX Designer**: Owns the specific look and feel, ensuring HIG/Material 3 compliance.
-*   **Cultural Moderator**: Ensures all content and data respects the West African context.
+*   **Lead Architect**: Orchestrator. Enforces specific agent personas and this document.
+*   **SDET Agent**: Owns `*_test.go`. Writes failing tests (Red) BEFORE implementation.
+*   **Backend Agent**: Implements logic to pass tests. **Strict Rule: No code without a failing test.**
+*   **Security Engineer**: Owns `security_test.go` and audits. "Trust but verify."
+*   **UI/UX Designer**: Owns look/feel (HIG/Material 3). Ensures "User Delight" and FCP < 1.0s.
+*   **Cultural Moderator**: Ensures content relevance via Gemini. "Validate first."
 
 ## 6. Security Best Practices (Zero Trust)
 *   **Input Validation**: Validate ALL inputs at the boundary. No implicit trust.

@@ -2,32 +2,19 @@ package main
 
 import (
 	"context"
-	"errors"
-	"html/template"
-	"io"
 	"log"
 	"os"
-	"time"
 
 	"github.com/gorilla/sessions"
-	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
+	"github.com/jadecobra/agbalumo/internal/seeder"
+	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
-
-// TemplateRenderer is a custom html/template renderer for Echo framework
-type TemplateRenderer struct {
-	templates *template.Template
-}
-
-// Render renders a template document
-func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	return t.templates.ExecuteTemplate(w, name, data)
-}
 
 func main() {
 	// Load .env file
@@ -70,7 +57,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
-	// ...
+
+	// Template Renderer
+	renderer, err := ui.NewTemplateRenderer("ui/templates/*.html", "ui/templates/partials/*.html")
+	if err != nil {
+		log.Fatalf("Failed to initialize template renderer: %v", err)
+	}
+	e.Renderer = renderer
+
 	// Handlers
 	listingHandler := handler.NewListingHandler(repo)
 	adminHandler := handler.NewAdminHandler(repo)
@@ -84,69 +78,20 @@ func main() {
 
 	// Routes
 	e.Use(authHandler.OptionalAuth) // Inject user if logged in
-	e.GET("/", listingHandler.HandleHome)
-	// ...
-
-	// Seed Data (if empty)
-	ctx := context.Background()
-	var existing []domain.Listing
-	existing, _ = repo.FindAll(ctx, "", "", true)
-	if len(existing) == 0 {
-		seedData(ctx, repo)
-	}
 
 	// Static files (CSS, JS, Images)
 	e.Static("/static", "ui/static")
 
-	// Template Renderer
-	// Parse both templates and partials
-	tmpl := template.New("").Funcs(template.FuncMap{
-		"mod": func(i, j int) int { return i % j },
-		"add": func(i, j int) int { return i + j },
-		"seq": func(start, end int) []int {
-			var s []int
-			for i := start; i <= end; i++ {
-				s = append(s, i)
-			}
-			return s
-		},
-		"dict": func(values ...interface{}) (map[string]interface{}, error) {
-			if len(values)%2 != 0 {
-				return nil, errors.New("invalid dict call")
-			}
-			dict := make(map[string]interface{}, len(values)/2)
-			for i := 0; i < len(values); i += 2 {
-				key, ok := values[i].(string)
-				if !ok {
-					return nil, errors.New("dict keys must be strings")
-				}
-				dict[key] = values[i+1]
-			}
-			return dict, nil
-		},
-	})
-	// Base to allow appending
-	template.Must(tmpl.Parse("{{define \"base\"}}{{end}}"))
-	// Note: ParseGlob might error if no files match, so be careful.
-	// For simplicity, let's parse specific globs.
-	template.Must(tmpl.ParseGlob("ui/templates/*.html"))
-	template.Must(tmpl.ParseGlob("ui/templates/partials/*.html"))
-
-	renderer := &TemplateRenderer{
-		templates: tmpl,
-	}
-	e.Renderer = renderer
-
-	// Routes
 	e.GET("/", listingHandler.HandleHome)
 	e.GET("/listings/fragment", listingHandler.HandleFragment)
 	e.GET("/listings/:id", listingHandler.HandleDetail)
 	e.POST("/listings", listingHandler.HandleCreate)
+
 	// Edit Routes
-	e.Use(authHandler.OptionalAuth) // Ensure user is available for check
+	// e.Use(authHandler.OptionalAuth) // Already applied globally above
 	e.GET("/listings/:id/edit", listingHandler.HandleEdit, authHandler.RequireAuth)
 	e.PUT("/listings/:id", listingHandler.HandleUpdate, authHandler.RequireAuth)
-	e.POST("/listings/:id", listingHandler.HandleUpdate, authHandler.RequireAuth) // Fallback support for POST? HTMX sends PUT if requested.
+	e.POST("/listings/:id", listingHandler.HandleUpdate, authHandler.RequireAuth) // Fallback support for POST
 	e.DELETE("/listings/:id", listingHandler.HandleDelete, authHandler.RequireAuth)
 
 	// Profile
@@ -161,6 +106,10 @@ func main() {
 
 	adminGroup.GET("", adminHandler.HandleDashboard)
 	adminGroup.DELETE("/listings/:id", adminHandler.HandleDelete)
+
+	// Seed Data (if empty)
+	ctx := context.Background()
+	seeder.EnsureSeeded(ctx, repo)
 
 	// Start server
 	certFile := "certs/cert.pem"
@@ -179,41 +128,5 @@ func main() {
 	log.Println("Starting Server on :8080 (HTTP)")
 	if err := e.Start(":8080"); err != nil {
 		e.Logger.Fatal(err)
-	}
-}
-
-func seedData(ctx context.Context, repo domain.ListingRepository) {
-	listings := []domain.Listing{
-		{
-			ID:              "1",
-			Title:           "Lagos Spot Kitchen",
-			OwnerOrigin:     "Nigeria",
-			Type:            domain.Business,
-			City:            "Dallas",
-			Address:         "1234 Greenville Ave, Dallas, TX 75206",
-			Description:     "Authentic Naija jollof and suya spots in the heart of Dallas.",
-			ContactEmail:    "info@lagosspot.com",
-			ContactWhatsApp: "+12145550100",
-			CreatedAt:       time.Now(),
-			IsActive:        true,
-		},
-		{
-			ID:              "2",
-			Title:           "Kofi's Legal Aid",
-			OwnerOrigin:     "Ghana",
-			Type:            domain.Service,
-			City:            "Dallas",
-			Address:         "500 Main St, Dallas, TX 75202",
-			Description:     "Immigration and small business legal consultation.",
-			ContactEmail:    "kofi@legalaid.com",
-			ContactWhatsApp: "+12145550200",
-			CreatedAt:       time.Now(),
-			IsActive:        true,
-		},
-	}
-	for _, l := range listings {
-		if err := repo.Save(ctx, l); err != nil {
-			log.Printf("Failed to seed listing: %v", err)
-		}
 	}
 }

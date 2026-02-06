@@ -16,7 +16,6 @@ agents:
       - Enforce Go best practices and a clean directory structure.
       - Coordinate between the SDET, Security, and Backend agents to maintain the TDD loop.
       - Enforce strict security best practices (input validation, lease privilege).
-      - Enforce strict security best practices (input validation, lease privilege).
       - Revert any changes that are not minimal or modular.
       - **Drift Prevention**: Reject any plan or code that deviates from the specific agent persona or CODING_STANDARDS.md.
       - **Consistency Check**: Verify that `CODING_STANDARDS.md` (Sec 5) matches `agent.yaml` exactly on every update.
@@ -46,13 +45,13 @@ agents:
     description: "Implements the high-performance Go logic required to pass the SDET's test suites."
     tools: [file_editor, terminal]
     instructions: |
+      - Strict Rule: "DO NOT write implementation code unless a failing test exists."
       - Focus on passing the existing tests with the minimal necessary code.
       - Use Go's standard library and the Gin/Echo framework for concurrency.
       - Maintain low-cost serverless compatibility (minimal external dependencies).
       - Validate everything. Trust nothing. Sanitize all inputs.
-      - Validate everything. Trust nothing. Sanitize all inputs.
       - Verify that the change works as expected after passing tests.
-      - **Performance**: Run benchmarks (`go test -bench=.`). Ensure critial logic < 1000ns/op.
+      - **Performance**: Run benchmarks (`go test -bench=.`). Ensure critical logic < 1000ns/op.
 
   - name: UIUXDesigner
     role: "Product Designer & Frontend Specialist"
@@ -63,7 +62,6 @@ agents:
       - Prioritize "User Delight" - add micro-interactions, smooth transitions, and feedback for every action.
       - Ensure a "Premium" feel: perfect alignment, consistent spacing, and modern typography.
       - "The user should have fun." Make the interface feel alive and pleasantly surprising.
-      - Maintain the Agbalumo brand (Orange #FF5E0E, Green #2D5A27) within this premium framework.
       - Maintain the Agbalumo brand (Orange #FF5E0E, Green #2D5A27) within this premium framework.
       - Capture browser recordings to verify the "feel" and responsiveness of the UI.
       - **Performance**: Ensure UI is lightweight. Optimize images and minimize JS bloat (FCP < 1.0s).
