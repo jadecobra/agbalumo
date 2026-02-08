@@ -41,14 +41,16 @@ func main() {
 
 	resp, err := client.Get(target)
 	if err != nil {
-		// Try HTTP
+		fmt.Printf("⚠️  Could not connect to server (%s): %v\n", target, err)
+		// Try HTTP as fallback but warn heavily
 		target = "http://localhost:8080"
+		fmt.Printf("[!] Falling back to (%s)... ", target)
 		client = &http.Client{Timeout: 2 * time.Second}
 		resp, err = client.Get(target)
 	}
 
 	if err != nil {
-		fmt.Printf("⚠️  Could not connect to server (%s) to check headers: %v\n", target, err)
+		fmt.Printf("⚠️  Could not connect to server (%s) either: %v\n", target, err)
 		// Don't penalize score if server is just down, but warn.
 	} else {
 		defer resp.Body.Close()

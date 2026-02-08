@@ -109,3 +109,38 @@ func TestFindAll_Filtering(t *testing.T) {
 		t.Errorf("Expected 1 result 'Jollof Rice', got %v", searchRes)
 	}
 }
+
+func TestGetCounts(t *testing.T) {
+	repo, _ := newTestRepo(t)
+	ctx := context.Background()
+
+	// Seed Data
+	seedListings := []domain.Listing{
+		{ID: "1", Title: "Food 1", Type: domain.Food, IsActive: true, CreatedAt: time.Now(), OwnerOrigin: "Nigeria", ContactEmail: "a@b.com"},
+		{ID: "2", Title: "Food 2", Type: domain.Food, IsActive: true, CreatedAt: time.Now(), OwnerOrigin: "Nigeria", ContactEmail: "a@b.com"},
+		{ID: "3", Title: "Business 1", Type: domain.Business, IsActive: true, CreatedAt: time.Now(), OwnerOrigin: "Nigeria", ContactEmail: "a@b.com"},
+		{ID: "4", Title: "Inactive Service", Type: domain.Service, IsActive: false, CreatedAt: time.Now(), OwnerOrigin: "Nigeria", ContactEmail: "a@b.com"},
+	}
+
+	for _, l := range seedListings {
+		if err := repo.Save(ctx, l); err != nil {
+			t.Fatalf("Failed to seed listing: %v", err)
+		}
+	}
+
+	counts, err := repo.GetCounts(ctx)
+	if err != nil {
+		t.Fatalf("GetCounts failed: %v", err)
+	}
+
+	if counts[domain.Food] != 2 {
+		t.Errorf("Expected 2 Food, got %d", counts[domain.Food])
+	}
+	if counts[domain.Business] != 1 {
+		t.Errorf("Expected 1 Business, got %d", counts[domain.Business])
+	}
+	if counts[domain.Service] != 0 {
+		t.Errorf("Expected 0 Service (inactive), got %d", counts[domain.Service])
+	}
+}
+

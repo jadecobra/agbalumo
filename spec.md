@@ -4,9 +4,9 @@
 
 **Agbalumo** is a high-performance directory and request platform for the West African diaspora.
 
-* **Goal:** Connect users with West African businesses and services.
+* **Goal:** users can find West African businesses, services, products, food, and events that meet their needs. Business, services, products can find customers and clients. Events can find attendees. Job seekers can find jobs. Job posters can find job seekers.
 * **Architecture:** **Go (Golang)** for the backend, utilizing the `Standard Library` and `Gin/Echo` for high-concurrency routing.
-* **TDD Strategy:** Leverage Go’s built-in `testing` package with `testify` for assertions.
+* **TDD Strategy:** Leverage Go’s built-in `testing` package with `testify` for assertions. RED GREEN REFACTOR cycle.
 
 ### 2. Data Models (Go Structs)
 

@@ -5,8 +5,8 @@
 
         <!-- Header Image with Back/Close -->
         <div class="relative w-full aspect-video shrink-0">
-            <div class="w-full h-full bg-center bg-cover"
-                style='background-image: url("{{ if .Listing.ImageURL }}{{ .Listing.ImageURL }}{{ else }}https://lh3.googleusercontent.com/aida-public/AB6AXuB-JKhAqr2dq76Q5B6OJdWgW-XL8OqvC6oW4WhfM0GPq1nP_6SoAKQZfMX6OcG4HBHpbmUWg4ab8tHDcWHp2y6io6XagLIvfRfd4Rrxm2ruI_ftVJ9QI8vd3K8MmQ60G7q94mT63m9n6WoqVAN9VH_9w8VvrAaA2KQmU9V4vkT0l7KaFqQxZI1e8jhlonHsV_b7bVGlRq73kSFXtA1t8RaLlIlcGfkabR4qyimY7txug9RSCFmRjvMjZE4TaWcNz5PSmMbdeqxtjhx1{{ end }}");'>
+            <div class="w-full h-full bg-center {{ if .Listing.ImageURL }}bg-cover{{ else }}bg-contain bg-no-repeat p-12 bg-origin-content opacity-90{{ end }} bg-white dark:bg-surface-dark"
+                style='background-image: url("{{ if .Listing.ImageURL }}{{ .Listing.ImageURL }}{{ else }}/static/images/logo.png{{ end }}");'>
             </div>
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
 
@@ -48,6 +48,71 @@
                 {{ end }}
             </div>
 
+            <!-- Company & Pay for Jobs -->
+            {{ if eq .Listing.Type "Job" }}
+            <div
+                class="flex flex-col gap-2 mb-6 bg-stone-50 dark:bg-stone-900/40 p-4 rounded-2xl border border-stone-100 dark:border-stone-800">
+                <div class="flex items-center gap-2.5 text-text-main dark:text-white">
+                    <span class="material-symbols-outlined text-[20px] text-primary">business</span>
+                    <span class="font-bold uppercase tracking-widest text-sm">{{ .Listing.Company }}</span>
+                </div>
+                {{ if .Listing.PayRange }}
+                <div class="flex items-center gap-2.5 text-green-600 dark:text-green-400">
+                    <span class="material-symbols-outlined text-[20px]">payments</span>
+                    <span class="font-bold text-sm">{{ .Listing.PayRange }}</span>
+                </div>
+                {{ end }}
+            </div>
+            {{ end }}
+
+            {{ if and (eq .Listing.Type "Event") (not .Listing.EventStart.IsZero) }}
+            <div
+                class="flex items-start gap-2 text-text-sub dark:text-stone-400 text-sm mb-4 bg-purple-50 dark:bg-purple-900/10 p-3 rounded-xl border border-purple-100 dark:border-purple-900/30">
+                <span
+                    class="material-symbols-outlined text-[18px] mt-0.5 text-purple-600 dark:text-purple-400">event</span>
+                <div class="flex flex-col">
+                    <span class="font-bold text-text-main dark:text-stone-200 leading-tight">
+                        {{ .Listing.EventStart.Format "Mon, 02 Jan 2006" }}
+                    </span>
+                    <span class="text-xs opacity-80 font-medium">
+                        {{ .Listing.EventStart.Format "15:04" }} - {{ if not .Listing.EventEnd.IsZero }}{{
+                        .Listing.EventEnd.Format "15:04" }}{{ else }}Late{{ end }}
+                    </span>
+                </div>
+            </div>
+            {{ end }}
+
+
+            {{ if eq .Listing.Type "Job" }}
+            <!-- Job Start Date -->
+            <div
+                class="flex items-start gap-2 text-text-sub dark:text-stone-400 text-sm mb-4 bg-blue-50 dark:bg-blue-900/10 p-3 rounded-xl border border-blue-100 dark:border-blue-900/30">
+                <span
+                    class="material-symbols-outlined text-[18px] mt-0.5 text-blue-600 dark:text-blue-400">calendar_month</span>
+                <div class="flex flex-col">
+                    <span class="font-bold text-text-main dark:text-stone-200 leading-tight">Start Date</span>
+                    <span class="text-xs opacity-80 font-medium whitespace-nowrap">
+                        {{ if not .Listing.JobStartDate.IsZero }}{{ .Listing.JobStartDate.Format "Mon, 02 Jan 2006" }}{{
+                        else }}ASAP{{ end }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Skills -->
+            <h4 class="font-bold text-text-main dark:text-white mb-2 text-sm uppercase tracking-wide">Skills Required
+            </h4>
+            <div class="flex flex-wrap gap-2 mb-6">
+                {{ range (split .Listing.Skills ",") }}
+                <span
+                    class="bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 px-3 py-1 rounded-full text-xs font-bold border border-stone-200 dark:border-stone-700">
+                    {{ . }}
+                </span>
+                {{ end }}
+            </div>
+
+            <!-- Apply URL logic moved to Contact section -->
+            {{ end }}
+
             <h4 class="font-bold text-text-main dark:text-white mb-2 text-sm uppercase tracking-wide">About</h4>
             <p class="text-text-main dark:text-stone-300 text-sm leading-relaxed whitespace-pre-line mb-6">
                 {{ .Listing.Description }}
@@ -85,6 +150,14 @@
                     class="flex items-center gap-3 p-3 rounded-xl bg-primary/5 dark:bg-primary/10 text-primary hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors border border-primary/20">
                     <span class="material-symbols-outlined">language</span>
                     <span class="font-medium text-sm">Visit Website</span>
+                </a>
+                {{ end }}
+
+                {{ if .Listing.JobApplyURL }}
+                <a href="{{ .Listing.JobApplyURL }}" target="_blank"
+                    class="flex items-center gap-3 p-3 rounded-xl bg-primary text-white hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20">
+                    <span class="material-symbols-outlined">rocket_launch</span>
+                    <span class="font-medium text-sm">Apply Now</span>
                 </a>
                 {{ end }}
             </div>

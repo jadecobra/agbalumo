@@ -9,6 +9,7 @@ type ListingRepository interface {
 	FindByID(ctx context.Context, id string) (Listing, error)
 	FindAllByOwner(ctx context.Context, ownerID string) ([]Listing, error)
 	Delete(ctx context.Context, id string) error
+	GetCounts(ctx context.Context) (map[Category]int, error)
 
 	// User Methods
 	SaveUser(ctx context.Context, user User) error

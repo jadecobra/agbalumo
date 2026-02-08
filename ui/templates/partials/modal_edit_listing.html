@@ -94,6 +94,55 @@
                     class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white resize-none">{{ .Description }}</textarea>
             </div>
 
+            <!-- Event Dates (Hidden by default unless Event) -->
+            <div id="edit-event-dates-section-{{.ID}}" class="grid grid-cols-2 gap-4 hidden">
+                <div class="flex flex-col gap-1.5">
+                    <label
+                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Event
+                        Start</label>
+                    <input name="event_start" type="datetime-local"
+                        value="{{ if not .Listing.EventStart.IsZero }}{{ .Listing.EventStart.Format " 2006-01-02T15:04"
+                        }}{{ end }}"
+                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label
+                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Event
+                        End</label>
+                    <input name="event_end" type="datetime-local"
+                        value="{{ if not .Listing.EventEnd.IsZero }}{{ .Listing.EventEnd.Format " 2006-01-02T15:04" }}{{
+                        end }}"
+                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
+                </div>
+            </div>
+
+            <script>
+                (function () {
+                    const form = document.querySelector('#edit-listing-modal-{{.ID}} form');
+                    if (!form) return;
+
+                    const typeSelect = form.querySelector('select[name="type"]');
+                    const eventSection = document.getElementById('edit-event-dates-section-{{.ID}}');
+
+                    function toggleEventFields() {
+                        if (typeSelect.value === 'Event') {
+                            eventSection.classList.remove('hidden');
+                            eventSection.querySelectorAll('input').forEach(i => i.required = true);
+                        } else {
+                            eventSection.classList.add('hidden');
+                            eventSection.querySelectorAll('input').forEach(i => {
+                                i.required = false;
+                                // We don't clear values on edit toggle to avoid accidental data loss if they just misclicked
+                            });
+                        }
+                    }
+
+                    typeSelect.addEventListener('change', toggleEventFields);
+                    // Run on init
+                    toggleEventFields();
+                })();
+            </script>
+
             <!-- Neighborhood -->
             <!-- Location Section -->
             <div class="grid grid-cols-1 gap-4">

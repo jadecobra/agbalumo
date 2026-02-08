@@ -4,6 +4,7 @@ import (
 	"errors"
 	"html/template"
 	"io"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 )
@@ -16,8 +17,9 @@ type TemplateRenderer struct {
 // NewTemplateRenderer creates a new instance of TemplateRenderer with parsed templates
 func NewTemplateRenderer(patterns ...string) (*TemplateRenderer, error) {
 	tmpl := template.New("").Funcs(template.FuncMap{
-		"mod": func(i, j int) int { return i % j },
-		"add": func(i, j int) int { return i + j },
+		"split": strings.Split,
+		"mod":   func(i, j int) int { return i % j },
+		"add":   func(i, j int) int { return i + j },
 		"seq": func(start, end int) []int {
 			var s []int
 			for i := start; i <= end; i++ {

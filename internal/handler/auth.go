@@ -70,7 +70,11 @@ func (p *RealGoogleProvider) getRedirectURL(host string) string {
 		return redirectURL
 	}
 	// 3. Default to dynamic host
-	return fmt.Sprintf("http://%s/auth/google/callback", host)
+	scheme := "http"
+	if host == "localhost:8443" {
+		scheme = "https"
+	}
+	return fmt.Sprintf("%s://%s/auth/google/callback", scheme, host)
 }
 
 func (p *RealGoogleProvider) GetAuthCodeURL(state string, host string) string {

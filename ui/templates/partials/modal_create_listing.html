@@ -29,7 +29,8 @@
                     <option value="Service">Service</option>
                     <option value="Product">Product</option>
                     <option value="Food">Food (Restaurant/Catering)</option>
-                    <option value="Event">Event</option>
+                    <option value="Event">Event 📅</option>
+                    <option value="Job">Job</option>
                 </select>
             </div>
 
@@ -146,6 +147,117 @@
                     <textarea required name="description" rows="3" placeholder="Tell us about your listing..."
                         class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white resize-none"></textarea>
                 </div>
+
+                <!-- Event Dates (Hidden by default) -->
+                <div id="event-dates-section" class="grid grid-cols-2 gap-4 hidden">
+                    <div class="flex flex-col gap-1.5">
+                        <label
+                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Event
+                            Start</label>
+                        <input name="event_start" type="datetime-local"
+                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label
+                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Event
+                            End</label>
+                        <input name="event_end" type="datetime-local"
+                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
+                    </div>
+                </div>
+
+                <!-- Job Fields (Hidden by default) -->
+                <div id="job-fields-section" class="flex flex-col gap-4 hidden">
+                    <div class="flex flex-col gap-1.5">
+                        <label
+                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Company
+                            Name</label>
+                        <input name="company" type="text" placeholder="e.g. Acme Inc."
+                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label
+                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Pay
+                            Range (Optional)</label>
+                        <input name="pay_range" type="text" placeholder="e.g. $80k - $120k / Competitive"
+                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label
+                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Skills
+                            Required</label>
+                        <textarea name="skills" rows="2" placeholder="e.g. Golang, SQL, Docker..."
+                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white resize-none"></textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="flex flex-col gap-1.5">
+                            <label
+                                class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Start
+                                Date</label>
+                            <input name="job_start_date" type="datetime-local"
+                                class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label
+                                class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Apply
+                                URL (Optional)</label>
+                            <input name="job_apply_url" type="url" placeholder="https://..."
+                                class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    (function () {
+                        const typeSelect = document.querySelector('#create-listing-modal select[name="type"]');
+                        const eventSection = document.getElementById('event-dates-section');
+                        const jobSection = document.getElementById('job-fields-section');
+                        // Find the image upload container. It is the 4th top-level div in the form, or we search by input name
+                        // Input structure: div > label + input
+                        const imageInput = document.querySelector('#create-listing-modal input[name="image"]');
+                        const imageSection = imageInput ? imageInput.parentElement : null;
+
+                        function toggleFields() {
+                            const val = typeSelect.value;
+
+                            // Event Logic
+                            if (val === 'Event') {
+                                eventSection.classList.remove('hidden');
+                                eventSection.querySelectorAll('input').forEach(i => i.required = true);
+                            } else {
+                                eventSection.classList.add('hidden');
+                                eventSection.querySelectorAll('input').forEach(i => {
+                                    i.required = false;
+                                    i.value = '';
+                                });
+                            }
+
+                            // Job Logic
+                            if (val === 'Job') {
+                                jobSection.classList.remove('hidden');
+                                jobSection.querySelector('input[name="company"]').required = true;
+                                jobSection.querySelector('textarea[name="skills"]').required = true;
+                                jobSection.querySelector('input[name="job_start_date"]').required = true;
+
+                                // Hide Image Upload for Jobs
+                                if (imageSection) imageSection.style.display = 'none';
+                            } else {
+                                jobSection.classList.add('hidden');
+                                jobSection.querySelectorAll('input, textarea').forEach(i => {
+                                    i.required = false;
+                                    i.value = '';
+                                });
+
+                                // Show Image Upload for others
+                                if (imageSection) imageSection.style.display = 'flex';
+                            }
+                        }
+
+                        typeSelect.addEventListener('change', toggleFields);
+                        // Run on init just in case
+                        toggleFields();
+                    })();
+                </script>
 
                 <!-- Contact Section -->
                 <div class="grid grid-cols-2 gap-4">

@@ -9,6 +9,50 @@ import (
 	_ "modernc.org/sqlite" // register driver
 )
 
+const listingSelections = `
+	id, owner_id, owner_origin, type, title, description,
+	city, COALESCE(address, ''), contact_email, contact_phone, contact_whatsapp,
+	website_url, image_url, created_at, deadline, is_active,
+	event_start, event_end,
+	COALESCE(skills, ''), job_start_date, COALESCE(job_apply_url, ''),
+	COALESCE(company, ''), COALESCE(pay_range, '')
+`
+
+type Scanner interface {
+	Scan(dest ...interface{}) error
+}
+
+func scanListing(s Scanner) (domain.Listing, error) {
+	var l domain.Listing
+	var deadline, eventStart, eventEnd, jobStart sql.NullTime
+
+	err := s.Scan(
+		&l.ID, &l.OwnerID, &l.OwnerOrigin, &l.Type, &l.Title, &l.Description,
+		&l.City, &l.Address, &l.ContactEmail, &l.ContactPhone, &l.ContactWhatsApp,
+		&l.WebsiteURL, &l.ImageURL, &l.CreatedAt, &deadline, &l.IsActive,
+		&eventStart, &eventEnd,
+		&l.Skills, &jobStart, &l.JobApplyURL,
+		&l.Company, &l.PayRange,
+	)
+	if err != nil {
+		return domain.Listing{}, err
+	}
+
+	if deadline.Valid {
+		l.Deadline = deadline.Time
+	}
+	if eventStart.Valid {
+		l.EventStart = eventStart.Time
+	}
+	if eventEnd.Valid {
+		l.EventEnd = eventEnd.Time
+	}
+	if jobStart.Valid {
+		l.JobStartDate = jobStart.Time
+	}
+	return l, nil
+}
+
 type SQLiteRepository struct {
 	db *sql.DB
 }
@@ -51,7 +95,12 @@ func (r *SQLiteRepository) migrate() error {
 		contact_phone TEXT,
 		contact_whatsapp TEXT,
 		website_url TEXT,
-		deadline DATETIME
+		deadline DATETIME,
+		skills TEXT,
+		job_start_date DATETIME,
+		job_apply_url TEXT,
+		company TEXT,
+		pay_range TEXT
 	);`
 
 	if _, err := r.db.ExecContext(context.Background(), createListingsTable); err != nil {
@@ -77,6 +126,17 @@ func (r *SQLiteRepository) migrate() error {
 	// We ignore error if column exists (naive but works for dev SQLite)
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN address TEXT;")
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN city TEXT;")
+	
+	// Add Event Columns
+	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN event_start DATETIME;")
+	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN event_end DATETIME;")
+
+	// Add Job Columns
+	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN skills TEXT DEFAULT '';")
+	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN job_start_date DATETIME;")
+	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN job_apply_url TEXT DEFAULT '';")
+	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN company TEXT DEFAULT '';")
+	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN pay_range TEXT DEFAULT '';")
 
 	return nil
 }
@@ -84,8 +144,8 @@ func (r *SQLiteRepository) migrate() error {
 // Save inserts or updates a listing.
 func (r *SQLiteRepository) Save(ctx context.Context, l domain.Listing) error {
 	query := `
-	INSERT INTO listings (id, owner_id, title, description, type, owner_origin, city, address, is_active, created_at, image_url, contact_email, contact_phone, contact_whatsapp, website_url, deadline)
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	INSERT INTO listings (id, owner_id, title, description, type, owner_origin, city, address, is_active, created_at, image_url, contact_email, contact_phone, contact_whatsapp, website_url, deadline, event_start, event_end, skills, job_start_date, job_apply_url, company, pay_range)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	ON CONFLICT(id) DO UPDATE SET
 		owner_id = excluded.owner_id,
 		title = excluded.title,
@@ -100,18 +160,26 @@ func (r *SQLiteRepository) Save(ctx context.Context, l domain.Listing) error {
 		contact_phone = excluded.contact_phone,
 		contact_whatsapp = excluded.contact_whatsapp,
 		website_url = excluded.website_url,
-		deadline = excluded.deadline;
+		deadline = excluded.deadline,
+		event_start = excluded.event_start,
+		event_end = excluded.event_end,
+		skills = excluded.skills,
+		job_start_date = excluded.job_start_date,
+		job_apply_url = excluded.job_apply_url,
+		company = excluded.company,
+		pay_range = excluded.pay_range;
 	`
 
 	_, err := r.db.ExecContext(ctx, query,
 		l.ID, l.OwnerID, l.Title, l.Description, l.Type, l.OwnerOrigin, l.City, l.Address, l.IsActive, l.CreatedAt,
-		l.ImageURL, l.ContactEmail, l.ContactPhone, l.ContactWhatsApp, l.WebsiteURL, l.Deadline,
+		l.ImageURL, l.ContactEmail, l.ContactPhone, l.ContactWhatsApp, l.WebsiteURL, l.Deadline, l.EventStart, l.EventEnd,
+		l.Skills, l.JobStartDate, l.JobApplyURL, l.Company, l.PayRange,
 	)
 	return err
 }
 
 func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, queryText string, includeInactive bool) ([]domain.Listing, error) {
-	query := `SELECT id, owner_id, owner_origin, type, title, description, city, COALESCE(address, ''), contact_email, contact_phone, contact_whatsapp, website_url, image_url, created_at, deadline, is_active FROM listings WHERE 1=1`
+	query := `SELECT ` + listingSelections + ` FROM listings WHERE 1=1`
 	var args []interface{}
 
 	if !includeInactive {
@@ -139,12 +207,8 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 
 	var listings []domain.Listing
 	for rows.Next() {
-		var l domain.Listing
-		if err := rows.Scan(
-			&l.ID, &l.OwnerID, &l.OwnerOrigin, &l.Type, &l.Title, &l.Description,
-			&l.City, &l.Address, &l.ContactEmail, &l.ContactPhone, &l.ContactWhatsApp,
-			&l.WebsiteURL, &l.ImageURL, &l.CreatedAt, &l.Deadline, &l.IsActive,
-		); err != nil {
+		l, err := scanListing(rows)
+		if err != nil {
 			return nil, err
 		}
 		listings = append(listings, l)
@@ -154,18 +218,13 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 
 func (r *SQLiteRepository) FindByID(ctx context.Context, id string) (domain.Listing, error) {
 	query := `
-		SELECT id, owner_id, title, description, type, owner_origin, city, COALESCE(address, ''), is_active, created_at, image_url, contact_email, contact_phone, contact_whatsapp, website_url, deadline
+		SELECT ` + listingSelections + `
 		FROM listings
 		WHERE id = ?
 	`
 	row := r.db.QueryRowContext(ctx, query, id)
 
-	var l domain.Listing
-	err := row.Scan(
-		&l.ID, &l.OwnerID, &l.Title, &l.Description, &l.Type, &l.OwnerOrigin,
-		&l.City, &l.Address, &l.IsActive, &l.CreatedAt,
-		&l.ImageURL, &l.ContactEmail, &l.ContactPhone, &l.ContactWhatsApp, &l.WebsiteURL, &l.Deadline,
-	)
+	l, err := scanListing(row)
 	if err == sql.ErrNoRows {
 		return domain.Listing{}, errors.New("listing not found")
 	}
@@ -215,7 +274,7 @@ func (r *SQLiteRepository) FindUserByID(ctx context.Context, id string) (domain.
 }
 
 func (r *SQLiteRepository) FindAllByOwner(ctx context.Context, ownerID string) ([]domain.Listing, error) {
-	query := `SELECT id, owner_id, owner_origin, type, title, description, city, COALESCE(address, ''), contact_email, contact_phone, contact_whatsapp, website_url, image_url, created_at, deadline, is_active 
+	query := `SELECT ` + listingSelections + `
               FROM listings 
               WHERE owner_id = ? 
               ORDER BY created_at DESC`
@@ -228,12 +287,8 @@ func (r *SQLiteRepository) FindAllByOwner(ctx context.Context, ownerID string) (
 
 	var listings []domain.Listing
 	for rows.Next() {
-		var l domain.Listing
-		if err := rows.Scan(
-			&l.ID, &l.OwnerID, &l.OwnerOrigin, &l.Type, &l.Title, &l.Description,
-			&l.City, &l.Address, &l.ContactEmail, &l.ContactPhone, &l.ContactWhatsApp,
-			&l.WebsiteURL, &l.ImageURL, &l.CreatedAt, &l.Deadline, &l.IsActive,
-		); err != nil {
+		l, err := scanListing(rows)
+		if err != nil {
 			return nil, err
 		}
 		listings = append(listings, l)
@@ -256,3 +311,24 @@ func (r *SQLiteRepository) Delete(ctx context.Context, id string) error {
 	}
 	return nil
 }
+
+func (r *SQLiteRepository) GetCounts(ctx context.Context) (map[domain.Category]int, error) {
+	query := `SELECT type, COUNT(*) FROM listings WHERE is_active = true GROUP BY type`
+	rows, err := r.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	counts := make(map[domain.Category]int)
+	for rows.Next() {
+		var cat domain.Category
+		var count int
+		if err := rows.Scan(&cat, &count); err != nil {
+			return nil, err
+		}
+		counts[cat] = count
+	}
+	return counts, nil
+}
+

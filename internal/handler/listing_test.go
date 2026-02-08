@@ -78,6 +78,47 @@ func TestHandleHome(t *testing.T) {
 	}
 }
 
+func TestHandleHome_Counts(t *testing.T) {
+	// Setup
+	e := echo.New()
+	t_temp := template.New("base")
+	t_temp.New("index.html").Parse(`Total: {{.TotalCount}}, Food: {{index .Counts "Food"}}, Business: {{index .Counts "Business"}}`)
+	e.Renderer = &TestRenderer{templates: t_temp}
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	// Mock Repo
+	mockRepo := &mock.MockListingRepository{
+		FindAllFn: func(ctx context.Context, filterType, query string, includeInactive bool) ([]domain.Listing, error) {
+			return []domain.Listing{}, nil
+		},
+		GetCountsFn: func(ctx context.Context) (map[domain.Category]int, error) {
+			return map[domain.Category]int{
+				domain.Food:     5,
+				domain.Business: 3,
+			}, nil
+		},
+	}
+
+	h := handler.NewListingHandler(mockRepo)
+
+	// Execute
+	if err := h.HandleHome(c); err != nil {
+		t.Fatalf("HandleHome failed: %v", err)
+	}
+
+	// Verify
+	if rec.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", rec.Code)
+	}
+	expectedBody := "Total: 8, Food: 5, Business: 3"
+	if rec.Body.String() != expectedBody {
+		t.Errorf("Expected body %q, got %q", expectedBody, rec.Body.String())
+	}
+}
+
+
 func TestHandleFragment(t *testing.T) {
 	// Setup
 	e := echo.New()

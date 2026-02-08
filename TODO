@@ -1,4 +1,3 @@
-- security audit
 - add plan to deploy to fly.io
 - implement saved
 - use all west african countries in owner origin for business/service/product
@@ -6,6 +5,4 @@
 - add feedback button for users to report issues/suggest improvements
 - separate phone/whatsapp
 - add hours of operation for business/food listings
-- filter buttons should indicate which filter is active
-- add details for posting events
-- add date/time for events
+- add count for filters to show how many listings match each filter

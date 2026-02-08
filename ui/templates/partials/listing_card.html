@@ -7,11 +7,23 @@
 
     <div
         class="relative w-full aspect-[16/9] md:aspect-auto md:flex-1 overflow-hidden pointer-events-none group-hover:flex-[1.5] transition-all duration-500 ease-out">
-        <!-- Placeholder image logic -->
-        <div class="w-full h-full bg-center transform group-hover:scale-105 transition-transform duration-500 {{ if .Listing.ImageURL }}bg-cover{{ else }}bg-contain bg-no-repeat p-8 bg-origin-content opacity-80{{ end }}"
-            data-alt="{{ .Listing.Title }}"
-            style='background-image: url("{{ if .Listing.ImageURL }}{{ .Listing.ImageURL }}{{ else }}/static/images/logo.png{{ end }}");'>
+        <!-- Placeholder image logic: Title fallback -->
+        {{ if not .Listing.ImageURL }}
+        <div class="w-full h-full flex items-center justify-center p-6 text-center transform group-hover:scale-105 transition-transform duration-500
+            {{ if eq .Listing.Type " Job" }}bg-blue-600 dark:bg-blue-800 {{ else if eq .Listing.Type "Food"
+            }}bg-orange-600 dark:bg-orange-800 {{ else if eq .Listing.Type "Event" }}bg-purple-600 dark:bg-purple-800 {{
+            else if eq .Listing.Type "Request" }}bg-secondary dark:bg-green-900 {{ else }}bg-stone-500
+            dark:bg-stone-700{{ end }}">
+            <span
+                class="text-white font-bold text-xl md:text-2xl uppercase tracking-widest leading-tight drop-shadow-md">
+                {{ .Listing.Title }}
+            </span>
         </div>
+        {{ else }}
+        <div class="w-full h-full bg-center bg-cover transform group-hover:scale-105 transition-transform duration-500"
+            data-alt="{{ .Listing.Title }}" style='background-image: url("{{ .Listing.ImageURL }}");'>
+        </div>
+        {{ end }}
         <div
             class="absolute top-3 right-3 bg-white/90 dark:bg-black/80 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-secondary dark:text-green-400 border border-green-100 dark:border-green-900 shadow-sm z-0">
             Just Added
@@ -39,6 +51,12 @@
                     <span
                         class="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-[10px] uppercase font-bold px-2 py-0.5 rounded-md tracking-wider whitespace-nowrap">{{
                         .Listing.Type }}</span>
+                    {{ if and (eq .Listing.Type "Event") (not .Listing.EventStart.IsZero) }}
+                    <span
+                        class="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-[10px] uppercase font-bold px-2 py-0.5 rounded-md tracking-wider whitespace-nowrap">
+                        {{ .Listing.EventStart.Format "Jan 02, 15:04" }}
+                    </span>
+                    {{ end }}
                     <span class="text-text-sub dark:text-stone-400 text-xs flex items-center gap-1">
                         <span class="material-symbols-outlined text-[14px]">location_on</span>
                         {{ .Listing.City }}{{ if .Listing.Address }} • {{ .Listing.Address }}{{ end }}
@@ -50,7 +68,23 @@
                         "Ghana" }}🇬🇭{{ end }}</span></h3>
             </div>
         </div>
-        <p class="text-text-sub dark:text-stone-400 text-sm leading-relaxed line-clamp-2">
+        <!-- Company & Pay for Jobs -->
+        {{ if eq .Listing.Type "Job" }}
+        <div class="flex flex-col gap-1 mb-3">
+            <div class="flex items-center gap-1.5 text-text-sub dark:text-stone-400">
+                <span class="material-symbols-outlined text-[16px]">business</span>
+                <span class="text-xs font-bold uppercase tracking-wider">{{ .Listing.Company }}</span>
+            </div>
+            {{ if .Listing.PayRange }}
+            <div class="flex items-center gap-1.5 text-green-600 dark:text-green-400">
+                <span class="material-symbols-outlined text-[16px]">payments</span>
+                <span class="text-xs font-bold">{{ .Listing.PayRange }}</span>
+            </div>
+            {{ end }}
+        </div>
+        {{ end }}
+
+        <p class="text-text-sub dark:text-stone-400 text-xs line-clamp-2 leading-relaxed mb-4">
             {{ .Listing.Description }}
         </p>
 

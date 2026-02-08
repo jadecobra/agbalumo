@@ -43,6 +43,13 @@ type Listing struct {
 	WebsiteURL      string    `json:"website_url" form:"website_url"` // New: Optional
 	CreatedAt       time.Time `json:"created_at" form:"created_at"`
 	Deadline        time.Time `json:"deadline" form:"deadline"` // Required for 'Request'
+	EventStart      time.Time `json:"event_start" form:"event_start"`
+	EventEnd        time.Time `json:"event_end" form:"event_end"`
+	Skills          string    `json:"skills" form:"skills"`           // New: For Job
+	JobStartDate    time.Time `json:"job_start_date" form:"job_start_date"` // New: For Job
+	JobApplyURL     string    `json:"job_apply_url" form:"job_apply_url"`   // New: Optional
+	Company         string    `json:"company" form:"company"`               // New: For Job
+	PayRange        string    `json:"pay_range" form:"pay_range"`           // New: For Job
 	IsActive        bool      `json:"is_active" form:"is_active"`
 }
 
@@ -97,6 +104,34 @@ func (l *Listing) Validate() error {
 		limit := start.Add(90 * 24 * time.Hour)
 		if l.Deadline.After(limit) {
 			return ErrInvalidDeadline
+		}
+	}
+
+	if l.Type == Event {
+		if l.EventStart.IsZero() {
+			return errors.New("event start time is required")
+		}
+		if l.EventEnd.IsZero() {
+			return errors.New("event end time is required")
+		}
+		if l.EventEnd.Before(l.EventStart) {
+			return errors.New("event end time cannot be before start time")
+		}
+	}
+
+	if l.Type == Job {
+		if l.Company == "" {
+			return errors.New("company name is required for job listings")
+		}
+		if l.Skills == "" {
+			return errors.New("skills are required for job listings")
+		}
+		if l.JobStartDate.IsZero() {
+			return errors.New("job start date is required")
+		}
+		// Start date cannot be in the past (allow 24h buffer)
+		if l.JobStartDate.Before(time.Now().Add(-24 * time.Hour)) {
+			return errors.New("job start date cannot be in the past")
 		}
 	}
 

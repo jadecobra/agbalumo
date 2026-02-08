@@ -411,7 +411,7 @@ func TestRealGoogleProvider_BaseURL(t *testing.T) {
 	provider := handler.NewRealGoogleProvider()
 
 	// Get Auth URL
-	authURL := provider.GetAuthCodeURL("state", "localhost:8080")
+	authURL := provider.GetAuthCodeURL("state", "localhost:8443")
 
 	// Validate Redirect URI param
 	// Expected: redirect_uri=http://192.168.1.100:8080/auth/google/callback

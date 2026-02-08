@@ -22,19 +22,39 @@ func NewListingHandler(repo domain.ListingRepository) *ListingHandler {
 
 // Home Handler
 func (h *ListingHandler) HandleHome(c echo.Context) error {
-	listings, err := h.Repo.FindAll(c.Request().Context(), "", "", false)
+	ctx := c.Request().Context()
+	listings, err := h.Repo.FindAll(ctx, "", "", false)
 	if err != nil {
 		return RespondError(c, err)
+	}
+
+	counts, err := h.Repo.GetCounts(ctx)
+	if err != nil {
+		// We log the error but proceed with empty counts to avoid crashing the home page
+		// if just the counts query fails for some reason.
+		c.Logger().Errorf("failed to get listing counts: %v", err)
+		counts = make(map[domain.Category]int)
+	}
+
+	strCounts := make(map[string]int)
+	totalCount := 0
+	for cat, count := range counts {
+		strCounts[string(cat)] = count
+		totalCount += count
 	}
 
 	user := c.Get("User")
 
 	return c.Render(http.StatusOK, "index.html", map[string]interface{}{
 		"Listings":         listings,
+		"Counts":           strCounts,
+		"TotalCount":       totalCount,
 		"User":             user,
 		"GoogleMapsApiKey": os.Getenv("GOOGLE_MAPS_API_KEY"),
 	})
 }
+
+
 
 // Fragment Handler (HTMX)
 func (h *ListingHandler) HandleFragment(c echo.Context) error {
@@ -100,6 +120,13 @@ type ListingFormRequest struct {
 	ContactWhatsApp string `form:"contact_whatsapp"`
 	WebsiteURL      string `form:"website_url"`
 	DeadlineDate    string `form:"deadline_date"`
+	EventStart      string `form:"event_start"`
+	EventEnd        string `form:"event_end"`
+	Skills          string `form:"skills"`
+	JobStartDate    string `form:"job_start_date"`
+	JobApplyURL     string `form:"job_apply_url"`
+	Company         string `form:"company"`
+	PayRange        string `form:"pay_range"`
 }
 
 // Create Handler
@@ -225,7 +252,12 @@ func (h *ListingHandler) populateListingFromRequest(c echo.Context, l *domain.Li
 	l.ContactEmail = req.ContactEmail
 	l.ContactPhone = req.ContactPhone
 	l.ContactWhatsApp = req.ContactWhatsApp
+	l.ContactWhatsApp = req.ContactWhatsApp
 	l.WebsiteURL = req.WebsiteURL
+	l.Skills = req.Skills
+	l.JobApplyURL = req.JobApplyURL
+	l.Company = req.Company
+	l.PayRange = req.PayRange
 
 	// Handle Image Upload
 	if imageURL, err := h.saveUploadedImage(c, l.ID); err == nil && imageURL != "" {
@@ -242,6 +274,35 @@ func (h *ListingHandler) populateListingFromRequest(c echo.Context, l *domain.Li
 		}
 		l.Deadline = parsedTime
 	}
+	
+	// Handle Event Dates
+	if l.Type == domain.Event {
+		if req.EventStart != "" {
+			parsedTime, err := time.Parse("2006-01-02T15:04", req.EventStart)
+			if err != nil {
+				return c.String(http.StatusBadRequest, "Invalid Start Date Format")
+			}
+
+			l.EventStart = parsedTime
+		}
+		if req.EventEnd != "" {
+			parsedTime, err := time.Parse("2006-01-02T15:04", req.EventEnd)
+			if err != nil {
+				return c.String(http.StatusBadRequest, "Invalid End Date Format")
+			}
+			l.EventEnd = parsedTime
+		}
+	}
+
+	// Handle Job Start Date
+	if l.Type == domain.Job && req.JobStartDate != "" {
+		parsedTime, err := time.Parse("2006-01-02T15:04", req.JobStartDate)
+		if err != nil {
+			return c.String(http.StatusBadRequest, "Invalid Job Start Date Format")
+		}
+		l.JobStartDate = parsedTime
+	}
+
 
 	return nil
 }
