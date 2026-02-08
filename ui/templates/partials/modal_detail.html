@@ -48,6 +48,13 @@
                 {{ end }}
             </div>
 
+            {{ if .Listing.HoursOfOperation }}
+            <div class="flex items-start gap-2 text-text-sub dark:text-stone-400 text-sm mb-4">
+                <span class="material-symbols-outlined text-[18px] mt-0.5">schedule</span>
+                <span class="font-medium text-text-main dark:text-stone-200">{{ .Listing.HoursOfOperation }}</span>
+            </div>
+            {{ end }}
+
             <!-- Company & Pay for Jobs -->
             {{ if eq .Listing.Type "Job" }}
             <div

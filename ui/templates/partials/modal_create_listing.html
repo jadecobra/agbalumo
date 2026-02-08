@@ -80,11 +80,20 @@
                         <label
                             class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Address
                             (Validated)</label>
-                        <input id="create-address-input" required name="address" type="text"
+                        <input id="create-address-input" name="address" type="text"
                             placeholder="Start typing address..."
                             class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
                         <input type="hidden" id="create-city-input" name="city">
                     </div>
+                </div>
+
+                <!-- Hours of Operation (Optional) -->
+                <div class="flex flex-col gap-1.5">
+                    <label
+                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Hours
+                        of Operation</label>
+                    <input name="hours_of_operation" type="text" placeholder="e.g. Mon-Fri 9am-6pm"
+                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
                 </div>
 
                 <script>
@@ -250,6 +259,38 @@
 
                                 // Show Image Upload for others
                                 if (imageSection) imageSection.style.display = 'flex';
+                            }
+
+                            // Address Requirement Logic
+                            const addressInput = document.getElementById('create-address-input');
+                            if (addressInput) {
+                                if (val === 'Service' || val === 'Job' || val === 'Request') {
+                                    addressInput.required = false;
+                                    addressInput.placeholder = "Address (Optional)";
+                                    // Update label if possible, or just rely on placeholder
+                                    const label = addressInput.previousElementSibling;
+                                    if (label) label.textContent = "Address (Optional)";
+                                } else {
+                                    addressInput.required = true;
+                                    addressInput.placeholder = "Start typing address...";
+                                    const label = addressInput.previousElementSibling;
+                                    if (label) label.textContent = "Address (Validated)";
+                                }
+                            }
+
+                            // Hours of Operation Logic
+                            const hoursInput = document.querySelector('#create-listing-modal input[name="hours_of_operation"]');
+                            if (hoursInput) {
+                                const hoursContainer = hoursInput.closest('div');
+                                // Allowed: Business, Service, Food
+                                if (val === 'Business' || val === 'Service' || val === 'Food') {
+                                    if (hoursContainer) hoursContainer.classList.remove('hidden');
+                                    hoursInput.disabled = false;
+                                } else {
+                                    if (hoursContainer) hoursContainer.classList.add('hidden');
+                                    hoursInput.value = ''; // Clear value
+                                    hoursInput.disabled = true; // Prevent submission
+                                }
                             }
                         }
 

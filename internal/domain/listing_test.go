@@ -72,6 +72,7 @@ func TestContactRequirement(t *testing.T) {
 		Title:       "Jollof Place",
 		CreatedAt:   time.Now(),
 		IsActive:    true,
+		Address:     "123 St",
 	}
 
 	// No contact info
@@ -189,3 +190,127 @@ func BenchmarkValidate(b *testing.B) {
 		_ = l.Validate()
 	}
 }
+
+func TestAddressValidation(t *testing.T) {
+	tests := []struct {
+		name    string
+		lType   Category
+		address string
+		wantErr bool
+	}{
+		{
+			name:    "Business requires address",
+			lType:   Business,
+			address: "",
+			wantErr: true,
+		},
+		{
+			name:    "Business with address is valid",
+			lType:   Business,
+			address: "123 Market St",
+			wantErr: false,
+		},
+		{
+			name:    "Food requires address",
+			lType:   Food,
+			address: "",
+			wantErr: true,
+		},
+		{
+			name:    "Service does NOT require address",
+			lType:   Service,
+			address: "",
+			wantErr: false,
+		},
+		{
+			name:    "Service with address is also valid",
+			lType:   Service,
+			address: "Home Office",
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := Listing{
+				ID:           "test-addr",
+				OwnerOrigin:  "Ghana",
+				Type:         tt.lType,
+				Title:        "Test Biz",
+				ContactEmail: "test@example.com",
+				Address:      tt.address,
+				CreatedAt:    time.Now(),
+				IsActive:     true,
+			}
+			err := l.Validate()
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestHoursOfOperationField(t *testing.T) {
+	// This test ensures the field exists and can be set.
+	l := Listing{
+		ID:               "test-hours",
+		OwnerOrigin:      "Togo",
+		Type:             Business,
+		Title:            "Hours Test",
+		ContactEmail:     "hours@example.com",
+		Address:          "Main St",
+		HoursOfOperation: "Mon-Fri 9-5",
+		CreatedAt:        time.Now(),
+	}
+	
+	assert.Equal(t, "Mon-Fri 9-5", l.HoursOfOperation)
+}
+
+func TestHoursOfOperationRestriction(t *testing.T) {
+	tests := []struct {
+		name     string
+		lType    Category
+		hours    string
+		wantErr  bool
+	}{
+		{ "Business with hours", Business, "9-5", false },
+		{ "Service with hours", Service, "9-5", false },
+		{ "Food with hours", Food, "9-5", false },
+		{ "Product with hours", Product, "9-5", true }, // Should fail
+		{ "Event with hours", Event, "9-5", true },   // Should fail
+		{ "Job with hours", Job, "9-5", true },       // Should fail
+		{ "Request with hours", Request, "9-5", true }, // Should fail
+		{ "Product without hours", Product, "", false },
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := Listing{
+				ID:               "test-restrict",
+				OwnerOrigin:      "Ghana",
+				Type:             tt.lType,
+				Title:            "Test",
+				ContactEmail:     "test@example.com",
+				// Satisfy other requirements
+				Company:          "Acme", // for Job
+				Skills:           "Go",   // for Job
+				JobStartDate:     time.Now().Add(24*time.Hour), // for Job
+				EventStart:       time.Now().Add(24*time.Hour), // for Event
+				EventEnd:         time.Now().Add(25*time.Hour), // for Event
+				Address:          "123 St", // for Business/Food
+				HoursOfOperation: tt.hours,
+				CreatedAt:        time.Now(),
+			}
+			err := l.Validate()
+			if tt.wantErr {
+				assert.Error(t, err, "Expected error for type %s with hours", tt.lType)
+			} else {
+				assert.NoError(t, err, "Expected no error for type %s with hours", tt.lType)
+			}
+		})
+	}
+}
+
+

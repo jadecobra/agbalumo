@@ -1,10 +1,10 @@
 - add plan to deploy to fly.io
-- implement saved
-- use all west african countries in owner origin for business/service/product
-- add hours of operation for business/service listings
+- implement saved listings in user management
 - add feedback button for users to report issues/suggest improvements
 - separate phone/whatsapp
 - add hours of operation for business/food listings
 - review architecture for security, performance, cost
 - outline user journey for each type of user through the app
 - service does not need address
+- add stress/load testing to find out limit/bottlenecks
+- deploy to fly.io

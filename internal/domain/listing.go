@@ -36,6 +36,7 @@ type Listing struct {
 	Description     string    `json:"description" form:"description"`
 	City            string    `json:"city" form:"city"`
 	Address         string    `json:"address" form:"address"`     // New: Specific Business Address
+	HoursOfOperation string   `json:"hours_of_operation" form:"hours_of_operation"` // New
 	ImageURL        string    `json:"image_url" form:"image_url"` // New: Uploaded or Default Image
 	ContactEmail    string    `json:"contact_email" form:"contact_email"`
 	ContactPhone    string    `json:"contact_phone" form:"contact_phone"` // New: Validation alternative
@@ -81,6 +82,21 @@ func (l *Listing) Validate() error {
 
 	if !ValidOrigins[l.OwnerOrigin] {
 		return ErrInvalidOrigin
+	}
+
+	// Address is required for Business and Food
+	if l.Type == Business || l.Type == Food {
+		if l.Address == "" {
+			return errors.New("address is required for business and food listings")
+		}
+	}
+
+	// Hours of Operation restricted to Business, Service, Food
+	if l.HoursOfOperation != "" {
+		allowed := l.Type == Business || l.Type == Service || l.Type == Food
+		if !allowed {
+			return errors.New("hours of operation not applicable for this listing type")
+		}
 	}
 
 	if l.ContactEmail == "" && l.ContactWhatsApp == "" && l.ContactPhone == "" {

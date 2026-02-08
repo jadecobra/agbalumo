@@ -124,22 +124,54 @@
                     const typeSelect = form.querySelector('select[name="type"]');
                     const eventSection = document.getElementById('edit-event-dates-section-{{.ID}}');
 
-                    function toggleEventFields() {
-                        if (typeSelect.value === 'Event') {
+                    function toggleFields() {
+                        const val = typeSelect.value;
+                        // Event Logic
+                        if (val === 'Event') {
                             eventSection.classList.remove('hidden');
                             eventSection.querySelectorAll('input').forEach(i => i.required = true);
                         } else {
                             eventSection.classList.add('hidden');
                             eventSection.querySelectorAll('input').forEach(i => {
                                 i.required = false;
-                                // We don't clear values on edit toggle to avoid accidental data loss if they just misclicked
                             });
+                        }
+
+                        // Address Requirement Logic
+                        const addressInput = document.getElementById('edit-address-input-{{.Listing.ID}}');
+                        if (addressInput) {
+                            if (val === 'Service' || val === 'Job' || val === 'Request') {
+                                addressInput.required = false;
+                                addressInput.placeholder = "Address (Optional)";
+                                const label = addressInput.previousElementSibling;
+                                if (label) label.textContent = "Address (Optional)";
+                            } else {
+                                addressInput.required = true;
+                                addressInput.placeholder = "Start typing address...";
+                                const label = addressInput.previousElementSibling;
+                                if (label) label.textContent = "Address (Validated)";
+                            }
+                        }
+
+                        // Hours of Operation Logic
+                        const hoursInput = document.querySelector('#edit-listing-modal-{{.ID}} input[name="hours_of_operation"]');
+                        if (hoursInput) {
+                            const hoursContainer = hoursInput.closest('div');
+                            // Allowed: Business, Service, Food
+                            if (val === 'Business' || val === 'Service' || val === 'Food') {
+                                if (hoursContainer) hoursContainer.classList.remove('hidden');
+                                hoursInput.disabled = false;
+                            } else {
+                                if (hoursContainer) hoursContainer.classList.add('hidden');
+                                hoursInput.value = ''; // Clear value
+                                hoursInput.disabled = true; // Prevent submission
+                            }
                         }
                     }
 
-                    typeSelect.addEventListener('change', toggleEventFields);
+                    typeSelect.addEventListener('change', toggleFields);
                     // Run on init
-                    toggleEventFields();
+                    toggleFields();
                 })();
             </script>
 
@@ -150,11 +182,20 @@
                     <label
                         class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Address
                         (Validated)</label>
-                    <input id="edit-address-input-{{.Listing.ID}}" required name="address" type="text"
+                    <input id="edit-address-input-{{.Listing.ID}}" name="address" type="text"
                         value="{{ .Listing.Address }}" placeholder="Start typing address..."
                         class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
                     <input type="hidden" id="edit-city-input-{{.Listing.ID}}" name="city" value="{{ .Listing.City }}">
                 </div>
+            </div>
+
+            <!-- Hours of Operation (Optional) -->
+            <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Hours
+                    of Operation</label>
+                <input name="hours_of_operation" type="text" value="{{ .Listing.HoursOfOperation }}"
+                    placeholder="e.g. Mon-Fri 9am-6pm"
+                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
             </div>
 
             <script>

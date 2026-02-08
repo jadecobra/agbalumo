@@ -244,12 +244,17 @@ func TestHandleCreate(t *testing.T) {
 	}{
 		{
 			name: "Success",
-			body: "title=Test+Title&type=Business&owner_origin=Nigeria&description=Cool&contact_email=test@example.com",
+			body: "title=Test+Title&type=Business&owner_origin=Nigeria&description=Cool&contact_email=test@example.com&hours_of_operation=Mon-Fri+9-5&address=123+Street",
 			mockSetup: func() *mock.MockListingRepository {
 				return &mock.MockListingRepository{
 					SaveFn: func(ctx context.Context, l domain.Listing) error {
 						if l.Title != "Test Title" {
 							return errors.New("unexpected title")
+						}
+						// TDD: Check if HoursOfOperation is extracted
+						// Note: This needs the input body to include it, adjusting body below
+						if l.HoursOfOperation != "Mon-Fri 9-5" {
+							return errors.New("expected HoursOfOperation to be 'Mon-Fri 9-5'")
 						}
 						return nil
 					},
@@ -272,7 +277,7 @@ func TestHandleCreate(t *testing.T) {
 		},
 		{
 			name: "RepoError",
-			body: "title=Test+Title&type=Business&owner_origin=Nigeria&description=Cool&contact_email=test@example.com",
+			body: "title=Test+Title&type=Business&owner_origin=Nigeria&description=Cool&contact_email=test@example.com&address=123+St",
 			mockSetup: func() *mock.MockListingRepository {
 				return &mock.MockListingRepository{
 					SaveFn: func(ctx context.Context, l domain.Listing) error {
@@ -382,7 +387,7 @@ func TestHandleUpdate(t *testing.T) {
 		{
 			name: "Success",
 			user: domain.User{ID: "user1", Email: "owner@example.com"},
-			body: "title=Updated+Title&type=Business&owner_origin=Ghana&description=Updated&contact_email=new@example.com",
+			body: "title=Updated+Title&type=Business&owner_origin=Ghana&description=Updated&contact_email=new@example.com&address=123+St",
 			mockSetup: func() *mock.MockListingRepository {
 				return &mock.MockListingRepository{
 					FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
@@ -414,7 +419,7 @@ func TestHandleUpdate(t *testing.T) {
 		{
 			name: "RepoError",
 			user: domain.User{ID: "user1", Email: "owner@example.com"},
-			body: "title=Updated+Title&type=Business&owner_origin=Ghana&description=Updated&contact_email=new@example.com",
+			body: "title=Updated+Title&type=Business&owner_origin=Ghana&description=Updated&contact_email=new@example.com&address=123+St",
 			mockSetup: func() *mock.MockListingRepository {
 				return &mock.MockListingRepository{
 					FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
@@ -462,6 +467,7 @@ func TestHandleCreate_WithImage(t *testing.T) {
 	writer.WriteField("owner_origin", "Ghana")
 	writer.WriteField("description", "Desc")
 	writer.WriteField("contact_email", "img@example.com")
+	writer.WriteField("address", "123 Image St")
 
 	// File
 	part, err := writer.CreateFormFile("image", "test.jpg")

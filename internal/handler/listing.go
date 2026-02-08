@@ -116,6 +116,7 @@ type ListingFormRequest struct {
 	Description     string `form:"description"`
 	City            string `form:"city"`
 	Address         string `form:"address"` // New
+	HoursOfOperation string `form:"hours_of_operation"` // New
 	ContactEmail    string `form:"contact_email"`
 	ContactPhone    string `form:"contact_phone"`
 	ContactWhatsApp string `form:"contact_whatsapp"`
@@ -249,7 +250,9 @@ func (h *ListingHandler) populateListingFromRequest(c echo.Context, l *domain.Li
 	l.OwnerOrigin = req.OwnerOrigin
 	l.Description = req.Description
 	l.City = req.City
+	l.City = req.City
 	l.Address = req.Address
+	l.HoursOfOperation = req.HoursOfOperation
 	l.ContactEmail = req.ContactEmail
 	l.ContactPhone = req.ContactPhone
 	l.ContactWhatsApp = req.ContactWhatsApp

@@ -12,7 +12,7 @@ import (
 
 const listingSelections = `
 	id, owner_id, owner_origin, type, title, description,
-	city, COALESCE(address, ''), contact_email, contact_phone, contact_whatsapp,
+	city, COALESCE(address, ''), hours_of_operation, contact_email, contact_phone, contact_whatsapp,
 	website_url, image_url, created_at, deadline, is_active,
 	event_start, event_end,
 	COALESCE(skills, ''), job_start_date, COALESCE(job_apply_url, ''),
@@ -29,7 +29,7 @@ func scanListing(s Scanner) (domain.Listing, error) {
 
 	err := s.Scan(
 		&l.ID, &l.OwnerID, &l.OwnerOrigin, &l.Type, &l.Title, &l.Description,
-		&l.City, &l.Address, &l.ContactEmail, &l.ContactPhone, &l.ContactWhatsApp,
+		&l.City, &l.Address, &l.HoursOfOperation, &l.ContactEmail, &l.ContactPhone, &l.ContactWhatsApp,
 		&l.WebsiteURL, &l.ImageURL, &l.CreatedAt, &deadline, &l.IsActive,
 		&eventStart, &eventEnd,
 		&l.Skills, &jobStart, &l.JobApplyURL,
@@ -127,7 +127,9 @@ func (r *SQLiteRepository) migrate() error {
 	// We ignore error if column exists (naive but works for dev SQLite)
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN address TEXT;")
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN city TEXT;")
-	
+	// Add Hours of Operation
+	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN hours_of_operation TEXT DEFAULT '';")
+
 	// Add Event Columns
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN event_start DATETIME;")
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN event_end DATETIME;")
@@ -145,8 +147,8 @@ func (r *SQLiteRepository) migrate() error {
 // Save inserts or updates a listing.
 func (r *SQLiteRepository) Save(ctx context.Context, l domain.Listing) error {
 	query := `
-	INSERT INTO listings (id, owner_id, title, description, type, owner_origin, city, address, is_active, created_at, image_url, contact_email, contact_phone, contact_whatsapp, website_url, deadline, event_start, event_end, skills, job_start_date, job_apply_url, company, pay_range)
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	INSERT INTO listings (id, owner_id, title, description, type, owner_origin, city, address, hours_of_operation, is_active, created_at, image_url, contact_email, contact_phone, contact_whatsapp, website_url, deadline, event_start, event_end, skills, job_start_date, job_apply_url, company, pay_range)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	ON CONFLICT(id) DO UPDATE SET
 		owner_id = excluded.owner_id,
 		title = excluded.title,
@@ -155,6 +157,7 @@ func (r *SQLiteRepository) Save(ctx context.Context, l domain.Listing) error {
 		owner_origin = excluded.owner_origin,
 		city = excluded.city,
 		address = excluded.address,
+		hours_of_operation = excluded.hours_of_operation,
 		is_active = excluded.is_active,
 		image_url = excluded.image_url,
 		contact_email = excluded.contact_email,
@@ -172,7 +175,7 @@ func (r *SQLiteRepository) Save(ctx context.Context, l domain.Listing) error {
 	`
 
 	_, err := r.db.ExecContext(ctx, query,
-		l.ID, l.OwnerID, l.Title, l.Description, l.Type, l.OwnerOrigin, l.City, l.Address, l.IsActive, l.CreatedAt,
+		l.ID, l.OwnerID, l.Title, l.Description, l.Type, l.OwnerOrigin, l.City, l.Address, l.HoursOfOperation, l.IsActive, l.CreatedAt,
 		l.ImageURL, l.ContactEmail, l.ContactPhone, l.ContactWhatsApp, l.WebsiteURL, l.Deadline, l.EventStart, l.EventEnd,
 		l.Skills, l.JobStartDate, l.JobApplyURL, l.Company, l.PayRange,
 	)

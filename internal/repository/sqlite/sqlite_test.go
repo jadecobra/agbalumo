@@ -225,3 +225,34 @@ func TestExpireListings(t *testing.T) {
 	}
 }
 
+func TestHoursOfOperationPersistence(t *testing.T) {
+	repo, _ := newTestRepo(t)
+	ctx := context.Background()
+
+	l := domain.Listing{
+		ID:               "hours-persist",
+		Type:             domain.Business,
+		Title:            "Open Late",
+		HoursOfOperation: "Mon-Sat 10AM-10PM",
+		IsActive:         true,
+		CreatedAt:        time.Now(),
+		OwnerOrigin:      "Nigeria",
+		ContactEmail:     "late@example.com",
+		Address:          "123 Late St",
+	}
+
+	if err := repo.Save(ctx, l); err != nil {
+		t.Fatalf("Failed to save: %v", err)
+	}
+
+	found, err := repo.FindByID(ctx, "hours-persist")
+	if err != nil {
+		t.Fatalf("Failed to find: %v", err)
+	}
+
+	if found.HoursOfOperation != "Mon-Sat 10AM-10PM" {
+		t.Errorf("Expected HoursOfOperation 'Mon-Sat 10AM-10PM', got '%s'", found.HoursOfOperation)
+	}
+}
+
+
