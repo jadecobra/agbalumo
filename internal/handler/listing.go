@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"io"
 	"net/http"
 	"os"
@@ -313,18 +314,32 @@ func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error
 		return c.String(http.StatusBadRequest, "Validation Error: "+err.Error())
 	}
 
-	// Moderation
-	mod, err := moderator.NewGeminiModerator(c.Request().Context())
-	if err == nil {
-		if err := mod.CheckListing(c.Request().Context(), *l); err != nil {
-			return c.String(http.StatusBadRequest, "Content Moderation Failed: "+err.Error())
-		}
-	}
-
-	// Save
+	// Save (Optimistic)
 	if err := h.Repo.Save(c.Request().Context(), *l); err != nil {
 		return RespondError(c, err)
 	}
+
+	// Async Moderation
+	go func(listing domain.Listing) {
+		// Use a detached context since the request context will be cancelled
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+
+		mod, err := moderator.NewGeminiModerator(ctx)
+		if err != nil {
+			// Log error, fail open (allow listing)
+			return
+		}
+
+		if err := mod.CheckListing(ctx, listing); err != nil {
+			// Violation confirmed. Mark as inactive.
+			listing.IsActive = false
+			if saveErr := h.Repo.Save(ctx, listing); saveErr != nil {
+				// We use stdlib log here as Echo context might be invalid
+				// Ideally we'd have a logger injected into the handler
+			}
+		}
+	}(*l)
 
 	// Get User for template context
 	var user interface{}

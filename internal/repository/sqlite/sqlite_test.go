@@ -144,3 +144,84 @@ func TestGetCounts(t *testing.T) {
 	}
 }
 
+func TestExpireListings(t *testing.T) {
+	repo, _ := newTestRepo(t)
+	ctx := context.Background()
+
+	// 1. Seed Data
+	now := time.Now().UTC()
+	expiredRequest := domain.Listing{
+		ID:           "req-exp",
+		Type:         domain.Request,
+		Title:        "Expired Request",
+		Deadline:     now.Add(-1 * time.Hour),
+		IsActive:     true,
+		CreatedAt:    now,
+		OwnerOrigin:  "Ghana",
+		ContactEmail: "test@test.com",
+	}
+	activeRequest := domain.Listing{
+		ID:           "req-act",
+		Type:         domain.Request,
+		Title:        "Active Request",
+		Deadline:     now.Add(1 * time.Hour),
+		IsActive:     true,
+		CreatedAt:    now,
+		OwnerOrigin:  "Ghana",
+		ContactEmail: "test@test.com",
+	}
+	expiredEvent := domain.Listing{
+		ID:           "evt-exp",
+		Type:         domain.Event,
+		Title:        "Expired Event",
+		EventEnd:     now.Add(-1 * time.Hour),
+		IsActive:     true,
+		CreatedAt:    now,
+		OwnerOrigin:  "Ghana",
+		ContactEmail: "test@test.com",
+	}
+	activeEvent := domain.Listing{
+		ID:           "evt-act",
+		Type:         domain.Event,
+		Title:        "Active Event",
+		EventEnd:     now.Add(1 * time.Hour),
+		IsActive:     true,
+		CreatedAt:    now,
+		OwnerOrigin:  "Ghana",
+		ContactEmail: "test@test.com",
+	}
+
+	for _, l := range []domain.Listing{expiredRequest, activeRequest, expiredEvent, activeEvent} {
+		if err := repo.Save(ctx, l); err != nil {
+			t.Fatalf("Failed to save %s: %v", l.Title, err)
+		}
+	}
+
+	// 2. Run Expiration
+	count, err := repo.ExpireListings(ctx)
+	if err != nil {
+		t.Fatalf("ExpireListings failed: %v", err)
+	}
+
+	// 3. Assertions
+	if count != 2 {
+		t.Errorf("Expected 2 listing to expire, got %d", count)
+	}
+
+	// Verify specific items
+	l, _ := repo.FindByID(ctx, "req-exp")
+	if l.IsActive {
+		t.Error("Expired Request should be inactive")
+	}
+
+	l, _ = repo.FindByID(ctx, "req-act")
+	if !l.IsActive {
+		t.Error("Active Request should be active")
+	}
+
+	l, _ = repo.FindByID(ctx, "evt-exp")
+	if l.IsActive {
+		t.Error("Expired Event should be inactive")
+	}
+}
+

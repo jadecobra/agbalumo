@@ -19,6 +19,7 @@ type MockListingRepository struct {
 	FindAllByOwnerFn     func(ctx context.Context, ownerID string) ([]domain.Listing, error)
 	DeleteFn             func(ctx context.Context, id string) error
 	GetCountsFn          func(ctx context.Context) (map[domain.Category]int, error)
+	ExpireListingsFn     func(ctx context.Context) (int64, error)
 }
 
 func (m *MockListingRepository) Save(ctx context.Context, l domain.Listing) error {
@@ -82,5 +83,12 @@ func (m *MockListingRepository) GetCounts(ctx context.Context) (map[domain.Categ
 		return m.GetCountsFn(ctx)
 	}
 	return nil, nil
+}
+
+func (m *MockListingRepository) ExpireListings(ctx context.Context) (int64, error) {
+	if m.ExpireListingsFn != nil {
+		return m.ExpireListingsFn(ctx)
+	}
+	return 0, nil
 }
 

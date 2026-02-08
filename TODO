@@ -5,4 +5,6 @@
 - add feedback button for users to report issues/suggest improvements
 - separate phone/whatsapp
 - add hours of operation for business/food listings
-- add count for filters to show how many listings match each filter
+- review architecture for security, performance, cost
+- outline user journey for each type of user through the app
+- service does not need address

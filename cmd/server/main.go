@@ -10,6 +10,7 @@ import (
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
 	"github.com/jadecobra/agbalumo/internal/seeder"
+	"github.com/jadecobra/agbalumo/internal/service"
 	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
@@ -110,6 +111,10 @@ func main() {
 	// Seed Data (if empty)
 	ctx := context.Background()
 	seeder.EnsureSeeded(ctx, repo)
+
+	// Background Services
+	bgService := service.NewBackgroundService(repo)
+	go bgService.StartTicker(ctx)
 
 	// Start server
 	certFile := "certs/cert.pem"
