@@ -59,12 +59,32 @@ type SQLiteRepository struct {
 }
 
 func NewSQLiteRepository(dbPath string) (*SQLiteRepository, error) {
+	// Add query parameters for modernc/sqlite if needed, but explicit PRAGMA execution is safer
+	// to ensure settings are applied.
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		return nil, err
 	}
 
 	if err := db.Ping(); err != nil {
+		return nil, err
+	}
+
+	// Performance & Concurrency Tuning (Critical for 100k users / Production)
+	// WAL Mode: Allows concurrent readers and one writer.
+	if _, err := db.Exec("PRAGMA journal_mode=WAL;"); err != nil {
+		return nil, err
+	}
+	// Busy Timeout: Wait 5000ms before failing with "database is locked"
+	if _, err := db.Exec("PRAGMA busy_timeout=5000;"); err != nil {
+		return nil, err
+	}
+	// Synchronous NORMAL: Faster than FULL, still safe for WAL mode (unless OS crashes)
+	if _, err := db.Exec("PRAGMA synchronous=NORMAL;"); err != nil {
+		return nil, err
+	}
+	// Foreign Keys: Ensure they are enforced (good practice)
+	if _, err := db.Exec("PRAGMA foreign_keys=ON;"); err != nil {
 		return nil, err
 	}
 

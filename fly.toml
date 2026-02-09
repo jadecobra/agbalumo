@@ -1,0 +1,23 @@
+# fly.toml app configuration file generated for agbalumo
+
+app = "agbalumo"
+primary_region = "lhr"
+
+[build]
+
+[env]
+  AGBALUMO_ENV = "production"
+  PORT = "8080"
+  DATABASE_URL = "/app/agbalumo.db"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+[[mounts]]
+  source = "agbalumo_data"
+  destination = "/app"

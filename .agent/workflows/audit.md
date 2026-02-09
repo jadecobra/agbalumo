@@ -13,15 +13,21 @@ description: comprehensive project audit (tests, security, ui, performance)
     - **Goal**: Ensure overall coverage is >80% and critical paths (domain/handlers) are covered.
 
 2. **Security Audit**
-    - Run the custom security audit tool:
+    - **Custom Security Tool**:
       ```bash
       go run cmd/security-audit/main.go
       ```
-    - Verify:
-      - HTTPS is enforced (HSTS).
-      - CSP headers are present and strict.
-      - X-Frame-Options are set to DENY.
-      - No secrets in code or git history (manual check if needed).
+      - Verify HTTPS (HSTS), CSP, and X-Frame-Options.
+    
+    - **CVE Scanning (Docker Scout)**:
+      ```bash
+      # Ensure image is built
+      docker build -t agbalumo-secure:latest .
+      
+      # Run CVE scan
+      docker scout cves local://agbalumo-secure:latest
+      ```
+      - **Goal**: Identify and remediate Critical/High vulnerabilities.
 
 3. **UI & UX Review**
     - Start the server if not running:

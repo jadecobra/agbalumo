@@ -116,22 +116,38 @@ func main() {
 	bgService := service.NewBackgroundService(repo)
 	go bgService.StartTicker(ctx)
 
-	// Start server
-	certFile := "certs/cert.pem"
-	keyFile := "certs/key.pem"
-
-	if _, err := os.Stat(certFile); err == nil {
-		if _, err := os.Stat(keyFile); err == nil {
-			log.Println("Starting Secure Server on :8443 (HTTPS)")
-			if err := e.StartTLS(":8443", certFile, keyFile); err != nil {
-				e.Logger.Fatal(err)
-			}
-			return
-		}
+	// Server Config
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
 	}
+	env := os.Getenv("AGBALUMO_ENV")
 
-	log.Println("Starting Server on :8080 (HTTP)")
-	if err := e.Start(":8080"); err != nil {
-		e.Logger.Fatal(err)
+	// In production (Fly.io), TLS is handled by the proxy. We just listen on PORT.
+	// In dev, we might want TLS if certificates exist, OR just HTTP.
+	if env == "production" {
+		log.Printf("Starting Server in PRODUCTION mode on :%s", port)
+		if err := e.Start(":" + port); err != nil {
+			e.Logger.Fatal(err)
+		}
+	} else {
+		// Development Mode
+		certFile := "certs/cert.pem"
+		keyFile := "certs/key.pem"
+
+		if _, err := os.Stat(certFile); err == nil {
+			if _, err := os.Stat(keyFile); err == nil {
+				log.Println("Starting Secure Server on :8443 (HTTPS)")
+				if err := e.StartTLS(":8443", certFile, keyFile); err != nil {
+					e.Logger.Fatal(err)
+				}
+				return
+			}
+		}
+
+		log.Printf("Starting Server in DEV mode on :%s (HTTP)", port)
+		if err := e.Start(":" + port); err != nil {
+			e.Logger.Fatal(err)
+		}
 	}
 }

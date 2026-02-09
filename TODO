@@ -1,4 +1,6 @@
 - review architecture for security, performance, cost
+- create CI pipeline after setting up fly.io
+- commits should deploy to fly.io
 - add plan to deploy to fly.io
 - update path to use the right go
 - create brand identity/guidelines for UI - agbalumo colors from lightest brown (interior of fruit)  to medium (skin) to dark brown (the seed), leaf green - relate to UI
@@ -11,3 +13,6 @@
 - write CLI to test application
 - critique application for user experience
 - setup CI to deploy to fly.io
+- review admin dashboard
+- add admin controls for website look
+- speed up docker build

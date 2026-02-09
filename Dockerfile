@@ -33,9 +33,12 @@ COPY --from=builder /app/server .
 COPY --from=builder /app/ui ./ui
 
 # Expose port
-# Expose port
 EXPOSE 8080
-EXPOSE 8443
+
+# Environment Variables
+ENV AGBALUMO_ENV=production
+ENV PORT=8080
+ENV DATABASE_URL=/app/agbalumo.db
 
 # Use non-root user
 USER appuser
