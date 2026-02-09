@@ -8,3 +8,4 @@
 - service does not need address
 - add stress/load testing to find out limit/bottlenecks
 - deploy to fly.io
+- fix edit listing modal, should edit only their own listings
