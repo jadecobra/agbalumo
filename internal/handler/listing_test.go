@@ -295,6 +295,9 @@ func TestHandleCreate(t *testing.T) {
 
 			h := handler.NewListingHandler(tt.mockSetup())
 
+			// Inject User for Auth
+			c.Set("User", domain.User{ID: "test-user-id", Email: "test@example.com"})
+
 			err := h.HandleCreate(c)
 			if err != nil {
 				// Some errors are handled by helper, but checking response code covers it
@@ -497,6 +500,9 @@ func TestHandleCreate_WithImage(t *testing.T) {
 		},
 	}
 	h := handler.NewListingHandler(mockRepo)
+
+	// Inject User for Auth
+	c.Set("User", domain.User{ID: "test-user-id", Email: "test@example.com"})
 
 	if err := h.HandleCreate(c); err != nil {
 		t.Fatal(err)

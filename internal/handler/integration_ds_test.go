@@ -39,6 +39,9 @@ func TestIntegration_DataValidation(t *testing.T) {
 		}
 		h := handler.NewListingHandler(mockRepo)
 
+		// Inject User
+		c.Set("User", domain.User{ID: "test-user-id", Email: "good@test.com"})
+
 		if err := h.HandleCreate(c); err != nil {
 			t.Errorf("Unexpected error for good data: %v", err)
 		}
@@ -89,6 +92,9 @@ func TestIntegration_DataValidation(t *testing.T) {
 
 			mockRepo := &mock.MockListingRepository{SaveFn: func(ctx context.Context, l domain.Listing) error { return nil }}
 			h := handler.NewListingHandler(mockRepo)
+
+			// Inject User
+			c.Set("User", domain.User{ID: "test-user-id", Email: "bad@test.com"})
 
 			h.HandleCreate(c) // Should return error handled by echo or return error
 

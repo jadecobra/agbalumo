@@ -59,6 +59,9 @@ func TestHandleCreate_EventParsing(t *testing.T) {
 	
 	h := handler.NewListingHandler(mockRepo)
 	
+	// Inject User
+	c.Set("User", domain.User{ID: "event-user", Email: "event@example.com"})
+	
 	// Execute
 	err := h.HandleCreate(c)
 	assert.NoError(t, err)
