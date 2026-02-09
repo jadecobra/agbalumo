@@ -4,7 +4,7 @@
 
 ## 1. The Golden Rule: Verified TDD
 *   **Protocol**: Write the test FIRST. Watch it fail (Red). Write the Code. Watch it pass (Green). Refactor.
-*   **Mandatory Check**: You must run `./scripts/pre-commit.sh` before submitting any PR or artifact.
+*   **Mandatory Check**: You must run `./scripts/verify_restart.sh` before submitting any PR or artifact. This script runs tests, checks coverage, and restarts the server.
 *   **No "flaky" tests**: Tests must be deterministic. Use `go test -count=1` to bypass cache if needed.
 
 ## 2. Directory Structure & Architecture

@@ -9,13 +9,31 @@
         class="relative w-full aspect-[16/9] md:aspect-auto md:flex-1 overflow-hidden pointer-events-none group-hover:flex-[1.5] transition-all duration-500 ease-out">
         <!-- Placeholder image logic: Title fallback -->
         {{ if not .Listing.ImageURL }}
-        <div class="w-full h-full flex items-center justify-center p-6 text-center transform group-hover:scale-105 transition-transform duration-500
-            {{ if eq .Listing.Type " Job" }}bg-blue-600 dark:bg-blue-800 {{ else if eq .Listing.Type "Food"
-            }}bg-orange-600 dark:bg-orange-800 {{ else if eq .Listing.Type "Event" }}bg-purple-600 dark:bg-purple-800 {{
-            else if eq .Listing.Type "Request" }}bg-secondary dark:bg-green-900 {{ else }}bg-stone-500
-            dark:bg-stone-700{{ end }}">
+        <div class="w-full h-full flex flex-col items-center justify-center p-6 text-center transform group-hover:scale-105 transition-transform duration-500 relative overflow-hidden
+            {{ if eq .Listing.Type " Job" }}bg-gradient-to-br from-blue-500 to-blue-700 dark:from-blue-700
+            dark:to-blue-900 {{ else if eq .Listing.Type "Food" }}bg-gradient-to-br from-orange-500 to-orange-700
+            dark:from-orange-700 dark:to-orange-900 {{ else if eq .Listing.Type "Event" }}bg-gradient-to-br
+            from-purple-500 to-purple-700 dark:from-purple-700 dark:to-purple-900 {{ else if eq .Listing.Type "Request"
+            }}bg-gradient-to-br from-teal-500 to-teal-700 dark:from-teal-700 dark:to-teal-900 {{ else if eq
+            .Listing.Type "Business" }}bg-gradient-to-br from-indigo-500 to-indigo-700 dark:from-indigo-700
+            dark:to-indigo-900 {{ else if eq .Listing.Type "Service" }}bg-gradient-to-br from-emerald-500 to-emerald-700
+            dark:from-emerald-700 dark:to-emerald-900 {{ else }}bg-gradient-to-br from-stone-400 to-stone-600
+            dark:from-stone-600 dark:to-stone-800{{ end }}">
+
+            <!-- Large Watermark Icon -->
             <span
-                class="text-white font-bold text-xl md:text-2xl uppercase tracking-widest leading-tight drop-shadow-md">
+                class="material-symbols-outlined absolute text-[120px] text-white/10 select-none transform -rotate-12 scale-150">
+                {{ if eq .Listing.Type "Job" }}work_outline
+                {{ else if eq .Listing.Type "Food" }}restaurant
+                {{ else if eq .Listing.Type "Event" }}event
+                {{ else if eq .Listing.Type "Request" }}volunteer_activism
+                {{ else if eq .Listing.Type "Business" }}storefront
+                {{ else if eq .Listing.Type "Service" }}handyman
+                {{ else }}category{{ end }}
+            </span>
+
+            <span
+                class="relative z-10 text-white font-bold text-xl md:text-2xl uppercase tracking-widest leading-tight drop-shadow-lg">
                 {{ .Listing.Title }}
             </span>
         </div>

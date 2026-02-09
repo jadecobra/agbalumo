@@ -13,14 +13,15 @@ func SecureHeaders(next echo.HandlerFunc) echo.HandlerFunc {
 		// - Tailwind CDN (cdn.tailwindcss.com)
 		// - HTMX (unpkg.com)
 		// - Google Auth (accounts.google.com)
+		// - Google Maps (maps.googleapis.com, maps.gstatic.com)
 		// - Inline scripts (unsafe-inline) - Required for current setup (HTMX/Tailwind config in HTML)
 		//   TODO: Move inline scripts to files to enable stricter CSP.
 		csp := "default-src 'self'; " +
-			"script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com; " +
+			"script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com https://maps.googleapis.com; " +
 			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
 			"font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; " +
-			"img-src 'self' data: https://*.googleusercontent.com https://ui-avatars.com; " +
-			"connect-src 'self' https://accounts.google.com;"
+			"img-src 'self' data: https://*.googleusercontent.com https://ui-avatars.com https://maps.googleapis.com https://maps.gstatic.com; " +
+			"connect-src 'self' https://accounts.google.com https://maps.googleapis.com;"
 
 		c.Response().Header().Set("Content-Security-Policy", csp)
 		c.Response().Header().Set("X-Content-Type-Options", "nosniff")

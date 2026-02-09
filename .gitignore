@@ -12,3 +12,5 @@ certs/
 *.out
 .idea/
 .vscode/
+server.log
+

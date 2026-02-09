@@ -11,3 +11,4 @@
 - fix edit listing modal, should edit only their own listings
 - write CLI to test application
 - critique application for user experience
+- setup CI to deploy to fly.io
