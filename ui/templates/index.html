@@ -259,22 +259,28 @@
         <div id="mobile-bottom-nav"
             class="md:hidden fixed bottom-0 w-full bg-white dark:bg-surface-dark border-t border-stone-100 dark:border-stone-800 pb-safe z-50 transition-transform duration-300">
             <div class="flex justify-around items-center h-16">
-                <button class="flex flex-col items-center justify-center w-full h-full gap-1 text-primary">
+                <a href="/" class="flex flex-col items-center justify-center w-full h-full gap-1 text-primary">
                     <span class="material-symbols-outlined filled"
                         style="font-variation-settings: 'FILL' 1;">home</span>
                     <span class="text-[10px] font-medium">Home</span>
-                </button>
+                </a>
                 <button
                     class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
                     <span class="material-symbols-outlined">favorite</span>
                     <span class="text-[10px] font-medium">Saved</span>
                 </button>
                 {{ if .User }}
-                <a href="/auth/logout"
+                <button hx-get="/profile" hx-target="body" hx-swap="beforeend"
                     class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
                     <img src="{{ .User.AvatarURL }}" alt="{{ .User.Name }}"
                         class="w-6 h-6 rounded-full border border-orange-200">
-                    <span class="text-[10px] font-medium">Logout</span>
+                    <span class="text-[10px] font-medium">Profile</span>
+                </button>
+                {{ else }}
+                <a href="/auth/google/login"
+                    class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
+                    <span class="material-symbols-outlined">login</span>
+                    <span class="text-[10px] font-medium">Sign In</span>
                 </a>
                 {{ end }}
             </div>
