@@ -274,6 +274,18 @@
                     <span class="material-symbols-outlined">favorite</span>
                     <span class="text-[10px] font-medium">Saved</span>
                 </button>
+                <button
+                    onclick="{{ if .User }}document.getElementById('create-request-modal').showModal(){{ else }}window.location.href='/auth/google/login'{{ end }}"
+                    class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
+                    <span class="material-symbols-outlined">campaign</span>
+                    <span class="text-[10px] font-medium">Ask</span>
+                </button>
+                <button
+                    onclick="{{ if .User }}document.getElementById('create-listing-modal').showModal(){{ else }}window.location.href='/auth/google/login'{{ end }}"
+                    class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
+                    <span class="material-symbols-outlined">add_circle</span>
+                    <span class="text-[10px] font-medium">Post</span>
+                </button>
                 {{ if .User }}
                 <button hx-get="/profile" hx-target="body" hx-swap="beforeend"
                     class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">

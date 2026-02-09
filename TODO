@@ -1,4 +1,3 @@
-- create CI pipeline after setting up fly.io
 - add feedback button for users to report issues/suggest improvements
 - commits should deploy to fly.io
 - update path to use the right go
@@ -18,3 +17,4 @@
 - add fly.toml to security audit
 - separate prod and dev databases
 - remove gemini moderation
+- change region to dfw
