@@ -4,12 +4,20 @@ bin/
 *.test
 *.out
 
+# Logs & Coverage
+server.log
+coverage.out
+*.log
+
 # IDEs
 .vscode
 .idea
+*.swp
+*.swo
 
 # OS
 .DS_Store
+Thumbs.db
 
 # Version Control
 .git
@@ -18,4 +26,21 @@ bin/
 agbalumo.db
 agbalumo.db-journal
 agbalumo.db-wal
-.env
+.env*
+*.local
+
+# Documentation & Config
+*.md
+docs/
+task.md
+plan.md
+TODO
+SPEC.md
+
+# Node (if added later)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Go specific
+vendor/
