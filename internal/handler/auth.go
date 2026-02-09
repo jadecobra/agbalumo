@@ -71,7 +71,7 @@ func (p *RealGoogleProvider) getRedirectURL(host string) string {
 	}
 	// 3. Default to dynamic host
 	scheme := "http"
-	if host == "localhost:8443" {
+	if host == "localhost:8443" || os.Getenv("AGBALUMO_ENV") == "production" {
 		scheme = "https"
 	}
 	return fmt.Sprintf("%s://%s/auth/google/callback", scheme, host)
