@@ -24,7 +24,7 @@ FROM alpine:latest
 
 WORKDIR /app
 
-# Install CA certificates for external API calls (Gemini)
+# Install CA certificates for external API calls
 RUN apk --no-cache add ca-certificates tzdata
 
 # Create a non-root user

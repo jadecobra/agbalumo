@@ -69,7 +69,6 @@ type Listing struct {
     * `Event` types must have valid start/end times.
     * `Job` types must have a valid start date.
 * **Contact Integrity:** Every listing must contain at least one valid communication method.
-* **Cultural Filter:** An internal service `Moderator` will interface with the Gemini API to verify the cultural relevancy of the `Description`.
 
 ### 4. TDD Specification
 
@@ -82,7 +81,6 @@ type Listing struct {
 #### 4.2 Integration Tests
 
 * `TestExpirationLogic`: A background ticker service must find listings where `Deadline` or `EventEnd` has passed and set `IsActive = false`.
-* `TestGeminiResponse`: Verify moderation logic handles "DENY" and "PERMIT" correctly.
 
 ### 5. Deployment Strategy
 

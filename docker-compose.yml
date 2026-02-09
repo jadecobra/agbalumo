@@ -6,7 +6,7 @@ services:
       - "8080:8080"
       - "8443:8443"
     environment:
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - PORT=8080
     volumes:
       - ./agbalumo.db:/app/agbalumo.db
     restart: unless-stopped

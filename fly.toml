@@ -4,7 +4,7 @@
 #
 
 app = 'agbalumo'
-primary_region = 'lhr'
+primary_region = 'dfw'
 
 [env]
   AGBALUMO_ENV = 'production'

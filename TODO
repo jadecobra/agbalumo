@@ -1,5 +1,4 @@
 - add feedback button for users to report issues/suggest improvements
-- commits should deploy to fly.io
 - update path to use the right go
 - create brand identity/guidelines for UI - agbalumo colors from lightest brown (interior of fruit)  to medium (skin) to dark brown (the seed), leaf green - relate to UI
 - separate phone/whatsapp
@@ -9,12 +8,6 @@
 - add stress/load testing to find out limit/bottlenecks
 - write CLI to test application
 - critique application for user experience
-- setup CI to deploy to fly.io
 - review admin dashboard
 - add admin controls for website look
-- speed up docker build
-- rename database and remove URL from fly.toml use env vars
 - add fly.toml to security audit
-- separate prod and dev databases
-- remove gemini moderation
-- change region to dfw

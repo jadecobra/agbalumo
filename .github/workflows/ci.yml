@@ -1,0 +1,86 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  audit:
+    name: Quality & Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache: true
+
+      - name: Static Analysis (Go Vet)
+        run: go vet ./...
+
+      - name: Run Tests with Coverage
+        run: |
+          go test -race -coverprofile=coverage.out ./...
+          go tool cover -func=coverage.out
+
+      - name: Enforce Coverage Threshold (80%)
+        run: |
+          COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print substr($3, 1, length($3)-1)}')
+          THRESHOLD=80.0
+          echo "Coverage: $COVERAGE%"
+          if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
+            echo "❌ Coverage is below $THRESHOLD%"
+            exit 1
+          fi
+          echo "✅ Coverage check passed"
+
+      - name: Build Server for Security Audit
+        run: go build -o server cmd/server/main.go
+
+      - name: Start Server (Background)
+        run: |
+          nohup ./server > server.log 2>&1 &
+          echo "Waiting for server to start..."
+          # Wait loop
+          for i in {1..10}; do
+            if curl -s http://localhost:8080 > /dev/null; then
+              echo "Server is up!"
+              break
+            fi
+            echo "Waiting..."
+            sleep 1
+          done
+          # Verify it's up, if not cat logs
+          if ! curl -s http://localhost:8080 > /dev/null; then
+            echo "Server failed to start:"
+            cat server.log
+            exit 1
+          fi
+
+      - name: Run Security Audit
+        run: go run cmd/security-audit/main.go
+
+  deploy:
+    name: Deploy to Fly.io
+    needs: audit
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    concurrency: deploy-group
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
