@@ -63,7 +63,7 @@ type Listing struct {
 ### 3. functional Requirements & Constraints
 
 * **Concurrency:** Use Goroutines for non-blocking Gemini AI moderation tasks.
-* **Authentication:** Google OAuth2 for user authentication. Users can only edit/delete their own listings.
+* **Authentication:** Google OAuth2 for user authentication. **Posting**, editing, and deleting listings requires authentication.
 * **Deadline Validation:** 
     * `Request` types must have a `Deadline` within 90 days.
     * `Event` types must have valid start/end times.

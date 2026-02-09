@@ -86,7 +86,7 @@ func main() {
 	e.GET("/", listingHandler.HandleHome)
 	e.GET("/listings/fragment", listingHandler.HandleFragment)
 	e.GET("/listings/:id", listingHandler.HandleDetail)
-	e.POST("/listings", listingHandler.HandleCreate)
+	e.POST("/listings", listingHandler.HandleCreate, authHandler.RequireAuth)
 
 	// Edit Routes
 	// e.Use(authHandler.OptionalAuth) // Already applied globally above

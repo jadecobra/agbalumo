@@ -148,12 +148,13 @@ func (h *ListingHandler) HandleCreate(c echo.Context) error {
 		return err
 	}
 
-	// Assign Owner if authenticated
-	if u := c.Get("User"); u != nil {
-		if user, ok := u.(domain.User); ok {
-			l.OwnerID = user.ID
-		}
+	// Assign Owner (Auth is now required by middleware)
+	u := c.Get("User")
+	if u == nil {
+		return c.String(http.StatusUnauthorized, "Authentication required to post listings")
 	}
+	user := u.(domain.User)
+	l.OwnerID = user.ID
 
 	// Default deadline for requests if not provided
 	if l.Type == domain.Request && l.Deadline.IsZero() {
