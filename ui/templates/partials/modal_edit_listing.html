@@ -94,6 +94,59 @@
                     class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white resize-none">{{ .Description }}</textarea>
             </div>
 
+            <!-- Request Deadline (Hidden by default unless Request) -->
+            <div id="edit-request-section-{{.ID}}" class="flex flex-col gap-1.5 hidden">
+                <label
+                    class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Deadline</label>
+                <input name="deadline_date" type="date"
+                    value="{{ if not .Listing.Deadline.IsZero }}{{ .Listing.Deadline.Format " 2006-01-02" }}{{ end }}"
+                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
+            </div>
+
+            <!-- Job Details (Hidden by default unless Job) -->
+            <div id="edit-job-section-{{.ID}}" class="flex flex-col gap-4 hidden">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <label
+                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Company</label>
+                        <input name="company" type="text" value="{{ .Company }}" placeholder="Company Name"
+                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label
+                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Pay
+                            Range</label>
+                        <input name="pay_range" type="text" value="{{ .PayRange }}" placeholder="e.g. 150k-200k / yr"
+                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                    <label
+                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Skills</label>
+                    <input name="skills" type="text" value="{{ .Skills }}" placeholder="e.g. Golang, SQL, Docker"
+                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <label
+                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Start
+                            Date</label>
+                        <input name="job_start_date" type="datetime-local"
+                            value="{{ if not .Listing.JobStartDate.IsZero }}{{ .Listing.JobStartDate.Format "2006-01-02T15:04" }}{{ end }}"
+                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label
+                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Apply
+                            URL</label>
+                        <input name="job_apply_url" type="url" value="{{ .JobApplyURL }}" placeholder="https://..."
+                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
+                    </div>
+                </div>
+            </div>
+
             <!-- Event Dates (Hidden by default unless Event) -->
             <div id="edit-event-dates-section-{{.ID}}" class="grid grid-cols-2 gap-4 hidden">
                 <div class="flex flex-col gap-1.5">
@@ -123,18 +176,40 @@
 
                     const typeSelect = form.querySelector('select[name="type"]');
                     const eventSection = document.getElementById('edit-event-dates-section-{{.ID}}');
+                    const requestSection = document.getElementById('edit-request-section-{{.ID}}');
+                    const jobSection = document.getElementById('edit-job-section-{{.ID}}');
 
                     function toggleFields() {
                         const val = typeSelect.value;
+
+                        // Reset all sections
+                        eventSection.classList.add('hidden');
+                        requestSection.classList.add('hidden');
+                        jobSection.classList.add('hidden');
+
+                        // Reset required attributes
+                        [eventSection, requestSection, jobSection].forEach(section => {
+                            section.querySelectorAll('input').forEach(i => i.required = false);
+                        });
+
                         // Event Logic
                         if (val === 'Event') {
                             eventSection.classList.remove('hidden');
                             eventSection.querySelectorAll('input').forEach(i => i.required = true);
-                        } else {
-                            eventSection.classList.add('hidden');
-                            eventSection.querySelectorAll('input').forEach(i => {
-                                i.required = false;
-                            });
+                        }
+                        // Request Logic
+                        else if (val === 'Request') {
+                            requestSection.classList.remove('hidden');
+                            // Deadline is required for requests
+                            // requestSection.querySelectorAll('input').forEach(i => i.required = true); 
+                            // Actually, deadline logic in backend might be optional if created_at is used, but spec says deadline is required.
+                            // Let's make it required to be safe, or leave optional and let backend handle it?
+                            // Backend Validate() says: Deadline is required for 'Request'.
+                        }
+                        // Job Logic
+                        else if (val === 'Job') {
+                            jobSection.classList.remove('hidden');
+                            jobSection.querySelectorAll('input').forEach(i => i.required = true);
                         }
 
                         // Address Requirement Logic

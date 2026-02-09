@@ -21,7 +21,7 @@ func TestIntegration_DataValidation(t *testing.T) {
 
 	// 1. Positive Test Case: Known Good Data (Subset of seed data)
 	goodData := []string{
-		"title=Good+Biz&type=Business&owner_origin=Nigeria&description=Valid&contact_email=good@test.com",
+		"title=Good+Biz&type=Business&owner_origin=Nigeria&description=Valid&contact_email=good@test.com&address=123+Main+St",
 		"title=Good+Req&type=Request&owner_origin=Ghana&description=Valid&contact_whatsapp=+123456&deadline_date=" + time.Now().Add(24*time.Hour).Format("2006-01-02"),
 	}
 
@@ -65,7 +65,7 @@ func TestIntegration_DataValidation(t *testing.T) {
 		},
 		{
 			name:      "Missing Contact",
-			body:      "title=Bad+Biz&type=Business&owner_origin=Nigeria&description=Ghost",
+			body:      "title=Bad+Service&type=Service&owner_origin=Nigeria&description=Ghost",
 			wantError: "at least one contact method is required",
 		},
 		{

@@ -4,8 +4,10 @@
 - separate phone/whatsapp
 - add hours of operation for business/food listings
 - review architecture for security, performance, cost
-- outline user journey for each type of user through the app
+- outline user journey for each type of user through the app and steps
 - service does not need address
 - add stress/load testing to find out limit/bottlenecks
 - deploy to fly.io
 - fix edit listing modal, should edit only their own listings
+- write CLI to test application
+- critique application for user experience
