@@ -54,7 +54,11 @@ func main() {
 	e.Use(customMiddleware.SessionMiddleware(store))
 
 	// Database Initialization
-	repo, err := sqlite.NewSQLiteRepository("agbalumo.db")
+	dbPath := os.Getenv("DATABASE_URL")
+	if dbPath == "" {
+		dbPath = "agbalumo.db"
+	}
+	repo, err := sqlite.NewSQLiteRepository(dbPath)
 	if err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
@@ -108,9 +112,16 @@ func main() {
 	adminGroup.GET("", adminHandler.HandleDashboard)
 	adminGroup.DELETE("/listings/:id", adminHandler.HandleDelete)
 
-	// Seed Data (if empty)
+	// Environment Configuration
+	env := os.Getenv("AGBALUMO_ENV")
+
+	// Seed Data (if empty) AND not in production
 	ctx := context.Background()
-	seeder.EnsureSeeded(ctx, repo)
+	if env != "production" {
+		seeder.EnsureSeeded(ctx, repo)
+	} else {
+		log.Println("Production environment detected. Skipping automatic data seeding.")
+	}
 
 	// Background Services
 	bgService := service.NewBackgroundService(repo)
@@ -121,7 +132,6 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	env := os.Getenv("AGBALUMO_ENV")
 
 	// In production (Fly.io), TLS is handled by the proxy. We just listen on PORT.
 	// In dev, we might want TLS if certificates exist, OR just HTTP.

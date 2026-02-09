@@ -1,23 +1,30 @@
-# fly.toml app configuration file generated for agbalumo
+# fly.toml app configuration file generated for agbalumo on 2026-02-09T13:16:12-06:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
 
-app = "agbalumo"
-primary_region = "lhr"
+app = 'agbalumo'
+primary_region = 'lhr'
+
+[env]
+  AGBALUMO_ENV = 'production'
 
 [build]
 
-[env]
-  AGBALUMO_ENV = "production"
-  PORT = "8080"
-  DATABASE_URL = "/app/agbalumo.db"
+[[mounts]]
+  source = 'agbalumo_data'
+  destination = '/data'
 
 [http_service]
   internal_port = 8080
   force_https = true
-  auto_stop_machines = true
+  auto_stop_machines = 'stop'
   auto_start_machines = true
   min_machines_running = 1
-  processes = ["app"]
+  processes = ['app']
 
-[[mounts]]
-  source = "agbalumo_data"
-  destination = "/app"
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
+  memory_mb = 1024

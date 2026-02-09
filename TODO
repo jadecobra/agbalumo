@@ -1,10 +1,8 @@
-- review architecture for security, performance, cost
 - create CI pipeline after setting up fly.io
+- add feedback button for users to report issues/suggest improvements
 - commits should deploy to fly.io
-- add plan to deploy to fly.io
 - update path to use the right go
 - create brand identity/guidelines for UI - agbalumo colors from lightest brown (interior of fruit)  to medium (skin) to dark brown (the seed), leaf green - relate to UI
-- add feedback button for users to report issues/suggest improvements
 - separate phone/whatsapp
 - add hours of operation for business/food listings
 - outline user journey for each type of user through the app and steps
@@ -16,3 +14,7 @@
 - review admin dashboard
 - add admin controls for website look
 - speed up docker build
+- rename database and remove URL from fly.toml use env vars
+- add fly.toml to security audit
+- separate prod and dev databases
+- remove gemini moderation
