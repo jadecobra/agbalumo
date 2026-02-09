@@ -69,268 +69,276 @@
             </div>
 
             <!-- Image Upload -->
-            <div class="flex flex-col gap-1.5">
+            <div id="image-upload-section" class="flex flex-col gap-1.5">
                 <label class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Photo
                     (Optional)</label>
                 <input name="image" type="file" accept="image/*"
                     class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all text-text-sub">
-                <!-- Location Section -->
-                <div class="grid grid-cols-1 gap-4">
-                    <div class="flex flex-col gap-1.5">
-                        <label
-                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Address
-                            (Validated)</label>
-                        <input id="create-address-input" name="address" type="text"
-                            placeholder="Start typing address..."
-                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
-                        <input type="hidden" id="create-city-input" name="city">
-                    </div>
-                </div>
+            </div>
 
-                <!-- Hours of Operation (Optional) -->
+            <!-- Location Section -->
+            <div class="grid grid-cols-1 gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label id="location-label"
+                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Address
+                        (Validated)</label>
+                    <input id="create-address-input" name="address" type="text" placeholder="Start typing address..."
+                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                    <input type="hidden" id="create-city-input" name="city">
+                </div>
+            </div>
+
+            <!-- Hours of Operation (Optional) -->
+            <div id="hours-section" class="flex flex-col gap-1.5">
+                <label class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Hours
+                    of Operation</label>
+                <input name="hours_of_operation" type="text" placeholder="e.g. Mon-Fri 9am-6pm"
+                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+            </div>
+
+            <script>
+                function initGoogleMaps() {
+                    const input = document.getElementById('create-address-input');
+                    if (!input) return;
+
+                    const options = {
+                        fields: ["address_components", "geometry", "formatted_address"],
+                        types: ["address"],
+                    };
+                    const autocomplete = new google.maps.places.Autocomplete(input, options);
+                    autocomplete.addListener("place_changed", () => {
+                        const place = autocomplete.getPlace();
+                        let city = "";
+                        // Find city/locality
+                        for (const component of place.address_components) {
+                            const types = component.types;
+                            if (types.includes("locality")) {
+                                city = component.long_name;
+                                break;
+                            }
+                            if (types.includes("postal_town")) {
+                                city = component.long_name;
+                            }
+                            if (!city && types.includes("administrative_area_level_2")) {
+                                city = component.long_name;
+                            }
+                        }
+
+                        if (city) {
+                            document.getElementById('create-city-input').value = city;
+                        } else {
+                            // Fallback
+                            document.getElementById('create-city-input').value = "Unknown";
+                        }
+
+                        if (place.formatted_address) {
+                            input.value = place.formatted_address;
+                        }
+                    });
+                }
+
+                // Check if Google Maps is loaded
+                if (typeof google === 'object' && typeof google.maps === 'object') {
+                    initGoogleMaps();
+                } else {
+                    // Load script
+                    const script = document.createElement('script');
+                    script.src = "https://maps.googleapis.com/maps/api/js?key={{.GoogleMapsApiKey}}&libraries=places&callback=initGoogleMaps";
+                    script.async = true;
+                    document.head.appendChild(script);
+                }
+            </script>
+
+            <!-- Description -->
+            <div class="flex flex-col gap-1.5">
+                <label id="description-label"
+                    class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Description</label>
+                <textarea required name="description" rows="3" placeholder="Tell us about your listing..."
+                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white resize-none"></textarea>
+            </div>
+
+            <!-- Event Dates (Hidden by default) -->
+            <div id="event-dates-section" class="grid grid-cols-2 gap-4 hidden">
                 <div class="flex flex-col gap-1.5">
                     <label
-                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Hours
-                        of Operation</label>
-                    <input name="hours_of_operation" type="text" placeholder="e.g. Mon-Fri 9am-6pm"
+                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Event
+                        Start</label>
+                    <input name="event_start" type="datetime-local"
+                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label
+                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Event
+                        End</label>
+                    <input name="event_end" type="datetime-local"
+                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
+                </div>
+            </div>
+
+            <!-- Job Fields (Hidden by default) -->
+            <div id="job-fields-section" class="flex flex-col gap-4 hidden">
+                <div class="flex flex-col gap-1.5">
+                    <label
+                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Company
+                        Name</label>
+                    <input name="company" type="text" placeholder="e.g. Acme Inc."
                         class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
                 </div>
-
-                <script>
-                    function initGoogleMaps() {
-                        const input = document.getElementById('create-address-input');
-                        if (!input) return;
-
-                        const options = {
-                            fields: ["address_components", "geometry", "formatted_address"],
-                            types: ["address"],
-                        };
-                        const autocomplete = new google.maps.places.Autocomplete(input, options);
-                        autocomplete.addListener("place_changed", () => {
-                            const place = autocomplete.getPlace();
-                            let city = "";
-                            // Find city/locality
-                            for (const component of place.address_components) {
-                                const types = component.types;
-                                if (types.includes("locality")) {
-                                    city = component.long_name;
-                                    break;
-                                }
-                                if (types.includes("postal_town")) {
-                                    city = component.long_name;
-                                }
-                                if (!city && types.includes("administrative_area_level_2")) {
-                                    city = component.long_name;
-                                }
-                            }
-
-                            if (city) {
-                                document.getElementById('create-city-input').value = city;
-                            } else {
-                                // Fallback
-                                document.getElementById('create-city-input').value = "Unknown";
-                            }
-
-                            if (place.formatted_address) {
-                                input.value = place.formatted_address;
-                            }
-                        });
-                    }
-
-                    // Check if Google Maps is loaded
-                    if (typeof google === 'object' && typeof google.maps === 'object') {
-                        initGoogleMaps();
-                    } else {
-                        // Load script
-                        const script = document.createElement('script');
-                        script.src = "https://maps.googleapis.com/maps/api/js?key={{.GoogleMapsApiKey}}&libraries=places&callback=initGoogleMaps";
-                        script.async = true;
-                        document.head.appendChild(script);
-                    }
-                </script>
-
-                <!-- Description -->
                 <div class="flex flex-col gap-1.5">
-                    <label
-                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Description</label>
-                    <textarea required name="description" rows="3" placeholder="Tell us about your listing..."
-                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white resize-none"></textarea>
-                </div>
-
-                <!-- Event Dates (Hidden by default) -->
-                <div id="event-dates-section" class="grid grid-cols-2 gap-4 hidden">
                     <div class="flex flex-col gap-1.5">
                         <label
-                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Event
-                            Start</label>
-                        <input name="event_start" type="datetime-local"
-                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
-                    </div>
-                    <div class="flex flex-col gap-1.5">
-                        <label
-                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Event
-                            End</label>
-                        <input name="event_end" type="datetime-local"
-                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
-                    </div>
-                </div>
-
-                <!-- Job Fields (Hidden by default) -->
-                <div id="job-fields-section" class="flex flex-col gap-4 hidden">
-                    <div class="flex flex-col gap-1.5">
-                        <label
-                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Company
-                            Name</label>
-                        <input name="company" type="text" placeholder="e.g. Acme Inc."
-                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
-                    </div>
-                    <div class="flex flex-col gap-1.5">
-                        <label
-                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Pay
-                            Range (Optional)</label>
+                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Compensation</label>
                         <input name="pay_range" type="text" placeholder="e.g. $80k - $120k / Competitive"
                             class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
                     </div>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label
+                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Skills
+                        Required</label>
+                    <textarea name="skills" rows="2" placeholder="e.g. Golang, SQL, Docker..."
+                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white resize-none"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
                     <div class="flex flex-col gap-1.5">
                         <label
-                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Skills
-                            Required</label>
-                        <textarea name="skills" rows="2" placeholder="e.g. Golang, SQL, Docker..."
-                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white resize-none"></textarea>
+                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Start
+                            Date</label>
+                        <input name="job_start_date" type="datetime-local"
+                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="flex flex-col gap-1.5">
-                            <label
-                                class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Start
-                                Date</label>
-                            <input name="job_start_date" type="datetime-local"
-                                class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
-                        </div>
-                        <div class="flex flex-col gap-1.5">
-                            <label
-                                class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Apply
-                                URL (Optional)</label>
-                            <input name="job_apply_url" type="url" placeholder="https://..."
-                                class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
-                        </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label
+                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Apply
+                            URL</label>
+                        <input name="job_apply_url" type="url" placeholder="https://..."
+                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
                     </div>
                 </div>
+            </div>
 
-                <script>
-                    (function () {
-                        const typeSelect = document.querySelector('#create-listing-modal select[name="type"]');
-                        const eventSection = document.getElementById('event-dates-section');
-                        const jobSection = document.getElementById('job-fields-section');
-                        // Find the image upload container. It is the 4th top-level div in the form, or we search by input name
-                        // Input structure: div > label + input
-                        const imageInput = document.querySelector('#create-listing-modal input[name="image"]');
-                        const imageSection = imageInput ? imageInput.parentElement : null;
+            <script>
+                (function () {
+                    const typeSelect = document.querySelector('#create-listing-modal select[name="type"]');
+                    const eventSection = document.getElementById('event-dates-section');
+                    const jobSection = document.getElementById('job-fields-section');
+                    const imageSection = document.getElementById('image-upload-section');
+                    const hoursSection = document.getElementById('hours-section');
+                    const locationLabel = document.getElementById('location-label');
+                    const descriptionLabel = document.getElementById('description-label');
+                    const addressInput = document.getElementById('create-address-input');
 
-                        function toggleFields() {
-                            const val = typeSelect.value;
+                    function toggleFields() {
+                        const val = typeSelect.value;
 
-                            // Event Logic
-                            if (val === 'Event') {
-                                eventSection.classList.remove('hidden');
-                                eventSection.querySelectorAll('input').forEach(i => i.required = true);
-                            } else {
-                                eventSection.classList.add('hidden');
-                                eventSection.querySelectorAll('input').forEach(i => {
-                                    i.required = false;
-                                    i.value = '';
-                                });
-                            }
+                        // Event Logic
+                        if (val === 'Event') {
+                            eventSection.classList.remove('hidden');
+                            eventSection.querySelectorAll('input').forEach(i => i.required = true);
+                        } else {
+                            eventSection.classList.add('hidden');
+                            eventSection.querySelectorAll('input').forEach(i => {
+                                i.required = false;
+                                i.value = '';
+                            });
+                        }
 
-                            // Job Logic
+                        // Job Logic
+                        if (val === 'Job') {
+                            jobSection.classList.remove('hidden');
+                            jobSection.querySelectorAll('input, textarea').forEach(i => {
+                                if (i.name === 'company' || i.name === 'skills' || i.name === 'job_start_date' || i.name === 'pay_range' || i.name === 'job_apply_url') {
+                                    i.required = true;
+                                }
+                            });
+
+                            // Hide Image Upload for Jobs
+                            if (imageSection) imageSection.classList.add('hidden');
+                        } else {
+                            jobSection.classList.add('hidden');
+                            jobSection.querySelectorAll('input, textarea').forEach(i => {
+                                i.required = false;
+                                i.value = '';
+                            });
+
+                            // Show Image Upload for others
+                            if (imageSection) imageSection.classList.remove('hidden');
+                        }
+
+                        // Address & Label Logic
+                        if (addressInput) {
                             if (val === 'Job') {
-                                jobSection.classList.remove('hidden');
-                                jobSection.querySelector('input[name="company"]').required = true;
-                                jobSection.querySelector('textarea[name="skills"]').required = true;
-                                jobSection.querySelector('input[name="job_start_date"]').required = true;
-
-                                // Hide Image Upload for Jobs
-                                if (imageSection) imageSection.style.display = 'none';
+                                addressInput.required = true;
+                                addressInput.placeholder = "City, Country or Address";
+                                if (locationLabel) locationLabel.textContent = "Location";
+                                if (descriptionLabel) descriptionLabel.textContent = "Job Description";
                             } else {
-                                jobSection.classList.add('hidden');
-                                jobSection.querySelectorAll('input, textarea').forEach(i => {
-                                    i.required = false;
-                                    i.value = '';
-                                });
-
-                                // Show Image Upload for others
-                                if (imageSection) imageSection.style.display = 'flex';
-                            }
-
-                            // Address Requirement Logic
-                            const addressInput = document.getElementById('create-address-input');
-                            if (addressInput) {
-                                if (val === 'Service' || val === 'Job' || val === 'Request') {
+                                if (descriptionLabel) descriptionLabel.textContent = "Description";
+                                if (val === 'Service' || val === 'Request') {
                                     addressInput.required = false;
                                     addressInput.placeholder = "Address (Optional)";
-                                    // Update label if possible, or just rely on placeholder
-                                    const label = addressInput.previousElementSibling;
-                                    if (label) label.textContent = "Address (Optional)";
+                                    if (locationLabel) locationLabel.textContent = "Address (Optional)";
                                 } else {
                                     addressInput.required = true;
                                     addressInput.placeholder = "Start typing address...";
-                                    const label = addressInput.previousElementSibling;
-                                    if (label) label.textContent = "Address (Validated)";
-                                }
-                            }
-
-                            // Hours of Operation Logic
-                            const hoursInput = document.querySelector('#create-listing-modal input[name="hours_of_operation"]');
-                            if (hoursInput) {
-                                const hoursContainer = hoursInput.closest('div');
-                                // Allowed: Business, Service, Food
-                                if (val === 'Business' || val === 'Service' || val === 'Food') {
-                                    if (hoursContainer) hoursContainer.classList.remove('hidden');
-                                    hoursInput.disabled = false;
-                                } else {
-                                    if (hoursContainer) hoursContainer.classList.add('hidden');
-                                    hoursInput.value = ''; // Clear value
-                                    hoursInput.disabled = true; // Prevent submission
+                                    if (locationLabel) locationLabel.textContent = "Address (Validated)";
                                 }
                             }
                         }
 
-                        typeSelect.addEventListener('change', toggleFields);
-                        // Run on init just in case
-                        toggleFields();
-                    })();
-                </script>
+                        // Hours of Operation Logic
+                        if (hoursSection) {
+                            const hoursInput = hoursSection.querySelector('input');
+                            // Allowed: Business, Service, Food
+                            if (val === 'Business' || val === 'Service' || val === 'Food') {
+                                hoursSection.classList.remove('hidden');
+                                if (hoursInput) hoursInput.disabled = false;
+                            } else {
+                                hoursSection.classList.add('hidden');
+                                if (hoursInput) {
+                                    hoursInput.value = '';
+                                    hoursInput.disabled = true;
+                                }
+                            }
+                        }
+                    }
 
-                <!-- Contact Section -->
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="flex flex-col gap-1.5">
-                        <label
-                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Email</label>
-                        <input name="contact_email" type="email" placeholder="Email"
-                            value="{{ if .User }}{{ .User.Email }}{{ end }}"
-                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
-                    </div>
-                    <div class="flex flex-col gap-1.5">
-                        <label
-                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Phone/WhatsApp</label>
-                        <input name="contact_phone" type="tel" placeholder="+1..."
-                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
-                    </div>
-                </div>
+                    typeSelect.addEventListener('change', toggleFields);
+                    // Run on init just in case
+                    toggleFields();
+                })();
+            </script>
 
-                <!-- Website (Optional) -->
+            <!-- Contact Section -->
+            <div class="grid grid-cols-2 gap-4">
                 <div class="flex flex-col gap-1.5">
                     <label
-                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Website
-                        (Optional)</label>
-                    <input name="website_url" type="url" placeholder="https://..."
+                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Email</label>
+                    <input name="contact_email" type="email" placeholder="Email"
+                        value="{{ if .User }}{{ .User.Email }}{{ end }}"
                         class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
                 </div>
+                <div class="flex flex-col gap-1.5">
+                    <label
+                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Phone/WhatsApp</label>
+                    <input name="contact_phone" type="tel" placeholder="+1..."
+                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                </div>
+            </div>
 
-                <button type="submit"
-                    class="mt-2 w-full flex items-center justify-center gap-2 bg-primary hover:bg-orange-600 text-white font-bold h-12 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-orange-500/20">
-                    <span class="material-symbols-outlined text-[20px]">send</span>
-                    Post Listing
-                </button>
+            <!-- Website (Optional) -->
+            <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Website
+                    (Optional)</label>
+                <input name="website_url" type="url" placeholder="https://..."
+                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+            </div>
+
+            <button type="submit"
+                class="mt-2 w-full flex items-center justify-center gap-2 bg-primary hover:bg-orange-600 text-white font-bold h-12 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-orange-500/20">
+                <span class="material-symbols-outlined text-[20px]">send</span>
+                Post Listing
+            </button>
         </form>
     </div>
 </dialog>

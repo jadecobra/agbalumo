@@ -139,8 +139,14 @@ func (l *Listing) Validate() error {
 		if l.Company == "" {
 			return errors.New("company name is required for job listings")
 		}
+		if l.Description == "" {
+			return errors.New("description is required")
+		}
 		if l.Skills == "" {
 			return errors.New("skills are required for job listings")
+		}
+		if l.PayRange == "" {
+			return errors.New("compensation/pay range is required")
 		}
 		if l.JobStartDate.IsZero() {
 			return errors.New("job start date is required")
@@ -148,6 +154,13 @@ func (l *Listing) Validate() error {
 		// Start date cannot be in the past (allow 24h buffer)
 		if l.JobStartDate.Before(time.Now().Add(-24 * time.Hour)) {
 			return errors.New("job start date cannot be in the past")
+		}
+		if l.City == "" && l.Address == "" {
+			 // We check City primarily as "Location" usually maps to City
+			return errors.New("location (city) is required")
+		}
+		if l.JobApplyURL == "" {
+			return errors.New("apply url is required")
 		}
 	}
 

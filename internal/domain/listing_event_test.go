@@ -62,6 +62,7 @@ func TestEventValidation(t *testing.T) {
 				Type:         tt.typeStr,
 				Title:        "Test Event",
 				ContactEmail: "event@example.com",
+				Address:      "123 Valid St", // Satisfy address requirement for Business/Food
 				CreatedAt:    now,
 				IsActive:     true,
 				// These fields don't exist yet, so this code won't compile initially (RED phase if we consider compilation failure as part of it, 

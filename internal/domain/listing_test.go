@@ -50,6 +50,7 @@ func TestValidateDeadline(t *testing.T) {
 				Type:         tt.typeStr,
 				Title:        "Test Title",
 				ContactEmail: "test@example.com",
+				Address:      "123 Valid St", // Satisfy address requirement for Business/Food
 				CreatedAt:    now,
 				Deadline:     tt.deadline,
 				IsActive:     true,

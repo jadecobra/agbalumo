@@ -23,7 +23,8 @@ func TestListing_Validate_Job(t *testing.T) {
 				PayRange:     "$100k - $150k",
 				Skills:       "Go, SQLite",
 				JobStartDate: time.Now().Add(24 * time.Hour),
-				JobApplyURL:  "https://example.com/apply", // Optional but good to check if we add it
+				JobApplyURL:  "https://example.com/apply",
+				City:         "Lagos",
 				ContactEmail: "hr@example.com",
 			},
 			wantErr: false,
