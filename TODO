@@ -1,14 +1,13 @@
+- review architecture for security, performance, cost
 - add plan to deploy to fly.io
-- implement saved listings in user management
+- update path to use the right go
+- create brand identity/guidelines for UI - agbalumo colors from lightest brown (interior of fruit)  to medium (skin) to dark brown (the seed), leaf green - relate to UI
 - add feedback button for users to report issues/suggest improvements
 - separate phone/whatsapp
 - add hours of operation for business/food listings
-- review architecture for security, performance, cost
 - outline user journey for each type of user through the app and steps
 - service does not need address
 - add stress/load testing to find out limit/bottlenecks
-- deploy to fly.io
-- fix edit listing modal, should edit only their own listings
 - write CLI to test application
 - critique application for user experience
 - setup CI to deploy to fly.io
