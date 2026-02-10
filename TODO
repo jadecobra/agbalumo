@@ -1,6 +1,6 @@
-- add feedback button for users to report issues/suggest
+- [x] add feedback button for users to report issues/suggest
 - update path to use the right go
-- create brand identity/guidelines for UI - agbalumo colors from lightest brown (interior of fruit)  to medium (skin) to dark brown (the seed), leaf green - relate to UI
+- create brand identity/guidelines for UI - agbalumo colors from lightest brown (interior of fruit) to medium (skin) to dark brown (the seed), leaf green - relate to UI
 - review admin dashboard
 - add admin controls for website look
 - build local CI pipeline - audit must pass before commit is accepted

@@ -1,6 +1,7 @@
 bin/
 tmp/
 agbalumo.db
+agbalumo.db-*
 ui/static/uploads/*
 !ui/static/uploads/.gitkeep
 .DS_Store

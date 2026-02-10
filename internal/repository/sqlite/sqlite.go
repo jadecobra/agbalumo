@@ -143,6 +143,20 @@ func (r *SQLiteRepository) migrate() error {
 		return err
 	}
 
+	// Create Feedback Table
+	createFeedbackTable := `
+	CREATE TABLE IF NOT EXISTS feedback (
+		id TEXT PRIMARY KEY,
+		user_id TEXT,
+		type TEXT,
+		content TEXT,
+		created_at DATETIME
+	);`
+
+	if _, err := r.db.ExecContext(context.Background(), createFeedbackTable); err != nil {
+		return err
+	}
+
 	// Migration: Add address column if missing (simple check)
 	// We ignore error if column exists (naive but works for dev SQLite)
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN address TEXT;")

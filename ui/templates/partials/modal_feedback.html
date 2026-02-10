@@ -1,0 +1,66 @@
+<dialog id="feedback-modal"
+    class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-lg m-auto rounded-3xl shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in">
+    <div
+        class="bg-background-light dark:bg-background-dark p-0 rounded-3xl border border-orange-100 dark:border-stone-800 shadow-soft relative overflow-hidden flex flex-col">
+
+        <!-- Header -->
+        <div
+            class="flex items-center justify-between p-4 border-b border-stone-100 dark:border-stone-800 bg-white/50 dark:bg-stone-900/50 backdrop-blur-sm">
+            <h2 class="text-xl font-bold font-display text-text-main dark:text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">feedback</span>
+                Submit Feedback
+            </h2>
+            <button onclick="this.closest('dialog').close(); this.closest('dialog').remove();"
+                class="p-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <!-- Form -->
+        <form hx-post="/feedback" hx-swap="outerHTML" class="p-6 space-y-4">
+            <!-- Type -->
+            <div class="space-y-1">
+                <label class="block text-sm font-bold text-text-sub dark:text-stone-400">Feedback Type</label>
+                <div class="flex gap-4">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="type" value="Issue" class="text-primary focus:ring-primary" checked>
+                        <span class="text-sm font-medium">Issue</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="type" value="Feature" class="text-primary focus:ring-primary">
+                        <span class="text-sm font-medium">Feature Request</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="type" value="Other" class="text-primary focus:ring-primary">
+                        <span class="text-sm font-medium">Other</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="space-y-1">
+                <label for="feedback-content"
+                    class="block text-sm font-bold text-text-sub dark:text-stone-400">Details</label>
+                <textarea id="feedback-content" name="content" rows="4" required
+                    class="w-full rounded-xl border-stone-200 dark:border-stone-700 bg-white dark:bg-surface-dark focus:border-primary focus:ring-primary transition-all text-sm resize-none"
+                    placeholder="Tell us about the issue or feature..."></textarea>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex justify-end gap-3 pt-2">
+                <button type="button" onclick="this.closest('dialog').close(); this.closest('dialog').remove();"
+                    class="px-5 py-2.5 rounded-full border border-stone-200 dark:border-stone-700 font-bold text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800 transition-all text-sm">
+                    Cancel
+                </button>
+                <button type="submit"
+                    class="px-5 py-2.5 bg-primary text-white rounded-full font-bold shadow-soft hover:shadow-lg hover:bg-orange-600 transition-all text-sm flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">send</span>
+                    Submit
+                </button>
+            </div>
+        </form>
+    </div>
+</dialog>
+<script>
+    document.getElementById("feedback-modal").showModal();
+</script>

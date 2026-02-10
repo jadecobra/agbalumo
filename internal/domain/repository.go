@@ -18,4 +18,7 @@ type ListingRepository interface {
 	
 	// Maintenance
 	ExpireListings(ctx context.Context) (int64, error)
+
+	// Feedback
+	SaveFeedback(ctx context.Context, feedback Feedback) error
 }

@@ -20,6 +20,7 @@ type MockListingRepository struct {
 	DeleteFn             func(ctx context.Context, id string) error
 	GetCountsFn          func(ctx context.Context) (map[domain.Category]int, error)
 	ExpireListingsFn     func(ctx context.Context) (int64, error)
+	SaveFeedbackFn       func(ctx context.Context, feedback domain.Feedback) error
 }
 
 func (m *MockListingRepository) Save(ctx context.Context, l domain.Listing) error {
@@ -90,5 +91,12 @@ func (m *MockListingRepository) ExpireListings(ctx context.Context) (int64, erro
 		return m.ExpireListingsFn(ctx)
 	}
 	return 0, nil
+}
+
+func (m *MockListingRepository) SaveFeedback(ctx context.Context, f domain.Feedback) error {
+	if m.SaveFeedbackFn != nil {
+		return m.SaveFeedbackFn(ctx, f)
+	}
+	return nil
 }
 

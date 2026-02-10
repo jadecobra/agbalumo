@@ -102,6 +102,11 @@ func main() {
 	// Profile
 	e.GET("/profile", listingHandler.HandleProfile, authHandler.RequireAuth)
 
+	// Feedback
+	feedbackHandler := handler.NewFeedbackHandler(repo)
+	e.GET("/feedback/modal", feedbackHandler.HandleModal, authHandler.RequireAuth)
+	e.POST("/feedback", feedbackHandler.HandleSubmit, authHandler.RequireAuth)
+
 	// Admin Routes
 	adminGroup := e.Group("/admin")
 	adminGroup.Use(adminHandler.AuthMiddleware)
