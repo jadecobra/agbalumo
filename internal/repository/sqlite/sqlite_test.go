@@ -144,6 +144,40 @@ func TestGetCounts(t *testing.T) {
 	}
 }
 
+
+func TestDelete(t *testing.T) {
+	repo, _ := newTestRepo(t)
+	ctx := context.Background()
+
+	// 1. Seed
+	l := domain.Listing{
+		ID:        "to-delete",
+		Title:     "Delete Me",
+		Type:      domain.Business,
+		IsActive:  true,
+		CreatedAt: time.Now(),
+	}
+	if err := repo.Save(ctx, l); err != nil {
+		t.Fatalf("Failed to save: %v", err)
+	}
+
+	// 2. Delete
+	if err := repo.Delete(ctx, "to-delete"); err != nil {
+		t.Fatalf("Delete failed: %v", err)
+	}
+
+	// 3. Verify Deleted
+	_, err := repo.FindByID(ctx, "to-delete")
+	if err == nil {
+		t.Error("Expected error finding deleted listing, got nil")
+	}
+
+	// 4. Delete Non-Existent
+	if err := repo.Delete(ctx, "non-existent"); err == nil {
+		t.Error("Expected error deleting non-existent listing, got nil")
+	}
+}
+
 func TestExpireListings(t *testing.T) {
 	repo, _ := newTestRepo(t)
 	ctx := context.Background()
@@ -190,8 +224,19 @@ func TestExpireListings(t *testing.T) {
 		OwnerOrigin:  "Ghana",
 		ContactEmail: "test@test.com",
 	}
+	// Add Job Expiration Test
+	expiredJob := domain.Listing{
+		ID:           "job-exp",
+		Type:         domain.Job,
+		Title:        "Expired Job",
+		JobStartDate: now.AddDate(0, 0, -91), // 91 days ago (limit is 90)
+		IsActive:     true,
+		CreatedAt:    now,
+		OwnerOrigin:  "Ghana",
+		ContactEmail: "test@test.com",
+	}
 
-	for _, l := range []domain.Listing{expiredRequest, activeRequest, expiredEvent, activeEvent} {
+	for _, l := range []domain.Listing{expiredRequest, activeRequest, expiredEvent, activeEvent, expiredJob} {
 		if err := repo.Save(ctx, l); err != nil {
 			t.Fatalf("Failed to save %s: %v", l.Title, err)
 		}
@@ -204,8 +249,9 @@ func TestExpireListings(t *testing.T) {
 	}
 
 	// 3. Assertions
-	if count != 2 {
-		t.Errorf("Expected 2 listing to expire, got %d", count)
+	// Request + Event + Job = 3
+	if count != 3 {
+		t.Errorf("Expected 3 listings to expire, got %d", count)
 	}
 
 	// Verify specific items
@@ -222,6 +268,11 @@ func TestExpireListings(t *testing.T) {
 	l, _ = repo.FindByID(ctx, "evt-exp")
 	if l.IsActive {
 		t.Error("Expired Event should be inactive")
+	}
+
+	l, _ = repo.FindByID(ctx, "job-exp")
+	if l.IsActive {
+		t.Error("Expired Job should be inactive")
 	}
 }
 
@@ -256,3 +307,49 @@ func TestHoursOfOperationPersistence(t *testing.T) {
 }
 
 
+
+func TestFindAllByOwner(t *testing.T) {
+	repo, _ := newTestRepo(t)
+	ctx := context.Background()
+
+	// Seed
+	user1Listings := []domain.Listing{
+		{ID: "u1-1", Title: "U1 First", OwnerID: "user1", IsActive: true, CreatedAt: time.Now()},
+		{ID: "u1-2", Title: "U1 Second", OwnerID: "user1", IsActive: false, CreatedAt: time.Now()}, // Should include inactive
+	}
+	user2Listing := domain.Listing{ID: "u2-1", Title: "U2 Only", OwnerID: "user2", IsActive: true, CreatedAt: time.Now()}
+
+	for _, l := range append(user1Listings, user2Listing) {
+		if err := repo.Save(ctx, l); err != nil {
+			t.Fatalf("Failed to save: %v", err)
+		}
+	}
+
+	// Test
+	results, err := repo.FindAllByOwner(ctx, "user1")
+	if err != nil {
+		t.Fatalf("FindAllByOwner failed: %v", err)
+	}
+
+	if len(results) != 2 {
+		t.Errorf("Expected 2 listings for user1, got %d", len(results))
+	}
+
+	// Verify order or content if needed, but count is good start
+	foundTitles := make(map[string]bool)
+	for _, l := range results {
+		foundTitles[l.Title] = true
+	}
+	if !foundTitles["U1 First"] || !foundTitles["U1 Second"] {
+		t.Errorf("Expected listings not found. Got: %v", results)
+	}
+
+	// Test Empty
+	resultsEmpty, err := repo.FindAllByOwner(ctx, "non-existent")
+	if err != nil {
+		t.Fatalf("FindAllByOwner empty failed: %v", err)
+	}
+	if len(resultsEmpty) != 0 {
+		t.Errorf("Expected 0 results for non-existent user, got %d", len(resultsEmpty))
+	}
+}

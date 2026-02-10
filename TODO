@@ -1,13 +1,17 @@
-- add feedback button for users to report issues/suggest improvements
+- add feedback button for users to report issues/suggest
 - update path to use the right go
 - create brand identity/guidelines for UI - agbalumo colors from lightest brown (interior of fruit)  to medium (skin) to dark brown (the seed), leaf green - relate to UI
-- separate phone/whatsapp
-- add hours of operation for business/food listings
-- outline user journey for each type of user through the app and steps
-- service does not need address
-- add stress/load testing to find out limit/bottlenecks
-- write CLI to test application
-- critique application for user experience
 - review admin dashboard
 - add admin controls for website look
-- add fly.toml to security audit
+- build local CI pipeline - audit must pass before commit is accepted
+- critique application for user experience
+- [x] add hours of operation for business/food listings
+- [x] outline user journey for each type of user through the app and steps
+- [x] setup CI to deploy to fly.io
+- [x] speed up docker build
+- [x] rename database and remove URL from fly.toml use env vars
+- [x] add fly.toml to security audit
+- [x] separate prod and dev databases
+- [x] remove gemini moderation
+- [x] change region to dfwlook
+- [x] commits should deploy to fly.io

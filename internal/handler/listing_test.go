@@ -512,3 +512,132 @@ func TestHandleCreate_WithImage(t *testing.T) {
 		t.Errorf("Expected 200 OK, got %d", rec.Code)
 	}
 }
+
+func TestHandleDelete(t *testing.T) {
+	tests := []struct {
+		name           string
+		user           domain.User
+		mockSetup      func() *mock.MockListingRepository
+		expectedStatus int
+	}{
+		{
+			name: "Success",
+			user: domain.User{ID: "owner-1"},
+			mockSetup: func() *mock.MockListingRepository {
+				return &mock.MockListingRepository{
+					FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
+						return domain.Listing{ID: "1", OwnerID: "owner-1"}, nil
+					},
+					DeleteFn: func(ctx context.Context, id string) error {
+						if id != "1" {
+							return errors.New("wrong id")
+						}
+						return nil
+					},
+				}
+			},
+			expectedStatus: http.StatusSeeOther,
+		},
+		{
+			name: "Forbidden",
+			user: domain.User{ID: "other-user"},
+			mockSetup: func() *mock.MockListingRepository {
+				return &mock.MockListingRepository{
+					FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
+						return domain.Listing{ID: "1", OwnerID: "owner-1"}, nil
+					},
+				}
+			},
+			expectedStatus: http.StatusForbidden,
+		},
+		{
+			name: "RepoError_Find",
+			user: domain.User{ID: "owner-1"},
+			mockSetup: func() *mock.MockListingRepository {
+				return &mock.MockListingRepository{
+					FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
+						return domain.Listing{}, errors.New("db error")
+					},
+				}
+			},
+			expectedStatus: http.StatusNotFound,
+
+		},
+		{
+			name: "RepoError_Delete",
+			user: domain.User{ID: "owner-1"},
+			mockSetup: func() *mock.MockListingRepository {
+				return &mock.MockListingRepository{
+					FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
+						return domain.Listing{ID: "1", OwnerID: "owner-1"}, nil
+					},
+					DeleteFn: func(ctx context.Context, id string) error {
+						return errors.New("delete failed")
+					},
+				}
+			},
+			expectedStatus: http.StatusInternalServerError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c, rec := setupTestContext(http.MethodDelete, "/listings/1", nil)
+			c.SetPath("/listings/:id")
+			c.SetParamNames("id")
+			c.SetParamValues("1")
+			c.Set("User", tt.user)
+
+			h := handler.NewListingHandler(tt.mockSetup())
+
+			_ = h.HandleDelete(c)
+
+			if rec.Code != tt.expectedStatus {
+				t.Errorf("Expected status %d, got %d", tt.expectedStatus, rec.Code)
+			}
+		})
+	}
+}
+
+func TestHandleProfile(t *testing.T) {
+	// Setup
+	e := echo.New()
+	t_temp := template.New("base")
+	t_temp.New("modal_profile.html").Parse(`Profile: {{.User.Name}}, Listings: {{len .Listings}}`)
+	e.Renderer = &TestRenderer{templates: t_temp}
+	
+	req := httptest.NewRequest(http.MethodGet, "/profile", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	user := domain.User{ID: "u1", Name: "Test User"}
+	c.Set("User", user)
+
+	// Mock Repo
+	mockRepo := &mock.MockListingRepository{
+		FindAllByOwnerFn: func(ctx context.Context, ownerID string) ([]domain.Listing, error) {
+			if ownerID != "u1" {
+				return nil, errors.New("wrong owner id")
+			}
+			return []domain.Listing{
+				{Title: "L1"}, {Title: "L2"},
+			}, nil
+		},
+	}
+
+	h := handler.NewListingHandler(mockRepo)
+
+	// Execute
+	if err := h.HandleProfile(c); err != nil {
+		t.Fatalf("HandleProfile failed: %v", err)
+	}
+
+	// Verify
+	if rec.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", rec.Code)
+	}
+	expectedBody := "Profile: Test User, Listings: 2"
+	if rec.Body.String() != expectedBody {
+		t.Errorf("Expected body %q, got %q", expectedBody, rec.Body.String())
+	}
+}
