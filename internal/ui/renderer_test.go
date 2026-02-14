@@ -30,6 +30,10 @@ func TestNewTemplateRenderer(t *testing.T) {
 		t.Fatal("Renderer is nil")
 	}
 
+	if len(renderer.templates) == 0 {
+		t.Error("Renderer templates map is empty")
+	}
+
 	// Test Fail - Bad Pattern
 	_, err = NewTemplateRenderer(filepath.Join(tempDir, "nonexistent/*.html"))
 	if err == nil {
@@ -37,18 +41,7 @@ func TestNewTemplateRenderer(t *testing.T) {
 	}
 }
 
-// Since NewTemplateRenderer is hardcoded to "ui/templates", let's test the Render method
-// using a manually constructed TemplateRenderer to avoid file system dependencies in simple unit tests,
-// AND/OR create a separate Integration test for NewTemplateRenderer.
-
 func TestTemplateRenderer_Render(t *testing.T) {
-	// Setup with FuncMap (we need to compile it via NewTemplateRenderer logic or manually add funcs)
-	// Since we are testing the struct methods, and the struct holds a *template.Template,
-	// we should ideally use NewTemplateRenderer to get the FuncMap.
-	// But NewTemplateRenderer expects files.
-	// Let's rely on the fact that we can attach Funcs to a new template if we duplicate logic,
-	// OR better: use our new NewTemplateRenderer with a dummy file that uses the funcs.
-
 	tempDir := t.TempDir()
 	tmplContent := `
 	{{- /* Test FuncMap */ -}}
@@ -100,7 +93,12 @@ func contains(s, substr string) bool {
 func BenchmarkRender(b *testing.B) {
 	tmpl := template.New("bench")
 	_, _ = tmpl.Parse(`<h1>{{.Title}}</h1><p>{{.Description}}</p>`)
-	renderer := &TemplateRenderer{templates: tmpl}
+	
+	// Mock the map structure
+	templates := map[string]*template.Template{
+		"bench": tmpl,
+	}
+	renderer := &TemplateRenderer{templates: templates}
 
 	e := echo.New()
 	c := e.NewContext(nil, nil)

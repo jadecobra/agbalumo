@@ -38,7 +38,7 @@ func NewMainTemplate() *template.Template {
 	t.New("modal_detail.html").Parse(`{{.Listing.Title}} - {{.Listing.Description}}`)
 	t.New("listing_card.html").Parse(`{{.Title}}`)
 	t.New("admin_login.html").Parse(`Login Form: {{if .Error}}{{.Error}}{{end}}`)
-	t.New("admin_dashboard.html").Parse(`Dashboard: {{len .Listings}} items`)
+	t.New("admin_dashboard.html").Parse(`Dashboard: {{len .PendingListings}} items`)
 	t.New("modal_edit_listing.html").Parse(`Edit: {{.Title}}`)
 	t.New("error.html").Parse(`Error Page`)
 	return t

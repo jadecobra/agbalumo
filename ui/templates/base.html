@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>{{ block "title" . }}Agbalumo{{ end }}</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#FF5E0E", // Agbalumo Orange
+                        "secondary": "#2D5A27", // Palm Leaf Green
+                        "background-light": "#FFF2EB", // Pale Agbalumo Orange Tint
+                        "background-dark": "#23160f", // Dark Warm Brown
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#2f221c",
+                        "text-main": "#181310",
+                        "text-sub": "#6d4c41",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark font-display text-text-main antialiased selection:bg-primary/20">
+    <!-- Main App Container -->
+    <div
+        class="relative flex h-full min-h-screen w-full bg-background-light dark:bg-background-dark shadow-2xl overflow-hidden">
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col h-screen overflow-y-auto no-scrollbar relative w-full">
+            <!-- Unified Top Header (Glassmorphic) -->
+            <header
+                class="sticky top-0 z-40 w-full backdrop-blur-md bg-background-light/80 dark:bg-background-dark/80 border-b border-orange-100/50 dark:border-stone-800/50 transition-all duration-300">
+
+                <!-- Mobile Full Width Logo -->
+                <div
+                    class="md:hidden flex flex-col justify-center items-center w-full py-2 border-b border-orange-50/30">
+                    <img src="/static/images/logo.png" alt="Agbalumo Logo" class="h-12 w-auto object-contain">
+                    <span class="text-[10px] text-primary font-medium tracking-wide -mt-1 font-display">find what you
+                        want</span>
+                </div>
+
+                <div
+                    class="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between gap-4 md:gap-8">
+
+                    <!-- Desktop Logo -->
+                    <a href="/" class="hidden md:flex flex-col shrink-0 items-center justify-center gap-0 group">
+                        <img src="/static/images/logo.png" alt="Agbalumo Logo"
+                            class="h-8 md:h-10 object-contain group-hover:scale-105 transition-transform">
+                        <span class="text-[10px] text-primary font-medium tracking-wide -mt-1 font-display">find what
+                            you want</span>
+                    </a>
+
+                    <!-- Centered Search Bar (Max Width) -->
+                    <div class="flex-1 max-w-2xl relative">
+                        <div
+                            class="relative flex items-center h-10 md:h-12 rounded-full bg-white/60 dark:bg-surface-dark/60 shadow-sm border border-orange-100/50 dark:border-stone-700/50 group focus-within:ring-2 focus-within:ring-primary/20 focus-within:bg-white dark:focus-within:bg-surface-dark transition-all">
+                            <div class="grid place-items-center h-full w-10 md:w-12 text-text-sub">
+                                <span class="material-symbols-outlined text-[18px] md:text-[20px]">search</span>
+                            </div>
+                            <input
+                                class="peer h-full w-full outline-none text-sm text-text-main dark:text-stone-100 bg-transparent pr-4 placeholder:text-stone-400 font-medium focus:outline-none focus:ring-0 focus:border-0 focus:shadow-none"
+                                style="box-shadow: none !important; outline: none !important;" id="search" name="q"
+                                placeholder="Search... (e.g. 'Jollof', 'Mechanic')" type="search"
+                                hx-get="/listings/fragment" hx-target="#listings-container"
+                                hx-indicator="#listings-loading" hx-trigger="keyup changed delay:500ms, search" />
+                        </div>
+                    </div>
+
+                    <!-- Right Controls (Desktop Only) -->
+                    <div class="hidden md:flex items-center gap-4 shrink-0">
+                        <!-- Navigation Links -->
+                        <nav class="flex items-center gap-1">
+                            <button
+                                class="p-2 rounded-full text-stone-500 hover:text-primary hover:bg-orange-50 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors"
+                                title="Saved">
+                                <span class="material-symbols-outlined">favorite</span>
+                            </button>
+                        </nav>
+
+                        <!-- Action Buttons -->
+                        <div class="flex items-center gap-3 border-l border-stone-200 dark:border-stone-700 pl-4">
+                            <button
+                                onclick="{{ if .User }}document.getElementById('create-request-modal').showModal(){{ else }}window.location.href='/auth/google/login'{{ end }}"
+                                class="flex items-center gap-2 bg-secondary/10 hover:bg-secondary/20 text-secondary dark:text-green-400 dark:hover:bg-green-900/30 px-4 h-10 rounded-full transition-all font-semibold font-display text-sm">
+                                <span class="material-symbols-outlined text-[18px]">campaign</span>
+                                Ask
+                            </button>
+                            <button
+                                onclick="{{ if .User }}document.getElementById('create-listing-modal').showModal(){{ else }}window.location.href='/auth/google/login'{{ end }}"
+                                class="flex items-center gap-2 bg-primary hover:bg-orange-600 shadow-md shadow-orange-500/20 text-white px-5 h-10 rounded-full transition-all active:scale-95 font-semibold font-display text-sm">
+                                <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                                Post
+                            </button>
+                        </div>
+
+                        <!-- User Profile / Auth -->
+                        <div class="flex items-center gap-3">
+                            {{ if .User }}
+                            <div class="group relative">
+                                <button class="flex items-center gap-2" hx-get="/profile" hx-target="body"
+                                    hx-swap="beforeend">
+                                    <img src="{{ .User.AvatarURL }}" alt="Profile"
+                                        class="w-9 h-9 rounded-full border-2 border-white dark:border-stone-700 shadow-sm object-cover">
+                                </button>
+                            </div>
+                            {{ else }}
+                            <a href="/auth/google/login"
+                                class="flex items-center gap-2 bg-secondary/10 hover:bg-secondary/20 text-secondary dark:text-green-400 dark:hover:bg-green-900/30 px-4 h-10 rounded-full transition-all font-semibold font-display text-sm whitespace-nowrap">
+                                <span class="material-symbols-outlined text-[18px]">login</span>
+                                Sign In
+                            </a>
+                            {{ end }}
+                        </div>
+                    </div>
+
+                    <!-- Mobile Action Buttons (Visible only on mobile header) -->
+                    <div class="flex md:hidden items-center gap-2">
+                        <button
+                            onclick="{{ if .User }}document.getElementById('create-listing-modal').showModal(){{ else }}window.location.href='/auth/google/login'{{ end }}"
+                            class="w-9 h-9 flex items-center justify-center bg-primary text-white rounded-full shadow-sm active:scale-95">
+                            <span class="material-symbols-outlined text-[20px]">add</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters Bar (Attached to Header) -->
+                {{ block "filters" . }}{{ end }}
+            </header>
+
+            <!-- Content -->
+            {{ block "content" . }}{{ end }}
+        </main>
+
+        <!-- Mobile Bottom Nav (Hidden on Desktop) -->
+        <div id="mobile-bottom-nav"
+            class="md:hidden fixed bottom-0 w-full bg-white dark:bg-surface-dark border-t border-stone-100 dark:border-stone-800 pb-safe z-50 transition-transform duration-300">
+            <div class="flex justify-around items-center h-16">
+                <a href="/" class="flex flex-col items-center justify-center w-full h-full gap-1 text-primary">
+                    <span class="material-symbols-outlined filled"
+                        style="font-variation-settings: 'FILL' 1;">home</span>
+                    <span class="text-[10px] font-medium">Home</span>
+                </a>
+                <button
+                    class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
+                    <span class="material-symbols-outlined">favorite</span>
+                    <span class="text-[10px] font-medium">Saved</span>
+                </button>
+                <button
+                    onclick="{{ if .User }}document.getElementById('create-request-modal').showModal(){{ else }}window.location.href='/auth/google/login'{{ end }}"
+                    class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
+                    <span class="material-symbols-outlined">campaign</span>
+                    <span class="text-[10px] font-medium">Ask</span>
+                </button>
+                <button
+                    onclick="{{ if .User }}document.getElementById('create-listing-modal').showModal(){{ else }}window.location.href='/auth/google/login'{{ end }}"
+                    class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
+                    <span class="material-symbols-outlined">add_circle</span>
+                    <span class="text-[10px] font-medium">Post</span>
+                </button>
+                {{ if .User }}
+                <button hx-get="/profile" hx-target="body" hx-swap="beforeend"
+                    class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
+                    <img src="{{ .User.AvatarURL }}" alt="{{ .User.Name }}"
+                        class="w-6 h-6 rounded-full border border-orange-200">
+                    <span class="text-[10px] font-medium">Profile</span>
+                </button>
+                {{ else }}
+                <a href="/auth/google/login"
+                    class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
+                    <span class="material-symbols-outlined">login</span>
+                    <span class="text-[10px] font-medium">Sign In</span>
+                </a>
+                {{ end }}
+            </div>
+        </div>
+    </div>
+
+
+    {{ template "modal_create_listing.html" . }}
+    {{ template "modal_create_request.html" . }}
+    <script>
+        // Filter Activation Logic and Modal Logic
+        // ... (Keep existing script logic)
+        document.addEventListener('click', (event) => {
+            const btn = event.target.closest('#filter-container button');
+            if (btn) {
+                const container = document.getElementById('filter-container');
+                const buttons = container.querySelectorAll('button');
+                const activeState = "flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-stone-900 text-white dark:bg-white dark:text-stone-900 px-4 shadow-sm border border-transparent transition-transform active:scale-95 text-xs font-bold uppercase";
+                const inactiveState = "flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase";
+
+                buttons.forEach(b => {
+                    b.className = inactiveState;
+                    const icon = b.querySelector('.material-symbols-outlined');
+                    if (icon) {
+                        if (!icon.classList.contains('text-text-sub')) {
+                            icon.classList.add('text-text-sub');
+                        }
+                    }
+                });
+
+                btn.className = activeState;
+                const icon = btn.querySelector('.material-symbols-outlined');
+                if (icon) {
+                    icon.classList.remove('text-text-sub');
+                }
+            }
+        }, true);
+
+        document.addEventListener('click', (event) => {
+            if (event.target.tagName === 'DIALOG') {
+                const dialog = event.target;
+                const rect = dialog.getBoundingClientRect();
+                const isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
+                    rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
+                if (!isInDialog) {
+                    dialog.close();
+                    if (dialog.id.startsWith('detail-modal-') || dialog.id.startsWith('edit-modal-')) {
+                        dialog.remove();
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

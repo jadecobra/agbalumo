@@ -1,10 +1,18 @@
-- [x] add feedback button for users to report issues/suggest
+- add bulk upload of listings for admins with csv file
 - update path to use the right go
 - create brand identity/guidelines for UI - agbalumo colors from lightest brown (interior of fruit) to medium (skin) to dark brown (the seed), leaf green - relate to UI
 - review admin dashboard
 - add admin controls for website look
 - build local CI pipeline - audit must pass before commit is accepted
 - critique application for user experience
+- add email auth with apple
+- add email auth with facebook
+- add email auth with person sign up
+- add claim ownership of listing for signed in users, claim must be confirmed by admin to transfer ownership
+- add bar to feature business - randomly
+- make personal request for people to post
+- add about us
+- [x] add feedback button for users to report issues/suggest
 - [x] add hours of operation for business/food listings
 - [x] outline user journey for each type of user through the app and steps
 - [x] setup CI to deploy to fly.io

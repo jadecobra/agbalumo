@@ -1,114 +1,82 @@
-<!DOCTYPE html>
-<html class="light" lang="en">
+{{ template "base.html" . }}
 
-<head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Admin Dashboard - Agbalumo</title>
-    <link href="https://fonts.googleapis.com" rel="preconnect" />
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#FF5E0E",
-                        "secondary": "#2D5A27",
-                        "background-light": "#FFF2EB",
-                        "background-dark": "#23160f",
-                        "surface-light": "#ffffff",
-                        "surface-dark": "#2f221c",
-                        "text-main": "#181310",
-                        "text-sub": "#8d6d5e",
-                        "brand-orange": "#FF5E0E",
-                        "surface-50": "#F9FAFB",
-                        "surface-100": "#F3F4F6",
-                        "border-default": "#E5E7EB",
-                        "text-muted": "#6B7280"
-                    },
-                    fontFamily: {
-                        "display": ["Lexend", "sans-serif"]
-                    }
-                },
-            },
-        }
-    </script>
-</head>
+{{ define "content" }}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8 text-primary-900">Admin Dashboard</h1>
 
-<body class="bg-background-light dark:bg-background-dark font-display text-text-main antialiased min-h-screen">
-    <div class="relative flex min-h-screen w-full flex-col max-w-4xl mx-auto p-4 md:p-8">
-        <div class="flex items-center justify-between mb-8">
-            <h1 class="text-2xl font-medium text-text-main dark:text-stone-100">Moderation Queue</h1>
-            <a href="/" class="text-sm font-medium text-text-muted hover:text-text-main flex items-center gap-1">
-                <span class="material-symbols-outlined text-[18px]">arrow_back</span>
-                Back to Site
-            </a>
+    <!-- Metrics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Total Users -->
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+            <h2 class="text-gray-500 text-sm uppercase font-semibold">Total Users</h2>
+            <p class="text-3xl font-bold text-gray-800">{{ .UserCount }}</p>
         </div>
 
-        <div class="flex flex-col gap-4">
-            {{range .Listings}}
-            <div class="group flex flex-col md:flex-row items-start gap-4 p-4 bg-white dark:bg-stone-800 rounded-2xl border border-border-default dark:border-stone-700 shadow-sm"
-                id="listing-{{.ID}}">
-
-                {{if .ImageURL}}
-                <img src="{{.ImageURL}}" class="w-full md:w-24 h-48 md:h-24 object-cover rounded-xl bg-surface-50"
-                    loading="lazy">
-                {{else}}
-                <div
-                    class="w-full md:w-24 h-24 bg-surface-50 rounded-xl flex items-center justify-center text-text-muted border border-dashed border-stone-200">
-                    <span class="text-xs">No Img</span>
-                </div>
-                {{end}}
-
-                <div class="flex-1 flex flex-col gap-1 w-full">
-                    <div class="flex items-start justify-between">
-                        <h3 class="font-medium text-text-main dark:text-stone-100 text-lg">{{.Title}}</h3>
-                        <span
-                            class="text-xs px-2 py-1 rounded-full bg-surface-100 dark:bg-stone-700 text-text-muted whitespace-nowrap">
-                            {{.Type}}
-                        </span>
-                    </div>
-                    <p class="text-sm text-text-muted line-clamp-2 leading-relaxed">{{.Description}}</p>
-                    <div class="flex items-center gap-4 mt-2 text-xs text-text-muted flex-wrap">
-                        <span class="flex items-center gap-1"><span
-                                class="material-symbols-outlined text-[14px]">public</span> {{.OwnerOrigin}}</span>
-                        <span class="flex items-center gap-1"><span
-                                class="material-symbols-outlined text-[14px]">location_on</span>
-                            {{.City}}</span>
-                        {{if not .IsActive}}
-                        <span class="text-red-500 font-medium flex items-center gap-1">
-                            <span class="material-symbols-outlined text-[14px]">block</span> Inactive
-                        </span>
-                        {{end}}
-                    </div>
-                </div>
-
-                <div class="flex items-center md:self-center w-full md:w-auto mt-2 md:mt-0">
-                    <button hx-delete="/admin/listings/{{.ID}}" hx-target="#listing-{{.ID}}" hx-swap="outerHTML"
-                        hx-confirm="Are you sure you want to PERMANENTLY delete this listing? This action cannot be undone."
-                        class="h-10 px-4 w-full md:w-auto bg-red-50 hover:bg-red-100 text-red-600 font-medium rounded-xl active:scale-[0.98] transition-all text-sm flex items-center justify-center gap-1">
-                        <span class="material-symbols-outlined text-[18px]">delete</span>
-                        Delete
-                    </button>
-                </div>
-            </div>
-            {{else}}
-            <div
-                class="flex flex-col items-center justify-center py-20 text-text-muted bg-white dark:bg-stone-800 rounded-3xl border border-dashed border-stone-200">
-                <span class="material-symbols-outlined text-[48px] text-stone-300 mb-2">inbox</span>
-                <p>No listings found.</p>
-            </div>
-            {{end}}
+        <!-- Feedback Counts -->
+        {{ range $type, $count := .FeedbackCounts }}
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-yellow-500">
+            <h2 class="text-gray-500 text-sm uppercase font-semibold">Feedback: {{ $type }}</h2>
+            <p class="text-3xl font-bold text-gray-800">{{ $count }}</p>
         </div>
+        {{ end }}
     </div>
-</body>
 
-</html>
+    <!-- Moderation Queue -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <h2 class="text-xl font-semibold text-gray-800">Moderation Queue ({{ len .PendingListings }})</h2>
+        </div>
+
+        {{ if .PendingListings }}
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner
+                    </th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {{ range .PendingListings }}
+                <tr id="listing-{{ .ID }}">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ .CreatedAt.Format "Jan 02, 2006" }}
+                    </td>
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                        <a href="/listings/{{ .ID }}" target="_blank" class="text-primary-600 hover:underline">{{ .Title
+                            }}</a>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 uppercase">
+                        {{ .Type }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ .OwnerOrigin }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                        <button hx-post="/admin/listings/{{ .ID }}/approve" hx-target="#listing-{{ .ID }}"
+                            hx-swap="outerHTML" class="text-green-600 hover:text-green-900 font-bold">
+                            Approve
+                        </button>
+                        <button hx-post="/admin/listings/{{ .ID }}/reject"
+                            hx-confirm="Are you sure you want to reject this listing?" hx-target="#listing-{{ .ID }}"
+                            hx-swap="outerHTML" class="text-red-600 hover:text-red-900 font-bold">
+                            Reject
+                        </button>
+                    </td>
+                </tr>
+                {{ end }}
+            </tbody>
+        </table>
+        {{ else }}
+        <div class="p-6 text-center text-gray-500">
+            No pending listings. Good job!
+        </div>
+        {{ end }}
+    </div>
+</div>
+{{ end }}{{ define "filters" }}{{ end }}

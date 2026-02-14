@@ -4,19 +4,53 @@ import (
 	"errors"
 	"html/template"
 	"io"
+	"path/filepath"
 	"strings"
 
 	"github.com/labstack/echo/v4"
 )
 
+
+
 // TemplateRenderer is a custom html/template renderer for Echo framework
 type TemplateRenderer struct {
-	templates *template.Template
+	templates map[string]*template.Template
 }
 
 // NewTemplateRenderer creates a new instance of TemplateRenderer with parsed templates
 func NewTemplateRenderer(patterns ...string) (*TemplateRenderer, error) {
-	tmpl := template.New("").Funcs(template.FuncMap{
+	// 1. Identify all files
+	var allFiles []string
+	for _, pattern := range patterns {
+		files, err := filepath.Glob(pattern)
+		if err != nil {
+			return nil, err
+		}
+		allFiles = append(allFiles, files...)
+	}
+
+	if len(allFiles) == 0 {
+		return nil, errors.New("no template files found")
+	}
+
+	// 2. Classify files
+	var layoutFiles []string
+	var partialFiles []string
+	var pageFiles []string
+
+	for _, file := range allFiles {
+		baseName := filepath.Base(file)
+		if baseName == "base.html" {
+			layoutFiles = append(layoutFiles, file)
+		} else if strings.Contains(file, "partials") {
+			partialFiles = append(partialFiles, file)
+		} else {
+			pageFiles = append(pageFiles, file)
+		}
+	}
+
+	// 3. Logic to create FuncMap (shared)
+	funcMap := template.FuncMap{
 		"split": strings.Split,
 		"mod":   func(i, j int) int { return i % j },
 		"add":   func(i, j int) int { return i + j },
@@ -41,26 +75,49 @@ func NewTemplateRenderer(patterns ...string) (*TemplateRenderer, error) {
 			}
 			return dict, nil
 		},
-	})
-
-	// Base to allow appending
-	if _, err := tmpl.Parse("{{define \"base\"}}{{end}}"); err != nil {
-		return nil, err
 	}
 
-	// Parse glob patterns
-	for _, pattern := range patterns {
-		if _, err := tmpl.ParseGlob(pattern); err != nil {
+	// 4. Compile Templates per Page
+	templates := make(map[string]*template.Template)
+
+	for _, pageFile := range pageFiles {
+		fileName := filepath.Base(pageFile)
+		
+		// Create a new template set for this page
+		tmpl := template.New(fileName).Funcs(funcMap)
+
+		// Parse Layouts (base.html) - verify if exists
+		if len(layoutFiles) > 0 {
+			if _, err := tmpl.ParseFiles(layoutFiles...); err != nil {
+				return nil, err
+			}
+		}
+
+		// Parse Partials
+		if len(partialFiles) > 0 {
+			if _, err := tmpl.ParseFiles(partialFiles...); err != nil {
+				return nil, err
+			}
+		}
+
+		// Parse the Page itself
+		if _, err := tmpl.ParseFiles(pageFile); err != nil {
 			return nil, err
 		}
+
+		templates[fileName] = tmpl
 	}
 
 	return &TemplateRenderer{
-		templates: tmpl,
+		templates: templates,
 	}, nil
 }
 
 // Render renders a template document
 func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	return t.templates.ExecuteTemplate(w, name, data)
+	tmpl, ok := t.templates[name]
+	if !ok {
+		return errors.New("template not found: " + name)
+	}
+	return tmpl.ExecuteTemplate(w, name, data)
 }

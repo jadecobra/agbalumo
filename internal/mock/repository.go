@@ -21,6 +21,12 @@ type MockListingRepository struct {
 	GetCountsFn          func(ctx context.Context) (map[domain.Category]int, error)
 	ExpireListingsFn     func(ctx context.Context) (int64, error)
 	SaveFeedbackFn       func(ctx context.Context, feedback domain.Feedback) error
+	GetAllFeedbackFn     func(ctx context.Context) ([]domain.Feedback, error)
+
+	// New Admin Methods
+	GetPendingListingsFn func(ctx context.Context) ([]domain.Listing, error)
+	GetUserCountFn       func(ctx context.Context) (int, error)
+	GetFeedbackCountsFn  func(ctx context.Context) (map[domain.FeedbackType]int, error)
 }
 
 func (m *MockListingRepository) Save(ctx context.Context, l domain.Listing) error {
@@ -98,5 +104,33 @@ func (m *MockListingRepository) SaveFeedback(ctx context.Context, f domain.Feedb
 		return m.SaveFeedbackFn(ctx, f)
 	}
 	return nil
+}
+
+func (m *MockListingRepository) GetAllFeedback(ctx context.Context) ([]domain.Feedback, error) {
+	if m.GetAllFeedbackFn != nil {
+		return m.GetAllFeedbackFn(ctx)
+	}
+	return nil, nil
+}
+
+func (m *MockListingRepository) GetFeedbackCounts(ctx context.Context) (map[domain.FeedbackType]int, error) {
+	if m.GetFeedbackCountsFn != nil {
+		return m.GetFeedbackCountsFn(ctx)
+	}
+	return nil, nil
+}
+
+func (m *MockListingRepository) GetPendingListings(ctx context.Context) ([]domain.Listing, error) {
+	if m.GetPendingListingsFn != nil {
+		return m.GetPendingListingsFn(ctx)
+	}
+	return nil, nil
+}
+
+func (m *MockListingRepository) GetUserCount(ctx context.Context) (int, error) {
+	if m.GetUserCountFn != nil {
+		return m.GetUserCountFn(ctx)
+	}
+	return 0, nil
 }
 

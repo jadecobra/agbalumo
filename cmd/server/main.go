@@ -109,13 +109,18 @@ func main() {
 
 	// Admin Routes
 	adminGroup := e.Group("/admin")
-	adminGroup.Use(adminHandler.AuthMiddleware)
+	// Use the OptionalAuth middleware first to populate the user context, then AdminMiddleware
+	adminGroup.Use(authHandler.OptionalAuth)
 
-	e.GET("/admin/login", adminHandler.HandleLoginView)
-	e.POST("/admin/login", adminHandler.HandleLoginAction)
+	// Admin Claim/Login Routes (Protected by Auth, but not Admin Role)
+	adminGroup.GET("/login", adminHandler.HandleLoginView, authHandler.RequireAuth)
+	adminGroup.POST("/login", adminHandler.HandleLoginAction, authHandler.RequireAuth)
+	
+	adminGroup.Use(adminHandler.AdminMiddleware)
 
 	adminGroup.GET("", adminHandler.HandleDashboard)
-	adminGroup.DELETE("/listings/:id", adminHandler.HandleDelete)
+	adminGroup.POST("/listings/:id/approve", adminHandler.HandleApprove)
+	adminGroup.POST("/listings/:id/reject", adminHandler.HandleReject)
 
 	// Environment Configuration
 	env := os.Getenv("AGBALUMO_ENV")

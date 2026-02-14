@@ -21,4 +21,10 @@ type ListingRepository interface {
 
 	// Feedback
 	SaveFeedback(ctx context.Context, feedback Feedback) error
+	GetAllFeedback(ctx context.Context) ([]Feedback, error)
+	GetFeedbackCounts(ctx context.Context) (map[FeedbackType]int, error) // New
+
+	// Admin
+	GetPendingListings(ctx context.Context) ([]Listing, error) // New
+	GetUserCount(ctx context.Context) (int, error)             // New
 }

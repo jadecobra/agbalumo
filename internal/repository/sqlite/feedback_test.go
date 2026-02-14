@@ -100,3 +100,64 @@ func TestSaveFeedback(t *testing.T) {
 		}
 	})
 }
+
+func TestGetAllFeedback(t *testing.T) {
+	// Setup temporary DB (copy paste setup for now or refactor helper if available in package)
+	tmpFile, err := os.CreateTemp("", "test_feedback_get.db")
+	if err != nil {
+		t.Fatal(err)
+	}
+	dbPath := tmpFile.Name()
+	defer os.Remove(dbPath)
+
+	repo, err := sqlite.NewSQLiteRepository(dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	
+	ctx := context.Background()
+
+	// Seed Data
+	feedbacks := []domain.Feedback{
+		{
+			ID:        "f1",
+			UserID:    "user1",
+			Type:      domain.FeedbackTypeIssue,
+			Content:   "Oldest",
+			CreatedAt: time.Now().Add(-2 * time.Hour),
+		},
+		{
+			ID:        "f2",
+			UserID:    "user2",
+			Type:      domain.FeedbackTypeFeature,
+			Content:   "Newest",
+			CreatedAt: time.Now(),
+		},
+	}
+
+	for _, f := range feedbacks {
+		if err := repo.SaveFeedback(ctx, f); err != nil {
+			t.Fatalf("Failed to save feedback: %v", err)
+		}
+	}
+
+	// Test GetAll
+	retrieved, err := repo.GetAllFeedback(ctx)
+	if err != nil {
+		t.Fatalf("Failed to get all feedback: %v", err)
+	}
+
+	if len(retrieved) != 2 {
+		t.Errorf("Expected 2 feedback items, got %d", len(retrieved))
+	}
+
+	// Verify order (newest first)
+	if len(retrieved) > 0 {
+		if retrieved[0].ID != "f2" { // f2 is newest
+			t.Errorf("Expected first item to be f2 (Newest), got %s", retrieved[0].ID)
+		}
+		if retrieved[1].ID != "f1" {
+			t.Errorf("Expected second item to be f1 (Oldest), got %s", retrieved[1].ID)
+		}
+	}
+}

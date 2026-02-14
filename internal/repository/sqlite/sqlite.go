@@ -16,7 +16,7 @@ const listingSelections = `
 	website_url, image_url, created_at, deadline, is_active,
 	event_start, event_end,
 	COALESCE(skills, ''), job_start_date, COALESCE(job_apply_url, ''),
-	COALESCE(company, ''), COALESCE(pay_range, '')
+	COALESCE(company, ''), COALESCE(pay_range, ''), COALESCE(status, 'Approved')
 `
 
 type Scanner interface {
@@ -33,7 +33,7 @@ func scanListing(s Scanner) (domain.Listing, error) {
 		&l.WebsiteURL, &l.ImageURL, &l.CreatedAt, &deadline, &l.IsActive,
 		&eventStart, &eventEnd,
 		&l.Skills, &jobStart, &l.JobApplyURL,
-		&l.Company, &l.PayRange,
+		&l.Company, &l.PayRange, &l.Status,
 	)
 	if err != nil {
 		return domain.Listing{}, err
@@ -56,6 +56,12 @@ func scanListing(s Scanner) (domain.Listing, error) {
 
 type SQLiteRepository struct {
 	db *sql.DB
+}
+
+
+// NewSQLiteRepositoryFromDB creates a new repository using an existing DB connection.
+func NewSQLiteRepositoryFromDB(db *sql.DB) *SQLiteRepository {
+	return &SQLiteRepository{db: db}
 }
 
 func NewSQLiteRepository(dbPath string) (*SQLiteRepository, error) {
@@ -175,14 +181,23 @@ func (r *SQLiteRepository) migrate() error {
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN company TEXT DEFAULT '';")
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN pay_range TEXT DEFAULT '';")
 
+	// Add Status Column
+	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN status TEXT DEFAULT 'Approved';")
+
+	// Add Role Column to Users
+	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'User';")
+
+	// Ensure google_id is unique for ON CONFLICT clause
+	_, _ = r.db.ExecContext(context.Background(), "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id);")
+
 	return nil
 }
 
 // Save inserts or updates a listing.
 func (r *SQLiteRepository) Save(ctx context.Context, l domain.Listing) error {
 	query := `
-	INSERT INTO listings (id, owner_id, title, description, type, owner_origin, city, address, hours_of_operation, is_active, created_at, image_url, contact_email, contact_phone, contact_whatsapp, website_url, deadline, event_start, event_end, skills, job_start_date, job_apply_url, company, pay_range)
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	INSERT INTO listings (id, owner_id, title, description, type, owner_origin, city, address, hours_of_operation, is_active, created_at, image_url, contact_email, contact_phone, contact_whatsapp, website_url, deadline, event_start, event_end, skills, job_start_date, job_apply_url, company, pay_range, status)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	ON CONFLICT(id) DO UPDATE SET
 		owner_id = excluded.owner_id,
 		title = excluded.title,
@@ -205,13 +220,14 @@ func (r *SQLiteRepository) Save(ctx context.Context, l domain.Listing) error {
 		job_start_date = excluded.job_start_date,
 		job_apply_url = excluded.job_apply_url,
 		company = excluded.company,
-		pay_range = excluded.pay_range;
+		pay_range = excluded.pay_range,
+		status = excluded.status;
 	`
 
 	_, err := r.db.ExecContext(ctx, query,
 		l.ID, l.OwnerID, l.Title, l.Description, l.Type, l.OwnerOrigin, l.City, l.Address, l.HoursOfOperation, l.IsActive, l.CreatedAt,
 		l.ImageURL, l.ContactEmail, l.ContactPhone, l.ContactWhatsApp, l.WebsiteURL, l.Deadline, l.EventStart, l.EventEnd,
-		l.Skills, l.JobStartDate, l.JobApplyURL, l.Company, l.PayRange,
+		l.Skills, l.JobStartDate, l.JobApplyURL, l.Company, l.PayRange, l.Status,
 	)
 	return err
 }
@@ -271,27 +287,49 @@ func (r *SQLiteRepository) FindByID(ctx context.Context, id string) (domain.List
 
 // SaveUser inserts or updates a user.
 func (r *SQLiteRepository) SaveUser(ctx context.Context, u domain.User) error {
-	query := `
-	INSERT INTO users (id, google_id, email, name, avatar_url, created_at)
-	VALUES (?, ?, ?, ?, ?, ?)
+	// 1. Try Update by ID (Primary Key) to avoid unique constraint ambiguity
+	updateQuery := `UPDATE users SET google_id=?, email=?, name=?, avatar_url=?, role=? WHERE id=?`
+	res, err := r.db.ExecContext(ctx, updateQuery,
+		u.GoogleID, u.Email, u.Name, u.AvatarURL, u.Role, u.ID,
+	)
+	if err != nil {
+		return err
+	}
+
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	// 2. If updated, we are done
+	if rows > 0 {
+		return nil
+	}
+
+	// 3. If no rows updated (New User), Insert
+	// We keep ON CONFLICT for race condition handling on creation
+	insertQuery := `
+	INSERT INTO users (id, google_id, email, name, avatar_url, role, created_at)
+	VALUES (?, ?, ?, ?, ?, ?, ?)
 	ON CONFLICT(google_id) DO UPDATE SET
 		email = excluded.email,
 		name = excluded.name,
-		avatar_url = excluded.avatar_url;
+		avatar_url = excluded.avatar_url,
+		role = excluded.role;
 	`
-	_, err := r.db.ExecContext(ctx, query,
-		u.ID, u.GoogleID, u.Email, u.Name, u.AvatarURL, u.CreatedAt,
+	_, err = r.db.ExecContext(ctx, insertQuery,
+		u.ID, u.GoogleID, u.Email, u.Name, u.AvatarURL, u.Role, u.CreatedAt,
 	)
 	return err
 }
 
 // FindUserByGoogleID retrieves a user by their Google ID.
 func (r *SQLiteRepository) FindUserByGoogleID(ctx context.Context, googleID string) (domain.User, error) {
-	query := `SELECT id, google_id, email, name, avatar_url, created_at FROM users WHERE google_id = ?`
+	query := `SELECT id, google_id, email, name, avatar_url, COALESCE(role, 'User'), created_at FROM users WHERE google_id = ?`
 	row := r.db.QueryRowContext(ctx, query, googleID)
 
 	var u domain.User
-	err := row.Scan(&u.ID, &u.GoogleID, &u.Email, &u.Name, &u.AvatarURL, &u.CreatedAt)
+	err := row.Scan(&u.ID, &u.GoogleID, &u.Email, &u.Name, &u.AvatarURL, &u.Role, &u.CreatedAt)
 	if err == sql.ErrNoRows {
 		return domain.User{}, errors.New("user not found")
 	}
@@ -300,11 +338,11 @@ func (r *SQLiteRepository) FindUserByGoogleID(ctx context.Context, googleID stri
 
 // FindUserByID retrieves a user by their ID.
 func (r *SQLiteRepository) FindUserByID(ctx context.Context, id string) (domain.User, error) {
-	query := `SELECT id, google_id, email, name, avatar_url, created_at FROM users WHERE id = ?`
+	query := `SELECT id, google_id, email, name, avatar_url, COALESCE(role, 'User'), created_at FROM users WHERE id = ?`
 	row := r.db.QueryRowContext(ctx, query, id)
 
 	var u domain.User
-	err := row.Scan(&u.ID, &u.GoogleID, &u.Email, &u.Name, &u.AvatarURL, &u.CreatedAt)
+	err := row.Scan(&u.ID, &u.GoogleID, &u.Email, &u.Name, &u.AvatarURL, &u.Role, &u.CreatedAt)
 	if err == sql.ErrNoRows {
 		return domain.User{}, errors.New("user not found")
 	}
@@ -399,4 +437,56 @@ func (r *SQLiteRepository) ExpireListings(ctx context.Context) (int64, error) {
 		return 0, err
 	}
 	return result.RowsAffected()
+}
+
+func (r *SQLiteRepository) GetPendingListings(ctx context.Context) ([]domain.Listing, error) {
+	query := `SELECT ` + listingSelections + `
+		FROM listings
+		WHERE status = ?
+		ORDER BY created_at ASC`
+	
+	rows, err := r.db.QueryContext(ctx, query, domain.ListingStatusPending)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var listings []domain.Listing
+	for rows.Next() {
+		l, err := scanListing(rows)
+		if err != nil {
+			return nil, err
+		}
+		listings = append(listings, l)
+	}
+	return listings, nil
+}
+
+func (r *SQLiteRepository) GetUserCount(ctx context.Context) (int, error) {
+	var count int
+	query := `SELECT COUNT(*) FROM users`
+	if err := r.db.QueryRowContext(ctx, query).Scan(&count); err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func (r *SQLiteRepository) GetFeedbackCounts(ctx context.Context) (map[domain.FeedbackType]int, error) {
+	query := `SELECT type, COUNT(*) FROM feedback GROUP BY type`
+	rows, err := r.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	counts := make(map[domain.FeedbackType]int)
+	for rows.Next() {
+		var t domain.FeedbackType
+		var count int
+		if err := rows.Scan(&t, &count); err != nil {
+			return nil, err
+		}
+		counts[t] = count
+	}
+	return counts, nil
 }

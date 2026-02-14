@@ -139,7 +139,8 @@ func (h *ListingHandler) HandleCreate(c echo.Context) error {
 	l := domain.Listing{
 		ID:        uuid.New().String(),
 		CreatedAt: time.Now(),
-		IsActive:  true,
+		IsActive:  true,                        // ACTIVE immediately (Post-Moderation)
+		Status:    domain.ListingStatusPending, // Marked as Pending for Admin review
 	}
 
 	if err := h.populateListingFromRequest(c, &l, req); err != nil {

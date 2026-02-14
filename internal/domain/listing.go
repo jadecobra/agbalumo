@@ -49,10 +49,20 @@ type Listing struct {
 	Skills          string    `json:"skills" form:"skills"`           // New: For Job
 	JobStartDate    time.Time `json:"job_start_date" form:"job_start_date"` // New: For Job
 	JobApplyURL     string    `json:"job_apply_url" form:"job_apply_url"`   // New: Optional
-	Company         string    `json:"company" form:"company"`               // New: For Job
-	PayRange        string    `json:"pay_range" form:"pay_range"`           // New: For Job
-	IsActive        bool      `json:"is_active" form:"is_active"`
+	Company         string        `json:"company" form:"company"`               // New: For Job
+	PayRange        string        `json:"pay_range" form:"pay_range"`           // New: For Job
+	IsActive        bool          `json:"is_active" form:"is_active"`
+	Status          ListingStatus `json:"status" form:"status"`                 // New: Moderation Status
 }
+
+// ListingStatus represents the moderation state of a listing.
+type ListingStatus string
+
+const (
+	ListingStatusPending  ListingStatus = "Pending"
+	ListingStatusApproved ListingStatus = "Approved"
+	ListingStatusRejected ListingStatus = "Rejected"
+)
 
 var ValidOrigins = map[string]bool{
 	"Nigeria":       true,

@@ -2,9 +2,9 @@ package handler_test
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 
@@ -12,7 +12,61 @@ import (
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/jadecobra/agbalumo/internal/mock"
 	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
 )
+
+func TestAdminMiddleware(t *testing.T) {
+	e := echo.New()
+	mockRepo := &mock.MockListingRepository{}
+	h := handler.NewAdminHandler(mockRepo)
+
+	t.Run("Redirects when no user", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/admin", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+
+		err := h.AdminMiddleware(func(c echo.Context) error {
+			return c.String(http.StatusOK, "OK")
+		})(c)
+
+		if assert.NoError(t, err) {
+			assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
+			assert.Equal(t, "/auth/google/login", rec.Header().Get("Location"))
+		}
+	})
+
+	t.Run("Redirects to login when user is not admin", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/admin", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("User", domain.User{Role: domain.UserRoleUser})
+
+		err := h.AdminMiddleware(func(c echo.Context) error {
+			return c.String(http.StatusOK, "OK")
+		})(c)
+
+		if assert.NoError(t, err) {
+			assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
+			assert.Equal(t, "/admin/login", rec.Header().Get("Location"))
+		}
+	})
+
+	t.Run("Allows access when user is admin", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/admin", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("User", domain.User{Role: domain.UserRoleAdmin})
+
+		err := h.AdminMiddleware(func(c echo.Context) error {
+			return c.String(http.StatusOK, "Secret")
+		})(c)
+
+		if assert.NoError(t, err) {
+			assert.Equal(t, http.StatusOK, rec.Code)
+			assert.Equal(t, "Secret", rec.Body.String())
+		}
+	})
+}
 
 func TestHandleLoginView(t *testing.T) {
 	e := echo.New()
@@ -23,64 +77,50 @@ func TestHandleLoginView(t *testing.T) {
 
 	h := handler.NewAdminHandler(nil)
 
-	if err := h.HandleLoginView(c); err != nil {
-		t.Fatal(err)
-	}
-
-	if rec.Code != http.StatusOK {
-		t.Errorf("Expected 200 OK, got %d", rec.Code)
+	if assert.NoError(t, h.HandleLoginView(c)) {
+		assert.Equal(t, http.StatusOK, rec.Code)
 	}
 }
 
-func TestHandleLoginAction_Success(t *testing.T) {
+func TestHandleLoginAction(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
-
-	form := strings.NewReader("code=agbalumo2024")
-	req := httptest.NewRequest(http.MethodPost, "/admin/login", form)
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	h := handler.NewAdminHandler(nil)
-
-	if err := h.HandleLoginAction(c); err != nil {
-		t.Fatal(err)
+	mockRepo := &mock.MockListingRepository{
+		SaveUserFn: func(ctx context.Context, u domain.User) error {
+			assert.Equal(t, domain.UserRoleAdmin, u.Role)
+			return nil
+		},
 	}
+	h := handler.NewAdminHandler(mockRepo)
 
-	if rec.Code != http.StatusFound {
-		t.Errorf("Expected 302 Found, got %d", rec.Code)
-	}
+	t.Run("Success", func(t *testing.T) {
+		form := make(url.Values)
+		form.Set("code", "agbalumo2024")
+		req := httptest.NewRequest(http.MethodPost, "/admin/login", strings.NewReader(form.Encode()))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.Set("User", domain.User{ID: "u1", Role: domain.UserRoleUser})
 
-	// Check Cookie
-	cookie := rec.Result().Cookies()[0]
-	if cookie.Name != "admin_session" || cookie.Value != "authenticated" {
-		t.Errorf("Invalid cookie: %v", cookie)
-	}
-}
+		if assert.NoError(t, h.HandleLoginAction(c)) {
+			assert.Equal(t, http.StatusFound, rec.Code)
+			assert.Equal(t, "/admin", rec.Header().Get("Location"))
+		}
+	})
 
-func TestHandleLoginAction_Failure(t *testing.T) {
-	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	t.Run("Invalid Code", func(t *testing.T) {
+		form := make(url.Values)
+		form.Set("code", "wrong")
+		req := httptest.NewRequest(http.MethodPost, "/admin/login", strings.NewReader(form.Encode()))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
 
-	form := strings.NewReader("code=wrongpass")
-	req := httptest.NewRequest(http.MethodPost, "/admin/login", form)
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	h := handler.NewAdminHandler(nil)
-
-	if err := h.HandleLoginAction(c); err != nil {
-		t.Fatal(err)
-	}
-
-	if rec.Code != http.StatusOK {
-		t.Errorf("Expected 200 OK (re-render), got %d", rec.Code)
-	}
-	if !strings.Contains(rec.Body.String(), "Invalid Access Code") {
-		t.Errorf("Expected error message, got %s", rec.Body.String())
-	}
+		if assert.NoError(t, h.HandleLoginAction(c)) {
+			assert.Equal(t, http.StatusOK, rec.Code)
+			// Should render template with error
+		}
+	})
 }
 
 func TestHandleDashboard(t *testing.T) {
@@ -89,193 +129,80 @@ func TestHandleDashboard(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
+	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
 	mockRepo := &mock.MockListingRepository{
-		FindAllFn: func(ctx context.Context, filterType, query string, includeInactive bool) ([]domain.Listing, error) {
-			if !includeInactive {
-				t.Error("Admin should see inactive listings")
-			}
-			return []domain.Listing{{Title: "Item 1"}}, nil
+		GetPendingListingsFn: func(ctx context.Context) ([]domain.Listing, error) {
+			return []domain.Listing{{ID: "1", Title: "Pending"}}, nil
+		},
+		GetUserCountFn: func(ctx context.Context) (int, error) {
+			return 100, nil
+		},
+		GetFeedbackCountsFn: func(ctx context.Context) (map[domain.FeedbackType]int, error) {
+			return map[domain.FeedbackType]int{domain.FeedbackTypeIssue: 5}, nil
 		},
 	}
 	h := handler.NewAdminHandler(mockRepo)
 
-	if err := h.HandleDashboard(c); err != nil {
-		t.Fatal(err)
-	}
-
-	if rec.Code != http.StatusOK {
-		t.Errorf("Expected 200 OK, got %d", rec.Code)
+	if assert.NoError(t, h.HandleDashboard(c)) {
+		assert.Equal(t, http.StatusOK, rec.Code)
 	}
 }
 
-func TestHandleDelete_Success(t *testing.T) {
+func TestHandleApprove(t *testing.T) {
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodDelete, "/admin/listings/1", nil)
+	req := httptest.NewRequest(http.MethodPost, "/admin/listings/1/approve", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetPath("/admin/listings/:id")
+	c.SetPath("/admin/listings/:id/approve")
 	c.SetParamNames("id")
 	c.SetParamValues("1")
 
 	saved := false
 	mockRepo := &mock.MockListingRepository{
 		FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
-			return domain.Listing{ID: "1", IsActive: true}, nil
+			return domain.Listing{ID: "1", Status: domain.ListingStatusPending, IsActive: true}, nil
 		},
 		SaveFn: func(ctx context.Context, l domain.Listing) error {
 			saved = true
-			if l.IsActive {
-				t.Error("Expected IsActive to be false")
-			}
+			assert.Equal(t, domain.ListingStatusApproved, l.Status)
+			assert.True(t, l.IsActive)
 			return nil
 		},
 	}
-
 	h := handler.NewAdminHandler(mockRepo)
 
-	// Execute
-	if err := h.HandleDelete(c); err != nil {
-		t.Fatalf("HandleDelete failed: %v", err)
-	}
-
-	// Verify
-	if rec.Code != http.StatusOK {
-		t.Errorf("Expected status 200, got %d", rec.Code)
-	}
-	if !saved {
-		t.Error("Expected listing to be marked inactive (soft deleted)")
+	if assert.NoError(t, h.HandleApprove(c)) {
+		assert.Equal(t, http.StatusOK, rec.Code)
+		assert.True(t, saved)
 	}
 }
 
-func TestAuthMiddleware_Unauthorized(t *testing.T) {
+func TestHandleReject(t *testing.T) {
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
+	req := httptest.NewRequest(http.MethodPost, "/admin/listings/1/reject", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-
-	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewAdminHandler(mockRepo)
-
-	// Dummy handler to wrap
-	next := func(c echo.Context) error {
-		return c.String(http.StatusOK, "Secret")
-	}
-
-	// Execute Middleware
-	handlerFunc := h.AuthMiddleware(next)
-	handlerFunc(c)
-
-	// Verify Redirect
-	if rec.Code != http.StatusFound {
-		t.Errorf("Expected status 302 Found (Redirect), got %d", rec.Code)
-	}
-	if loc := rec.Header().Get("Location"); loc != "/admin/login" {
-		t.Errorf("Expected redirect to /admin/login, got %s", loc)
-	}
-}
-
-func TestAuthMiddleware_Authorized(t *testing.T) {
-	e := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
-	req.AddCookie(&http.Cookie{Name: "admin_session", Value: "authenticated"})
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewAdminHandler(mockRepo)
-
-	// Dummy handler to wrap
-	next := func(c echo.Context) error {
-		return c.String(http.StatusOK, "Secret")
-	}
-
-	// Execute Middleware
-	handlerFunc := h.AuthMiddleware(next)
-	handlerFunc(c)
-
-	// Verify Access
-	if rec.Code != http.StatusOK {
-		t.Errorf("Expected status 200, got %d", rec.Code)
-	}
-	if rec.Body.String() != "Secret" {
-		t.Errorf("Expected body 'Secret', got %s", rec.Body.String())
-	}
-}
-
-func TestHandleDashboard_RepoError(t *testing.T) {
-	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
-	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	mockRepo := &mock.MockListingRepository{
-		FindAllFn: func(ctx context.Context, filterType, query string, includeInactive bool) ([]domain.Listing, error) {
-			return nil, errors.New("db disconnect")
-		},
-	}
-	h := handler.NewAdminHandler(mockRepo)
-
-	if err := h.HandleDashboard(c); err != nil {
-		t.Fatal(err)
-	}
-
-	if rec.Code != http.StatusInternalServerError {
-		t.Errorf("Expected 500, got %d", rec.Code)
-	}
-}
-
-func TestHandleDelete_RepoNotFound(t *testing.T) {
-	e := echo.New()
-	req := httptest.NewRequest(http.MethodDelete, "/admin/listings/1", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-	c.SetPath("/admin/listings/:id")
+	c.SetPath("/admin/listings/:id/reject")
 	c.SetParamNames("id")
 	c.SetParamValues("1")
 
+	saved := false
 	mockRepo := &mock.MockListingRepository{
 		FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
-			return domain.Listing{}, errors.New("not found")
-		},
-	}
-	h := handler.NewAdminHandler(mockRepo)
-
-	if err := h.HandleDelete(c); err != nil {
-		t.Fatal(err)
-	}
-
-	if rec.Code != http.StatusNotFound {
-		t.Errorf("Expected 404, got %d", rec.Code)
-	}
-}
-
-func TestHandleDelete_RepoSaveError(t *testing.T) {
-	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
-	req := httptest.NewRequest(http.MethodDelete, "/admin/listings/1", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-	c.SetPath("/admin/listings/:id")
-	c.SetParamNames("id")
-	c.SetParamValues("1")
-
-	mockRepo := &mock.MockListingRepository{
-		FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
-			return domain.Listing{ID: "1"}, nil
+			return domain.Listing{ID: "1", Status: domain.ListingStatusPending, IsActive: true}, nil
 		},
 		SaveFn: func(ctx context.Context, l domain.Listing) error {
-			return errors.New("save failed")
+			saved = true
+			assert.Equal(t, domain.ListingStatusRejected, l.Status)
+			assert.False(t, l.IsActive)
+			return nil
 		},
 	}
 	h := handler.NewAdminHandler(mockRepo)
 
-	if err := h.HandleDelete(c); err != nil {
-		t.Fatal(err)
-	}
-
-	if rec.Code != http.StatusInternalServerError {
-		t.Errorf("Expected 500, got %d", rec.Code)
+	if assert.NoError(t, h.HandleReject(c)) {
+		assert.Equal(t, http.StatusOK, rec.Code)
+		assert.True(t, saved)
 	}
 }

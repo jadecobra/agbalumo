@@ -87,3 +87,15 @@ type Listing struct {
 * **Compute:** Dockerized application deployable to Fly.io or similar container platforms.
 * **Database:** SQLite (Embedded) for MVP simplicity and portability.
 * **CI/CD:** GitHub Actions / Pre-commit hooks to run tests before functionality changes.
+
+### 6. Admin & Moderation
+
+* **Admin Dashboard:** A secured area for administrators to view system metrics and moderate content.
+* **Moderation:** Listings can be approved or rejected.
+* **Access Control:** Admin access is protected via Google Auth + a secondary Access Code.
+
+### 7. Codebase Critique & Improvements (Self-Correction)
+
+* **Loose Coupling:** The `TemplateRenderer` was refactored to isoloate page templates, preventing namespace collisions. This is a good pattern to maintain.
+* **Security:** `DevLogin` in `auth.go` currently bypasses the Admin Claim flow by potentially granting admin roles mostly due to environmental configuration or seed state. This should be tightened in future iterations to purely simulate a generic user, forcing the claim flow even in dev.
+* **Testing:** Browser subagent tests proved critical in catching the 500 error that unit tests missed due to mocking. We should expand browser testing for the "Create Listing" flow.
