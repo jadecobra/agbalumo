@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta name="csrf-token" content="{{.CSRF}}">
     <title>{{ block "title" . }}Agbalumo{{ end }}</title>
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
@@ -14,37 +15,8 @@
         rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#FF5E0E", // Agbalumo Orange
-                        "secondary": "#2D5A27", // Palm Leaf Green
-                        "background-light": "#FFF2EB", // Pale Agbalumo Orange Tint
-                        "background-dark": "#23160f", // Dark Warm Brown
-                        "surface-light": "#ffffff",
-                        "surface-dark": "#2f221c",
-                        "text-main": "#181310",
-                        "text-sub": "#6d4c41",
-                    },
-                    fontFamily: {
-                        "display": ["Lexend", "sans-serif"]
-                    },
-                    borderRadius: {
-                        "DEFAULT": "0.5rem",
-                        "lg": "1rem",
-                        "xl": "1.5rem",
-                        "full": "9999px"
-                    },
-                    boxShadow: {
-                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
-                    }
-                },
-            },
-        }
-    </script>
+    <script src="/static/js/tailwind_config.js"></script>
+    <script src="/static/js/app.js"></script>
     <style>
         .no-scrollbar::-webkit-scrollbar {
             display: none;
@@ -121,14 +93,14 @@
 
                         <!-- Action Buttons -->
                         <div class="flex items-center gap-3 border-l border-stone-200 dark:border-stone-700 pl-4">
-                            <button
-                                onclick="{{ if .User }}document.getElementById('create-request-modal').showModal(){{ else }}window.location.href='/auth/google/login'{{ end }}"
+                            <button data-auth-action="modal" data-modal-id="create-request-modal"
+                                data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
                                 class="flex items-center gap-2 bg-secondary/10 hover:bg-secondary/20 text-secondary dark:text-green-400 dark:hover:bg-green-900/30 px-4 h-10 rounded-full transition-all font-semibold font-display text-sm">
                                 <span class="material-symbols-outlined text-[18px]">campaign</span>
                                 Ask
                             </button>
-                            <button
-                                onclick="{{ if .User }}document.getElementById('create-listing-modal').showModal(){{ else }}window.location.href='/auth/google/login'{{ end }}"
+                            <button data-auth-action="modal" data-modal-id="create-listing-modal"
+                                data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
                                 class="flex items-center gap-2 bg-primary hover:bg-orange-600 shadow-md shadow-orange-500/20 text-white px-5 h-10 rounded-full transition-all active:scale-95 font-semibold font-display text-sm">
                                 <span class="material-symbols-outlined text-[18px]">add_circle</span>
                                 Post
@@ -157,8 +129,8 @@
 
                     <!-- Mobile Action Buttons (Visible only on mobile header) -->
                     <div class="flex md:hidden items-center gap-2">
-                        <button
-                            onclick="{{ if .User }}document.getElementById('create-listing-modal').showModal(){{ else }}window.location.href='/auth/google/login'{{ end }}"
+                        <button data-auth-action="modal" data-modal-id="create-listing-modal"
+                            data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
                             class="w-9 h-9 flex items-center justify-center bg-primary text-white rounded-full shadow-sm active:scale-95">
                             <span class="material-symbols-outlined text-[20px]">add</span>
                         </button>
@@ -187,14 +159,14 @@
                     <span class="material-symbols-outlined">favorite</span>
                     <span class="text-[10px] font-medium">Saved</span>
                 </button>
-                <button
-                    onclick="{{ if .User }}document.getElementById('create-request-modal').showModal(){{ else }}window.location.href='/auth/google/login'{{ end }}"
+                <button data-auth-action="modal" data-modal-id="create-request-modal"
+                    data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
                     class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
                     <span class="material-symbols-outlined">campaign</span>
                     <span class="text-[10px] font-medium">Ask</span>
                 </button>
-                <button
-                    onclick="{{ if .User }}document.getElementById('create-listing-modal').showModal(){{ else }}window.location.href='/auth/google/login'{{ end }}"
+                <button data-auth-action="modal" data-modal-id="create-listing-modal"
+                    data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
                     class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
                     <span class="material-symbols-outlined">add_circle</span>
                     <span class="text-[10px] font-medium">Post</span>
@@ -220,50 +192,7 @@
 
     {{ template "modal_create_listing.html" . }}
     {{ template "modal_create_request.html" . }}
-    <script>
-        // Filter Activation Logic and Modal Logic
-        // ... (Keep existing script logic)
-        document.addEventListener('click', (event) => {
-            const btn = event.target.closest('#filter-container button');
-            if (btn) {
-                const container = document.getElementById('filter-container');
-                const buttons = container.querySelectorAll('button');
-                const activeState = "flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-stone-900 text-white dark:bg-white dark:text-stone-900 px-4 shadow-sm border border-transparent transition-transform active:scale-95 text-xs font-bold uppercase";
-                const inactiveState = "flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase";
 
-                buttons.forEach(b => {
-                    b.className = inactiveState;
-                    const icon = b.querySelector('.material-symbols-outlined');
-                    if (icon) {
-                        if (!icon.classList.contains('text-text-sub')) {
-                            icon.classList.add('text-text-sub');
-                        }
-                    }
-                });
-
-                btn.className = activeState;
-                const icon = btn.querySelector('.material-symbols-outlined');
-                if (icon) {
-                    icon.classList.remove('text-text-sub');
-                }
-            }
-        }, true);
-
-        document.addEventListener('click', (event) => {
-            if (event.target.tagName === 'DIALOG') {
-                const dialog = event.target;
-                const rect = dialog.getBoundingClientRect();
-                const isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
-                    rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
-                if (!isInDialog) {
-                    dialog.close();
-                    if (dialog.id.startsWith('detail-modal-') || dialog.id.startsWith('edit-modal-')) {
-                        dialog.remove();
-                    }
-                }
-            }
-        });
-    </script>
 </body>
 
 </html>

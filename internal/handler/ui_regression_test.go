@@ -179,10 +179,9 @@ func TestFilterUIValues(t *testing.T) {
 	}
 
 
-	// 4. Verify Delegated Script Logic Presence
-	// We check for the specific code logic to be robust
-	if !strings.Contains(body, `event.target.closest('#filter-container button')`) {
-		t.Errorf("Regression: Delegated filter logic script missing. Body snippet: %s", body[len(body)-500:])
+	// 3. Verify external JS inclusion (app.js should handle filters now)
+	if !strings.Contains(rec.Body.String(), `src="/static/js/app.js"`) {
+		t.Errorf("Regression: app.js script tag missing")
 	}
 }
 

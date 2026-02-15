@@ -11,7 +11,8 @@
 - add claim ownership of listing for signed in users, claim must be confirmed by admin to transfer ownership
 - add bar to feature business - randomly
 - make personal request for people to post
-- add about us
+- add about  page
+- 
 - [x] add feedback button for users to report issues/suggest
 - [x] add hours of operation for business/food listings
 - [x] outline user journey for each type of user through the app and steps

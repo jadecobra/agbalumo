@@ -115,6 +115,17 @@ func NewTemplateRenderer(patterns ...string) (*TemplateRenderer, error) {
 
 // Render renders a template document
 func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	// Inject CSRF token if data is a map
+	// Inject CSRF token if data is a map
+	if viewContext, isMap := data.(map[string]interface{}); isMap {
+		token := c.Get("csrf")
+		// log.Printf("Injecting CSRF token: %v", token) // Debug log
+		viewContext["CSRF"] = token
+	} else {
+		// log.Printf("Data is not a map, skipping CSRF injection. Type: %T", data) // Debug log
+	}
+
+
 	tmpl, ok := t.templates[name]
 	if !ok {
 		return errors.New("template not found: " + name)

@@ -9,15 +9,14 @@
 
         <div class="flex justify-between items-center mb-6">
             <h3 class="text-xl font-bold text-text-main dark:text-white">New Listing</h3>
-            <button onclick="document.getElementById('create-listing-modal').close()"
+            <button data-modal-action="close"
                 class="p-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 transition-colors">
                 <span class="material-symbols-outlined text-[20px]">close</span>
             </button>
         </div>
 
         <form hx-post="/listings" hx-swap="afterbegin transition:true" hx-target="#listings-container" method="POST"
-            enctype="multipart/form-data" class="flex flex-col gap-4"
-            onsubmit="document.getElementById('create-listing-modal').close()">
+            enctype="multipart/form-data" class="flex flex-col gap-4" data-modal-action-submit-close>
 
             <!-- Type (No Request) -->
             <div class="flex flex-col gap-1.5">
@@ -96,62 +95,14 @@
                     class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
             </div>
 
-            <script>
-                function initGoogleMaps() {
-                    const input = document.getElementById('create-address-input');
-                    if (!input) return;
-
-                    const options = {
-                        fields: ["address_components", "geometry", "formatted_address"],
-                        types: ["address"],
-                    };
-                    const autocomplete = new google.maps.places.Autocomplete(input, options);
-                    autocomplete.addListener("place_changed", () => {
-                        const place = autocomplete.getPlace();
-                        let city = "";
-                        // Find city/locality
-                        for (const component of place.address_components) {
-                            const types = component.types;
-                            if (types.includes("locality")) {
-                                city = component.long_name;
-                                break;
-                            }
-                            if (types.includes("postal_town")) {
-                                city = component.long_name;
-                            }
-                            if (!city && types.includes("administrative_area_level_2")) {
-                                city = component.long_name;
-                            }
-                        }
-
-                        if (city) {
-                            document.getElementById('create-city-input').value = city;
-                        } else {
-                            // Fallback
-                            document.getElementById('create-city-input').value = "Unknown";
-                        }
-
-                        if (place.formatted_address) {
-                            input.value = place.formatted_address;
-                        }
-                    });
-                }
-
-                // Check if Google Maps is loaded
-                if (typeof google === 'object' && typeof google.maps === 'object') {
-                    initGoogleMaps();
-                } else {
-                    // Load script only if key is available
-                    { { if .GoogleMapsApiKey } }
-                    const script = document.createElement('script');
-                    script.src = "https://maps.googleapis.com/maps/api/js?key={{.GoogleMapsApiKey}}&libraries=places&callback=initGoogleMaps";
-                    script.async = true;
-                    document.head.appendChild(script);
-                    { { else } }
-                    console.warn("Google Maps API Key not configured. Autocomplete disabled.");
-                    { { end } }
-                }
-            </script>
+            <!-- Google Maps Script Reference -->
+            {{ if .GoogleMapsApiKey }}
+            <script
+                src="https://maps.googleapis.com/maps/api/js?key={{.GoogleMapsApiKey}}&libraries=places&callback=initGoogleMaps"
+                async defer></script>
+            {{ else }}
+            <script>console.warn("Google Maps API Key not configured. Autocomplete disabled.");</script>
+            {{ end }}
 
             <!-- Description -->
             <div class="flex flex-col gap-1.5">
@@ -221,97 +172,7 @@
                 </div>
             </div>
 
-            <script>
-                (function () {
-                    const typeSelect = document.querySelector('#create-listing-modal select[name="type"]');
-                    const eventSection = document.getElementById('event-dates-section');
-                    const jobSection = document.getElementById('job-fields-section');
-                    const imageSection = document.getElementById('image-upload-section');
-                    const hoursSection = document.getElementById('hours-section');
-                    const locationLabel = document.getElementById('location-label');
-                    const descriptionLabel = document.getElementById('description-label');
-                    const addressInput = document.getElementById('create-address-input');
 
-                    function toggleFields() {
-                        const val = typeSelect.value;
-
-                        // Event Logic
-                        if (val === 'Event') {
-                            eventSection.classList.remove('hidden');
-                            eventSection.querySelectorAll('input').forEach(i => i.required = true);
-                        } else {
-                            eventSection.classList.add('hidden');
-                            eventSection.querySelectorAll('input').forEach(i => {
-                                i.required = false;
-                                i.value = '';
-                            });
-                        }
-
-                        // Job Logic
-                        if (val === 'Job') {
-                            jobSection.classList.remove('hidden');
-                            jobSection.querySelectorAll('input, textarea').forEach(i => {
-                                if (i.name === 'company' || i.name === 'skills' || i.name === 'job_start_date' || i.name === 'pay_range' || i.name === 'job_apply_url') {
-                                    i.required = true;
-                                }
-                            });
-
-                            // Hide Image Upload for Jobs
-                            if (imageSection) imageSection.classList.add('hidden');
-                        } else {
-                            jobSection.classList.add('hidden');
-                            jobSection.querySelectorAll('input, textarea').forEach(i => {
-                                i.required = false;
-                                i.value = '';
-                            });
-
-                            // Show Image Upload for others
-                            if (imageSection) imageSection.classList.remove('hidden');
-                        }
-
-                        // Address & Label Logic
-                        if (addressInput) {
-                            if (val === 'Job') {
-                                addressInput.required = true;
-                                addressInput.placeholder = "City, Country or Address";
-                                if (locationLabel) locationLabel.textContent = "Location";
-                                if (descriptionLabel) descriptionLabel.textContent = "Job Description";
-                            } else {
-                                if (descriptionLabel) descriptionLabel.textContent = "Description";
-                                if (val === 'Service' || val === 'Request') {
-                                    addressInput.required = false;
-                                    addressInput.placeholder = "Address (Optional)";
-                                    if (locationLabel) locationLabel.textContent = "Address (Optional)";
-                                } else {
-                                    addressInput.required = true;
-                                    addressInput.placeholder = "Start typing address...";
-                                    if (locationLabel) locationLabel.textContent = "Address (Validated)";
-                                }
-                            }
-                        }
-
-                        // Hours of Operation Logic
-                        if (hoursSection) {
-                            const hoursInput = hoursSection.querySelector('input');
-                            // Allowed: Business, Service, Food
-                            if (val === 'Business' || val === 'Service' || val === 'Food') {
-                                hoursSection.classList.remove('hidden');
-                                if (hoursInput) hoursInput.disabled = false;
-                            } else {
-                                hoursSection.classList.add('hidden');
-                                if (hoursInput) {
-                                    hoursInput.value = '';
-                                    hoursInput.disabled = true;
-                                }
-                            }
-                        }
-                    }
-
-                    typeSelect.addEventListener('change', toggleFields);
-                    // Run on init just in case
-                    toggleFields();
-                })();
-            </script>
 
             <!-- Contact Section -->
             <div class="grid grid-cols-2 gap-4">

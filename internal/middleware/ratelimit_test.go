@@ -43,30 +43,31 @@ func TestRateLimiter_Cleanup(t *testing.T) {
 	}
 	rl := NewRateLimiter(config)
 
-	// Add a visitor "manually" or via public method if we exposed one?
-	// Since getVisitor is unexported but used by Middleware, let's use internal method
-	// assuming we stay in same package (package middleware)
-
-	// Accessing private map (same package)
+	// Assuming NewRateLimiter now takes rate, burst, and cleanupInterval
+	// Manually inject visitors
 	rl.mu.Lock()
-	rl.visitors["1.2.3.4"] = &visitor{
-		limiter:  rate.NewLimiter(1, 1),
-		lastSeen: time.Now().Add(-5 * time.Minute), // Old
+	rl.visitors["old-visitor"] = &visitor{
+		limiter:  rate.NewLimiter(rate.Limit(1), 1),
+		lastSeen: time.Now().Add(-5 * time.Minute), // Should be cleaned
 	}
-	rl.visitors["5.6.7.8"] = &visitor{
-		limiter:  rate.NewLimiter(1, 1),
-		lastSeen: time.Now(), // New
+	rl.visitors["new-visitor"] = &visitor{
+		limiter:  rate.NewLimiter(rate.Limit(1), 1),
+		lastSeen: time.Now(), // Should remain
 	}
 	rl.mu.Unlock()
 
-	// Run cleanup manually (since goroutine waits 1 min, hard to test without mock time or long wait)
-	// We can extract logic to testable method or just wait?
-	// Waiting is flaky. Let's make cleanup triggerable or just verify the logic locally?
-	// The `cleanup` method loops forever.
-	// For testing, we might want to refactor cleanup logic into `purge()`
-	// But sticking to the task, let's just trust functional test or exposure.
-	// Let's modify the code slightly to make cleanup testable?
-	// Or verify `getVisitor` creates entry.
+	// Call purge directly
+	rl.purge()
+
+	rl.mu.Lock()
+	defer rl.mu.Unlock()
+
+	if _, exists := rl.visitors["old-visitor"]; exists {
+		t.Error("Expected old-visitor to be cleaned up")
+	}
+	if _, exists := rl.visitors["new-visitor"]; !exists {
+		t.Error("Expected new-visitor to remain")
+	}
 }
 
 func TestRateLimiter_Concurrent(t *testing.T) {

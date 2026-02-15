@@ -38,8 +38,7 @@
             </span>
         </div>
         {{ else }}
-        <div class="w-full h-full bg-center bg-cover transform group-hover:scale-105 transition-transform duration-500"
-            data-alt="{{ .Listing.Title }}" style='background-image: url("{{ .Listing.ImageURL }}");'>
+        <div class="h-48 bg-stone-200 dark:bg-stone-700 relative dynamic-bg" data-bg-image="{{.Listing.ImageURL}}">
         </div>
         {{ end }}
         <div

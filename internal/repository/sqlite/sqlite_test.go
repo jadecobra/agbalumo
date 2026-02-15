@@ -2,12 +2,14 @@ package sqlite_test
 
 import (
 	"context"
+	"database/sql"
 	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func newTestRepo(t *testing.T) (*sqlite.SQLiteRepository, string) {
@@ -20,8 +22,32 @@ func newTestRepo(t *testing.T) (*sqlite.SQLiteRepository, string) {
 	return repo, dbPath
 }
 
+func TestNewSQLiteRepositoryFromDB(t *testing.T) {
+	db, err := sql.Open("sqlite3", ":memory:")
+	if err != nil {
+		t.Fatalf("Failed to open db: %v", err)
+	}
+	// Do not close DB here if repo takes ownership, or close it after test?
+	// The repo doesn't close DB on its own usually unless Close() is called?
+	// Let's defer close.
+	defer db.Close()
+
+	repo := sqlite.NewSQLiteRepositoryFromDB(db)
+	if repo == nil {
+		t.Fatal("Expected repository, got nil")
+	}
+
+	// Verify we can use it
+	ctx := context.Background()
+	// Should fail because no tables
+	_, err = repo.FindAll(ctx, "All", "", false) // Fixed signature call
+	if err == nil {
+		t.Error("Expected error due to missing tables, got nil")
+	}
+}
+
 func TestSaveAndFindByID(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := newTestRepo(t) // Modified call to ignore 2nd return value
 	l := domain.Listing{
 		ID:           "test-1",
 		Title:        "Original Title",

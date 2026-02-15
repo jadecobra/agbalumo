@@ -9,14 +9,14 @@
 
         <div class="flex justify-between items-center mb-6">
             <h3 class="text-xl font-bold text-text-main dark:text-white">Edit Listing</h3>
-            <button onclick="this.closest('dialog').remove()"
+            <button data-modal-action="close"
                 class="p-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 transition-colors">
                 <span class="material-symbols-outlined text-[20px]">close</span>
             </button>
         </div>
 
         <form hx-put="/listings/{{.ID}}" hx-swap="outerHTML" hx-target="#listing-{{.ID}}" method="POST"
-            enctype="multipart/form-data" class="flex flex-col gap-4" onsubmit="this.closest('dialog').remove()">
+            enctype="multipart/form-data" class="flex flex-col gap-4" data-modal-action-submit-close>
 
             <!-- Type -->
             <div class="flex flex-col gap-1.5">
@@ -261,104 +261,105 @@
                         value="{{ .Listing.Address }}" placeholder="Start typing address..."
                         class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
                     <input type="hidden" id="edit-city-input-{{.Listing.ID}}" name="city" value="{{ .Listing.City }}">
+                    <div class="h-full w-full bg-center bg-cover rounded-xl dynamic-bg"
+                        data-bg-image="{{.Listing.ImageURL}}" data-alt="{{ .Listing.Title }}">
+                    </div>
                 </div>
-            </div>
 
-            <!-- Hours of Operation (Optional) -->
-            <div class="flex flex-col gap-1.5">
-                <label class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Hours
-                    of Operation</label>
-                <input name="hours_of_operation" type="text" value="{{ .Listing.HoursOfOperation }}"
-                    placeholder="e.g. Mon-Fri 9am-6pm"
-                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
-            </div>
-
-            <script>
-                (function () {
-                    function initEditMaps() {
-                        const input = document.getElementById('edit-address-input-{{.Listing.ID}}');
-                        if (!input) return;
-
-                        const options = {
-                            fields: ["address_components", "geometry", "formatted_address"],
-                            types: ["address"],
-                        };
-                        const autocomplete = new google.maps.places.Autocomplete(input, options);
-                        autocomplete.addListener("place_changed", () => {
-                            const place = autocomplete.getPlace();
-                            let city = "";
-                            for (const component of place.address_components) {
-                                const types = component.types;
-                                if (types.includes("locality")) {
-                                    city = component.long_name;
-                                    break;
-                                }
-                                if (types.includes("postal_town")) {
-                                    city = component.long_name;
-                                }
-                                if (!city && types.includes("administrative_area_level_2")) {
-                                    city = component.long_name;
-                                }
-                            }
-
-                            if (city) {
-                                document.getElementById('edit-city-input-{{.Listing.ID}}').value = city;
-                            }
-
-                            if (place.formatted_address) {
-                                input.value = place.formatted_address;
-                            }
-                        });
-                    }
-
-                    if (typeof google === 'object' && typeof google.maps === 'object') {
-                        initEditMaps();
-                    } else {
-                        // Fallback if script isn't loaded yet (unlikely if index loaded it, but safe)
-                        // For edit modal, we assume base loaded it. If not, we might have issue.
-                        // But Create Modal logic handles loading.
-                    }
-                })();
-            </script>
-
-            <!-- Contact Section -->
-            <div class="grid grid-cols-2 gap-4">
+                <!-- Hours of Operation (Optional) -->
                 <div class="flex flex-col gap-1.5">
                     <label
-                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Email</label>
-                    <input name="contact_email" type="email" value="{{ .ContactEmail }}"
+                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Hours
+                        of Operation</label>
+                    <input name="hours_of_operation" type="text" value="{{ .Listing.HoursOfOperation }}"
+                        placeholder="e.g. Mon-Fri 9am-6pm"
                         class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
                 </div>
+
+                <script>
+                    (function () {
+                        function initEditMaps() {
+                            const input = document.getElementById('edit-address-input-{{.Listing.ID}}');
+                            if (!input) return;
+
+                            const options = {
+                                fields: ["address_components", "geometry", "formatted_address"],
+                                types: ["address"],
+                            };
+                            const autocomplete = new google.maps.places.Autocomplete(input, options);
+                            autocomplete.addListener("place_changed", () => {
+                                const place = autocomplete.getPlace();
+                                let city = "";
+                                for (const component of place.address_components) {
+                                    const types = component.types;
+                                    if (types.includes("locality")) {
+                                        city = component.long_name;
+                                        break;
+                                    }
+                                    if (types.includes("postal_town")) {
+                                        city = component.long_name;
+                                    }
+                                    if (!city && types.includes("administrative_area_level_2")) {
+                                        city = component.long_name;
+                                    }
+                                }
+
+                                if (city) {
+                                    document.getElementById('edit-city-input-{{.Listing.ID}}').value = city;
+                                }
+
+                                if (place.formatted_address) {
+                                    input.value = place.formatted_address;
+                                }
+                            });
+                        }
+
+                        if (typeof google === 'object' && typeof google.maps === 'object') {
+                            initEditMaps();
+                        } else {
+                            // Fallback if script isn't loaded yet (unlikely if index loaded it, but safe)
+                            // For edit modal, we assume base loaded it. If not, we might have issue.
+                            // But Create Modal logic handles loading.
+                        }
+                    })();
+                </script>
+
+                <!-- Contact Section -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <label
+                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Email</label>
+                        <input name="contact_email" type="email" value="{{ .ContactEmail }}"
+                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label
+                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Phone</label>
+                        <input name="contact_phone" type="tel" value="{{ .ContactPhone }}"
+                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                    </div>
+                </div>
+
                 <div class="flex flex-col gap-1.5">
                     <label
-                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Phone</label>
-                    <input name="contact_phone" type="tel" value="{{ .ContactPhone }}"
+                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">WhatsApp</label>
+                    <input name="contact_whatsapp" type="tel" value="{{ .ContactWhatsApp }}"
                         class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
                 </div>
-            </div>
 
-            <div class="flex flex-col gap-1.5">
-                <label
-                    class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">WhatsApp</label>
-                <input name="contact_whatsapp" type="tel" value="{{ .ContactWhatsApp }}"
-                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
-            </div>
+                <!-- Website (Optional) -->
+                <div class="flex flex-col gap-1.5">
+                    <label
+                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Website
+                        (Optional)</label>
+                    <input name="website_url" type="url" value="{{ .WebsiteURL }}"
+                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                </div>
 
-            <!-- Website (Optional) -->
-            <div class="flex flex-col gap-1.5">
-                <label class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Website
-                    (Optional)</label>
-                <input name="website_url" type="url" value="{{ .WebsiteURL }}"
-                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
-            </div>
-
-            <button type="submit"
-                class="mt-2 w-full flex items-center justify-center gap-2 bg-primary hover:bg-orange-600 text-white font-bold h-12 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-orange-500/20">
-                Save Changes
-            </button>
+                <button type="submit"
+                    class="mt-2 w-full flex items-center justify-center gap-2 bg-primary hover:bg-orange-600 text-white font-bold h-12 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-orange-500/20">
+                    Save Changes
+                </button>
         </form>
     </div>
 </dialog>
-<script>
-    document.getElementById("edit-listing-modal-{{.ID}}").showModal();
-</script>

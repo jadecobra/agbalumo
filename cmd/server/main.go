@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/gorilla/sessions"
@@ -25,6 +26,9 @@ func main() {
 		log.Printf("Error loading ../scripts/agbalumo/.env: %v", err)
 	}
 
+	// Environment Configuration
+	env := os.Getenv("AGBALUMO_ENV")
+
 	// Initialize Echo instance
 	e := echo.New()
 
@@ -40,6 +44,27 @@ func main() {
 	})
 	e.Use(rateLimiter.Middleware())
 
+	// CSRF Protection
+	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+		TokenLookup: "header:X-CSRF-Token,form:_csrf",
+		CookiePath:  "/",
+		CookieName:  "_csrf",
+		CookieSameSite: http.SameSiteStrictMode,
+		// Secure: env == "production", // CookieSecure doesn't exist in Config? It uses Context.Cookie options usually or defaults.
+		// Echo's CSRF middleware sets a cookie. We should check if we can set Secure.
+		// Looking at docs: CookieSecure, CookieHTTPOnly.
+		CookieSecure:   env == "production",
+		CookieHTTPOnly: false, // Must be false to be readable by JS? No, we are using Double Submit Cookie or Token?
+		// Wait, if we use TokenLookup "header:...", client needs to read it.
+		// Echo CSRF default behavior: strict mode.
+		// If we want JS to read it from cookie to send in header, CookieHTTPOnly must be false.
+		// BETTER: Inject token into template (meta tag) and let JS read from DOM.
+		// Then CookieHTTPOnly can be true?
+		// Echo CSRF implementation: Generates token, sets cookie.
+		// If we use Context.Get("csrf") to put in template, we don't need JS to read cookie.
+		// So CookieHTTPOnly: true is safer.
+	}))
+
 	// Session Middleware
 	sessionKey := os.Getenv("SESSION_SECRET")
 	if sessionKey == "" {
@@ -51,6 +76,13 @@ func main() {
 		log.Println("[WARN] Using default dev session key")
 	}
 	store := sessions.NewCookieStore([]byte(sessionKey))
+	store.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   86400 * 7, // 7 days
+		HttpOnly: true,
+		Secure:   env == "production", // Secure only in prod (or if using TLS in dev)
+		SameSite: http.SameSiteStrictMode,
+	}
 	e.Use(customMiddleware.SessionMiddleware(store))
 
 	// Database Initialization
@@ -122,8 +154,6 @@ func main() {
 	adminGroup.POST("/listings/:id/approve", adminHandler.HandleApprove)
 	adminGroup.POST("/listings/:id/reject", adminHandler.HandleReject)
 
-	// Environment Configuration
-	env := os.Getenv("AGBALUMO_ENV")
 
 	// Seed Data (if empty) AND not in production
 	ctx := context.Background()

@@ -40,13 +40,18 @@ func NewRateLimiter(config RateLimitConfig) *RateLimiter {
 func (rl *RateLimiter) cleanup() {
 	for {
 		time.Sleep(time.Minute)
-		rl.mu.Lock()
-		for ip, v := range rl.visitors {
-			if time.Since(v.lastSeen) > 3*time.Minute {
-				delete(rl.visitors, ip)
-			}
+		rl.purge()
+	}
+}
+
+func (rl *RateLimiter) purge() {
+	rl.mu.Lock()
+	defer rl.mu.Unlock()
+
+	for ip, v := range rl.visitors {
+		if time.Since(v.lastSeen) > 3*time.Minute {
+			delete(rl.visitors, ip)
 		}
-		rl.mu.Unlock()
 	}
 }
 

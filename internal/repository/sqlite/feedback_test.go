@@ -161,3 +161,38 @@ func TestGetAllFeedback(t *testing.T) {
 		}
 	}
 }
+
+func TestGetFeedbackCounts(t *testing.T) {
+	repo, _ := newTestRepo(t)
+	ctx := context.Background()
+
+	// Seed Feedback
+	f1 := domain.Feedback{ID: uuid.New().String(), UserID: "u1", Type: domain.FeedbackTypeIssue, Content: "Bug 1", CreatedAt: time.Now()}
+	f2 := domain.Feedback{ID: uuid.New().String(), UserID: "u2", Type: domain.FeedbackTypeIssue, Content: "Bug 2", CreatedAt: time.Now()}
+	f3 := domain.Feedback{ID: uuid.New().String(), UserID: "u3", Type: domain.FeedbackTypeFeature, Content: "Feature 1", CreatedAt: time.Now()}
+
+	if err := repo.SaveFeedback(ctx, f1); err != nil {
+		t.Fatalf("Failed to save f1: %v", err)
+	}
+	if err := repo.SaveFeedback(ctx, f2); err != nil {
+		t.Fatalf("Failed to save f2: %v", err)
+	}
+	if err := repo.SaveFeedback(ctx, f3); err != nil {
+		t.Fatalf("Failed to save f3: %v", err)
+	}
+
+	counts, err := repo.GetFeedbackCounts(ctx)
+	if err != nil {
+		t.Fatalf("GetFeedbackCounts failed: %v", err)
+	}
+
+	if counts[domain.FeedbackTypeIssue] != 2 {
+		t.Errorf("Expected 2 bug reports, got %d", counts[domain.FeedbackTypeIssue])
+	}
+	if counts[domain.FeedbackTypeFeature] != 1 {
+		t.Errorf("Expected 1 feature request, got %d", counts[domain.FeedbackTypeFeature])
+	}
+	if counts[domain.FeedbackTypeOther] != 0 {
+		t.Errorf("Expected 0 other, got %d", counts[domain.FeedbackTypeOther])
+	}
+}

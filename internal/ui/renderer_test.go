@@ -3,6 +3,8 @@ package ui
 import (
 	"bytes"
 	"html/template"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"testing"
@@ -111,5 +113,37 @@ func BenchmarkRender(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		var buf bytes.Buffer
 		_ = renderer.Render(&buf, "bench", data, c)
+	}
+}
+
+func TestTemplateRenderer_Render_CSRF(t *testing.T) {
+	tmpl := template.New("test")
+	_, err := tmpl.Parse(`{{.CSRF}}`)
+	if err != nil {
+		t.Fatalf("Failed to parse template: %v", err)
+	}
+
+	renderer := &TemplateRenderer{
+		templates: map[string]*template.Template{
+			"test": tmpl,
+		},
+	}
+
+	e := echo.New()
+	rec := httptest.NewRecorder()
+	c := e.NewContext(httptest.NewRequest(http.MethodGet, "/", nil), rec)
+	c.Set("csrf", "test-token-123")
+
+	data := map[string]interface{}{
+		"Title": "Test Page",
+	}
+
+	err = renderer.Render(rec, "test", data, c)
+	if err != nil {
+		t.Fatalf("Render failed: %v", err)
+	}
+
+	if rec.Body.String() != "test-token-123" {
+		t.Errorf("Expected CSRF token 'test-token-123', got '%s'", rec.Body.String())
 	}
 }

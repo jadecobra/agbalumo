@@ -12,7 +12,7 @@ import (
 
 func main() {
 	score := 0
-	total := 5 // Vetting, Headers (HSTS, CSP, X-Frame), fly.toml leak check
+	total := 7 // Vetting, Headers (HSTS, CSP, X-Frame), fly.toml leak check, Vuln Check, XSS check
 
 	fmt.Println("🛡️  Starting Security Audit...")
 	fmt.Println("--------------------------------")
@@ -111,6 +111,52 @@ func main() {
 			fmt.Println("✅ Passed")
 			score++
 		}
+	}
+
+	// 4. Vulnerability Check (govulncheck)
+	fmt.Print("[?] Running 'govulncheck'... ")
+	// Check if installed first
+	if _, err := exec.LookPath("govulncheck"); err != nil {
+		fmt.Println("⚠️  govulncheck not found. Installing...")
+		installCmd := exec.Command("go", "install", "golang.org/x/vuln/cmd/govulncheck@latest")
+		if err := installCmd.Run(); err != nil {
+			fmt.Printf("❌ Failed to install govulncheck: %v\n", err)
+		}
+	}
+	
+	cmdVuln := exec.Command("govulncheck", "./...")
+	if output, err := cmdVuln.CombinedOutput(); err != nil {
+		// govulncheck returns exit code 1 if vulnerabilities are found? 
+		// Actually it returns 0 on success (no vulns) or failure (vulns found) depending on flags? 
+		// It returns 0 if no vulns, or if vulns found but not erroring?
+		// Usually it's best to check output or exit code.
+		// Let's assume if err != nil it might be a finding or execution error.
+		// Use output to check.
+		fmt.Println("⚠️  Possible Vulnerabilities or Error:")
+		fmt.Println(string(output))
+		// Don't fail the score immediately if it's just a setup issue, but warn.
+		// If explicit vulns found "No vulnerabilities found" is standard success msg.
+		if strings.Contains(string(output), "No vulnerabilities found") {
+			fmt.Println("✅ Passed")
+			score++
+		}
+	} else {
+		fmt.Println("✅ Passed")
+		score++
+	}
+
+	// 5. XSS Vulnerability Check
+	fmt.Print("[?] Checking for XSS vulnerabilities (template.HTML usage in handlers/views)... ")
+	// Grep for template.HTML usage, excluding binaries, git, and this audit file specifically
+	// using grep -v for reliable exclusion of the specific file path
+	cmdXSS := exec.Command("sh", "-c", "grep -r 'template.HTML' . --exclude-dir=bin --exclude-dir=.git | grep -v 'cmd/security-audit/main.go'")
+	output, _ := cmdXSS.CombinedOutput()
+	if len(output) > 0 {
+		fmt.Println("⚠️  Found explicit 'template.HTML' usage (verify safety):")
+		fmt.Println(string(output))
+	} else {
+		fmt.Println("✅ Passed (No explicit unsafe HTML found)")
+		score++
 	}
 
 	fmt.Println("--------------------------------")
