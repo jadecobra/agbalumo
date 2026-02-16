@@ -53,8 +53,6 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	})
 }
 
-
-
 // Fragment Handler (HTMX)
 func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	filterType := c.QueryParam("type")
@@ -119,25 +117,25 @@ func (h *ListingHandler) HandleEdit(c echo.Context) error {
 }
 
 type ListingFormRequest struct {
-	Title           string `form:"title"`
-	Type            string `form:"type"`
-	OwnerOrigin     string `form:"owner_origin"`
-	Description     string `form:"description"`
-	City            string `form:"city"`
-	Address         string `form:"address"` // New
+	Title            string `form:"title"`
+	Type             string `form:"type"`
+	OwnerOrigin      string `form:"owner_origin"`
+	Description      string `form:"description"`
+	City             string `form:"city"`
+	Address          string `form:"address"`            // New
 	HoursOfOperation string `form:"hours_of_operation"` // New
-	ContactEmail    string `form:"contact_email"`
-	ContactPhone    string `form:"contact_phone"`
-	ContactWhatsApp string `form:"contact_whatsapp"`
-	WebsiteURL      string `form:"website_url"`
-	DeadlineDate    string `form:"deadline_date"`
-	EventStart      string `form:"event_start"`
-	EventEnd        string `form:"event_end"`
-	Skills          string `form:"skills"`
-	JobStartDate    string `form:"job_start_date"`
-	JobApplyURL     string `form:"job_apply_url"`
-	Company         string `form:"company"`
-	PayRange        string `form:"pay_range"`
+	ContactEmail     string `form:"contact_email"`
+	ContactPhone     string `form:"contact_phone"`
+	ContactWhatsApp  string `form:"contact_whatsapp"`
+	WebsiteURL       string `form:"website_url"`
+	DeadlineDate     string `form:"deadline_date"`
+	EventStart       string `form:"event_start"`
+	EventEnd         string `form:"event_end"`
+	Skills           string `form:"skills"`
+	JobStartDate     string `form:"job_start_date"`
+	JobApplyURL      string `form:"job_apply_url"`
+	Company          string `form:"company"`
+	PayRange         string `form:"pay_range"`
 }
 
 // Create Handler
@@ -289,7 +287,7 @@ func (h *ListingHandler) populateListingFromRequest(c echo.Context, l *domain.Li
 		}
 		l.Deadline = parsedTime
 	}
-	
+
 	// Handle Event Dates
 	if l.Type == domain.Event {
 		if req.EventStart != "" {
@@ -317,7 +315,6 @@ func (h *ListingHandler) populateListingFromRequest(c echo.Context, l *domain.Li
 		}
 		l.JobStartDate = parsedTime
 	}
-
 
 	return nil
 }
@@ -397,7 +394,7 @@ func (h *ListingHandler) saveUploadedImage(c echo.Context, listingID string) (st
 	// Let's stick to .jpg for simplicity as per current code, OR switch to correct extension.
 	// Switching to correct extension is better but requires database update if we stored just the ID.
 	// The current DB stores `image_url` string. So we can save with correct extension.
-	
+
 	ext := ".jpg"
 	if fileType == "image/png" {
 		ext = ".png"

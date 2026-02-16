@@ -58,7 +58,6 @@ type SQLiteRepository struct {
 	db *sql.DB
 }
 
-
 // NewSQLiteRepositoryFromDB creates a new repository using an existing DB connection.
 func NewSQLiteRepositoryFromDB(db *sql.DB) *SQLiteRepository {
 	return &SQLiteRepository{db: db}
@@ -408,12 +407,10 @@ func (r *SQLiteRepository) GetCounts(ctx context.Context) (map[domain.Category]i
 	return counts, nil
 }
 
-
-
 func (r *SQLiteRepository) ExpireListings(ctx context.Context) (int64, error) {
 	// Use Go's time to ensure driver handles serialization correctly and we control the timezone (UTC)
 	now := time.Now().UTC()
-	
+
 	// Expire Requests past deadline AND Events past end time
 	query := `
 		UPDATE listings 
@@ -429,10 +426,10 @@ func (r *SQLiteRepository) ExpireListings(ctx context.Context) (int64, error) {
 	`
 	// Added Job expiration rule for consistency
 	// Passed 'now' 3 times for the 3 placeholders
-	
-	result, err := r.db.ExecContext(ctx, query, now, now, now.AddDate(0, 0, -90)) 
+
+	result, err := r.db.ExecContext(ctx, query, now, now, now.AddDate(0, 0, -90))
 	// Note: Job rule was < now - 90 days. So we pass now.Add(-90 days).
-	
+
 	if err != nil {
 		return 0, err
 	}
@@ -444,7 +441,7 @@ func (r *SQLiteRepository) GetPendingListings(ctx context.Context) ([]domain.Lis
 		FROM listings
 		WHERE status = ?
 		ORDER BY created_at ASC`
-	
+
 	rows, err := r.db.QueryContext(ctx, query, domain.ListingStatusPending)
 	if err != nil {
 		return nil, err

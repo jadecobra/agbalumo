@@ -265,42 +265,42 @@ func TestHoursOfOperationField(t *testing.T) {
 		HoursOfOperation: "Mon-Fri 9-5",
 		CreatedAt:        time.Now(),
 	}
-	
+
 	assert.Equal(t, "Mon-Fri 9-5", l.HoursOfOperation)
 }
 
 func TestHoursOfOperationRestriction(t *testing.T) {
 	tests := []struct {
-		name     string
-		lType    Category
-		hours    string
-		wantErr  bool
+		name    string
+		lType   Category
+		hours   string
+		wantErr bool
 	}{
-		{ "Business with hours", Business, "9-5", false },
-		{ "Service with hours", Service, "9-5", false },
-		{ "Food with hours", Food, "9-5", false },
-		{ "Product with hours", Product, "9-5", true }, // Should fail
-		{ "Event with hours", Event, "9-5", true },   // Should fail
-		{ "Job with hours", Job, "9-5", true },       // Should fail
-		{ "Request with hours", Request, "9-5", true }, // Should fail
-		{ "Product without hours", Product, "", false },
+		{"Business with hours", Business, "9-5", false},
+		{"Service with hours", Service, "9-5", false},
+		{"Food with hours", Food, "9-5", false},
+		{"Product with hours", Product, "9-5", true}, // Should fail
+		{"Event with hours", Event, "9-5", true},     // Should fail
+		{"Job with hours", Job, "9-5", true},         // Should fail
+		{"Request with hours", Request, "9-5", true}, // Should fail
+		{"Product without hours", Product, "", false},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			l := Listing{
-				ID:               "test-restrict",
-				OwnerOrigin:      "Ghana",
-				Type:             tt.lType,
-				Title:            "Test",
-				ContactEmail:     "test@example.com",
+				ID:           "test-restrict",
+				OwnerOrigin:  "Ghana",
+				Type:         tt.lType,
+				Title:        "Test",
+				ContactEmail: "test@example.com",
 				// Satisfy other requirements
-				Company:          "Acme", // for Job
-				Skills:           "Go",   // for Job
-				JobStartDate:     time.Now().Add(24*time.Hour), // for Job
-				EventStart:       time.Now().Add(24*time.Hour), // for Event
-				EventEnd:         time.Now().Add(25*time.Hour), // for Event
-				Address:          "123 St", // for Business/Food
+				Company:          "Acme",                         // for Job
+				Skills:           "Go",                           // for Job
+				JobStartDate:     time.Now().Add(24 * time.Hour), // for Job
+				EventStart:       time.Now().Add(24 * time.Hour), // for Event
+				EventEnd:         time.Now().Add(25 * time.Hour), // for Event
+				Address:          "123 St",                       // for Business/Food
 				HoursOfOperation: tt.hours,
 				CreatedAt:        time.Now(),
 			}
@@ -313,7 +313,6 @@ func TestHoursOfOperationRestriction(t *testing.T) {
 		})
 	}
 }
-
 
 func TestListing_Validate_Length(t *testing.T) {
 	longString := func(n int) string {
@@ -332,12 +331,12 @@ func TestListing_Validate_Length(t *testing.T) {
 		{
 			name: "Title too long (>100)",
 			listing: Listing{
-				ID:          "1",
-				OwnerOrigin: "Nigeria",
-				Type:        Business,
-				Title:       longString(101),
-				Description: "Valid",
-				Address:     "Valid",
+				ID:           "1",
+				OwnerOrigin:  "Nigeria",
+				Type:         Business,
+				Title:        longString(101),
+				Description:  "Valid",
+				Address:      "Valid",
 				ContactEmail: "test@test.com",
 			},
 			wantErr: true,
@@ -345,12 +344,12 @@ func TestListing_Validate_Length(t *testing.T) {
 		{
 			name: "Description too long (>2000)",
 			listing: Listing{
-				ID:          "2",
-				OwnerOrigin: "Nigeria",
-				Type:        Business,
-				Title:       "Valid",
-				Description: longString(2001),
-				Address:     "Valid",
+				ID:           "2",
+				OwnerOrigin:  "Nigeria",
+				Type:         Business,
+				Title:        "Valid",
+				Description:  longString(2001),
+				Address:      "Valid",
 				ContactEmail: "test@test.com",
 			},
 			wantErr: true,
@@ -376,12 +375,12 @@ func TestListing_Validate_Length(t *testing.T) {
 		{
 			name: "Address too long (>200)",
 			listing: Listing{
-				ID:          "4",
-				OwnerOrigin: "Nigeria",
-				Type:        Business,
-				Title:       "Valid",
-				Description: "Valid",
-				Address:     longString(201),
+				ID:           "4",
+				OwnerOrigin:  "Nigeria",
+				Type:         Business,
+				Title:        "Valid",
+				Description:  "Valid",
+				Address:      longString(201),
 				ContactEmail: "test@test.com",
 			},
 			wantErr: true,

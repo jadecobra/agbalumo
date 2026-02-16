@@ -43,7 +43,7 @@ func NewRealTemplate(t *testing.T) *template.Template {
 
 	// Helper functions map matching what's in main.go
 	funcMap := template.FuncMap{
-		"mod": func(i, j int) int { return i % j },
+		"mod":   func(i, j int) int { return i % j },
 		"split": strings.Split,
 		"dict": func(values ...interface{}) (map[string]interface{}, error) {
 			if len(values)%2 != 0 {
@@ -178,7 +178,6 @@ func TestFilterUIValues(t *testing.T) {
 		}
 	}
 
-
 	// 3. Verify external JS inclusion (app.js should handle filters now)
 	// We added ?v=2 for cache busting
 	if !strings.Contains(rec.Body.String(), `src="/static/js/app.js?v=2"`) {
@@ -234,8 +233,8 @@ func TestJobListingUI(t *testing.T) {
 
 	// 2. Verify Detail Modal Rendering
 	rec = httptest.NewRecorder()
-	// modal_detail.html likely still renders by filename unless I changed it too. 
-	// Checking the file list earlier, I only touched partials. 
+	// modal_detail.html likely still renders by filename unless I changed it too.
+	// Checking the file list earlier, I only touched partials.
 	// But waiting, modal_detail might be a partial.
 	// Assume it's a partial if it follows the pattern.
 	// However, I only explicitly changed listing_card, listing_list, modal_profile.
@@ -261,4 +260,3 @@ func TestJobListingUI(t *testing.T) {
 		t.Error("Job detail missing skills tags")
 	}
 }
-

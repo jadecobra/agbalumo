@@ -36,7 +36,7 @@ func (h *FeedbackHandler) HandleSubmit(c echo.Context) error {
 	if contentType == "" {
 		contentType = c.FormValue("type")
 	}
-	
+
 	content := c.FormValue("content")
 
 	// Validate

@@ -46,60 +46,60 @@ var serveCmd = &cobra.Command{
 			}
 		})
 
-	// Rate Limiter
-	rateLimiter := customMiddleware.NewRateLimiter(customMiddleware.RateLimitConfig{
-		Rate:  20,
-		Burst: 40,
-	})
-	e.Use(rateLimiter.Middleware())
+		// Rate Limiter
+		rateLimiter := customMiddleware.NewRateLimiter(customMiddleware.RateLimitConfig{
+			Rate:  20,
+			Burst: 40,
+		})
+		e.Use(rateLimiter.Middleware())
 
-	// CSRF Protection
-	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
-		TokenLookup:    "header:X-CSRF-Token,form:_csrf",
-		CookiePath:     "/",
-		CookieName:     "_csrf",
-		CookieSameSite: http.SameSiteStrictMode,
-		CookieSecure:   env == "production",
-		CookieHTTPOnly: false,
-	}))
+		// CSRF Protection
+		e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+			TokenLookup:    "header:X-CSRF-Token,form:_csrf",
+			CookiePath:     "/",
+			CookieName:     "_csrf",
+			CookieSameSite: http.SameSiteStrictMode,
+			CookieSecure:   env == "production",
+			CookieHTTPOnly: false,
+		}))
 
-	// Session Middleware
-	sessionKey := os.Getenv("SESSION_SECRET")
-	if sessionKey == "" {
-		// Fallback for dev, or panic in prod
-		if os.Getenv("AGBALUMO_ENV") == "production" {
-			log.Fatal("SESSION_SECRET must be set in production")
+		// Session Middleware
+		sessionKey := os.Getenv("SESSION_SECRET")
+		if sessionKey == "" {
+			// Fallback for dev, or panic in prod
+			if os.Getenv("AGBALUMO_ENV") == "production" {
+				log.Fatal("SESSION_SECRET must be set in production")
+			}
+			sessionKey = "dev-secret-key"
+			log.Println("[WARN] Using default dev session key")
 		}
-		sessionKey = "dev-secret-key"
-		log.Println("[WARN] Using default dev session key")
-	}
-	store := sessions.NewCookieStore([]byte(sessionKey))
-	store.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   86400 * 7, // 7 days
-		HttpOnly: true,
-		Secure:   env == "production", // Secure only in prod (or if using TLS in dev)
-		SameSite: http.SameSiteStrictMode,
-	}
-	e.Use(customMiddleware.SessionMiddleware(store))
+		store := sessions.NewCookieStore([]byte(sessionKey))
+		store.Options = &sessions.Options{
+			Path:     "/",
+			MaxAge:   86400 * 7, // 7 days
+			HttpOnly: true,
+			Secure:   env == "production", // Secure only in prod (or if using TLS in dev)
+			SameSite: http.SameSiteStrictMode,
+		}
+		e.Use(customMiddleware.SessionMiddleware(store))
 
-	// Database Initialization
-	dbPath := os.Getenv("DATABASE_URL")
-	if dbPath == "" {
-		dbPath = "agbalumo.db"
-	}
-	repo, err := sqlite.NewSQLiteRepository(dbPath)
-	if err != nil {
-		log.Fatalf("Failed to initialize database: %v", err)
-	}
+		// Database Initialization
+		dbPath := os.Getenv("DATABASE_URL")
+		if dbPath == "" {
+			dbPath = "agbalumo.db"
+		}
+		repo, err := sqlite.NewSQLiteRepository(dbPath)
+		if err != nil {
+			log.Fatalf("Failed to initialize database: %v", err)
+		}
 
-	// Template Renderer
-	// Include all necessary directories
-	renderer, err := ui.NewTemplateRenderer(
-		"ui/templates/*.html",
-		"ui/templates/partials/*.html",
-		"ui/templates/listings/*.html", // Added listings directory
-	)
+		// Template Renderer
+		// Include all necessary directories
+		renderer, err := ui.NewTemplateRenderer(
+			"ui/templates/*.html",
+			"ui/templates/partials/*.html",
+			"ui/templates/listings/*.html", // Added listings directory
+		)
 		if err != nil {
 			log.Fatalf("Failed to initialize template renderer: %v", err)
 		}

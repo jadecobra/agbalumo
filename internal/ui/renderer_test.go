@@ -95,7 +95,7 @@ func contains(s, substr string) bool {
 func BenchmarkRender(b *testing.B) {
 	tmpl := template.New("bench")
 	_, _ = tmpl.Parse(`<h1>{{.Title}}</h1><p>{{.Description}}</p>`)
-	
+
 	// Mock the map structure
 	templates := map[string]*template.Template{
 		"bench": tmpl,

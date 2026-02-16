@@ -13,7 +13,6 @@ import (
 	_ "modernc.org/sqlite" // registers sqlite driver
 )
 
-
 func TestSaveFeedback(t *testing.T) {
 	// Setup temporary DB
 	tmpFile, err := os.CreateTemp("", "test_feedback.db")
@@ -27,7 +26,7 @@ func TestSaveFeedback(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	
+
 	// Open raw DB specifically for verification
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
@@ -59,14 +58,14 @@ func TestSaveFeedback(t *testing.T) {
 		if count != 1 {
 			t.Errorf("Expected 1 feedback, got %d", count)
 		}
-		
+
 		var content string
 		var fbType string
 		err = db.QueryRow("SELECT content, type FROM feedback WHERE id = ?", feedback.ID).Scan(&content, &fbType)
 		if err != nil {
 			t.Fatalf("Query details failed: %v", err)
 		}
-		
+
 		if content != "This is a test issue." {
 			t.Errorf("Expected content 'This is a test issue.', got '%s'", content)
 		}
@@ -74,7 +73,7 @@ func TestSaveFeedback(t *testing.T) {
 			t.Errorf("Expected type 'Issue', got '%s'", fbType)
 		}
 	})
-	
+
 	t.Run("Save multiple feedbacks", func(t *testing.T) {
 		ctx := context.Background()
 		f1 := domain.Feedback{
@@ -84,11 +83,11 @@ func TestSaveFeedback(t *testing.T) {
 			Content:   "Feature 1",
 			CreatedAt: time.Now(),
 		}
-		
+
 		if err := repo.SaveFeedback(ctx, f1); err != nil {
 			t.Errorf("Failed to save f1: %v", err)
 		}
-		
+
 		var count int
 		err := db.QueryRow("SELECT COUNT(*) FROM feedback").Scan(&count)
 		if err != nil {
@@ -114,7 +113,7 @@ func TestGetAllFeedback(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	
+
 	ctx := context.Background()
 
 	// Seed Data

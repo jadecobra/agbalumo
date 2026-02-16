@@ -40,7 +40,7 @@ func TestHandleUpdate_JobSuccess(t *testing.T) {
 	// This simulates the form data that the updated UI will send
 	// Note: We use the format expected by time.Parse inside the handler
 	jobStart := time.Now().Add(48 * time.Hour).Format("2006-01-02T15:04")
-	
+
 	formData := "title=Senior+Go+Dev+Updated&type=Job&owner_origin=Nigeria&description=Updated+Desc&contact_email=job@example.com&city=Lagos" +
 		"&company=Updated+Corp&skills=Go,+Rust&pay_range=200k&job_apply_url=https://updated.com&job_start_date=" + jobStart
 

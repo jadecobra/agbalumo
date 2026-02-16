@@ -44,16 +44,16 @@ func TestListing_Validate_Job(t *testing.T) {
 		{
 			name: "Missing Start Date",
 			listing: Listing{
-				Title:       "Software Engineer",
-				Type:        Job,
-				OwnerOrigin: "Kenya",
-				Description: "Write code",
-				Skills:      "Go",
+				Title:        "Software Engineer",
+				Type:         Job,
+				OwnerOrigin:  "Kenya",
+				Description:  "Write code",
+				Skills:       "Go",
 				ContactEmail: "hr@example.com",
 			},
 			wantErr: true,
 		},
-        {
+		{
 			name: "Start Date in Past",
 			listing: Listing{
 				Title:        "Software Engineer",
@@ -84,9 +84,9 @@ func TestListing_Validate_Job(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.listing.Validate()
-            if err != nil {
-                log.Printf("Helper log: error was %v", err)
-            }
+			if err != nil {
+				log.Printf("Helper log: error was %v", err)
+			}
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Listing.Validate() error = %v, wantErr %v", err, tt.wantErr)
 			}

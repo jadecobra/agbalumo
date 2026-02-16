@@ -65,20 +65,20 @@ func TestEventValidation(t *testing.T) {
 				Address:      "123 Valid St", // Satisfy address requirement for Business/Food
 				CreatedAt:    now,
 				IsActive:     true,
-				// These fields don't exist yet, so this code won't compile initially (RED phase if we consider compilation failure as part of it, 
-				// but to run the test tool we usually need it to compile. 
+				// These fields don't exist yet, so this code won't compile initially (RED phase if we consider compilation failure as part of it,
+				// but to run the test tool we usually need it to compile.
 				// However, strictly speaking, if the struct fields are missing, I can't even write this test without compilation errors.
-				// I will add the fields to the struct in the next step, but for `go test` to not completely barf on the file, 
-				// I usually add the fields first OR rely on the fact that I'm about to add them. 
+				// I will add the fields to the struct in the next step, but for `go test` to not completely barf on the file,
+				// I usually add the fields first OR rely on the fact that I'm about to add them.
 				// But true RED in Go usually implies writing the test that fails to compile or fails assertion.
-				// Since I can't run a test that doesn't compile, I will assume the fields exist for the purpose of the test logic, 
+				// Since I can't run a test that doesn't compile, I will assume the fields exist for the purpose of the test logic,
 				// but I will add the empty fields to the struct in the next step or just the fields now.
 				// Actually, to make it compile so I can see it fail (logic wise) or just compile failure IS the test failure.
 				// I will write the test assuming fields exist.
 				EventStart: tt.eventStart,
 				EventEnd:   tt.eventEnd,
 			}
-			
+
 			err := l.Validate()
 			if tt.wantErr != "" {
 				assert.Error(t, err)

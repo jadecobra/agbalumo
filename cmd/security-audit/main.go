@@ -123,11 +123,11 @@ func main() {
 			fmt.Printf("❌ Failed to install govulncheck: %v\n", err)
 		}
 	}
-	
+
 	cmdVuln := exec.Command("govulncheck", "./...")
 	if output, err := cmdVuln.CombinedOutput(); err != nil {
-		// govulncheck returns exit code 1 if vulnerabilities are found? 
-		// Actually it returns 0 on success (no vulns) or failure (vulns found) depending on flags? 
+		// govulncheck returns exit code 1 if vulnerabilities are found?
+		// Actually it returns 0 on success (no vulns) or failure (vulns found) depending on flags?
 		// It returns 0 if no vulns, or if vulns found but not erroring?
 		// Usually it's best to check output or exit code.
 		// Let's assume if err != nil it might be a finding or execution error.
@@ -182,5 +182,5 @@ func containsSensitive(content, key string) bool {
 	// If the key is there, let's see if it's in the [env] section and has a value that isn't a known placeholder
 	// For now, if someone puts CLIENT_ID = "actually-the-id" in fly.toml, we want to catch it.
 	// Production secrets should be in fly secrets.
-	return true 
+	return true
 }

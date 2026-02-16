@@ -23,7 +23,7 @@ func TestMockListingRepository(t *testing.T) {
 	if l, err := m.FindAll(ctx, "", "", false); err != nil || l != nil {
 		t.Errorf("Expected nil listings and nil error, got %v, %v", l, err)
 	}
-	
+
 	// Test defined behavior
 	m.SaveFn = func(ctx context.Context, l domain.Listing) error {
 		return errors.New("save error")

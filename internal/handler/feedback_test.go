@@ -83,16 +83,16 @@ func TestSubmitFeedback(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c, rec := setupTestContext(http.MethodPost, "/feedback", strings.NewReader(tt.body))
-			
+
 			if tt.user != nil {
 				c.Set("User", *tt.user)
 			}
 
 			h := handler.NewFeedbackHandler(tt.mockSetup())
-			
+
 			// We assume HandleSubmit will be the method name
 			err := h.HandleSubmit(c)
-			
+
 			// Handle errors that Echo might return (e.g. 400/500)
 			if err != nil {
 				// In Echo, returning an error often means it's processed by error handler.

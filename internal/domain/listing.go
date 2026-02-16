@@ -27,32 +27,32 @@ var (
 
 // Listing represents a directory entry or request.
 type Listing struct {
-	ID              string    `json:"id" form:"id"`
-	OwnerID         string    `json:"owner_id" form:"owner_id"`         // Link to User.ID
-	OwnerOrigin     string    `json:"owner_origin" form:"owner_origin"` // Required: Country of Origin
-	Type            Category  `json:"type" form:"type"`
-	Anchor          string    `json:"anchor" form:"anchor"` // Food, Professional, etc.
-	Title           string    `json:"title" form:"title"`
-	Description     string    `json:"description" form:"description"`
-	City            string    `json:"city" form:"city"`
-	Address         string    `json:"address" form:"address"`     // New: Specific Business Address
-	HoursOfOperation string   `json:"hours_of_operation" form:"hours_of_operation"` // New
-	ImageURL        string    `json:"image_url" form:"image_url"` // New: Uploaded or Default Image
-	ContactEmail    string    `json:"contact_email" form:"contact_email"`
-	ContactPhone    string    `json:"contact_phone" form:"contact_phone"` // New: Validation alternative
-	ContactWhatsApp string    `json:"contact_whatsapp" form:"contact_whatsapp"`
-	WebsiteURL      string    `json:"website_url" form:"website_url"` // New: Optional
-	CreatedAt       time.Time `json:"created_at" form:"created_at"`
-	Deadline        time.Time `json:"deadline" form:"deadline"` // Required for 'Request'
-	EventStart      time.Time `json:"event_start" form:"event_start"`
-	EventEnd        time.Time `json:"event_end" form:"event_end"`
-	Skills          string    `json:"skills" form:"skills"`           // New: For Job
-	JobStartDate    time.Time `json:"job_start_date" form:"job_start_date"` // New: For Job
-	JobApplyURL     string    `json:"job_apply_url" form:"job_apply_url"`   // New: Optional
-	Company         string        `json:"company" form:"company"`               // New: For Job
-	PayRange        string        `json:"pay_range" form:"pay_range"`           // New: For Job
-	IsActive        bool          `json:"is_active" form:"is_active"`
-	Status          ListingStatus `json:"status" form:"status"`                 // New: Moderation Status
+	ID               string        `json:"id" form:"id"`
+	OwnerID          string        `json:"owner_id" form:"owner_id"`         // Link to User.ID
+	OwnerOrigin      string        `json:"owner_origin" form:"owner_origin"` // Required: Country of Origin
+	Type             Category      `json:"type" form:"type"`
+	Anchor           string        `json:"anchor" form:"anchor"` // Food, Professional, etc.
+	Title            string        `json:"title" form:"title"`
+	Description      string        `json:"description" form:"description"`
+	City             string        `json:"city" form:"city"`
+	Address          string        `json:"address" form:"address"`                       // New: Specific Business Address
+	HoursOfOperation string        `json:"hours_of_operation" form:"hours_of_operation"` // New
+	ImageURL         string        `json:"image_url" form:"image_url"`                   // New: Uploaded or Default Image
+	ContactEmail     string        `json:"contact_email" form:"contact_email"`
+	ContactPhone     string        `json:"contact_phone" form:"contact_phone"` // New: Validation alternative
+	ContactWhatsApp  string        `json:"contact_whatsapp" form:"contact_whatsapp"`
+	WebsiteURL       string        `json:"website_url" form:"website_url"` // New: Optional
+	CreatedAt        time.Time     `json:"created_at" form:"created_at"`
+	Deadline         time.Time     `json:"deadline" form:"deadline"` // Required for 'Request'
+	EventStart       time.Time     `json:"event_start" form:"event_start"`
+	EventEnd         time.Time     `json:"event_end" form:"event_end"`
+	Skills           string        `json:"skills" form:"skills"`                 // New: For Job
+	JobStartDate     time.Time     `json:"job_start_date" form:"job_start_date"` // New: For Job
+	JobApplyURL      string        `json:"job_apply_url" form:"job_apply_url"`   // New: Optional
+	Company          string        `json:"company" form:"company"`               // New: For Job
+	PayRange         string        `json:"pay_range" form:"pay_range"`           // New: For Job
+	IsActive         bool          `json:"is_active" form:"is_active"`
+	Status           ListingStatus `json:"status" form:"status"` // New: Moderation Status
 }
 
 // ListingStatus represents the moderation state of a listing.
@@ -166,7 +166,7 @@ func (l *Listing) Validate() error {
 			return errors.New("job start date cannot be in the past")
 		}
 		if l.City == "" && l.Address == "" {
-			 // We check City primarily as "Location" usually maps to City
+			// We check City primarily as "Location" usually maps to City
 			return errors.New("location (city) is required")
 		}
 		if l.JobApplyURL == "" {

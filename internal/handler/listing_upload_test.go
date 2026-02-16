@@ -30,14 +30,14 @@ func TestListingHandler_Upload_Malicious(t *testing.T) {
 	// Create a malicious file (text file disguised as jpg)
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
-	
+
 	// Add File
 	part, err := writer.CreateFormFile("image", "malicious.jpg")
 	if err != nil {
 		t.Fatal(err)
 	}
 	part.Write([]byte("<?php echo 'malicious code'; ?>"))
-	
+
 	// Add Fields
 	writer.WriteField("title", "Valid Title")
 	writer.WriteField("owner_origin", "Nigeria")
@@ -47,14 +47,14 @@ func TestListingHandler_Upload_Malicious(t *testing.T) {
 	writer.WriteField("address", "123 St")
 	writer.WriteField("contact_email", "test@test.com")
 	writer.WriteField("created_at", time.Now().Format(time.RFC3339))
-	
+
 	writer.Close()
-	
+
 	req := httptest.NewRequest(http.MethodPost, "/listings", body)
 	req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.Set("User", domain.User{ID: "user1", Email: "test@user.com"}) 
+	c.Set("User", domain.User{ID: "user1", Email: "test@user.com"})
 
 	// Execute
 	err = h.HandleCreate(c)
@@ -62,14 +62,14 @@ func TestListingHandler_Upload_Malicious(t *testing.T) {
 	// Assert
 	// With MockRenderer, Render succeeds, so err should be nil (handled inside Handler and mapped to Render)
 	// But rec.Code should be 400 because RespondError now uses the error code.
-	
+
 	if rec.Code != http.StatusBadRequest {
-			t.Errorf("Expected 400 Bad Request for malicious file, got %d. Body: %s", rec.Code, rec.Body.String())
+		t.Errorf("Expected 400 Bad Request for malicious file, got %d. Body: %s", rec.Code, rec.Body.String())
 	}
 }
 
 func TestListingHandler_Upload_Valid(t *testing.T) {
-     // Setup
+	// Setup
 	e := echo.New()
 	e.Renderer = &MockRenderer{}
 
@@ -82,12 +82,12 @@ func TestListingHandler_Upload_Valid(t *testing.T) {
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
-	
+
 	// Add Valid GIF/PNG/JPG magic bytes
 	part, _ := writer.CreateFormFile("image", "valid.png")
 	// tiny png signature (8 bytes)
-	part.Write([]byte{0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}) 
-	
+	part.Write([]byte{0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A})
+
 	// Add Fields
 	writer.WriteField("title", "Valid Title")
 	writer.WriteField("owner_origin", "Nigeria")
@@ -96,9 +96,9 @@ func TestListingHandler_Upload_Valid(t *testing.T) {
 	writer.WriteField("city", "Lagos")
 	writer.WriteField("address", "123 St")
 	writer.WriteField("contact_email", "test@test.com")
-	
+
 	writer.Close()
-	
+
 	req := httptest.NewRequest(http.MethodPost, "/listings", body)
 	req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
 	rec := httptest.NewRecorder()

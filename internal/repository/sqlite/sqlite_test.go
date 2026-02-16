@@ -170,7 +170,6 @@ func TestGetCounts(t *testing.T) {
 	}
 }
 
-
 func TestDelete(t *testing.T) {
 	repo, _ := newTestRepo(t)
 	ctx := context.Background()
@@ -332,8 +331,6 @@ func TestHoursOfOperationPersistence(t *testing.T) {
 	}
 }
 
-
-
 func TestFindAllByOwner(t *testing.T) {
 	repo, _ := newTestRepo(t)
 	ctx := context.Background()
@@ -398,10 +395,10 @@ func TestGetPendingListings(t *testing.T) {
 	if len(pending) != 2 {
 		t.Errorf("Expected 2 pending listings, got %d", len(pending))
 	}
-	
+
 	// Verify order (Oldest first as per sqlite impl "ORDER BY created_at ASC")
 	// Although the SQL says ASC, let's verify.
-	// Pending 1 created now, Pending 2 created now+1h. 
+	// Pending 1 created now, Pending 2 created now+1h.
 	// Pending 1 is older (smaller time), so it should be first.
 	if pending[0].Title != "Pending 1" {
 		t.Errorf("Expected first pending to be 'Pending 1', got '%s'", pending[0].Title)

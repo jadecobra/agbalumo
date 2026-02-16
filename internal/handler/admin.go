@@ -66,7 +66,7 @@ func (h *AdminHandler) HandleLoginAction(c echo.Context) error {
 	if user == nil {
 		return c.Redirect(http.StatusTemporaryRedirect, "/auth/google/login")
 	}
-	
+
 	u, ok := user.(domain.User)
 	if !ok {
 		// Should not happen if OptionalAuth/RequireAuth are working, but handle safely

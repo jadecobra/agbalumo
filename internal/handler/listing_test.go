@@ -121,7 +121,6 @@ func TestHandleHome_Counts(t *testing.T) {
 	}
 }
 
-
 func TestHandleFragment(t *testing.T) {
 	// Setup
 	e := echo.New()
@@ -565,7 +564,6 @@ func TestHandleDelete(t *testing.T) {
 				}
 			},
 			expectedStatus: http.StatusNotFound,
-
 		},
 		{
 			name: "RepoError_Delete",
@@ -609,7 +607,7 @@ func TestHandleProfile(t *testing.T) {
 	t_temp := template.New("base")
 	t_temp.New("modal_profile").Parse(`Profile: {{.User.Name}}, Listings: {{len .Listings}}`)
 	e.Renderer = &TestRenderer{templates: t_temp}
-	
+
 	req := httptest.NewRequest(http.MethodGet, "/profile", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)

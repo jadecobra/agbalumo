@@ -18,7 +18,7 @@ var seedCmd = &cobra.Command{
 		if len(args) > 0 {
 			dbPath = args[0]
 		}
-		
+
 		// Also check env var if not argument provided
 		if dbPath == "agbalumo.db" && os.Getenv("DATABASE_URL") != "" {
 			dbPath = os.Getenv("DATABASE_URL")

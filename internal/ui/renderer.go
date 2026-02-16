@@ -10,8 +10,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-
-
 // TemplateRenderer is a custom html/template renderer for Echo framework
 type TemplateRenderer struct {
 	templates map[string]*template.Template
@@ -82,7 +80,7 @@ func NewTemplateRenderer(patterns ...string) (*TemplateRenderer, error) {
 
 	for _, pageFile := range pageFiles {
 		fileName := filepath.Base(pageFile)
-		
+
 		// Create a new template set for this page
 		tmpl := template.New(fileName).Funcs(funcMap)
 

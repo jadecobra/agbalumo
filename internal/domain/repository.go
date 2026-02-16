@@ -15,7 +15,7 @@ type ListingRepository interface {
 	SaveUser(ctx context.Context, user User) error
 	FindUserByGoogleID(ctx context.Context, googleID string) (User, error)
 	FindUserByID(ctx context.Context, id string) (User, error)
-	
+
 	// Maintenance
 	ExpireListings(ctx context.Context) (int64, error)
 

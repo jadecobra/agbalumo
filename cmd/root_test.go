@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestRootCommand(t *testing.T) {
@@ -10,7 +10,7 @@ func TestRootCommand(t *testing.T) {
 	// We capture execution by args
 	oldArgs := rootCmd.Args
 	defer func() { rootCmd.Args = oldArgs }()
-	
+
 	// Just verify the root command exists
 	assert.NotNil(t, rootCmd)
 	assert.Equal(t, "agbalumo", rootCmd.Use)

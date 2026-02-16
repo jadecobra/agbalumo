@@ -22,8 +22,8 @@ func TestBackgroundService_ExpireListings(t *testing.T) {
 	// Since expireListings is private but we are in package service, we can call it.
 	service.expireListings(context.Background())
 
-	// We can't easily assert on the log output without hooking logger, 
-	// but we can ensure the mock was called if we add a call counter to the mock 
+	// We can't easily assert on the log output without hooking logger,
+	// but we can ensure the mock was called if we add a call counter to the mock
 	// or just trust the mock function execution in this simple case.
 	// For better verification, we can update the mock to track calls.
 	// But let's keep it simple: if it didn't panic and the potential logic inside ran, we are okay.

@@ -133,4 +133,3 @@ func (m *MockListingRepository) GetUserCount(ctx context.Context) (int, error) {
 	}
 	return 0, nil
 }
-

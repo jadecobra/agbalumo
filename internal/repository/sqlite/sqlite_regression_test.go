@@ -28,13 +28,13 @@ func TestFindListingWithNullEventDates(t *testing.T) {
 		'email@example.com', '', '', '',
 		?, NULL, NULL
 	)`
-	
+
 	_, err = repo.db.ExecContext(ctx, query, time.Now(), time.Now().Add(24*time.Hour))
 	assert.NoError(t, err)
 
 	// 3. Try to FindByID
 	l, err := repo.FindByID(ctx, "old-listing-123")
-	
+
 	// Expectation: This should now succeed.
 	assert.NoError(t, err)
 	assert.NotNil(t, l)
@@ -43,7 +43,6 @@ func TestFindListingWithNullEventDates(t *testing.T) {
 	assert.True(t, l.EventStart.IsZero())
 	assert.True(t, l.EventEnd.IsZero())
 
-    
-    // We will assert NoError after we apply the fix.
-    // For reproduction step, we just want to run this.
+	// We will assert NoError after we apply the fix.
+	// For reproduction step, we just want to run this.
 }
