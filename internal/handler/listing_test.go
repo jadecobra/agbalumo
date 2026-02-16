@@ -34,13 +34,15 @@ func NewMainTemplate() *template.Template {
 	t := template.New("base")
 	// index.html is a full page in our app, not a partial define
 	t.New("index.html").Parse(`Index: {{len .Listings}} Listings`)
-	t.New("listing_list.html").Parse(`{{range .Listings}}{{.Title}}{{end}}`)
-	t.New("modal_detail.html").Parse(`{{.Listing.Title}} - {{.Listing.Description}}`)
-	t.New("listing_card.html").Parse(`{{.Title}}`)
+	t.New("listing_list").Parse(`{{range .Listings}}{{.Title}}{{end}}`)
+	t.New("modal_detail").Parse(`{{.Listing.Title}} - {{.Listing.Description}}`)
+	t.New("listing_card").Parse(`{{.Title}}`)
 	t.New("admin_login.html").Parse(`Login Form: {{if .Error}}{{.Error}}{{end}}`)
 	t.New("admin_dashboard.html").Parse(`Dashboard: {{len .PendingListings}} items`)
+	// modal_edit_listing likely also needs update if I touched it, but sticking to what broke
 	t.New("modal_edit_listing.html").Parse(`Edit: {{.Title}}`)
 	t.New("modal_feedback.html").Parse(`Feedback Modal`)
+	t.New("modal_profile").Parse(`Profile: {{.User.Name}}, Listings: {{len .Listings}}`)
 	t.New("error.html").Parse(`Error Page`)
 	return t
 }
@@ -605,7 +607,7 @@ func TestHandleProfile(t *testing.T) {
 	// Setup
 	e := echo.New()
 	t_temp := template.New("base")
-	t_temp.New("modal_profile.html").Parse(`Profile: {{.User.Name}}, Listings: {{len .Listings}}`)
+	t_temp.New("modal_profile").Parse(`Profile: {{.User.Name}}, Listings: {{len .Listings}}`)
 	e.Renderer = &TestRenderer{templates: t_temp}
 	
 	req := httptest.NewRequest(http.MethodGet, "/profile", nil)

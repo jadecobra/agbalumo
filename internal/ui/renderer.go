@@ -116,19 +116,26 @@ func NewTemplateRenderer(patterns ...string) (*TemplateRenderer, error) {
 // Render renders a template document
 func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
 	// Inject CSRF token if data is a map
-	// Inject CSRF token if data is a map
 	if viewContext, isMap := data.(map[string]interface{}); isMap {
 		token := c.Get("csrf")
-		// log.Printf("Injecting CSRF token: %v", token) // Debug log
 		viewContext["CSRF"] = token
-	} else {
-		// log.Printf("Data is not a map, skipping CSRF injection. Type: %T", data) // Debug log
 	}
-
 
 	tmpl, ok := t.templates[name]
 	if !ok {
-		return errors.New("template not found: " + name)
+		// Fallback: Check if it's a partial by trying to execute it on a default template set
+		// We can use any existing template set because they all include all partials.
+		// Let's try to find "index.html" or just use the first available one.
+		for _, t := range t.templates {
+			tmpl = t
+			break
+		}
+		if tmpl == nil {
+			return errors.New("template not found and no default template available: " + name)
+		}
+		// Try to execute the named partial on this template set
+		// Note: ExecuteTemplate returns error if name is not found
+		return tmpl.ExecuteTemplate(w, name, data)
 	}
 	return tmpl.ExecuteTemplate(w, name, data)
 }

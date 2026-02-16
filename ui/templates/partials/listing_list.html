@@ -1,3 +1,4 @@
+{{ define "listing_list" }}
 {{ range $i, $e := .Listings }}
 {{ $gridClass := "" }}
 {{ $mod := mod $i 6 }}
@@ -7,5 +8,5 @@
 {{ $gridClass = "lg:col-span-2 lg:row-span-2 lg:col-start-2" }}
 {{ end }}
 
-{{ template "listing_card.html" dict "Listing" . "User" $.User "GridClass" $gridClass "Index" $i }}
-{{ end }}
+{{ template "listing_card" dict "Listing" . "User" $.User "GridClass" $gridClass "Index" $i }}
+{{ end }}{{ end }}

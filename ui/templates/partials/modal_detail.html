@@ -1,3 +1,4 @@
+{{ define "modal_detail" }}
 <dialog id="detail-modal-{{.Listing.ID}}"
     class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-sm m-auto rounded-3xl shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in">
     <div
@@ -174,3 +175,4 @@
 <script>
     document.getElementById("detail-modal-{{.Listing.ID}}").showModal();
 </script>
+{{ end }}

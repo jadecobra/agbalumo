@@ -72,7 +72,7 @@
         {{ $gridClass = "lg:col-span-2 lg:row-span-2 lg:col-start-2" }}
         {{ end }}
 
-        {{ template "listing_card.html" dict "Listing" . "User" $.User "GridClass" $gridClass "Index" $i }}
+        {{ template "listing_card" dict "Listing" . "User" $.User "GridClass" $gridClass "Index" $i }}
         {{ end }}
     </div>
     <!-- Spacer for bottom nav on mobile -->

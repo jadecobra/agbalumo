@@ -1,3 +1,4 @@
+{{ define "modal_profile" }}
 <dialog id="profile-modal"
     class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-2xl m-auto rounded-3xl shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in">
     <div
@@ -68,7 +69,7 @@
             {{ if .Listings }}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {{ range .Listings }}
-                {{ template "listing_card.html" dict "Listing" . "User" $.User "GridClass" "border border-stone-100 dark:border-stone-700" }}
+                {{ template "listing_card" dict "Listing" . "User" $.User "GridClass" "border border-stone-100 dark:border-stone-700" }}
                 {{ end }}
             </div>
             {{ else }}
@@ -102,4 +103,4 @@
 </dialog>
 <script>
     document.getElementById("profile-modal").showModal();
-</script>
+</script>{{ end }}

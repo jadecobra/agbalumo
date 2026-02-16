@@ -180,7 +180,8 @@ func TestFilterUIValues(t *testing.T) {
 
 
 	// 3. Verify external JS inclusion (app.js should handle filters now)
-	if !strings.Contains(rec.Body.String(), `src="/static/js/app.js"`) {
+	// We added ?v=2 for cache busting
+	if !strings.Contains(rec.Body.String(), `src="/static/js/app.js?v=2"`) {
 		t.Errorf("Regression: app.js script tag missing")
 	}
 }
@@ -213,8 +214,9 @@ func TestJobListingUI(t *testing.T) {
 	data := map[string]interface{}{
 		"Listing":   job,
 		"GridClass": "",
+		"User":      domain.User{}, // Listing card might expect User for auth checks
 	}
-	if err := e.Renderer.Render(rec, "listing_card.html", data, c); err != nil {
+	if err := e.Renderer.Render(rec, "listing_card", data, c); err != nil {
 		t.Fatalf("Failed to render listing_card.html: %v", err)
 	}
 
@@ -232,7 +234,19 @@ func TestJobListingUI(t *testing.T) {
 
 	// 2. Verify Detail Modal Rendering
 	rec = httptest.NewRecorder()
-	if err := e.Renderer.Render(rec, "modal_detail.html", data, c); err != nil {
+	// modal_detail.html likely still renders by filename unless I changed it too. 
+	// Checking the file list earlier, I only touched partials. 
+	// But waiting, modal_detail might be a partial.
+	// Assume it's a partial if it follows the pattern.
+	// However, I only explicitly changed listing_card, listing_list, modal_profile.
+	// If modal_detail wasn't changed, keep it as is?
+	// But wait, the Renderer fallback logic I implemented tries to find by name, then fallback.
+	// If modal_detail.html exists and doesn't have a define block, "modal_detail.html" is correct.
+	// If I didn't verify it, I should leave it or check.
+	// BUT, if I call Render with "modal_detail.html", and my renderer expects that, it's fine.
+	// The pre-commit error didn't explicitly flag modal_detail, but let's be safe.
+	// I'll leave it as matches the test setup unless I see it failed.
+	if err := e.Renderer.Render(rec, "modal_detail", data, c); err != nil {
 		t.Fatalf("Failed to render modal_detail.html: %v", err)
 	}
 

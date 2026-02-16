@@ -64,10 +64,21 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.Render(http.StatusOK, "listing_list.html", map[string]interface{}{
+	data := map[string]interface{}{
 		"Listings": listings,
 		"User":     c.Get("User"),
-	})
+	}
+
+	// If HTMX request, render only the listing list partial
+	if c.Request().Header.Get("HX-Request") == "true" {
+		return c.Render(http.StatusOK, "listing_list", data)
+	}
+
+	// For non-HTMX requests, render the full home page with the filtered listings
+	// This might not be the desired behavior if this handler is strictly for fragments.
+	// Reverting to original behavior for non-HTMX requests, or consider redirecting.
+	// For now, keeping the original behavior of rendering just the list.
+	return c.Render(http.StatusOK, "listing_list", data)
 }
 
 // Detail Handler
@@ -80,7 +91,7 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 
 	user := c.Get("User")
 
-	return c.Render(http.StatusOK, "modal_detail.html", map[string]interface{}{
+	return c.Render(http.StatusOK, "modal_detail", map[string]interface{}{
 		"Listing": listing,
 		"User":    user,
 	})
@@ -235,7 +246,7 @@ func (h *ListingHandler) HandleProfile(c echo.Context) error {
 		return RespondError(c, err)
 	}
 
-	return c.Render(http.StatusOK, "modal_profile.html", map[string]interface{}{
+	return c.Render(http.StatusOK, "modal_profile", map[string]interface{}{
 		"User":             u,
 		"Listings":         listings,
 		"GoogleMapsApiKey": os.Getenv("GOOGLE_MAPS_API_KEY"),
@@ -328,7 +339,7 @@ func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error
 		user = u
 	}
 
-	return c.Render(http.StatusOK, "listing_card.html", map[string]interface{}{
+	return c.Render(http.StatusOK, "listing_card", map[string]interface{}{
 		"Listing": l,
 		"User":    user,
 	})

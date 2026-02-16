@@ -89,7 +89,7 @@ func TestListingCardRendering(t *testing.T) {
 				"Listing": tt.listing,
 				"User":    nil,
 			}
-			if err := tmpl.ExecuteTemplate(&buf, "listing_card.html", data); err != nil {
+			if err := tmpl.ExecuteTemplate(&buf, "listing_card", data); err != nil {
 				t.Fatalf("Failed to render template: %v", err)
 			}
 

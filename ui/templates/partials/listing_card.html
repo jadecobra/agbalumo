@@ -1,5 +1,6 @@
+{{ define "listing_card" }}
 <div
-    class="relative flex flex-col rounded-2xl bg-white dark:bg-surface-dark shadow-soft overflow-hidden group animate-in fade-in zoom-in-95 duration-300 h-full {{ .GridClass }}">
+    class="group relative flex flex-col gap-3 p-4 rounded-3xl bg-white dark:bg-surface-dark border border-stone-100 dark:border-stone-800 shadow-sm hover:shadow-md transition-all duration-300 {{ .GridClass }}">
     <!-- Full Card Click Overlay -->
     <div class="absolute inset-0 z-10 cursor-pointer" hx-get="/listings/{{ .Listing.ID }}" hx-target="body"
         hx-swap="beforeend">
@@ -142,4 +143,4 @@
             {{ end }}
         </div>
     </div>
-</div>
+</div>{{ end }}

@@ -144,11 +144,13 @@ function toggleListingFields(typeSelect) {
             if (descriptionLabel) descriptionLabel.textContent = "Job Description";
         } else {
             if (descriptionLabel) descriptionLabel.textContent = "Description";
-            if (val === 'Service' || val === 'Request') {
+            // Address is optional for Service, Request, Product, and Event
+            if (val === 'Service' || val === 'Request' || val === 'Product' || val === 'Event') {
                 addressInput.required = false;
                 addressInput.placeholder = "Address (Optional)";
                 if (locationLabel) locationLabel.textContent = "Address (Optional)";
             } else {
+                // Business, Food
                 addressInput.required = true;
                 addressInput.placeholder = "Start typing address...";
                 if (locationLabel) locationLabel.textContent = "Address (Validated)";
@@ -160,11 +162,15 @@ function toggleListingFields(typeSelect) {
     if (hoursSection) {
         const hoursInput = hoursSection.querySelector('input');
         // Allowed: Business, Service, Food
+        // Explicitly check for allowed types
         if (val === 'Business' || val === 'Service' || val === 'Food') {
             hoursSection.classList.remove('hidden');
+            hoursSection.style.display = ''; // Clear any inline styles
             if (hoursInput) hoursInput.disabled = false;
         } else {
+            // Product, Event, Job, Request
             hoursSection.classList.add('hidden');
+            hoursSection.style.display = ''; // Clear any inline styles
             if (hoursInput) {
                 hoursInput.value = '';
                 hoursInput.disabled = true;

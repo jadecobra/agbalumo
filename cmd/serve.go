@@ -36,60 +36,70 @@ var serveCmd = &cobra.Command{
 		// Initialize Echo instance
 		e := echo.New()
 
-		// Middleware
-		e.Use(middleware.Logger())
-		e.Use(middleware.Recover())
-		e.Use(customMiddleware.SecureHeaders)
-
-		// Rate Limiter
-		rateLimiter := customMiddleware.NewRateLimiter(customMiddleware.RateLimitConfig{
-			Rate:  20,
-			Burst: 40,
-		})
-		e.Use(rateLimiter.Middleware())
-
-		// CSRF Protection
-		e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
-			TokenLookup:    "header:X-CSRF-Token,form:_csrf",
-			CookiePath:     "/",
-			CookieName:     "_csrf",
-			CookieSameSite: http.SameSiteStrictMode,
-			CookieSecure:   env == "production",
-			CookieHTTPOnly: false,
-		}))
-
-		// Session Middleware
-		sessionKey := os.Getenv("SESSION_SECRET")
-		if sessionKey == "" {
-			// Fallback for dev, or panic in prod
-			if os.Getenv("AGBALUMO_ENV") == "production" {
-				log.Fatal("SESSION_SECRET must be set in production")
+		// Custom CSP Middleware
+		e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+			return func(c echo.Context) error {
+				// Strict CSP: No unsafe-inline
+				const csp = "default-src 'self'; script-src 'self' https://cdn.tailwindcss.com https://unpkg.com https://maps.googleapis.com; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; img-src 'self' data: https://*.googleusercontent.com https://ui-avatars.com https://maps.googleapis.com https://maps.gstatic.com; connect-src 'self' https://accounts.google.com https://maps.googleapis.com;"
+				c.Response().Header().Set("Content-Security-Policy", csp)
+				return next(c)
 			}
-			sessionKey = "dev-secret-key"
-			log.Println("[WARN] Using default dev session key")
-		}
-		store := sessions.NewCookieStore([]byte(sessionKey))
-		store.Options = &sessions.Options{
-			Path:     "/",
-			MaxAge:   86400 * 7, // 7 days
-			HttpOnly: true,
-			Secure:   env == "production", // Secure only in prod (or if using TLS in dev)
-			SameSite: http.SameSiteStrictMode,
-		}
-		e.Use(customMiddleware.SessionMiddleware(store))
+		})
 
-		// Database Initialization
-		dbPath := os.Getenv("DATABASE_URL")
-		if dbPath == "" {
-			dbPath = "agbalumo.db"
-		}
-		repo, err := sqlite.NewSQLiteRepository(dbPath)
-		if err != nil {
-			log.Fatalf("Failed to initialize database: %v", err)
-		}
+	// Rate Limiter
+	rateLimiter := customMiddleware.NewRateLimiter(customMiddleware.RateLimitConfig{
+		Rate:  20,
+		Burst: 40,
+	})
+	e.Use(rateLimiter.Middleware())
 
-		// Template Renderer
-		renderer, err := ui.NewTemplateRenderer("ui/templates/*.html", "ui/templates/partials/*.html")
+	// CSRF Protection
+	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+		TokenLookup:    "header:X-CSRF-Token,form:_csrf",
+		CookiePath:     "/",
+		CookieName:     "_csrf",
+		CookieSameSite: http.SameSiteStrictMode,
+		CookieSecure:   env == "production",
+		CookieHTTPOnly: false,
+	}))
+
+	// Session Middleware
+	sessionKey := os.Getenv("SESSION_SECRET")
+	if sessionKey == "" {
+		// Fallback for dev, or panic in prod
+		if os.Getenv("AGBALUMO_ENV") == "production" {
+			log.Fatal("SESSION_SECRET must be set in production")
+		}
+		sessionKey = "dev-secret-key"
+		log.Println("[WARN] Using default dev session key")
+	}
+	store := sessions.NewCookieStore([]byte(sessionKey))
+	store.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   86400 * 7, // 7 days
+		HttpOnly: true,
+		Secure:   env == "production", // Secure only in prod (or if using TLS in dev)
+		SameSite: http.SameSiteStrictMode,
+	}
+	e.Use(customMiddleware.SessionMiddleware(store))
+
+	// Database Initialization
+	dbPath := os.Getenv("DATABASE_URL")
+	if dbPath == "" {
+		dbPath = "agbalumo.db"
+	}
+	repo, err := sqlite.NewSQLiteRepository(dbPath)
+	if err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
+
+	// Template Renderer
+	// Include all necessary directories
+	renderer, err := ui.NewTemplateRenderer(
+		"ui/templates/*.html",
+		"ui/templates/partials/*.html",
+		"ui/templates/listings/*.html", // Added listings directory
+	)
 		if err != nil {
 			log.Fatalf("Failed to initialize template renderer: %v", err)
 		}

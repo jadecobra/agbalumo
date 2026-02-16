@@ -1,5 +1,6 @@
 - is full test suite run before every implementation and after, and are issues that arise fixed then committed?
 - is the server restarted after implementation/commit?
+- is the codebase reviewed for refactoring after implementation/commit?
 - does the audit pass before a commit is accepted?
 - can the admin bulk upload listings with a csv? is this tested with the CLI?
 - can the admin see all users by clicking on card that shows total number of users?

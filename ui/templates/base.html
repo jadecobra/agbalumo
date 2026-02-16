@@ -16,7 +16,7 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script src="/static/js/tailwind_config.js"></script>
-    <script src="/static/js/app.js"></script>
+    <script src="/static/js/app.js?v=2"></script>
     <style>
         .no-scrollbar::-webkit-scrollbar {
             display: none;
@@ -84,6 +84,11 @@
                     <div class="hidden md:flex items-center gap-4 shrink-0">
                         <!-- Navigation Links -->
                         <nav class="flex items-center gap-1">
+                            <button hx-get="/feedback/modal" hx-target="body" hx-swap="beforeend"
+                                class="p-2 rounded-full text-stone-500 hover:text-primary hover:bg-orange-50 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors"
+                                title="Feedback">
+                                <span class="material-symbols-outlined">feedback</span>
+                            </button>
                             <button
                                 class="p-2 rounded-full text-stone-500 hover:text-primary hover:bg-orange-50 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors"
                                 title="Saved">
