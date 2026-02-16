@@ -379,3 +379,57 @@ func TestFindAllByOwner(t *testing.T) {
 		t.Errorf("Expected 0 results for non-existent user, got %d", len(resultsEmpty))
 	}
 }
+
+func TestGetPendingListings(t *testing.T) {
+	repo, _ := newTestRepo(t)
+	ctx := context.Background()
+
+	// Seed mixed status
+	repo.Save(ctx, domain.Listing{ID: "1", Title: "Approved", Status: domain.ListingStatusApproved, CreatedAt: time.Now()})
+	repo.Save(ctx, domain.Listing{ID: "2", Title: "Pending 1", Status: domain.ListingStatusPending, CreatedAt: time.Now()})
+	repo.Save(ctx, domain.Listing{ID: "3", Title: "Rejected", Status: domain.ListingStatusRejected, CreatedAt: time.Now()})
+	repo.Save(ctx, domain.Listing{ID: "4", Title: "Pending 2", Status: domain.ListingStatusPending, CreatedAt: time.Now().Add(time.Hour)})
+
+	pending, err := repo.GetPendingListings(ctx)
+	if err != nil {
+		t.Fatalf("GetPendingListings failed: %v", err)
+	}
+
+	if len(pending) != 2 {
+		t.Errorf("Expected 2 pending listings, got %d", len(pending))
+	}
+	
+	// Verify order (Oldest first as per sqlite impl "ORDER BY created_at ASC")
+	// Although the SQL says ASC, let's verify.
+	// Pending 1 created now, Pending 2 created now+1h. 
+	// Pending 1 is older (smaller time), so it should be first.
+	if pending[0].Title != "Pending 1" {
+		t.Errorf("Expected first pending to be 'Pending 1', got '%s'", pending[0].Title)
+	}
+}
+
+func TestGetUserCount(t *testing.T) {
+	repo, _ := newTestRepo(t)
+	ctx := context.Background()
+
+	// Should be 0 initially
+	c, err := repo.GetUserCount(ctx)
+	if err != nil {
+		t.Fatalf("Failed to get count: %v", err)
+	}
+	if c != 0 {
+		t.Errorf("Expected 0 users, got %d", c)
+	}
+
+	// Add Users
+	repo.SaveUser(ctx, domain.User{ID: "u1", GoogleID: "g1", Email: "e1", CreatedAt: time.Now()})
+	repo.SaveUser(ctx, domain.User{ID: "u2", GoogleID: "g2", Email: "e2", CreatedAt: time.Now()})
+
+	c, err = repo.GetUserCount(ctx)
+	if err != nil {
+		t.Fatalf("Failed to get count after add: %v", err)
+	}
+	if c != 2 {
+		t.Errorf("Expected 2 users, got %d", c)
+	}
+}

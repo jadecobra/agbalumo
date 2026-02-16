@@ -107,3 +107,24 @@ func TestSubmitFeedback(t *testing.T) {
 		})
 	}
 }
+
+func TestHandleModal(t *testing.T) {
+	// Setup
+	c, rec := setupTestContext(http.MethodGet, "/feedback/modal", nil)
+	repo := &mock.MockListingRepository{}
+	h := handler.NewFeedbackHandler(repo)
+
+	// Execute
+	err := h.HandleModal(c)
+
+	// Verify
+	if err != nil {
+		t.Errorf("HandleModal returned error: %v", err)
+	}
+	if rec.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", rec.Code)
+	}
+	// Verify template name if possible, or at least content if rendered
+	// Since we mock renderer usually in setupTestContext, we might check that.
+	// But here we just check no error and 200 OK which implies render called.
+}

@@ -40,6 +40,7 @@ func NewMainTemplate() *template.Template {
 	t.New("admin_login.html").Parse(`Login Form: {{if .Error}}{{.Error}}{{end}}`)
 	t.New("admin_dashboard.html").Parse(`Dashboard: {{len .PendingListings}} items`)
 	t.New("modal_edit_listing.html").Parse(`Edit: {{.Title}}`)
+	t.New("modal_feedback.html").Parse(`Feedback Modal`)
 	t.New("error.html").Parse(`Error Page`)
 	return t
 }
