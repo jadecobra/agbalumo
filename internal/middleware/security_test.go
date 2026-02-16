@@ -42,4 +42,8 @@ func TestSecureHeaders(t *testing.T) {
 	if csp := headers.Get("Content-Security-Policy"); csp == "" {
 		t.Error("Expected Content-Security-Policy header to be set")
 	}
+
+	if perm := headers.Get("Permissions-Policy"); perm == "" {
+		t.Error("Expected Permissions-Policy header to be set")
+	}
 }

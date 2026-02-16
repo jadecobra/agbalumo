@@ -29,6 +29,7 @@ func SecureHeaders(next echo.HandlerFunc) echo.HandlerFunc {
 		c.Response().Header().Set("X-XSS-Protection", "1; mode=block")
 		c.Response().Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
 		c.Response().Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+		c.Response().Header().Set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
 
 		return next(c)
 	}

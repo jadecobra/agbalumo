@@ -335,9 +335,18 @@ func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error
 }
 
 func (h *ListingHandler) saveUploadedImage(c echo.Context, listingID string) (string, error) {
+	// Limit upload size (Max 5MB)
+	// Echo has a global limit, but we can check here too or rely on request body limit.
+	// However, checking file size explicitly is safer.
+	const maxUploadSize = 5 * 1024 * 1024 // 5MB
+
 	file, err := c.FormFile("image")
 	if err != nil {
 		return "", nil // No file uploaded
+	}
+
+	if file.Size > maxUploadSize {
+		return "", echo.NewHTTPError(http.StatusBadRequest, "File size exceeds 5MB limit")
 	}
 
 	src, err := file.Open()
@@ -346,6 +355,24 @@ func (h *ListingHandler) saveUploadedImage(c echo.Context, listingID string) (st
 	}
 	defer src.Close()
 
+	// 1. Validate File Content (Magic Bytes)
+	buff := make([]byte, 512)
+	_, err = src.Read(buff)
+	if err != nil {
+		return "", err
+	}
+
+	fileType := http.DetectContentType(buff)
+	if fileType != "image/jpeg" && fileType != "image/png" && fileType != "image/webp" {
+		return "", echo.NewHTTPError(http.StatusBadRequest, "Invalid file type. Only JPEG, PNG, and WebP are allowed.")
+	}
+
+	// Reset file pointer after reading magic bytes
+	_, err = src.Seek(0, 0)
+	if err != nil {
+		return "", err
+	}
+
 	// Ensure directory exists
 	// Note: In production this path should be configurable/absolute
 	uploadDir := "ui/static/uploads"
@@ -353,15 +380,21 @@ func (h *ListingHandler) saveUploadedImage(c echo.Context, listingID string) (st
 		return "", err
 	}
 
-	// We use a simple strategy of listingID.jpg for now, or timestamped for updates if needed.
-	// To keep it simple and consistent:
-	// For updates, we might start accumulating garbage if we timestamp.
-	// But browser caching is real.
-	// Let's stick to a simple filename + timestamp param in URL if needed, or just overwrite.
-	// To match previous update logic: timestamp was separate.
-	// Let's simplify: listingID.jpg. If it exists, overwrite.
-	// Browser cache busting can be handled by the frontend adding ?v=...
-	filename := listingID + ".jpg"
+	// We use a simple strategy of listingID.jpg for now
+	// Ideally, we should preserve extension based on detected type, but for now we enforce jpg extension in storage
+	// or just use the detected extension.
+	// Let's stick to .jpg for simplicity as per current code, OR switch to correct extension.
+	// Switching to correct extension is better but requires database update if we stored just the ID.
+	// The current DB stores `image_url` string. So we can save with correct extension.
+	
+	ext := ".jpg"
+	if fileType == "image/png" {
+		ext = ".png"
+	} else if fileType == "image/webp" {
+		ext = ".webp"
+	}
+
+	filename := listingID + ext
 	dstPath := uploadDir + "/" + filename
 	dst, err := os.Create(dstPath)
 	if err != nil {

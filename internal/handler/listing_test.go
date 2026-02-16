@@ -473,11 +473,12 @@ func TestHandleCreate_WithImage(t *testing.T) {
 	writer.WriteField("address", "123 Image St")
 
 	// File
-	part, err := writer.CreateFormFile("image", "test.jpg")
+	part, err := writer.CreateFormFile("image", "test.png")
 	if err != nil {
 		t.Fatal(err)
 	}
-	part.Write([]byte("fake image content"))
+	// Write valid PNG signature (magic bytes)
+	part.Write([]byte{0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A})
 	writer.Close()
 
 	req := httptest.NewRequest(http.MethodPost, "/listings", body)

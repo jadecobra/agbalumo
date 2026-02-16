@@ -315,3 +315,87 @@ func TestHoursOfOperationRestriction(t *testing.T) {
 }
 
 
+func TestListing_Validate_Length(t *testing.T) {
+	longString := func(n int) string {
+		b := make([]byte, n)
+		for i := range b {
+			b[i] = 'a'
+		}
+		return string(b)
+	}
+
+	tests := []struct {
+		name    string
+		listing Listing
+		wantErr bool
+	}{
+		{
+			name: "Title too long (>100)",
+			listing: Listing{
+				ID:          "1",
+				OwnerOrigin: "Nigeria",
+				Type:        Business,
+				Title:       longString(101),
+				Description: "Valid",
+				Address:     "Valid",
+				ContactEmail: "test@test.com",
+			},
+			wantErr: true,
+		},
+		{
+			name: "Description too long (>2000)",
+			listing: Listing{
+				ID:          "2",
+				OwnerOrigin: "Nigeria",
+				Type:        Business,
+				Title:       "Valid",
+				Description: longString(2001),
+				Address:     "Valid",
+				ContactEmail: "test@test.com",
+			},
+			wantErr: true,
+		},
+		{
+			name: "Company too long (>100)",
+			listing: Listing{
+				ID:           "3",
+				OwnerOrigin:  "Nigeria",
+				Type:         Job,
+				Title:        "Valid",
+				Description:  "Valid",
+				Company:      longString(101),
+				Skills:       "Go",
+				PayRange:     "100k",
+				JobStartDate: time.Now().Add(24 * time.Hour),
+				JobApplyURL:  "http://test.com",
+				City:         "Lagos",
+				ContactEmail: "test@test.com",
+			},
+			wantErr: true,
+		},
+		{
+			name: "Address too long (>200)",
+			listing: Listing{
+				ID:          "4",
+				OwnerOrigin: "Nigeria",
+				Type:        Business,
+				Title:       "Valid",
+				Description: "Valid",
+				Address:     longString(201),
+				ContactEmail: "test@test.com",
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.listing.Validate()
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}

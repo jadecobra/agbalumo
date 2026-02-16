@@ -174,5 +174,19 @@ func (l *Listing) Validate() error {
 		}
 	}
 
+	// Length Validation
+	if len(l.Title) > 100 {
+		return errors.New("title cannot exceed 100 characters")
+	}
+	if len(l.Description) > 2000 {
+		return errors.New("description cannot exceed 2000 characters")
+	}
+	if len(l.Company) > 100 {
+		return errors.New("company name cannot exceed 100 characters")
+	}
+	if len(l.Address) > 200 {
+		return errors.New("address cannot exceed 200 characters")
+	}
+
 	return nil
 }
