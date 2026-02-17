@@ -35,6 +35,7 @@ fi
 
 # Start the new server in the background
 echo "🚀 Starting new server instance..."
+export AGBALUMO_ENV=development
 nohup ./bin/agbalumo serve > server.log 2>&1 &
 NEW_PID=$!
 echo "Server started with PID: $NEW_PID"

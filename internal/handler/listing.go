@@ -93,11 +93,35 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 		return c.String(http.StatusNotFound, "Listing not found")
 	}
 
-	user := c.Get("User")
+	var user domain.User
+	var ok bool
+	u := c.Get("User")
+	if u != nil {
+		user, ok = u.(domain.User)
+	}
+
+	// Claimable Types
+	claimable := map[domain.Category]bool{
+		domain.Business: true,
+		domain.Service:  true,
+		domain.Product:  true,
+		domain.Event:    true,
+	}
+
+	// Check if the current user can claim this listing
+	// Criteria: Listing has no owner AND is a claimable type
+	canClaim := listing.OwnerID == "" && claimable[listing.Type]
+
+	isOwner := false
+	if ok {
+		isOwner = listing.OwnerID == user.ID
+	}
 
 	return c.Render(http.StatusOK, "modal_detail", map[string]interface{}{
-		"Listing": listing,
-		"User":    user,
+		"Listing":  listing,
+		"User":     user,
+		"IsOwner":  isOwner,
+		"CanClaim": canClaim,
 	})
 }
 
@@ -120,6 +144,57 @@ func (h *ListingHandler) HandleEdit(c echo.Context) error {
 		"Listing":          listing,
 		"GoogleMapsApiKey": os.Getenv("GOOGLE_MAPS_API_KEY"),
 	})
+}
+
+// HandleAbout renders the generic about page.
+func (h *ListingHandler) HandleAbout(c echo.Context) error {
+	return c.Render(http.StatusOK, "about.html", map[string]interface{}{
+		"User": c.Get("User"),
+	})
+}
+
+// HandleClaim processes a request to claim an unowned listing.
+func (h *ListingHandler) HandleClaim(c echo.Context) error {
+	user, ok := c.Get("User").(domain.User)
+	if !ok {
+		// If not logged in, redirect to login
+		// For HTMX, this might need a specific header to trigger client-side redirect,
+		// but standard redirect often works if HX-Redirect handled or simple link.
+		// Given detail modal handles logic, we stick to standard redirect fallback.
+		return c.Redirect(http.StatusFound, "/auth/google/login")
+	}
+
+	id := c.Param("id")
+	listing, err := h.Repo.FindByID(c.Request().Context(), id)
+	if err != nil {
+		return RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
+	}
+
+	// Verify listing is unclaimed (OwnerID is empty)
+	if listing.OwnerID != "" {
+		return RespondError(c, echo.NewHTTPError(http.StatusForbidden, "This listing is already owned"))
+	}
+
+	// Verify Type is claimable
+	claimable := map[domain.Category]bool{
+		domain.Business: true,
+		domain.Service:  true,
+		domain.Product:  true,
+		domain.Event:    true,
+	}
+	if !claimable[listing.Type] {
+		return RespondError(c, echo.NewHTTPError(http.StatusForbidden, "This listing type cannot be claimed"))
+	}
+
+	// Assign owner
+	listing.OwnerID = user.ID
+	if err := h.Repo.Save(c.Request().Context(), listing); err != nil {
+		return RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Failed to claim listing"))
+	}
+
+	// Success - Render the updated detail modal (HTMX Swap)
+	// We reuse HandleDetail logic to re-fetch and render the modal
+	return h.HandleDetail(c)
 }
 
 type ListingFormRequest struct {
@@ -420,11 +495,4 @@ func (h *ListingHandler) saveUploadedImage(c echo.Context, listingID string) (st
 		return "", err
 	}
 	return "/static/uploads/" + filename, nil
-}
-
-// HandleAbout renders the generic about page.
-func (h *ListingHandler) HandleAbout(c echo.Context) error {
-	return c.Render(http.StatusOK, "about.html", map[string]interface{}{
-		"User": c.Get("User"),
-	})
 }

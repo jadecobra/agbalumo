@@ -670,3 +670,95 @@ func TestHandleAbout(t *testing.T) {
 		t.Errorf("Expected body to contain 'About Page', got %q", rec.Body.String())
 	}
 }
+
+func TestHandleClaim(t *testing.T) {
+	tests := []struct {
+		name           string
+		user           interface{} // nil or domain.User
+		mockSetup      func() *mock.MockListingRepository
+		expectedStatus int
+	}{
+		{
+			name: "Unauthenticated",
+			user: nil,
+			mockSetup: func() *mock.MockListingRepository {
+				return &mock.MockListingRepository{}
+			},
+			expectedStatus: http.StatusFound, // Redirect to login
+		},
+		{
+			name: "ListingNotFound",
+			user: domain.User{ID: "claimer"},
+			mockSetup: func() *mock.MockListingRepository {
+				return &mock.MockListingRepository{
+					FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
+						return domain.Listing{}, errors.New("not found")
+					},
+				}
+			},
+			expectedStatus: http.StatusNotFound,
+		},
+		{
+			name: "AlreadyOwned",
+			user: domain.User{ID: "claimer"},
+			mockSetup: func() *mock.MockListingRepository {
+				return &mock.MockListingRepository{
+					FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
+						return domain.Listing{ID: "1", OwnerID: "existing-owner"}, nil
+					},
+				}
+			},
+			expectedStatus: http.StatusForbidden,
+		},
+		{
+			name: "Success",
+			user: domain.User{ID: "claimer"},
+			mockSetup: func() *mock.MockListingRepository {
+				return &mock.MockListingRepository{
+					FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
+						// Must specify a claimable type
+						return domain.Listing{ID: "1", OwnerID: "", Type: domain.Business}, nil
+					},
+					SaveFn: func(ctx context.Context, l domain.Listing) error {
+						if l.OwnerID != "claimer" {
+							return errors.New("owner id not updated")
+						}
+						return nil
+					},
+				}
+			},
+			expectedStatus: http.StatusOK, // HTMX request returns modal HTML (200), not Redirect (302)
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			e := echo.New()
+			e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+			req := httptest.NewRequest(http.MethodPost, "/listings/1/claim", nil)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.SetPath("/listings/:id/claim")
+			c.SetParamNames("id")
+			c.SetParamValues("1")
+
+			if tt.user != nil {
+				c.Set("User", tt.user)
+			}
+
+			h := handler.NewListingHandler(tt.mockSetup())
+
+			// We need to handle the internal error response manually in test if using RespondError
+			// But RespondError calls c.Render("error.html"), which we mocked.
+			// However, in our test setup, RespondError is in the handler package, so it uses the real logic?
+			// No, it's called by HandleClaim. The test just checks the response code recorded.
+			// If RespondError renders 404, the status code will be 404.
+
+			_ = h.HandleClaim(c)
+
+			if rec.Code != tt.expectedStatus {
+				t.Errorf("Expected status %d, got %d", tt.expectedStatus, rec.Code)
+			}
+		})
+	}
+}

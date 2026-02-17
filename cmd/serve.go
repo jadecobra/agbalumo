@@ -138,6 +138,9 @@ var serveCmd = &cobra.Command{
 		e.GET("/feedback/modal", feedbackHandler.HandleModal, authHandler.RequireAuth)
 		e.POST("/feedback", feedbackHandler.HandleSubmit, authHandler.RequireAuth)
 
+		// Claim Route
+		e.POST("/listings/:id/claim", listingHandler.HandleClaim, authHandler.RequireAuth)
+
 		// Admin Routes
 		adminGroup := e.Group("/admin")
 		// Use the OptionalAuth middleware first to populate the user context, then AdminMiddleware

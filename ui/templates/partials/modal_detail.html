@@ -47,6 +47,17 @@
                     Edit Listing
                 </button>
                 {{ end }}
+
+                {{ if .CanClaim }}
+                <form hx-post="/listings/{{.Listing.ID}}/claim" hx-target="closest dialog" hx-swap="outerHTML"
+                    class="inline">
+                    <button type="submit"
+                        class="bg-orange-100 hover:bg-orange-200 text-orange-700 text-xs font-bold px-3 py-1 rounded-full border border-orange-200 transition-colors flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[14px]">verified</span>
+                        Claim this Listing
+                    </button>
+                </form>
+                {{ end }}
             </div>
 
             {{ if .Listing.HoursOfOperation }}
