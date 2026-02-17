@@ -1,5 +1,10 @@
-tailwind.config = {
-    darkMode: "class",
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+    darkMode: 'class',
+    content: [
+        "./ui/templates/**/*.html",
+        "./internal/**/*.go",
+    ],
     theme: {
         extend: {
             colors: {
@@ -26,4 +31,8 @@ tailwind.config = {
             }
         },
     },
+    plugins: [
+        require('@tailwindcss/forms'),
+        require('@tailwindcss/container-queries'),
+    ],
 }

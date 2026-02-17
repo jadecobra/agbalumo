@@ -1,0 +1,28 @@
+{
+  "name": "agbalumo",
+  "version": "1.0.0",
+  "description": "A robust web application platform.",
+  "main": "index.js",
+  "scripts": {
+    "build:css": "tailwindcss -i ./ui/static/css/input.css -o ./ui/static/css/output.css --minify",
+    "watch:css": "tailwindcss -i ./ui/static/css/input.css -o ./ui/static/css/output.css --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jadecobra/agbalumo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/jadecobra/agbalumo/issues"
+  },
+  "homepage": "https://github.com/jadecobra/agbalumo#readme",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.18",
+    "@tailwindcss/container-queries": "^0.1.1",
+    "@tailwindcss/forms": "^0.5.11",
+    "tailwindcss": "^4.1.18"
+  }
+}

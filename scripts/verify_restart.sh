@@ -7,7 +7,11 @@ export PATH=$PATH:/opt/homebrew/bin
 echo "🔍 Running Quality Checks..."
 ./scripts/pre-commit.sh
 
-# 2. Build the Server
+# 2. Build Assets & Server
+echo "🎨 Building CSS..."
+export PATH=$PATH:/opt/homebrew/bin
+npm run build:css
+
 echo "🔨 Building Server..."
 mkdir -p bin
 go build -o bin/agbalumo main.go

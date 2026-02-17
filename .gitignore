@@ -13,6 +13,8 @@ certs/
 *.out
 .idea/
 .vscode/
+# Node
+node_modules/
 server.log
 
 /server
