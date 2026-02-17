@@ -18,6 +18,8 @@ import (
 	"golang.org/x/oauth2/google"
 )
 
+var googleUserInfoURL = "https://www.googleapis.com/oauth2/v2/userinfo"
+
 // -- Google Interaction Abstraction --
 
 type GoogleUser struct {
@@ -92,7 +94,7 @@ func (p *RealGoogleProvider) Exchange(ctx context.Context, code string, host str
 }
 
 func (p *RealGoogleProvider) GetUserInfo(ctx context.Context, token *oauth2.Token) (*GoogleUser, error) {
-	resp, err := http.Get("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + token.AccessToken)
+	resp, err := http.Get(googleUserInfoURL + "?access_token=" + token.AccessToken)
 	if err != nil {
 		return nil, err
 	}

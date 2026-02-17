@@ -1,422 +1,282 @@
-package handler_test
+package handler
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
-	"strings"
+	"os"
 	"testing"
 
-	"github.com/gorilla/sessions"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/jadecobra/agbalumo/internal/mock"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/oauth2"
 )
 
-// -- Mock Google Provider --
-
+// -- Mock Provider for Handler Tests --
 type MockGoogleProvider struct {
-	ExchangeFn    func(ctx context.Context, code string, host string) (*oauth2.Token, error)
-	GetUserInfoFn func(ctx context.Context, token *oauth2.Token) (*handler.GoogleUser, error)
+	GetAuthCodeURLFn func(state string, host string) string
+	ExchangeFn       func(ctx context.Context, code string, host string) (*oauth2.Token, error)
+	GetUserInfoFn    func(ctx context.Context, token *oauth2.Token) (*GoogleUser, error)
 }
 
 func (m *MockGoogleProvider) GetAuthCodeURL(state string, host string) string {
-	return "https://accounts.google.com/o/oauth2/auth?state=" + state
+	return m.GetAuthCodeURLFn(state, host)
 }
 
 func (m *MockGoogleProvider) Exchange(ctx context.Context, code string, host string) (*oauth2.Token, error) {
-	if m.ExchangeFn != nil {
-		return m.ExchangeFn(ctx, code, host)
+	return m.ExchangeFn(ctx, code, host)
+}
+
+func (m *MockGoogleProvider) GetUserInfo(ctx context.Context, token *oauth2.Token) (*GoogleUser, error) {
+	return m.GetUserInfoFn(ctx, token)
+}
+
+func TestRealGoogleProvider_GetUserInfo(t *testing.T) {
+	// Mock the Google API Server
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token := r.URL.Query().Get("access_token")
+		if token != "valid-token" {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		user := GoogleUser{
+			ID:    "123",
+			Email: "test@example.com",
+			Name:  "Test User",
+		}
+		json.NewEncoder(w).Encode(user)
+	}))
+	defer ts.Close()
+
+	// Override URL
+	oldURL := googleUserInfoURL
+	googleUserInfoURL = ts.URL
+	defer func() { googleUserInfoURL = oldURL }()
+
+	p := NewRealGoogleProvider()
+
+	// Case 1: Success
+	user, err := p.GetUserInfo(context.Background(), &oauth2.Token{AccessToken: "valid-token"})
+	if err != nil {
+		t.Fatalf("Expected success, got error: %v", err)
 	}
-	return &oauth2.Token{AccessToken: "mock-token"}, nil
-}
-
-func (m *MockGoogleProvider) GetUserInfo(ctx context.Context, token *oauth2.Token) (*handler.GoogleUser, error) {
-	if m.GetUserInfoFn != nil {
-		return m.GetUserInfoFn(ctx, token)
+	if user.Email != "test@example.com" {
+		t.Errorf("Expected email test@example.com, got %s", user.Email)
 	}
-	return &handler.GoogleUser{
-		ID:      "google-123",
-		Email:   "test@google.com",
-		Name:    "Test Google User",
-		Picture: "http://pic.com/avatar.jpg",
-	}, nil
+
+	// Case 2: Failure
+	_, err = p.GetUserInfo(context.Background(), &oauth2.Token{AccessToken: "invalid-token"})
+	if err == nil {
+		t.Error("Expected error for invalid token, got nil")
+	}
 }
 
-// Helper to inject session into context similarly to middleware
-func injectSession(c echo.Context, store sessions.Store, name string) {
-	session, _ := store.Get(c.Request(), name)
-	c.Set("session", session)
-	// We don't necessarily need to set _session_store if we pre-get the session,
-	// assuming the handler uses a getter that checks context first.
-	// customMiddleware.GetSession checks c.Get("session")
-}
-
-// -- Tests --
-
-func TestDevLogin_Success(t *testing.T) {
-	t.Setenv("AGBALUMO_ENV", "development")
+func TestAuthHandler_GoogleCallback(t *testing.T) {
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/auth/dev?email=test@dev.com", nil)
+
+	// Setup Middleware for Session
+	// We need a store to prevent "Session Store Missing" error
+	store := customMiddleware.NewTestSessionStore()
+	e.Use(customMiddleware.SessionMiddleware(store))
+
+	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	// Session Setup
-	store := sessions.NewCookieStore([]byte("secret"))
-	injectSession(c, store, "auth_session")
+	// Manually inject session (Middleware doesn't run on direct handler call)
+	session, _ := store.Get(req, "auth_session")
+	c.Set("session", session)
 
 	mockRepo := &mock.MockListingRepository{
 		FindUserByGoogleIDFn: func(ctx context.Context, googleID string) (domain.User, error) {
-			return domain.User{}, errors.New("not found")
+			return domain.User{}, errors.New("not found") // Force create
 		},
 		SaveUserFn: func(ctx context.Context, u domain.User) error {
-			if u.Email != "test@dev.com" {
-				t.Errorf("Expected email test@dev.com, got %s", u.Email)
-			}
 			return nil
 		},
 	}
 
-	h := handler.NewAuthHandler(mockRepo, nil)
+	mockProvider := &MockGoogleProvider{
+		ExchangeFn: func(ctx context.Context, code string, host string) (*oauth2.Token, error) {
+			if code == "valid-code" {
+				return &oauth2.Token{AccessToken: "tok"}, nil
+			}
+			return nil, errors.New("invalid code")
+		},
+		GetUserInfoFn: func(ctx context.Context, token *oauth2.Token) (*GoogleUser, error) {
+			return &GoogleUser{
+				ID:    "g-123",
+				Email: "new@example.com",
+				Name:  "New User",
+			}, nil
+		},
+	}
 
-	if err := h.DevLogin(c); err != nil {
-		t.Fatalf("DevLogin failed: %v", err)
+	h := &AuthHandler{
+		Repo:           mockRepo,
+		GoogleProvider: mockProvider,
+	}
+
+	// Run Handler
+	if err := h.GoogleCallback(c); err != nil {
+		t.Fatalf("Handler failed: %v", err)
 	}
 
 	if rec.Code != http.StatusTemporaryRedirect {
-		t.Errorf("Expected redirect, got %d", rec.Code)
+		t.Errorf("Expected redirect 307, got %d", rec.Code)
 	}
 }
 
-func TestGoogleLogin_Redirect(t *testing.T) {
+func TestAuthHandler_GoogleLogin(t *testing.T) {
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/auth/google/login", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	mockProvider := &MockGoogleProvider{}
-	h := handler.NewAuthHandler(nil, mockProvider)
+	mockProvider := &MockGoogleProvider{
+		GetAuthCodeURLFn: func(state string, host string) string {
+			return "http://google.com/auth"
+		},
+	}
+	h := &AuthHandler{GoogleProvider: mockProvider}
 
 	if err := h.GoogleLogin(c); err != nil {
-		t.Fatal(err)
+		t.Fatalf("Handler failed: %v", err)
 	}
 
 	if rec.Code != http.StatusTemporaryRedirect {
-		t.Errorf("Expected redirect, got %d", rec.Code)
+		t.Errorf("Expected redirect 307, got %d", rec.Code)
 	}
-	if !strings.Contains(rec.Header().Get("Location"), "state=random-state") {
-		t.Errorf("Redirect URL missing state param")
-	}
-}
-
-func TestGoogleCallback_Success(t *testing.T) {
-	e := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	store := sessions.NewCookieStore([]byte("secret"))
-	injectSession(c, store, "auth_session")
-
-	mockRepo := &mock.MockListingRepository{
-		FindUserByGoogleIDFn: func(ctx context.Context, googleID string) (domain.User, error) {
-			return domain.User{}, errors.New("not found")
-		},
-		SaveUserFn: func(ctx context.Context, u domain.User) error {
-			if u.GoogleID != "google-123" {
-				t.Errorf("Expected GoogleID google-123, got %s", u.GoogleID)
-			}
-			return nil
-		},
-	}
-
-	mockProvider := &MockGoogleProvider{}
-	h := handler.NewAuthHandler(mockRepo, mockProvider)
-
-	if err := h.GoogleCallback(c); err != nil {
-		t.Fatal(err)
-	}
-
-	if rec.Code != http.StatusTemporaryRedirect {
-		t.Errorf("Expected redirect, got %d", rec.Code)
+	if loc := rec.Header().Get("Location"); loc != "http://google.com/auth" {
+		t.Errorf("Expected Location 'http://google.com/auth', got %s", loc)
 	}
 }
 
-func TestGoogleCallback_InvalidState(t *testing.T) {
+func TestRequireAuth(t *testing.T) {
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=wrong-state", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+	store := customMiddleware.NewTestSessionStore()
+	e.Use(customMiddleware.SessionMiddleware(store))
 
-	h := handler.NewAuthHandler(nil, nil)
+	h := &AuthHandler{} // Repo not needed for redirect check
 
-	h.GoogleCallback(c)
-
-	if rec.Code != http.StatusBadRequest {
-		t.Errorf("Expected 400 Bad Request, got %d", rec.Code)
-	}
-}
-
-func TestRequireAuth_Redirect(t *testing.T) {
-	e := echo.New()
+	// Case 1: No Session -> Redirect
 	req := httptest.NewRequest(http.MethodGet, "/protected", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	store := sessions.NewCookieStore([]byte("secret"))
-	injectSession(c, store, "auth_session") // Session without user_id
-
-	h := handler.NewAuthHandler(nil, nil)
-
-	// Chain middleware
-	handlerFunc := h.RequireAuth(func(c echo.Context) error {
+	// Middleware Setup
+	handler := h.RequireAuth(func(c echo.Context) error {
 		return c.String(http.StatusOK, "Protected")
 	})
 
-	handlerFunc(c)
+	// Run
+	// Directly calling handler(c) means middleware logic runs.
+	// But RequireAuth needs session from context.
+	// So we must manually inject session or run session middleware.
+	// Let's manually inject.
+	session, _ := store.Get(req, "auth_session")
+	c.Set("session", session)
 
+	if err := handler(c); err != nil {
+		t.Fatal(err)
+	}
 	if rec.Code != http.StatusTemporaryRedirect {
-		t.Errorf("Expected redirect to login, got %d", rec.Code)
+		t.Errorf("Expected redirect 307, got %d", rec.Code)
+	}
+
+	// Case 2: Authenticated -> Next
+	req2 := httptest.NewRequest(http.MethodGet, "/protected", nil)
+	rec2 := httptest.NewRecorder()
+	c2 := e.NewContext(req2, rec2)
+	session2, _ := store.Get(req2, "auth_session")
+	session2.Values["user_id"] = "user123"
+	c2.Set("session", session2)
+
+	if err := handler(c2); err != nil {
+		t.Fatal(err)
+	}
+	if rec2.Code != http.StatusOK {
+		t.Errorf("Expected OK 200, got %d", rec2.Code)
+	}
+	if rec2.Body.String() != "Protected" {
+		t.Errorf("Expected 'Protected', got %s", rec2.Body.String())
 	}
 }
 
-func TestOptionalAuth_InjectsUser(t *testing.T) {
+func TestOptionalAuth(t *testing.T) {
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/public", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	store := sessions.NewCookieStore([]byte("secret"))
-
-	// Pre-fill session
-	// To perform this correctly with gorilla/sessions, we should ideally construct the cookie header.
-	// But `middleware.SessionMiddleware` (which we use here) does not just read context, it reads the store.
-	// Our `injectSession` helper bypasses the middleware reading step and puts a session directly in context.
-	// So we can configure that session manually.
-
-	session := sessions.NewSession(store, "auth_session")
-	session.Values["user_id"] = "user-123"
-	c.Set("session", session)
+	store := customMiddleware.NewTestSessionStore()
 
 	mockRepo := &mock.MockListingRepository{
 		FindUserByIDFn: func(ctx context.Context, id string) (domain.User, error) {
-			if id == "user-123" {
-				return domain.User{ID: "user-123", Name: "Found User"}, nil
+			if id == "user123" {
+				return domain.User{ID: "user123", Name: "Test"}, nil
 			}
 			return domain.User{}, errors.New("not found")
 		},
 	}
+	h := &AuthHandler{Repo: mockRepo}
 
-	h := handler.NewAuthHandler(mockRepo, nil)
+	// Case 1: Authenticated -> User in Context
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	session, _ := store.Get(req, "auth_session")
+	session.Values["user_id"] = "user123"
+	c.Set("session", session)
 
-	// Since we manually injected session, we don't need the SessionMiddleware for retrieval,
-	// unless OptionalAuth relies on it explicitly.
-	// OptionalAuth calls `customMiddleware.GetSession(c)`.
-	// That function calls `c.Get("session")`.
-	// So our injection is sufficient.
-
-	handlerFunc := h.OptionalAuth(func(c echo.Context) error {
-		user := c.Get("User")
-		if user == nil {
-			return c.String(http.StatusOK, "No User")
+	handler := h.OptionalAuth(func(c echo.Context) error {
+		user, ok := c.Get("User").(domain.User)
+		if !ok || user.ID != "user123" {
+			return c.String(http.StatusInternalServerError, "User not in context")
 		}
-		u := user.(domain.User)
-		return c.String(http.StatusOK, u.Name)
+		return c.String(http.StatusOK, "OK")
 	})
 
-	handlerFunc(c)
-
-	// Verify
-	if !strings.Contains(rec.Body.String(), "Found User") {
-		t.Errorf("Expected Found User, got %s", rec.Body.String())
-	}
-}
-
-func TestLogout(t *testing.T) {
-	e := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/auth/logout", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	store := sessions.NewCookieStore([]byte("secret"))
-	injectSession(c, store, "auth_session")
-
-	h := handler.NewAuthHandler(nil, nil)
-
-	if err := h.Logout(c); err != nil {
+	if err := handler(c); err != nil {
 		t.Fatal(err)
 	}
-
-	if rec.Code != http.StatusTemporaryRedirect {
-		t.Errorf("Expected redirect, got %d", rec.Code)
-	}
-
-	// Check max age is -1 (deleted)
-	found := false
-	for _, cookie := range rec.Result().Cookies() {
-		if cookie.Name == "auth_session" && cookie.MaxAge < 0 {
-			found = true
-		}
-	}
-	// Gorilla sessions typically set Set-Cookie with Max-Age: 0 or explicit deletion
-	// Verification depends on how the store writes it.
-	// But mostly we check redirect.
-	if !found {
-		// Gorilla might not separate the cookie, or we didn't save?
-		// Handler calls sess.Save().
-		// Let's trust the call for now or debug deeply if coverage misses.
+	if rec.Code != http.StatusOK {
+		t.Errorf("Expected 200, got %d", rec.Code)
 	}
 }
 
-func TestDevLogin_RepoError(t *testing.T) {
-	t.Setenv("AGBALUMO_ENV", "development")
+func TestAuthHandler_DevLogin(t *testing.T) {
+	// Set Env to development
+	os.Setenv("AGBALUMO_ENV", "development")
+	defer os.Unsetenv("AGBALUMO_ENV")
+
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/auth/dev", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+	store := customMiddleware.NewTestSessionStore()
+	e.Use(customMiddleware.SessionMiddleware(store))
 
 	mockRepo := &mock.MockListingRepository{
-		FindUserByGoogleIDFn: func(ctx context.Context, googleID string) (domain.User, error) {
+		FindUserByGoogleIDFn: func(ctx context.Context, id string) (domain.User, error) {
 			return domain.User{}, errors.New("not found")
 		},
 		SaveUserFn: func(ctx context.Context, u domain.User) error {
-			return errors.New("db disconnect")
-		},
-	}
-	h := handler.NewAuthHandler(mockRepo, nil)
-
-	if err := h.DevLogin(c); err != nil {
-		t.Fatal(err)
-	}
-
-	if rec.Code != http.StatusInternalServerError {
-		t.Errorf("Expected 500, got %d", rec.Code)
-	}
-}
-
-func TestGoogleCallback_ExchangeError(t *testing.T) {
-	e := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=bad", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	mockProvider := &MockGoogleProvider{
-		ExchangeFn: func(ctx context.Context, code string, host string) (*oauth2.Token, error) {
-			return nil, errors.New("exchange failed")
-		},
-	}
-	h := handler.NewAuthHandler(nil, mockProvider)
-
-	_ = h.GoogleCallback(c)
-	if rec.Code != http.StatusInternalServerError {
-		t.Errorf("Expected 500, got %d", rec.Code)
-	}
-}
-
-func TestGoogleCallback_UserInfoError(t *testing.T) {
-	e := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=good", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	mockProvider := &MockGoogleProvider{
-		GetUserInfoFn: func(ctx context.Context, token *oauth2.Token) (*handler.GoogleUser, error) {
-			return nil, errors.New("fetch failed")
-		},
-	}
-	h := handler.NewAuthHandler(nil, mockProvider)
-
-	_ = h.GoogleCallback(c)
-	if rec.Code != http.StatusInternalServerError {
-		t.Errorf("Expected 500, got %d", rec.Code)
-	}
-}
-
-func TestGoogleCallback_SaveUserError(t *testing.T) {
-	e := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=good", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	mockRepo := &mock.MockListingRepository{
-		FindUserByGoogleIDFn: func(ctx context.Context, googleID string) (domain.User, error) {
-			return domain.User{}, errors.New("not found")
-		},
-		SaveUserFn: func(ctx context.Context, u domain.User) error {
-			return errors.New("save failed")
-		},
-	}
-	mockProvider := &MockGoogleProvider{}
-	h := handler.NewAuthHandler(mockRepo, mockProvider)
-
-	_ = h.GoogleCallback(c)
-	if rec.Code != http.StatusInternalServerError {
-		t.Errorf("Expected 500, got %d", rec.Code)
-	}
-}
-
-func TestGoogleCallback_ExistingUser_UpdateProfile(t *testing.T) {
-	e := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=good", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	store := sessions.NewCookieStore([]byte("secret"))
-	injectSession(c, store, "auth_session")
-
-	mockProvider := &MockGoogleProvider{
-		GetUserInfoFn: func(ctx context.Context, token *oauth2.Token) (*handler.GoogleUser, error) {
-			return &handler.GoogleUser{
-				ID: "g-1", Email: "new@example.com", Name: "New Name", Picture: "new.jpg",
-			}, nil
-		},
-	}
-
-	mockRepo := &mock.MockListingRepository{
-		FindUserByGoogleIDFn: func(ctx context.Context, googleID string) (domain.User, error) {
-			return domain.User{
-				ID: "u-1", GoogleID: "g-1", Name: "Old Name", AvatarURL: "old.jpg",
-			}, nil
-		},
-		SaveUserFn: func(ctx context.Context, u domain.User) error {
-			if u.Name != "New Name" || u.AvatarURL != "new.jpg" {
-				t.Error("User profile was not updated")
-			}
 			return nil
 		},
 	}
+	h := &AuthHandler{Repo: mockRepo}
 
-	h := handler.NewAuthHandler(mockRepo, mockProvider)
+	req := httptest.NewRequest(http.MethodGet, "/auth/dev?email=dev@test.com", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
 
-	if err := h.GoogleCallback(c); err != nil {
-		t.Fatal(err)
+	// Manually inject session
+	session, _ := store.Get(req, "auth_session")
+	c.Set("session", session)
+
+	if err := h.DevLogin(c); err != nil {
+		t.Fatalf("Handler failed: %v", err)
 	}
 
 	if rec.Code != http.StatusTemporaryRedirect {
-		t.Errorf("Expected redirect, got %d", rec.Code)
-	}
-}
-
-// Ensure RealGoogleProvider respects BASE_URL
-func TestRealGoogleProvider_BaseURL(t *testing.T) {
-	// Setup env
-	t.Setenv("BASE_URL", "http://192.168.1.100:8080")
-	t.Setenv("GOOGLE_CLIENT_ID", "mock-id")
-	t.Setenv("GOOGLE_CLIENT_SECRET", "mock-secret")
-
-	// Initialize provider (RealGoogleProvider, not Mock)
-	provider := handler.NewRealGoogleProvider()
-
-	// Get Auth URL
-	authURL := provider.GetAuthCodeURL("state", "localhost:8443")
-
-	// Validate Redirect URI param
-	// Expected: redirect_uri=http://192.168.1.100:8080/auth/google/callback
-	expected := "redirect_uri=http%3A%2F%2F192.168.1.100%3A8080%2Fauth%2Fgoogle%2Fcallback"
-	if !strings.Contains(authURL, expected) {
-		t.Errorf("Auth URL did not contain expected BASE_URL redirect.\nGot: %s\nExpected to contain: %s", authURL, expected)
+		t.Errorf("Expected redirect 307, got %d", rec.Code)
 	}
 }

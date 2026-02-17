@@ -37,3 +37,7 @@ func GetSession(c echo.Context) *sessions.Session {
 	// Fallback if not in context (should catch in middleware but safe guard)
 	return nil
 }
+
+func NewTestSessionStore() sessions.Store {
+	return sessions.NewCookieStore([]byte("test-secret"))
+}

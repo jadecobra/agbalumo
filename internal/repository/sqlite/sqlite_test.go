@@ -3,6 +3,7 @@ package sqlite_test
 import (
 	"context"
 	"database/sql"
+	"os"
 	"path/filepath"
 	"testing"
 	"time"
@@ -428,5 +429,64 @@ func TestGetUserCount(t *testing.T) {
 	}
 	if c != 2 {
 		t.Errorf("Expected 2 users, got %d", c)
+	}
+}
+
+func TestFeedback_Operations(t *testing.T) {
+	repo, _ := newTestRepo(t)
+	ctx := context.Background()
+
+	// 1. Save Feedback
+	fb := domain.Feedback{
+		ID:        "fb1",
+		UserID:    "u1",
+		Type:      domain.FeedbackTypeIssue, // Was Category
+		Content:   "Fix it",                 // Was Message
+		CreatedAt: time.Now(),
+	}
+	if err := repo.SaveFeedback(ctx, fb); err != nil {
+		t.Fatalf("Failed to save feedback: %v", err)
+	}
+
+	// 2. Get All
+	all, err := repo.GetAllFeedback(ctx)
+	if err != nil {
+		t.Fatalf("Failed to get feedback: %v", err)
+	}
+	if len(all) != 1 {
+		t.Errorf("Expected 1 feedback, got %d", len(all))
+	}
+	if all[0].Content != "Fix it" {
+		t.Errorf("Expected 'Fix it', got '%s'", all[0].Content)
+	}
+
+	// 3. Get Counts
+	counts, err := repo.GetFeedbackCounts(ctx)
+	if err != nil {
+		t.Fatalf("Failed to get counts: %v", err)
+	}
+	if counts[domain.FeedbackTypeIssue] != 1 {
+		t.Errorf("Expected 1 Issue, got %d", counts[domain.FeedbackTypeIssue])
+	}
+}
+
+func TestNewSQLiteRepository_Failure(t *testing.T) {
+	// Use a path that cannot be created, e.g., root or read-only
+	// "/proc/invalid/db" on linux, or just a directory that is a file
+
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "file")
+	os.WriteFile(filePath, []byte("content"), 0644)
+
+	// Try to use that file as a directory for the DB
+	// "file/db.sqlite" -> filepath.Dir is "file", which is a file, not dir.
+	// MkdirAll should fail?
+	// Actually MkdirAll("file") returns nil if it exists?
+	// MkdirAll("file/subdir") fails if "file" is a file.
+
+	badPath := filepath.Join(filePath, "subdir", "db.sqlite")
+	_, err := sqlite.NewSQLiteRepository(badPath)
+	if err == nil {
+		t.Error("Expected error for invalid db path, got nil")
 	}
 }
