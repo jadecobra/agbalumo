@@ -1,0 +1,62 @@
+{{ template "base.html" . }}
+
+{{ define "title" }}About - Agbalumo{{ end }}
+
+{{ define "content" }}
+<div class="max-w-4xl mx-auto px-6 py-12">
+    <div class="text-center mb-16">
+        <h1 class="text-4xl md:text-5xl font-bold mb-6 text-stone-900 dark:text-white tracking-tight">
+            Find what you want. <span class="text-primary">Fast.</span>
+        </h1>
+        <p class="text-xl text-stone-600 dark:text-stone-300 max-w-2xl mx-auto leading-relaxed">
+            Agbalumo is the premier directory connecting the West African diaspora with trusted businesses, services,
+            and products.
+        </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-12 items-center mb-20">
+        <div
+            class="relative aspect-square rounded-3xl overflow-hidden shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500">
+            <div class="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent z-10"></div>
+            <img src="/static/images/hero.jpg" alt="Community" class="w-full h-full object-cover"
+                onerror="this.src='https://ui-avatars.com/api/?name=Agbalumo&background=random&size=512'">
+        </div>
+        <div class="space-y-6">
+            <h2 class="text-2xl font-bold text-stone-900 dark:text-white">Our Mission</h2>
+            <p class="text-stone-600 dark:text-stone-300 leading-relaxed">
+                We believe in the power of connection. Whether you're looking for authentic cuisine, professional
+                services, or unique products, Agbalumo bridges the gap.
+            </p>
+            <div class="flex gap-4 pt-4">
+                <a href="/"
+                    class="px-6 py-3 bg-stone-900 dark:bg-white text-white dark:text-stone-900 rounded-full font-bold hover:scale-105 transition-transform">
+                    Explore Listings
+                </a>
+                <a href="/listings" hx-post="/listings" hx-target="body" hx-swap="beforeend"
+                    onclick="window.detail_modal_create_listing.showModal()"
+                    class="px-6 py-3 border border-stone-200 dark:border-stone-700 rounded-full font-bold hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors cursor-pointer">
+                    Join the Directory
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+        <div class="p-8 bg-stone-50 dark:bg-stone-800/50 rounded-3xl text-center">
+            <span class="material-symbols-outlined text-4xl text-primary mb-4">storefront</span>
+            <h3 class="text-xl font-bold mb-2 text-stone-900 dark:text-white">Businesses</h3>
+            <p class="text-sm text-stone-500 dark:text-stone-400">Discover trusted local vendors and shops.</p>
+        </div>
+        <div class="p-8 bg-stone-50 dark:bg-stone-800/50 rounded-3xl text-center">
+            <span class="material-symbols-outlined text-4xl text-blue-500 mb-4">handshake</span>
+            <h3 class="text-xl font-bold mb-2 text-stone-900 dark:text-white">Services</h3>
+            <p class="text-sm text-stone-500 dark:text-stone-400">Find professionals for any job.</p>
+        </div>
+        <div class="p-8 bg-stone-50 dark:bg-stone-800/50 rounded-3xl text-center">
+            <span class="material-symbols-outlined text-4xl text-green-500 mb-4">shopping_bag</span>
+            <h3 class="text-xl font-bold mb-2 text-stone-900 dark:text-white">Products</h3>
+            <p class="text-sm text-stone-500 dark:text-stone-400">Shop unique items from the community.</p>
+        </div>
+    </div>
+</div>
+{{ end }}

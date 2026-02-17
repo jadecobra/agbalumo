@@ -643,3 +643,30 @@ func TestHandleProfile(t *testing.T) {
 		t.Errorf("Expected body %q, got %q", expectedBody, rec.Body.String())
 	}
 }
+
+func TestHandleAbout(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/about", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	// Mock Repo
+	mockRepo := &mock.MockListingRepository{}
+	h := handler.NewListingHandler(mockRepo)
+
+	// Templates
+	t_temp := template.New("base")
+	t_temp.New("about.html").Parse(`About Page: {{.User}}`)
+	e.Renderer = &TestRenderer{templates: t_temp}
+
+	err := h.HandleAbout(c)
+	if err != nil {
+		t.Fatalf("HandleAbout failed: %v", err)
+	}
+	if rec.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", rec.Code)
+	}
+	if !bytes.Contains(rec.Body.Bytes(), []byte("About Page")) {
+		t.Errorf("Expected body to contain 'About Page', got %q", rec.Body.String())
+	}
+}

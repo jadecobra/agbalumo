@@ -10,7 +10,7 @@ echo "🔍 Running Quality Checks..."
 # 2. Build the Server
 echo "🔨 Building Server..."
 mkdir -p bin
-go build -o bin/agbalumo cmd/server/main.go
+go build -o bin/agbalumo main.go
 
 # 3. Restart the Server
 echo "🔄 Restarting Server..."
@@ -31,7 +31,7 @@ fi
 
 # Start the new server in the background
 echo "🚀 Starting new server instance..."
-nohup ./bin/agbalumo > server.log 2>&1 &
+nohup ./bin/agbalumo serve > server.log 2>&1 &
 NEW_PID=$!
 echo "Server started with PID: $NEW_PID"
 echo "Logs are being written to server.log"

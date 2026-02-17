@@ -25,6 +25,8 @@ type ListingRepository interface {
 	GetFeedbackCounts(ctx context.Context) (map[FeedbackType]int, error) // New
 
 	// Admin
-	GetPendingListings(ctx context.Context) ([]Listing, error) // New
-	GetUserCount(ctx context.Context) (int, error)             // New
+	// Public Facing
+	GetFeaturedListings(ctx context.Context) ([]Listing, error) // New: For Home Carousel
+	GetPendingListings(ctx context.Context) ([]Listing, error)  // New
+	GetUserCount(ctx context.Context) (int, error)              // New
 }

@@ -29,10 +29,15 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 
 	counts, err := h.Repo.GetCounts(ctx)
 	if err != nil {
-		// We log the error but proceed with empty counts to avoid crashing the home page
 		// if just the counts query fails for some reason.
 		c.Logger().Errorf("failed to get listing counts: %v", err)
 		counts = make(map[domain.Category]int)
+	}
+
+	featured, err := h.Repo.GetFeaturedListings(ctx)
+	if err != nil {
+		c.Logger().Errorf("failed to get featured listings: %v", err)
+		featured = []domain.Listing{} // Graceful fallback
 	}
 
 	strCounts := make(map[string]int)
@@ -46,6 +51,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 
 	return c.Render(http.StatusOK, "index.html", map[string]interface{}{
 		"Listings":         listings,
+		"FeaturedListings": featured,
 		"Counts":           strCounts,
 		"TotalCount":       totalCount,
 		"User":             user,
@@ -414,4 +420,11 @@ func (h *ListingHandler) saveUploadedImage(c echo.Context, listingID string) (st
 		return "", err
 	}
 	return "/static/uploads/" + filename, nil
+}
+
+// HandleAbout renders the generic about page.
+func (h *ListingHandler) HandleAbout(c echo.Context) error {
+	return c.Render(http.StatusOK, "about.html", map[string]interface{}{
+		"User": c.Get("User"),
+	})
 }

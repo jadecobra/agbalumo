@@ -24,9 +24,10 @@ type MockListingRepository struct {
 	GetAllFeedbackFn     func(ctx context.Context) ([]domain.Feedback, error)
 
 	// New Admin Methods
-	GetPendingListingsFn func(ctx context.Context) ([]domain.Listing, error)
-	GetUserCountFn       func(ctx context.Context) (int, error)
-	GetFeedbackCountsFn  func(ctx context.Context) (map[domain.FeedbackType]int, error)
+	GetPendingListingsFn  func(ctx context.Context) ([]domain.Listing, error)
+	GetUserCountFn        func(ctx context.Context) (int, error)
+	GetFeedbackCountsFn   func(ctx context.Context) (map[domain.FeedbackType]int, error)
+	GetFeaturedListingsFn func(ctx context.Context) ([]domain.Listing, error) // New
 }
 
 func (m *MockListingRepository) Save(ctx context.Context, l domain.Listing) error {
@@ -132,4 +133,11 @@ func (m *MockListingRepository) GetUserCount(ctx context.Context) (int, error) {
 		return m.GetUserCountFn(ctx)
 	}
 	return 0, nil
+}
+
+func (m *MockListingRepository) GetFeaturedListings(ctx context.Context) ([]domain.Listing, error) {
+	if m.GetFeaturedListingsFn != nil {
+		return m.GetFeaturedListingsFn(ctx)
+	}
+	return nil, nil
 }

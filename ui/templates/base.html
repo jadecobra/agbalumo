@@ -148,6 +148,17 @@
 
             <!-- Content -->
             {{ block "content" . }}{{ end }}
+
+            <!-- Simple Footer -->
+            <footer
+                class="py-8 text-center text-sm text-stone-400 dark:text-stone-600 mt-auto border-t border-stone-100 dark:border-stone-800/50">
+                <div class="flex justify-center gap-6 mb-2">
+                    <a href="/about" class="hover:text-primary transition-colors font-medium">About</a>
+                    <a href="#" class="hover:text-primary transition-colors">Privacy</a>
+                    <a href="#" class="hover:text-primary transition-colors">Terms</a>
+                </div>
+                <p>&copy; 2025 Agbalumo. All rights reserved.</p>
+            </footer>
         </main>
 
         <!-- Mobile Bottom Nav (Hidden on Desktop) -->

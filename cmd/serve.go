@@ -37,14 +37,8 @@ var serveCmd = &cobra.Command{
 		e := echo.New()
 
 		// Custom CSP Middleware
-		e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
-			return func(c echo.Context) error {
-				// Strict CSP: No unsafe-inline
-				const csp = "default-src 'self'; script-src 'self' https://cdn.tailwindcss.com https://unpkg.com https://maps.googleapis.com; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; img-src 'self' data: https://*.googleusercontent.com https://ui-avatars.com https://maps.googleapis.com https://maps.gstatic.com; connect-src 'self' https://accounts.google.com https://maps.googleapis.com;"
-				c.Response().Header().Set("Content-Security-Policy", csp)
-				return next(c)
-			}
-		})
+		// Security Middleware (CSP, Strict-Transport-Security, etc.)
+		e.Use(customMiddleware.SecureHeaders)
 
 		// Rate Limiter
 		rateLimiter := customMiddleware.NewRateLimiter(customMiddleware.RateLimitConfig{
@@ -99,6 +93,7 @@ var serveCmd = &cobra.Command{
 			"ui/templates/*.html",
 			"ui/templates/partials/*.html",
 			"ui/templates/listings/*.html", // Added listings directory
+			"ui/templates/about.html",      // Explicitly add about page
 		)
 		if err != nil {
 			log.Fatalf("Failed to initialize template renderer: %v", err)
@@ -123,6 +118,7 @@ var serveCmd = &cobra.Command{
 		e.Static("/static", "ui/static")
 
 		e.GET("/", listingHandler.HandleHome)
+		e.GET("/about", listingHandler.HandleAbout)
 		e.GET("/listings/fragment", listingHandler.HandleFragment)
 		e.GET("/listings/:id", listingHandler.HandleDetail)
 		e.POST("/listings", listingHandler.HandleCreate, authHandler.RequireAuth)

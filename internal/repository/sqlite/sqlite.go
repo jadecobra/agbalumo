@@ -468,6 +468,35 @@ func (r *SQLiteRepository) GetUserCount(ctx context.Context) (int, error) {
 	return count, nil
 }
 
+// GetFeaturedListings returns the latest 10 active listings of type Business, Service, or Product.
+func (r *SQLiteRepository) GetFeaturedListings(ctx context.Context) ([]domain.Listing, error) {
+	// Use shared selection constant to match scanListing
+	query := `
+		SELECT ` + listingSelections + `
+		FROM listings 
+		WHERE type IN ('Business', 'Service', 'Product') 
+		AND is_active = 1 
+		ORDER BY created_at DESC 
+		LIMIT 10
+	`
+	rows, err := r.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var listings []domain.Listing
+	for rows.Next() {
+		l, err := scanListing(rows)
+		if err != nil {
+			return nil, err
+		}
+		listings = append(listings, l)
+	}
+	return listings, nil
+}
+
+// GetFeedbackCounts... (existing)
 func (r *SQLiteRepository) GetFeedbackCounts(ctx context.Context) (map[domain.FeedbackType]int, error) {
 	query := `SELECT type, COUNT(*) FROM feedback GROUP BY type`
 	rows, err := r.db.QueryContext(ctx, query)
