@@ -468,6 +468,25 @@ func (r *SQLiteRepository) GetUserCount(ctx context.Context) (int, error) {
 	return count, nil
 }
 
+func (r *SQLiteRepository) GetAllUsers(ctx context.Context) ([]domain.User, error) {
+	query := `SELECT id, google_id, email, name, avatar_url, COALESCE(role, 'User'), created_at FROM users ORDER BY created_at DESC LIMIT 100`
+	rows, err := r.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []domain.User
+	for rows.Next() {
+		var u domain.User
+		if err := rows.Scan(&u.ID, &u.GoogleID, &u.Email, &u.Name, &u.AvatarURL, &u.Role, &u.CreatedAt); err != nil {
+			return nil, err
+		}
+		users = append(users, u)
+	}
+	return users, nil
+}
+
 // GetFeaturedListings returns the latest 10 active listings of type Business, Service, or Product.
 func (r *SQLiteRepository) GetFeaturedListings(ctx context.Context) ([]domain.Listing, error) {
 	// Use shared selection constant to match scanListing

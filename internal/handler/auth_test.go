@@ -13,6 +13,7 @@ import (
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/jadecobra/agbalumo/internal/mock"
 	"github.com/labstack/echo/v4"
+	testifyMock "github.com/stretchr/testify/mock"
 	"golang.org/x/oauth2"
 )
 
@@ -79,7 +80,6 @@ func TestAuthHandler_GoogleCallback(t *testing.T) {
 	e := echo.New()
 
 	// Setup Middleware for Session
-	// We need a store to prevent "Session Store Missing" error
 	store := customMiddleware.NewTestSessionStore()
 	e.Use(customMiddleware.SessionMiddleware(store))
 
@@ -87,18 +87,15 @@ func TestAuthHandler_GoogleCallback(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	// Manually inject session (Middleware doesn't run on direct handler call)
+	// Manually inject session
 	session, _ := store.Get(req, "auth_session")
 	c.Set("session", session)
 
-	mockRepo := &mock.MockListingRepository{
-		FindUserByGoogleIDFn: func(ctx context.Context, googleID string) (domain.User, error) {
-			return domain.User{}, errors.New("not found") // Force create
-		},
-		SaveUserFn: func(ctx context.Context, u domain.User) error {
-			return nil
-		},
-	}
+	mockRepo := &mock.MockListingRepository{}
+	// Expect lookup - return error to simulate not found
+	mockRepo.On("FindUserByGoogleID", testifyMock.Anything, testifyMock.Anything).Return(domain.User{}, errors.New("not found"))
+	// Expect create
+	mockRepo.On("SaveUser", testifyMock.Anything, testifyMock.Anything).Return(nil)
 
 	mockProvider := &MockGoogleProvider{
 		ExchangeFn: func(ctx context.Context, code string, host string) (*oauth2.Token, error) {
@@ -129,6 +126,7 @@ func TestAuthHandler_GoogleCallback(t *testing.T) {
 	if rec.Code != http.StatusTemporaryRedirect {
 		t.Errorf("Expected redirect 307, got %d", rec.Code)
 	}
+	mockRepo.AssertExpectations(t)
 }
 
 func TestAuthHandler_GoogleLogin(t *testing.T) {
@@ -168,16 +166,10 @@ func TestRequireAuth(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	// Middleware Setup
 	handler := h.RequireAuth(func(c echo.Context) error {
 		return c.String(http.StatusOK, "Protected")
 	})
 
-	// Run
-	// Directly calling handler(c) means middleware logic runs.
-	// But RequireAuth needs session from context.
-	// So we must manually inject session or run session middleware.
-	// Let's manually inject.
 	session, _ := store.Get(req, "auth_session")
 	c.Set("session", session)
 
@@ -211,14 +203,9 @@ func TestOptionalAuth(t *testing.T) {
 	e := echo.New()
 	store := customMiddleware.NewTestSessionStore()
 
-	mockRepo := &mock.MockListingRepository{
-		FindUserByIDFn: func(ctx context.Context, id string) (domain.User, error) {
-			if id == "user123" {
-				return domain.User{ID: "user123", Name: "Test"}, nil
-			}
-			return domain.User{}, errors.New("not found")
-		},
-	}
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindUserByID", testifyMock.Anything, "user123").Return(domain.User{ID: "user123", Name: "Test"}, nil)
+
 	h := &AuthHandler{Repo: mockRepo}
 
 	// Case 1: Authenticated -> User in Context
@@ -243,6 +230,7 @@ func TestOptionalAuth(t *testing.T) {
 	if rec.Code != http.StatusOK {
 		t.Errorf("Expected 200, got %d", rec.Code)
 	}
+	mockRepo.AssertExpectations(t)
 }
 
 func TestAuthHandler_DevLogin(t *testing.T) {
@@ -254,21 +242,16 @@ func TestAuthHandler_DevLogin(t *testing.T) {
 	store := customMiddleware.NewTestSessionStore()
 	e.Use(customMiddleware.SessionMiddleware(store))
 
-	mockRepo := &mock.MockListingRepository{
-		FindUserByGoogleIDFn: func(ctx context.Context, id string) (domain.User, error) {
-			return domain.User{}, errors.New("not found")
-		},
-		SaveUserFn: func(ctx context.Context, u domain.User) error {
-			return nil
-		},
-	}
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindUserByGoogleID", testifyMock.Anything, testifyMock.Anything).Return(domain.User{}, errors.New("not found"))
+	mockRepo.On("SaveUser", testifyMock.Anything, testifyMock.Anything).Return(nil)
+
 	h := &AuthHandler{Repo: mockRepo}
 
 	req := httptest.NewRequest(http.MethodGet, "/auth/dev?email=dev@test.com", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	// Manually inject session
 	session, _ := store.Get(req, "auth_session")
 	c.Set("session", session)
 
@@ -279,4 +262,5 @@ func TestAuthHandler_DevLogin(t *testing.T) {
 	if rec.Code != http.StatusTemporaryRedirect {
 		t.Errorf("Expected redirect 307, got %d", rec.Code)
 	}
+	mockRepo.AssertExpectations(t)
 }

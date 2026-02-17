@@ -17,6 +17,7 @@ import (
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/jadecobra/agbalumo/internal/mock"
 	"github.com/labstack/echo/v4"
+	testifyMock "github.com/stretchr/testify/mock"
 )
 
 // Simple Template Renderer for testing
@@ -29,17 +30,13 @@ func (t *TestRenderer) Render(w io.Writer, name string, data interface{}, c echo
 }
 
 func NewMainTemplate() *template.Template {
-	// We need to parse a minimal set of templates for the handler to work.
-	// In a real scenario we might load from disk, but for unit tests strings are safer/faster.
 	t := template.New("base")
-	// index.html is a full page in our app, not a partial define
 	t.New("index.html").Parse(`Index: {{len .Listings}} Listings`)
 	t.New("listing_list").Parse(`{{range .Listings}}{{.Title}}{{end}}`)
 	t.New("modal_detail").Parse(`{{.Listing.Title}} - {{.Listing.Description}}`)
 	t.New("listing_card").Parse(`{{.Title}}`)
 	t.New("admin_login.html").Parse(`Login Form: {{if .Error}}{{.Error}}{{end}}`)
 	t.New("admin_dashboard.html").Parse(`Dashboard: {{len .PendingListings}} items`)
-	// modal_edit_listing likely also needs update if I touched it, but sticking to what broke
 	t.New("modal_edit_listing.html").Parse(`Edit: {{.Title}}`)
 	t.New("modal_feedback.html").Parse(`Feedback Modal`)
 	t.New("modal_profile").Parse(`Profile: {{.User.Name}}, Listings: {{len .Listings}}`)
@@ -48,31 +45,26 @@ func NewMainTemplate() *template.Template {
 }
 
 func TestHandleHome(t *testing.T) {
-	// Setup
 	e := echo.New()
 	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	// Mock Repo
-	mockRepo := &mock.MockListingRepository{
-		FindAllFn: func(ctx context.Context, filterType, query string, includeInactive bool) ([]domain.Listing, error) {
-			return []domain.Listing{
-				{Title: "Test Listing 1"},
-				{Title: "Test Listing 2"},
-			}, nil
-		},
-	}
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindAll", context.Background(), "", "", false).Return([]domain.Listing{
+		{Title: "Test Listing 1"},
+		{Title: "Test Listing 2"},
+	}, nil)
+	mockRepo.On("GetCounts", context.Background()).Return(map[domain.Category]int{}, nil)
+	mockRepo.On("GetFeaturedListings", context.Background()).Return([]domain.Listing{}, nil)
 
 	h := handler.NewListingHandler(mockRepo)
 
-	// Execute
 	if err := h.HandleHome(c); err != nil {
 		t.Fatalf("HandleHome failed: %v", err)
 	}
 
-	// Verify
 	if rec.Code != http.StatusOK {
 		t.Errorf("Expected status 200, got %d", rec.Code)
 	}
@@ -82,7 +74,6 @@ func TestHandleHome(t *testing.T) {
 }
 
 func TestHandleHome_Counts(t *testing.T) {
-	// Setup
 	e := echo.New()
 	t_temp := template.New("base")
 	t_temp.New("index.html").Parse(`Total: {{.TotalCount}}, Food: {{index .Counts "Food"}}, Business: {{index .Counts "Business"}}`)
@@ -91,27 +82,20 @@ func TestHandleHome_Counts(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	// Mock Repo
-	mockRepo := &mock.MockListingRepository{
-		FindAllFn: func(ctx context.Context, filterType, query string, includeInactive bool) ([]domain.Listing, error) {
-			return []domain.Listing{}, nil
-		},
-		GetCountsFn: func(ctx context.Context) (map[domain.Category]int, error) {
-			return map[domain.Category]int{
-				domain.Food:     5,
-				domain.Business: 3,
-			}, nil
-		},
-	}
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindAll", context.Background(), "", "", false).Return([]domain.Listing{}, nil)
+	mockRepo.On("GetCounts", context.Background()).Return(map[domain.Category]int{
+		domain.Food:     5,
+		domain.Business: 3,
+	}, nil)
+	mockRepo.On("GetFeaturedListings", context.Background()).Return([]domain.Listing{}, nil)
 
 	h := handler.NewListingHandler(mockRepo)
 
-	// Execute
 	if err := h.HandleHome(c); err != nil {
 		t.Fatalf("HandleHome failed: %v", err)
 	}
 
-	// Verify
 	if rec.Code != http.StatusOK {
 		t.Errorf("Expected status 200, got %d", rec.Code)
 	}
@@ -122,34 +106,21 @@ func TestHandleHome_Counts(t *testing.T) {
 }
 
 func TestHandleFragment(t *testing.T) {
-	// Setup
 	e := echo.New()
 	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 	req := httptest.NewRequest(http.MethodGet, "/listings/fragment?q=jollof&type=Business", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	// Mock Repo
-	mockRepo := &mock.MockListingRepository{
-		FindAllFn: func(ctx context.Context, filterType, query string, includeInactive bool) ([]domain.Listing, error) {
-			if filterType != "Business" {
-				t.Errorf("Expected filterType Business, got %s", filterType)
-			}
-			if query != "jollof" {
-				t.Errorf("Expected query jollof, got %s", query)
-			}
-			return []domain.Listing{{Title: "Jollof Place"}}, nil
-		},
-	}
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindAll", context.Background(), "Business", "jollof", false).Return([]domain.Listing{{Title: "Jollof Place"}}, nil)
 
 	h := handler.NewListingHandler(mockRepo)
 
-	// Execute
 	if err := h.HandleFragment(c); err != nil {
 		t.Fatalf("HandleFragment failed: %v", err)
 	}
 
-	// Verify
 	if rec.Code != http.StatusOK {
 		t.Errorf("Expected status 200, got %d", rec.Code)
 	}
@@ -159,26 +130,19 @@ func TestHandleFragment(t *testing.T) {
 }
 
 func TestHandleHome_Error(t *testing.T) {
-	// Setup
 	e := echo.New()
 	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	// Mock Repo Error
-	mockRepo := &mock.MockListingRepository{
-		FindAllFn: func(ctx context.Context, filterType, query string, includeInactive bool) ([]domain.Listing, error) {
-			return nil, errors.New("db connection failed")
-		},
-	}
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindAll", context.Background(), "", "", false).Return([]domain.Listing{}, errors.New("db connection failed"))
 
 	h := handler.NewListingHandler(mockRepo)
 
-	// Execute
 	_ = h.HandleHome(c)
 
-	// The handler writes 500 to response.
 	if rec.Code != http.StatusInternalServerError {
 		t.Errorf("Expected status 500, got %d", rec.Code)
 	}
@@ -188,7 +152,6 @@ func TestHandleHome_Error(t *testing.T) {
 }
 
 func TestHandleDetail(t *testing.T) {
-	// Setup
 	e := echo.New()
 	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 	req := httptest.NewRequest(http.MethodGet, "/listings/1", nil)
@@ -198,24 +161,15 @@ func TestHandleDetail(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues("1")
 
-	// Mock Repo
-	mockRepo := &mock.MockListingRepository{
-		FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
-			if id == "1" {
-				return domain.Listing{Title: "Found It", Description: "Details here"}, nil
-			}
-			return domain.Listing{}, errors.New("not found")
-		},
-	}
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindByID", context.Background(), "1").Return(domain.Listing{Title: "Found It", Description: "Details here"}, nil)
 
 	h := handler.NewListingHandler(mockRepo)
 
-	// Execute
 	if err := h.HandleDetail(c); err != nil {
 		t.Fatalf("HandleDetail failed: %v", err)
 	}
 
-	// Verify
 	if rec.Code != http.StatusOK {
 		t.Errorf("Expected status 200, got %d", rec.Code)
 	}
@@ -240,39 +194,25 @@ func TestHandleCreate(t *testing.T) {
 	tests := []struct {
 		name           string
 		body           string
-		mockSetup      func() *mock.MockListingRepository
+		setupMock      func(*mock.MockListingRepository)
 		expectedStatus int
 		expectedBody   string
 	}{
 		{
 			name: "Success",
 			body: "title=Test+Title&type=Business&owner_origin=Nigeria&description=Cool&contact_email=test@example.com&hours_of_operation=Mon-Fri+9-5&address=123+Street",
-			mockSetup: func() *mock.MockListingRepository {
-				return &mock.MockListingRepository{
-					SaveFn: func(ctx context.Context, l domain.Listing) error {
-						if l.Title != "Test Title" {
-							return errors.New("unexpected title")
-						}
-						// TDD: Check if HoursOfOperation is extracted
-						// Note: This needs the input body to include it, adjusting body below
-						if l.HoursOfOperation != "Mon-Fri 9-5" {
-							return errors.New("expected HoursOfOperation to be 'Mon-Fri 9-5'")
-						}
-						return nil
-					},
-				}
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("Save", testifyMock.Anything, testifyMock.MatchedBy(func(l domain.Listing) bool {
+					return l.Title == "Test Title" && l.HoursOfOperation == "Mon-Fri 9-5"
+				})).Return(nil)
 			},
 			expectedStatus: http.StatusOK,
 		},
 		{
 			name: "ValidationError",
 			body: "title=Test+Title&type=Business", // Missing required fields
-			mockSetup: func() *mock.MockListingRepository {
-				return &mock.MockListingRepository{
-					SaveFn: func(ctx context.Context, l domain.Listing) error {
-						return errors.New("shoud not be called")
-					},
-				}
+			setupMock: func(m *mock.MockListingRepository) {
+				// Save should not be called
 			},
 			expectedStatus: http.StatusBadRequest,
 			expectedBody:   "Validation Error",
@@ -280,12 +220,8 @@ func TestHandleCreate(t *testing.T) {
 		{
 			name: "RepoError",
 			body: "title=Test+Title&type=Business&owner_origin=Nigeria&description=Cool&contact_email=test@example.com&address=123+St",
-			mockSetup: func() *mock.MockListingRepository {
-				return &mock.MockListingRepository{
-					SaveFn: func(ctx context.Context, l domain.Listing) error {
-						return errors.New("save failed")
-					},
-				}
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("Save", testifyMock.Anything, testifyMock.Anything).Return(errors.New("save failed"))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -294,15 +230,15 @@ func TestHandleCreate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
+			mockRepo := &mock.MockListingRepository{}
+			tt.setupMock(mockRepo)
 
-			h := handler.NewListingHandler(tt.mockSetup())
-
-			// Inject User for Auth
+			h := handler.NewListingHandler(mockRepo)
 			c.Set("User", domain.User{ID: "test-user-id", Email: "test@example.com"})
 
 			err := h.HandleCreate(c)
 			if err != nil {
-				// Some errors are handled by helper, but checking response code covers it
+				// handled
 			}
 
 			if rec.Code != tt.expectedStatus {
@@ -311,6 +247,7 @@ func TestHandleCreate(t *testing.T) {
 			if tt.expectedBody != "" && !strings.Contains(rec.Body.String(), tt.expectedBody) {
 				t.Errorf("Expected body to contain %q, got %q", tt.expectedBody, rec.Body.String())
 			}
+			mockRepo.AssertExpectations(t)
 		})
 	}
 }
@@ -319,42 +256,30 @@ func TestHandleEdit(t *testing.T) {
 	tests := []struct {
 		name           string
 		user           domain.User
-		mockSetup      func() *mock.MockListingRepository
+		setupMock      func(*mock.MockListingRepository)
 		expectedStatus int
 	}{
 		{
 			name: "Success",
 			user: domain.User{ID: "owner-1"},
-			mockSetup: func() *mock.MockListingRepository {
-				return &mock.MockListingRepository{
-					FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
-						return domain.Listing{ID: "1", OwnerID: "owner-1", Title: "Title"}, nil
-					},
-				}
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "owner-1", Title: "Title"}, nil)
 			},
 			expectedStatus: http.StatusOK,
 		},
 		{
 			name: "Forbidden",
 			user: domain.User{ID: "other-user"},
-			mockSetup: func() *mock.MockListingRepository {
-				return &mock.MockListingRepository{
-					FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
-						return domain.Listing{ID: "1", OwnerID: "owner-1"}, nil
-					},
-				}
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "owner-1"}, nil)
 			},
 			expectedStatus: http.StatusForbidden,
 		},
 		{
 			name: "NotFound",
 			user: domain.User{ID: "owner-1"},
-			mockSetup: func() *mock.MockListingRepository {
-				return &mock.MockListingRepository{
-					FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
-						return domain.Listing{}, errors.New("not found")
-					},
-				}
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{}, errors.New("not found"))
 			},
 			expectedStatus: http.StatusNotFound,
 		},
@@ -368,15 +293,18 @@ func TestHandleEdit(t *testing.T) {
 			c.SetParamValues("1")
 			c.Set("User", tt.user)
 
-			h := handler.NewListingHandler(tt.mockSetup())
+			mockRepo := &mock.MockListingRepository{}
+			tt.setupMock(mockRepo)
+			h := handler.NewListingHandler(mockRepo)
 
 			if err := h.HandleEdit(c); err != nil {
-				// Echo handler returns error for some statuses, mainly we check response code
+				// handled
 			}
 
 			if rec.Code != tt.expectedStatus {
 				t.Errorf("Expected status %d, got %d", tt.expectedStatus, rec.Code)
 			}
+			mockRepo.AssertExpectations(t)
 		})
 	}
 }
@@ -386,25 +314,18 @@ func TestHandleUpdate(t *testing.T) {
 		name           string
 		user           domain.User
 		body           string
-		mockSetup      func() *mock.MockListingRepository
+		setupMock      func(*mock.MockListingRepository)
 		expectedStatus int
 	}{
 		{
 			name: "Success",
 			user: domain.User{ID: "user1", Email: "owner@example.com"},
 			body: "title=Updated+Title&type=Business&owner_origin=Ghana&description=Updated&contact_email=new@example.com&address=123+St",
-			mockSetup: func() *mock.MockListingRepository {
-				return &mock.MockListingRepository{
-					FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
-						return domain.Listing{ID: "1", OwnerID: "user1", Title: "Old Title"}, nil
-					},
-					SaveFn: func(ctx context.Context, l domain.Listing) error {
-						if l.Title != "Updated Title" {
-							return errors.New("unexpected title")
-						}
-						return nil
-					},
-				}
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "user1", Title: "Old Title"}, nil)
+				m.On("Save", testifyMock.Anything, testifyMock.MatchedBy(func(l domain.Listing) bool {
+					return l.Title == "Updated Title"
+				})).Return(nil)
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -412,12 +333,8 @@ func TestHandleUpdate(t *testing.T) {
 			name: "Forbidden",
 			user: domain.User{ID: "user2", Email: "hacker@example.com"},
 			body: "",
-			mockSetup: func() *mock.MockListingRepository {
-				return &mock.MockListingRepository{
-					FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
-						return domain.Listing{ID: "1", OwnerID: "user1", Title: "Old Title"}, nil
-					},
-				}
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "user1", Title: "Old Title"}, nil)
 			},
 			expectedStatus: http.StatusForbidden,
 		},
@@ -425,15 +342,9 @@ func TestHandleUpdate(t *testing.T) {
 			name: "RepoError",
 			user: domain.User{ID: "user1", Email: "owner@example.com"},
 			body: "title=Updated+Title&type=Business&owner_origin=Ghana&description=Updated&contact_email=new@example.com&address=123+St",
-			mockSetup: func() *mock.MockListingRepository {
-				return &mock.MockListingRepository{
-					FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
-						return domain.Listing{ID: "1", OwnerID: "user1"}, nil
-					},
-					SaveFn: func(ctx context.Context, l domain.Listing) error {
-						return errors.New("update failed")
-					},
-				}
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "user1"}, nil)
+				m.On("Save", testifyMock.Anything, testifyMock.Anything).Return(errors.New("update failed"))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -447,13 +358,16 @@ func TestHandleUpdate(t *testing.T) {
 			c.SetParamValues("1")
 			c.Set("User", tt.user)
 
-			h := handler.NewListingHandler(tt.mockSetup())
+			mockRepo := &mock.MockListingRepository{}
+			tt.setupMock(mockRepo)
 
+			h := handler.NewListingHandler(mockRepo)
 			_ = h.HandleUpdate(c)
 
 			if rec.Code != tt.expectedStatus {
 				t.Errorf("Expected status %d, got %d", tt.expectedStatus, rec.Code)
 			}
+			mockRepo.AssertExpectations(t)
 		})
 	}
 }
@@ -462,11 +376,8 @@ func TestHandleCreate_WithImage(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 
-	// Create Multipart Form
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
-
-	// Fields
 	writer.WriteField("title", "Image Listing")
 	writer.WriteField("type", "Business")
 	writer.WriteField("owner_origin", "Ghana")
@@ -474,12 +385,10 @@ func TestHandleCreate_WithImage(t *testing.T) {
 	writer.WriteField("contact_email", "img@example.com")
 	writer.WriteField("address", "123 Image St")
 
-	// File
 	part, err := writer.CreateFormFile("image", "test.png")
 	if err != nil {
 		t.Fatal(err)
 	}
-	// Write valid PNG signature (magic bytes)
 	part.Write([]byte{0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A})
 	writer.Close()
 
@@ -488,23 +397,14 @@ func TestHandleCreate_WithImage(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	// Clean up uploads dir after test
 	defer os.RemoveAll("ui")
 
-	mockRepo := &mock.MockListingRepository{
-		SaveFn: func(ctx context.Context, l domain.Listing) error {
-			if l.ImageURL == "" {
-				t.Error("Expected ImageURL to be set")
-			}
-			if !strings.HasPrefix(l.ImageURL, "/static/uploads/") {
-				t.Errorf("Expected ImageURL path /static/uploads/, got %s", l.ImageURL)
-			}
-			return nil
-		},
-	}
-	h := handler.NewListingHandler(mockRepo)
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("Save", testifyMock.Anything, testifyMock.MatchedBy(func(l domain.Listing) bool {
+		return l.ImageURL != "" && strings.HasPrefix(l.ImageURL, "/static/uploads/")
+	})).Return(nil)
 
-	// Inject User for Auth
+	h := handler.NewListingHandler(mockRepo)
 	c.Set("User", domain.User{ID: "test-user-id", Email: "test@example.com"})
 
 	if err := h.HandleCreate(c); err != nil {
@@ -514,69 +414,47 @@ func TestHandleCreate_WithImage(t *testing.T) {
 	if rec.Code != http.StatusOK {
 		t.Errorf("Expected 200 OK, got %d", rec.Code)
 	}
+	mockRepo.AssertExpectations(t)
 }
 
 func TestHandleDelete(t *testing.T) {
 	tests := []struct {
 		name           string
 		user           domain.User
-		mockSetup      func() *mock.MockListingRepository
+		setupMock      func(*mock.MockListingRepository)
 		expectedStatus int
 	}{
 		{
 			name: "Success",
 			user: domain.User{ID: "owner-1"},
-			mockSetup: func() *mock.MockListingRepository {
-				return &mock.MockListingRepository{
-					FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
-						return domain.Listing{ID: "1", OwnerID: "owner-1"}, nil
-					},
-					DeleteFn: func(ctx context.Context, id string) error {
-						if id != "1" {
-							return errors.New("wrong id")
-						}
-						return nil
-					},
-				}
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "owner-1"}, nil)
+				m.On("Delete", testifyMock.Anything, "1").Return(nil)
 			},
 			expectedStatus: http.StatusSeeOther,
 		},
 		{
 			name: "Forbidden",
 			user: domain.User{ID: "other-user"},
-			mockSetup: func() *mock.MockListingRepository {
-				return &mock.MockListingRepository{
-					FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
-						return domain.Listing{ID: "1", OwnerID: "owner-1"}, nil
-					},
-				}
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "owner-1"}, nil)
 			},
 			expectedStatus: http.StatusForbidden,
 		},
 		{
 			name: "RepoError_Find",
 			user: domain.User{ID: "owner-1"},
-			mockSetup: func() *mock.MockListingRepository {
-				return &mock.MockListingRepository{
-					FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
-						return domain.Listing{}, errors.New("db error")
-					},
-				}
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{}, errors.New("db error"))
 			},
 			expectedStatus: http.StatusNotFound,
 		},
 		{
 			name: "RepoError_Delete",
 			user: domain.User{ID: "owner-1"},
-			mockSetup: func() *mock.MockListingRepository {
-				return &mock.MockListingRepository{
-					FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
-						return domain.Listing{ID: "1", OwnerID: "owner-1"}, nil
-					},
-					DeleteFn: func(ctx context.Context, id string) error {
-						return errors.New("delete failed")
-					},
-				}
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "owner-1"}, nil)
+				m.On("Delete", testifyMock.Anything, "1").Return(errors.New("delete failed"))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
@@ -590,19 +468,21 @@ func TestHandleDelete(t *testing.T) {
 			c.SetParamValues("1")
 			c.Set("User", tt.user)
 
-			h := handler.NewListingHandler(tt.mockSetup())
+			mockRepo := &mock.MockListingRepository{}
+			tt.setupMock(mockRepo)
 
+			h := handler.NewListingHandler(mockRepo)
 			_ = h.HandleDelete(c)
 
 			if rec.Code != tt.expectedStatus {
 				t.Errorf("Expected status %d, got %d", tt.expectedStatus, rec.Code)
 			}
+			mockRepo.AssertExpectations(t)
 		})
 	}
 }
 
 func TestHandleProfile(t *testing.T) {
-	// Setup
 	e := echo.New()
 	t_temp := template.New("base")
 	t_temp.New("modal_profile").Parse(`Profile: {{.User.Name}}, Listings: {{len .Listings}}`)
@@ -615,26 +495,17 @@ func TestHandleProfile(t *testing.T) {
 	user := domain.User{ID: "u1", Name: "Test User"}
 	c.Set("User", user)
 
-	// Mock Repo
-	mockRepo := &mock.MockListingRepository{
-		FindAllByOwnerFn: func(ctx context.Context, ownerID string) ([]domain.Listing, error) {
-			if ownerID != "u1" {
-				return nil, errors.New("wrong owner id")
-			}
-			return []domain.Listing{
-				{Title: "L1"}, {Title: "L2"},
-			}, nil
-		},
-	}
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindAllByOwner", testifyMock.Anything, "u1").Return([]domain.Listing{
+		{Title: "L1"}, {Title: "L2"},
+	}, nil)
 
 	h := handler.NewListingHandler(mockRepo)
 
-	// Execute
 	if err := h.HandleProfile(c); err != nil {
 		t.Fatalf("HandleProfile failed: %v", err)
 	}
 
-	// Verify
 	if rec.Code != http.StatusOK {
 		t.Errorf("Expected status 200, got %d", rec.Code)
 	}
@@ -650,11 +521,9 @@ func TestHandleAbout(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	// Mock Repo
 	mockRepo := &mock.MockListingRepository{}
 	h := handler.NewListingHandler(mockRepo)
 
-	// Templates
 	t_temp := template.New("base")
 	t_temp.New("about.html").Parse(`About Page: {{.User}}`)
 	e.Renderer = &TestRenderer{templates: t_temp}
@@ -674,60 +543,43 @@ func TestHandleAbout(t *testing.T) {
 func TestHandleClaim(t *testing.T) {
 	tests := []struct {
 		name           string
-		user           interface{} // nil or domain.User
-		mockSetup      func() *mock.MockListingRepository
+		user           interface{}
+		setupMock      func(*mock.MockListingRepository)
 		expectedStatus int
 	}{
 		{
 			name: "Unauthenticated",
 			user: nil,
-			mockSetup: func() *mock.MockListingRepository {
-				return &mock.MockListingRepository{}
+			setupMock: func(m *mock.MockListingRepository) {
 			},
 			expectedStatus: http.StatusFound, // Redirect to login
 		},
 		{
 			name: "ListingNotFound",
 			user: domain.User{ID: "claimer"},
-			mockSetup: func() *mock.MockListingRepository {
-				return &mock.MockListingRepository{
-					FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
-						return domain.Listing{}, errors.New("not found")
-					},
-				}
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{}, errors.New("not found"))
 			},
 			expectedStatus: http.StatusNotFound,
 		},
 		{
 			name: "AlreadyOwned",
 			user: domain.User{ID: "claimer"},
-			mockSetup: func() *mock.MockListingRepository {
-				return &mock.MockListingRepository{
-					FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
-						return domain.Listing{ID: "1", OwnerID: "existing-owner"}, nil
-					},
-				}
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "existing-owner"}, nil)
 			},
 			expectedStatus: http.StatusForbidden,
 		},
 		{
 			name: "Success",
 			user: domain.User{ID: "claimer"},
-			mockSetup: func() *mock.MockListingRepository {
-				return &mock.MockListingRepository{
-					FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
-						// Must specify a claimable type
-						return domain.Listing{ID: "1", OwnerID: "", Type: domain.Business}, nil
-					},
-					SaveFn: func(ctx context.Context, l domain.Listing) error {
-						if l.OwnerID != "claimer" {
-							return errors.New("owner id not updated")
-						}
-						return nil
-					},
-				}
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "", Type: domain.Business}, nil)
+				m.On("Save", testifyMock.Anything, testifyMock.MatchedBy(func(l domain.Listing) bool {
+					return l.OwnerID == "claimer"
+				})).Return(nil)
 			},
-			expectedStatus: http.StatusOK, // HTMX request returns modal HTML (200), not Redirect (302)
+			expectedStatus: http.StatusOK,
 		},
 	}
 
@@ -746,19 +598,16 @@ func TestHandleClaim(t *testing.T) {
 				c.Set("User", tt.user)
 			}
 
-			h := handler.NewListingHandler(tt.mockSetup())
+			mockRepo := &mock.MockListingRepository{}
+			tt.setupMock(mockRepo)
 
-			// We need to handle the internal error response manually in test if using RespondError
-			// But RespondError calls c.Render("error.html"), which we mocked.
-			// However, in our test setup, RespondError is in the handler package, so it uses the real logic?
-			// No, it's called by HandleClaim. The test just checks the response code recorded.
-			// If RespondError renders 404, the status code will be 404.
-
+			h := handler.NewListingHandler(mockRepo)
 			_ = h.HandleClaim(c)
 
 			if rec.Code != tt.expectedStatus {
 				t.Errorf("Expected status %d, got %d", tt.expectedStatus, rec.Code)
 			}
+			mockRepo.AssertExpectations(t)
 		})
 	}
 }

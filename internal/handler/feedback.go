@@ -62,5 +62,17 @@ func (h *FeedbackHandler) HandleSubmit(c echo.Context) error {
 	// Return success message or close modal
 	// We can return a small HTML snippet to replace the form or Close the modal
 	// For now, let's just return a success message or a specialized template
-	return c.HTML(http.StatusOK, "<div class='p-4 text-green-600 font-bold'>Thank you for your feedback!</div>")
+	// Return success message
+	return c.HTML(http.StatusOK, `
+		<div class="flex flex-col items-center justify-center p-8 space-y-4 text-center animate-in fade-in zoom-in-95 duration-300">
+			<div class="h-16 w-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-2">
+				<span class="material-symbols-outlined text-4xl text-green-600 dark:text-green-400">check_circle</span>
+			</div>
+			<h3 class="text-xl font-bold text-stone-800 dark:text-white">Thank You!</h3>
+			<p class="text-stone-500 dark:text-stone-400 max-w-xs">Your feedback has been received and helps us improve Agbalumo.</p>
+			<button onclick="this.closest('dialog').close(); this.closest('dialog').remove();" class="mt-4 px-6 py-2 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 rounded-full font-bold text-sm transition-colors">
+				Close
+			</button>
+		</div>
+	`)
 }

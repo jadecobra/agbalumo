@@ -1,0 +1,21 @@
+2026/02/17 14:14:34 Starting Secure Server on :8443 (HTTPS)
+2026/02/17 14:14:34 [Background] Service started. Ticking every 1 hour.
+
+   ____    __
+  / __/___/ /  ___
+ / _// __/ _ \/ _ \
+/___/\__/_//_/\___/ v4.15.0
+High performance, minimalist Go web framework
+https://echo.labstack.com
+____________________________________O/_______
+                                    O\
+⇨ https server started on [::]:8443
+echo: http: TLS handshake error from [::1]:63738: remote error: tls: unknown certificate
+echo: http: TLS handshake error from [::1]:63739: remote error: tls: unknown certificate
+echo: http: TLS handshake error from 192.168.68.69:63743: remote error: tls: unknown certificate
+echo: http: TLS handshake error from [::1]:63757: remote error: tls: unknown certificate
+echo: http: TLS handshake error from 192.168.68.69:63914: remote error: tls: unknown certificate
+echo: http: TLS handshake error from 192.168.68.69:50549: remote error: tls: unknown certificate
+echo: http: TLS handshake error from 192.168.68.69:50550: remote error: tls: unknown certificate
+echo: http: TLS handshake error from 192.168.68.69:50559: remote error: tls: unknown certificate
+echo: http: TLS handshake error from 192.168.68.69:50560: remote error: tls: unknown certificate

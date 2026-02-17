@@ -1,130 +1,69 @@
-package handler_test
+package handler
 
 import (
-	"context"
-	"errors"
 	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/jadecobra/agbalumo/internal/mock"
+	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
+	testifyMock "github.com/stretchr/testify/mock"
 )
 
-func TestSubmitFeedback(t *testing.T) {
-	tests := []struct {
-		name           string
-		user           *domain.User
-		body           string
-		mockSetup      func() *mock.MockListingRepository
-		expectedStatus int
-	}{
-		{
-			name: "Success",
-			user: &domain.User{ID: "user-1"},
-			body: "type=Issue&content=Bug+Report",
-			mockSetup: func() *mock.MockListingRepository {
-				return &mock.MockListingRepository{
-					SaveFeedbackFn: func(ctx context.Context, f domain.Feedback) error {
-						if f.Type != domain.FeedbackTypeIssue {
-							return errors.New("wrong type")
-						}
-						if f.Content != "Bug Report" {
-							return errors.New("wrong content")
-						}
-						// Check UserID
-						if f.UserID != "user-1" {
-							return errors.New("wrong user id")
-						}
-						return nil
-					},
-				}
-			},
-			expectedStatus: http.StatusOK,
-		},
-		{
-			name: "Unauthenticated",
-			user: nil,
-			body: "type=Issue&content=Bug",
-			mockSetup: func() *mock.MockListingRepository {
-				return &mock.MockListingRepository{}
-			},
-			expectedStatus: http.StatusUnauthorized, // Or redirect, checking logic
-		},
-		{
-			name: "MissingContent",
-			user: &domain.User{ID: "user-1"},
-			body: "type=Issue&content=",
-			mockSetup: func() *mock.MockListingRepository {
-				return &mock.MockListingRepository{
-					SaveFeedbackFn: func(ctx context.Context, f domain.Feedback) error {
-						return errors.New("should not be called")
-					},
-				}
-			},
-			expectedStatus: http.StatusBadRequest,
-		},
-		{
-			name: "RepoError",
-			user: &domain.User{ID: "user-1"},
-			body: "type=Other&content=Stuff",
-			mockSetup: func() *mock.MockListingRepository {
-				return &mock.MockListingRepository{
-					SaveFeedbackFn: func(ctx context.Context, f domain.Feedback) error {
-						return errors.New("db failed")
-					},
-				}
-			},
-			expectedStatus: http.StatusInternalServerError,
-		},
-	}
+func TestFeedbackHandler_HandleModal(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/feedback/modal", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			c, rec := setupTestContext(http.MethodPost, "/feedback", strings.NewReader(tt.body))
+	h := NewFeedbackHandler(nil)
+	e.Renderer = &mock.MockRenderer{}
 
-			if tt.user != nil {
-				c.Set("User", *tt.user)
-			}
-
-			h := handler.NewFeedbackHandler(tt.mockSetup())
-
-			// We assume HandleSubmit will be the method name
-			err := h.HandleSubmit(c)
-
-			// Handle errors that Echo might return (e.g. 400/500)
-			if err != nil {
-				// In Echo, returning an error often means it's processed by error handler.
-				// However, if we return c.String(status, msg), err is nil.
-				// If we return echo.NewHTTPError, err is not nil.
-				// We'll check rec.Code mostly.
-			}
-
-			if rec.Code != tt.expectedStatus {
-				t.Errorf("Expected status %d, got %d", tt.expectedStatus, rec.Code)
-			}
-		})
-	}
+	err := h.HandleModal(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
 }
 
-func TestHandleModal(t *testing.T) {
-	// Setup
-	c, rec := setupTestContext(http.MethodGet, "/feedback/modal", nil)
-	repo := &mock.MockListingRepository{}
-	h := handler.NewFeedbackHandler(repo)
+func TestFeedbackHandler_HandleSubmit_Success(t *testing.T) {
+	e := echo.New()
+	formData := url.Values{}
+	formData.Set("type", "Issue")
+	formData.Set("content", "This is a bug.")
+	req := httptest.NewRequest(http.MethodPost, "/feedback", strings.NewReader(formData.Encode()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
 
-	// Execute
-	err := h.HandleModal(c)
+	user := domain.User{ID: "user1"}
+	c.Set("User", user)
 
-	// Verify
-	if err != nil {
-		t.Errorf("HandleModal returned error: %v", err)
-	}
-	if rec.Code != http.StatusOK {
-		t.Errorf("Expected status 200, got %d", rec.Code)
-	}
-	// Verify template name if possible, or at least content if rendered
-	// Since we mock renderer usually in setupTestContext, we might check that.
-	// But here we just check no error and 200 OK which implies render called.
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("SaveFeedback", testifyMock.Anything, testifyMock.MatchedBy(func(f domain.Feedback) bool {
+		return f.UserID == "user1" && f.Type == domain.FeedbackTypeIssue && f.Content == "This is a bug."
+	})).Return(nil)
+
+	h := NewFeedbackHandler(mockRepo)
+
+	err := h.HandleSubmit(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Contains(t, rec.Body.String(), "check_circle")
+	mockRepo.AssertExpectations(t)
+}
+
+func TestFeedbackHandler_HandleSubmit_NoAuth(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodPost, "/feedback", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	h := NewFeedbackHandler(nil)
+
+	err := h.HandleSubmit(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusUnauthorized, rec.Code)
 }

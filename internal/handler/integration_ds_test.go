@@ -1,7 +1,6 @@
 package handler_test
 
 import (
-	"context"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -12,6 +11,7 @@ import (
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/jadecobra/agbalumo/internal/mock"
 	"github.com/labstack/echo/v4"
+	testifyMock "github.com/stretchr/testify/mock"
 )
 
 // Data Validation Integration Tests
@@ -26,20 +26,15 @@ func TestIntegration_DataValidation(t *testing.T) {
 	}
 
 	for _, bodyStr := range goodData {
+		mockRepo := &mock.MockListingRepository{}
+		mockRepo.On("Save", testifyMock.Anything, testifyMock.Anything).Return(nil)
+
+		h := handler.NewListingHandler(mockRepo)
+
 		req := httptest.NewRequest(http.MethodPost, "/listings", strings.NewReader(bodyStr))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-
-		// Mock Repo - Success
-		mockRepo := &mock.MockListingRepository{
-			SaveFn: func(ctx context.Context, l domain.Listing) error {
-				return nil
-			},
-		}
-		h := handler.NewListingHandler(mockRepo)
-
-		// Inject User
 		c.Set("User", domain.User{ID: "test-user-id", Email: "good@test.com"})
 
 		if err := h.HandleCreate(c); err != nil {
@@ -48,6 +43,7 @@ func TestIntegration_DataValidation(t *testing.T) {
 		if rec.Code != http.StatusOK {
 			t.Errorf("Expected 200 OK for good data, got %d. Body: %s", rec.Code, rec.Body.String())
 		}
+		mockRepo.AssertExpectations(t)
 	}
 
 	// 2. Negative Test Cases: Known Bad Data
@@ -85,18 +81,23 @@ func TestIntegration_DataValidation(t *testing.T) {
 
 	for _, tc := range badData {
 		t.Run(tc.name, func(t *testing.T) {
+			mockRepo := &mock.MockListingRepository{}
+			// Save shouldn't be called, so no expectation set, or Expect failure?
+			// Validation failures usually don't reach repository Save.
+			// So default mock (AssertExpectations) works fine if we don't set any expectations, it means "no calls allowed".
+			// Except we usually need to specify "no calls" explicitly or just not set "On".
+			// If we don't set "On" and it calls, it will panic or fail.
+			// Let's assume validation happens before Save.
+
+			h := handler.NewListingHandler(mockRepo)
+
 			req := httptest.NewRequest(http.MethodPost, "/listings", strings.NewReader(tc.body))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
-
-			mockRepo := &mock.MockListingRepository{SaveFn: func(ctx context.Context, l domain.Listing) error { return nil }}
-			h := handler.NewListingHandler(mockRepo)
-
-			// Inject User
 			c.Set("User", domain.User{ID: "test-user-id", Email: "bad@test.com"})
 
-			h.HandleCreate(c) // Should return error handled by echo or return error
+			h.HandleCreate(c)
 
 			if rec.Code != http.StatusBadRequest {
 				t.Errorf("Expected 400 Bad Request, got %d", rec.Code)
@@ -104,6 +105,7 @@ func TestIntegration_DataValidation(t *testing.T) {
 			if !strings.Contains(rec.Body.String(), tc.wantError) {
 				t.Errorf("Expected error '%s', got '%s'", tc.wantError, rec.Body.String())
 			}
+			mockRepo.AssertExpectations(t)
 		})
 	}
 }

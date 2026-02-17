@@ -6,39 +6,27 @@ import (
 	"time"
 
 	"github.com/jadecobra/agbalumo/internal/mock"
-	"github.com/stretchr/testify/assert"
+	testifyMock "github.com/stretchr/testify/mock"
 )
 
 func TestBackgroundService_ExpireListings(t *testing.T) {
 	// Setup Mock
-	mockRepo := &mock.MockListingRepository{
-		ExpireListingsFn: func(ctx context.Context) (int64, error) {
-			return 5, nil
-		},
-	}
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("ExpireListings", context.Background()).Return(int64(5), nil)
 
 	service := NewBackgroundService(mockRepo)
 
 	// Since expireListings is private but we are in package service, we can call it.
 	service.expireListings(context.Background())
 
-	// We can't easily assert on the log output without hooking logger,
-	// but we can ensure the mock was called if we add a call counter to the mock
-	// or just trust the mock function execution in this simple case.
-	// For better verification, we can update the mock to track calls.
-	// But let's keep it simple: if it didn't panic and the potential logic inside ran, we are okay.
-	// The main logic is just calling Repo.ExpireListings.
+	mockRepo.AssertExpectations(t)
 }
 
 func TestBackgroundService_StartTicker_Cancels(t *testing.T) {
 	// Setup Mock
-	called := false
-	mockRepo := &mock.MockListingRepository{
-		ExpireListingsFn: func(ctx context.Context) (int64, error) {
-			called = true
-			return 0, nil
-		},
-	}
+	mockRepo := &mock.MockListingRepository{}
+	// It should be called at least once
+	mockRepo.On("ExpireListings", testifyMock.Anything).Return(int64(0), nil)
 
 	service := NewBackgroundService(mockRepo)
 	ctx, cancel := context.WithCancel(context.Background())
@@ -64,5 +52,5 @@ func TestBackgroundService_StartTicker_Cancels(t *testing.T) {
 		t.Fatal("StartTicker did not exit after context cancellation")
 	}
 
-	assert.True(t, called, "ExpireListings should be called at least once immediately")
+	mockRepo.AssertCalled(t, "ExpireListings", testifyMock.Anything)
 }

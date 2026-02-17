@@ -29,4 +29,5 @@ type ListingRepository interface {
 	GetFeaturedListings(ctx context.Context) ([]Listing, error) // New: For Home Carousel
 	GetPendingListings(ctx context.Context) ([]Listing, error)  // New
 	GetUserCount(ctx context.Context) (int, error)              // New
+	GetAllUsers(ctx context.Context) ([]User, error)            // New: For Admin Dashboard
 }

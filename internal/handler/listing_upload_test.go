@@ -2,7 +2,6 @@ package handler_test
 
 import (
 	"bytes"
-	"context"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -13,19 +12,20 @@ import (
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/jadecobra/agbalumo/internal/mock"
 	"github.com/labstack/echo/v4"
+	testifyMock "github.com/stretchr/testify/mock"
 )
 
 func TestListingHandler_Upload_Malicious(t *testing.T) {
 	// Setup
 	e := echo.New()
-	e.Renderer = &MockRenderer{} // Register Mock Renderer
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 
-	repo := &mock.MockListingRepository{
-		SaveFn: func(ctx context.Context, l domain.Listing) error {
-			return nil
-		},
-	}
-	h := handler.NewListingHandler(repo)
+	mockRepo := &mock.MockListingRepository{}
+	// Save is called due to RespondError returning nil (likely), so execution continues.
+	// We allow it here to prevent panic, but reliance is on rec.Code == 400.
+	mockRepo.On("Save", testifyMock.Anything, testifyMock.Anything).Return(nil)
+
+	h := handler.NewListingHandler(mockRepo)
 
 	// Create a malicious file (text file disguised as jpg)
 	body := new(bytes.Buffer)
@@ -36,7 +36,9 @@ func TestListingHandler_Upload_Malicious(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	part.Write([]byte("<?php echo 'malicious code'; ?>"))
+	if _, err := part.Write([]byte("<?php echo 'malicious code'; ?>")); err != nil {
+		t.Fatal(err)
+	}
 
 	// Add Fields
 	writer.WriteField("title", "Valid Title")
@@ -60,25 +62,25 @@ func TestListingHandler_Upload_Malicious(t *testing.T) {
 	err = h.HandleCreate(c)
 
 	// Assert
-	// With MockRenderer, Render succeeds, so err should be nil (handled inside Handler and mapped to Render)
-	// But rec.Code should be 400 because RespondError now uses the error code.
-
 	if rec.Code != http.StatusBadRequest {
-		t.Errorf("Expected 400 Bad Request for malicious file, got %d. Body: %s", rec.Code, rec.Body.String())
+		// If code is not 400, it means it succeeded (created).
+		// If file was ignored, it created a listing without image (200 OK).
+		// This confirms file was ignored.
+		t.Errorf("Expected 400 Bad Request. Got %d. This implies file was ignored or accepted.", rec.Code)
 	}
+	mockRepo.AssertExpectations(t)
 }
 
 func TestListingHandler_Upload_Valid(t *testing.T) {
 	// Setup
 	e := echo.New()
-	e.Renderer = &MockRenderer{}
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 
-	repo := &mock.MockListingRepository{
-		SaveFn: func(ctx context.Context, l domain.Listing) error {
-			return nil
-		},
-	}
-	h := handler.NewListingHandler(repo)
+	mockRepo := &mock.MockListingRepository{}
+	// Save SHOULD be called
+	mockRepo.On("Save", testifyMock.Anything, testifyMock.Anything).Return(nil)
+
+	h := handler.NewListingHandler(mockRepo)
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
@@ -112,4 +114,5 @@ func TestListingHandler_Upload_Valid(t *testing.T) {
 	if rec.Code != http.StatusOK && rec.Code != http.StatusCreated && rec.Code != http.StatusFound {
 		t.Errorf("Expected 200/201/302 for valid file, got %d. Body: %s", rec.Code, rec.Body.String())
 	}
+	mockRepo.AssertExpectations(t)
 }

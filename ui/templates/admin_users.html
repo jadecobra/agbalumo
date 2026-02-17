@@ -1,0 +1,69 @@
+{{ template "base.html" . }}
+
+{{ define "content" }}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-8">
+        <h1 class="text-3xl font-bold text-stone-900 dark:text-white">Users</h1>
+        <a href="/admin"
+            class="px-4 py-2 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors font-bold text-sm">
+            Back to Dashboard
+        </a>
+    </div>
+
+    <div
+        class="bg-white dark:bg-surface-dark rounded-xl shadow-lg border border-stone-200 dark:border-stone-700 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-stone-200 dark:divide-stone-700">
+                <thead class="bg-stone-50 dark:bg-stone-800/50">
+                    <tr>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                            User</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                            Role</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                            Joined</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-surface-dark divide-y divide-stone-100 dark:divide-stone-700/50">
+                    {{ range .Users }}
+                    <tr class="hover:bg-stone-50 dark:hover:bg-stone-800/30 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="h-10 w-10 shrink-0">
+                                    <img class="h-10 w-10 rounded-full object-cover border border-stone-200 dark:border-stone-700"
+                                        src="{{ if .AvatarURL }}{{ .AvatarURL }}{{ else }}/static/images/default-avatar.png{{ end }}"
+                                        alt="{{ .Name }}">
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-bold text-stone-900 dark:text-white">{{ .Name }}</div>
+                                    <div class="text-sm text-stone-500 dark:text-stone-400">{{ .Email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {{ if eq .Role " Admin" }}bg-purple-100 text-purple-800 dark:bg-purple-900/30
+                                dark:text-purple-300 {{ else }}bg-green-100 text-green-800 dark:bg-green-900/30
+                                dark:text-green-300{{ end }}">
+                                {{ .Role }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-stone-500 dark:text-stone-400">
+                            {{ .CreatedAt.Format "Jan 02, 2006" }}
+                        </td>
+                    </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </div>
+        {{ if not .Users }}
+        <div class="p-8 text-center text-stone-500 dark:text-stone-400">
+            No users found.
+        </div>
+        {{ end }}
+    </div>
+</div>
+{{ end }}

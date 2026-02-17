@@ -102,7 +102,8 @@ var serveCmd = &cobra.Command{
 
 		// Handlers
 		listingHandler := handler.NewListingHandler(repo)
-		adminHandler := handler.NewAdminHandler(repo)
+		csvService := service.NewCSVService()
+		adminHandler := handler.NewAdminHandler(repo, csvService)
 		authHandler := handler.NewAuthHandler(repo, nil) // New Auth Handler with default provider
 
 		// Auth Routes
@@ -153,8 +154,10 @@ var serveCmd = &cobra.Command{
 		adminGroup.Use(adminHandler.AdminMiddleware)
 
 		adminGroup.GET("", adminHandler.HandleDashboard)
+		adminGroup.GET("/users", adminHandler.HandleUsers)
 		adminGroup.POST("/listings/:id/approve", adminHandler.HandleApprove)
 		adminGroup.POST("/listings/:id/reject", adminHandler.HandleReject)
+		adminGroup.POST("/upload", adminHandler.HandleBulkUpload)
 
 		// Seed Data (if empty) AND not in production
 		ctx := context.Background()

@@ -1,7 +1,6 @@
 package handler_test
 
 import (
-	"context"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -12,6 +11,7 @@ import (
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/jadecobra/agbalumo/internal/mock"
 	"github.com/labstack/echo/v4"
+	testifyMock "github.com/stretchr/testify/mock"
 )
 
 func TestHandleUpdate_JobSuccess(t *testing.T) {
@@ -37,9 +37,27 @@ func TestHandleUpdate_JobSuccess(t *testing.T) {
 		IsActive:     true,
 	}
 
-	// This simulates the form data that the updated UI will send
-	// Note: We use the format expected by time.Parse inside the handler
 	jobStart := time.Now().Add(48 * time.Hour).Format("2006-01-02T15:04")
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindByID", testifyMock.Anything, "job-1").Return(existingListing, nil)
+	mockRepo.On("Save", testifyMock.Anything, testifyMock.MatchedBy(func(l domain.Listing) bool {
+		if l.Title != "Senior Go Dev Updated" {
+			return false
+		}
+		if l.Company != "Updated Corp" {
+			return false
+		}
+		if l.Skills != "Go, Rust" {
+			return false
+		}
+		if l.PayRange != "200k" {
+			return false
+		}
+		return true
+	})).Return(nil)
+
+	h := handler.NewListingHandler(mockRepo)
 
 	formData := "title=Senior+Go+Dev+Updated&type=Job&owner_origin=Nigeria&description=Updated+Desc&contact_email=job@example.com&city=Lagos" +
 		"&company=Updated+Corp&skills=Go,+Rust&pay_range=200k&job_apply_url=https://updated.com&job_start_date=" + jobStart
@@ -53,31 +71,6 @@ func TestHandleUpdate_JobSuccess(t *testing.T) {
 	c.SetParamValues("job-1")
 	c.Set("User", domain.User{ID: "owner-1"})
 
-	// Mock Repo
-	mockRepo := &mock.MockListingRepository{
-		FindByIDFn: func(ctx context.Context, id string) (domain.Listing, error) {
-			return existingListing, nil
-		},
-		SaveFn: func(ctx context.Context, l domain.Listing) error {
-			// Verify Update fields
-			if l.Title != "Senior Go Dev Updated" {
-				t.Errorf("Expected updated title, got %s", l.Title)
-			}
-			if l.Company != "Updated Corp" {
-				t.Errorf("Expected Updated Corp, got %s", l.Company)
-			}
-			if l.Skills != "Go, Rust" {
-				t.Errorf("Expected Go, Rust, got %s", l.Skills)
-			}
-			if l.PayRange != "200k" {
-				t.Errorf("Expected 200k, got %s", l.PayRange)
-			}
-			return nil
-		},
-	}
-
-	h := handler.NewListingHandler(mockRepo)
-
 	// Execute
 	err := h.HandleUpdate(c)
 
@@ -89,4 +82,5 @@ func TestHandleUpdate_JobSuccess(t *testing.T) {
 		t.Errorf("Expected status 200, got %d", rec.Code)
 		t.Logf("Response Body: %s", rec.Body.String())
 	}
+	mockRepo.AssertExpectations(t)
 }

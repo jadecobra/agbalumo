@@ -1,19 +1,23 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
+	"github.com/jadecobra/agbalumo/internal/service"
 	"github.com/labstack/echo/v4"
 )
 
 type AdminHandler struct {
-	Repo domain.ListingRepository
+	Repo       domain.ListingRepository
+	CSVService *service.CSVService
 }
 
-func NewAdminHandler(repo domain.ListingRepository) *AdminHandler {
-	return &AdminHandler{Repo: repo}
+func NewAdminHandler(repo domain.ListingRepository, csvService *service.CSVService) *AdminHandler {
+	return &AdminHandler{Repo: repo, CSVService: csvService}
 }
 
 // AdminMiddleware checks if the user is an admin.
@@ -101,11 +105,36 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 		return RespondError(c, err)
 	}
 
+	// Get Flash Messages
+	sess := customMiddleware.GetSession(c)
+	var flashMsg interface{}
+	if sess != nil {
+		if flashes := sess.Flashes("message"); len(flashes) > 0 {
+			flashMsg = flashes[0]
+			sess.Save(c.Request(), c.Response())
+		}
+	}
+
 	return c.Render(http.StatusOK, "admin_dashboard.html", map[string]interface{}{
 		"PendingListings": pendingListings,
 		"UserCount":       userCount,
 		"FeedbackCounts":  feedbackCounts,
 		"User":            c.Get("User"),
+		"FlashMessage":    flashMsg,
+	})
+}
+
+// HandleUsers renders the list of users for admins.
+func (h *AdminHandler) HandleUsers(c echo.Context) error {
+	ctx := c.Request().Context()
+	users, err := h.Repo.GetAllUsers(ctx)
+	if err != nil {
+		return RespondError(c, err)
+	}
+
+	return c.Render(http.StatusOK, "admin_users.html", map[string]interface{}{
+		"Users": users,
+		"User":  c.Get("User"),
 	})
 }
 
@@ -148,4 +177,43 @@ func (h *AdminHandler) HandleReject(c echo.Context) error {
 	}
 
 	return c.NoContent(http.StatusOK)
+}
+
+// HandleBulkUpload processes a CSV file upload.
+func (h *AdminHandler) HandleBulkUpload(c echo.Context) error {
+	// 1. Get File
+	file, err := c.FormFile("csv_file")
+	if err != nil {
+		return RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Please select a valid CSV file"))
+	}
+
+	src, err := file.Open()
+	if err != nil {
+		return RespondError(c, err)
+	}
+	defer src.Close()
+
+	// 2. Parse and Import
+	result, err := h.CSVService.ParseAndImport(c.Request().Context(), src, h.Repo)
+	if err != nil {
+		return RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Failed to process CSV: "+err.Error()))
+	}
+
+	// 3. Render Result / Redirect
+	sess := customMiddleware.GetSession(c)
+	if sess != nil {
+		msg := fmt.Sprintf("Processed %d items. Success: %d, Failed: %d", result.TotalProcessed, result.SuccessCount, result.FailureCount)
+		if len(result.Errors) > 0 {
+			// Truncate errors if too long?
+			if len(result.Errors) > 3 {
+				msg += fmt.Sprintf(". Errors: %v ...", result.Errors[:3])
+			} else {
+				msg += fmt.Sprintf(". Errors: %v", result.Errors)
+			}
+		}
+		sess.AddFlash(msg, "message")
+		sess.Save(c.Request(), c.Response())
+	}
+
+	return c.Redirect(http.StatusFound, "/admin")
 }

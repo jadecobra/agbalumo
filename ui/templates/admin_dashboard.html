@@ -7,10 +7,15 @@
     <!-- Metrics Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <!-- Total Users -->
-        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
-            <h2 class="text-gray-500 text-sm uppercase font-semibold">Total Users</h2>
+        <!-- Total Users -->
+        <a href="/admin/users"
+            class="block bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500 hover:shadow-lg transition-shadow cursor-pointer">
+            <h2 class="text-gray-500 text-sm uppercase font-semibold flex justify-between items-center">
+                Total Users
+                <span class="material-symbols-outlined text-gray-400">group</span>
+            </h2>
             <p class="text-3xl font-bold text-gray-800">{{ .UserCount }}</p>
-        </div>
+        </a>
 
         <!-- Feedback Counts -->
         {{ range $type, $count := .FeedbackCounts }}
@@ -19,6 +24,34 @@
             <p class="text-3xl font-bold text-gray-800">{{ $count }}</p>
         </div>
         {{ end }}
+    </div>
+
+    <!-- Flash Message -->
+    {{ if .FlashMessage }}
+    <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-8" role="alert">
+        <p class="font-bold">Notice</p>
+        <p>{{ .FlashMessage }}</p>
+    </div>
+    {{ end }}
+
+    <!-- Bulk Upload -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Bulk Upload</h2>
+        <form action="/admin/upload" method="POST" enctype="multipart/form-data" class="flex items-center gap-4">
+            <input type="hidden" name="_csrf" value="{{ .CSRF }}">
+            <div class="flex-1">
+                <input type="file" name="csv_file" accept=".csv" required
+                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100" />
+            </div>
+            <button type="submit"
+                class="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
+                Upload CSV
+            </button>
+        </form>
+        <div class="mt-2 text-sm text-gray-500">
+            <p>Required Headers: <code>title, type, description, origin, email</code></p>
+            <p>Optional: <code>website, phone, whatsapp, address, hours</code></p>
+        </div>
     </div>
 
     <!-- Moderation Queue -->

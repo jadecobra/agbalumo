@@ -1,7 +1,6 @@
 package handler_test
 
 import (
-	"context"
 	"html/template"
 	"io"
 	"net/http"
@@ -16,6 +15,7 @@ import (
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/jadecobra/agbalumo/internal/mock"
 	"github.com/labstack/echo/v4"
+	testifyMock "github.com/stretchr/testify/mock"
 )
 
 // RealTemplateRenderer parses actual files from ui/templates
@@ -34,14 +34,10 @@ func NewRealTemplate(t *testing.T) *template.Template {
 		t.Fatal(err)
 	}
 
-	// Traverse up to find go.mod or specific root marker
-	// Simpler approach: assume standard level depth or use relative ../../
-	// If running from internal/handler, root is ../../
 	projectRoot := filepath.Join(wd, "..", "..")
 	templatePattern := filepath.Join(projectRoot, "ui", "templates", "*.html")
 	partialPattern := filepath.Join(projectRoot, "ui", "templates", "partials", "*.html")
 
-	// Helper functions map matching what's in main.go
 	funcMap := template.FuncMap{
 		"mod":   func(i, j int) int { return i % j },
 		"split": strings.Split,
@@ -74,23 +70,20 @@ func NewRealTemplate(t *testing.T) *template.Template {
 }
 
 func TestHomePageUIValues(t *testing.T) {
-	// Setup
 	e := echo.New()
 	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplate(t)}
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	// Mock Repo
-	mockRepo := &mock.MockListingRepository{
-		FindAllFn: func(ctx context.Context, filterType, query string, includeInactive bool) ([]domain.Listing, error) {
-			return []domain.Listing{}, nil
-		},
-	}
+	mockRepo := &mock.MockListingRepository{}
+	// Expect calls for Home Page
+	mockRepo.On("FindAll", testifyMock.Anything, "", "", false).Return([]domain.Listing{}, nil)
+	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{}, nil)
+	mockRepo.On("GetFeaturedListings", testifyMock.Anything).Return([]domain.Listing{}, nil)
 
 	h := handler.NewListingHandler(mockRepo)
 
-	// Execute
 	if err := h.HandleHome(c); err != nil {
 		t.Fatalf("HandleHome failed: %v", err)
 	}
@@ -102,75 +95,59 @@ func TestHomePageUIValues(t *testing.T) {
 	body := rec.Body.String()
 
 	// 1. Verify Listings Container is Relative
-	// Expected: <div class="relative flex-1 px-4 ...">
 	if !strings.Contains(body, `class="relative flex-1`) {
 		t.Error("Regression: Listings container missing 'relative' class")
 	}
 
 	// 2. Verify Helper Overlay classes
-	// Expected: opacity-0 pointer-events-none
 	if !strings.Contains(body, `opacity-0`) || !strings.Contains(body, `pointer-events-none`) {
 		t.Error("Regression: Loading indicator missing default transparency/pointer-events classes")
 	}
 
 	// 3. Verify HTMX Interaction classes
-	// Expected: [&.htmx-request]:opacity-100
 	if !strings.Contains(body, `[&.htmx-request]:opacity-100`) {
 		t.Error("Regression: Loading indicator missing active state classes")
 	}
 
 	// 4. Verify Search Indicator
-	// Expected: hx-indicator="#listings-loading"
 	if !strings.Contains(body, `hx-indicator="#listings-loading"`) {
 		t.Error("Regression: Search input missing hx-indicator attribute")
 	}
 }
 
 func TestFilterUIValues(t *testing.T) {
-	// Setup
 	e := echo.New()
 	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplate(t)}
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	// Mock Repo
-	mockRepo := &mock.MockListingRepository{
-		FindAllFn: func(ctx context.Context, filterType, query string, includeInactive bool) ([]domain.Listing, error) {
-			return []domain.Listing{}, nil
-		},
-	}
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindAll", testifyMock.Anything, "", "", false).Return([]domain.Listing{}, nil)
+	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{}, nil)
+	mockRepo.On("GetFeaturedListings", testifyMock.Anything).Return([]domain.Listing{}, nil)
 
 	h := handler.NewListingHandler(mockRepo)
 
-	// Execute
 	if err := h.HandleHome(c); err != nil {
 		t.Fatalf("HandleHome failed: %v", err)
 	}
 
 	body := rec.Body.String()
 
-	// 1. Verify Filter Container ID
 	if !strings.Contains(body, `id="filter-container"`) {
 		t.Error("Regression: Filter container missing ID 'filter-container'")
 	}
 
-	// 2. Verify 'All' button has active state by default
-	// Active state class unique part: bg-stone-900 text-white
-	// We check for the specific combination on the All button
 	if !strings.Contains(body, `All`) || !strings.Contains(body, `bg-stone-900 text-white`) {
 		t.Error("Regression: 'All' button does not appear to have active classes")
 	}
 
-	// 3. Verify 'Food' button has inactive state by default
-	// Inactive state includes: bg-white dark:bg-surface-dark
 	if !strings.Contains(body, `Food (`) {
 		t.Error("Regression: 'Food' filter button missing count")
 	}
-	// This check is a bit loose but ensures we didn't accidentally make Food active
 	foodIndex := strings.Index(body, `Food (`)
 	if foodIndex != -1 {
-		// Look backwards for the button class definition
 		buttonStart := strings.LastIndex(body[:foodIndex], `<button`)
 		buttonTag := body[buttonStart:foodIndex]
 		if strings.Contains(buttonTag, `bg-stone-900`) {
@@ -178,15 +155,12 @@ func TestFilterUIValues(t *testing.T) {
 		}
 	}
 
-	// 3. Verify external JS inclusion (app.js should handle filters now)
-	// We added ?v=2 for cache busting
 	if !strings.Contains(rec.Body.String(), `src="/static/js/app.js?v=2"`) {
 		t.Errorf("Regression: app.js script tag missing")
 	}
 }
 
 func TestJobListingUI(t *testing.T) {
-	// Setup
 	e := echo.New()
 	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplate(t)}
 
@@ -204,16 +178,14 @@ func TestJobListingUI(t *testing.T) {
 		ContactEmail: "jobs@techinnovators.com",
 	}
 
-	// 1. Verify Listing Card Rendering
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	// We'll render the listing card partial directly for precision
 	data := map[string]interface{}{
 		"Listing":   job,
 		"GridClass": "",
-		"User":      domain.User{}, // Listing card might expect User for auth checks
+		"User":      domain.User{},
 	}
 	if err := e.Renderer.Render(rec, "listing_card", data, c); err != nil {
 		t.Fatalf("Failed to render listing_card.html: %v", err)
@@ -226,25 +198,11 @@ func TestJobListingUI(t *testing.T) {
 	if !strings.Contains(cardBody, job.PayRange) {
 		t.Errorf("Job card missing Pay Range: %s", job.PayRange)
 	}
-	// Verify no emoji in type badge (we'll fix this in templates)
 	if strings.Contains(cardBody, "💼") {
 		t.Error("Job card UI contains emoji in badge")
 	}
 
-	// 2. Verify Detail Modal Rendering
 	rec = httptest.NewRecorder()
-	// modal_detail.html likely still renders by filename unless I changed it too.
-	// Checking the file list earlier, I only touched partials.
-	// But waiting, modal_detail might be a partial.
-	// Assume it's a partial if it follows the pattern.
-	// However, I only explicitly changed listing_card, listing_list, modal_profile.
-	// If modal_detail wasn't changed, keep it as is?
-	// But wait, the Renderer fallback logic I implemented tries to find by name, then fallback.
-	// If modal_detail.html exists and doesn't have a define block, "modal_detail.html" is correct.
-	// If I didn't verify it, I should leave it or check.
-	// BUT, if I call Render with "modal_detail.html", and my renderer expects that, it's fine.
-	// The pre-commit error didn't explicitly flag modal_detail, but let's be safe.
-	// I'll leave it as matches the test setup unless I see it failed.
 	if err := e.Renderer.Render(rec, "modal_detail", data, c); err != nil {
 		t.Fatalf("Failed to render modal_detail.html: %v", err)
 	}
