@@ -22,7 +22,7 @@
 | **60** | `[x]` | **BE** | **Refactor Root Command**<br>Make `Execute` testable. | Testable? |
 | **61** | `[x]` | **BE** | **Refactor Seed Command**<br>Extract config logic. | Testable? |
 
-## Completed (Phase 1)
+| **62** | `[x]` | **SEC** | **Scrub History**<br>Remove tracked test artifacts. | Clean history? |
 - [x] **[FE]** Polish Claim Ownership UI (HTMX) <!-- id: 46 -->
 - [x] **[BE]** Implement Claim Ownership Logic <!-- id: 43 -->
 - [x] **[SDET]** Verify Claim Flow & Security <!-- id: 45 -->
