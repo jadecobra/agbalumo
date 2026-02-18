@@ -226,11 +226,6 @@ type ListingFormRequest struct {
 
 // Create Handler
 func (h *ListingHandler) HandleCreate(c echo.Context) error {
-	var req ListingFormRequest
-	if err := c.Bind(&req); err != nil {
-		return c.String(http.StatusBadRequest, "Invalid Request")
-	}
-
 	l := domain.Listing{
 		ID:        uuid.New().String(),
 		CreatedAt: time.Now(),
@@ -238,7 +233,7 @@ func (h *ListingHandler) HandleCreate(c echo.Context) error {
 		Status:    domain.ListingStatusPending, // Marked as Pending for Admin review
 	}
 
-	if err := h.populateListingFromRequest(c, &l, req); err != nil {
+	if err := h.bindAndMapListing(c, &l); err != nil {
 		return err
 	}
 
@@ -280,12 +275,7 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 		return c.String(http.StatusForbidden, "You are not the owner of this listing")
 	}
 
-	var req ListingFormRequest
-	if err := c.Bind(&req); err != nil {
-		return c.String(http.StatusBadRequest, "Invalid Request")
-	}
-
-	if err := h.populateListingFromRequest(c, &listing, req); err != nil {
+	if err := h.bindAndMapListing(c, &listing); err != nil {
 		return err
 	}
 
@@ -339,18 +329,21 @@ func (h *ListingHandler) HandleProfile(c echo.Context) error {
 
 // Helper methods
 
-func (h *ListingHandler) populateListingFromRequest(c echo.Context, l *domain.Listing, req ListingFormRequest) error {
+func (h *ListingHandler) bindAndMapListing(c echo.Context, l *domain.Listing) error {
+	var req ListingFormRequest
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid Request")
+	}
+
 	l.Title = req.Title
 	l.Type = domain.Category(req.Type)
 	l.OwnerOrigin = req.OwnerOrigin
 	l.Description = req.Description
 	l.City = req.City
-	l.City = req.City
 	l.Address = req.Address
 	l.HoursOfOperation = req.HoursOfOperation
 	l.ContactEmail = req.ContactEmail
 	l.ContactPhone = req.ContactPhone
-	l.ContactWhatsApp = req.ContactWhatsApp
 	l.ContactWhatsApp = req.ContactWhatsApp
 	l.WebsiteURL = req.WebsiteURL
 	l.Skills = req.Skills
@@ -369,7 +362,7 @@ func (h *ListingHandler) populateListingFromRequest(c echo.Context, l *domain.Li
 	if l.Type == domain.Request && req.DeadlineDate != "" {
 		parsedTime, err := time.Parse("2006-01-02", req.DeadlineDate)
 		if err != nil {
-			return c.String(http.StatusBadRequest, "Invalid Date Format")
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid Date Format")
 		}
 		l.Deadline = parsedTime
 	}
@@ -379,7 +372,7 @@ func (h *ListingHandler) populateListingFromRequest(c echo.Context, l *domain.Li
 		if req.EventStart != "" {
 			parsedTime, err := time.Parse("2006-01-02T15:04", req.EventStart)
 			if err != nil {
-				return c.String(http.StatusBadRequest, "Invalid Start Date Format")
+				return echo.NewHTTPError(http.StatusBadRequest, "Invalid Start Date Format")
 			}
 
 			l.EventStart = parsedTime
@@ -387,7 +380,7 @@ func (h *ListingHandler) populateListingFromRequest(c echo.Context, l *domain.Li
 		if req.EventEnd != "" {
 			parsedTime, err := time.Parse("2006-01-02T15:04", req.EventEnd)
 			if err != nil {
-				return c.String(http.StatusBadRequest, "Invalid End Date Format")
+				return echo.NewHTTPError(http.StatusBadRequest, "Invalid End Date Format")
 			}
 			l.EventEnd = parsedTime
 		}
@@ -397,7 +390,7 @@ func (h *ListingHandler) populateListingFromRequest(c echo.Context, l *domain.Li
 	if l.Type == domain.Job && req.JobStartDate != "" {
 		parsedTime, err := time.Parse("2006-01-02T15:04", req.JobStartDate)
 		if err != nil {
-			return c.String(http.StatusBadRequest, "Invalid Job Start Date Format")
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid Job Start Date Format")
 		}
 		l.JobStartDate = parsedTime
 	}
