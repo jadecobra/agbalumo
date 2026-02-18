@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"bytes"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -155,4 +157,65 @@ func TestAdminHandler_HandleLoginAction_InvalidCode(t *testing.T) {
 	err := h.HandleLoginAction(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
+}
+
+func TestAdminHandler_HandleBulkUpload_Success(t *testing.T) {
+	e := echo.New()
+
+	// Create CSV content
+	csvContent := "title,type,description,origin,email\nTest Biz,Business,Description,Nigeria,test@test.com"
+
+	body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile("csv_file", "upload.csv")
+	if err != nil {
+		t.Fatal(err)
+	}
+	part.Write([]byte(csvContent))
+	writer.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/admin/upload", body)
+	req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+
+	mockRepo := &mock.MockListingRepository{}
+	// Expect Save to be called for the valid row
+	mockRepo.On("Save", testifyMock.Anything, testifyMock.MatchedBy(func(l domain.Listing) bool {
+		return l.Title == "Test Biz" && l.Type == domain.Business && l.OwnerOrigin == "Nigeria"
+	})).Return(nil)
+
+	h := NewAdminHandler(mockRepo, service.NewCSVService())
+
+	err = h.HandleBulkUpload(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusFound, rec.Code)
+	assert.Equal(t, "/admin", rec.Header().Get("Location"))
+	mockRepo.AssertExpectations(t)
+}
+
+func TestAdminHandler_HandleBulkUpload_NoFile(t *testing.T) {
+	e := echo.New()
+
+	body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+	writer.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/admin/upload", body)
+	req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+
+	h := NewAdminHandler(nil, service.NewCSVService())
+	e.Renderer = &mock.MockRenderer{}
+
+	err := h.HandleBulkUpload(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
 }

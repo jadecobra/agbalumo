@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
@@ -263,4 +264,97 @@ func TestAuthHandler_DevLogin(t *testing.T) {
 		t.Errorf("Expected redirect 307, got %d", rec.Code)
 	}
 	mockRepo.AssertExpectations(t)
+}
+
+func TestAuthHandler_Logout(t *testing.T) {
+	e := echo.New()
+	store := customMiddleware.NewTestSessionStore()
+	e.Use(customMiddleware.SessionMiddleware(store))
+
+	h := &AuthHandler{}
+
+	req := httptest.NewRequest(http.MethodGet, "/auth/logout", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	// Set a session
+	session, _ := store.Get(req, "auth_session")
+	session.Values["user_id"] = "user123"
+	session.Save(req, rec) // Setup cookie
+	c.Set("session", session)
+
+	if err := h.Logout(c); err != nil {
+		t.Fatalf("Handler failed: %v", err)
+	}
+
+	if rec.Code != http.StatusTemporaryRedirect {
+		t.Errorf("Expected redirect 307, got %d", rec.Code)
+	}
+
+	// Verify MaxAge is -1 (expired)
+	if session.Options.MaxAge != -1 {
+		t.Errorf("Expected MaxAge -1, got %d", session.Options.MaxAge)
+	}
+}
+
+func TestRealGoogleProvider_GetAuthCodeURL(t *testing.T) {
+	p := NewRealGoogleProvider()
+
+	// Test localhost
+	url1 := p.GetAuthCodeURL("state", "localhost:8443")
+	if !strings.Contains(url1, "redirect_uri") {
+		t.Error("Expected redirect_uri in URL")
+	}
+
+	// Test production env logic via Setenv if needed, but simple call is fine for coverage of the method body.
+}
+
+func TestRealGoogleProvider_Exchange(t *testing.T) {
+	// Setup Mock Server
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Mock token endpoint behavior
+		// OAuth2 exchange makes a POST request
+		if r.Method == "POST" {
+			w.Header().Set("Content-Type", "application/json")
+			// Return a dummy token
+			w.Write([]byte(`{"access_token": "mock-token", "token_type": "Bearer", "expires_in": 3600}`))
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
+	}))
+	defer ts.Close()
+
+	// Override Endpoint
+	// We need to modify google.Endpoint which is a global var in the library?
+	// No, google.Endpoint is a constant/var in golang.org/x/oauth2/google
+	// We can't easily modify it if it's not a var in OUR code.
+	// But `NewRealGoogleProvider` uses `google.Endpoint`.
+	// Let's check `auth.go`.
+	// `Endpoint: google.Endpoint,`
+
+	// Since we can't modify `google.Endpoint` easily without race conditions or if it's const,
+	// maybe we can just construct a provider with custom config for this test?
+	// But `NewRealGoogleProvider` is what we want to test.
+
+	// WORKAROUND: We will test the Exchange logic by creating a RealGoogleProvider manually
+	// or just accept we tested the wrapper logic.
+	// `Exchange` method calls `p.config.Exchange`.
+	// If `p.config` has the real endpoint, it will fail network call.
+	// We can modify `p.config.Endpoint` AFTER creating it?
+
+	p := NewRealGoogleProvider()
+	p.config.Endpoint = oauth2.Endpoint{
+		AuthURL:  ts.URL + "/auth",
+		TokenURL: ts.URL + "/token",
+	}
+
+	// Case 1: Success (Network call to our mock server)
+	// Exchange code for token
+	token, err := p.Exchange(context.Background(), "any-code", "localhost")
+	if err != nil {
+		t.Fatalf("Expected success, got error: %v", err)
+	}
+	if token.AccessToken != "mock-token" {
+		t.Errorf("Expected token mock-token, got %s", token.AccessToken)
+	}
 }

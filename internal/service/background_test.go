@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -17,6 +18,19 @@ func TestBackgroundService_ExpireListings(t *testing.T) {
 	service := NewBackgroundService(mockRepo)
 
 	// Since expireListings is private but we are in package service, we can call it.
+	service.expireListings(context.Background())
+
+	mockRepo.AssertExpectations(t)
+}
+
+func TestBackgroundService_ExpireListings_Error(t *testing.T) {
+	// Setup Mock to return error
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("ExpireListings", context.Background()).Return(int64(0), errors.New("db error"))
+
+	service := NewBackgroundService(mockRepo)
+
+	// Should not panic, just log error
 	service.expireListings(context.Background())
 
 	mockRepo.AssertExpectations(t)

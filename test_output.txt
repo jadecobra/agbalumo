@@ -1,0 +1,156 @@
+=== RUN   TestAdminHandler_HandleDashboard
+--- PASS: TestAdminHandler_HandleDashboard (0.00s)
+=== RUN   TestAdminHandler_HandleUsers
+--- PASS: TestAdminHandler_HandleUsers (0.00s)
+=== RUN   TestAdminHandler_HandleApprove
+--- PASS: TestAdminHandler_HandleApprove (0.00s)
+=== RUN   TestAdminHandler_HandleReject
+--- PASS: TestAdminHandler_HandleReject (0.00s)
+=== RUN   TestAdminHandler_HandleLoginAction_Success
+--- PASS: TestAdminHandler_HandleLoginAction_Success (0.00s)
+=== RUN   TestAdminHandler_HandleLoginAction_InvalidCode
+--- PASS: TestAdminHandler_HandleLoginAction_InvalidCode (0.00s)
+=== RUN   TestAdminHandler_HandleBulkUpload_Success
+--- PASS: TestAdminHandler_HandleBulkUpload_Success (0.00s)
+=== RUN   TestAdminHandler_HandleBulkUpload_NoFile
+2026/02/17 17:03:54 [ERROR] Request ID:  | Error: code=400, message=Please select a valid CSV file
+    admin_test.go:218: 
+        	Error Trace:	/Users/johnnyblase/gym/agbalumo/internal/handler/admin_test.go:218
+        	Error:      	Received unexpected error:
+        	            	renderer not registered
+        	Test:       	TestAdminHandler_HandleBulkUpload_NoFile
+    admin_test.go:219: 
+        	Error Trace:	/Users/johnnyblase/gym/agbalumo/internal/handler/admin_test.go:219
+        	Error:      	Not equal: 
+        	            	expected: 400
+        	            	actual  : 200
+        	Test:       	TestAdminHandler_HandleBulkUpload_NoFile
+--- FAIL: TestAdminHandler_HandleBulkUpload_NoFile (0.00s)
+=== RUN   TestRealGoogleProvider_GetUserInfo
+--- PASS: TestRealGoogleProvider_GetUserInfo (0.00s)
+=== RUN   TestAuthHandler_GoogleCallback
+--- PASS: TestAuthHandler_GoogleCallback (0.00s)
+=== RUN   TestAuthHandler_GoogleLogin
+--- PASS: TestAuthHandler_GoogleLogin (0.00s)
+=== RUN   TestRequireAuth
+--- PASS: TestRequireAuth (0.00s)
+=== RUN   TestOptionalAuth
+--- PASS: TestOptionalAuth (0.00s)
+=== RUN   TestAuthHandler_DevLogin
+--- PASS: TestAuthHandler_DevLogin (0.00s)
+=== RUN   TestAuthHandler_Logout
+--- PASS: TestAuthHandler_Logout (0.00s)
+=== RUN   TestRealGoogleProvider_GetAuthCodeURL
+--- PASS: TestRealGoogleProvider_GetAuthCodeURL (0.00s)
+=== RUN   TestFeedbackHandler_HandleModal
+--- PASS: TestFeedbackHandler_HandleModal (0.00s)
+=== RUN   TestFeedbackHandler_HandleSubmit_Success
+--- PASS: TestFeedbackHandler_HandleSubmit_Success (0.00s)
+=== RUN   TestFeedbackHandler_HandleSubmit_NoAuth
+--- PASS: TestFeedbackHandler_HandleSubmit_NoAuth (0.00s)
+=== RUN   TestHandleUpdate_JobSuccess
+--- PASS: TestHandleUpdate_JobSuccess (0.00s)
+=== RUN   TestIntegration_DataValidation
+=== RUN   TestIntegration_DataValidation/Missing_Origin
+=== RUN   TestIntegration_DataValidation/Invalid_Origin
+=== RUN   TestIntegration_DataValidation/Missing_Contact
+=== RUN   TestIntegration_DataValidation/Request_Deadline_in_Past
+=== RUN   TestIntegration_DataValidation/Request_Deadline_Too_Far_(>90_days)
+--- PASS: TestIntegration_DataValidation (0.00s)
+    --- PASS: TestIntegration_DataValidation/Missing_Origin (0.00s)
+    --- PASS: TestIntegration_DataValidation/Invalid_Origin (0.00s)
+    --- PASS: TestIntegration_DataValidation/Missing_Contact (0.00s)
+    --- PASS: TestIntegration_DataValidation/Request_Deadline_in_Past (0.00s)
+    --- PASS: TestIntegration_DataValidation/Request_Deadline_Too_Far_(>90_days) (0.00s)
+=== RUN   TestListingCardRendering
+=== RUN   TestListingCardRendering/WhatsApp_and_Phone_available_->_Prefer_WhatsApp
+=== RUN   TestListingCardRendering/Only_Phone_available_->_Prefer_Phone
+=== RUN   TestListingCardRendering/Only_Website_available_->_Prefer_Website
+=== RUN   TestListingCardRendering/Only_Email_available_->_Prefer_Email
+--- PASS: TestListingCardRendering (0.00s)
+    --- PASS: TestListingCardRendering/WhatsApp_and_Phone_available_->_Prefer_WhatsApp (0.00s)
+    --- PASS: TestListingCardRendering/Only_Phone_available_->_Prefer_Phone (0.00s)
+    --- PASS: TestListingCardRendering/Only_Website_available_->_Prefer_Website (0.00s)
+    --- PASS: TestListingCardRendering/Only_Email_available_->_Prefer_Email (0.00s)
+=== RUN   TestHandleCreate_EventParsing
+--- PASS: TestHandleCreate_EventParsing (0.00s)
+=== RUN   TestHandleHome
+--- PASS: TestHandleHome (0.00s)
+=== RUN   TestHandleHome_Counts
+--- PASS: TestHandleHome_Counts (0.00s)
+=== RUN   TestHandleFragment
+--- PASS: TestHandleFragment (0.00s)
+=== RUN   TestHandleHome_Error
+2026/02/17 17:03:54 [ERROR] Request ID:  | Error: db connection failed
+--- PASS: TestHandleHome_Error (0.00s)
+=== RUN   TestHandleDetail
+--- PASS: TestHandleDetail (0.00s)
+=== RUN   TestHandleCreate
+=== RUN   TestHandleCreate/Success
+=== RUN   TestHandleCreate/ValidationError
+=== RUN   TestHandleCreate/RepoError
+2026/02/17 17:03:54 [ERROR] Request ID:  | Error: save failed
+--- PASS: TestHandleCreate (0.00s)
+    --- PASS: TestHandleCreate/Success (0.00s)
+    --- PASS: TestHandleCreate/ValidationError (0.00s)
+    --- PASS: TestHandleCreate/RepoError (0.00s)
+=== RUN   TestHandleEdit
+=== RUN   TestHandleEdit/Success
+=== RUN   TestHandleEdit/Forbidden
+=== RUN   TestHandleEdit/NotFound
+--- PASS: TestHandleEdit (0.00s)
+    --- PASS: TestHandleEdit/Success (0.00s)
+    --- PASS: TestHandleEdit/Forbidden (0.00s)
+    --- PASS: TestHandleEdit/NotFound (0.00s)
+=== RUN   TestHandleUpdate
+=== RUN   TestHandleUpdate/Success
+=== RUN   TestHandleUpdate/Forbidden
+=== RUN   TestHandleUpdate/RepoError
+2026/02/17 17:03:54 [ERROR] Request ID:  | Error: update failed
+--- PASS: TestHandleUpdate (0.00s)
+    --- PASS: TestHandleUpdate/Success (0.00s)
+    --- PASS: TestHandleUpdate/Forbidden (0.00s)
+    --- PASS: TestHandleUpdate/RepoError (0.00s)
+=== RUN   TestHandleCreate_WithImage
+--- PASS: TestHandleCreate_WithImage (0.00s)
+=== RUN   TestHandleDelete
+=== RUN   TestHandleDelete/Success
+=== RUN   TestHandleDelete/Forbidden
+=== RUN   TestHandleDelete/RepoError_Find
+=== RUN   TestHandleDelete/RepoError_Delete
+2026/02/17 17:03:54 [ERROR] Request ID:  | Error: delete failed
+--- PASS: TestHandleDelete (0.00s)
+    --- PASS: TestHandleDelete/Success (0.00s)
+    --- PASS: TestHandleDelete/Forbidden (0.00s)
+    --- PASS: TestHandleDelete/RepoError_Find (0.00s)
+    --- PASS: TestHandleDelete/RepoError_Delete (0.00s)
+=== RUN   TestHandleProfile
+--- PASS: TestHandleProfile (0.00s)
+=== RUN   TestHandleAbout
+--- PASS: TestHandleAbout (0.00s)
+=== RUN   TestHandleClaim
+=== RUN   TestHandleClaim/Unauthenticated
+=== RUN   TestHandleClaim/ListingNotFound
+2026/02/17 17:03:54 [ERROR] Request ID:  | Error: code=404, message=Listing not found
+=== RUN   TestHandleClaim/AlreadyOwned
+2026/02/17 17:03:54 [ERROR] Request ID:  | Error: code=403, message=This listing is already owned
+=== RUN   TestHandleClaim/Success
+--- PASS: TestHandleClaim (0.00s)
+    --- PASS: TestHandleClaim/Unauthenticated (0.00s)
+    --- PASS: TestHandleClaim/ListingNotFound (0.00s)
+    --- PASS: TestHandleClaim/AlreadyOwned (0.00s)
+    --- PASS: TestHandleClaim/Success (0.00s)
+=== RUN   TestListingHandler_Upload_Malicious
+2026/02/17 17:03:54 [ERROR] Request ID:  | Error: code=400, message=Invalid file type. Only JPEG, PNG, and WebP are allowed.
+--- PASS: TestListingHandler_Upload_Malicious (0.00s)
+=== RUN   TestListingHandler_Upload_Valid
+--- PASS: TestListingHandler_Upload_Valid (0.00s)
+=== RUN   TestHomePageUIValues
+--- PASS: TestHomePageUIValues (0.01s)
+=== RUN   TestFilterUIValues
+--- PASS: TestFilterUIValues (0.00s)
+=== RUN   TestJobListingUI
+--- PASS: TestJobListingUI (0.00s)
+FAIL
+FAIL	github.com/jadecobra/agbalumo/internal/handler	0.323s
+FAIL
