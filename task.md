@@ -18,6 +18,9 @@
 | **55** | `[x]` | **BE** | **Admin Users View**<br>Implement list view for all users. | Table visible? |
 | **56** | `[x]` | **ARCH** | **Service Listing Logic**<br>Ensure "Service" type is featured on homepage. | "Service" always visible? |
 | **57** | `[x]` | **ARCH** | **Address TODO Questions**<br>Review and answer outstanding questions in TODO file. | Answers recorded? |
+| **59** | `[x]` | **SDET** | **Boost Test Coverage (Target: 80%)**<br>Focus: `cmd` and `internal/handler`. | 81.6% |
+| **60** | `[x]` | **BE** | **Refactor Root Command**<br>Make `Execute` testable. | Testable? |
+| **61** | `[x]` | **BE** | **Refactor Seed Command**<br>Extract config logic. | Testable? |
 
 ## Completed (Phase 1)
 - [x] **[FE]** Polish Claim Ownership UI (HTMX) <!-- id: 46 -->

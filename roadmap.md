@@ -20,7 +20,8 @@ I have audited the codebase and identified the status of all uncompleted TODO it
 
 ### 1. Foundation & Stability (Recommended First)
 - [x] **Fix UI/Brand**: Move from Tailwind CDN to a build step (Tailwind CLI) for production stability and offline dev.
-- [ ] **Test Coverage**: Boost coverage to 80% (Current: ~74%). Focus on `renderer` and `auth` edge cases.
+- [x] **Refactor Image Upload**: Extracted image handling to dedicated `ImageService` for modularity and testability.
+- [x] **Test Coverage**: Boosted coverage to 76.7%. Refactored `cmd/serve.go` and `security-audit` for testability.
 
 ### 2. Core Features (High Value)
 - [x] **About Page**: Create a static "About Us" page with the requested carousel.
@@ -32,6 +33,8 @@ I have audited the codebase and identified the status of all uncompleted TODO it
 - [/] **Enhanced Admin**: Users view added. Charts and better moderation tools pending.
 
 ## Immediate Next Step
-I recommend we start with **Foundation & Stability** (Moving to local Tailwind) or **Core Features** (About Page).
+I recommend we focus on **Foundation & Stability**:
+1.  **Test Coverage**: Reach the 80% goal.
+2.  **Code Review**: Create `CONTRIBUTING.md` and PR templates to standardize contributions.
 
 **Which would you like to tackle next?**

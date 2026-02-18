@@ -2,6 +2,10 @@ bin/
 tmp/
 agbalumo.db
 agbalumo.db-*
+test_*.db
+test_*.db-*
+*.db-shm
+*.db-wal
 ui/static/uploads/*
 !ui/static/uploads/.gitkeep
 .DS_Store

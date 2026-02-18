@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"html/template"
 	"io"
 	"mime/multipart"
@@ -610,4 +611,129 @@ func TestHandleClaim(t *testing.T) {
 			mockRepo.AssertExpectations(t)
 		})
 	}
+}
+
+func TestHandleCreate_InvalidDates(t *testing.T) {
+	tests := []struct {
+		name           string
+		body           string
+		expectedStatus int
+		expectedBody   string
+	}{
+		{
+			name:           "Invalid Deadline",
+			body:           "title=T&type=Request&deadline_date=invalid-date",
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   "Invalid Date Format",
+		},
+		{
+			name:           "Invalid Event Start",
+			body:           "title=T&type=Event&event_start=invalid-time",
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   "Invalid Start Date Format",
+		},
+		{
+			name:           "Invalid Event End",
+			body:           "title=T&type=Event&event_end=invalid-time",
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   "Invalid End Date Format",
+		},
+		{
+			name:           "Invalid Job Start",
+			body:           "title=T&type=Job&job_start_date=invalid-time",
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   "Invalid Job Start Date Format",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
+
+			mockRepo := &mock.MockListingRepository{}
+			h := handler.NewListingHandler(mockRepo, nil)
+			c.Set("User", domain.User{ID: "u1"})
+
+			err := h.HandleCreate(c)
+
+			// Handle implementation details: some validations return echo.HTTPError, others write to c.String/c.Render
+			if err != nil {
+				he, ok := err.(*echo.HTTPError)
+				if ok {
+					if he.Code != tt.expectedStatus {
+						t.Errorf("Expected status %d, got %d", tt.expectedStatus, he.Code)
+					}
+					if !strings.Contains(fmt.Sprintf("%v", he.Message), tt.expectedBody) {
+						t.Errorf("Expected message to contain %q, got %q", tt.expectedBody, he.Message)
+					}
+					return
+				} else {
+					t.Fatalf("Unexpected non-HTTP error: %v", err)
+				}
+			}
+
+			// If no error, check recorder
+			if rec.Code != tt.expectedStatus {
+				t.Errorf("Expected status %d, got %d", tt.expectedStatus, rec.Code)
+			}
+			if !strings.Contains(rec.Body.String(), tt.expectedBody) {
+				t.Errorf("Expected body to contain %q, got %q", tt.expectedBody, rec.Body.String())
+			}
+		})
+	}
+}
+
+func TestHandleCreate_ImageUploadError(t *testing.T) {
+	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+
+	body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+	writer.WriteField("title", "Image Listing")
+	writer.WriteField("type", "Business")
+
+	part, _ := writer.CreateFormFile("image", "test.png")
+	part.Write([]byte("fake image content"))
+	writer.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/listings", body)
+	req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	mockRepo := &mock.MockListingRepository{}
+
+	mockImageService := &MockImageService{}
+	mockImageService.On("UploadImage", testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).Return("", errors.New("upload failed"))
+
+	h := handler.NewListingHandler(mockRepo, mockImageService)
+	c.Set("User", domain.User{ID: "u1"})
+
+	err := h.HandleCreate(c)
+
+	if err != nil {
+		he, ok := err.(*echo.HTTPError)
+		// handler.RespondError wraps errors, and might return HTTPError with 500
+		if ok {
+			if he.Code != http.StatusInternalServerError {
+				t.Errorf("Expected status 500, got %d", he.Code)
+			}
+			return
+		}
+	}
+
+	// If it wrote to response directly
+	if rec.Code != http.StatusInternalServerError {
+		t.Errorf("Expected status 500, got %d", rec.Code)
+	}
+}
+
+// MockImageService for testing
+type MockImageService struct {
+	testifyMock.Mock
+}
+
+func (m *MockImageService) UploadImage(ctx context.Context, file *multipart.FileHeader, listingID string) (string, error) {
+	args := m.Called(ctx, file, listingID)
+	return args.String(0), args.Error(1)
 }
