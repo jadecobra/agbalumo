@@ -91,7 +91,8 @@ func SetupServer() (*echo.Echo, error) {
 	e.Renderer = renderer
 
 	// Handlers
-	listingHandler := handler.NewListingHandler(repo)
+	// Use default (nil) ImageService which defaults to LocalImageService
+	listingHandler := handler.NewListingHandler(repo, nil)
 	csvService := service.NewCSVService()
 	adminHandler := handler.NewAdminHandler(repo, csvService)
 	authHandler := handler.NewAuthHandler(repo, nil) // New Auth Handler with default provider

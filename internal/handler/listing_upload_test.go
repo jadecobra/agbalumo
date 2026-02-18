@@ -25,7 +25,7 @@ func TestListingHandler_Upload_Malicious(t *testing.T) {
 	// We allow it here to prevent panic, but reliance is on rec.Code == 400.
 	mockRepo.On("Save", testifyMock.Anything, testifyMock.Anything).Return(nil)
 
-	h := handler.NewListingHandler(mockRepo)
+	h := handler.NewListingHandler(mockRepo, nil)
 
 	// Create a malicious file (text file disguised as jpg)
 	body := new(bytes.Buffer)
@@ -80,7 +80,7 @@ func TestListingHandler_Upload_Valid(t *testing.T) {
 	// Save SHOULD be called
 	mockRepo.On("Save", testifyMock.Anything, testifyMock.Anything).Return(nil)
 
-	h := handler.NewListingHandler(mockRepo)
+	h := handler.NewListingHandler(mockRepo, nil)
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)

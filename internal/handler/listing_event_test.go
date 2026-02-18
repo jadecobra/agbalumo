@@ -52,7 +52,7 @@ func TestHandleCreate_EventParsing(t *testing.T) {
 		return true
 	})).Return(nil)
 
-	h := handler.NewListingHandler(mockRepo)
+	h := handler.NewListingHandler(mockRepo, nil)
 
 	// Create form data
 	form := url.Values{}

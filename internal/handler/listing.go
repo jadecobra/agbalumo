@@ -1,22 +1,27 @@
 package handler
 
 import (
-	"io"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/service"
 	"github.com/labstack/echo/v4"
 )
 
 type ListingHandler struct {
-	Repo domain.ListingRepository
+	Repo         domain.ListingRepository
+	ImageService service.ImageService
 }
 
-func NewListingHandler(repo domain.ListingRepository) *ListingHandler {
-	return &ListingHandler{Repo: repo}
+func NewListingHandler(repo domain.ListingRepository, imageService service.ImageService) *ListingHandler {
+	if imageService == nil {
+		imageService = service.NewLocalImageService()
+	}
+	return &ListingHandler{Repo: repo, ImageService: imageService}
 }
 
 // Home Handler
@@ -354,7 +359,7 @@ func (h *ListingHandler) populateListingFromRequest(c echo.Context, l *domain.Li
 	l.PayRange = req.PayRange
 
 	// Handle Image Upload
-	if imageURL, err := h.saveUploadedImage(c, l.ID); err == nil && imageURL != "" {
+	if imageURL, err := h.ImageService.UploadImage(c.Request().Context(), h.getFileHeader(c, "image"), l.ID); err == nil && imageURL != "" {
 		l.ImageURL = imageURL
 	} else if err != nil {
 		return RespondError(c, err)
@@ -423,76 +428,11 @@ func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error
 	})
 }
 
-func (h *ListingHandler) saveUploadedImage(c echo.Context, listingID string) (string, error) {
-	// Limit upload size (Max 5MB)
-	// Echo has a global limit, but we can check here too or rely on request body limit.
-	// However, checking file size explicitly is safer.
-	const maxUploadSize = 5 * 1024 * 1024 // 5MB
-
-	file, err := c.FormFile("image")
+// Helper to safely get file header
+func (h *ListingHandler) getFileHeader(c echo.Context, key string) *multipart.FileHeader {
+	file, err := c.FormFile(key)
 	if err != nil {
-		return "", nil // No file uploaded
+		return nil
 	}
-
-	if file.Size > maxUploadSize {
-		return "", echo.NewHTTPError(http.StatusBadRequest, "File size exceeds 5MB limit")
-	}
-
-	src, err := file.Open()
-	if err != nil {
-		return "", err
-	}
-	defer src.Close()
-
-	// 1. Validate File Content (Magic Bytes)
-	buff := make([]byte, 512)
-	_, err = src.Read(buff)
-	if err != nil {
-		return "", err
-	}
-
-	fileType := http.DetectContentType(buff)
-	if fileType != "image/jpeg" && fileType != "image/png" && fileType != "image/webp" {
-		return "", echo.NewHTTPError(http.StatusBadRequest, "Invalid file type. Only JPEG, PNG, and WebP are allowed.")
-	}
-
-	// Reset file pointer after reading magic bytes
-	_, err = src.Seek(0, 0)
-	if err != nil {
-		return "", err
-	}
-
-	// Ensure directory exists
-	// Note: In production this path should be configurable/absolute
-	uploadDir := "ui/static/uploads"
-	if err := os.MkdirAll(uploadDir, 0755); err != nil {
-		return "", err
-	}
-
-	// We use a simple strategy of listingID.jpg for now
-	// Ideally, we should preserve extension based on detected type, but for now we enforce jpg extension in storage
-	// or just use the detected extension.
-	// Let's stick to .jpg for simplicity as per current code, OR switch to correct extension.
-	// Switching to correct extension is better but requires database update if we stored just the ID.
-	// The current DB stores `image_url` string. So we can save with correct extension.
-
-	ext := ".jpg"
-	if fileType == "image/png" {
-		ext = ".png"
-	} else if fileType == "image/webp" {
-		ext = ".webp"
-	}
-
-	filename := listingID + ext
-	dstPath := uploadDir + "/" + filename
-	dst, err := os.Create(dstPath)
-	if err != nil {
-		return "", err
-	}
-	defer dst.Close()
-
-	if _, err = io.Copy(dst, src); err != nil {
-		return "", err
-	}
-	return "/static/uploads/" + filename, nil
+	return file
 }

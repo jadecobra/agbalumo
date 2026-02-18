@@ -82,7 +82,7 @@ func TestHomePageUIValues(t *testing.T) {
 	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{}, nil)
 	mockRepo.On("GetFeaturedListings", testifyMock.Anything).Return([]domain.Listing{}, nil)
 
-	h := handler.NewListingHandler(mockRepo)
+	h := handler.NewListingHandler(mockRepo, nil)
 
 	if err := h.HandleHome(c); err != nil {
 		t.Fatalf("HandleHome failed: %v", err)
@@ -127,7 +127,7 @@ func TestFilterUIValues(t *testing.T) {
 	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{}, nil)
 	mockRepo.On("GetFeaturedListings", testifyMock.Anything).Return([]domain.Listing{}, nil)
 
-	h := handler.NewListingHandler(mockRepo)
+	h := handler.NewListingHandler(mockRepo, nil)
 
 	if err := h.HandleHome(c); err != nil {
 		t.Fatalf("HandleHome failed: %v", err)

@@ -59,7 +59,7 @@ func TestHandleHome(t *testing.T) {
 	mockRepo.On("GetCounts", context.Background()).Return(map[domain.Category]int{}, nil)
 	mockRepo.On("GetFeaturedListings", context.Background()).Return([]domain.Listing{}, nil)
 
-	h := handler.NewListingHandler(mockRepo)
+	h := handler.NewListingHandler(mockRepo, nil)
 
 	if err := h.HandleHome(c); err != nil {
 		t.Fatalf("HandleHome failed: %v", err)
@@ -90,7 +90,7 @@ func TestHandleHome_Counts(t *testing.T) {
 	}, nil)
 	mockRepo.On("GetFeaturedListings", context.Background()).Return([]domain.Listing{}, nil)
 
-	h := handler.NewListingHandler(mockRepo)
+	h := handler.NewListingHandler(mockRepo, nil)
 
 	if err := h.HandleHome(c); err != nil {
 		t.Fatalf("HandleHome failed: %v", err)
@@ -115,7 +115,7 @@ func TestHandleFragment(t *testing.T) {
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindAll", context.Background(), "Business", "jollof", false).Return([]domain.Listing{{Title: "Jollof Place"}}, nil)
 
-	h := handler.NewListingHandler(mockRepo)
+	h := handler.NewListingHandler(mockRepo, nil)
 
 	if err := h.HandleFragment(c); err != nil {
 		t.Fatalf("HandleFragment failed: %v", err)
@@ -139,7 +139,7 @@ func TestHandleHome_Error(t *testing.T) {
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindAll", context.Background(), "", "", false).Return([]domain.Listing{}, errors.New("db connection failed"))
 
-	h := handler.NewListingHandler(mockRepo)
+	h := handler.NewListingHandler(mockRepo, nil)
 
 	_ = h.HandleHome(c)
 
@@ -164,7 +164,7 @@ func TestHandleDetail(t *testing.T) {
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindByID", context.Background(), "1").Return(domain.Listing{Title: "Found It", Description: "Details here"}, nil)
 
-	h := handler.NewListingHandler(mockRepo)
+	h := handler.NewListingHandler(mockRepo, nil)
 
 	if err := h.HandleDetail(c); err != nil {
 		t.Fatalf("HandleDetail failed: %v", err)
@@ -233,7 +233,7 @@ func TestHandleCreate(t *testing.T) {
 			mockRepo := &mock.MockListingRepository{}
 			tt.setupMock(mockRepo)
 
-			h := handler.NewListingHandler(mockRepo)
+			h := handler.NewListingHandler(mockRepo, nil)
 			c.Set("User", domain.User{ID: "test-user-id", Email: "test@example.com"})
 
 			err := h.HandleCreate(c)
@@ -295,7 +295,7 @@ func TestHandleEdit(t *testing.T) {
 
 			mockRepo := &mock.MockListingRepository{}
 			tt.setupMock(mockRepo)
-			h := handler.NewListingHandler(mockRepo)
+			h := handler.NewListingHandler(mockRepo, nil)
 
 			if err := h.HandleEdit(c); err != nil {
 				// handled
@@ -361,7 +361,7 @@ func TestHandleUpdate(t *testing.T) {
 			mockRepo := &mock.MockListingRepository{}
 			tt.setupMock(mockRepo)
 
-			h := handler.NewListingHandler(mockRepo)
+			h := handler.NewListingHandler(mockRepo, nil)
 			_ = h.HandleUpdate(c)
 
 			if rec.Code != tt.expectedStatus {
@@ -404,7 +404,7 @@ func TestHandleCreate_WithImage(t *testing.T) {
 		return l.ImageURL != "" && strings.HasPrefix(l.ImageURL, "/static/uploads/")
 	})).Return(nil)
 
-	h := handler.NewListingHandler(mockRepo)
+	h := handler.NewListingHandler(mockRepo, nil)
 	c.Set("User", domain.User{ID: "test-user-id", Email: "test@example.com"})
 
 	if err := h.HandleCreate(c); err != nil {
@@ -471,7 +471,7 @@ func TestHandleDelete(t *testing.T) {
 			mockRepo := &mock.MockListingRepository{}
 			tt.setupMock(mockRepo)
 
-			h := handler.NewListingHandler(mockRepo)
+			h := handler.NewListingHandler(mockRepo, nil)
 			_ = h.HandleDelete(c)
 
 			if rec.Code != tt.expectedStatus {
@@ -500,7 +500,7 @@ func TestHandleProfile(t *testing.T) {
 		{Title: "L1"}, {Title: "L2"},
 	}, nil)
 
-	h := handler.NewListingHandler(mockRepo)
+	h := handler.NewListingHandler(mockRepo, nil)
 
 	if err := h.HandleProfile(c); err != nil {
 		t.Fatalf("HandleProfile failed: %v", err)
@@ -522,7 +522,7 @@ func TestHandleAbout(t *testing.T) {
 	c := e.NewContext(req, rec)
 
 	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewListingHandler(mockRepo)
+	h := handler.NewListingHandler(mockRepo, nil)
 
 	t_temp := template.New("base")
 	t_temp.New("about.html").Parse(`About Page: {{.User}}`)
@@ -601,7 +601,7 @@ func TestHandleClaim(t *testing.T) {
 			mockRepo := &mock.MockListingRepository{}
 			tt.setupMock(mockRepo)
 
-			h := handler.NewListingHandler(mockRepo)
+			h := handler.NewListingHandler(mockRepo, nil)
 			_ = h.HandleClaim(c)
 
 			if rec.Code != tt.expectedStatus {

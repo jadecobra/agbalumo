@@ -29,7 +29,7 @@ func TestIntegration_DataValidation(t *testing.T) {
 		mockRepo := &mock.MockListingRepository{}
 		mockRepo.On("Save", testifyMock.Anything, testifyMock.Anything).Return(nil)
 
-		h := handler.NewListingHandler(mockRepo)
+		h := handler.NewListingHandler(mockRepo, nil)
 
 		req := httptest.NewRequest(http.MethodPost, "/listings", strings.NewReader(bodyStr))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
@@ -89,7 +89,7 @@ func TestIntegration_DataValidation(t *testing.T) {
 			// If we don't set "On" and it calls, it will panic or fail.
 			// Let's assume validation happens before Save.
 
-			h := handler.NewListingHandler(mockRepo)
+			h := handler.NewListingHandler(mockRepo, nil)
 
 			req := httptest.NewRequest(http.MethodPost, "/listings", strings.NewReader(tc.body))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)

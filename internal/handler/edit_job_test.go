@@ -57,7 +57,7 @@ func TestHandleUpdate_JobSuccess(t *testing.T) {
 		return true
 	})).Return(nil)
 
-	h := handler.NewListingHandler(mockRepo)
+	h := handler.NewListingHandler(mockRepo, nil)
 
 	formData := "title=Senior+Go+Dev+Updated&type=Job&owner_origin=Nigeria&description=Updated+Desc&contact_email=job@example.com&city=Lagos" +
 		"&company=Updated+Corp&skills=Go,+Rust&pay_range=200k&job_apply_url=https://updated.com&job_start_date=" + jobStart
