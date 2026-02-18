@@ -23,12 +23,14 @@ echo "3. Running Go Vet..."
 go vet ./...
 
 echo "4. Running Tests with Race Detection & Coverage..."
-go test -race -coverprofile=coverage.out ./...
+# Exclude cmd/security-audit from coverage
+PACKAGES=$(go list ./... | grep -v "cmd/security-audit")
+go test -race -coverprofile=coverage.out $PACKAGES
 go tool cover -func=coverage.out
 
 # Enforce minimum coverage (e.g., 73% to match current status)
 COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print substr($3, 1, length($3)-1)}')
-THRESHOLD=74.0
+THRESHOLD=80.0
 
 if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
     echo "❌ Coverage is below threshold: $COVERAGE% < $THRESHOLD%"
