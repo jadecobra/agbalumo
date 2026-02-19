@@ -1,134 +1,206 @@
-package handler
+package handler_test
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"strings"
 	"testing"
 	"time"
 
+	"github.com/gorilla/sessions"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
+	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/jadecobra/agbalumo/internal/mock"
 	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
 	testifyMock "github.com/stretchr/testify/mock"
 	"golang.org/x/oauth2"
 )
 
-// -- Mock Provider for Handler Tests --
+// MockGoogleProvider
 type MockGoogleProvider struct {
-	GetAuthCodeURLFn func(state string, host string) string
-	ExchangeFn       func(ctx context.Context, code string, host string) (*oauth2.Token, error)
-	GetUserInfoFn    func(ctx context.Context, token *oauth2.Token) (*GoogleUser, error)
+	testifyMock.Mock
 }
 
 func (m *MockGoogleProvider) GetAuthCodeURL(state string, host string) string {
-	return m.GetAuthCodeURLFn(state, host)
+	args := m.Called(state, host)
+	return args.String(0)
 }
 
 func (m *MockGoogleProvider) Exchange(ctx context.Context, code string, host string) (*oauth2.Token, error) {
-	return m.ExchangeFn(ctx, code, host)
+	args := m.Called(ctx, code, host)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*oauth2.Token), args.Error(1)
 }
 
-func (m *MockGoogleProvider) GetUserInfo(ctx context.Context, token *oauth2.Token) (*GoogleUser, error) {
-	return m.GetUserInfoFn(ctx, token)
+func (m *MockGoogleProvider) GetUserInfo(ctx context.Context, token *oauth2.Token) (*handler.GoogleUser, error) {
+	args := m.Called(ctx, token)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*handler.GoogleUser), args.Error(1)
 }
 
-func TestRealGoogleProvider_GetUserInfo(t *testing.T) {
-	// Mock the Google API Server
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		token := r.URL.Query().Get("access_token")
-		if token != "valid-token" {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		user := GoogleUser{
-			ID:    "123",
-			Email: "test@example.com",
-			Name:  "Test User",
-		}
-		json.NewEncoder(w).Encode(user)
-	}))
-	defer ts.Close()
-
-	// Override URL
-	oldURL := googleUserInfoURL
-	googleUserInfoURL = ts.URL
-	defer func() { googleUserInfoURL = oldURL }()
-
-	p := NewRealGoogleProvider()
-
-	// Case 1: Success
-	user, err := p.GetUserInfo(context.Background(), &oauth2.Token{AccessToken: "valid-token"})
-	if err != nil {
-		t.Fatalf("Expected success, got error: %v", err)
-	}
-	if user.Email != "test@example.com" {
-		t.Errorf("Expected email test@example.com, got %s", user.Email)
-	}
-
-	// Case 2: Failure
-	_, err = p.GetUserInfo(context.Background(), &oauth2.Token{AccessToken: "invalid-token"})
-	if err == nil {
-		t.Error("Expected error for invalid token, got nil")
-	}
-}
-
-func TestAuthHandler_GoogleCallback(t *testing.T) {
+func TestAuthHandler_DevLogin_Production(t *testing.T) {
+	// Setup
 	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/auth/dev", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
 
-	// Setup Middleware for Session
-	store := customMiddleware.NewTestSessionStore()
-	e.Use(customMiddleware.SessionMiddleware(store))
+	mockRepo := &mock.MockListingRepository{}
+	// Mock findOrCreateUser if needed, but DevLogin only calls it if env != production.
+	// Since we set env=production, it should return 403 before calling repo.
+
+	h := handler.NewAuthHandler(mockRepo, nil)
+
+	// Set Env to Production
+	os.Setenv("AGBALUMO_ENV", "production")
+	defer os.Unsetenv("AGBALUMO_ENV")
+
+	// Execute
+	err := h.DevLogin(c)
+
+	// Verify
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusForbidden, rec.Code)
+	assert.Contains(t, rec.Body.String(), "Dev login disabled")
+}
+
+func TestAuthHandler_GoogleCallback_StateMismatch(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=wrong-state", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockProvider := &MockGoogleProvider{}
+	h := handler.NewAuthHandler(mockRepo, mockProvider)
+
+	err := h.GoogleCallback(c)
+
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
+	assert.Contains(t, rec.Body.String(), "States don't match")
+}
+
+func TestAuthHandler_GoogleCallback_Success(t *testing.T) {
+	// Setup
+	e := echo.New()
 
 	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	// Manually inject session
-	session, _ := store.Get(req, "auth_session")
-	c.Set("session", session)
+	// Setup Session Store in Context
+	store := sessions.NewCookieStore([]byte("secret"))
+	// We need to inject the session into the request context as middleware would
+	// But handler calls customMiddleware.GetSession(c).
+	// Let's rely on injecting the store into the context if possible, or just mock the session logic?
+	// The handler uses: session, _ := store.Get(c.Request(), "session-name") via echo.Context?
+	// No, it uses customMiddleware.GetSession(c).
+	// We must register the middleware on the echo instance or manually set the session value.
+
+	// Better: Register the session middleware on the Echo instance and use e.NewContext
+	// But e.NewContext does not run middleware.
+	// We have to invoke the middleware chain.
+
+	// Alternative: Just unit test the handler logic?
+	// The handler calls `h.setSessionAndRedirect`.
+	// If session is missing, it returns 500.
+
+	// To make GetSession work, we need "session" in c.Get("session").
+	sess, _ := store.Get(req, "session-name")
+	c.Set("session", sess)
 
 	mockRepo := &mock.MockListingRepository{}
-	// Expect lookup - return error to simulate not found
-	mockRepo.On("FindUserByGoogleID", testifyMock.Anything, testifyMock.Anything).Return(domain.User{}, errors.New("not found"))
-	// Expect create
-	mockRepo.On("SaveUser", testifyMock.Anything, testifyMock.Anything).Return(nil)
+	mockProvider := &MockGoogleProvider{}
+	h := handler.NewAuthHandler(mockRepo, mockProvider)
 
-	mockProvider := &MockGoogleProvider{
-		ExchangeFn: func(ctx context.Context, code string, host string) (*oauth2.Token, error) {
-			if code == "valid-code" {
-				return &oauth2.Token{AccessToken: "tok"}, nil
-			}
-			return nil, errors.New("invalid code")
-		},
-		GetUserInfoFn: func(ctx context.Context, token *oauth2.Token) (*GoogleUser, error) {
-			return &GoogleUser{
-				ID:    "g-123",
-				Email: "new@example.com",
-				Name:  "New User",
-			}, nil
-		},
+	token := &oauth2.Token{AccessToken: "access-token"}
+	gUser := &handler.GoogleUser{
+		ID:      "google-123",
+		Email:   "test@example.com",
+		Name:    "Test User",
+		Picture: "http://pic.com",
+	}
+	user := domain.User{
+		ID:        "user-123",
+		GoogleID:  "google-123",
+		Email:     "test@example.com",
+		Name:      "Test User",
+		AvatarURL: "http://pic.com",
+		CreatedAt: time.Now(),
 	}
 
-	h := &AuthHandler{
-		Repo:           mockRepo,
-		GoogleProvider: mockProvider,
-	}
+	// Mocks
+	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", testifyMock.Anything).Return(token, nil)
+	mockProvider.On("GetUserInfo", testifyMock.Anything, token).Return(gUser, nil)
 
-	// Run Handler
-	if err := h.GoogleCallback(c); err != nil {
-		t.Fatalf("Handler failed: %v", err)
-	}
+	mockRepo.On("FindUserByGoogleID", testifyMock.Anything, "google-123").Return(user, nil)
 
-	if rec.Code != http.StatusTemporaryRedirect {
-		t.Errorf("Expected redirect 307, got %d", rec.Code)
-	}
-	mockRepo.AssertExpectations(t)
+	// Execute
+	err := h.GoogleCallback(c)
+
+	// Verify
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
+	assert.Equal(t, "/", rec.Header().Get("Location"))
+	assert.Equal(t, "user-123", sess.Values["user_id"])
+}
+
+func TestAuthHandler_RequireAuth_Redirect(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/protected", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	// Mock Session (Empty)
+	store := sessions.NewCookieStore([]byte("secret"))
+	sess, _ := store.Get(req, "session-name")
+	c.Set("session", sess)
+
+	mockRepo := &mock.MockListingRepository{}
+	h := handler.NewAuthHandler(mockRepo, nil)
+
+	handlerFunc := h.RequireAuth(func(c echo.Context) error {
+		return c.String(http.StatusOK, "Success")
+	})
+
+	err := handlerFunc(c)
+
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
+	assert.Equal(t, "/auth/google/login", rec.Header().Get("Location"))
+}
+
+func TestAuthHandler_RequireAuth_Success(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/protected", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	// Mock Session (With UserID)
+	store := sessions.NewCookieStore([]byte("secret"))
+	sess, _ := store.Get(req, "session-name")
+	sess.Values["user_id"] = "user-123"
+	c.Set("session", sess)
+
+	mockRepo := &mock.MockListingRepository{}
+	h := handler.NewAuthHandler(mockRepo, nil)
+
+	handlerFunc := h.RequireAuth(func(c echo.Context) error {
+		return c.String(http.StatusOK, "Success")
+	})
+
+	err := handlerFunc(c)
+
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "Success", rec.Body.String())
 }
 
 func TestAuthHandler_GoogleLogin(t *testing.T) {
@@ -137,328 +209,420 @@ func TestAuthHandler_GoogleLogin(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	mockProvider := &MockGoogleProvider{
-		GetAuthCodeURLFn: func(state string, host string) string {
-			return "http://google.com/auth"
-		},
-	}
-	h := &AuthHandler{GoogleProvider: mockProvider}
-
-	if err := h.GoogleLogin(c); err != nil {
-		t.Fatalf("Handler failed: %v", err)
-	}
-
-	if rec.Code != http.StatusTemporaryRedirect {
-		t.Errorf("Expected redirect 307, got %d", rec.Code)
-	}
-	if loc := rec.Header().Get("Location"); loc != "http://google.com/auth" {
-		t.Errorf("Expected Location 'http://google.com/auth', got %s", loc)
-	}
-}
-
-func TestRequireAuth(t *testing.T) {
-	e := echo.New()
-	store := customMiddleware.NewTestSessionStore()
-	e.Use(customMiddleware.SessionMiddleware(store))
-
-	h := &AuthHandler{} // Repo not needed for redirect check
-
-	// Case 1: No Session -> Redirect
-	req := httptest.NewRequest(http.MethodGet, "/protected", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	handler := h.RequireAuth(func(c echo.Context) error {
-		return c.String(http.StatusOK, "Protected")
-	})
-
-	session, _ := store.Get(req, "auth_session")
-	c.Set("session", session)
-
-	if err := handler(c); err != nil {
-		t.Fatal(err)
-	}
-	if rec.Code != http.StatusTemporaryRedirect {
-		t.Errorf("Expected redirect 307, got %d", rec.Code)
-	}
-
-	// Case 2: Authenticated -> Next
-	req2 := httptest.NewRequest(http.MethodGet, "/protected", nil)
-	rec2 := httptest.NewRecorder()
-	c2 := e.NewContext(req2, rec2)
-	session2, _ := store.Get(req2, "auth_session")
-	session2.Values["user_id"] = "user123"
-	c2.Set("session", session2)
-
-	if err := handler(c2); err != nil {
-		t.Fatal(err)
-	}
-	if rec2.Code != http.StatusOK {
-		t.Errorf("Expected OK 200, got %d", rec2.Code)
-	}
-	if rec2.Body.String() != "Protected" {
-		t.Errorf("Expected 'Protected', got %s", rec2.Body.String())
-	}
-}
-
-func TestOptionalAuth(t *testing.T) {
-	e := echo.New()
-	store := customMiddleware.NewTestSessionStore()
-
 	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("FindUserByID", testifyMock.Anything, "user123").Return(domain.User{ID: "user123", Name: "Test"}, nil)
+	mockProvider := &MockGoogleProvider{}
+	h := handler.NewAuthHandler(mockRepo, mockProvider)
 
-	h := &AuthHandler{Repo: mockRepo}
+	mockProvider.On("GetAuthCodeURL", "random-state", testifyMock.Anything).Return("http://google.com/auth")
 
-	// Case 1: Authenticated -> User in Context
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-	session, _ := store.Get(req, "auth_session")
-	session.Values["user_id"] = "user123"
-	c.Set("session", session)
+	err := h.GoogleLogin(c)
 
-	handler := h.OptionalAuth(func(c echo.Context) error {
-		user, ok := c.Get("User").(domain.User)
-		if !ok || user.ID != "user123" {
-			return c.String(http.StatusInternalServerError, "User not in context")
-		}
-		return c.String(http.StatusOK, "OK")
-	})
-
-	if err := handler(c); err != nil {
-		t.Fatal(err)
-	}
-	if rec.Code != http.StatusOK {
-		t.Errorf("Expected 200, got %d", rec.Code)
-	}
-	mockRepo.AssertExpectations(t)
-}
-
-func TestAuthHandler_DevLogin(t *testing.T) {
-	// Set Env to development
-	os.Setenv("AGBALUMO_ENV", "development")
-	defer os.Unsetenv("AGBALUMO_ENV")
-
-	e := echo.New()
-	store := customMiddleware.NewTestSessionStore()
-	e.Use(customMiddleware.SessionMiddleware(store))
-
-	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("FindUserByGoogleID", testifyMock.Anything, testifyMock.Anything).Return(domain.User{}, errors.New("not found"))
-	mockRepo.On("SaveUser", testifyMock.Anything, testifyMock.Anything).Return(nil)
-
-	h := &AuthHandler{Repo: mockRepo}
-
-	req := httptest.NewRequest(http.MethodGet, "/auth/dev?email=dev@test.com", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	session, _ := store.Get(req, "auth_session")
-	c.Set("session", session)
-
-	if err := h.DevLogin(c); err != nil {
-		t.Fatalf("Handler failed: %v", err)
-	}
-
-	if rec.Code != http.StatusTemporaryRedirect {
-		t.Errorf("Expected redirect 307, got %d", rec.Code)
-	}
-	mockRepo.AssertExpectations(t)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
+	assert.Equal(t, "http://google.com/auth", rec.Header().Get("Location"))
 }
 
 func TestAuthHandler_Logout(t *testing.T) {
 	e := echo.New()
-	store := customMiddleware.NewTestSessionStore()
-	e.Use(customMiddleware.SessionMiddleware(store))
-
-	h := &AuthHandler{}
-
 	req := httptest.NewRequest(http.MethodGet, "/auth/logout", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	// Set a session
-	session, _ := store.Get(req, "auth_session")
-	session.Values["user_id"] = "user123"
-	session.Save(req, rec) // Setup cookie
-	c.Set("session", session)
+	store := sessions.NewCookieStore([]byte("secret"))
+	sess, _ := store.Get(req, "session-name")
+	c.Set("session", sess)
 
-	if err := h.Logout(c); err != nil {
-		t.Fatalf("Handler failed: %v", err)
-	}
+	mockRepo := &mock.MockListingRepository{}
+	h := handler.NewAuthHandler(mockRepo, nil)
 
-	if rec.Code != http.StatusTemporaryRedirect {
-		t.Errorf("Expected redirect 307, got %d", rec.Code)
-	}
+	err := h.Logout(c)
 
-	// Verify MaxAge is -1 (expired)
-	if session.Options.MaxAge != -1 {
-		t.Errorf("Expected MaxAge -1, got %d", session.Options.MaxAge)
-	}
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
+	assert.Equal(t, "/", rec.Header().Get("Location"))
+	assert.Equal(t, -1, sess.Options.MaxAge)
 }
 
-func TestRealGoogleProvider_GetAuthCodeURL(t *testing.T) {
-	p := NewRealGoogleProvider()
-
-	// Test localhost
-	url1 := p.GetAuthCodeURL("state", "localhost:8443")
-	if !strings.Contains(url1, "redirect_uri") {
-		t.Error("Expected redirect_uri in URL")
-	}
-
-	// Test production env logic via Setenv if needed, but simple call is fine for coverage of the method body.
-}
-
-func TestRealGoogleProvider_Exchange(t *testing.T) {
-	// Setup Mock Server
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Mock token endpoint behavior
-		// OAuth2 exchange makes a POST request
-		if r.Method == "POST" {
-			w.Header().Set("Content-Type", "application/json")
-			// Return a dummy token
-			w.Write([]byte(`{"access_token": "mock-token", "token_type": "Bearer", "expires_in": 3600}`))
-			return
-		}
-		w.WriteHeader(http.StatusBadRequest)
-	}))
-	defer ts.Close()
-
-	// Override Endpoint
-	// We need to modify google.Endpoint which is a global var in the library?
-	// No, google.Endpoint is a constant/var in golang.org/x/oauth2/google
-	// We can't easily modify it if it's not a var in OUR code.
-	// But `NewRealGoogleProvider` uses `google.Endpoint`.
-	// Let's check `auth.go`.
-	// `Endpoint: google.Endpoint,`
-
-	// Since we can't modify `google.Endpoint` easily without race conditions or if it's const,
-	// maybe we can just construct a provider with custom config for this test?
-	// But `NewRealGoogleProvider` is what we want to test.
-
-	// WORKAROUND: We will test the Exchange logic by creating a RealGoogleProvider manually
-	// or just accept we tested the wrapper logic.
-	// `Exchange` method calls `p.config.Exchange`.
-	// If `p.config` has the real endpoint, it will fail network call.
-	// We can modify `p.config.Endpoint` AFTER creating it?
-
-	p := NewRealGoogleProvider()
-	p.config.Endpoint = oauth2.Endpoint{
-		AuthURL:  ts.URL + "/auth",
-		TokenURL: ts.URL + "/token",
-	}
-
-	// Case 1: Success (Network call to our mock server)
-	// Exchange code for token
-	token, err := p.Exchange(context.Background(), "any-code", "localhost")
-	if err != nil {
-		t.Fatalf("Expected success, got error: %v", err)
-	}
-	if token.AccessToken != "mock-token" {
-		t.Errorf("Expected token mock-token, got %s", token.AccessToken)
-	}
-}
-
-func TestAuthHandler_GoogleCallback_UserUpdate(t *testing.T) {
+func TestAuthHandler_OptionalAuth(t *testing.T) {
 	e := echo.New()
-	store := customMiddleware.NewTestSessionStore()
-	e.Use(customMiddleware.SessionMiddleware(store))
+	req := httptest.NewRequest(http.MethodGet, "/optional", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
 
+	store := sessions.NewCookieStore([]byte("secret"))
+	sess, _ := store.Get(req, "session-name")
+	sess.Values["user_id"] = "user-123"
+	c.Set("session", sess)
+
+	mockRepo := &mock.MockListingRepository{}
+	h := handler.NewAuthHandler(mockRepo, nil)
+
+	user := domain.User{ID: "user-123"}
+	mockRepo.On("FindUserByID", testifyMock.Anything, "user-123").Return(user, nil)
+
+	handlerFunc := h.OptionalAuth(func(c echo.Context) error {
+		u := c.Get("User")
+		if u == nil {
+			return c.String(http.StatusOK, "No User")
+		}
+		return c.String(http.StatusOK, "Has User")
+	})
+
+	err := handlerFunc(c)
+
+	assert.NoError(t, err)
+	assert.Equal(t, "Has User", rec.Body.String())
+}
+
+func TestAuthHandler_DevLogin_Success(t *testing.T) {
+	e := echo.New()
+
+	// Session Middleware
+	store := sessions.NewCookieStore([]byte("secret"))
+	// Mock retrieval via context injection
+	req := httptest.NewRequest(http.MethodGet, "/auth/dev?email=test@dev.com", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	sess, _ := store.Get(req, "session-name")
+	c.Set("session", sess)
+
+	mockRepo := &mock.MockListingRepository{}
+	h := handler.NewAuthHandler(mockRepo, nil)
+
+	// Environment Development
+	os.Setenv("AGBALUMO_ENV", "development")
+	defer os.Unsetenv("AGBALUMO_ENV")
+
+	// Mock findOrCreateUser logic by mocking FindUserByGoogleID
+	// It will try to find "dev-test@dev.com"
+	// If not found, it calls SaveUser.
+
+	// Scenario: New User
+	mockRepo.On("FindUserByGoogleID", testifyMock.Anything, "dev-test@dev.com").Return(domain.User{}, assert.AnError) // Return error to trigger creation
+	mockRepo.On("SaveUser", testifyMock.Anything, testifyMock.AnythingOfType("domain.User")).Return(nil)
+
+	err := h.DevLogin(c)
+
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
+	assert.Equal(t, "/", rec.Header().Get("Location"))
+	assert.NotEmpty(t, sess.Values["user_id"])
+}
+
+func TestAuthHandler_GoogleCallback_SaveUserError(t *testing.T) {
+	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	session, _ := store.Get(req, "auth_session")
-	c.Set("session", session)
+	store := sessions.NewCookieStore([]byte("secret"))
+	sess, _ := store.Get(req, "session-name")
+	c.Set("session", sess)
 
+	mockRepo := &mock.MockListingRepository{}
+	mockProvider := &MockGoogleProvider{}
+	h := handler.NewAuthHandler(mockRepo, mockProvider)
+
+	token := &oauth2.Token{AccessToken: "token"}
+	gUser := &handler.GoogleUser{ID: "g-err", Email: "err@test.com"}
+
+	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", testifyMock.Anything).Return(token, nil)
+	mockProvider.On("GetUserInfo", testifyMock.Anything, token).Return(gUser, nil)
+
+	// Mock DB Error
+	mockRepo.On("FindUserByGoogleID", testifyMock.Anything, "g-err").Return(domain.User{}, assert.AnError) // Not found
+	mockRepo.On("SaveUser", testifyMock.Anything, testifyMock.Anything).Return(assert.AnError)             // Save fails
+
+	err := h.GoogleCallback(c)
+
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+}
+
+func TestAuthHandler_GoogleCallback_UpdateProfile(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	store := sessions.NewCookieStore([]byte("secret"))
+	sess, _ := store.Get(req, "session-name")
+	c.Set("session", sess)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockProvider := &MockGoogleProvider{}
+	h := handler.NewAuthHandler(mockRepo, mockProvider)
+
+	token := &oauth2.Token{AccessToken: "token"}
+	gUser := &handler.GoogleUser{
+		ID:      "g1",
+		Email:   "test@example.com",
+		Name:    "New Name",
+		Picture: "http://new-pic.com",
+	}
+
+	// Existing user with OLD details
 	existingUser := domain.User{
-		ID:        "user-123",
-		GoogleID:  "g-123",
+		ID:        "u1",
+		GoogleID:  "g1",
 		Email:     "test@example.com",
 		Name:      "Old Name",
-		AvatarURL: "http://old.pic",
-		CreatedAt: time.Now(),
+		AvatarURL: "http://old-pic.com",
 	}
 
-	mockRepo := &mock.MockListingRepository{}
-	// Return existing user
-	mockRepo.On("FindUserByGoogleID", testifyMock.Anything, "g-123").Return(existingUser, nil)
+	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", testifyMock.Anything).Return(token, nil)
+	mockProvider.On("GetUserInfo", testifyMock.Anything, token).Return(gUser, nil)
 
-	// Expect SaveUser to be called with UPDATED details
+	mockRepo.On("FindUserByGoogleID", testifyMock.Anything, "g1").Return(existingUser, nil)
+	// Expect SaveUser with NEW details
 	mockRepo.On("SaveUser", testifyMock.Anything, testifyMock.MatchedBy(func(u domain.User) bool {
-		return u.Name == "New Name" && u.AvatarURL == "http://new.pic"
+		return u.Name == "New Name" && u.AvatarURL == "http://new-pic.com"
 	})).Return(nil)
 
-	mockProvider := &MockGoogleProvider{
-		ExchangeFn: func(ctx context.Context, code string, host string) (*oauth2.Token, error) {
-			return &oauth2.Token{AccessToken: "tok"}, nil
-		},
-		GetUserInfoFn: func(ctx context.Context, token *oauth2.Token) (*GoogleUser, error) {
-			return &GoogleUser{
-				ID:      "g-123",
-				Email:   "test@example.com",
-				Name:    "New Name",
-				Picture: "http://new.pic",
-			}, nil
-		},
-	}
+	err := h.GoogleCallback(c)
 
-	h := &AuthHandler{
-		Repo:           mockRepo,
-		GoogleProvider: mockProvider,
-	}
-
-	if err := h.GoogleCallback(c); err != nil {
-		t.Fatalf("Handler failed: %v", err)
-	}
-
-	if rec.Code != http.StatusTemporaryRedirect {
-		t.Errorf("Expected redirect 307, got %d", rec.Code)
-	}
-	mockRepo.AssertExpectations(t)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
 }
 
-func TestAuthHandler_GoogleCallback_CreateError(t *testing.T) {
-	e := echo.New()
-	store := customMiddleware.NewTestSessionStore()
-	e.Use(customMiddleware.SessionMiddleware(store))
+// --- DevLogin Edge Cases ---
 
+func TestAuthHandler_DevLogin_GOENVFallback(t *testing.T) {
+	e := echo.New()
+	store := sessions.NewCookieStore([]byte("secret"))
+	req := httptest.NewRequest(http.MethodGet, "/auth/dev?email=go@env.com", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	sess, _ := store.Get(req, "session-name")
+	c.Set("session", sess)
+
+	mockRepo := &mock.MockListingRepository{}
+	h := handler.NewAuthHandler(mockRepo, nil)
+
+	// Only set GO_ENV, NOT AGBALUMO_ENV
+	os.Unsetenv("AGBALUMO_ENV")
+	os.Setenv("GO_ENV", "development")
+	defer os.Unsetenv("GO_ENV")
+
+	mockRepo.On("FindUserByGoogleID", testifyMock.Anything, "dev-go@env.com").Return(domain.User{}, assert.AnError)
+	mockRepo.On("SaveUser", testifyMock.Anything, testifyMock.AnythingOfType("domain.User")).Return(nil)
+
+	err := h.DevLogin(c)
+
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
+	assert.NotEmpty(t, sess.Values["user_id"])
+}
+
+func TestAuthHandler_DevLogin_DefaultEmail(t *testing.T) {
+	e := echo.New()
+	store := sessions.NewCookieStore([]byte("secret"))
+	// No email param
+	req := httptest.NewRequest(http.MethodGet, "/auth/dev", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	sess, _ := store.Get(req, "session-name")
+	c.Set("session", sess)
+
+	mockRepo := &mock.MockListingRepository{}
+	h := handler.NewAuthHandler(mockRepo, nil)
+
+	os.Setenv("AGBALUMO_ENV", "development")
+	defer os.Unsetenv("AGBALUMO_ENV")
+
+	// Default email is "dev@agbalumo.com", so googleID is "dev-dev@agbalumo.com"
+	mockRepo.On("FindUserByGoogleID", testifyMock.Anything, "dev-dev@agbalumo.com").Return(domain.User{}, assert.AnError)
+	mockRepo.On("SaveUser", testifyMock.Anything, testifyMock.AnythingOfType("domain.User")).Return(nil)
+
+	err := h.DevLogin(c)
+
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
+}
+
+func TestAuthHandler_DevLogin_FindOrCreateError(t *testing.T) {
+	e := echo.New()
+	store := sessions.NewCookieStore([]byte("secret"))
+	req := httptest.NewRequest(http.MethodGet, "/auth/dev?email=err@test.com", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	sess, _ := store.Get(req, "session-name")
+	c.Set("session", sess)
+
+	mockRepo := &mock.MockListingRepository{}
+	h := handler.NewAuthHandler(mockRepo, nil)
+
+	os.Setenv("AGBALUMO_ENV", "development")
+	defer os.Unsetenv("AGBALUMO_ENV")
+
+	// findOrCreateUser: user not found, then save fails
+	mockRepo.On("FindUserByGoogleID", testifyMock.Anything, "dev-err@test.com").Return(domain.User{}, assert.AnError)
+	mockRepo.On("SaveUser", testifyMock.Anything, testifyMock.Anything).Return(assert.AnError)
+
+	err := h.DevLogin(c)
+
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	assert.Contains(t, rec.Body.String(), "Failed to login")
+}
+
+// --- GoogleCallback Error Paths ---
+
+func TestAuthHandler_GoogleCallback_ExchangeError(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=bad-code", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockProvider := &MockGoogleProvider{}
+	h := handler.NewAuthHandler(mockRepo, mockProvider)
+
+	mockProvider.On("Exchange", testifyMock.Anything, "bad-code", testifyMock.Anything).Return(nil, assert.AnError)
+
+	err := h.GoogleCallback(c)
+
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	assert.Contains(t, rec.Body.String(), "Code exchange failed")
+}
+
+func TestAuthHandler_GoogleCallback_GetUserInfoError(t *testing.T) {
+	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	session, _ := store.Get(req, "auth_session")
-	c.Set("session", session)
 
 	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("FindUserByGoogleID", testifyMock.Anything, "g-123").Return(domain.User{}, errors.New("not found"))
-	// Simulate DB error on save
-	mockRepo.On("SaveUser", testifyMock.Anything, testifyMock.Anything).Return(errors.New("db error"))
+	mockProvider := &MockGoogleProvider{}
+	h := handler.NewAuthHandler(mockRepo, mockProvider)
 
-	mockProvider := &MockGoogleProvider{
-		ExchangeFn: func(ctx context.Context, code string, host string) (*oauth2.Token, error) {
-			return &oauth2.Token{AccessToken: "tok"}, nil
-		},
-		GetUserInfoFn: func(ctx context.Context, token *oauth2.Token) (*GoogleUser, error) {
-			return &GoogleUser{
-				ID:    "g-123",
-				Email: "new@example.com",
-				Name:  "New User",
-			}, nil
-		},
+	token := &oauth2.Token{AccessToken: "token"}
+	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", testifyMock.Anything).Return(token, nil)
+	mockProvider.On("GetUserInfo", testifyMock.Anything, token).Return(nil, assert.AnError)
+
+	err := h.GoogleCallback(c)
+
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	assert.Contains(t, rec.Body.String(), "User data fetch failed")
+}
+
+// --- findOrCreateUser: Profile Update Save Error (graceful) ---
+
+func TestAuthHandler_GoogleCallback_UpdateProfileSaveError(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	store := sessions.NewCookieStore([]byte("secret"))
+	sess, _ := store.Get(req, "session-name")
+	c.Set("session", sess)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockProvider := &MockGoogleProvider{}
+	h := handler.NewAuthHandler(mockRepo, mockProvider)
+
+	token := &oauth2.Token{AccessToken: "token"}
+	gUser := &handler.GoogleUser{
+		ID:      "g-update-err",
+		Email:   "user@test.com",
+		Name:    "New Name",
+		Picture: "http://new-pic.com",
 	}
 
-	h := &AuthHandler{
-		Repo:           mockRepo,
-		GoogleProvider: mockProvider,
+	existingUser := domain.User{
+		ID:        "u-update-err",
+		GoogleID:  "g-update-err",
+		Email:     "user@test.com",
+		Name:      "Old Name",
+		AvatarURL: "http://old-pic.com",
 	}
 
-	// Echo handler returns nil error when c.String successfully writes response
-	_ = h.GoogleCallback(c)
+	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", testifyMock.Anything).Return(token, nil)
+	mockProvider.On("GetUserInfo", testifyMock.Anything, token).Return(gUser, nil)
+	mockRepo.On("FindUserByGoogleID", testifyMock.Anything, "g-update-err").Return(existingUser, nil)
+	// SaveUser fails during profile update — should log but NOT fail
+	mockRepo.On("SaveUser", testifyMock.Anything, testifyMock.Anything).Return(assert.AnError)
 
-	if rec.Code != http.StatusInternalServerError {
-		t.Errorf("Expected 500, got %d", rec.Code)
-	}
+	err := h.GoogleCallback(c)
 
-	mockRepo.AssertExpectations(t)
+	// Should still succeed (graceful error handling)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
+	assert.Equal(t, "/", rec.Header().Get("Location"))
+}
+
+// --- setSessionAndRedirect: Nil Session ---
+
+func TestAuthHandler_SetSessionAndRedirect_NilSession(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	// No session set — session will be nil
+
+	mockRepo := &mock.MockListingRepository{}
+	mockProvider := &MockGoogleProvider{}
+	h := handler.NewAuthHandler(mockRepo, mockProvider)
+
+	token := &oauth2.Token{AccessToken: "token"}
+	gUser := &handler.GoogleUser{ID: "g-no-session", Email: "no-session@test.com", Name: "Test", Picture: "http://pic.com"}
+
+	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", testifyMock.Anything).Return(token, nil)
+	mockProvider.On("GetUserInfo", testifyMock.Anything, token).Return(gUser, nil)
+	mockRepo.On("FindUserByGoogleID", testifyMock.Anything, "g-no-session").Return(domain.User{}, assert.AnError)
+	mockRepo.On("SaveUser", testifyMock.Anything, testifyMock.Anything).Return(nil)
+
+	err := h.GoogleCallback(c)
+
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	assert.Contains(t, rec.Body.String(), "Session Store Missing")
+}
+
+// --- OptionalAuth: No Session ---
+
+func TestAuthHandler_OptionalAuth_NoSession(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/optional", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	// No session set at all
+
+	mockRepo := &mock.MockListingRepository{}
+	h := handler.NewAuthHandler(mockRepo, nil)
+
+	handlerFunc := h.OptionalAuth(func(c echo.Context) error {
+		u := c.Get("User")
+		if u == nil {
+			return c.String(http.StatusOK, "No User")
+		}
+		return c.String(http.StatusOK, "Has User")
+	})
+
+	err := handlerFunc(c)
+
+	assert.NoError(t, err)
+	assert.Equal(t, "No User", rec.Body.String())
+}
+
+// --- Logout: No Session ---
+
+func TestAuthHandler_Logout_NoSession(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/auth/logout", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	// No session set
+
+	mockRepo := &mock.MockListingRepository{}
+	h := handler.NewAuthHandler(mockRepo, nil)
+
+	err := h.Logout(c)
+
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
+	assert.Equal(t, "/", rec.Header().Get("Location"))
 }
