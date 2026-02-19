@@ -54,6 +54,12 @@ func scanListing(s Scanner) (domain.Listing, error) {
 	return l, nil
 }
 
+func scanUser(s Scanner) (domain.User, error) {
+	var u domain.User
+	err := s.Scan(&u.ID, &u.GoogleID, &u.Email, &u.Name, &u.AvatarURL, &u.Role, &u.CreatedAt)
+	return u, err
+}
+
 type SQLiteRepository struct {
 	db *sql.DB
 }
@@ -327,8 +333,7 @@ func (r *SQLiteRepository) FindUserByGoogleID(ctx context.Context, googleID stri
 	query := `SELECT id, google_id, email, name, avatar_url, COALESCE(role, 'User'), created_at FROM users WHERE google_id = ?`
 	row := r.db.QueryRowContext(ctx, query, googleID)
 
-	var u domain.User
-	err := row.Scan(&u.ID, &u.GoogleID, &u.Email, &u.Name, &u.AvatarURL, &u.Role, &u.CreatedAt)
+	u, err := scanUser(row)
 	if err == sql.ErrNoRows {
 		return domain.User{}, errors.New("user not found")
 	}
@@ -340,8 +345,7 @@ func (r *SQLiteRepository) FindUserByID(ctx context.Context, id string) (domain.
 	query := `SELECT id, google_id, email, name, avatar_url, COALESCE(role, 'User'), created_at FROM users WHERE id = ?`
 	row := r.db.QueryRowContext(ctx, query, id)
 
-	var u domain.User
-	err := row.Scan(&u.ID, &u.GoogleID, &u.Email, &u.Name, &u.AvatarURL, &u.Role, &u.CreatedAt)
+	u, err := scanUser(row)
 	if err == sql.ErrNoRows {
 		return domain.User{}, errors.New("user not found")
 	}
@@ -478,8 +482,8 @@ func (r *SQLiteRepository) GetAllUsers(ctx context.Context) ([]domain.User, erro
 
 	var users []domain.User
 	for rows.Next() {
-		var u domain.User
-		if err := rows.Scan(&u.ID, &u.GoogleID, &u.Email, &u.Name, &u.AvatarURL, &u.Role, &u.CreatedAt); err != nil {
+		u, err := scanUser(rows)
+		if err != nil {
 			return nil, err
 		}
 		users = append(users, u)
@@ -536,15 +540,8 @@ func (r *SQLiteRepository) GetFeedbackCounts(ctx context.Context) (map[domain.Fe
 	return counts, nil
 }
 
-// GetListingGrowth returns the count of new listings per day for the last 30 days.
-func (r *SQLiteRepository) GetListingGrowth(ctx context.Context) ([]domain.DailyMetric, error) {
-	query := `
-		SELECT date(created_at) as day, COUNT(*) as count
-		FROM listings
-		WHERE created_at IS NOT NULL AND created_at != '' AND created_at >= date('now', '-30 days')
-		GROUP BY day
-		ORDER BY day ASC
-	`
+// queryDailyMetrics runs a date-grouped COUNT query and returns daily metrics.
+func (r *SQLiteRepository) queryDailyMetrics(ctx context.Context, query string) ([]domain.DailyMetric, error) {
 	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
@@ -554,7 +551,6 @@ func (r *SQLiteRepository) GetListingGrowth(ctx context.Context) ([]domain.Daily
 	metrics := []domain.DailyMetric{}
 	for rows.Next() {
 		var m domain.DailyMetric
-		// Handle potential NULLs if date() fails (though WHERE clause should prevent it)
 		var day sql.NullString
 		if err := rows.Scan(&day, &m.Count); err != nil {
 			return nil, err
@@ -567,32 +563,24 @@ func (r *SQLiteRepository) GetListingGrowth(ctx context.Context) ([]domain.Daily
 	return metrics, nil
 }
 
+// GetListingGrowth returns the count of new listings per day for the last 30 days.
+func (r *SQLiteRepository) GetListingGrowth(ctx context.Context) ([]domain.DailyMetric, error) {
+	return r.queryDailyMetrics(ctx, `
+		SELECT date(created_at) as day, COUNT(*) as count
+		FROM listings
+		WHERE created_at IS NOT NULL AND created_at != '' AND created_at >= date('now', '-30 days')
+		GROUP BY day
+		ORDER BY day ASC
+	`)
+}
+
 // GetUserGrowth returns the count of new users per day for the last 30 days.
 func (r *SQLiteRepository) GetUserGrowth(ctx context.Context) ([]domain.DailyMetric, error) {
-	query := `
+	return r.queryDailyMetrics(ctx, `
 		SELECT date(created_at) as day, COUNT(*) as count
 		FROM users
 		WHERE created_at IS NOT NULL AND created_at != '' AND created_at >= date('now', '-30 days')
 		GROUP BY day
 		ORDER BY day ASC
-	`
-	rows, err := r.db.QueryContext(ctx, query)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	metrics := []domain.DailyMetric{}
-	for rows.Next() {
-		var m domain.DailyMetric
-		var day sql.NullString
-		if err := rows.Scan(&day, &m.Count); err != nil {
-			return nil, err
-		}
-		if day.Valid {
-			m.Date = day.String
-			metrics = append(metrics, m)
-		}
-	}
-	return metrics, nil
+	`)
 }

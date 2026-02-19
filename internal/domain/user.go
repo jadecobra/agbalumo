@@ -19,14 +19,3 @@ const (
 	UserRoleAdmin UserRole = "Admin"
 	UserRoleUser  UserRole = "User"
 )
-
-// UserRepository defines the interface for user persistence.
-// Check if context is needed (it is in other repos).
-// Using the same pattern as ListingRepository.
-/*
-type UserRepository interface {
-    Save(ctx context.Context, user User) error
-    FindByGoogleID(ctx context.Context, googleID string) (User, error)
-    FindByID(ctx context.Context, id string) (User, error)
-}
-*/

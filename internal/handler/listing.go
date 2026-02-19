@@ -12,6 +12,14 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// ClaimableTypes defines which listing categories can be claimed by users.
+var ClaimableTypes = map[domain.Category]bool{
+	domain.Business: true,
+	domain.Service:  true,
+	domain.Product:  true,
+	domain.Event:    true,
+}
+
 type ListingHandler struct {
 	Repo         domain.ListingRepository
 	ImageService service.ImageService
@@ -105,17 +113,8 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 		user, ok = u.(domain.User)
 	}
 
-	// Claimable Types
-	claimable := map[domain.Category]bool{
-		domain.Business: true,
-		domain.Service:  true,
-		domain.Product:  true,
-		domain.Event:    true,
-	}
-
 	// Check if the current user can claim this listing
-	// Criteria: Listing has no owner AND is a claimable type
-	canClaim := listing.OwnerID == "" && claimable[listing.Type]
+	canClaim := listing.OwnerID == "" && ClaimableTypes[listing.Type]
 
 	isOwner := false
 	if ok {
@@ -181,13 +180,7 @@ func (h *ListingHandler) HandleClaim(c echo.Context) error {
 	}
 
 	// Verify Type is claimable
-	claimable := map[domain.Category]bool{
-		domain.Business: true,
-		domain.Service:  true,
-		domain.Product:  true,
-		domain.Event:    true,
-	}
-	if !claimable[listing.Type] {
+	if !ClaimableTypes[listing.Type] {
 		return RespondError(c, echo.NewHTTPError(http.StatusForbidden, "This listing type cannot be claimed"))
 	}
 

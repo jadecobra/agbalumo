@@ -53,16 +53,6 @@ func (p *RealGoogleProvider) getRedirectURL(host string) string {
 	// 1. Prefer BASE_URL (e.g. http://192.168.1.5:8080)
 	baseURL := os.Getenv("BASE_URL")
 	if baseURL != "" {
-		// Basic trimming to avoid double slashes if user adds one
-		// We avoid importing "strings" just for this if not already imported,
-		// but "strings" is not imported in auth.go?
-		// Checked file: imports: context, encoding/json, fmt, io, net/http, os, time...
-		// Need to add strings to imports?
-		// Or just blindly append if we trust user?
-		// Let's assume user inputs correctly or simple check.
-		// Actually, importing strings is better.
-		// But replacing content safely involves keeping imports separate.
-		// I will just use fmt and assume standard format for now to minimize diff risk.
 		return fmt.Sprintf("%s/auth/google/callback", baseURL)
 	}
 
