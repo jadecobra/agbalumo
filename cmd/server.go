@@ -20,14 +20,32 @@ import (
 // SetupServer initializes the Echo server and its dependencies.
 // It returns the Echo instance or an error.
 func SetupServer() (*echo.Echo, error) {
-	// Environment Configuration is assumed to be loaded (from .env or env vars)
 	env := os.Getenv("AGBALUMO_ENV")
 
-	// Initialize Echo instance
 	e := echo.New()
 
-	// Custom CSP Middleware
-	// Security Middleware (CSP, Strict-Transport-Security, etc.)
+	setupMiddleware(e, env)
+
+	repo, err := initDatabase()
+	if err != nil {
+		return nil, err
+	}
+
+	renderer, err := initRenderer()
+	if err != nil {
+		return nil, err
+	}
+	e.Renderer = renderer
+
+	setupRoutes(e, repo)
+	setupBackgroundServices(env, repo)
+
+	return e, nil
+}
+
+// setupMiddleware wires security, rate limiting, CSRF, and session middleware.
+func setupMiddleware(e *echo.Echo, env string) {
+	// Security Headers (CSP, Strict-Transport-Security, etc.)
 	e.Use(customMiddleware.SecureHeaders)
 
 	// Rate Limiter
@@ -50,7 +68,6 @@ func SetupServer() (*echo.Echo, error) {
 	// Session Middleware
 	sessionKey := os.Getenv("SESSION_SECRET")
 	if sessionKey == "" {
-		// Fallback for dev, or panic in prod
 		if os.Getenv("AGBALUMO_ENV") == "production" {
 			log.Fatal("SESSION_SECRET must be set in production")
 		}
@@ -62,40 +79,38 @@ func SetupServer() (*echo.Echo, error) {
 		Path:     "/",
 		MaxAge:   86400 * 7, // 7 days
 		HttpOnly: true,
-		Secure:   env == "production", // Secure only in prod (or if using TLS in dev)
+		Secure:   env == "production",
 		SameSite: http.SameSiteStrictMode,
 	}
 	e.Use(customMiddleware.SessionMiddleware(store))
+}
 
-	// Database Initialization
+// initDatabase creates the SQLite repository.
+func initDatabase() (*sqlite.SQLiteRepository, error) {
 	dbPath := os.Getenv("DATABASE_URL")
 	if dbPath == "" {
 		dbPath = "agbalumo.db"
 	}
-	repo, err := sqlite.NewSQLiteRepository(dbPath)
-	if err != nil {
-		return nil, err
-	}
+	return sqlite.NewSQLiteRepository(dbPath)
+}
 
-	// Template Renderer
-	// Include all necessary directories
-	renderer, err := ui.NewTemplateRenderer(
+// initRenderer creates the template renderer.
+func initRenderer() (*ui.TemplateRenderer, error) {
+	return ui.NewTemplateRenderer(
 		"ui/templates/*.html",
 		"ui/templates/partials/*.html",
-		"ui/templates/listings/*.html", // Added listings directory
-		"ui/templates/about.html",      // Explicitly add about page
+		"ui/templates/listings/*.html",
+		"ui/templates/about.html",
 	)
-	if err != nil {
-		return nil, err
-	}
-	e.Renderer = renderer
+}
 
+// setupRoutes registers all HTTP routes.
+func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository) {
 	// Handlers
-	// Use default (nil) ImageService which defaults to LocalImageService
 	listingHandler := handler.NewListingHandler(repo, nil)
 	csvService := service.NewCSVService()
 	adminHandler := handler.NewAdminHandler(repo, csvService)
-	authHandler := handler.NewAuthHandler(repo, nil) // New Auth Handler with default provider
+	authHandler := handler.NewAuthHandler(repo, nil)
 
 	// Auth Routes
 	e.GET("/auth/dev", authHandler.DevLogin)
@@ -103,64 +118,55 @@ func SetupServer() (*echo.Echo, error) {
 	e.GET("/auth/google/login", authHandler.GoogleLogin)
 	e.GET("/auth/google/callback", authHandler.GoogleCallback)
 
-	// Routes
-	e.Use(authHandler.OptionalAuth) // Inject user if logged in
+	// Global Auth Middleware
+	e.Use(authHandler.OptionalAuth)
 
-	// Static files (CSS, JS, Images)
+	// Static files
 	e.Static("/static", "ui/static")
 
+	// Public Routes
 	e.GET("/", listingHandler.HandleHome)
 	e.GET("/about", listingHandler.HandleAbout)
 	e.GET("/listings/fragment", listingHandler.HandleFragment)
 	e.GET("/listings/:id", listingHandler.HandleDetail)
-	e.POST("/listings", listingHandler.HandleCreate, authHandler.RequireAuth)
 
-	// Edit Routes
-	// e.Use(authHandler.OptionalAuth) // Already applied globally above
+	// Authenticated Routes
+	e.POST("/listings", listingHandler.HandleCreate, authHandler.RequireAuth)
 	e.GET("/listings/:id/edit", listingHandler.HandleEdit, authHandler.RequireAuth)
 	e.PUT("/listings/:id", listingHandler.HandleUpdate, authHandler.RequireAuth)
-	e.POST("/listings/:id", listingHandler.HandleUpdate, authHandler.RequireAuth) // Fallback support for POST
+	e.POST("/listings/:id", listingHandler.HandleUpdate, authHandler.RequireAuth)
 	e.DELETE("/listings/:id", listingHandler.HandleDelete, authHandler.RequireAuth)
-
-	// Profile
 	e.GET("/profile", listingHandler.HandleProfile, authHandler.RequireAuth)
+	e.POST("/listings/:id/claim", listingHandler.HandleClaim, authHandler.RequireAuth)
 
 	// Feedback
 	feedbackHandler := handler.NewFeedbackHandler(repo)
 	e.GET("/feedback/modal", feedbackHandler.HandleModal, authHandler.RequireAuth)
 	e.POST("/feedback", feedbackHandler.HandleSubmit, authHandler.RequireAuth)
 
-	// Claim Route
-	e.POST("/listings/:id/claim", listingHandler.HandleClaim, authHandler.RequireAuth)
-
 	// Admin Routes
 	adminGroup := e.Group("/admin")
-	// Use the OptionalAuth middleware first to populate the user context, then AdminMiddleware
 	adminGroup.Use(authHandler.OptionalAuth)
-
-	// Admin Claim/Login Routes (Protected by Auth, but not Admin Role)
 	adminGroup.GET("/login", adminHandler.HandleLoginView, authHandler.RequireAuth)
 	adminGroup.POST("/login", adminHandler.HandleLoginAction, authHandler.RequireAuth)
-
 	adminGroup.Use(adminHandler.AdminMiddleware)
-
 	adminGroup.GET("", adminHandler.HandleDashboard)
 	adminGroup.GET("/users", adminHandler.HandleUsers)
 	adminGroup.POST("/listings/:id/approve", adminHandler.HandleApprove)
 	adminGroup.POST("/listings/:id/reject", adminHandler.HandleReject)
 	adminGroup.POST("/upload", adminHandler.HandleBulkUpload)
+}
 
-	// Seed Data (if empty) AND not in production
+// setupBackgroundServices starts seeding and background tickers.
+func setupBackgroundServices(env string, repo *sqlite.SQLiteRepository) {
 	ctx := context.Background()
+
 	if env != "production" {
 		seeder.EnsureSeeded(ctx, repo)
 	} else {
 		log.Println("Production environment detected. Skipping automatic data seeding.")
 	}
 
-	// Background Services
 	bgService := service.NewBackgroundService(repo)
 	go bgService.StartTicker(ctx)
-
-	return e, nil
 }

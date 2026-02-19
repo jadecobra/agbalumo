@@ -83,6 +83,14 @@ var ValidOrigins = map[string]bool{
 	"Other":         true,
 }
 
+// ClaimableTypes defines which listing categories can be claimed by users.
+var ClaimableTypes = map[Category]bool{
+	Business: true,
+	Service:  true,
+	Product:  true,
+	Event:    true,
+}
+
 // Validate enforces domain rules for the Listing.
 func (l *Listing) Validate() error {
 	// Origin is required for ALL types

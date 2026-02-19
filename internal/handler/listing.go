@@ -12,24 +12,18 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// ClaimableTypes defines which listing categories can be claimed by users.
-var ClaimableTypes = map[domain.Category]bool{
-	domain.Business: true,
-	domain.Service:  true,
-	domain.Product:  true,
-	domain.Event:    true,
-}
-
 type ListingHandler struct {
 	Repo         domain.ListingStore
 	ImageService service.ImageService
+	ListingSvc   *service.ListingService
 }
 
 func NewListingHandler(repo domain.ListingStore, imageService service.ImageService) *ListingHandler {
 	if imageService == nil {
 		imageService = service.NewLocalImageService()
 	}
-	return &ListingHandler{Repo: repo, ImageService: imageService}
+	listingSvc := service.NewListingService(repo)
+	return &ListingHandler{Repo: repo, ImageService: imageService, ListingSvc: listingSvc}
 }
 
 // Home Handler
@@ -114,7 +108,7 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 	}
 
 	// Check if the current user can claim this listing
-	canClaim := listing.OwnerID == "" && ClaimableTypes[listing.Type]
+	canClaim := listing.OwnerID == "" && domain.ClaimableTypes[listing.Type]
 
 	isOwner := false
 	if ok {
@@ -169,25 +163,17 @@ func (h *ListingHandler) HandleClaim(c echo.Context) error {
 	}
 
 	id := c.Param("id")
-	listing, err := h.Repo.FindByID(c.Request().Context(), id)
+
+	// Call the service layer to perform business logic
+	_, err := h.ListingSvc.ClaimListing(c.Request().Context(), user.ID, id)
 	if err != nil {
-		return RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
-	}
-
-	// Verify listing is unclaimed (OwnerID is empty)
-	if listing.OwnerID != "" {
-		return RespondError(c, echo.NewHTTPError(http.StatusForbidden, "This listing is already owned"))
-	}
-
-	// Verify Type is claimable
-	if !ClaimableTypes[listing.Type] {
-		return RespondError(c, echo.NewHTTPError(http.StatusForbidden, "This listing type cannot be claimed"))
-	}
-
-	// Assign owner
-	listing.OwnerID = user.ID
-	if err := h.Repo.Save(c.Request().Context(), listing); err != nil {
-		return RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Failed to claim listing"))
+		if err.Error() == "listing not found" {
+			return RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
+		}
+		if err.Error() == "listing is already owned" || err.Error() == "listing type cannot be claimed" {
+			return RespondError(c, echo.NewHTTPError(http.StatusForbidden, err.Error()))
+		}
+		return RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Failed to claim listing: "+err.Error()))
 	}
 
 	// Success - Render the updated detail modal (HTMX Swap)
