@@ -10,10 +10,10 @@ import (
 )
 
 type FeedbackHandler struct {
-	Repo domain.ListingRepository
+	Repo domain.FeedbackStore
 }
 
-func NewFeedbackHandler(repo domain.ListingRepository) *FeedbackHandler {
+func NewFeedbackHandler(repo domain.FeedbackStore) *FeedbackHandler {
 	return &FeedbackHandler{Repo: repo}
 }
 

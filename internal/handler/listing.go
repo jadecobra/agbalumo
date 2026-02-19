@@ -21,11 +21,11 @@ var ClaimableTypes = map[domain.Category]bool{
 }
 
 type ListingHandler struct {
-	Repo         domain.ListingRepository
+	Repo         domain.ListingStore
 	ImageService service.ImageService
 }
 
-func NewListingHandler(repo domain.ListingRepository, imageService service.ImageService) *ListingHandler {
+func NewListingHandler(repo domain.ListingStore, imageService service.ImageService) *ListingHandler {
 	if imageService == nil {
 		imageService = service.NewLocalImageService()
 	}

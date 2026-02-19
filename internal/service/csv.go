@@ -19,7 +19,7 @@ func NewCSVService() *CSVService {
 }
 
 // ParseAndImport reads a CSV stream and converts rows into Listings, saving them to the repo.
-func (s *CSVService) ParseAndImport(ctx context.Context, r io.Reader, repo domain.ListingRepository) (*domain.BulkUploadResult, error) {
+func (s *CSVService) ParseAndImport(ctx context.Context, r io.Reader, repo domain.ListingSaver) (*domain.BulkUploadResult, error) {
 	reader := csv.NewReader(r)
 	reader.TrimLeadingSpace = true
 

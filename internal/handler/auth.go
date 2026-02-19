@@ -109,11 +109,11 @@ func (p *RealGoogleProvider) GetUserInfo(ctx context.Context, token *oauth2.Toke
 // -- Auth Handler --
 
 type AuthHandler struct {
-	Repo           domain.ListingRepository
+	Repo           domain.UserStore
 	GoogleProvider GoogleProvider
 }
 
-func NewAuthHandler(repo domain.ListingRepository, provider GoogleProvider) *AuthHandler {
+func NewAuthHandler(repo domain.UserStore, provider GoogleProvider) *AuthHandler {
 	if provider == nil {
 		provider = NewRealGoogleProvider()
 	}

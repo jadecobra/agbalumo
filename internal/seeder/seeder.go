@@ -11,7 +11,7 @@ import (
 )
 
 // SeedAll inserts all predefined data into the repository.
-func SeedAll(ctx context.Context, repo domain.ListingRepository) {
+func SeedAll(ctx context.Context, repo domain.ListingStore) {
 	seedGroup(ctx, repo, "Businesses", businesses)
 	seedGroup(ctx, repo, "Services", services)
 	seedGroup(ctx, repo, "Products", products)
@@ -22,7 +22,7 @@ func SeedAll(ctx context.Context, repo domain.ListingRepository) {
 }
 
 // EnsureSeeded checks if the database is empty, and if so, seeds it.
-func EnsureSeeded(ctx context.Context, repo domain.ListingRepository) {
+func EnsureSeeded(ctx context.Context, repo domain.ListingStore) {
 	listings, err := repo.FindAll(ctx, "", "", true)
 	if err != nil {
 		log.Printf("Failed to check existing listings: %v", err)
@@ -35,7 +35,7 @@ func EnsureSeeded(ctx context.Context, repo domain.ListingRepository) {
 	}
 }
 
-func seedGroup(ctx context.Context, repo domain.ListingRepository, name string, listings []domain.Listing) {
+func seedGroup(ctx context.Context, repo domain.ListingStore, name string, listings []domain.Listing) {
 	log.Printf("Seeding %s...", name)
 	for _, l := range listings {
 		l.ID = uuid.New().String()

@@ -9,10 +9,10 @@ import (
 )
 
 type BackgroundService struct {
-	Repo domain.ListingRepository
+	Repo domain.ListingExpirer
 }
 
-func NewBackgroundService(repo domain.ListingRepository) *BackgroundService {
+func NewBackgroundService(repo domain.ListingExpirer) *BackgroundService {
 	return &BackgroundService{Repo: repo}
 }
 
