@@ -38,4 +38,28 @@ fi
 
 echo "✅ Coverage is acceptable: $COVERAGE%"
 
+echo "5. Running Secret Scanner..."
+FAILED=0
+
+# 1. Check filenames (staged)
+# Matches .env, .pem, .key, .db, .db-shm, .db-wal
+if git diff --cached --name-only | grep -E "\.env$|\.pem$|\.key$|\.db$|\.db-shm$|\.db-wal$"; then
+    echo "❌ Secret/Artifact Leak: Sensitive file extension detected!"
+    FAILED=1
+fi
+
+# 2. Check content (staged)
+# We use git grep --cached to search the index.
+# -I ignores binary files.
+# -n prints line numbers.
+# Patterns: Private Key, OpenAI Key, Google API Key
+if git grep --cached -I -n -E "[B]EGIN PRIVATE KEY|sk-[a-zA-Z0-9]{20,}|[A]Iza[a-zA-Z0-9_-]{30,}"; then
+    echo "❌ Secret Leak: Sensitive pattern detected in staged content!"
+    FAILED=1
+fi
+
+if [ $FAILED -ne 0 ]; then
+    exit 1
+fi
+
 echo "Quality Check Passed! 🚀"

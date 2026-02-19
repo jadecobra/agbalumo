@@ -21,8 +21,8 @@
 | **59** | `[x]` | **SDET** | **Boost Test Coverage (Target: 80%)**<br>Focus: `cmd` and `internal/handler`. | 81.6% |
 | **60** | `[x]` | **BE** | **Refactor Root Command**<br>Make `Execute` testable. | Testable? |
 | **61** | `[x]` | **BE** | **Refactor Seed Command**<br>Extract config logic. | Testable? |
-
 | **62** | `[x]` | **SEC** | **Scrub History**<br>Remove tracked test artifacts. | Clean history? |
+| **63** | `[x]` | **SEC** | **Prevent Future Leaks**<br>Add Secret Scanner to pre-commit hook. | Catches secrets? |
 - [x] **[FE]** Polish Claim Ownership UI (HTMX) <!-- id: 46 -->
 - [x] **[BE]** Implement Claim Ownership Logic <!-- id: 43 -->
 - [x] **[SDET]** Verify Claim Flow & Security <!-- id: 45 -->
