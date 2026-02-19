@@ -17,8 +17,8 @@ func SecureHeaders(next echo.HandlerFunc) echo.HandlerFunc {
 		// - Inline scripts (unsafe-inline) - Required for current setup (HTMX/Tailwind config in HTML)
 		//   TODO: Move inline scripts to files to enable stricter CSP.
 		csp := "default-src 'self'; " +
-			"script-src 'self' 'unsafe-inline' https://unpkg.com https://maps.googleapis.com; " +
-			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+			"script-src 'self' 'unsafe-inline' https://unpkg.com https://maps.googleapis.com https://cdn.jsdelivr.net https://cdn.tailwindcss.com; " +
+			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; " +
 			"font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; " +
 			"img-src 'self' data: https://*.googleusercontent.com https://ui-avatars.com https://maps.googleapis.com https://maps.gstatic.com; " +
 			"connect-src 'self' https://accounts.google.com https://maps.googleapis.com;"

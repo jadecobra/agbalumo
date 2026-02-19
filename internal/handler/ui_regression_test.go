@@ -1,6 +1,7 @@
 package handler_test
 
 import (
+	"encoding/json"
 	"html/template"
 	"io"
 	"net/http"
@@ -54,6 +55,13 @@ func NewRealTemplate(t *testing.T) *template.Template {
 				dict[key] = values[i+1]
 			}
 			return dict, nil
+		},
+		"toJson": func(v interface{}) (template.JS, error) {
+			b, err := json.Marshal(v)
+			if err != nil {
+				return "", err
+			}
+			return template.JS(b), nil
 		},
 	}
 

@@ -26,6 +26,18 @@
         {{ end }}
     </div>
 
+    <!-- Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">New Listings (Last 30 Days)</h2>
+            <canvas id="listingChart"></canvas>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">New Users (Last 30 Days)</h2>
+            <canvas id="userChart"></canvas>
+        </div>
+    </div>
+
     <!-- Flash Message -->
     {{ if .FlashMessage }}
     <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-8" role="alert">
@@ -112,4 +124,67 @@
         {{ end }}
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Prepare Data
+        const listingData = {{ .ListingGrowth | toJson
+    }}; // Comes as list of structs
+    const userData = {{ .UserGrowth | toJson }};
+
+    // Helper to parse data for Chart.js
+    function parseData(data) {
+        if (!data) return { labels: [], values: [] };
+        const labels = data.map(d => d.Date);
+        const values = data.map(d => d.Count);
+        return { labels, values };
+    }
+
+    const listings = parseData(listingData);
+    const users = parseData(userData);
+
+    // Listing Chart
+    new Chart(document.getElementById('listingChart'), {
+        type: 'line',
+        data: {
+            labels: listings.labels,
+            datasets: [{
+                label: 'New Listings',
+                data: listings.values,
+                borderColor: '#ea580c', // primary-600
+                backgroundColor: 'rgba(234, 88, 12, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+    });
+
+    // User Chart
+    new Chart(document.getElementById('userChart'), {
+        type: 'line',
+        data: {
+            labels: users.labels,
+            datasets: [{
+                label: 'New Users',
+                data: users.values,
+                borderColor: '#3b82f6', // blue-500
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+    });
+    });
+</script>
 {{ end }}{{ define "filters" }}{{ end }}

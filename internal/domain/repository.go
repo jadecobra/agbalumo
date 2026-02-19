@@ -30,4 +30,14 @@ type ListingRepository interface {
 	GetPendingListings(ctx context.Context) ([]Listing, error)  // New
 	GetUserCount(ctx context.Context) (int, error)              // New
 	GetAllUsers(ctx context.Context) ([]User, error)            // New: For Admin Dashboard
+
+	// Analytics
+	GetListingGrowth(ctx context.Context) ([]DailyMetric, error)
+	GetUserGrowth(ctx context.Context) ([]DailyMetric, error)
+}
+
+// DailyMetric represents a daily count of an entity.
+type DailyMetric struct {
+	Date  string
+	Count int
 }

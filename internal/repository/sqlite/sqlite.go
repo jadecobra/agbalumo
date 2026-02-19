@@ -535,3 +535,64 @@ func (r *SQLiteRepository) GetFeedbackCounts(ctx context.Context) (map[domain.Fe
 	}
 	return counts, nil
 }
+
+// GetListingGrowth returns the count of new listings per day for the last 30 days.
+func (r *SQLiteRepository) GetListingGrowth(ctx context.Context) ([]domain.DailyMetric, error) {
+	query := `
+		SELECT date(created_at) as day, COUNT(*) as count
+		FROM listings
+		WHERE created_at IS NOT NULL AND created_at != '' AND created_at >= date('now', '-30 days')
+		GROUP BY day
+		ORDER BY day ASC
+	`
+	rows, err := r.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	metrics := []domain.DailyMetric{}
+	for rows.Next() {
+		var m domain.DailyMetric
+		// Handle potential NULLs if date() fails (though WHERE clause should prevent it)
+		var day sql.NullString
+		if err := rows.Scan(&day, &m.Count); err != nil {
+			return nil, err
+		}
+		if day.Valid {
+			m.Date = day.String
+			metrics = append(metrics, m)
+		}
+	}
+	return metrics, nil
+}
+
+// GetUserGrowth returns the count of new users per day for the last 30 days.
+func (r *SQLiteRepository) GetUserGrowth(ctx context.Context) ([]domain.DailyMetric, error) {
+	query := `
+		SELECT date(created_at) as day, COUNT(*) as count
+		FROM users
+		WHERE created_at IS NOT NULL AND created_at != '' AND created_at >= date('now', '-30 days')
+		GROUP BY day
+		ORDER BY day ASC
+	`
+	rows, err := r.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	metrics := []domain.DailyMetric{}
+	for rows.Next() {
+		var m domain.DailyMetric
+		var day sql.NullString
+		if err := rows.Scan(&day, &m.Count); err != nil {
+			return nil, err
+		}
+		if day.Valid {
+			m.Date = day.String
+			metrics = append(metrics, m)
+		}
+	}
+	return metrics, nil
+}

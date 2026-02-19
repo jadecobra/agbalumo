@@ -105,6 +105,16 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 		return RespondError(c, err)
 	}
 
+	listingGrowth, err := h.Repo.GetListingGrowth(ctx)
+	if err != nil {
+		return RespondError(c, err)
+	}
+
+	userGrowth, err := h.Repo.GetUserGrowth(ctx)
+	if err != nil {
+		return RespondError(c, err)
+	}
+
 	// Get Flash Messages
 	sess := customMiddleware.GetSession(c)
 	var flashMsg interface{}
@@ -119,6 +129,8 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 		"PendingListings": pendingListings,
 		"UserCount":       userCount,
 		"FeedbackCounts":  feedbackCounts,
+		"ListingGrowth":   listingGrowth,
+		"UserGrowth":      userGrowth,
 		"User":            c.Get("User"),
 		"FlashMessage":    flashMsg,
 	})
