@@ -737,3 +737,186 @@ func (m *MockImageService) UploadImage(ctx context.Context, file *multipart.File
 	args := m.Called(ctx, file, listingID)
 	return args.String(0), args.Error(1)
 }
+
+// --- Profile Edge Case Tests ---
+
+func TestHandleProfile_NoUser(t *testing.T) {
+	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+
+	req := httptest.NewRequest(http.MethodGet, "/profile", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	// No user set
+
+	mockRepo := &mock.MockListingRepository{}
+	h := handler.NewListingHandler(mockRepo, nil)
+
+	if err := h.HandleProfile(c); err != nil {
+		t.Fatalf("HandleProfile failed: %v", err)
+	}
+
+	if rec.Code != http.StatusTemporaryRedirect {
+		t.Errorf("Expected redirect 307, got %d", rec.Code)
+	}
+	if rec.Header().Get("Location") != "/auth/google/login" {
+		t.Errorf("Expected redirect to login, got: %s", rec.Header().Get("Location"))
+	}
+}
+
+func TestHandleProfile_RepoError(t *testing.T) {
+	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+
+	req := httptest.NewRequest(http.MethodGet, "/profile", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	user := domain.User{ID: "u1", Name: "Test User"}
+	c.Set("User", user)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindAllByOwner", testifyMock.Anything, "u1").Return([]domain.Listing{}, errors.New("db error"))
+
+	h := handler.NewListingHandler(mockRepo, nil)
+
+	_ = h.HandleProfile(c)
+	if rec.Code != http.StatusInternalServerError {
+		t.Errorf("Expected status 500, got %d", rec.Code)
+	}
+}
+
+// --- Fragment Edge Case Tests ---
+
+func TestHandleFragment_WithHTMXHeader(t *testing.T) {
+	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	req := httptest.NewRequest(http.MethodGet, "/listings/fragment?type=Food", nil)
+	req.Header.Set("HX-Request", "true")
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindAll", testifyMock.Anything, "Food", "", false).Return([]domain.Listing{{Title: "Jollof Rice"}}, nil)
+
+	h := handler.NewListingHandler(mockRepo, nil)
+
+	if err := h.HandleFragment(c); err != nil {
+		t.Fatalf("HandleFragment failed: %v", err)
+	}
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", rec.Code)
+	}
+	if !strings.Contains(rec.Body.String(), "Jollof Rice") {
+		t.Errorf("Expected body to contain listing title, got: %s", rec.Body.String())
+	}
+}
+
+func TestHandleFragment_Error(t *testing.T) {
+	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	req := httptest.NewRequest(http.MethodGet, "/listings/fragment", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindAll", testifyMock.Anything, "", "", false).Return([]domain.Listing{}, errors.New("db error"))
+
+	h := handler.NewListingHandler(mockRepo, nil)
+
+	if err := h.HandleFragment(c); err != nil {
+		t.Fatalf("HandleFragment returned error: %v", err)
+	}
+
+	if rec.Code != http.StatusInternalServerError {
+		t.Errorf("Expected status 500, got %d", rec.Code)
+	}
+}
+
+// --- Home Graceful Fallback Tests ---
+
+func TestHandleHome_CountsError_Fallback(t *testing.T) {
+	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindAll", testifyMock.Anything, "", "", false).Return([]domain.Listing{{Title: "L1"}}, nil)
+	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{}, errors.New("counts query failed"))
+	mockRepo.On("GetFeaturedListings", testifyMock.Anything).Return([]domain.Listing{}, nil)
+
+	h := handler.NewListingHandler(mockRepo, nil)
+
+	if err := h.HandleHome(c); err != nil {
+		t.Fatalf("HandleHome should not fail on counts error: %v", err)
+	}
+
+	// Should still render OK with empty counts
+	if rec.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", rec.Code)
+	}
+}
+
+func TestHandleHome_FeaturedError_Fallback(t *testing.T) {
+	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindAll", testifyMock.Anything, "", "", false).Return([]domain.Listing{{Title: "L1"}}, nil)
+	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{}, nil)
+	mockRepo.On("GetFeaturedListings", testifyMock.Anything).Return([]domain.Listing{}, errors.New("featured query failed"))
+
+	h := handler.NewListingHandler(mockRepo, nil)
+
+	if err := h.HandleHome(c); err != nil {
+		t.Fatalf("HandleHome should not fail on featured error: %v", err)
+	}
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", rec.Code)
+	}
+}
+
+// --- Update Edge Case Tests ---
+
+func TestHandleUpdate_NoUser(t *testing.T) {
+	c, rec := setupTestContext(http.MethodPost, "/listings/1", strings.NewReader(""))
+	c.SetPath("/listings/:id")
+	c.SetParamNames("id")
+	c.SetParamValues("1")
+	// No user set
+
+	mockRepo := &mock.MockListingRepository{}
+	h := handler.NewListingHandler(mockRepo, nil)
+
+	_ = h.HandleUpdate(c)
+
+	if rec.Code != http.StatusUnauthorized {
+		t.Errorf("Expected status 401, got %d", rec.Code)
+	}
+}
+
+func TestHandleUpdate_NotFound(t *testing.T) {
+	c, rec := setupTestContext(http.MethodPost, "/listings/1", strings.NewReader(""))
+	c.SetPath("/listings/:id")
+	c.SetParamNames("id")
+	c.SetParamValues("1")
+	c.Set("User", domain.User{ID: "u1"})
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{}, errors.New("not found"))
+
+	h := handler.NewListingHandler(mockRepo, nil)
+
+	_ = h.HandleUpdate(c)
+
+	if rec.Code != http.StatusNotFound {
+		t.Errorf("Expected status 404, got %d", rec.Code)
+	}
+}

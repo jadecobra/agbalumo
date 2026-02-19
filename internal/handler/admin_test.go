@@ -221,3 +221,239 @@ func TestAdminHandler_HandleBulkUpload_NoFile(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 }
+
+// --- AdminMiddleware Tests ---
+
+func TestAdminMiddleware_NoUser(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	h := NewAdminHandler(nil, nil)
+
+	called := false
+	handler := h.AdminMiddleware(func(c echo.Context) error {
+		called = true
+		return nil
+	})
+
+	err := handler(c)
+	assert.NoError(t, err)
+	assert.False(t, called, "Next handler should not be called when no user")
+	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
+	assert.Equal(t, "/auth/google/login", rec.Header().Get("Location"))
+}
+
+func TestAdminMiddleware_NonAdminUser(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	regularUser := domain.User{ID: "u1", Role: domain.UserRoleUser}
+	c.Set("User", regularUser)
+
+	h := NewAdminHandler(nil, nil)
+
+	called := false
+	handler := h.AdminMiddleware(func(c echo.Context) error {
+		called = true
+		return nil
+	})
+
+	err := handler(c)
+	assert.NoError(t, err)
+	assert.False(t, called, "Next handler should not be called for non-admin")
+	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
+	assert.Equal(t, "/admin/login", rec.Header().Get("Location"))
+}
+
+func TestAdminMiddleware_AdminUser(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+
+	h := NewAdminHandler(nil, nil)
+
+	called := false
+	handler := h.AdminMiddleware(func(c echo.Context) error {
+		called = true
+		return c.String(http.StatusOK, "dashboard")
+	})
+
+	err := handler(c)
+	assert.NoError(t, err)
+	assert.True(t, called, "Next handler should be called for admin")
+	assert.Equal(t, http.StatusOK, rec.Code)
+}
+
+// --- HandleLoginView Tests ---
+
+func TestAdminHandler_HandleLoginView_AlreadyAdmin(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/admin/login", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+
+	h := NewAdminHandler(nil, nil)
+
+	err := h.HandleLoginView(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
+	assert.Equal(t, "/admin", rec.Header().Get("Location"))
+}
+
+func TestAdminHandler_HandleLoginView_NotAdmin(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/admin/login", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	e.Renderer = &mock.MockRenderer{}
+
+	// No user set — should render the login form
+	h := NewAdminHandler(nil, nil)
+
+	err := h.HandleLoginView(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
+}
+
+// --- HandleDashboard Error Path Tests ---
+
+func TestAdminHandler_HandleDashboard_PendingListingsError(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	e.Renderer = &mock.MockRenderer{}
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("GetPendingListings", testifyMock.Anything).Return([]domain.Listing{}, assert.AnError)
+
+	h := NewAdminHandler(mockRepo, nil)
+
+	err := h.HandleDashboard(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+}
+
+func TestAdminHandler_HandleDashboard_UserCountError(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	e.Renderer = &mock.MockRenderer{}
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("GetPendingListings", testifyMock.Anything).Return([]domain.Listing{}, nil)
+	mockRepo.On("GetUserCount", testifyMock.Anything).Return(0, assert.AnError)
+
+	h := NewAdminHandler(mockRepo, nil)
+
+	err := h.HandleDashboard(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+}
+
+func TestAdminHandler_HandleDashboard_FeedbackCountsError(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	e.Renderer = &mock.MockRenderer{}
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("GetPendingListings", testifyMock.Anything).Return([]domain.Listing{}, nil)
+	mockRepo.On("GetUserCount", testifyMock.Anything).Return(5, nil)
+	mockRepo.On("GetFeedbackCounts", testifyMock.Anything).Return(map[domain.FeedbackType]int{}, assert.AnError)
+
+	h := NewAdminHandler(mockRepo, nil)
+
+	err := h.HandleDashboard(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+}
+
+func TestAdminHandler_HandleDashboard_ListingGrowthError(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	e.Renderer = &mock.MockRenderer{}
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("GetPendingListings", testifyMock.Anything).Return([]domain.Listing{}, nil)
+	mockRepo.On("GetUserCount", testifyMock.Anything).Return(5, nil)
+	mockRepo.On("GetFeedbackCounts", testifyMock.Anything).Return(map[domain.FeedbackType]int{}, nil)
+	mockRepo.On("GetListingGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, assert.AnError)
+
+	h := NewAdminHandler(mockRepo, nil)
+
+	err := h.HandleDashboard(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+}
+
+func TestAdminHandler_HandleDashboard_UserGrowthError(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	e.Renderer = &mock.MockRenderer{}
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("GetPendingListings", testifyMock.Anything).Return([]domain.Listing{}, nil)
+	mockRepo.On("GetUserCount", testifyMock.Anything).Return(5, nil)
+	mockRepo.On("GetFeedbackCounts", testifyMock.Anything).Return(map[domain.FeedbackType]int{}, nil)
+	mockRepo.On("GetListingGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)
+	mockRepo.On("GetUserGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, assert.AnError)
+
+	h := NewAdminHandler(mockRepo, nil)
+
+	err := h.HandleDashboard(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+}
+
+// --- HandleLoginAction Error Path Tests ---
+
+func TestAdminHandler_HandleLoginAction_NoUser(t *testing.T) {
+	e := echo.New()
+	formData := url.Values{}
+	formData.Set("code", "agbalumo2024")
+	req := httptest.NewRequest(http.MethodPost, "/admin/login", strings.NewReader(formData.Encode()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	// No user set
+
+	h := NewAdminHandler(nil, nil)
+
+	err := h.HandleLoginAction(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
+	assert.Equal(t, "/auth/google/login", rec.Header().Get("Location"))
+}
