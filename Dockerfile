@@ -13,11 +13,12 @@ RUN --mount=type=cache,target=/go/pkg/mod go mod download
 # This prevents cache invalidation when non-Go files (like UI, docs) change
 COPY cmd cmd
 COPY internal internal
+COPY main.go .
 
 # Build the application
 # CGO_ENABLED=0 since modernc.org/sqlite is pure Go (mostly) and for static binary
 RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
-    CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o server ./cmd/server/main.go
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o server main.go
 
 # Runtime Stage
 FROM alpine:latest
@@ -48,4 +49,4 @@ ENV DATABASE_URL=/data/agbalumo.db
 USER appuser
 
 # Run the server
-CMD ["./server"]
+CMD ["./server", "serve"]

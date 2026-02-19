@@ -32,15 +32,20 @@ jobs:
       - name: Static Analysis (Go Vet)
         run: go vet ./...
 
+      - name: Vulnerability Check (Govulncheck)
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          govulncheck ./...
+
       - name: Run Tests with Coverage
         run: |
           go test -race -coverprofile=coverage.out ./...
           go tool cover -func=coverage.out
 
-      - name: Enforce Coverage Threshold (73%)
+      - name: Enforce Coverage Threshold (82.2%)
         run: |
           COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print substr($3, 1, length($3)-1)}')
-          THRESHOLD=73.0
+          THRESHOLD=82.2
           echo "Coverage: $COVERAGE%"
           if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
             echo "❌ Coverage is below $THRESHOLD%"
@@ -73,6 +78,18 @@ jobs:
 
       - name: Run Security Audit
         run: go run cmd/security-audit/main.go
+
+      - name: Build Docker Image
+        run: docker build -t agbalumo:${{ github.sha }} .
+
+      - name: Docker Scout Scan
+        uses: docker/scout-action@v1
+        with:
+          command: cves
+          image: agbalumo:${{ github.sha }}
+          ignore-unchanged: true
+          only-severities: critical,high
+        continue-on-error: true
 
   deploy:
     name: Deploy to Fly.io

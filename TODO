@@ -1,3 +1,7 @@
+- [ ] can the admin make changes to the look of the website from the admin dashboard - colors, fonts, etc?
+- [ ] can a user sign in with apple? (move this to a future state)
+- [ ] can a user sign in with facebook? (move this to a future state)
+- [ ] can a user choose how they sign in google, apple, facebook, other email (sign up)?
 - [x] is full test suite run before every implementation and after, and are issues that arise fixed then committed?
 - [x] is the server restarted after implementation/commit?
 - [x] is the codebase reviewed for refactoring after implementation/commit?
@@ -9,12 +13,8 @@
 - [x] is there a detailed brand identity/guidelines for the UI with agbalumo colors from lightest brown (interior of fruit) to medium (skin) to dark brown (the seed), leaf green?
 - [x] does the UI reflect the brand identity and guidelines?
 - [x] critique application for user experience
-- [ ] can a user sign in with apple?
-- [ ] can a user sign in with facebook?
-- [ ] can a user choose how they sign in google, apple, facebook, other email (sign up)?
 - [x] is there a carousel at top of home page to feature business randomly?
 - [x] is there an about page describing the app and its purpose?
-- [ ] can the admin make changes to the look of the website from the admin dashboard - colors, fonts, etc?
 - [x] add CLI for application
 - [x] add feedback button for users to report issues/suggest
 - [x] add hours of operation for business/food listings

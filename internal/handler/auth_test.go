@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
@@ -357,4 +358,107 @@ func TestRealGoogleProvider_Exchange(t *testing.T) {
 	if token.AccessToken != "mock-token" {
 		t.Errorf("Expected token mock-token, got %s", token.AccessToken)
 	}
+}
+
+func TestAuthHandler_GoogleCallback_UserUpdate(t *testing.T) {
+	e := echo.New()
+	store := customMiddleware.NewTestSessionStore()
+	e.Use(customMiddleware.SessionMiddleware(store))
+
+	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	session, _ := store.Get(req, "auth_session")
+	c.Set("session", session)
+
+	existingUser := domain.User{
+		ID:        "user-123",
+		GoogleID:  "g-123",
+		Email:     "test@example.com",
+		Name:      "Old Name",
+		AvatarURL: "http://old.pic",
+		CreatedAt: time.Now(),
+	}
+
+	mockRepo := &mock.MockListingRepository{}
+	// Return existing user
+	mockRepo.On("FindUserByGoogleID", testifyMock.Anything, "g-123").Return(existingUser, nil)
+
+	// Expect SaveUser to be called with UPDATED details
+	mockRepo.On("SaveUser", testifyMock.Anything, testifyMock.MatchedBy(func(u domain.User) bool {
+		return u.Name == "New Name" && u.AvatarURL == "http://new.pic"
+	})).Return(nil)
+
+	mockProvider := &MockGoogleProvider{
+		ExchangeFn: func(ctx context.Context, code string, host string) (*oauth2.Token, error) {
+			return &oauth2.Token{AccessToken: "tok"}, nil
+		},
+		GetUserInfoFn: func(ctx context.Context, token *oauth2.Token) (*GoogleUser, error) {
+			return &GoogleUser{
+				ID:      "g-123",
+				Email:   "test@example.com",
+				Name:    "New Name",
+				Picture: "http://new.pic",
+			}, nil
+		},
+	}
+
+	h := &AuthHandler{
+		Repo:           mockRepo,
+		GoogleProvider: mockProvider,
+	}
+
+	if err := h.GoogleCallback(c); err != nil {
+		t.Fatalf("Handler failed: %v", err)
+	}
+
+	if rec.Code != http.StatusTemporaryRedirect {
+		t.Errorf("Expected redirect 307, got %d", rec.Code)
+	}
+	mockRepo.AssertExpectations(t)
+}
+
+func TestAuthHandler_GoogleCallback_CreateError(t *testing.T) {
+	e := echo.New()
+	store := customMiddleware.NewTestSessionStore()
+	e.Use(customMiddleware.SessionMiddleware(store))
+
+	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	session, _ := store.Get(req, "auth_session")
+	c.Set("session", session)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindUserByGoogleID", testifyMock.Anything, "g-123").Return(domain.User{}, errors.New("not found"))
+	// Simulate DB error on save
+	mockRepo.On("SaveUser", testifyMock.Anything, testifyMock.Anything).Return(errors.New("db error"))
+
+	mockProvider := &MockGoogleProvider{
+		ExchangeFn: func(ctx context.Context, code string, host string) (*oauth2.Token, error) {
+			return &oauth2.Token{AccessToken: "tok"}, nil
+		},
+		GetUserInfoFn: func(ctx context.Context, token *oauth2.Token) (*GoogleUser, error) {
+			return &GoogleUser{
+				ID:    "g-123",
+				Email: "new@example.com",
+				Name:  "New User",
+			}, nil
+		},
+	}
+
+	h := &AuthHandler{
+		Repo:           mockRepo,
+		GoogleProvider: mockProvider,
+	}
+
+	// Echo handler returns nil error when c.String successfully writes response
+	_ = h.GoogleCallback(c)
+
+	if rec.Code != http.StatusInternalServerError {
+		t.Errorf("Expected 500, got %d", rec.Code)
+	}
+
+	mockRepo.AssertExpectations(t)
 }

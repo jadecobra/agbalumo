@@ -5,7 +5,7 @@ I have audited the codebase and identified the status of all uncompleted TODO it
 
 | Feature | Status | Notes |
 | :--- | :--- | :--- |
-| **Test Suite** | ⚠️ Partial | Coverage is 73%. Key handlers covered, but `main.go` and `ui/renderer` need work. |
+| **Test Suite** | ✅ Good | Coverage is 81.6% (Target >80%). Weak spots: `auth.go` (41.7%), `sqlite.go` (64.7%). |
 | **Server Restart** | ✅ Done | `scripts/verify_restart.sh` works well. |
 | **Code Review** | ❌ Missing | No `CONTRIBUTING.md` or PR templates. |
 | **Bulk Upload** | ✅ Done | Admin feature to upload CSVs implemented and verified. |
@@ -21,7 +21,7 @@ I have audited the codebase and identified the status of all uncompleted TODO it
 ### 1. Foundation & Stability (Recommended First)
 - [x] **Fix UI/Brand**: Move from Tailwind CDN to a build step (Tailwind CLI) for production stability and offline dev.
 - [x] **Refactor Image Upload**: Extracted image handling to dedicated `ImageService` for modularity and testability.
-- [x] **Test Coverage**: Boosted coverage to 76.7%. Refactored `cmd/serve.go` and `security-audit` for testability.
+- [x] **Test Coverage**: Boosted coverage to 81.6% (Passed Audit). Weak spots remain in `auth.go`.
 
 ### 2. Core Features (High Value)
 - [x] **About Page**: Create a static "About Us" page with the requested carousel.
@@ -31,6 +31,11 @@ I have audited the codebase and identified the status of all uncompleted TODO it
 - [x] **Bulk Upload**: Admin feature to upload CSVs.
 - [ ] **Auth Expansion**: Add Apple/Facebook (requires developer accounts).
 - [/] **Enhanced Admin**: Users view added. Charts and better moderation tools pending.
+
+### 4. Audit Findings & Weak Spots
+- [ ] **Auth Coverage**: Increase coverage for `internal/handler/auth.go` (specifically `findOrCreateUser`).
+- [ ] **Security Monitoring**: Monitor `CVE-2025-60876` (busybox) in `alpine:latest`. Update base image when fixed.
+- [ ] **CI Integration**: Add `govulncheck` and `docker scout` to CI pipeline for automated security scans.
 
 ## Immediate Next Step
 I recommend we focus on **Foundation & Stability**:

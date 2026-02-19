@@ -29,7 +29,7 @@ go tool cover -func=coverage.out
 
 # Enforce minimum coverage (81.5%)
 COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print substr($3, 1, length($3)-1)}')
-THRESHOLD=81.5
+THRESHOLD=82.2
 
 if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
     echo "❌ Coverage is below threshold: $COVERAGE% < $THRESHOLD%"
