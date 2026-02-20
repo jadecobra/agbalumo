@@ -25,7 +25,7 @@
 | **63** | `[x]` | **SEC** | **Prevent Future Leaks**<br>Add Secret Scanner to pre-commit hook. | Catches secrets? |
 - [x] **[FE]** Polish Claim Ownership UI (HTMX) <!-- id: 46 -->
 - [x] **[BE]** Implement Claim Ownership Logic <!-- id: 43 -->
-- [x] Restore Test Coverage (Target: 82.5%) <!-- id: 5 -->
+- [x] Restore Test Coverage (Target: 87.8%) <!-- id: 5 -->
 - [x] **[SDET]** Verify Claim Flow & Security <!-- id: 45 -->
 | **64** | `[x]` | **ARCH** | **Code Review Standards**<br>Create `CONTRIBUTING.md` and PR templates. | Standards defined? |
 | **65** | `[x]` | **FE/BE** | **Enhanced Admin UI**<br>Add charts and better moderation tools. | Charts visible? |
