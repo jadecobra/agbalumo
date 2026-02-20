@@ -241,37 +241,3 @@ func (h *AuthHandler) Logout(c echo.Context) error {
 	}
 	return c.Redirect(http.StatusTemporaryRedirect, "/")
 }
-
-// Middleware to inject user into context
-func (h *AuthHandler) OptionalAuth(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		sess := customMiddleware.GetSession(c)
-		if sess != nil {
-			if userID, ok := sess.Values["user_id"].(string); ok {
-				user, err := h.Repo.FindUserByID(c.Request().Context(), userID)
-				if err == nil {
-					c.Set("User", user)
-				}
-			}
-		}
-		return next(c)
-	}
-}
-
-func (h *AuthHandler) RequireAuth(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		sess := customMiddleware.GetSession(c)
-		authSuccess := false
-		if sess != nil {
-			if _, ok := sess.Values["user_id"].(string); ok {
-				authSuccess = true
-			}
-		}
-
-		if !authSuccess {
-			// Redirect to Google Login
-			return c.Redirect(http.StatusTemporaryRedirect, "/auth/google/login")
-		}
-		return next(c)
-	}
-}

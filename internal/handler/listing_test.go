@@ -53,7 +53,7 @@ func TestHandleHome(t *testing.T) {
 	c := e.NewContext(req, rec)
 
 	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("FindAll", context.Background(), "", "", false).Return([]domain.Listing{
+	mockRepo.On("FindAll", context.Background(), "", "", false, 20, 0).Return([]domain.Listing{
 		{Title: "Test Listing 1"},
 		{Title: "Test Listing 2"},
 	}, nil)
@@ -84,7 +84,7 @@ func TestHandleHome_Counts(t *testing.T) {
 	c := e.NewContext(req, rec)
 
 	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("FindAll", context.Background(), "", "", false).Return([]domain.Listing{}, nil)
+	mockRepo.On("FindAll", context.Background(), "", "", false, 20, 0).Return([]domain.Listing{}, nil)
 	mockRepo.On("GetCounts", context.Background()).Return(map[domain.Category]int{
 		domain.Food:     5,
 		domain.Business: 3,
@@ -114,7 +114,7 @@ func TestHandleFragment(t *testing.T) {
 	c := e.NewContext(req, rec)
 
 	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("FindAll", context.Background(), "Business", "jollof", false).Return([]domain.Listing{{Title: "Jollof Place"}}, nil)
+	mockRepo.On("FindAll", context.Background(), "Business", "jollof", false, 20, 0).Return([]domain.Listing{{Title: "Jollof Place"}}, nil)
 
 	h := handler.NewListingHandler(mockRepo, nil)
 
@@ -138,7 +138,7 @@ func TestHandleHome_Error(t *testing.T) {
 	c := e.NewContext(req, rec)
 
 	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("FindAll", context.Background(), "", "", false).Return([]domain.Listing{}, errors.New("db connection failed"))
+	mockRepo.On("FindAll", context.Background(), "", "", false, 20, 0).Return([]domain.Listing{}, errors.New("db connection failed"))
 
 	h := handler.NewListingHandler(mockRepo, nil)
 
@@ -797,7 +797,7 @@ func TestHandleFragment_WithHTMXHeader(t *testing.T) {
 	c := e.NewContext(req, rec)
 
 	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("FindAll", testifyMock.Anything, "Food", "", false).Return([]domain.Listing{{Title: "Jollof Rice"}}, nil)
+	mockRepo.On("FindAll", testifyMock.Anything, "Food", "", false, 20, 0).Return([]domain.Listing{{Title: "Jollof Rice"}}, nil)
 
 	h := handler.NewListingHandler(mockRepo, nil)
 
@@ -821,7 +821,7 @@ func TestHandleFragment_Error(t *testing.T) {
 	c := e.NewContext(req, rec)
 
 	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("FindAll", testifyMock.Anything, "", "", false).Return([]domain.Listing{}, errors.New("db error"))
+	mockRepo.On("FindAll", testifyMock.Anything, "", "", false, 20, 0).Return([]domain.Listing{}, errors.New("db error"))
 
 	h := handler.NewListingHandler(mockRepo, nil)
 
@@ -844,7 +844,7 @@ func TestHandleHome_CountsError_Fallback(t *testing.T) {
 	c := e.NewContext(req, rec)
 
 	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("FindAll", testifyMock.Anything, "", "", false).Return([]domain.Listing{{Title: "L1"}}, nil)
+	mockRepo.On("FindAll", testifyMock.Anything, "", "", false, 20, 0).Return([]domain.Listing{{Title: "L1"}}, nil)
 	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{}, errors.New("counts query failed"))
 	mockRepo.On("GetFeaturedListings", testifyMock.Anything).Return([]domain.Listing{}, nil)
 
@@ -868,7 +868,7 @@ func TestHandleHome_FeaturedError_Fallback(t *testing.T) {
 	c := e.NewContext(req, rec)
 
 	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("FindAll", testifyMock.Anything, "", "", false).Return([]domain.Listing{{Title: "L1"}}, nil)
+	mockRepo.On("FindAll", testifyMock.Anything, "", "", false, 20, 0).Return([]domain.Listing{{Title: "L1"}}, nil)
 	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{}, nil)
 	mockRepo.On("GetFeaturedListings", testifyMock.Anything).Return([]domain.Listing{}, errors.New("featured query failed"))
 

@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/jadecobra/agbalumo/internal/config"
 
@@ -88,10 +89,19 @@ func (h *AdminHandler) HandleLoginAction(c echo.Context) error {
 func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	pendingListings, err := h.Repo.GetPendingListings(ctx)
+	page, _ := strconv.Atoi(c.QueryParam("page"))
+	if page < 1 {
+		page = 1
+	}
+	limit := 50
+	offset := (page - 1) * limit
+
+	pendingListings, err := h.Repo.GetPendingListings(ctx, limit, offset)
 	if err != nil {
 		return RespondError(c, err)
 	}
+
+	hasNextPage := len(pendingListings) == limit
 
 	userCount, err := h.Repo.GetUserCount(ctx)
 	if err != nil {
@@ -125,6 +135,8 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 
 	return c.Render(http.StatusOK, "admin_dashboard.html", map[string]interface{}{
 		"PendingListings": pendingListings,
+		"Page":            page,
+		"HasNextPage":     hasNextPage,
 		"UserCount":       userCount,
 		"FeedbackCounts":  feedbackCounts,
 		"ListingGrowth":   listingGrowth,

@@ -42,7 +42,7 @@ func TestNewSQLiteRepositoryFromDB(t *testing.T) {
 	// Verify we can use it
 	ctx := context.Background()
 	// Should fail because no tables
-	_, err = repo.FindAll(ctx, "All", "", false) // Fixed signature call
+	_, err = repo.FindAll(ctx, "All", "", false, 20, 0) // Fixed signature call
 	if err == nil {
 		t.Error("Expected error due to missing tables, got nil")
 	}
@@ -102,7 +102,7 @@ func TestFindAll_Filtering(t *testing.T) {
 
 	// 1. Find All Active (Default for Public)
 	// Query: empty, Type: empty, IncludeInactive: false
-	allActive, err := repo.FindAll(ctx, "", "", false)
+	allActive, err := repo.FindAll(ctx, "", "", false, 20, 0)
 	if err != nil {
 		t.Fatalf("FindAll failed: %v", err)
 	}
@@ -111,7 +111,7 @@ func TestFindAll_Filtering(t *testing.T) {
 	}
 
 	// 2. Find With Inactive (Admin View)
-	allAdmin, err := repo.FindAll(ctx, "", "", true)
+	allAdmin, err := repo.FindAll(ctx, "", "", true, 20, 0)
 	if err != nil {
 		t.Fatalf("FindAll Admin failed: %v", err)
 	}
@@ -120,7 +120,7 @@ func TestFindAll_Filtering(t *testing.T) {
 	}
 
 	// 3. Filter by Type
-	services, err := repo.FindAll(ctx, "Service", "", false)
+	services, err := repo.FindAll(ctx, "Service", "", false, 20, 0)
 	if err != nil {
 		t.Fatalf("FindAll Type failed: %v", err)
 	}
@@ -129,7 +129,7 @@ func TestFindAll_Filtering(t *testing.T) {
 	}
 
 	// 4. Search Query (LIKE)
-	searchRes, err := repo.FindAll(ctx, "", "Rice", false)
+	searchRes, err := repo.FindAll(ctx, "", "Rice", false, 20, 0)
 	if err != nil {
 		t.Fatalf("FindAll Search failed: %v", err)
 	}
@@ -389,7 +389,7 @@ func TestGetPendingListings(t *testing.T) {
 	repo.Save(ctx, domain.Listing{ID: "3", Title: "Rejected", Status: domain.ListingStatusRejected, CreatedAt: time.Now()})
 	repo.Save(ctx, domain.Listing{ID: "4", Title: "Pending 2", Status: domain.ListingStatusPending, CreatedAt: time.Now().Add(time.Hour)})
 
-	pending, err := repo.GetPendingListings(ctx)
+	pending, err := repo.GetPendingListings(ctx, 20, 0)
 	if err != nil {
 		t.Fatalf("GetPendingListings failed: %v", err)
 	}
@@ -513,7 +513,7 @@ func TestGetListingGrowth(t *testing.T) {
 
 	if len(metrics) == 0 {
 		// Debug: what is in DB?
-		all, _ := repo.FindAll(ctx, "", "", true)
+		all, _ := repo.FindAll(ctx, "", "", true, 20, 0)
 		for _, l := range all {
 			t.Logf("ID: %s, CreatedAt: %v", l.ID, l.CreatedAt)
 		}
@@ -612,7 +612,7 @@ func TestRepository_Errors(t *testing.T) {
 	}
 
 	checkError("Save", repo.Save(ctx, domain.Listing{ID: "1"}))
-	_, err = repo.FindAll(ctx, "", "", false)
+	_, err = repo.FindAll(ctx, "", "", false, 20, 0)
 	checkError("FindAll", err)
 	_, err = repo.FindByID(ctx, "1")
 	checkError("FindByID", err)
@@ -630,7 +630,7 @@ func TestRepository_Errors(t *testing.T) {
 	checkError("FindUserByID", err)
 	_, err = repo.FindAllByOwner(ctx, "owner")
 	checkError("FindAllByOwner", err)
-	_, err = repo.GetPendingListings(ctx)
+	_, err = repo.GetPendingListings(ctx, 20, 0)
 	checkError("GetPendingListings", err)
 	_, err = repo.GetUserCount(ctx)
 	checkError("GetUserCount", err)

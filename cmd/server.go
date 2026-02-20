@@ -117,6 +117,7 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 	csvService := service.NewCSVService()
 	adminHandler := handler.NewAdminHandler(repo, csvService, cfg)
 	authHandler := handler.NewAuthHandler(repo, nil, cfg)
+	authMw := customMiddleware.NewAuthMiddleware(repo)
 
 	// Auth Routes
 	e.GET("/auth/dev", authHandler.DevLogin)
@@ -125,7 +126,7 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 	e.GET("/auth/google/callback", authHandler.GoogleCallback)
 
 	// Global Auth Middleware
-	e.Use(authHandler.OptionalAuth)
+	e.Use(authMw.OptionalAuth)
 
 	// Static files
 	e.Static("/static", "ui/static")
@@ -137,24 +138,24 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 	e.GET("/listings/:id", listingHandler.HandleDetail)
 
 	// Authenticated Routes
-	e.POST("/listings", listingHandler.HandleCreate, authHandler.RequireAuth)
-	e.GET("/listings/:id/edit", listingHandler.HandleEdit, authHandler.RequireAuth)
-	e.PUT("/listings/:id", listingHandler.HandleUpdate, authHandler.RequireAuth)
-	e.POST("/listings/:id", listingHandler.HandleUpdate, authHandler.RequireAuth)
-	e.DELETE("/listings/:id", listingHandler.HandleDelete, authHandler.RequireAuth)
-	e.GET("/profile", listingHandler.HandleProfile, authHandler.RequireAuth)
-	e.POST("/listings/:id/claim", listingHandler.HandleClaim, authHandler.RequireAuth)
+	e.POST("/listings", listingHandler.HandleCreate, authMw.RequireAuth)
+	e.GET("/listings/:id/edit", listingHandler.HandleEdit, authMw.RequireAuth)
+	e.PUT("/listings/:id", listingHandler.HandleUpdate, authMw.RequireAuth)
+	e.POST("/listings/:id", listingHandler.HandleUpdate, authMw.RequireAuth)
+	e.DELETE("/listings/:id", listingHandler.HandleDelete, authMw.RequireAuth)
+	e.GET("/profile", listingHandler.HandleProfile, authMw.RequireAuth)
+	e.POST("/listings/:id/claim", listingHandler.HandleClaim, authMw.RequireAuth)
 
 	// Feedback
 	feedbackHandler := handler.NewFeedbackHandler(repo)
-	e.GET("/feedback/modal", feedbackHandler.HandleModal, authHandler.RequireAuth)
-	e.POST("/feedback", feedbackHandler.HandleSubmit, authHandler.RequireAuth)
+	e.GET("/feedback/modal", feedbackHandler.HandleModal, authMw.RequireAuth)
+	e.POST("/feedback", feedbackHandler.HandleSubmit, authMw.RequireAuth)
 
 	// Admin Routes
 	adminGroup := e.Group("/admin")
-	adminGroup.Use(authHandler.OptionalAuth)
-	adminGroup.GET("/login", adminHandler.HandleLoginView, authHandler.RequireAuth)
-	adminGroup.POST("/login", adminHandler.HandleLoginAction, authHandler.RequireAuth)
+	adminGroup.Use(authMw.OptionalAuth)
+	adminGroup.GET("/login", adminHandler.HandleLoginView, authMw.RequireAuth)
+	adminGroup.POST("/login", adminHandler.HandleLoginAction, authMw.RequireAuth)
 	adminGroup.Use(adminHandler.AdminMiddleware)
 	adminGroup.GET("", adminHandler.HandleDashboard)
 	adminGroup.GET("/users", adminHandler.HandleUsers)

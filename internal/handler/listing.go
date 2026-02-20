@@ -4,6 +4,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -29,10 +30,19 @@ func NewListingHandler(repo domain.ListingStore, imageService service.ImageServi
 // Home Handler
 func (h *ListingHandler) HandleHome(c echo.Context) error {
 	ctx := c.Request().Context()
-	listings, err := h.Repo.FindAll(ctx, "", "", false)
+
+	page, _ := strconv.Atoi(c.QueryParam("page"))
+	if page < 1 {
+		page = 1
+	}
+	limit := 20
+	offset := (page - 1) * limit
+
+	listings, err := h.Repo.FindAll(ctx, "", "", false, limit, offset)
 	if err != nil {
 		return RespondError(c, err)
 	}
+	hasNextPage := len(listings) == limit
 
 	counts, err := h.Repo.GetCounts(ctx)
 	if err != nil {
@@ -58,6 +68,8 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 
 	return c.Render(http.StatusOK, "index.html", map[string]interface{}{
 		"Listings":         listings,
+		"Page":             page,
+		"HasNextPage":      hasNextPage,
 		"FeaturedListings": featured,
 		"Counts":           strCounts,
 		"TotalCount":       totalCount,
@@ -70,14 +82,25 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	filterType := c.QueryParam("type")
 	queryText := c.QueryParam("q")
-	listings, err := h.Repo.FindAll(c.Request().Context(), filterType, queryText, false)
+
+	page, _ := strconv.Atoi(c.QueryParam("page"))
+	if page < 1 {
+		page = 1
+	}
+	limit := 20
+	offset := (page - 1) * limit
+
+	listings, err := h.Repo.FindAll(c.Request().Context(), filterType, queryText, false, limit, offset)
 	if err != nil {
 		return RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, err.Error()))
 	}
+	hasNextPage := len(listings) == limit
 
 	data := map[string]interface{}{
-		"Listings": listings,
-		"User":     c.Get("User"),
+		"Listings":    listings,
+		"Page":        page,
+		"HasNextPage": hasNextPage,
+		"User":        c.Get("User"),
 	}
 
 	// If HTMX request, render only the listing list partial
@@ -203,6 +226,37 @@ type ListingFormRequest struct {
 	PayRange         string `form:"pay_range"`
 }
 
+// ToListing maps the DTO fields directly to the domain Listing and parses dates.
+func (req *ListingFormRequest) ToListing(l *domain.Listing) error {
+	l.Title = req.Title
+	l.Type = domain.Category(req.Type)
+	l.OwnerOrigin = req.OwnerOrigin
+	l.Description = req.Description
+	l.City = req.City
+	l.Address = req.Address
+	l.HoursOfOperation = req.HoursOfOperation
+	l.ContactEmail = req.ContactEmail
+	l.ContactPhone = req.ContactPhone
+	l.ContactWhatsApp = req.ContactWhatsApp
+	l.WebsiteURL = req.WebsiteURL
+	l.Skills = req.Skills
+	l.JobApplyURL = req.JobApplyURL
+	l.Company = req.Company
+	l.PayRange = req.PayRange
+
+	if err := parseDeadline(req, l); err != nil {
+		return err
+	}
+	if err := parseEventDates(req, l); err != nil {
+		return err
+	}
+	if err := parseJobStartDate(req, l); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Create Handler
 func (h *ListingHandler) HandleCreate(c echo.Context) error {
 	l := domain.Listing{
@@ -314,32 +368,11 @@ func (h *ListingHandler) bindAndMapListing(c echo.Context, l *domain.Listing) er
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid Request")
 	}
 
-	l.Title = req.Title
-	l.Type = domain.Category(req.Type)
-	l.OwnerOrigin = req.OwnerOrigin
-	l.Description = req.Description
-	l.City = req.City
-	l.Address = req.Address
-	l.HoursOfOperation = req.HoursOfOperation
-	l.ContactEmail = req.ContactEmail
-	l.ContactPhone = req.ContactPhone
-	l.ContactWhatsApp = req.ContactWhatsApp
-	l.WebsiteURL = req.WebsiteURL
-	l.Skills = req.Skills
-	l.JobApplyURL = req.JobApplyURL
-	l.Company = req.Company
-	l.PayRange = req.PayRange
+	if err := req.ToListing(l); err != nil {
+		return err
+	}
 
 	if err := h.handleImageUpload(c, l); err != nil {
-		return err
-	}
-	if err := parseDeadline(&req, l); err != nil {
-		return err
-	}
-	if err := parseEventDates(&req, l); err != nil {
-		return err
-	}
-	if err := parseJobStartDate(&req, l); err != nil {
 		return err
 	}
 

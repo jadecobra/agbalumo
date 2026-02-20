@@ -195,6 +195,10 @@ func (r *SQLiteRepository) migrate() error {
 	// Ensure google_id is unique for ON CONFLICT clause
 	_, _ = r.db.ExecContext(context.Background(), "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id);")
 
+	// P1: Add Indexes for Scalability
+	_, _ = r.db.ExecContext(context.Background(), "CREATE INDEX IF NOT EXISTS idx_listings_owner_id ON listings(owner_id);")
+	_, _ = r.db.ExecContext(context.Background(), "CREATE INDEX IF NOT EXISTS idx_listings_active_status_type ON listings(is_active, status, type);")
+
 	return nil
 }
 
@@ -237,7 +241,7 @@ func (r *SQLiteRepository) Save(ctx context.Context, l domain.Listing) error {
 	return err
 }
 
-func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, queryText string, includeInactive bool) ([]domain.Listing, error) {
+func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, queryText string, includeInactive bool, limit int, offset int) ([]domain.Listing, error) {
 	query := `SELECT ` + listingSelections + ` FROM listings WHERE 1=1`
 	var args []interface{}
 
@@ -256,7 +260,8 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 		args = append(args, likeQuery, likeQuery, likeQuery)
 	}
 
-	query += ` ORDER BY created_at DESC`
+	query += ` ORDER BY created_at DESC LIMIT ? OFFSET ?`
+	args = append(args, limit, offset)
 
 	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
@@ -440,13 +445,14 @@ func (r *SQLiteRepository) ExpireListings(ctx context.Context) (int64, error) {
 	return result.RowsAffected()
 }
 
-func (r *SQLiteRepository) GetPendingListings(ctx context.Context) ([]domain.Listing, error) {
+func (r *SQLiteRepository) GetPendingListings(ctx context.Context, limit int, offset int) ([]domain.Listing, error) {
 	query := `SELECT ` + listingSelections + `
 		FROM listings
 		WHERE status = ?
-		ORDER BY created_at ASC`
+		ORDER BY created_at ASC
+		LIMIT ? OFFSET ?`
 
-	rows, err := r.db.QueryContext(ctx, query, domain.ListingStatusPending)
+	rows, err := r.db.QueryContext(ctx, query, domain.ListingStatusPending, limit, offset)
 	if err != nil {
 		return nil, err
 	}

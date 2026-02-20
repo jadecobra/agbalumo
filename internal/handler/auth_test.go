@@ -154,59 +154,6 @@ func TestAuthHandler_GoogleCallback_Success(t *testing.T) {
 	assert.Equal(t, "user-123", sess.Values["user_id"])
 }
 
-func TestAuthHandler_RequireAuth_Redirect(t *testing.T) {
-	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
-	req := httptest.NewRequest(http.MethodGet, "/protected", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	// Mock Session (Empty)
-	store := sessions.NewCookieStore([]byte("secret"))
-	sess, _ := store.Get(req, "session-name")
-	c.Set("session", sess)
-
-	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewAuthHandler(mockRepo, nil, config.LoadConfig())
-
-	handlerFunc := h.RequireAuth(func(c echo.Context) error {
-		return c.String(http.StatusOK, "Success")
-	})
-
-	err := handlerFunc(c)
-
-	assert.NoError(t, err)
-	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
-	assert.Equal(t, "/auth/google/login", rec.Header().Get("Location"))
-}
-
-func TestAuthHandler_RequireAuth_Success(t *testing.T) {
-	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
-	req := httptest.NewRequest(http.MethodGet, "/protected", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	// Mock Session (With UserID)
-	store := sessions.NewCookieStore([]byte("secret"))
-	sess, _ := store.Get(req, "session-name")
-	sess.Values["user_id"] = "user-123"
-	c.Set("session", sess)
-
-	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewAuthHandler(mockRepo, nil, config.LoadConfig())
-
-	handlerFunc := h.RequireAuth(func(c echo.Context) error {
-		return c.String(http.StatusOK, "Success")
-	})
-
-	err := handlerFunc(c)
-
-	assert.NoError(t, err)
-	assert.Equal(t, http.StatusOK, rec.Code)
-	assert.Equal(t, "Success", rec.Body.String())
-}
-
 func TestAuthHandler_GoogleLogin(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
@@ -247,38 +194,6 @@ func TestAuthHandler_Logout(t *testing.T) {
 	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
 	assert.Equal(t, "/", rec.Header().Get("Location"))
 	assert.Equal(t, -1, sess.Options.MaxAge)
-}
-
-func TestAuthHandler_OptionalAuth(t *testing.T) {
-	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
-	req := httptest.NewRequest(http.MethodGet, "/optional", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	store := sessions.NewCookieStore([]byte("secret"))
-	sess, _ := store.Get(req, "session-name")
-	sess.Values["user_id"] = "user-123"
-	c.Set("session", sess)
-
-	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewAuthHandler(mockRepo, nil, config.LoadConfig())
-
-	user := domain.User{ID: "user-123"}
-	mockRepo.On("FindUserByID", testifyMock.Anything, "user-123").Return(user, nil)
-
-	handlerFunc := h.OptionalAuth(func(c echo.Context) error {
-		u := c.Get("User")
-		if u == nil {
-			return c.String(http.StatusOK, "No User")
-		}
-		return c.String(http.StatusOK, "Has User")
-	})
-
-	err := handlerFunc(c)
-
-	assert.NoError(t, err)
-	assert.Equal(t, "Has User", rec.Body.String())
 }
 
 func TestAuthHandler_DevLogin_Success(t *testing.T) {
@@ -600,31 +515,6 @@ func TestAuthHandler_SetSessionAndRedirect_NilSession(t *testing.T) {
 }
 
 // --- OptionalAuth: No Session ---
-
-func TestAuthHandler_OptionalAuth_NoSession(t *testing.T) {
-	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
-	req := httptest.NewRequest(http.MethodGet, "/optional", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-	// No session set at all
-
-	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewAuthHandler(mockRepo, nil, config.LoadConfig())
-
-	handlerFunc := h.OptionalAuth(func(c echo.Context) error {
-		u := c.Get("User")
-		if u == nil {
-			return c.String(http.StatusOK, "No User")
-		}
-		return c.String(http.StatusOK, "Has User")
-	})
-
-	err := handlerFunc(c)
-
-	assert.NoError(t, err)
-	assert.Equal(t, "No User", rec.Body.String())
-}
 
 // --- Logout: No Session ---
 

@@ -41,6 +41,8 @@ func NewRealTemplate(t *testing.T) *template.Template {
 
 	funcMap := template.FuncMap{
 		"mod":   func(i, j int) int { return i % j },
+		"add":   func(i, j int) int { return i + j },
+		"sub":   func(i, j int) int { return i - j },
 		"split": strings.Split,
 		"dict": func(values ...interface{}) (map[string]interface{}, error) {
 			if len(values)%2 != 0 {
@@ -86,7 +88,7 @@ func TestHomePageUIValues(t *testing.T) {
 
 	mockRepo := &mock.MockListingRepository{}
 	// Expect calls for Home Page
-	mockRepo.On("FindAll", testifyMock.Anything, "", "", false).Return([]domain.Listing{}, nil)
+	mockRepo.On("FindAll", testifyMock.Anything, "", "", false, 20, 0).Return([]domain.Listing{}, nil)
 	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{}, nil)
 	mockRepo.On("GetFeaturedListings", testifyMock.Anything).Return([]domain.Listing{}, nil)
 
@@ -131,7 +133,7 @@ func TestFilterUIValues(t *testing.T) {
 	c := e.NewContext(req, rec)
 
 	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("FindAll", testifyMock.Anything, "", "", false).Return([]domain.Listing{}, nil)
+	mockRepo.On("FindAll", testifyMock.Anything, "", "", false, 20, 0).Return([]domain.Listing{}, nil)
 	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{}, nil)
 	mockRepo.On("GetFeaturedListings", testifyMock.Anything).Return([]domain.Listing{}, nil)
 

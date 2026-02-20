@@ -94,6 +94,30 @@
         {{ template "listing_card" dict "Listing" . "User" $.User "GridClass" $gridClass "Index" $i }}
         {{ end }}
     </div>
+
+    <!-- Pagination Controls -->
+    <div class="flex justify-between items-center mt-8 px-4 w-full" id="pagination-controls">
+        {{ if gt .Page 1 }}
+        <button hx-get="/listings/fragment?page={{ sub .Page 1 }}" hx-target="#listings-container"
+            hx-indicator="#listings-loading" class="btn btn-secondary text-sm flex items-center gap-1">
+            <span class="material-symbols-outlined text-[16px]">chevron_left</span> Previous
+        </button>
+        {{ else }}
+        <div></div>
+        {{ end }}
+
+        <div class="text-sm text-stone-500 font-medium tracking-widest hidden sm:block">PAGE {{ .Page }}</div>
+
+        {{ if .HasNextPage }}
+        <button hx-get="/listings/fragment?page={{ add .Page 1 }}" hx-target="#listings-container"
+            hx-indicator="#listings-loading" class="btn btn-secondary text-sm flex items-center gap-1">
+            Next <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+        </button>
+        {{ else }}
+        <div></div>
+        {{ end }}
+    </div>
+
     <!-- Spacer for bottom nav on mobile -->
     <div class="h-4 md:hidden"></div>
 </div>

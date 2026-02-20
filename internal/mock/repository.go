@@ -18,8 +18,8 @@ func (m *MockListingRepository) Save(ctx context.Context, l domain.Listing) erro
 	return args.Error(0)
 }
 
-func (m *MockListingRepository) FindAll(ctx context.Context, filterType, queryText string, includeInactive bool) ([]domain.Listing, error) {
-	args := m.Called(ctx, filterType, queryText, includeInactive)
+func (m *MockListingRepository) FindAll(ctx context.Context, filterType, queryText string, includeInactive bool, limit int, offset int) ([]domain.Listing, error) {
+	args := m.Called(ctx, filterType, queryText, includeInactive, limit, offset)
 	return args.Get(0).([]domain.Listing), args.Error(1)
 }
 
@@ -78,8 +78,8 @@ func (m *MockListingRepository) GetFeedbackCounts(ctx context.Context) (map[doma
 	return args.Get(0).(map[domain.FeedbackType]int), args.Error(1)
 }
 
-func (m *MockListingRepository) GetPendingListings(ctx context.Context) ([]domain.Listing, error) {
-	args := m.Called(ctx)
+func (m *MockListingRepository) GetPendingListings(ctx context.Context, limit int, offset int) ([]domain.Listing, error) {
+	args := m.Called(ctx, limit, offset)
 	return args.Get(0).([]domain.Listing), args.Error(1)
 }
 

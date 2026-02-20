@@ -63,6 +63,7 @@ func buildGlobalFuncMap() template.FuncMap {
 		"split": strings.Split,
 		"mod":   func(i, j int) int { return i % j },
 		"add":   func(i, j int) int { return i + j },
+		"sub":   func(i, j int) int { return i - j },
 		"seq": func(start, end int) []int {
 			var s []int
 			for i := start; i <= end; i++ {

@@ -7,7 +7,7 @@ import "context"
 // ListingStore handles core listing CRUD and query operations.
 type ListingStore interface {
 	Save(ctx context.Context, listing Listing) error
-	FindAll(ctx context.Context, filterType string, queryText string, includeInactive bool) ([]Listing, error)
+	FindAll(ctx context.Context, filterType string, queryText string, includeInactive bool, limit int, offset int) ([]Listing, error)
 	FindByID(ctx context.Context, id string) (Listing, error)
 	FindAllByOwner(ctx context.Context, ownerID string) ([]Listing, error)
 	Delete(ctx context.Context, id string) error
@@ -41,7 +41,7 @@ type FeedbackStore interface {
 
 // AdminStore handles admin-specific queries.
 type AdminStore interface {
-	GetPendingListings(ctx context.Context) ([]Listing, error)
+	GetPendingListings(ctx context.Context, limit int, offset int) ([]Listing, error)
 	GetUserCount(ctx context.Context) (int, error)
 	GetAllUsers(ctx context.Context) ([]User, error)
 }

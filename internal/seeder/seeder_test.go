@@ -13,7 +13,7 @@ import (
 func TestSeedAll(t *testing.T) {
 	mockRepo := &mock.MockListingRepository{}
 	// Expect FindAll checks before seeding
-	mockRepo.On("FindAll", context.Background(), testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil)
+	mockRepo.On("FindAll", context.Background(), testifyMock.Anything, testifyMock.Anything, testifyMock.Anything, 1, 0).Return([]domain.Listing{}, nil)
 	// Expect Save calls - we just use Anything for simplicity as exact count varies
 	mockRepo.On("Save", context.Background(), testifyMock.Anything).Return(nil)
 
@@ -27,7 +27,7 @@ func TestSeedAll(t *testing.T) {
 func TestEnsureSeeded_Empty(t *testing.T) {
 	mockRepo := &mock.MockListingRepository{}
 	// FindAll returns empty -> proceed to seed
-	mockRepo.On("FindAll", context.Background(), testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil)
+	mockRepo.On("FindAll", context.Background(), testifyMock.Anything, testifyMock.Anything, testifyMock.Anything, 1, 0).Return([]domain.Listing{}, nil)
 	mockRepo.On("Save", context.Background(), testifyMock.Anything).Return(nil)
 
 	seeder.EnsureSeeded(context.Background(), mockRepo)
@@ -38,7 +38,7 @@ func TestEnsureSeeded_Empty(t *testing.T) {
 func TestEnsureSeeded_NotEmpty(t *testing.T) {
 	mockRepo := &mock.MockListingRepository{}
 	// FindAll returns something -> skip seed
-	mockRepo.On("FindAll", context.Background(), testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{{Title: "Existing"}}, nil)
+	mockRepo.On("FindAll", context.Background(), testifyMock.Anything, testifyMock.Anything, testifyMock.Anything, 1, 0).Return([]domain.Listing{{Title: "Existing"}}, nil)
 
 	seeder.EnsureSeeded(context.Background(), mockRepo)
 

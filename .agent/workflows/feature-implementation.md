@@ -133,6 +133,13 @@ Name recordings descriptively: `verify_job_listing`, `verify_bulk_upload`, etc.
 
 ---
 
+## Layer 4: Final Server Restart
+
+After every 3-step verification is complete, reset the application state to ensure clean operations going forward by running the restart server workflow:
+@[.agent/workflows/restart-server.md]
+
+---
+
 ## Completion Checklist
 
 A feature is **DONE** when ALL boxes are checked:
@@ -146,4 +153,5 @@ A feature is **DONE** when ALL boxes are checked:
 - [ ] Recording artifact saved with descriptive name
 - [ ] `task.md` updated with completed status
 - [ ] `spec.md` reviewed and updated if needed
+- [ ] `@[.agent/workflows/restart-server.md]` was run after verification
 - [ ] Commit with short, imperative message (e.g., "add bulk upload validation")

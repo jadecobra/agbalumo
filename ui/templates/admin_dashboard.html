@@ -119,6 +119,29 @@
                 {{ end }}
             </tbody>
         </table>
+
+        <!-- Pagination Controls -->
+        <div class="flex justify-between items-center mt-4 px-6 py-3 border-t border-gray-200">
+            {{ if gt .Page 1 }}
+            <a href="/admin?page={{ sub .Page 1 }}"
+                class="text-sm font-medium text-primary hover:underline flex items-center gap-1">
+                <span class="material-symbols-outlined text-[16px]">chevron_left</span> Previous
+            </a>
+            {{ else }}
+            <div></div>
+            {{ end }}
+
+            <div class="text-sm text-gray-500">Page {{ .Page }}</div>
+
+            {{ if .HasNextPage }}
+            <a href="/admin?page={{ add .Page 1 }}"
+                class="text-sm font-medium text-primary hover:underline flex items-center gap-1">
+                Next <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+            </a>
+            {{ else }}
+            <div></div>
+            {{ end }}
+        </div>
         {{ else }}
         <div class="p-6 text-center text-gray-500">
             No pending listings. Good job!
