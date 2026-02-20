@@ -27,9 +27,9 @@ echo "4. Running Tests with Race Detection & Coverage..."
 go test -race -coverprofile=coverage.out ./...
 go tool cover -func=coverage.out
 
-# Enforce minimum coverage (87.8%)
+# Enforce minimum coverage (88.0%)
 COVERAGE=$(go tool cover -func=coverage.out | grep -v "mock" | grep total | awk '{print substr($3, 1, length($3)-1)}')
-THRESHOLD=87.8
+THRESHOLD=88.0
 
 if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
     echo "❌ Coverage is below threshold: $COVERAGE% < $THRESHOLD%"
