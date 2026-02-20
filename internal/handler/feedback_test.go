@@ -57,6 +57,7 @@ func TestFeedbackHandler_HandleSubmit_Success(t *testing.T) {
 
 func TestFeedbackHandler_HandleSubmit_NoAuth(t *testing.T) {
 	e := echo.New()
+	e.Renderer = &mock.MockRenderer{}
 	req := httptest.NewRequest(http.MethodPost, "/feedback", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)

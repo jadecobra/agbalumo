@@ -102,6 +102,11 @@ func TestIntegration_DataValidation(t *testing.T) {
 			if rec.Code != http.StatusBadRequest {
 				t.Errorf("Expected 400 Bad Request, got %d", rec.Code)
 			}
+			// The instruction seems to indicate that the error message should be rendered within an HTML template.
+			// We'll check if the body contains the expected error message, potentially wrapped in the template structure.
+			// The provided snippet `t.New("error.html").Parse(`Error Page: {{if .Message}}{{.Message}}{{end}}`)`
+			// looks like an attempt to define or parse a template, which is not valid in this context.
+			// Assuming the intent is to check if the error message is present in the rendered HTML.
 			if !strings.Contains(rec.Body.String(), tc.wantError) {
 				t.Errorf("Expected error '%s', got '%s'", tc.wantError, rec.Body.String())
 			}

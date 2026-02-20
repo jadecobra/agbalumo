@@ -27,9 +27,13 @@ func (h *FeedbackHandler) HandleModal(c echo.Context) error {
 
 // HandleSubmit processes the feedback form submission
 func (h *FeedbackHandler) HandleSubmit(c echo.Context) error {
-	user, ok := c.Get("User").(domain.User)
+	userRaw := c.Get("User")
+	if userRaw == nil {
+		return RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, "Login required"))
+	}
+	user, ok := userRaw.(domain.User)
 	if !ok || user.ID == "" {
-		return c.String(http.StatusUnauthorized, "Login required")
+		return RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, "Login required"))
 	}
 
 	contentType := c.QueryParam("type")
@@ -41,7 +45,7 @@ func (h *FeedbackHandler) HandleSubmit(c echo.Context) error {
 
 	// Validate
 	if content == "" {
-		return c.String(http.StatusBadRequest, "Content is required")
+		return RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Content is required"))
 	}
 	if contentType == "" {
 		contentType = string(domain.FeedbackTypeOther)
@@ -56,7 +60,7 @@ func (h *FeedbackHandler) HandleSubmit(c echo.Context) error {
 	}
 
 	if err := h.Repo.SaveFeedback(c.Request().Context(), feedback); err != nil {
-		return c.String(http.StatusInternalServerError, "Failed to save feedback")
+		return RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Failed to save feedback"))
 	}
 
 	// Return success message or close modal

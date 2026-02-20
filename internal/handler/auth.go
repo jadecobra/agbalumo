@@ -136,7 +136,7 @@ func (h *AuthHandler) DevLogin(c echo.Context) error {
 
 	// Environment Check: Only allow in development
 	if h.Cfg.Env != "development" {
-		return c.String(http.StatusForbidden, "Dev login disabled in production")
+		return RespondError(c, echo.NewHTTPError(http.StatusForbidden, "Dev login disabled in production"))
 	}
 	// Simulate "Google ID" creation
 	googleID := "dev-" + email
@@ -145,7 +145,7 @@ func (h *AuthHandler) DevLogin(c echo.Context) error {
 
 	user, err := h.findOrCreateUser(c.Request().Context(), googleID, email, name, avatar)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, "Failed to login")
+		return RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Failed to login"))
 	}
 
 	return h.setSessionAndRedirect(c, user.ID)
@@ -159,24 +159,23 @@ func (h *AuthHandler) GoogleLogin(c echo.Context) error {
 func (h *AuthHandler) GoogleCallback(c echo.Context) error {
 	state := c.QueryParam("state")
 	if state != "random-state" {
-		return c.String(http.StatusBadRequest, "States don't match")
+		return RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "States don't match"))
 	}
 
 	code := c.QueryParam("code")
 	token, err := h.GoogleProvider.Exchange(c.Request().Context(), code, c.Request().Host)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, "Code exchange failed")
+		return RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Code exchange failed"))
 	}
 
 	gUser, err := h.GoogleProvider.GetUserInfo(c.Request().Context(), token)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, "User data fetch failed")
+		return RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "User data fetch failed"))
 	}
 
 	user, err := h.findOrCreateUser(c.Request().Context(), gUser.ID, gUser.Email, gUser.Name, gUser.Picture)
 	if err != nil {
-		// return c.String(http.StatusInternalServerError, "Failed to login: "+err.Error()) // Leaking error details
-		return c.String(http.StatusInternalServerError, "Failed to login")
+		return RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Failed to login"))
 	}
 
 	return h.setSessionAndRedirect(c, user.ID)
@@ -216,7 +215,7 @@ func (h *AuthHandler) setSessionAndRedirect(c echo.Context, userID string) error
 	sess := customMiddleware.GetSession(c)
 	if sess == nil {
 		// In tests or if middleware missing
-		return c.String(http.StatusInternalServerError, "Session Store Missing")
+		return RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Session Store Missing"))
 	}
 
 	sess.Options = &sessions.Options{
@@ -228,7 +227,7 @@ func (h *AuthHandler) setSessionAndRedirect(c echo.Context, userID string) error
 	}
 	sess.Values["user_id"] = userID
 	if err := sess.Save(c.Request(), c.Response()); err != nil {
-		return c.String(http.StatusInternalServerError, "Failed to save session")
+		return RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Failed to save session"))
 	}
 
 	return c.Redirect(http.StatusTemporaryRedirect, "/")

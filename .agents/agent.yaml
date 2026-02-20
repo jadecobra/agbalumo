@@ -3,7 +3,7 @@ version: 1.0.0
 description: "Multi-agent squad for building the Agbalumo West African diaspora directory in Go."
 
 # Model configuration for the squad
-model: gemini-3-pro
+model: gemini-3.1-pro-preview
 
 # Definition of specialized sub-agents
 agents:

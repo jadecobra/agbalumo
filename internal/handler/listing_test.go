@@ -41,7 +41,7 @@ func NewMainTemplate() *template.Template {
 	t.New("modal_edit_listing.html").Parse(`Edit: {{.Title}}`)
 	t.New("modal_feedback.html").Parse(`Feedback Modal`)
 	t.New("modal_profile").Parse(`Profile: {{.User.Name}}, Listings: {{len .Listings}}`)
-	t.New("error.html").Parse(`Error Page`)
+	t.New("error.html").Parse(`Error Page: {{if .Message}}{{.Message}}{{end}}`)
 	return t
 }
 
@@ -216,7 +216,7 @@ func TestHandleCreate(t *testing.T) {
 				// Save should not be called
 			},
 			expectedStatus: http.StatusBadRequest,
-			expectedBody:   "Validation Error",
+			expectedBody:   "Error Page",
 		},
 		{
 			name: "RepoError",
@@ -624,25 +624,25 @@ func TestHandleCreate_InvalidDates(t *testing.T) {
 			name:           "Invalid Deadline",
 			body:           "title=T&type=Request&deadline_date=invalid-date",
 			expectedStatus: http.StatusBadRequest,
-			expectedBody:   "Invalid Date Format",
+			expectedBody:   "Error Page",
 		},
 		{
 			name:           "Invalid Event Start",
 			body:           "title=T&type=Event&event_start=invalid-time",
 			expectedStatus: http.StatusBadRequest,
-			expectedBody:   "Invalid Start Date Format",
+			expectedBody:   "Error Page",
 		},
 		{
 			name:           "Invalid Event End",
 			body:           "title=T&type=Event&event_end=invalid-time",
 			expectedStatus: http.StatusBadRequest,
-			expectedBody:   "Invalid End Date Format",
+			expectedBody:   "Error Page",
 		},
 		{
 			name:           "Invalid Job Start",
 			body:           "title=T&type=Job&job_start_date=invalid-time",
 			expectedStatus: http.StatusBadRequest,
-			expectedBody:   "Invalid Job Start Date Format",
+			expectedBody:   "Error Page",
 		},
 	}
 

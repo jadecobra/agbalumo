@@ -72,7 +72,7 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	queryText := c.QueryParam("q")
 	listings, err := h.Repo.FindAll(c.Request().Context(), filterType, queryText, false)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
+		return RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, err.Error()))
 	}
 
 	data := map[string]interface{}{
@@ -97,7 +97,7 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 	id := c.Param("id")
 	listing, err := h.Repo.FindByID(c.Request().Context(), id)
 	if err != nil {
-		return c.String(http.StatusNotFound, "Listing not found")
+		return RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
 	}
 
 	var user domain.User
@@ -130,12 +130,12 @@ func (h *ListingHandler) HandleEdit(c echo.Context) error {
 
 	listing, err := h.Repo.FindByID(c.Request().Context(), id)
 	if err != nil {
-		return c.String(http.StatusNotFound, "Listing not found")
+		return RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
 	}
 
 	// Authorization Check
 	if listing.OwnerID != user.ID {
-		return c.String(http.StatusForbidden, "You are not the owner of this listing")
+		return RespondError(c, echo.NewHTTPError(http.StatusForbidden, "You are not the owner of this listing"))
 	}
 
 	return c.Render(http.StatusOK, "modal_edit_listing.html", map[string]interface{}{
@@ -213,13 +213,13 @@ func (h *ListingHandler) HandleCreate(c echo.Context) error {
 	}
 
 	if err := h.bindAndMapListing(c, &l); err != nil {
-		return err
+		return RespondError(c, err)
 	}
 
 	// Assign Owner (Auth is now required by middleware)
 	u := c.Get("User")
 	if u == nil {
-		return c.String(http.StatusUnauthorized, "Authentication required to post listings")
+		return RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, "Authentication required to post listings"))
 	}
 	user := u.(domain.User)
 	l.OwnerID = user.ID
@@ -239,23 +239,23 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 	// Explicit Auth check
 	u := c.Get("User")
 	if u == nil {
-		return c.String(http.StatusUnauthorized, "Login Required")
+		return RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, "Login Required"))
 	}
 	user := u.(domain.User)
 
 	ctx := c.Request().Context()
 	listing, err := h.Repo.FindByID(ctx, id)
 	if err != nil {
-		return c.String(http.StatusNotFound, "Listing not found")
+		return RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
 	}
 
 	// Authorization Check
 	if listing.OwnerID != user.ID {
-		return c.String(http.StatusForbidden, "You are not the owner of this listing")
+		return RespondError(c, echo.NewHTTPError(http.StatusForbidden, "You are not the owner of this listing"))
 	}
 
 	if err := h.bindAndMapListing(c, &listing); err != nil {
-		return err
+		return RespondError(c, err)
 	}
 
 	return h.processAndSave(c, &listing)
@@ -268,11 +268,11 @@ func (h *ListingHandler) HandleDelete(c echo.Context) error {
 	ctx := c.Request().Context()
 	listing, err := h.Repo.FindByID(ctx, id)
 	if err != nil {
-		return c.String(http.StatusNotFound, "Listing not found")
+		return RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
 	}
 
 	if listing.OwnerID != user.ID {
-		return c.String(http.StatusForbidden, "You are not the owner of this listing")
+		return RespondError(c, echo.NewHTTPError(http.StatusForbidden, "You are not the owner of this listing"))
 	}
 
 	if err := h.Repo.Delete(ctx, id); err != nil {
@@ -380,7 +380,7 @@ func (h *ListingHandler) bindAndMapListing(c echo.Context, l *domain.Listing) er
 func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error {
 	// Domain Validation
 	if err := l.Validate(); err != nil {
-		return c.String(http.StatusBadRequest, "Validation Error: "+err.Error())
+		return RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Validation Error: "+err.Error()))
 	}
 
 	// Save

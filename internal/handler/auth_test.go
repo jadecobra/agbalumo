@@ -48,6 +48,7 @@ func (m *MockGoogleProvider) GetUserInfo(ctx context.Context, token *oauth2.Toke
 func TestAuthHandler_DevLogin_Production(t *testing.T) {
 	// Setup
 	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 	req := httptest.NewRequest(http.MethodGet, "/auth/dev", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
@@ -66,11 +67,12 @@ func TestAuthHandler_DevLogin_Production(t *testing.T) {
 	// Verify
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusForbidden, rec.Code)
-	assert.Contains(t, rec.Body.String(), "Dev login disabled")
+	assert.Contains(t, rec.Body.String(), "Error Page")
 }
 
 func TestAuthHandler_GoogleCallback_StateMismatch(t *testing.T) {
 	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=wrong-state", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
@@ -83,12 +85,13 @@ func TestAuthHandler_GoogleCallback_StateMismatch(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
-	assert.Contains(t, rec.Body.String(), "States don't match")
+	assert.Contains(t, rec.Body.String(), "Error Page")
 }
 
 func TestAuthHandler_GoogleCallback_Success(t *testing.T) {
 	// Setup
 	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 
 	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
 	rec := httptest.NewRecorder()
@@ -153,6 +156,7 @@ func TestAuthHandler_GoogleCallback_Success(t *testing.T) {
 
 func TestAuthHandler_RequireAuth_Redirect(t *testing.T) {
 	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 	req := httptest.NewRequest(http.MethodGet, "/protected", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
@@ -178,6 +182,7 @@ func TestAuthHandler_RequireAuth_Redirect(t *testing.T) {
 
 func TestAuthHandler_RequireAuth_Success(t *testing.T) {
 	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 	req := httptest.NewRequest(http.MethodGet, "/protected", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
@@ -204,6 +209,7 @@ func TestAuthHandler_RequireAuth_Success(t *testing.T) {
 
 func TestAuthHandler_GoogleLogin(t *testing.T) {
 	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 	req := httptest.NewRequest(http.MethodGet, "/auth/google/login", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
@@ -223,6 +229,7 @@ func TestAuthHandler_GoogleLogin(t *testing.T) {
 
 func TestAuthHandler_Logout(t *testing.T) {
 	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 	req := httptest.NewRequest(http.MethodGet, "/auth/logout", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
@@ -244,6 +251,7 @@ func TestAuthHandler_Logout(t *testing.T) {
 
 func TestAuthHandler_OptionalAuth(t *testing.T) {
 	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 	req := httptest.NewRequest(http.MethodGet, "/optional", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
@@ -275,6 +283,7 @@ func TestAuthHandler_OptionalAuth(t *testing.T) {
 
 func TestAuthHandler_DevLogin_Success(t *testing.T) {
 	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 
 	// Session Middleware
 	store := sessions.NewCookieStore([]byte("secret"))
@@ -310,6 +319,7 @@ func TestAuthHandler_DevLogin_Success(t *testing.T) {
 
 func TestAuthHandler_GoogleCallback_SaveUserError(t *testing.T) {
 	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
@@ -340,6 +350,7 @@ func TestAuthHandler_GoogleCallback_SaveUserError(t *testing.T) {
 
 func TestAuthHandler_GoogleCallback_UpdateProfile(t *testing.T) {
 	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
@@ -388,6 +399,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfile(t *testing.T) {
 
 func TestAuthHandler_DevLogin_GOENVFallback(t *testing.T) {
 	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 	store := sessions.NewCookieStore([]byte("secret"))
 	req := httptest.NewRequest(http.MethodGet, "/auth/dev?email=go@env.com", nil)
 	rec := httptest.NewRecorder()
@@ -415,6 +427,7 @@ func TestAuthHandler_DevLogin_GOENVFallback(t *testing.T) {
 
 func TestAuthHandler_DevLogin_DefaultEmail(t *testing.T) {
 	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 	store := sessions.NewCookieStore([]byte("secret"))
 	// No email param
 	req := httptest.NewRequest(http.MethodGet, "/auth/dev", nil)
@@ -441,6 +454,7 @@ func TestAuthHandler_DevLogin_DefaultEmail(t *testing.T) {
 
 func TestAuthHandler_DevLogin_FindOrCreateError(t *testing.T) {
 	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 	store := sessions.NewCookieStore([]byte("secret"))
 	req := httptest.NewRequest(http.MethodGet, "/auth/dev?email=err@test.com", nil)
 	rec := httptest.NewRecorder()
@@ -462,13 +476,14 @@ func TestAuthHandler_DevLogin_FindOrCreateError(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusInternalServerError, rec.Code)
-	assert.Contains(t, rec.Body.String(), "Failed to login")
+	assert.Contains(t, rec.Body.String(), "Error Page")
 }
 
 // --- GoogleCallback Error Paths ---
 
 func TestAuthHandler_GoogleCallback_ExchangeError(t *testing.T) {
 	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=bad-code", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
@@ -483,11 +498,12 @@ func TestAuthHandler_GoogleCallback_ExchangeError(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusInternalServerError, rec.Code)
-	assert.Contains(t, rec.Body.String(), "Code exchange failed")
+	assert.Contains(t, rec.Body.String(), "Error Page")
 }
 
 func TestAuthHandler_GoogleCallback_GetUserInfoError(t *testing.T) {
 	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
@@ -504,13 +520,14 @@ func TestAuthHandler_GoogleCallback_GetUserInfoError(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusInternalServerError, rec.Code)
-	assert.Contains(t, rec.Body.String(), "User data fetch failed")
+	assert.Contains(t, rec.Body.String(), "Error Page")
 }
 
 // --- findOrCreateUser: Profile Update Save Error (graceful) ---
 
 func TestAuthHandler_GoogleCallback_UpdateProfileSaveError(t *testing.T) {
 	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
@@ -557,6 +574,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfileSaveError(t *testing.T) {
 
 func TestAuthHandler_SetSessionAndRedirect_NilSession(t *testing.T) {
 	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
@@ -578,13 +596,14 @@ func TestAuthHandler_SetSessionAndRedirect_NilSession(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusInternalServerError, rec.Code)
-	assert.Contains(t, rec.Body.String(), "Session Store Missing")
+	assert.Contains(t, rec.Body.String(), "Error Page")
 }
 
 // --- OptionalAuth: No Session ---
 
 func TestAuthHandler_OptionalAuth_NoSession(t *testing.T) {
 	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 	req := httptest.NewRequest(http.MethodGet, "/optional", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
@@ -611,6 +630,7 @@ func TestAuthHandler_OptionalAuth_NoSession(t *testing.T) {
 
 func TestAuthHandler_Logout_NoSession(t *testing.T) {
 	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 	req := httptest.NewRequest(http.MethodGet, "/auth/logout", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)

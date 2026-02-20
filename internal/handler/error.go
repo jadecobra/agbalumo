@@ -22,6 +22,12 @@ func RespondError(c echo.Context, err error) error {
 	)
 
 	// Render the friendly error page
-	// We return the specific code (e.g. 400 or 500)
-	return c.Render(code, "error.html", nil)
+	var message string
+	if he, ok := err.(*echo.HTTPError); ok {
+		message = he.Message.(string)
+	}
+
+	return c.Render(code, "error.html", map[string]interface{}{
+		"Message": message,
+	})
 }

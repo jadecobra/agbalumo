@@ -6,6 +6,7 @@
 *   **Protocol**: Write the test FIRST. Watch it fail (Red). Write the Code. Watch it pass (Green). Refactor.
 *   **Mandatory Check**: You must run `./scripts/verify_restart.sh` before submitting any PR or artifact. This script runs tests, checks coverage, and restarts the server.
 *   **No "flaky" tests**: Tests must be deterministic. Use `go test -count=1` to bypass cache if needed.
+*   **Write small, single-purpose functions by default (SRP, clean code)**
 
 ## 2. Directory Structure & Architecture
 *   **`cmd/`**: Main applications. Minimal code.
