@@ -11,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
+	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/labstack/echo/v4"
@@ -111,15 +112,17 @@ func (p *RealGoogleProvider) GetUserInfo(ctx context.Context, token *oauth2.Toke
 type AuthHandler struct {
 	Repo           domain.UserStore
 	GoogleProvider GoogleProvider
+	Cfg            *config.Config
 }
 
-func NewAuthHandler(repo domain.UserStore, provider GoogleProvider) *AuthHandler {
+func NewAuthHandler(repo domain.UserStore, provider GoogleProvider, cfg *config.Config) *AuthHandler {
 	if provider == nil {
 		provider = NewRealGoogleProvider()
 	}
 	return &AuthHandler{
 		Repo:           repo,
 		GoogleProvider: provider,
+		Cfg:            cfg,
 	}
 }
 
@@ -128,15 +131,11 @@ func NewAuthHandler(repo domain.UserStore, provider GoogleProvider) *AuthHandler
 func (h *AuthHandler) DevLogin(c echo.Context) error {
 	email := c.QueryParam("email")
 	if email == "" {
-		email = "dev@agbalumo.com"
+		email = h.Cfg.DevAuthEmail
 	}
 
 	// Environment Check: Only allow in development
-	env := os.Getenv("AGBALUMO_ENV")
-	if env == "" {
-		env = os.Getenv("GO_ENV")
-	}
-	if env != "development" {
+	if h.Cfg.Env != "development" {
 		return c.String(http.StatusForbidden, "Dev login disabled in production")
 	}
 	// Simulate "Google ID" creation

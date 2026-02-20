@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
@@ -22,7 +22,7 @@ func (s *BackgroundService) StartTicker(ctx context.Context) {
 	ticker := time.NewTicker(1 * time.Hour) // Run every hour
 	defer ticker.Stop()
 
-	log.Println("[Background] Service started. Ticking every 1 hour.")
+	slog.Info("[Background] Service started. Ticking every 1 hour.")
 
 	// Run once immediately on start
 	s.expireListings(ctx)
@@ -32,7 +32,7 @@ func (s *BackgroundService) StartTicker(ctx context.Context) {
 		case <-ticker.C:
 			s.expireListings(ctx)
 		case <-ctx.Done():
-			log.Println("[Background] Service stopping...")
+			slog.Info("[Background] Service stopping...")
 			return
 		}
 	}
@@ -41,10 +41,10 @@ func (s *BackgroundService) StartTicker(ctx context.Context) {
 func (s *BackgroundService) expireListings(ctx context.Context) {
 	count, err := s.Repo.ExpireListings(ctx)
 	if err != nil {
-		log.Printf("[Background] Error expiring listings: %v", err)
+		slog.Error("[Background] Error expiring listings", "error", err)
 		return
 	}
 	if count > 0 {
-		log.Printf("[Background] Expired %d listings", count)
+		slog.Info("[Background] Expired listings", "count", count)
 	}
 }

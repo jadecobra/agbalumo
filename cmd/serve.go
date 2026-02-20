@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"log"
+	"log/slog"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -50,7 +50,7 @@ var serveCmd = &cobra.Command{
 		// Load .env file
 		godotenv.Load(".env")
 		if err := godotenv.Load("../scripts/agbalumo/.env"); err != nil {
-			log.Printf("Error loading ../scripts/agbalumo/.env: %v", err)
+			slog.Warn("Could not load ../scripts/agbalumo/.env", "error", err)
 		}
 
 		// Environment Configuration
@@ -60,7 +60,8 @@ var serveCmd = &cobra.Command{
 		// Setup Server
 		e, err := SetupServer()
 		if err != nil {
-			log.Fatalf("Failed to setup server: %v", err)
+			slog.Error("Failed to setup server", "error", err)
+			os.Exit(1)
 		}
 
 		// Resolve Configuration
@@ -71,12 +72,12 @@ var serveCmd = &cobra.Command{
 
 		// Dry Run Check
 		if os.Getenv("AGBALUMO_DRY_RUN") == "true" {
-			log.Printf("Dry Run: Config resolved to %+v", config)
+			slog.Info("Dry Run configuration", "config", config)
 			return
 		}
 
 		if config.TLS {
-			log.Printf("Starting Secure Server on %s (HTTPS)", config.Addr)
+			slog.Info("Starting Secure Server (HTTPS)", "addr", config.Addr)
 			if err := e.StartTLS(config.Addr, config.CertFile, config.KeyFile); err != nil {
 				e.Logger.Fatal(err)
 			}
@@ -85,7 +86,7 @@ var serveCmd = &cobra.Command{
 			if env == "production" {
 				mode = "PRODUCTION"
 			}
-			log.Printf("Starting Server in %s mode on %s (HTTP)", mode, config.Addr)
+			slog.Info("Starting Server (HTTP)", "mode", mode, "addr", config.Addr)
 			if err := e.Start(config.Addr); err != nil {
 				e.Logger.Fatal(err)
 			}

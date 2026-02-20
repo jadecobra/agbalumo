@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/mock"
 	"github.com/jadecobra/agbalumo/internal/service"
@@ -34,7 +35,7 @@ func TestAdminHandler_HandleDashboard(t *testing.T) {
 	mockRepo.On("GetListingGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)
 	mockRepo.On("GetUserGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)
 
-	h := NewAdminHandler(mockRepo, service.NewCSVService())
+	h := NewAdminHandler(mockRepo, service.NewCSVService(), config.LoadConfig())
 
 	// Set Renderer (mock)
 	e.Renderer = &mock.MockRenderer{}
@@ -57,7 +58,7 @@ func TestAdminHandler_HandleUsers(t *testing.T) {
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("GetAllUsers", testifyMock.Anything).Return([]domain.User{{ID: "u1", Name: "User 1"}}, nil)
 
-	h := NewAdminHandler(mockRepo, nil)
+	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
 	e.Renderer = &mock.MockRenderer{}
 
 	err := h.HandleUsers(c)
@@ -84,7 +85,7 @@ func TestAdminHandler_HandleApprove(t *testing.T) {
 		return l.Status == domain.ListingStatusApproved && l.IsActive
 	})).Return(nil)
 
-	h := NewAdminHandler(mockRepo, nil)
+	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
 
 	err := h.HandleApprove(c)
 	assert.NoError(t, err)
@@ -110,7 +111,7 @@ func TestAdminHandler_HandleReject(t *testing.T) {
 		return l.Status == domain.ListingStatusRejected && !l.IsActive
 	})).Return(nil)
 
-	h := NewAdminHandler(mockRepo, nil)
+	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
 
 	err := h.HandleReject(c)
 	assert.NoError(t, err)
@@ -135,7 +136,7 @@ func TestAdminHandler_HandleLoginAction_Success(t *testing.T) {
 		return u.Role == domain.UserRoleAdmin
 	})).Return(nil)
 
-	h := NewAdminHandler(mockRepo, nil)
+	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
 
 	err := h.HandleLoginAction(c)
 	assert.NoError(t, err)
@@ -153,7 +154,7 @@ func TestAdminHandler_HandleLoginAction_InvalidCode(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	h := NewAdminHandler(nil, nil)
+	h := NewAdminHandler(nil, nil, config.LoadConfig())
 	e.Renderer = &mock.MockRenderer{}
 
 	err := h.HandleLoginAction(c)
@@ -190,7 +191,7 @@ func TestAdminHandler_HandleBulkUpload_Success(t *testing.T) {
 		return l.Title == "Test Biz" && l.Type == domain.Business && l.OwnerOrigin == "Nigeria"
 	})).Return(nil)
 
-	h := NewAdminHandler(mockRepo, service.NewCSVService())
+	h := NewAdminHandler(mockRepo, service.NewCSVService(), config.LoadConfig())
 
 	err = h.HandleBulkUpload(c)
 	assert.NoError(t, err)
@@ -214,7 +215,7 @@ func TestAdminHandler_HandleBulkUpload_NoFile(t *testing.T) {
 	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
 	c.Set("User", adminUser)
 
-	h := NewAdminHandler(nil, service.NewCSVService())
+	h := NewAdminHandler(nil, service.NewCSVService(), config.LoadConfig())
 	e.Renderer = &mock.MockRenderer{}
 
 	err := h.HandleBulkUpload(c)
@@ -230,7 +231,7 @@ func TestAdminMiddleware_NoUser(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	h := NewAdminHandler(nil, nil)
+	h := NewAdminHandler(nil, nil, config.LoadConfig())
 
 	called := false
 	handler := h.AdminMiddleware(func(c echo.Context) error {
@@ -254,7 +255,7 @@ func TestAdminMiddleware_NonAdminUser(t *testing.T) {
 	regularUser := domain.User{ID: "u1", Role: domain.UserRoleUser}
 	c.Set("User", regularUser)
 
-	h := NewAdminHandler(nil, nil)
+	h := NewAdminHandler(nil, nil, config.LoadConfig())
 
 	called := false
 	handler := h.AdminMiddleware(func(c echo.Context) error {
@@ -278,7 +279,7 @@ func TestAdminMiddleware_AdminUser(t *testing.T) {
 	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
 	c.Set("User", adminUser)
 
-	h := NewAdminHandler(nil, nil)
+	h := NewAdminHandler(nil, nil, config.LoadConfig())
 
 	called := false
 	handler := h.AdminMiddleware(func(c echo.Context) error {
@@ -303,7 +304,7 @@ func TestAdminHandler_HandleLoginView_AlreadyAdmin(t *testing.T) {
 	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
 	c.Set("User", adminUser)
 
-	h := NewAdminHandler(nil, nil)
+	h := NewAdminHandler(nil, nil, config.LoadConfig())
 
 	err := h.HandleLoginView(c)
 	assert.NoError(t, err)
@@ -319,7 +320,7 @@ func TestAdminHandler_HandleLoginView_NotAdmin(t *testing.T) {
 	e.Renderer = &mock.MockRenderer{}
 
 	// No user set — should render the login form
-	h := NewAdminHandler(nil, nil)
+	h := NewAdminHandler(nil, nil, config.LoadConfig())
 
 	err := h.HandleLoginView(c)
 	assert.NoError(t, err)
@@ -341,7 +342,7 @@ func TestAdminHandler_HandleDashboard_PendingListingsError(t *testing.T) {
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("GetPendingListings", testifyMock.Anything).Return([]domain.Listing{}, assert.AnError)
 
-	h := NewAdminHandler(mockRepo, nil)
+	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
 
 	err := h.HandleDashboard(c)
 	assert.NoError(t, err)
@@ -362,7 +363,7 @@ func TestAdminHandler_HandleDashboard_UserCountError(t *testing.T) {
 	mockRepo.On("GetPendingListings", testifyMock.Anything).Return([]domain.Listing{}, nil)
 	mockRepo.On("GetUserCount", testifyMock.Anything).Return(0, assert.AnError)
 
-	h := NewAdminHandler(mockRepo, nil)
+	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
 
 	err := h.HandleDashboard(c)
 	assert.NoError(t, err)
@@ -384,7 +385,7 @@ func TestAdminHandler_HandleDashboard_FeedbackCountsError(t *testing.T) {
 	mockRepo.On("GetUserCount", testifyMock.Anything).Return(5, nil)
 	mockRepo.On("GetFeedbackCounts", testifyMock.Anything).Return(map[domain.FeedbackType]int{}, assert.AnError)
 
-	h := NewAdminHandler(mockRepo, nil)
+	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
 
 	err := h.HandleDashboard(c)
 	assert.NoError(t, err)
@@ -407,7 +408,7 @@ func TestAdminHandler_HandleDashboard_ListingGrowthError(t *testing.T) {
 	mockRepo.On("GetFeedbackCounts", testifyMock.Anything).Return(map[domain.FeedbackType]int{}, nil)
 	mockRepo.On("GetListingGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, assert.AnError)
 
-	h := NewAdminHandler(mockRepo, nil)
+	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
 
 	err := h.HandleDashboard(c)
 	assert.NoError(t, err)
@@ -431,7 +432,7 @@ func TestAdminHandler_HandleDashboard_UserGrowthError(t *testing.T) {
 	mockRepo.On("GetListingGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)
 	mockRepo.On("GetUserGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, assert.AnError)
 
-	h := NewAdminHandler(mockRepo, nil)
+	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
 
 	err := h.HandleDashboard(c)
 	assert.NoError(t, err)
@@ -450,7 +451,7 @@ func TestAdminHandler_HandleLoginAction_NoUser(t *testing.T) {
 	c := e.NewContext(req, rec)
 	// No user set
 
-	h := NewAdminHandler(nil, nil)
+	h := NewAdminHandler(nil, nil, config.LoadConfig())
 
 	err := h.HandleLoginAction(c)
 	assert.NoError(t, err)

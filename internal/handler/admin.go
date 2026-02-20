@@ -3,7 +3,8 @@ package handler
 import (
 	"fmt"
 	"net/http"
-	"os"
+
+	"github.com/jadecobra/agbalumo/internal/config"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
@@ -14,10 +15,11 @@ import (
 type AdminHandler struct {
 	Repo       domain.ListingRepository
 	CSVService *service.CSVService
+	Cfg        *config.Config
 }
 
-func NewAdminHandler(repo domain.ListingRepository, csvService *service.CSVService) *AdminHandler {
-	return &AdminHandler{Repo: repo, CSVService: csvService}
+func NewAdminHandler(repo domain.ListingRepository, csvService *service.CSVService, cfg *config.Config) *AdminHandler {
+	return &AdminHandler{Repo: repo, CSVService: csvService, Cfg: cfg}
 }
 
 // AdminMiddleware checks if the user is an admin.
@@ -54,12 +56,8 @@ func (h *AdminHandler) HandleLoginView(c echo.Context) error {
 // HandleLoginAction processes the access code and promotes the user.
 func (h *AdminHandler) HandleLoginAction(c echo.Context) error {
 	code := c.FormValue("code")
-	expectedCode := os.Getenv("ADMIN_ACCESS_CODE")
-	if expectedCode == "" {
-		expectedCode = "agbalumo2024" // Fallback
-	}
 
-	if code != expectedCode {
+	if code != h.Cfg.AdminCode {
 		return c.Render(http.StatusOK, "admin_login.html", map[string]interface{}{
 			"Error": "Invalid Access Code",
 		})

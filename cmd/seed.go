@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"os"
 
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
@@ -18,14 +18,15 @@ var seedCmd = &cobra.Command{
 
 		repo, err := sqlite.NewSQLiteRepository(dbPath)
 		if err != nil {
-			log.Fatalf("Failed to open DB at %s: %v", dbPath, err)
+			slog.Error("Failed to open DB", "path", dbPath, "error", err)
+			os.Exit(1)
 		}
 
 		ctx := context.Background()
 
-		log.Println("Starting full seed...")
+		slog.Info("Starting full seed...")
 		seeder.SeedAll(ctx, repo)
-		log.Println("Full seed complete!")
+		slog.Info("Full seed complete!")
 	},
 }
 

@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"log"
 	"testing"
 	"time"
 )
@@ -85,7 +84,7 @@ func TestListing_Validate_Job(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.listing.Validate()
 			if err != nil {
-				log.Printf("Helper log: error was %v", err)
+				t.Logf("Helper log: error was %v", err)
 			}
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Listing.Validate() error = %v, wantErr %v", err, tt.wantErr)

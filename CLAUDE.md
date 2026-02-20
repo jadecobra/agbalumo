@@ -1,4 +1,5 @@
 - **For every feature/change, follow the `/feature-implementation` workflow** (`.agent/workflows/feature-implementation.md`). A feature is NOT done until all 3 layers pass: (1) Unit Tests (Red→Green→Refactor), (2) CLI/Integration (`pre-commit.sh` + `verify_restart.sh`), (3) Browser subagent verification.
+- Write small, single-purpose functions by default (SRP, clean code)
 - Use TDD principles for all development. Write tests first, then implement the minimal code to pass the tests. Refactor after passing the tests.
 - keep commit message short and concise, imperative mood - for example "add user authentication" not "added user authentication"
 - restart server after changes pass verification tests

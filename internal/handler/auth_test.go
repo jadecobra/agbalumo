@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gorilla/sessions"
+	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/jadecobra/agbalumo/internal/mock"
@@ -55,11 +56,9 @@ func TestAuthHandler_DevLogin_Production(t *testing.T) {
 	// Mock findOrCreateUser if needed, but DevLogin only calls it if env != production.
 	// Since we set env=production, it should return 403 before calling repo.
 
-	h := handler.NewAuthHandler(mockRepo, nil)
-
-	// Set Env to Production
-	os.Setenv("AGBALUMO_ENV", "production")
-	defer os.Unsetenv("AGBALUMO_ENV")
+	cfg := config.LoadConfig()
+	cfg.Env = "production"
+	h := handler.NewAuthHandler(mockRepo, nil, cfg)
 
 	// Execute
 	err := h.DevLogin(c)
@@ -78,7 +77,7 @@ func TestAuthHandler_GoogleCallback_StateMismatch(t *testing.T) {
 
 	mockRepo := &mock.MockListingRepository{}
 	mockProvider := &MockGoogleProvider{}
-	h := handler.NewAuthHandler(mockRepo, mockProvider)
+	h := handler.NewAuthHandler(mockRepo, mockProvider, config.LoadConfig())
 
 	err := h.GoogleCallback(c)
 
@@ -118,7 +117,7 @@ func TestAuthHandler_GoogleCallback_Success(t *testing.T) {
 
 	mockRepo := &mock.MockListingRepository{}
 	mockProvider := &MockGoogleProvider{}
-	h := handler.NewAuthHandler(mockRepo, mockProvider)
+	h := handler.NewAuthHandler(mockRepo, mockProvider, config.LoadConfig())
 
 	token := &oauth2.Token{AccessToken: "access-token"}
 	gUser := &handler.GoogleUser{
@@ -164,7 +163,7 @@ func TestAuthHandler_RequireAuth_Redirect(t *testing.T) {
 	c.Set("session", sess)
 
 	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewAuthHandler(mockRepo, nil)
+	h := handler.NewAuthHandler(mockRepo, nil, config.LoadConfig())
 
 	handlerFunc := h.RequireAuth(func(c echo.Context) error {
 		return c.String(http.StatusOK, "Success")
@@ -190,7 +189,7 @@ func TestAuthHandler_RequireAuth_Success(t *testing.T) {
 	c.Set("session", sess)
 
 	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewAuthHandler(mockRepo, nil)
+	h := handler.NewAuthHandler(mockRepo, nil, config.LoadConfig())
 
 	handlerFunc := h.RequireAuth(func(c echo.Context) error {
 		return c.String(http.StatusOK, "Success")
@@ -211,7 +210,7 @@ func TestAuthHandler_GoogleLogin(t *testing.T) {
 
 	mockRepo := &mock.MockListingRepository{}
 	mockProvider := &MockGoogleProvider{}
-	h := handler.NewAuthHandler(mockRepo, mockProvider)
+	h := handler.NewAuthHandler(mockRepo, mockProvider, config.LoadConfig())
 
 	mockProvider.On("GetAuthCodeURL", "random-state", testifyMock.Anything).Return("http://google.com/auth")
 
@@ -233,7 +232,7 @@ func TestAuthHandler_Logout(t *testing.T) {
 	c.Set("session", sess)
 
 	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewAuthHandler(mockRepo, nil)
+	h := handler.NewAuthHandler(mockRepo, nil, config.LoadConfig())
 
 	err := h.Logout(c)
 
@@ -255,7 +254,7 @@ func TestAuthHandler_OptionalAuth(t *testing.T) {
 	c.Set("session", sess)
 
 	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewAuthHandler(mockRepo, nil)
+	h := handler.NewAuthHandler(mockRepo, nil, config.LoadConfig())
 
 	user := domain.User{ID: "user-123"}
 	mockRepo.On("FindUserByID", testifyMock.Anything, "user-123").Return(user, nil)
@@ -287,7 +286,7 @@ func TestAuthHandler_DevLogin_Success(t *testing.T) {
 	c.Set("session", sess)
 
 	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewAuthHandler(mockRepo, nil)
+	h := handler.NewAuthHandler(mockRepo, nil, config.LoadConfig())
 
 	// Environment Development
 	os.Setenv("AGBALUMO_ENV", "development")
@@ -321,7 +320,7 @@ func TestAuthHandler_GoogleCallback_SaveUserError(t *testing.T) {
 
 	mockRepo := &mock.MockListingRepository{}
 	mockProvider := &MockGoogleProvider{}
-	h := handler.NewAuthHandler(mockRepo, mockProvider)
+	h := handler.NewAuthHandler(mockRepo, mockProvider, config.LoadConfig())
 
 	token := &oauth2.Token{AccessToken: "token"}
 	gUser := &handler.GoogleUser{ID: "g-err", Email: "err@test.com"}
@@ -351,7 +350,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfile(t *testing.T) {
 
 	mockRepo := &mock.MockListingRepository{}
 	mockProvider := &MockGoogleProvider{}
-	h := handler.NewAuthHandler(mockRepo, mockProvider)
+	h := handler.NewAuthHandler(mockRepo, mockProvider, config.LoadConfig())
 
 	token := &oauth2.Token{AccessToken: "token"}
 	gUser := &handler.GoogleUser{
@@ -397,7 +396,7 @@ func TestAuthHandler_DevLogin_GOENVFallback(t *testing.T) {
 	c.Set("session", sess)
 
 	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewAuthHandler(mockRepo, nil)
+	h := handler.NewAuthHandler(mockRepo, nil, config.LoadConfig())
 
 	// Only set GO_ENV, NOT AGBALUMO_ENV
 	os.Unsetenv("AGBALUMO_ENV")
@@ -425,7 +424,7 @@ func TestAuthHandler_DevLogin_DefaultEmail(t *testing.T) {
 	c.Set("session", sess)
 
 	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewAuthHandler(mockRepo, nil)
+	h := handler.NewAuthHandler(mockRepo, nil, config.LoadConfig())
 
 	os.Setenv("AGBALUMO_ENV", "development")
 	defer os.Unsetenv("AGBALUMO_ENV")
@@ -450,7 +449,7 @@ func TestAuthHandler_DevLogin_FindOrCreateError(t *testing.T) {
 	c.Set("session", sess)
 
 	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewAuthHandler(mockRepo, nil)
+	h := handler.NewAuthHandler(mockRepo, nil, config.LoadConfig())
 
 	os.Setenv("AGBALUMO_ENV", "development")
 	defer os.Unsetenv("AGBALUMO_ENV")
@@ -476,7 +475,7 @@ func TestAuthHandler_GoogleCallback_ExchangeError(t *testing.T) {
 
 	mockRepo := &mock.MockListingRepository{}
 	mockProvider := &MockGoogleProvider{}
-	h := handler.NewAuthHandler(mockRepo, mockProvider)
+	h := handler.NewAuthHandler(mockRepo, mockProvider, config.LoadConfig())
 
 	mockProvider.On("Exchange", testifyMock.Anything, "bad-code", testifyMock.Anything).Return(nil, assert.AnError)
 
@@ -495,7 +494,7 @@ func TestAuthHandler_GoogleCallback_GetUserInfoError(t *testing.T) {
 
 	mockRepo := &mock.MockListingRepository{}
 	mockProvider := &MockGoogleProvider{}
-	h := handler.NewAuthHandler(mockRepo, mockProvider)
+	h := handler.NewAuthHandler(mockRepo, mockProvider, config.LoadConfig())
 
 	token := &oauth2.Token{AccessToken: "token"}
 	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", testifyMock.Anything).Return(token, nil)
@@ -522,7 +521,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfileSaveError(t *testing.T) {
 
 	mockRepo := &mock.MockListingRepository{}
 	mockProvider := &MockGoogleProvider{}
-	h := handler.NewAuthHandler(mockRepo, mockProvider)
+	h := handler.NewAuthHandler(mockRepo, mockProvider, config.LoadConfig())
 
 	token := &oauth2.Token{AccessToken: "token"}
 	gUser := &handler.GoogleUser{
@@ -565,7 +564,7 @@ func TestAuthHandler_SetSessionAndRedirect_NilSession(t *testing.T) {
 
 	mockRepo := &mock.MockListingRepository{}
 	mockProvider := &MockGoogleProvider{}
-	h := handler.NewAuthHandler(mockRepo, mockProvider)
+	h := handler.NewAuthHandler(mockRepo, mockProvider, config.LoadConfig())
 
 	token := &oauth2.Token{AccessToken: "token"}
 	gUser := &handler.GoogleUser{ID: "g-no-session", Email: "no-session@test.com", Name: "Test", Picture: "http://pic.com"}
@@ -592,7 +591,7 @@ func TestAuthHandler_OptionalAuth_NoSession(t *testing.T) {
 	// No session set at all
 
 	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewAuthHandler(mockRepo, nil)
+	h := handler.NewAuthHandler(mockRepo, nil, config.LoadConfig())
 
 	handlerFunc := h.OptionalAuth(func(c echo.Context) error {
 		u := c.Get("User")
@@ -618,7 +617,7 @@ func TestAuthHandler_Logout_NoSession(t *testing.T) {
 	// No session set
 
 	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewAuthHandler(mockRepo, nil)
+	h := handler.NewAuthHandler(mockRepo, nil, config.LoadConfig())
 
 	err := h.Logout(c)
 

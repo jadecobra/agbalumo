@@ -1,4 +1,5 @@
 - **For every feature/change, follow the `/feature-implementation` workflow** (`.agent/workflows/feature-implementation.md`). A feature is NOT done until all 3 layers pass: (1) Unit Tests (Red→Green→Refactor), (2) CLI/Integration (`pre-commit.sh` + `verify_restart.sh`), (3) Browser subagent verification.
+- Write small, single-purpose functions by default (SRP, clean code)
 - Use TDD principles for all development. Write tests first, then implement the minimal code to pass the tests. Refactor after passing the tests.
 - keep commit message short and concise, imperative mood - for example "add user authentication" not "added user authentication"
 - restart server after changes pass verification tests
@@ -6,3 +7,4 @@
 - make sure to update spec.md after changes and tests pass, critique codebase in relation to goal in spec.md
 - NEVER lower test coverage threshold to allow a commit, if coverage is low, write more tests
 - NEVER commit `ARCHITECTURE_CRITIQUE.md` or remove it from `.gitignore`. It is meant to remain a local, untracked file.
+- NEVER remove files from .gitignore without explicit approval from user

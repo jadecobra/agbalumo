@@ -3,7 +3,7 @@ package seeder
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -25,18 +25,18 @@ func SeedAll(ctx context.Context, repo domain.ListingStore) {
 func EnsureSeeded(ctx context.Context, repo domain.ListingStore) {
 	listings, err := repo.FindAll(ctx, "", "", true)
 	if err != nil {
-		log.Printf("Failed to check existing listings: %v", err)
+		slog.Error("Failed to check existing listings", "error", err)
 		return
 	}
 
 	if len(listings) == 0 {
-		log.Println("Database empty. Seeding data...")
+		slog.Info("Database empty. Seeding data...")
 		SeedAll(ctx, repo)
 	}
 }
 
 func seedGroup(ctx context.Context, repo domain.ListingStore, name string, listings []domain.Listing) {
-	log.Printf("Seeding %s...", name)
+	slog.Info("Seeding", "group", name)
 	for _, l := range listings {
 		l.ID = uuid.New().String()
 		l.CreatedAt = time.Now()
@@ -46,7 +46,7 @@ func seedGroup(ctx context.Context, repo domain.ListingStore, name string, listi
 		}
 
 		if err := repo.Save(ctx, l); err != nil {
-			log.Printf("Error saving %s: %v", l.Title, err)
+			slog.Error("Error saving listing", "title", l.Title, "error", err)
 		} else {
 			fmt.Printf("Saved: %s\n", l.Title)
 		}

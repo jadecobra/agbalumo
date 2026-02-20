@@ -2,11 +2,12 @@ package cmd
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 
 	"github.com/gorilla/sessions"
+	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/handler"
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
@@ -15,18 +16,28 @@ import (
 	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"golang.org/x/time/rate"
 )
 
 // SetupServer initializes the Echo server and its dependencies.
 // It returns the Echo instance or an error.
 func SetupServer() (*echo.Echo, error) {
-	env := os.Getenv("AGBALUMO_ENV")
+	cfg := config.LoadConfig()
+
+	// Initialize Structured Logging
+	var logger *slog.Logger
+	if cfg.Env == "production" {
+		logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	} else {
+		logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
+	}
+	slog.SetDefault(logger)
 
 	e := echo.New()
 
-	setupMiddleware(e, env)
+	setupMiddleware(e, cfg)
 
-	repo, err := initDatabase()
+	repo, err := initDatabase(cfg.DatabaseURL)
 	if err != nil {
 		return nil, err
 	}
@@ -37,21 +48,21 @@ func SetupServer() (*echo.Echo, error) {
 	}
 	e.Renderer = renderer
 
-	setupRoutes(e, repo)
-	setupBackgroundServices(env, repo)
+	setupRoutes(e, repo, cfg)
+	setupBackgroundServices(cfg, repo)
 
 	return e, nil
 }
 
 // setupMiddleware wires security, rate limiting, CSRF, and session middleware.
-func setupMiddleware(e *echo.Echo, env string) {
+func setupMiddleware(e *echo.Echo, cfg *config.Config) {
 	// Security Headers (CSP, Strict-Transport-Security, etc.)
 	e.Use(customMiddleware.SecureHeaders)
 
 	// Rate Limiter
 	rateLimiter := customMiddleware.NewRateLimiter(customMiddleware.RateLimitConfig{
-		Rate:  20,
-		Burst: 40,
+		Rate:  rate.Limit(cfg.RateLimitRate),
+		Burst: cfg.RateLimitBurst,
 	})
 	e.Use(rateLimiter.Middleware())
 
@@ -61,36 +72,31 @@ func setupMiddleware(e *echo.Echo, env string) {
 		CookiePath:     "/",
 		CookieName:     "_csrf",
 		CookieSameSite: http.SameSiteStrictMode,
-		CookieSecure:   env == "production",
+		CookieSecure:   cfg.Env == "production",
 		CookieHTTPOnly: false,
 	}))
 
 	// Session Middleware
-	sessionKey := os.Getenv("SESSION_SECRET")
-	if sessionKey == "" {
-		if os.Getenv("AGBALUMO_ENV") == "production" {
-			log.Fatal("SESSION_SECRET must be set in production")
-		}
-		sessionKey = "dev-secret-key"
-		log.Println("[WARN] Using default dev session key")
+	if cfg.SessionSecret == "dev-secret-key" && cfg.Env == "production" {
+		slog.Error("SESSION_SECRET must be set in production")
+		os.Exit(1)
+	} else if cfg.SessionSecret == "dev-secret-key" {
+		slog.Warn("Using default dev session key")
 	}
-	store := sessions.NewCookieStore([]byte(sessionKey))
+
+	store := sessions.NewCookieStore([]byte(cfg.SessionSecret))
 	store.Options = &sessions.Options{
 		Path:     "/",
 		MaxAge:   86400 * 7, // 7 days
 		HttpOnly: true,
-		Secure:   env == "production",
+		Secure:   cfg.Env == "production",
 		SameSite: http.SameSiteStrictMode,
 	}
 	e.Use(customMiddleware.SessionMiddleware(store))
 }
 
 // initDatabase creates the SQLite repository.
-func initDatabase() (*sqlite.SQLiteRepository, error) {
-	dbPath := os.Getenv("DATABASE_URL")
-	if dbPath == "" {
-		dbPath = "agbalumo.db"
-	}
+func initDatabase(dbPath string) (*sqlite.SQLiteRepository, error) {
 	return sqlite.NewSQLiteRepository(dbPath)
 }
 
@@ -105,12 +111,12 @@ func initRenderer() (*ui.TemplateRenderer, error) {
 }
 
 // setupRoutes registers all HTTP routes.
-func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository) {
+func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config) {
 	// Handlers
 	listingHandler := handler.NewListingHandler(repo, nil)
 	csvService := service.NewCSVService()
-	adminHandler := handler.NewAdminHandler(repo, csvService)
-	authHandler := handler.NewAuthHandler(repo, nil)
+	adminHandler := handler.NewAdminHandler(repo, csvService, cfg)
+	authHandler := handler.NewAuthHandler(repo, nil, cfg)
 
 	// Auth Routes
 	e.GET("/auth/dev", authHandler.DevLogin)
@@ -158,13 +164,13 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository) {
 }
 
 // setupBackgroundServices starts seeding and background tickers.
-func setupBackgroundServices(env string, repo *sqlite.SQLiteRepository) {
+func setupBackgroundServices(cfg *config.Config, repo *sqlite.SQLiteRepository) {
 	ctx := context.Background()
 
-	if env != "production" {
+	if cfg.Env != "production" {
 		seeder.EnsureSeeded(ctx, repo)
 	} else {
-		log.Println("Production environment detected. Skipping automatic data seeding.")
+		slog.Info("Production environment detected. Skipping automatic data seeding.")
 	}
 
 	bgService := service.NewBackgroundService(repo)

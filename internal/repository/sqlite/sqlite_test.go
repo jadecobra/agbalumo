@@ -16,7 +16,8 @@ import (
 func newTestRepo(t *testing.T) (*sqlite.SQLiteRepository, string) {
 	tmpDir := t.TempDir()
 	dbPath := filepath.Join(tmpDir, "test.db")
-	repo, err := sqlite.NewSQLiteRepository(dbPath)
+	dsn := dbPath + "?_time_format=sqlite"
+	repo, err := sqlite.NewSQLiteRepository(dsn)
 	if err != nil {
 		t.Fatalf("Failed to create repo: %v", err)
 	}
@@ -489,4 +490,163 @@ func TestNewSQLiteRepository_Failure(t *testing.T) {
 	if err == nil {
 		t.Error("Expected error for invalid db path, got nil")
 	}
+}
+
+func TestGetListingGrowth(t *testing.T) {
+	repo, _ := newTestRepo(t)
+	ctx := context.Background()
+
+	// Seed data
+	now := time.Now().UTC()
+	// Yesterday
+	repo.Save(ctx, domain.Listing{ID: "g1", Title: "L1", Type: domain.Business, IsActive: true, CreatedAt: now.Add(-24 * time.Hour)})
+	// Today
+	repo.Save(ctx, domain.Listing{ID: "g2", Title: "L2", Type: domain.Business, IsActive: true, CreatedAt: now})
+	repo.Save(ctx, domain.Listing{ID: "g3", Title: "L3", Type: domain.Business, IsActive: true, CreatedAt: now})
+	// Old (outside 30 days)
+	repo.Save(ctx, domain.Listing{ID: "g4", Title: "Old", Type: domain.Business, IsActive: true, CreatedAt: now.Add(-31 * 24 * time.Hour)})
+
+	metrics, err := repo.GetListingGrowth(ctx)
+	if err != nil {
+		t.Fatalf("Failed to get metrics: %v", err)
+	}
+
+	if len(metrics) == 0 {
+		// Debug: what is in DB?
+		all, _ := repo.FindAll(ctx, "", "", true)
+		for _, l := range all {
+			t.Logf("ID: %s, CreatedAt: %v", l.ID, l.CreatedAt)
+		}
+		t.Fatalf("Expected metrics, got 0")
+	}
+
+	// Expecting 2 distinct days (Yesterday and Today)
+	if len(metrics) < 2 {
+		t.Errorf("Expected at least 2 metric points, got %d", len(metrics))
+	}
+
+	// Verify ordering (Oldest first)
+	if len(metrics) >= 2 && metrics[0].Date > metrics[1].Date {
+		t.Error("Metrics should be ordered by date ASC")
+	}
+
+	// Verify Counts
+	// Yesterday: 1
+	// Today: 2
+	// Depending on timezone of sqlite vs go, there might be drift, but let's assume UTC/Local consistency in test env.
+
+	total := 0
+	for _, m := range metrics {
+		total += m.Count
+	}
+	if total != 3 {
+		t.Errorf("Expected 3 total listings in window, got %d", total)
+	}
+}
+
+func TestGetUserGrowth(t *testing.T) {
+	repo, _ := newTestRepo(t)
+	ctx := context.Background()
+
+	now := time.Now().UTC()
+	repo.SaveUser(ctx, domain.User{ID: "u1", GoogleID: "g1", Email: "e1", CreatedAt: now.Add(-24 * time.Hour)})
+	repo.SaveUser(ctx, domain.User{ID: "u2", GoogleID: "g2", Email: "e2", CreatedAt: now})
+
+	metrics, err := repo.GetUserGrowth(ctx)
+	if err != nil {
+		t.Fatalf("Failed to get metrics: %v", err)
+	}
+
+	if len(metrics) != 2 {
+		t.Errorf("Expected 2 metric points, got %d", len(metrics))
+	}
+
+	total := 0
+	for _, m := range metrics {
+		total += m.Count
+	}
+	if total != 2 {
+		t.Errorf("Expected 2 total users in window, got %d", total)
+	}
+}
+
+func TestGetAllUsers(t *testing.T) {
+	repo, _ := newTestRepo(t)
+	ctx := context.Background()
+
+	// Seed
+	repo.SaveUser(ctx, domain.User{ID: "u1", GoogleID: "g1", Email: "e1", CreatedAt: time.Now()})
+	repo.SaveUser(ctx, domain.User{ID: "u2", GoogleID: "g2", Email: "e2", CreatedAt: time.Now().Add(time.Hour)})
+
+	users, err := repo.GetAllUsers(ctx)
+	if err != nil {
+		t.Fatalf("Failed to get users: %v", err)
+	}
+
+	if len(users) != 2 {
+		t.Errorf("Expected 2 users, got %d", len(users))
+	}
+
+	// Verify Order (DESC created_at)
+	// u2 is newer
+	if users[0].ID != "u2" {
+		t.Errorf("Expected newest user first (u2), got %s", users[0].ID)
+	}
+}
+
+func TestRepository_Errors(t *testing.T) {
+	// Create a DB and close it immediately to force errors
+	db, err := sql.Open("sqlite3", ":memory:")
+	if err != nil {
+		t.Fatalf("Failed to open db: %v", err)
+	}
+	repo := sqlite.NewSQLiteRepositoryFromDB(db)
+	db.Close()
+	ctx := context.Background()
+
+	// Generic error checking helper
+	checkError := func(name string, err error) {
+		if err == nil {
+			t.Errorf("%s: Expected error on closed DB, got nil", name)
+		}
+	}
+
+	checkError("Save", repo.Save(ctx, domain.Listing{ID: "1"}))
+	_, err = repo.FindAll(ctx, "", "", false)
+	checkError("FindAll", err)
+	_, err = repo.FindByID(ctx, "1")
+	checkError("FindByID", err)
+	checkError("Delete", repo.Delete(ctx, "1"))
+	_, err = repo.GetCounts(ctx)
+	checkError("GetCounts", err)
+	_, err = repo.ExpireListings(ctx)
+	checkError("ExpireListings", err)
+
+	// User methods
+	checkError("SaveUser", repo.SaveUser(ctx, domain.User{ID: "u1"}))
+	_, err = repo.FindUserByGoogleID(ctx, "g1")
+	checkError("FindUserByGoogleID", err)
+	_, err = repo.FindUserByID(ctx, "u1")
+	checkError("FindUserByID", err)
+	_, err = repo.FindAllByOwner(ctx, "owner")
+	checkError("FindAllByOwner", err)
+	_, err = repo.GetPendingListings(ctx)
+	checkError("GetPendingListings", err)
+	_, err = repo.GetUserCount(ctx)
+	checkError("GetUserCount", err)
+	_, err = repo.GetAllUsers(ctx)
+	checkError("GetAllUsers", err)
+	_, err = repo.GetListingGrowth(ctx)
+	checkError("GetListingGrowth", err)
+	_, err = repo.GetUserGrowth(ctx)
+	checkError("GetUserGrowth", err)
+	_, err = repo.GetFeaturedListings(ctx)
+	checkError("GetFeaturedListings", err)
+
+	// Feedback
+	checkError("SaveFeedback", repo.SaveFeedback(ctx, domain.Feedback{ID: "f1"}))
+	_, err = repo.GetAllFeedback(ctx)
+	checkError("GetAllFeedback", err)
+	_, err = repo.GetFeedbackCounts(ctx)
+	checkError("GetFeedbackCounts", err)
 }

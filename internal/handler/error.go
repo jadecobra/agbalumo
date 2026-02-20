@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -16,7 +16,10 @@ func RespondError(c echo.Context, err error) error {
 	}
 
 	// Log the actual error for debugging
-	log.Printf("[ERROR] Request ID: %s | Error: %v", c.Response().Header().Get(echo.HeaderXRequestID), err)
+	slog.Error("Request failed",
+		slog.String("request_id", c.Response().Header().Get(echo.HeaderXRequestID)),
+		slog.Any("error", err),
+	)
 
 	// Render the friendly error page
 	// We return the specific code (e.g. 400 or 500)
