@@ -52,28 +52,32 @@ Test,Desc`
 	})
 
 	t.Run("Partial Failure", func(t *testing.T) {
-		csvContent := `title,type,description,origin,email
-Good,Business,Desc,Ghana,a@b.com
-Bad,InvalidType,Desc,Ghana,a@b.com
-MissingDesc,Business,,Ghana,a@b.com`
+		csvContent := `title,type,description,origin,email,phone
+Good,Business,Desc,Ghana,a@b.com,
+BadTypeDefaultsToBusiness,InvalidType,Desc,Ghana,a@b.com,
+MissingDesc,Business,,Ghana,a@b.com,
+,Business,Desc,Ghana,a@b.com,
+MissingOrigin,Business,Desc,,a@b.com,
+MissingEmailHasPhone,Business,Desc,Ghana,,12345
+MissingAllContact,Business,Desc,Ghana,,`
 
 		repo := &mock.MockListingRepository{}
-		// Expect only 1 successful save
-		repo.On("Save", ctx, testifyMock.Anything).Return(nil).Once()
+		// Expect 4 successful saves (Good, BadTypeDefaultsToBusiness, MissingOrigin, MissingEmailHasPhone)
+		repo.On("Save", ctx, testifyMock.Anything).Return(nil).Times(4)
 
 		result, err := svc.ParseAndImport(ctx, strings.NewReader(csvContent), repo)
 		if err != nil {
 			t.Fatalf("Unexpected error: %v", err)
 		}
 
-		if result.TotalProcessed != 3 {
-			t.Errorf("Expected 3 total, got %d", result.TotalProcessed)
+		if result.TotalProcessed != 7 {
+			t.Errorf("Expected 7 total, got %d", result.TotalProcessed)
 		}
-		if result.SuccessCount != 1 {
-			t.Errorf("Expected 1 success (first row), got %d", result.SuccessCount)
+		if result.SuccessCount != 4 {
+			t.Errorf("Expected 4 success, got %d", result.SuccessCount)
 		}
-		if result.FailureCount != 2 {
-			t.Errorf("Expected 2 failures, got %d", result.FailureCount)
+		if result.FailureCount != 3 {
+			t.Errorf("Expected 3 failures, got %d", result.FailureCount)
 		}
 		repo.AssertExpectations(t)
 	})

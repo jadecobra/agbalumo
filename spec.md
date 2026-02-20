@@ -96,6 +96,7 @@ type Listing struct {
 
 ### 7. Codebase Critique & Improvements (Self-Correction)
 
-* **Loose Coupling:** The `TemplateRenderer` was refactored to isoloate page templates, preventing namespace collisions. This is a good pattern to maintain.
-* **Security:** `DevLogin` in `auth.go` currently bypasses the Admin Claim flow by potentially granting admin roles mostly due to environmental configuration or seed state. This should be tightened in future iterations to purely simulate a generic user, forcing the claim flow even in dev.
-* **Testing:** Browser subagent tests proved critical in catching the 500 error that unit tests missed due to mocking. We should expand browser testing for the "Create Listing" flow.
+* **Loose Coupling**: The `TemplateRenderer` was refactored to isoloate page templates, preventing namespace collisions. This is a good pattern to maintain.
+* **Security**: `DevLogin` in `auth.go` currently bypasses the Admin Claim flow by potentially granting admin roles mostly due to environmental configuration or seed state. This should be tightened in future iterations to purely simulate a generic user, forcing the claim flow even in dev.
+* **Testing**: Browser subagent tests proved critical in catching the 500 error that unit tests missed due to mocking. We should expand browser testing for the "Create Listing" flow.
+* **Bulk Upload**: Admin bulk upload requires confirmation and gracefully handles both malformed files (by redirecting to the dashboard with flash messages) and invalid categories (by falling back to the `Business` type).

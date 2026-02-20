@@ -191,22 +191,31 @@ func (h *AdminHandler) HandleReject(c echo.Context) error {
 
 // HandleBulkUpload processes a CSV file upload.
 func (h *AdminHandler) HandleBulkUpload(c echo.Context) error {
+	handleError := func(msg string) error {
+		sess := customMiddleware.GetSession(c)
+		if sess != nil {
+			sess.AddFlash(msg, "message")
+			sess.Save(c.Request(), c.Response())
+		}
+		return c.Redirect(http.StatusFound, "/admin")
+	}
+
 	// 1. Get File
 	file, err := c.FormFile("csv_file")
 	if err != nil {
-		return RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Please select a valid CSV file"))
+		return handleError("Please select a valid CSV file")
 	}
 
 	src, err := file.Open()
 	if err != nil {
-		return RespondError(c, err)
+		return handleError("Failed to open file: " + err.Error())
 	}
 	defer src.Close()
 
 	// 2. Parse and Import
 	result, err := h.CSVService.ParseAndImport(c.Request().Context(), src, h.Repo)
 	if err != nil {
-		return RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Failed to process CSV: "+err.Error()))
+		return handleError("Failed to process CSV: " + err.Error())
 	}
 
 	// 3. Render Result / Redirect

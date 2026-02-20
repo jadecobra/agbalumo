@@ -11,6 +11,7 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
+	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/jadecobra/agbalumo/internal/mock"
 	"github.com/jadecobra/agbalumo/internal/service"
 	"github.com/labstack/echo/v4"
@@ -215,12 +216,17 @@ func TestAdminHandler_HandleBulkUpload_NoFile(t *testing.T) {
 	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
 	c.Set("User", adminUser)
 
+	store := customMiddleware.NewTestSessionStore()
+	session, _ := store.Get(req, "auth_session")
+	c.Set("session", session)
+
 	h := NewAdminHandler(nil, service.NewCSVService(), config.LoadConfig())
 	e.Renderer = &mock.MockRenderer{}
 
 	err := h.HandleBulkUpload(c)
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusBadRequest, rec.Code)
+	assert.Equal(t, http.StatusFound, rec.Code)
+	assert.Equal(t, "/admin", rec.Header().Get("Location"))
 }
 
 // --- AdminMiddleware Tests ---

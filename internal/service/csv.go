@@ -36,7 +36,7 @@ func (s *CSVService) ParseAndImport(ctx context.Context, r io.Reader, repo domai
 	}
 
 	// Validate required headers
-	required := []string{"title", "type", "description", "origin", "email"}
+	required := []string{"title", "type", "description"}
 	for _, req := range required {
 		if _, ok := headerMap[req]; !ok {
 			return nil, fmt.Errorf("missing required header: %s", req)
@@ -100,7 +100,7 @@ func parseCategory(typeStr string) (domain.Category, error) {
 		return cat, nil
 	}
 
-	return "", fmt.Errorf("invalid type: %s", typeStr)
+	return domain.Business, nil
 }
 
 func (s *CSVService) parseRow(record []string, headerMap map[string]int) (*domain.Listing, error) {
@@ -128,12 +128,15 @@ func (s *CSVService) parseRow(record []string, headerMap map[string]int) (*domai
 
 	origin := get("origin")
 	if origin == "" {
-		return nil, fmt.Errorf("origin is required")
+		origin = "Nigeria"
 	}
 
 	email := get("email")
-	if email == "" {
-		return nil, fmt.Errorf("email is required")
+	phone := get("phone")
+	whatsapp := get("whatsapp")
+
+	if email == "" && phone == "" && whatsapp == "" {
+		return nil, fmt.Errorf("at least one contact method (email, phone, or whatsapp) is required")
 	}
 
 	return &domain.Listing{
@@ -144,8 +147,8 @@ func (s *CSVService) parseRow(record []string, headerMap map[string]int) (*domai
 		OwnerOrigin:      origin,
 		ContactEmail:     email,
 		WebsiteURL:       get("website"),
-		ContactPhone:     get("phone"),
-		ContactWhatsApp:  get("whatsapp"),
+		ContactPhone:     phone,
+		ContactWhatsApp:  whatsapp,
 		Address:          get("address"),
 		HoursOfOperation: get("hours"),
 		CreatedAt:        time.Now(),
