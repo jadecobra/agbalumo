@@ -18,7 +18,6 @@ type TemplateRenderer struct {
 
 // NewTemplateRenderer creates a new instance of TemplateRenderer with parsed templates
 func NewTemplateRenderer(patterns ...string) (*TemplateRenderer, error) {
-	// 1. Identify all files
 	var allFiles []string
 	for _, pattern := range patterns {
 		files, err := filepath.Glob(pattern)
@@ -32,24 +31,35 @@ func NewTemplateRenderer(patterns ...string) (*TemplateRenderer, error) {
 		return nil, errors.New("no template files found")
 	}
 
-	// 2. Classify files
-	var layoutFiles []string
-	var partialFiles []string
-	var pageFiles []string
+	layoutFiles, partialFiles, pageFiles := categorizeTemplateFiles(allFiles)
+	funcMap := buildGlobalFuncMap()
 
-	for _, file := range allFiles {
-		baseName := filepath.Base(file)
-		if baseName == "base.html" {
-			layoutFiles = append(layoutFiles, file)
-		} else if strings.Contains(file, "partials") {
-			partialFiles = append(partialFiles, file)
-		} else {
-			pageFiles = append(pageFiles, file)
-		}
+	templates, err := compileTemplates(layoutFiles, partialFiles, pageFiles, funcMap)
+	if err != nil {
+		return nil, err
 	}
 
-	// 3. Logic to create FuncMap (shared)
-	funcMap := template.FuncMap{
+	return &TemplateRenderer{
+		templates: templates,
+	}, nil
+}
+
+func categorizeTemplateFiles(files []string) (layouts, partials, pages []string) {
+	for _, file := range files {
+		baseName := filepath.Base(file)
+		if baseName == "base.html" {
+			layouts = append(layouts, file)
+		} else if strings.Contains(file, "partials") {
+			partials = append(partials, file)
+		} else {
+			pages = append(pages, file)
+		}
+	}
+	return
+}
+
+func buildGlobalFuncMap() template.FuncMap {
+	return template.FuncMap{
 		"split": strings.Split,
 		"mod":   func(i, j int) int { return i % j },
 		"add":   func(i, j int) int { return i + j },
@@ -82,41 +92,34 @@ func NewTemplateRenderer(patterns ...string) (*TemplateRenderer, error) {
 			return template.JS(b), nil
 		},
 	}
+}
 
-	// 4. Compile Templates per Page
+func compileTemplates(layouts, partials, pages []string, funcMap template.FuncMap) (map[string]*template.Template, error) {
 	templates := make(map[string]*template.Template)
 
-	for _, pageFile := range pageFiles {
+	for _, pageFile := range pages {
 		fileName := filepath.Base(pageFile)
-
-		// Create a new template set for this page
 		tmpl := template.New(fileName).Funcs(funcMap)
 
-		// Parse Layouts (base.html) - verify if exists
-		if len(layoutFiles) > 0 {
-			if _, err := tmpl.ParseFiles(layoutFiles...); err != nil {
+		if len(layouts) > 0 {
+			if _, err := tmpl.ParseFiles(layouts...); err != nil {
 				return nil, err
 			}
 		}
 
-		// Parse Partials
-		if len(partialFiles) > 0 {
-			if _, err := tmpl.ParseFiles(partialFiles...); err != nil {
+		if len(partials) > 0 {
+			if _, err := tmpl.ParseFiles(partials...); err != nil {
 				return nil, err
 			}
 		}
 
-		// Parse the Page itself
 		if _, err := tmpl.ParseFiles(pageFile); err != nil {
 			return nil, err
 		}
 
 		templates[fileName] = tmpl
 	}
-
-	return &TemplateRenderer{
-		templates: templates,
-	}, nil
+	return templates, nil
 }
 
 // Render renders a template document

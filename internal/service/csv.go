@@ -86,8 +86,24 @@ func (s *CSVService) ParseAndImport(ctx context.Context, r io.Reader, repo domai
 	return result, nil
 }
 
+func parseCategory(typeStr string) (domain.Category, error) {
+	cat := domain.Category(typeStr)
+	switch cat {
+	case domain.Business, domain.Service, domain.Product, domain.Event, domain.Job, domain.Request, domain.Food:
+		return cat, nil
+	}
+
+	titleCas := strings.Title(strings.ToLower(typeStr))
+	cat = domain.Category(titleCas)
+	switch cat {
+	case domain.Business, domain.Service, domain.Product, domain.Event, domain.Job, domain.Request, domain.Food:
+		return cat, nil
+	}
+
+	return "", fmt.Errorf("invalid type: %s", typeStr)
+}
+
 func (s *CSVService) parseRow(record []string, headerMap map[string]int) (*domain.Listing, error) {
-	// Helper to get value
 	get := func(col string) string {
 		if idx, ok := headerMap[col]; ok && idx < len(record) {
 			return strings.TrimSpace(record[idx])
@@ -100,31 +116,9 @@ func (s *CSVService) parseRow(record []string, headerMap map[string]int) (*domai
 		return nil, fmt.Errorf("title is required")
 	}
 
-	typeStr := get("type")
-	// Normalize type (Title Case)
-	// Actually, the domain types are strictly formatted (e.g. "Business").
-	// Users might type "business".
-	// Let's minimal normalization.
-	// domain.Category is just a string alias.
-
-	// Helper for case-insensitive matching if needed, but for now exact match or simple casing.
-	// Let's just pass it through and validate.
-	cat := domain.Category(typeStr)
-
-	// Validation
-	switch cat {
-	case domain.Business, domain.Service, domain.Product, domain.Event, domain.Job, domain.Request, domain.Food:
-		// ok
-	default:
-		// Try Title Case?
-		titleCas := strings.Title(strings.ToLower(typeStr))
-		cat = domain.Category(titleCas)
-		switch cat {
-		case domain.Business, domain.Service, domain.Product, domain.Event, domain.Job, domain.Request, domain.Food:
-			// ok
-		default:
-			return nil, fmt.Errorf("invalid type: %s", typeStr)
-		}
+	cat, err := parseCategory(get("type"))
+	if err != nil {
+		return nil, err
 	}
 
 	desc := get("description")
@@ -143,19 +137,17 @@ func (s *CSVService) parseRow(record []string, headerMap map[string]int) (*domai
 	}
 
 	return &domain.Listing{
-		ID:              uuid.New().String(),
-		Title:           title,
-		Type:            cat,
-		Description:     desc,
-		OwnerOrigin:     origin,
-		ContactEmail:    email,
-		WebsiteURL:      get("website"),
-		ContactPhone:    get("phone"),    // Was PhoneNumber
-		ContactWhatsApp: get("whatsapp"), // Was WhatsAppNumber
-		// InstagramHandle:  get("instagram"), // Not in domain
+		ID:               uuid.New().String(),
+		Title:            title,
+		Type:             cat,
+		Description:      desc,
+		OwnerOrigin:      origin,
+		ContactEmail:     email,
+		WebsiteURL:       get("website"),
+		ContactPhone:     get("phone"),
+		ContactWhatsApp:  get("whatsapp"),
 		Address:          get("address"),
 		HoursOfOperation: get("hours"),
 		CreatedAt:        time.Now(),
-		// UpdatedAt:        time.Now(), // Not in domain
 	}, nil
 }

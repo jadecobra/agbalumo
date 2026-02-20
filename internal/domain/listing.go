@@ -122,67 +122,91 @@ func (l *Listing) Validate() error {
 	}
 
 	if l.Type == Request {
-		// Deadline cannot be in the past (allow for small clock skew/today)
-		// Using a 24h buffer for "today" logic as implied by previous handler logic
-		if !l.Deadline.IsZero() && l.Deadline.Before(time.Now().Add(-24*time.Hour)) {
-			return errors.New("deadline cannot be in the past")
-		}
-
-		// Calculate duration between CreatedAt and Deadline
-		// If CreatedAt is zero, use Now as a fallback for validation context
-		start := l.CreatedAt
-		if start.IsZero() {
-			start = time.Now()
-		}
-
-		limit := start.Add(90 * 24 * time.Hour)
-		if l.Deadline.After(limit) {
-			return ErrInvalidDeadline
+		if err := l.validateRequest(); err != nil {
+			return err
 		}
 	}
 
 	if l.Type == Event {
-		if l.EventStart.IsZero() {
-			return errors.New("event start time is required")
-		}
-		if l.EventEnd.IsZero() {
-			return errors.New("event end time is required")
-		}
-		if l.EventEnd.Before(l.EventStart) {
-			return errors.New("event end time cannot be before start time")
+		if err := l.validateEvent(); err != nil {
+			return err
 		}
 	}
 
 	if l.Type == Job {
-		if l.Company == "" {
-			return errors.New("company name is required for job listings")
-		}
-		if l.Description == "" {
-			return errors.New("description is required")
-		}
-		if l.Skills == "" {
-			return errors.New("skills are required for job listings")
-		}
-		if l.PayRange == "" {
-			return errors.New("compensation/pay range is required")
-		}
-		if l.JobStartDate.IsZero() {
-			return errors.New("job start date is required")
-		}
-		// Start date cannot be in the past (allow 24h buffer)
-		if l.JobStartDate.Before(time.Now().Add(-24 * time.Hour)) {
-			return errors.New("job start date cannot be in the past")
-		}
-		if l.City == "" && l.Address == "" {
-			// We check City primarily as "Location" usually maps to City
-			return errors.New("location (city) is required")
-		}
-		if l.JobApplyURL == "" {
-			return errors.New("apply url is required")
+		if err := l.validateJob(); err != nil {
+			return err
 		}
 	}
 
-	// Length Validation
+	return l.validateLengths()
+}
+
+func (l *Listing) validateRequest() error {
+	// Deadline cannot be in the past (allow for small clock skew/today)
+	// Using a 24h buffer for "today" logic as implied by previous handler logic
+	if !l.Deadline.IsZero() && l.Deadline.Before(time.Now().Add(-24*time.Hour)) {
+		return errors.New("deadline cannot be in the past")
+	}
+
+	// Calculate duration between CreatedAt and Deadline
+	// If CreatedAt is zero, use Now as a fallback for validation context
+	start := l.CreatedAt
+	if start.IsZero() {
+		start = time.Now()
+	}
+
+	limit := start.Add(90 * 24 * time.Hour)
+	if l.Deadline.After(limit) {
+		return ErrInvalidDeadline
+	}
+	return nil
+}
+
+func (l *Listing) validateEvent() error {
+	if l.EventStart.IsZero() {
+		return errors.New("event start time is required")
+	}
+	if l.EventEnd.IsZero() {
+		return errors.New("event end time is required")
+	}
+	if l.EventEnd.Before(l.EventStart) {
+		return errors.New("event end time cannot be before start time")
+	}
+	return nil
+}
+
+func (l *Listing) validateJob() error {
+	if l.Company == "" {
+		return errors.New("company name is required for job listings")
+	}
+	if l.Description == "" {
+		return errors.New("description is required")
+	}
+	if l.Skills == "" {
+		return errors.New("skills are required for job listings")
+	}
+	if l.PayRange == "" {
+		return errors.New("compensation/pay range is required")
+	}
+	if l.JobStartDate.IsZero() {
+		return errors.New("job start date is required")
+	}
+	// Start date cannot be in the past (allow 24h buffer)
+	if l.JobStartDate.Before(time.Now().Add(-24 * time.Hour)) {
+		return errors.New("job start date cannot be in the past")
+	}
+	if l.City == "" && l.Address == "" {
+		// We check City primarily as "Location" usually maps to City
+		return errors.New("location (city) is required")
+	}
+	if l.JobApplyURL == "" {
+		return errors.New("apply url is required")
+	}
+	return nil
+}
+
+func (l *Listing) validateLengths() error {
 	if len(l.Title) > 100 {
 		return errors.New("title cannot exceed 100 characters")
 	}
@@ -195,6 +219,5 @@ func (l *Listing) Validate() error {
 	if len(l.Address) > 200 {
 		return errors.New("address cannot exceed 200 characters")
 	}
-
 	return nil
 }

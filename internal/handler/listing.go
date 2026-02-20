@@ -330,14 +330,34 @@ func (h *ListingHandler) bindAndMapListing(c echo.Context, l *domain.Listing) er
 	l.Company = req.Company
 	l.PayRange = req.PayRange
 
-	// Handle Image Upload
-	if imageURL, err := h.ImageService.UploadImage(c.Request().Context(), h.getFileHeader(c, "image"), l.ID); err == nil && imageURL != "" {
+	if err := h.handleImageUpload(c, l); err != nil {
+		return err
+	}
+	if err := parseDeadline(&req, l); err != nil {
+		return err
+	}
+	if err := parseEventDates(&req, l); err != nil {
+		return err
+	}
+	if err := parseJobStartDate(&req, l); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (h *ListingHandler) handleImageUpload(c echo.Context, l *domain.Listing) error {
+	imageURL, err := h.ImageService.UploadImage(c.Request().Context(), h.getFileHeader(c, "image"), l.ID)
+	if err == nil && imageURL != "" {
 		l.ImageURL = imageURL
+		return nil
 	} else if err != nil {
 		return RespondError(c, err)
 	}
+	return nil
+}
 
-	// Handle Deadline
+func parseDeadline(req *ListingFormRequest, l *domain.Listing) error {
 	if l.Type == domain.Request && req.DeadlineDate != "" {
 		parsedTime, err := time.Parse("2006-01-02", req.DeadlineDate)
 		if err != nil {
@@ -345,15 +365,16 @@ func (h *ListingHandler) bindAndMapListing(c echo.Context, l *domain.Listing) er
 		}
 		l.Deadline = parsedTime
 	}
+	return nil
+}
 
-	// Handle Event Dates
+func parseEventDates(req *ListingFormRequest, l *domain.Listing) error {
 	if l.Type == domain.Event {
 		if req.EventStart != "" {
 			parsedTime, err := time.Parse("2006-01-02T15:04", req.EventStart)
 			if err != nil {
 				return echo.NewHTTPError(http.StatusBadRequest, "Invalid Start Date Format")
 			}
-
 			l.EventStart = parsedTime
 		}
 		if req.EventEnd != "" {
@@ -364,8 +385,10 @@ func (h *ListingHandler) bindAndMapListing(c echo.Context, l *domain.Listing) er
 			l.EventEnd = parsedTime
 		}
 	}
+	return nil
+}
 
-	// Handle Job Start Date
+func parseJobStartDate(req *ListingFormRequest, l *domain.Listing) error {
 	if l.Type == domain.Job && req.JobStartDate != "" {
 		parsedTime, err := time.Parse("2006-01-02T15:04", req.JobStartDate)
 		if err != nil {
@@ -373,7 +396,6 @@ func (h *ListingHandler) bindAndMapListing(c echo.Context, l *domain.Listing) er
 		}
 		l.JobStartDate = parsedTime
 	}
-
 	return nil
 }
 
