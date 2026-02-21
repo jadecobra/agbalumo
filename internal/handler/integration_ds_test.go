@@ -27,6 +27,7 @@ func TestIntegration_DataValidation(t *testing.T) {
 
 	for _, bodyStr := range goodData {
 		mockRepo := &mock.MockListingRepository{}
+		mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
 		mockRepo.On("Save", testifyMock.Anything, testifyMock.Anything).Return(nil)
 
 		h := handler.NewListingHandler(mockRepo, nil)
@@ -82,6 +83,7 @@ func TestIntegration_DataValidation(t *testing.T) {
 	for _, tc := range badData {
 		t.Run(tc.name, func(t *testing.T) {
 			mockRepo := &mock.MockListingRepository{}
+			mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
 			// Save shouldn't be called, so no expectation set, or Expect failure?
 			// Validation failures usually don't reach repository Save.
 			// So default mock (AssertExpectations) works fine if we don't set any expectations, it means "no calls allowed".

@@ -295,6 +295,29 @@ func (r *SQLiteRepository) FindByID(ctx context.Context, id string) (domain.List
 	return l, err
 }
 
+func (r *SQLiteRepository) FindByTitle(ctx context.Context, title string) ([]domain.Listing, error) {
+	query := `
+		SELECT ` + listingSelections + `
+		FROM listings
+		WHERE title = ?
+	`
+	rows, err := r.db.QueryContext(ctx, query, title)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var listings []domain.Listing
+	for rows.Next() {
+		l, err := scanListing(rows)
+		if err != nil {
+			return nil, err
+		}
+		listings = append(listings, l)
+	}
+	return listings, nil
+}
+
 // SaveUser inserts or updates a user.
 func (r *SQLiteRepository) SaveUser(ctx context.Context, u domain.User) error {
 	// 1. Try Update by ID (Primary Key) to avoid unique constraint ambiguity

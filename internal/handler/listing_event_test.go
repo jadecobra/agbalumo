@@ -28,6 +28,7 @@ func TestHandleCreate_EventParsing(t *testing.T) {
 	e.Renderer = &MockRenderer{}
 
 	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
 	mockRepo.On("Save", testifyMock.Anything, testifyMock.MatchedBy(func(l domain.Listing) bool {
 		// Asset that the parsed listing has the correct dates
 		if l.Type != domain.Event {

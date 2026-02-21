@@ -226,6 +226,15 @@ func TestHandleCreate(t *testing.T) {
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
+		{
+			name: "DuplicateTitle",
+			body: "title=Duplicate&type=Business&owner_origin=Nigeria&description=Cool&contact_email=test@example.com&hours_of_operation=Mon-Fri+9-5&address=123+Street",
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("FindByTitle", testifyMock.Anything, "Duplicate").Return([]domain.Listing{{ID: "123", Title: "Duplicate"}}, nil)
+			},
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   "Title already exists. Please choose a different title.",
+		},
 	}
 
 	for _, tt := range tests {
@@ -233,6 +242,7 @@ func TestHandleCreate(t *testing.T) {
 			c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
 			mockRepo := &mock.MockListingRepository{}
 			tt.setupMock(mockRepo)
+			mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
 
 			h := handler.NewListingHandler(mockRepo, nil)
 			c.Set("User", domain.User{ID: "test-user-id", Email: "test@example.com"})
@@ -349,6 +359,16 @@ func TestHandleUpdate(t *testing.T) {
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
+		{
+			name: "DuplicateTitle_OtherListing",
+			user: domain.User{ID: "user1", Email: "owner@example.com"},
+			body: "title=Duplicate&type=Business&owner_origin=Ghana&description=Updated&contact_email=new@example.com&address=123+St",
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "user1", Title: "Old Title"}, nil)
+				m.On("FindByTitle", testifyMock.Anything, "Duplicate").Return([]domain.Listing{{ID: "999", Title: "Duplicate"}}, nil)
+			},
+			expectedStatus: http.StatusBadRequest,
+		},
 	}
 
 	for _, tt := range tests {
@@ -361,6 +381,7 @@ func TestHandleUpdate(t *testing.T) {
 
 			mockRepo := &mock.MockListingRepository{}
 			tt.setupMock(mockRepo)
+			mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
 
 			h := handler.NewListingHandler(mockRepo, nil)
 			_ = h.HandleUpdate(c)
@@ -401,6 +422,7 @@ func TestHandleCreate_WithImage(t *testing.T) {
 	defer os.RemoveAll("ui")
 
 	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
 	mockRepo.On("Save", testifyMock.Anything, testifyMock.MatchedBy(func(l domain.Listing) bool {
 		return l.ImageURL != "" && strings.HasPrefix(l.ImageURL, "/static/uploads/")
 	})).Return(nil)
@@ -702,6 +724,7 @@ func TestHandleCreate_ImageUploadError(t *testing.T) {
 	c := e.NewContext(req, rec)
 
 	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
 
 	mockImageService := &MockImageService{}
 	mockImageService.On("UploadImage", testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).Return("", errors.New("upload failed"))

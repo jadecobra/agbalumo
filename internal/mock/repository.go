@@ -28,6 +28,11 @@ func (m *MockListingRepository) FindByID(ctx context.Context, id string) (domain
 	return args.Get(0).(domain.Listing), args.Error(1)
 }
 
+func (m *MockListingRepository) FindByTitle(ctx context.Context, title string) ([]domain.Listing, error) {
+	args := m.Called(ctx, title)
+	return args.Get(0).([]domain.Listing), args.Error(1)
+}
+
 func (m *MockListingRepository) SaveUser(ctx context.Context, u domain.User) error {
 	args := m.Called(ctx, u)
 	return args.Error(0)

@@ -278,6 +278,15 @@ func (h *ListingHandler) HandleCreate(c echo.Context) error {
 	user := u.(domain.User)
 	l.OwnerID = user.ID
 
+	// Check for duplicate title
+	existing, err := h.Repo.FindByTitle(c.Request().Context(), l.Title)
+	if err != nil {
+		return RespondError(c, err)
+	}
+	if len(existing) > 0 {
+		return RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Title already exists. Please choose a different title."))
+	}
+
 	// Default deadline for requests if not provided
 	if l.Type == domain.Request && l.Deadline.IsZero() {
 		l.Deadline = l.CreatedAt.Add(90 * 24 * time.Hour).Add(-time.Minute)
@@ -310,6 +319,17 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 
 	if err := h.bindAndMapListing(c, &listing); err != nil {
 		return RespondError(c, err)
+	}
+
+	// Check for duplicate title
+	existing, err := h.Repo.FindByTitle(ctx, listing.Title)
+	if err != nil {
+		return RespondError(c, err)
+	}
+	for _, ext := range existing {
+		if ext.ID != listing.ID {
+			return RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Title already exists. Please choose a different title."))
+		}
 	}
 
 	return h.processAndSave(c, &listing)

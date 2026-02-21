@@ -41,6 +41,7 @@ func TestHandleUpdate_JobSuccess(t *testing.T) {
 
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindByID", testifyMock.Anything, "job-1").Return(existingListing, nil)
+	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
 	mockRepo.On("Save", testifyMock.Anything, testifyMock.MatchedBy(func(l domain.Listing) bool {
 		if l.Title != "Senior Go Dev Updated" {
 			return false

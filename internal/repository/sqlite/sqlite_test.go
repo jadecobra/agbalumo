@@ -650,3 +650,43 @@ func TestRepository_Errors(t *testing.T) {
 	_, err = repo.GetFeedbackCounts(ctx)
 	checkError("GetFeedbackCounts", err)
 }
+
+func TestFindByTitle(t *testing.T) {
+	repo, _ := newTestRepo(t)
+	ctx := context.Background()
+
+	// Seed data
+	repo.Save(ctx, domain.Listing{ID: "1", Title: "Unique Title", Type: domain.Business, IsActive: true, CreatedAt: time.Now()})
+	repo.Save(ctx, domain.Listing{ID: "2", Title: "Duplicate Title", Type: domain.Service, IsActive: true, CreatedAt: time.Now()})
+	repo.Save(ctx, domain.Listing{ID: "3", Title: "Duplicate Title", Type: domain.Product, IsActive: true, CreatedAt: time.Now()})
+
+	// Test unique title
+	listings, err := repo.FindByTitle(ctx, "Unique Title")
+	if err != nil {
+		t.Fatalf("FindByTitle failed: %v", err)
+	}
+	if len(listings) != 1 {
+		t.Errorf("Expected 1 listing for 'Unique Title', got %d", len(listings))
+	}
+	if len(listings) > 0 && listings[0].ID != "1" {
+		t.Errorf("Expected listing ID '1', got '%s'", listings[0].ID)
+	}
+
+	// Test duplicate title (exact case insensitive match behavior is database dependent, let's stick to exact match for tests initially)
+	listings, err = repo.FindByTitle(ctx, "Duplicate Title")
+	if err != nil {
+		t.Fatalf("FindByTitle failed: %v", err)
+	}
+	if len(listings) != 2 {
+		t.Errorf("Expected 2 listings for 'Duplicate Title', got %d", len(listings))
+	}
+
+	// Test non-existent title
+	listings, err = repo.FindByTitle(ctx, "Non-existent")
+	if err != nil {
+		t.Fatalf("FindByTitle failed: %v", err)
+	}
+	if len(listings) != 0 {
+		t.Errorf("Expected 0 listings for 'Non-existent', got %d", len(listings))
+	}
+}

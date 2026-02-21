@@ -19,7 +19,7 @@ func NewCSVService() *CSVService {
 }
 
 // ParseAndImport reads a CSV stream and converts rows into Listings, saving them to the repo.
-func (s *CSVService) ParseAndImport(ctx context.Context, r io.Reader, repo domain.ListingSaver) (*domain.BulkUploadResult, error) {
+func (s *CSVService) ParseAndImport(ctx context.Context, r io.Reader, repo domain.ListingStore) (*domain.BulkUploadResult, error) {
 	reader := csv.NewReader(r)
 	reader.TrimLeadingSpace = true
 
@@ -68,6 +68,55 @@ func (s *CSVService) ParseAndImport(ctx context.Context, r io.Reader, repo domai
 			continue
 		}
 
+		// Check for duplicate
+		existingListings, err := repo.FindByTitle(ctx, listing.Title)
+		if err != nil {
+			result.FailureCount++
+			result.Errors = append(result.Errors, fmt.Sprintf("Line %d: Database error checking duplicates: %v", lineNum, err))
+			continue
+		}
+
+		isDuplicate := false
+		for _, ex := range existingListings {
+			matchCount := 0
+			if ex.Type == listing.Type {
+				matchCount++
+			}
+			if ex.Description == listing.Description && listing.Description != "" {
+				matchCount++
+			}
+			if ex.OwnerOrigin == listing.OwnerOrigin && listing.OwnerOrigin != "" {
+				matchCount++
+			}
+			if ex.ContactEmail == listing.ContactEmail && listing.ContactEmail != "" {
+				matchCount++
+			}
+			if ex.ContactPhone == listing.ContactPhone && listing.ContactPhone != "" {
+				matchCount++
+			}
+			if ex.ContactWhatsApp == listing.ContactWhatsApp && listing.ContactWhatsApp != "" {
+				matchCount++
+			}
+			if ex.Address == listing.Address && listing.Address != "" {
+				matchCount++
+			}
+			if ex.City == listing.City && listing.City != "" {
+				matchCount++
+			}
+
+			// If title matches AND more than 2 other fields match, consider it a duplicate
+			if matchCount > 2 {
+				isDuplicate = true
+				break
+			}
+		}
+
+		if isDuplicate {
+			result.FailureCount++
+			result.Errors = append(result.Errors, fmt.Sprintf("Line %d: Duplicate listing detected (title and >2 fields match)", lineNum))
+			continue
+		}
+
 		// Set System Defaults for Uploads
 		listing.OwnerID = "" // Unowned (Seeded)
 		listing.IsActive = true
@@ -86,21 +135,21 @@ func (s *CSVService) ParseAndImport(ctx context.Context, r io.Reader, repo domai
 	return result, nil
 }
 
-func parseCategory(typeStr string) (domain.Category, error) {
+func parseCategory(typeStr string) domain.Category {
 	cat := domain.Category(typeStr)
 	switch cat {
 	case domain.Business, domain.Service, domain.Product, domain.Event, domain.Job, domain.Request, domain.Food:
-		return cat, nil
+		return cat
 	}
 
 	titleCas := strings.Title(strings.ToLower(typeStr))
 	cat = domain.Category(titleCas)
 	switch cat {
 	case domain.Business, domain.Service, domain.Product, domain.Event, domain.Job, domain.Request, domain.Food:
-		return cat, nil
+		return cat
 	}
 
-	return domain.Business, nil
+	return domain.Business
 }
 
 func (s *CSVService) parseRow(record []string, headerMap map[string]int) (*domain.Listing, error) {
@@ -116,10 +165,7 @@ func (s *CSVService) parseRow(record []string, headerMap map[string]int) (*domai
 		return nil, fmt.Errorf("title is required")
 	}
 
-	cat, err := parseCategory(get("type"))
-	if err != nil {
-		return nil, err
-	}
+	cat := parseCategory(get("type"))
 
 	desc := get("description")
 	if desc == "" {

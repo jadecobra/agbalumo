@@ -23,6 +23,7 @@ func TestListingHandler_Upload_Malicious(t *testing.T) {
 	mockRepo := &mock.MockListingRepository{}
 	// Save is called due to RespondError returning nil (likely), so execution continues.
 	// We allow it here to prevent panic, but reliance is on rec.Code == 400.
+	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
 	mockRepo.On("Save", testifyMock.Anything, testifyMock.Anything).Return(nil)
 
 	h := handler.NewListingHandler(mockRepo, nil)
@@ -78,6 +79,7 @@ func TestListingHandler_Upload_Valid(t *testing.T) {
 
 	mockRepo := &mock.MockListingRepository{}
 	// Save SHOULD be called
+	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
 	mockRepo.On("Save", testifyMock.Anything, testifyMock.Anything).Return(nil)
 
 	h := handler.NewListingHandler(mockRepo, nil)
