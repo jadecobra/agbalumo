@@ -1,5 +1,5 @@
 {{ define "listing_card" }}
-<div
+<div id="listing-{{.Listing.ID}}"
     class="group relative flex flex-col gap-3 p-4 rounded-3xl bg-white dark:bg-surface-dark border border-stone-100 dark:border-stone-800 shadow-sm hover:shadow-md transition-all duration-300 {{ .GridClass }}">
     <!-- Full Card Click Overlay -->
     <div class="absolute inset-0 z-10 cursor-pointer" hx-get="/listings/{{ .Listing.ID }}" hx-target="body"

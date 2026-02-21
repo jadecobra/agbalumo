@@ -9,14 +9,14 @@
 
         <div class="flex justify-between items-center mb-6">
             <h3 class="text-xl font-bold text-text-main dark:text-white">Edit Listing</h3>
-            <button data-modal-action="close"
+            <button onclick="this.closest('dialog').close(); this.closest('dialog').remove();"
                 class="p-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 transition-colors">
                 <span class="material-symbols-outlined text-[20px]">close</span>
             </button>
         </div>
 
         <form hx-put="/listings/{{.Listing.ID}}" hx-swap="outerHTML" hx-target="#listing-{{.Listing.ID}}" method="POST"
-            enctype="multipart/form-data" class="flex flex-col gap-4" data-modal-action-submit-close>
+            enctype="multipart/form-data" class="flex flex-col gap-4" id="edit-form-{{.Listing.ID}}">
 
             <!-- Type -->
             <div class="flex flex-col gap-1.5">
@@ -106,7 +106,7 @@
             </div>
 
             <!-- Request Deadline (Hidden by default unless Request) -->
-            <div id="edit-request-section-{{.ID}}" class="flex flex-col gap-1.5 hidden">
+            <div id="edit-request-section-{{.Listing.ID}}" class="flex flex-col gap-1.5 hidden">
                 <label
                     class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Deadline</label>
                 <input name="deadline_date" type="date"
@@ -115,7 +115,7 @@
             </div>
 
             <!-- Job Details (Hidden by default unless Job) -->
-            <div id="edit-job-section-{{.ID}}" class="flex flex-col gap-4 hidden">
+            <div id="edit-job-section-{{.Listing.ID}}" class="flex flex-col gap-4 hidden">
                 <div class="grid grid-cols-2 gap-4">
                     <div class="flex flex-col gap-1.5">
                         <label
@@ -162,7 +162,7 @@
             </div>
 
             <!-- Event Dates (Hidden by default unless Event) -->
-            <div id="edit-event-dates-section-{{.ID}}" class="grid grid-cols-2 gap-4 hidden">
+            <div id="edit-event-dates-section-{{.Listing.ID}}" class="grid grid-cols-2 gap-4 hidden">
                 <div class="flex flex-col gap-1.5">
                     <label
                         class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Event
@@ -183,13 +183,13 @@
 
             <script>
                 (function () {
-                    const form = document.querySelector('#edit-listing-modal-{{.ID}} form');
+                    const form = document.querySelector('#edit-listing-modal-{{.Listing.ID}} form');
                     if (!form) return;
 
                     const typeSelect = form.querySelector('select[name="type"]');
-                    const eventSection = document.getElementById('edit-event-dates-section-{{.ID}}');
-                    const requestSection = document.getElementById('edit-request-section-{{.ID}}');
-                    const jobSection = document.getElementById('edit-job-section-{{.ID}}');
+                    const eventSection = document.getElementById('edit-event-dates-section-{{.Listing.ID}}');
+                    const requestSection = document.getElementById('edit-request-section-{{.Listing.ID}}');
+                    const jobSection = document.getElementById('edit-job-section-{{.Listing.ID}}');
 
                     function toggleFields() {
                         const val = typeSelect.value;
@@ -212,11 +212,6 @@
                         // Request Logic
                         else if (val === 'Request') {
                             requestSection.classList.remove('hidden');
-                            // Deadline is required for requests
-                            // requestSection.querySelectorAll('input').forEach(i => i.required = true); 
-                            // Actually, deadline logic in backend might be optional if created_at is used, but spec says deadline is required.
-                            // Let's make it required to be safe, or leave optional and let backend handle it?
-                            // Backend Validate() says: Deadline is required for 'Request'.
                         }
                         // Job Logic
                         else if (val === 'Job') {
@@ -241,7 +236,7 @@
                         }
 
                         // Hours of Operation Logic
-                        const hoursInput = document.querySelector('#edit-listing-modal-{{.ID}} input[name="hours_of_operation"]');
+                        const hoursInput = document.querySelector('#edit-listing-modal-{{.Listing.ID}} input[name="hours_of_operation"]');
                         if (hoursInput) {
                             const hoursContainer = hoursInput.closest('div');
                             // Allowed: Business, Service, Food
@@ -250,8 +245,8 @@
                                 hoursInput.disabled = false;
                             } else {
                                 if (hoursContainer) hoursContainer.classList.add('hidden');
-                                hoursInput.value = ''; // Clear value
-                                hoursInput.disabled = true; // Prevent submission
+                                hoursInput.value = '';
+                                hoursInput.disabled = true;
                             }
                         }
                     }

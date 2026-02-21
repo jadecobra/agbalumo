@@ -16,7 +16,7 @@
         </div>
 
         <form hx-post="/listings" hx-swap="afterbegin transition:true" hx-target="#listings-container" method="POST"
-            class="flex flex-col gap-4" data-modal-action-submit-close>
+            class="flex flex-col gap-4" autocomplete="off" data-modal-action-submit-close>
 
             <!-- Hidden Type -->
             <input type="hidden" name="type" value="Request">

@@ -252,6 +252,10 @@ function setupModalActions() {
             const modal = btn.closest('dialog') || document.getElementById(btn.dataset.modalId);
             if (modal) {
                 modal.close();
+                // Reset form fields in static create dialogs so next open is blank
+                const form = modal.querySelector('form');
+                if (form) form.reset();
+                // Remove dynamic modals (detail/edit) from DOM
                 if (modal.id.startsWith('detail-modal-') || modal.id.startsWith('edit-modal-')) {
                     modal.remove();
                 }
@@ -264,7 +268,11 @@ function setupModalActions() {
         if (form.hasAttribute('data-modal-action-submit-close')) {
             const modal = form.closest('dialog');
             if (modal) {
-                modal.close();
+                // Wait for HTMX to finish, then reset + close
+                modal.addEventListener('htmx:afterRequest', () => {
+                    modal.close();
+                    form.reset();
+                }, { once: true });
             }
         }
     });
@@ -286,6 +294,19 @@ function setupHtmxIntegration() {
             dialogs.forEach(d => {
                 if (!d.open) d.showModal();
             });
+        }
+    });
+
+    // Auto-close edit modal after successful save
+    document.body.addEventListener('htmx:afterRequest', (evt) => {
+        const form = evt.detail.elt;
+        if (!form || !form.id || !form.id.startsWith('edit-form-')) return;
+        if (!evt.detail.successful) return;
+
+        const dialog = form.closest('dialog');
+        if (dialog) {
+            dialog.close();
+            dialog.remove();
         }
     });
 }
