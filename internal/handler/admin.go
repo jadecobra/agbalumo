@@ -125,6 +125,11 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 		return RespondError(c, err)
 	}
 
+	feedbacks, err := h.Repo.GetAllFeedback(ctx)
+	if err != nil {
+		return RespondError(c, err)
+	}
+
 	// Get Flash Messages
 	sess := customMiddleware.GetSession(c)
 	var flashMsg interface{}
@@ -143,6 +148,7 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 		"FeedbackCounts":  feedbackCounts,
 		"ListingGrowth":   listingGrowth,
 		"UserGrowth":      userGrowth,
+		"Feedbacks":       feedbacks,
 		"User":            c.Get("User"),
 		"FlashMessage":    flashMsg,
 	})

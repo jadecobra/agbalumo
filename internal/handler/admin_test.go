@@ -35,6 +35,9 @@ func TestAdminHandler_HandleDashboard(t *testing.T) {
 	mockRepo.On("GetPendingListings", testifyMock.Anything, 50, 0).Return([]domain.Listing{{ID: "1", Title: "Pending Listing"}}, nil)
 	mockRepo.On("GetUserCount", testifyMock.Anything).Return(10, nil)
 	mockRepo.On("GetFeedbackCounts", testifyMock.Anything).Return(map[domain.FeedbackType]int{domain.FeedbackTypeIssue: 2}, nil)
+	mockRepo.On("GetAllFeedback", testifyMock.Anything).Return([]domain.Feedback{
+		{ID: "f1", UserID: "u1", Type: domain.FeedbackTypeIssue, Content: "Test Feedback"},
+	}, nil)
 	mockRepo.On("GetListingGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)
 	mockRepo.On("GetUserGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)
 
@@ -513,6 +516,8 @@ func TestAdminHandler_HandleDashboard_PendingListingsError(t *testing.T) {
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
 	mockRepo.On("GetPendingListings", testifyMock.Anything, 50, 0).Return([]domain.Listing{}, assert.AnError)
+	// We might or might not call GetAllFeedback depending on where GetPendingListings fails, but we don't strict-mock it to fail, just return dummy.
+	mockRepo.On("GetAllFeedback", testifyMock.Anything).Return([]domain.Feedback{}, nil).Maybe()
 
 	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
 
@@ -535,6 +540,7 @@ func TestAdminHandler_HandleDashboard_UserCountError(t *testing.T) {
 	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
 	mockRepo.On("GetPendingListings", testifyMock.Anything, 50, 0).Return([]domain.Listing{}, nil)
 	mockRepo.On("GetUserCount", testifyMock.Anything).Return(0, assert.AnError)
+	mockRepo.On("GetAllFeedback", testifyMock.Anything).Return([]domain.Feedback{}, nil).Maybe()
 
 	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
 
@@ -558,6 +564,7 @@ func TestAdminHandler_HandleDashboard_FeedbackCountsError(t *testing.T) {
 	mockRepo.On("GetPendingListings", testifyMock.Anything, 50, 0).Return([]domain.Listing{}, nil)
 	mockRepo.On("GetUserCount", testifyMock.Anything).Return(5, nil)
 	mockRepo.On("GetFeedbackCounts", testifyMock.Anything).Return(map[domain.FeedbackType]int{}, assert.AnError)
+	mockRepo.On("GetAllFeedback", testifyMock.Anything).Return([]domain.Feedback{}, nil).Maybe()
 
 	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
 
@@ -581,6 +588,7 @@ func TestAdminHandler_HandleDashboard_ListingGrowthError(t *testing.T) {
 	mockRepo.On("GetPendingListings", testifyMock.Anything, 50, 0).Return([]domain.Listing{}, nil)
 	mockRepo.On("GetUserCount", testifyMock.Anything).Return(5, nil)
 	mockRepo.On("GetFeedbackCounts", testifyMock.Anything).Return(map[domain.FeedbackType]int{}, nil)
+	mockRepo.On("GetAllFeedback", testifyMock.Anything).Return([]domain.Feedback{}, nil).Maybe()
 	mockRepo.On("GetListingGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, assert.AnError)
 
 	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
@@ -605,8 +613,35 @@ func TestAdminHandler_HandleDashboard_UserGrowthError(t *testing.T) {
 	mockRepo.On("GetPendingListings", testifyMock.Anything, 50, 0).Return([]domain.Listing{}, nil)
 	mockRepo.On("GetUserCount", testifyMock.Anything).Return(5, nil)
 	mockRepo.On("GetFeedbackCounts", testifyMock.Anything).Return(map[domain.FeedbackType]int{}, nil)
+	mockRepo.On("GetAllFeedback", testifyMock.Anything).Return([]domain.Feedback{}, nil).Maybe()
 	mockRepo.On("GetListingGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)
 	mockRepo.On("GetUserGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, assert.AnError)
+
+	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
+
+	err := h.HandleDashboard(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+}
+
+func TestAdminHandler_HandleDashboard_GetAllFeedbackError(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	e.Renderer = &mock.MockRenderer{}
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
+	mockRepo.On("GetPendingListings", testifyMock.Anything, 50, 0).Return([]domain.Listing{}, nil)
+	mockRepo.On("GetUserCount", testifyMock.Anything).Return(5, nil)
+	mockRepo.On("GetFeedbackCounts", testifyMock.Anything).Return(map[domain.FeedbackType]int{}, nil)
+	mockRepo.On("GetListingGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)
+	mockRepo.On("GetUserGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)
+	mockRepo.On("GetAllFeedback", testifyMock.Anything).Return([]domain.Feedback{}, assert.AnError)
 
 	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
 

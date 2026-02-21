@@ -81,6 +81,68 @@
         </div>
     </div>
 
+    <!-- User Feedback -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+            <h2 class="text-xl font-semibold text-gray-800">User Feedback ({{ len .Feedbacks }})</h2>
+        </div>
+
+        {{ if .Feedbacks }}
+        <div class="max-h-96 overflow-y-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50 sticky top-0 z-10">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User
+                            ID
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Content
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {{ range .Feedbacks }}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ .CreatedAt.Format "Jan 02, 2006 15:04" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            {{ if eq .Type "Issue" }}
+                            <span
+                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Issue</span>
+                            {{ else if eq .Type "Feature" }}
+                            <span
+                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Feature</span>
+                            {{ else }}
+                            <span
+                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">{{
+                                .Type }}</span>
+                            {{ end }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ if .UserID }}{{ .UserID }}{{ else }}<span class="text-gray-400 italic">Anonymous</span>{{
+                            end
+                            }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900 break-words">
+                            {{ .Content | html }}
+                        </td>
+                    </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </div>
+        {{ else }}
+        <div class="p-6 text-center text-gray-500">
+            No feedback found.
+        </div>
+        {{ end }}
+    </div>
+
     <!-- Moderation Queue -->
     <div class="bg-white rounded-lg shadow-md overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
