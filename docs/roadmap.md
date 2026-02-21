@@ -24,7 +24,7 @@ Audited Feb 19, 2026. Cross-referenced against `TODO`, `spec.md`, `task.md`, and
 ### 1. Foundation & Stability
 - [x] **Fix UI/Brand**: Move from Tailwind CDN to a build step (Tailwind CLI) for production stability and offline dev.
 - [x] **Refactor Image Upload**: Extracted image handling to dedicated `ImageService` for modularity and testability.
-- [x] **Test Coverage**: Boosted to 84.9% threshold. Weak spots remain in `auth.go`.
+- [x] **Test Coverage**: Boosted to 88.0% threshold. Weak spots remain in `auth.go`.
 - [x] **Scrub History**: Removed tracked test artifacts from git history.
 - [x] **Prevent Future Leaks**: Added Secret Scanner to pre-commit hook.
 - [x] **Code Review Standards**: Created `CONTRIBUTING.md` and PR templates.

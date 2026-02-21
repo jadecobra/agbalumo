@@ -42,10 +42,10 @@ jobs:
           go test -race -coverprofile=coverage.out ./...
           go tool cover -func=coverage.out
 
-      - name: Enforce Coverage Threshold (87.0%)
+      - name: Enforce Coverage Threshold (88.0%)
         run: |
           COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print substr($3, 1, length($3)-1)}')
-          THRESHOLD=87.0
+          THRESHOLD=88.0
           echo "Coverage: $COVERAGE%"
           if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
             echo "❌ Coverage is below $THRESHOLD%"

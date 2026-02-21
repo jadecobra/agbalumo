@@ -1,4 +1,7 @@
+- [ ] can user upload images for listings?
 - [ ] can the admin make changes to the look of the website from the admin dashboard - colors, fonts, etc?
+- [ ] can admin change admin password?
+- [ ] 
 - [ ] can a user sign in with apple? (move this to a future state)
 - [ ] can a user sign in with facebook? (move this to a future state)
 - [ ] can a user choose how they sign in google, apple, facebook, other email (sign up)?
