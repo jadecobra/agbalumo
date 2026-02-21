@@ -160,6 +160,36 @@ func (h *AdminHandler) HandleUsers(c echo.Context) error {
 	})
 }
 
+// HandleAllListings renders the list of all listings for admins, with category filtering.
+func (h *AdminHandler) HandleAllListings(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	page, _ := strconv.Atoi(c.QueryParam("page"))
+	if page < 1 {
+		page = 1
+	}
+	limit := 50
+	offset := (page - 1) * limit
+
+	category := c.QueryParam("category")
+
+	// Fetch all listings with the given category filter, including inactive ones.
+	listings, err := h.Repo.FindAll(ctx, category, "", true, limit, offset)
+	if err != nil {
+		return RespondError(c, err)
+	}
+
+	hasNextPage := len(listings) == limit
+
+	return c.Render(http.StatusOK, "admin_listings.html", map[string]interface{}{
+		"Listings":    listings,
+		"Page":        page,
+		"HasNextPage": hasNextPage,
+		"Category":    category,
+		"User":        c.Get("User"),
+	})
+}
+
 // HandleApprove approves a listing (clears Pending status).
 func (h *AdminHandler) HandleApprove(c echo.Context) error {
 	id := c.Param("id")

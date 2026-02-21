@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	"io"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -474,4 +475,49 @@ func TestAdminHandler_HandleLoginAction_NoUser(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
 	assert.Equal(t, "/auth/google/login", rec.Header().Get("Location"))
+}
+
+type AdminMockRenderer struct{}
+
+func (m *AdminMockRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	return nil
+}
+
+func TestAdminHandler_HandleAllListings(t *testing.T) {
+	e := echo.New()
+	e.Renderer = &AdminMockRenderer{}
+
+	t.Run("Success", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/admin/listings?page=1&category=Business", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+
+		mockRepo := &mock.MockListingRepository{}
+		mockRepo.On("FindAll", testifyMock.Anything, "Business", "", true, 50, 0).Return([]domain.Listing{{ID: "1"}}, nil)
+
+		h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
+		c.Set("User", domain.User{ID: "admin-1"})
+
+		err := h.HandleAllListings(c)
+		assert.NoError(t, err)
+		assert.Equal(t, http.StatusOK, rec.Code)
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("DBError", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/admin/listings", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+
+		mockRepo := &mock.MockListingRepository{}
+		mockRepo.On("FindAll", testifyMock.Anything, "", "", true, 50, 0).Return([]domain.Listing{}, assert.AnError)
+
+		h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
+		c.Set("User", domain.User{ID: "admin-1"})
+
+		err := h.HandleAllListings(c)
+		assert.NoError(t, err) // RespondError handles it and returns nil
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+		mockRepo.AssertExpectations(t)
+	})
 }

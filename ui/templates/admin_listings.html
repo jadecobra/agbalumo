@@ -1,0 +1,138 @@
+{{ template "base.html" . }}
+
+{{ define "content" }}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <h1 class="text-3xl font-bold text-gray-900">All Listings</h1>
+        <a href="/admin" class="text-primary hover:underline font-medium flex items-center gap-1">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span> Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Category Filters -->
+    <div class="bg-white rounded-lg shadow-sm p-4 mb-6 border border-gray-100 flex flex-wrap gap-2 items-center">
+        <span class="text-gray-500 font-medium mr-2 text-sm uppercase tracking-wider">Filter:</span>
+        <a href="/admin/listings"
+            class="px-4 py-2 rounded-full text-sm font-medium transition-colors border {{ if not .Category }}bg-primary text-white border-primary{{ else }}bg-white text-gray-700 border-gray-300 hover:border-primary hover:text-primary{{ end }}">All</a>
+        <a href="/admin/listings?category=Business"
+            class="px-4 py-2 rounded-full text-sm font-medium transition-colors border {{ if eq .Category " Business"
+            }}bg-primary text-white border-primary{{ else }}bg-white text-gray-700 border-gray-300 hover:border-primary
+            hover:text-primary{{ end }}">Business</a>
+        <a href="/admin/listings?category=Service"
+            class="px-4 py-2 rounded-full text-sm font-medium transition-colors border {{ if eq .Category " Service"
+            }}bg-primary text-white border-primary{{ else }}bg-white text-gray-700 border-gray-300 hover:border-primary
+            hover:text-primary{{ end }}">Service</a>
+        <a href="/admin/listings?category=Product"
+            class="px-4 py-2 rounded-full text-sm font-medium transition-colors border {{ if eq .Category " Product"
+            }}bg-primary text-white border-primary{{ else }}bg-white text-gray-700 border-gray-300 hover:border-primary
+            hover:text-primary{{ end }}">Product</a>
+        <a href="/admin/listings?category=Event"
+            class="px-4 py-2 rounded-full text-sm font-medium transition-colors border {{ if eq .Category " Event"
+            }}bg-primary text-white border-primary{{ else }}bg-white text-gray-700 border-gray-300 hover:border-primary
+            hover:text-primary{{ end }}">Event</a>
+        <a href="/admin/listings?category=Job"
+            class="px-4 py-2 rounded-full text-sm font-medium transition-colors border {{ if eq .Category " Job"
+            }}bg-primary text-white border-primary{{ else }}bg-white text-gray-700 border-gray-300 hover:border-primary
+            hover:text-primary{{ end }}">Job</a>
+        <a href="/admin/listings?category=Request"
+            class="px-4 py-2 rounded-full text-sm font-medium transition-colors border {{ if eq .Category " Request"
+            }}bg-primary text-white border-primary{{ else }}bg-white text-gray-700 border-gray-300 hover:border-primary
+            hover:text-primary{{ end }}">Request</a>
+    </div>
+
+    <!-- Listings Table -->
+    <div class="bg-white rounded-lg shadow-md overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner
+                    </th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {{ if .Listings }}
+                {{ range .Listings }}
+                <tr class="{{ if not .IsActive }}bg-gray-50{{ end }}">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ .CreatedAt.Format "Jan 02, 2006" }}
+                    </td>
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                        <a href="/listings/{{ .ID }}" target="_blank" class="text-primary hover:underline">{{ .Title
+                            }}</a>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 uppercase">
+                        {{ .Type }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        {{ if eq .Status "Approved" }}
+                        <span
+                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Approved</span>
+                        {{ else if eq .Status "Rejected" }}
+                        <span
+                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Rejected</span>
+                        {{ else }}
+                        <span
+                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                        {{ end }}
+
+                        {{ if not .IsActive }}
+                        <span
+                            class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Inactive</span>
+                        {{ end }}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500 truncate max-w-[150px]">
+                        {{ if .OwnerID }}{{ .OwnerID }}{{ else }}<span class="italic text-gray-400">Unowned</span>{{ end
+                        }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                        <a href="/listings/{{ .ID }}/edit" class="text-blue-600 hover:text-blue-900"
+                            title="Edit Listing">
+                            <span class="material-symbols-outlined text-[20px] align-middle">edit</span>
+                        </a>
+                    </td>
+                </tr>
+                {{ end }}
+                {{ else }}
+                <tr>
+                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                        No listings found for this filter.
+                    </td>
+                </tr>
+                {{ end }}
+            </tbody>
+        </table>
+
+        <!-- Pagination Controls -->
+        <div class="flex justify-between items-center px-6 py-4 border-t border-gray-200 bg-gray-50">
+            {{ if gt .Page 1 }}
+            <a href="/admin/listings?page={{ sub .Page 1 }}{{ if .Category }}&category={{ .Category }}{{ end }}"
+                class="text-sm font-medium text-primary hover:underline flex items-center gap-1">
+                <span class="material-symbols-outlined text-[16px]">chevron_left</span> Previous
+            </a>
+            {{ else }}
+            <div></div> <!-- Spacer -->
+            {{ end }}
+
+            <div class="text-sm text-gray-500 font-medium">Page {{ .Page }}</div>
+
+            {{ if .HasNextPage }}
+            <a href="/admin/listings?page={{ add .Page 1 }}{{ if .Category }}&category={{ .Category }}{{ end }}"
+                class="text-sm font-medium text-primary hover:underline flex items-center gap-1">
+                Next <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+            </a>
+            {{ else }}
+            <div></div> <!-- Spacer -->
+            {{ end }}
+        </div>
+    </div>
+</div>
+{{ end }}
+{{ define "filters" }}{{ end }}

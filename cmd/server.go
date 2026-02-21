@@ -159,6 +159,7 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 	adminGroup.Use(adminHandler.AdminMiddleware)
 	adminGroup.GET("", adminHandler.HandleDashboard)
 	adminGroup.GET("/users", adminHandler.HandleUsers)
+	adminGroup.GET("/listings", adminHandler.HandleAllListings)
 	adminGroup.POST("/listings/:id/approve", adminHandler.HandleApprove)
 	adminGroup.POST("/listings/:id/reject", adminHandler.HandleReject)
 	adminGroup.POST("/upload", adminHandler.HandleBulkUpload)
