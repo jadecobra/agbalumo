@@ -265,6 +265,8 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 		field := "created_at"
 		if sortField == "title" {
 			field = "title"
+		} else if sortField == "status" {
+			field = "status"
 		}
 
 		order := "DESC"

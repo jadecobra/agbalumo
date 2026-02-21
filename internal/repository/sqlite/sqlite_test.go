@@ -96,9 +96,9 @@ func TestFindAll_Filtering(t *testing.T) {
 	ctx := context.Background()
 
 	// Seed Data
-	repo.Save(ctx, domain.Listing{ID: "1", Title: "Jollof Rice", Type: "Business", IsActive: true, CreatedAt: time.Now()})
-	repo.Save(ctx, domain.Listing{ID: "2", Title: "Hair Braiding", Type: "Service", IsActive: true, CreatedAt: time.Now()})
-	repo.Save(ctx, domain.Listing{ID: "3", Title: "Deleted Item", Type: "Product", IsActive: false, CreatedAt: time.Now()})
+	repo.Save(ctx, domain.Listing{ID: "1", Title: "Jollof Rice", Type: "Business", Status: domain.ListingStatusApproved, IsActive: true, CreatedAt: time.Now()})
+	repo.Save(ctx, domain.Listing{ID: "2", Title: "Hair Braiding", Type: "Service", Status: domain.ListingStatusPending, IsActive: true, CreatedAt: time.Now()})
+	repo.Save(ctx, domain.Listing{ID: "3", Title: "Deleted Item", Type: "Product", Status: domain.ListingStatusRejected, IsActive: false, CreatedAt: time.Now()})
 
 	// 1. Find All Active (Default for Public)
 	// Query: empty, Type: empty, IncludeInactive: false
@@ -161,6 +161,26 @@ func TestFindAll_Filtering(t *testing.T) {
 	}
 	if len(sortDateAsc) != 2 {
 		t.Errorf("Expected 2 active listings for date asc sort, got %d", len(sortDateAsc))
+	}
+
+	// 8. Sort by Status ASC (with inactive to get all 3)
+	sortStatusAsc, err := repo.FindAll(ctx, "", "", "status", "ASC", true, 20, 0)
+	if err != nil {
+		t.Fatalf("FindAll Sort Status ASC failed: %v", err)
+	}
+	// Approved, Pending, Rejected
+	if len(sortStatusAsc) != 3 || sortStatusAsc[0].Status != domain.ListingStatusApproved || sortStatusAsc[1].Status != domain.ListingStatusPending || sortStatusAsc[2].Status != domain.ListingStatusRejected {
+		t.Errorf("Expected Approved, Pending, Rejected for Status ASC sort, got %v", sortStatusAsc)
+	}
+
+	// 9. Sort by Status DESC (with inactive to get all 3)
+	sortStatusDesc, err := repo.FindAll(ctx, "", "", "status", "DESC", true, 20, 0)
+	if err != nil {
+		t.Fatalf("FindAll Sort Status DESC failed: %v", err)
+	}
+	// Rejected, Pending, Approved
+	if len(sortStatusDesc) != 3 || sortStatusDesc[0].Status != domain.ListingStatusRejected || sortStatusDesc[1].Status != domain.ListingStatusPending || sortStatusDesc[2].Status != domain.ListingStatusApproved {
+		t.Errorf("Expected Rejected, Pending, Approved for Status DESC sort, got %v", sortStatusDesc)
 	}
 }
 

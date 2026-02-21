@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/jadecobra/agbalumo/internal/config"
 
@@ -173,7 +174,7 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 
 	category := c.QueryParam("category")
 	sortField := c.QueryParam("sort")
-	sortOrder := c.QueryParam("order")
+	sortOrder := strings.ToUpper(c.QueryParam("order"))
 
 	// Fetch all listings with the given category filter, including inactive ones.
 	listings, err := h.Repo.FindAll(ctx, category, "", sortField, sortOrder, true, limit, offset)

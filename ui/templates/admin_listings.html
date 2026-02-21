@@ -96,7 +96,17 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Status</th>
+                            <!-- prettier-ignore -->
+                            <a href="/admin/listings?page={{.Page}}{{if .Category}}&category={{.Category}}{{end}}&sort=status{{if eq .SortOrder `ASC`}}&order=desc{{else}}&order=asc{{end}}"
+                                class="group inline-flex items-center text-gray-500 hover:text-gray-900">
+                                Status
+                                <span
+                                    class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `status`}}text-gray-900{{else}}text-gray-400 opacity-0 group-hover:opacity-100{{end}}">
+                                    {{if and (eq .SortField `status`) (eq .SortOrder
+                                    `ASC`)}}arrow_upward{{else}}arrow_downward{{end}}
+                                </span>
+                            </a>
+                        </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner
                         </th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
