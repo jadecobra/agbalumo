@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function initApp() {
     setupModalClosing();
     setupFilterButtons();
+    setupMobileBottomNav();
     // Re-initialize logic when HTMX swaps content if necessary
     document.body.addEventListener('htmx:afterSwap', (evt) => {
         // specific re-init if needed
@@ -14,6 +15,38 @@ function initApp() {
 
     // Listing Modal Logic (Event Delegation because modal might not exist yet)
     setupListingModalDelegation();
+}
+
+// 0. Mobile Bottom Nav Scroll-Aware Show/Hide
+function setupMobileBottomNav() {
+    const nav = document.getElementById('mobile-bottom-nav');
+    if (!nav) return;
+
+    // Use the main scrollable element, not window
+    const scrollContainer = document.querySelector('main');
+    if (!scrollContainer) return;
+
+    let lastScrollY = 0;
+    let scrollTimeout;
+
+    scrollContainer.addEventListener('scroll', () => {
+        const currentScrollY = scrollContainer.scrollTop;
+        const isScrollingDown = currentScrollY > lastScrollY && currentScrollY > 60;
+
+        if (isScrollingDown) {
+            nav.classList.add('nav-hidden');
+        } else {
+            nav.classList.remove('nav-hidden');
+        }
+
+        lastScrollY = currentScrollY;
+
+        // Always show after user stops scrolling
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            nav.classList.remove('nav-hidden');
+        }, 1500);
+    }, { passive: true });
 }
 
 // 1. Modal Closing Logic

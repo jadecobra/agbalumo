@@ -1,8 +1,8 @@
 {{ define "modal_profile" }}
 <dialog id="profile-modal"
-    class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-2xl m-auto rounded-3xl shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in">
+    class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-none md:max-w-2xl m-0 md:m-auto rounded-none md:rounded-3xl shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed md:relative inset-0 md:inset-auto h-full md:h-auto">
     <div
-        class="bg-background-light dark:bg-background-dark p-0 rounded-3xl border border-orange-100 dark:border-stone-800 shadow-soft relative overflow-hidden flex flex-col max-h-[90vh]">
+        class="bg-background-light dark:bg-background-dark p-0 rounded-none md:rounded-3xl border-0 md:border border-orange-100 dark:border-stone-800 shadow-soft relative overflow-y-auto flex flex-col h-full md:h-auto md:max-h-[90vh]">
 
         <!-- Header -->
         <div
