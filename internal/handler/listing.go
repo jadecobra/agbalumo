@@ -38,7 +38,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	limit := 20
 	offset := (page - 1) * limit
 
-	listings, err := h.Repo.FindAll(ctx, "", "", false, limit, offset)
+	listings, err := h.Repo.FindAll(ctx, "", "", "", "", false, limit, offset)
 	if err != nil {
 		return RespondError(c, err)
 	}
@@ -90,7 +90,7 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	limit := 20
 	offset := (page - 1) * limit
 
-	listings, err := h.Repo.FindAll(c.Request().Context(), filterType, queryText, false, limit, offset)
+	listings, err := h.Repo.FindAll(c.Request().Context(), filterType, queryText, "", "", false, limit, offset)
 	if err != nil {
 		return RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, err.Error()))
 	}

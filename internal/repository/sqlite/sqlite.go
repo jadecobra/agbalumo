@@ -241,7 +241,7 @@ func (r *SQLiteRepository) Save(ctx context.Context, l domain.Listing) error {
 	return err
 }
 
-func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, queryText string, includeInactive bool, limit int, offset int) ([]domain.Listing, error) {
+func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, queryText string, sortField string, sortOrder string, includeInactive bool, limit int, offset int) ([]domain.Listing, error) {
 	query := `SELECT ` + listingSelections + ` FROM listings WHERE 1=1`
 	var args []interface{}
 
@@ -260,7 +260,21 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 		args = append(args, likeQuery, likeQuery, likeQuery)
 	}
 
-	query += ` ORDER BY created_at DESC LIMIT ? OFFSET ?`
+	orderClause := "created_at DESC"
+	if sortField != "" {
+		field := "created_at"
+		if sortField == "title" {
+			field = "title"
+		}
+
+		order := "DESC"
+		if sortOrder == "ASC" || sortOrder == "asc" {
+			order = "ASC"
+		}
+		orderClause = field + " " + order
+	}
+
+	query += ` ORDER BY ` + orderClause + ` LIMIT ? OFFSET ?`
 	args = append(args, limit, offset)
 
 	rows, err := r.db.QueryContext(ctx, query, args...)

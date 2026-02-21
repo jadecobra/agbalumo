@@ -172,9 +172,11 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 	offset := (page - 1) * limit
 
 	category := c.QueryParam("category")
+	sortField := c.QueryParam("sort")
+	sortOrder := c.QueryParam("order")
 
 	// Fetch all listings with the given category filter, including inactive ones.
-	listings, err := h.Repo.FindAll(ctx, category, "", true, limit, offset)
+	listings, err := h.Repo.FindAll(ctx, category, "", sortField, sortOrder, true, limit, offset)
 	if err != nil {
 		return RespondError(c, err)
 	}
@@ -186,6 +188,8 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 		"Page":        page,
 		"HasNextPage": hasNextPage,
 		"Category":    category,
+		"SortField":   sortField,
+		"SortOrder":   sortOrder,
 		"User":        c.Get("User"),
 	})
 }

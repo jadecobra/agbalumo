@@ -7,7 +7,7 @@ import "context"
 // ListingStore handles core listing CRUD and query operations.
 type ListingStore interface {
 	Save(ctx context.Context, listing Listing) error
-	FindAll(ctx context.Context, filterType string, queryText string, includeInactive bool, limit int, offset int) ([]Listing, error)
+	FindAll(ctx context.Context, filterType string, queryText string, sortField string, sortOrder string, includeInactive bool, limit int, offset int) ([]Listing, error)
 	FindByID(ctx context.Context, id string) (Listing, error)
 	FindByTitle(ctx context.Context, title string) ([]Listing, error)
 	FindAllByOwner(ctx context.Context, ownerID string) ([]Listing, error)

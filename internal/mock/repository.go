@@ -18,7 +18,7 @@ func (m *MockListingRepository) Save(ctx context.Context, l domain.Listing) erro
 	return args.Error(0)
 }
 
-func (m *MockListingRepository) FindAll(ctx context.Context, filterType, queryText string, includeInactive bool, limit int, offset int) ([]domain.Listing, error) {
+func (m *MockListingRepository) FindAll(ctx context.Context, filterType, queryText string, sortField, sortOrder string, includeInactive bool, limit int, offset int) ([]domain.Listing, error) {
 	args := m.Called(ctx, filterType, queryText, includeInactive, limit, offset)
 	return args.Get(0).([]domain.Listing), args.Error(1)
 }

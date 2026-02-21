@@ -42,7 +42,7 @@ func TestNewSQLiteRepositoryFromDB(t *testing.T) {
 	// Verify we can use it
 	ctx := context.Background()
 	// Should fail because no tables
-	_, err = repo.FindAll(ctx, "All", "", false, 20, 0) // Fixed signature call
+	_, err = repo.FindAll(ctx, "All", "", "", "", false, 20, 0) // Fixed signature call
 	if err == nil {
 		t.Error("Expected error due to missing tables, got nil")
 	}
@@ -102,7 +102,7 @@ func TestFindAll_Filtering(t *testing.T) {
 
 	// 1. Find All Active (Default for Public)
 	// Query: empty, Type: empty, IncludeInactive: false
-	allActive, err := repo.FindAll(ctx, "", "", false, 20, 0)
+	allActive, err := repo.FindAll(ctx, "", "", "", "", false, 20, 0)
 	if err != nil {
 		t.Fatalf("FindAll failed: %v", err)
 	}
@@ -111,7 +111,7 @@ func TestFindAll_Filtering(t *testing.T) {
 	}
 
 	// 2. Find With Inactive (Admin View)
-	allAdmin, err := repo.FindAll(ctx, "", "", true, 20, 0)
+	allAdmin, err := repo.FindAll(ctx, "", "", "", "", true, 20, 0)
 	if err != nil {
 		t.Fatalf("FindAll Admin failed: %v", err)
 	}
@@ -120,7 +120,7 @@ func TestFindAll_Filtering(t *testing.T) {
 	}
 
 	// 3. Filter by Type
-	services, err := repo.FindAll(ctx, "Service", "", false, 20, 0)
+	services, err := repo.FindAll(ctx, "Service", "", "", "", false, 20, 0)
 	if err != nil {
 		t.Fatalf("FindAll Type failed: %v", err)
 	}
@@ -129,12 +129,38 @@ func TestFindAll_Filtering(t *testing.T) {
 	}
 
 	// 4. Search Query (LIKE)
-	searchRes, err := repo.FindAll(ctx, "", "Rice", false, 20, 0)
+	searchRes, err := repo.FindAll(ctx, "", "Rice", "", "", false, 20, 0)
 	if err != nil {
 		t.Fatalf("FindAll Search failed: %v", err)
 	}
 	if len(searchRes) != 1 || searchRes[0].Title != "Jollof Rice" {
 		t.Errorf("Expected 1 result 'Jollof Rice', got %v", searchRes)
+	}
+	// 5. Sort by Title ASC
+	sortAsc, err := repo.FindAll(ctx, "", "", "title", "ASC", false, 20, 0)
+	if err != nil {
+		t.Fatalf("FindAll Sort Title ASC failed: %v", err)
+	}
+	if len(sortAsc) != 2 || sortAsc[0].Title != "Hair Braiding" || sortAsc[1].Title != "Jollof Rice" {
+		t.Errorf("Expected 'Hair Braiding' then 'Jollof Rice', got %v", sortAsc)
+	}
+
+	// 6. Sort by Title DESC
+	sortDesc, err := repo.FindAll(ctx, "", "", "title", "DESC", false, 20, 0)
+	if err != nil {
+		t.Fatalf("FindAll Sort Title DESC failed: %v", err)
+	}
+	if len(sortDesc) != 2 || sortDesc[0].Title != "Jollof Rice" || sortDesc[1].Title != "Hair Braiding" {
+		t.Errorf("Expected 'Jollof Rice' then 'Hair Braiding', got %v", sortDesc)
+	}
+
+	// 7. Sort by Date ASC
+	sortDateAsc, err := repo.FindAll(ctx, "", "", "date", "asc", false, 20, 0)
+	if err != nil {
+		t.Fatalf("FindAll Sort Date ASC failed: %v", err)
+	}
+	if len(sortDateAsc) != 2 {
+		t.Errorf("Expected 2 active listings for date asc sort, got %d", len(sortDateAsc))
 	}
 }
 
@@ -513,7 +539,7 @@ func TestGetListingGrowth(t *testing.T) {
 
 	if len(metrics) == 0 {
 		// Debug: what is in DB?
-		all, _ := repo.FindAll(ctx, "", "", true, 20, 0)
+		all, _ := repo.FindAll(ctx, "", "", "", "", true, 20, 0)
 		for _, l := range all {
 			t.Logf("ID: %s, CreatedAt: %v", l.ID, l.CreatedAt)
 		}
@@ -612,7 +638,7 @@ func TestRepository_Errors(t *testing.T) {
 	}
 
 	checkError("Save", repo.Save(ctx, domain.Listing{ID: "1"}))
-	_, err = repo.FindAll(ctx, "", "", false, 20, 0)
+	_, err = repo.FindAll(ctx, "", "", "", "", false, 20, 0)
 	checkError("FindAll", err)
 	_, err = repo.FindByID(ctx, "1")
 	checkError("FindByID", err)
