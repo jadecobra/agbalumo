@@ -29,3 +29,4 @@
 - [x] **[SDET]** Verify Claim Flow & Security <!-- id: 45 -->
 | **64** | `[x]` | **ARCH** | **Code Review Standards**<br>Create `CONTRIBUTING.md` and PR templates. | Standards defined? |
 | **65** | `[x]` | **FE/BE** | **Enhanced Admin UI**<br>Add charts and better moderation tools. | Charts visible? |
+| **66** | `[x]` | **FE** | **UI Brand Alignment**<br>Refactor all admin/error/about templates for brand consistency. | `stone-*` tokens & `rounded-3xl`? |

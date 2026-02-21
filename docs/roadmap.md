@@ -11,7 +11,7 @@ Audited Feb 19, 2026. Cross-referenced against `TODO`, `spec.md`, `task.md`, and
 | **Bulk Upload** | ✅ Done | Admin feature to upload CSVs implemented and verified. |
 | **Admin Dashboard** | ✅ Done | Lists users, pending items/counts, and growth charts. |
 | **Claim Ownership** | ✅ Done | MVP implemented. Users can claim unowned listings. |
-| **UI/Brand** | ✅ Stable | Using Tailwind CLI. Design system defined. |
+| **UI/Brand** | ✅ Done | Refactored all templates to match `BRAND_GUIDELINES.md`. |
 | **Auth** | ⚠️ Partial | Google Auth works. Apple/Facebook missing. Coverage >80%. |
 | **About Page** | ✅ Done | Static "About Us" page with carousel implemented. |
 | **Admin Config** | ⚠️ Partial | Users list added. Settings still missing. |
@@ -44,6 +44,7 @@ Audited Feb 19, 2026. Cross-referenced against `TODO`, `spec.md`, `task.md`, and
 - [x] **Database Optimization**: Added DB indexes for filters and pagination limit/offset for listings to prevent table scans and memory bloat.
 - [x] **Middleware Refactor**: Decoupled `AuthMiddleware` from `AuthHandler` to improve modularity.
 - [x] **Modularity**: Extracted date parsing and improved validation in domain package and simplified template rendering.
+- [x] **UI Brand Alignment**: Refactored Admin Dashboard, Listings, Users, Login, Error, and About pages to strictly follow the design system (`stone` tokens, `rounded-3xl`).
 
 ## Phase 3 — Pending
 

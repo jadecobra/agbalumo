@@ -3,41 +3,30 @@
 {{ define "content" }}
 <div class="container mx-auto px-4 py-8">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <h1 class="text-3xl font-bold text-gray-900">All Listings</h1>
-        <a href="/admin" class="text-primary hover:underline font-medium flex items-center gap-1">
+        <h1 class="text-3xl font-bold text-stone-900 dark:text-white">All Listings</h1>
+        <a href="/admin" class="text-primary hover:underline font-bold flex items-center gap-1 transition-all">
             <span class="material-symbols-outlined text-[18px]">arrow_back</span> Back to Dashboard
         </a>
     </div>
 
     <!-- Category Filters -->
-    <div class="bg-white rounded-lg shadow-sm p-4 mb-6 border border-gray-100 flex flex-wrap gap-2 items-center">
-        <span class="text-gray-500 font-medium mr-2 text-sm uppercase tracking-wider">Filter:</span>
+    <div
+        class="bg-white dark:bg-surface-dark rounded-3xl shadow-soft p-4 mb-6 border border-stone-100 dark:border-stone-800 flex flex-wrap gap-2 items-center">
+        <span class="text-stone-500 dark:text-stone-400 font-bold mr-2 text-xs uppercase tracking-wider">Filter:</span>
         <a href="/admin/listings"
-            class="px-4 py-2 rounded-full text-sm font-medium transition-colors border {{ if not .Category }}bg-primary text-white border-primary{{ else }}bg-white text-gray-700 border-gray-300 hover:border-primary hover:text-primary{{ end }}">All</a>
+            class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all border {{ if not .Category }}bg-primary text-white border-primary shadow-md shadow-orange-500/20{{ else }}bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700 hover:border-primary hover:text-primary{{ end }}">All</a>
         <a href="/admin/listings?category=Business"
-            class="px-4 py-2 rounded-full text-sm font-medium transition-colors border {{ if eq .Category " Business"
-            }}bg-primary text-white border-primary{{ else }}bg-white text-gray-700 border-gray-300 hover:border-primary
-            hover:text-primary{{ end }}">Business</a>
+            class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all border {{ if eq .Category `Business` }}bg-primary text-white border-primary shadow-md shadow-orange-500/20{{ else }}bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700 hover:border-primary hover:text-primary{{ end }}">Business</a>
         <a href="/admin/listings?category=Service"
-            class="px-4 py-2 rounded-full text-sm font-medium transition-colors border {{ if eq .Category " Service"
-            }}bg-primary text-white border-primary{{ else }}bg-white text-gray-700 border-gray-300 hover:border-primary
-            hover:text-primary{{ end }}">Service</a>
+            class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all border {{ if eq .Category `Service` }}bg-primary text-white border-primary shadow-md shadow-orange-500/20{{ else }}bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700 hover:border-primary hover:text-primary{{ end }}">Service</a>
         <a href="/admin/listings?category=Product"
-            class="px-4 py-2 rounded-full text-sm font-medium transition-colors border {{ if eq .Category " Product"
-            }}bg-primary text-white border-primary{{ else }}bg-white text-gray-700 border-gray-300 hover:border-primary
-            hover:text-primary{{ end }}">Product</a>
+            class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all border {{ if eq .Category `Product` }}bg-primary text-white border-primary shadow-md shadow-orange-500/20{{ else }}bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700 hover:border-primary hover:text-primary{{ end }}">Product</a>
         <a href="/admin/listings?category=Event"
-            class="px-4 py-2 rounded-full text-sm font-medium transition-colors border {{ if eq .Category " Event"
-            }}bg-primary text-white border-primary{{ else }}bg-white text-gray-700 border-gray-300 hover:border-primary
-            hover:text-primary{{ end }}">Event</a>
+            class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all border {{ if eq .Category `Event` }}bg-primary text-white border-primary shadow-md shadow-orange-500/20{{ else }}bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700 hover:border-primary hover:text-primary{{ end }}">Event</a>
         <a href="/admin/listings?category=Job"
-            class="px-4 py-2 rounded-full text-sm font-medium transition-colors border {{ if eq .Category " Job"
-            }}bg-primary text-white border-primary{{ else }}bg-white text-gray-700 border-gray-300 hover:border-primary
-            hover:text-primary{{ end }}">Job</a>
+            class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all border {{ if eq .Category `Job` }}bg-primary text-white border-primary shadow-md shadow-orange-500/20{{ else }}bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700 hover:border-primary hover:text-primary{{ end }}">Job</a>
         <a href="/admin/listings?category=Request"
-            class="px-4 py-2 rounded-full text-sm font-medium transition-colors border {{ if eq .Category " Request"
-            }}bg-primary text-white border-primary{{ else }}bg-white text-gray-700 border-gray-300 hover:border-primary
-            hover:text-primary{{ end }}">Request</a>
+            class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all border {{ if eq .Category `Request` }}bg-primary text-white border-primary shadow-md shadow-orange-500/20{{ else }}bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700 hover:border-primary hover:text-primary{{ end }}">Request</a>
     </div>
 
     <!-- Bulk Actions Form -->
@@ -45,9 +34,10 @@
         <input type="hidden" name="_csrf" value="{{ $.CSRF }}">
         <div class="mb-4 flex items-center justify-between">
             <div class="flex items-center gap-2">
-                <span class="text-sm text-gray-500 font-medium" id="selectionCount">0 selected</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400"
+                    id="selectionCount">0 selected</span>
                 <select name="action"
-                    class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md disabled:opacity-50"
+                    class="block text-sm bg-white dark:bg-stone-800 border-stone-200 dark:border-stone-700 rounded-xl px-4 py-2 focus:ring-primary focus:border-primary transition-all disabled:opacity-50"
                     disabled id="bulkActionSelect">
                     <option value="">Bulk Actions...</option>
                     <option value="approve">Approve Selected</option>
@@ -55,127 +45,144 @@
                     <option value="delete">Delete Selected</option>
                 </select>
                 <button type="submit"
-                    class="bg-primary hover:bg-primary-600 text-white font-medium py-2 px-4 rounded transition-colors disabled:opacity-50"
+                    class="bg-primary hover:bg-orange-600 text-white text-sm font-bold py-2 px-6 rounded-full transition-all active:scale-95 disabled:opacity-50 disabled:scale-100"
                     disabled id="bulkActionButton">Apply</button>
             </div>
         </div>
 
         <!-- Listings Table -->
-        <div class="bg-white rounded-lg shadow-md overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th scope="col" class="px-6 py-3 text-left w-10">
-                            <input type="checkbox" id="selectAll"
-                                class="rounded border-gray-300 text-primary shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            <!-- prettier-ignore -->
-                            <a href="/admin/listings?page={{.Page}}{{if .Category}}&category={{.Category}}{{end}}&sort=date{{if eq .SortOrder `ASC`}}&order=desc{{else}}&order=asc{{end}}"
-                                class="group inline-flex items-center text-gray-500 hover:text-gray-900">
-                                Date
+        <div
+            class="bg-white dark:bg-surface-dark rounded-3xl shadow-soft overflow-hidden border border-stone-100 dark:border-stone-800">
+            <div class="overflow-x-auto no-scrollbar">
+                <table class="min-w-full divide-y divide-stone-100 dark:divide-stone-800">
+                    <thead class="bg-stone-50 dark:bg-stone-900/50">
+                        <tr>
+                            <th scope="col" class="px-6 py-4 text-left w-10">
+                                <input type="checkbox" id="selectAll"
+                                    class="rounded-md border-stone-300 dark:border-stone-600 text-primary shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:bg-stone-800">
+                            </th>
+                            <th
+                                class="px-6 py-4 text-left text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                                <!-- prettier-ignore -->
+                                <a href="/admin/listings?page={{.Page}}{{if .Category}}&category={{.Category}}{{end}}&sort=date{{if eq .SortOrder `ASC`}}&order=desc{{else}}&order=asc{{end}}"
+                                    class="group inline-flex items-center hover:text-stone-900 dark:hover:text-white transition-colors">
+                                    Date
+                                    <span
+                                        class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `date`}}text-primary{{else}}text-stone-400 opacity-0 group-hover:opacity-100{{end}}">
+                                        {{if and (eq .SortField `date`) (eq .SortOrder
+                                        `ASC`)}}arrow_upward{{else}}arrow_downward{{end}}
+                                    </span>
+                                </a>
+                            </th>
+                            <th
+                                class="px-6 py-4 text-left text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                                <!-- prettier-ignore -->
+                                <a href="/admin/listings?page={{.Page}}{{if .Category}}&category={{.Category}}{{end}}&sort=title{{if eq .SortOrder `DESC`}}&order=asc{{else}}&order=desc{{end}}"
+                                    class="group inline-flex items-center hover:text-stone-900 dark:hover:text-white transition-colors">
+                                    Title
+                                    <span
+                                        class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `title`}}text-primary{{else}}text-stone-400 opacity-0 group-hover:opacity-100{{end}}">
+                                        {{if and (eq .SortField `title`) (eq .SortOrder
+                                        `DESC`)}}arrow_downward{{else}}arrow_upward{{end}}
+                                    </span>
+                                </a>
+                            </th>
+                            <th
+                                class="px-6 py-4 text-left text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                                Type
+                            </th>
+                            <th
+                                class="px-6 py-4 text-left text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                                <!-- prettier-ignore -->
+                                <a href="/admin/listings?page={{.Page}}{{if .Category}}&category={{.Category}}{{end}}&sort=status{{if eq .SortOrder `ASC`}}&order=desc{{else}}&order=asc{{end}}"
+                                    class="group inline-flex items-center hover:text-stone-900 dark:hover:text-white transition-colors">
+                                    Status
+                                    <span
+                                        class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `status`}}text-primary{{else}}text-stone-400 opacity-0 group-hover:opacity-100{{end}}">
+                                        {{if and (eq .SortField `status`) (eq .SortOrder
+                                        `ASC`)}}arrow_upward{{else}}arrow_downward{{end}}
+                                    </span>
+                                </a>
+                            </th>
+                            <th
+                                class="px-6 py-4 text-left text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                                Owner
+                            </th>
+                            <th
+                                class="px-6 py-4 text-right text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                                Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-surface-dark divide-y divide-stone-100 dark:divide-stone-800">
+                        {{ if .Listings }}
+                        {{ range .Listings }}
+                        <tr
+                            class="{{ if not .IsActive }}bg-stone-50 dark:bg-stone-800/30{{ end }} hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <input type="checkbox" name="selectedListings" value="{{ .ID }}"
+                                    class="row-checkbox rounded-md border-stone-300 dark:border-stone-600 text-primary shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:bg-stone-800">
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-stone-500 dark:text-stone-400">
+                                {{ .CreatedAt.Format "Jan 02, 2006" }}
+                            </td>
+                            <td class="px-6 py-4 text-sm font-bold text-stone-900 dark:text-stone-200">
+                                <a href="/listings/{{ .ID }}" target="_blank"
+                                    class="text-primary hover:underline transition-all">{{ .Title
+                                    }}</a>
+                            </td>
+                            <td
+                                class="px-6 py-4 whitespace-nowrap text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-widest">
+                                {{ .Type }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xs">
+                                {{ if eq .Status "Approved" }}
                                 <span
-                                    class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `date`}}text-gray-900{{else}}text-gray-400 opacity-0 group-hover:opacity-100{{end}}">
-                                    {{if and (eq .SortField `date`) (eq .SortOrder
-                                    `ASC`)}}arrow_upward{{else}}arrow_downward{{end}}
-                                </span>
-                            </a>
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            <!-- prettier-ignore -->
-                            <a href="/admin/listings?page={{.Page}}{{if .Category}}&category={{.Category}}{{end}}&sort=title{{if eq .SortOrder `DESC`}}&order=asc{{else}}&order=desc{{end}}"
-                                class="group inline-flex items-center text-gray-500 hover:text-gray-900">
-                                Title
+                                    class="px-2 py-0.5 inline-flex font-bold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 uppercase tracking-wider">Approved</span>
+                                {{ else if eq .Status "Rejected" }}
                                 <span
-                                    class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `title`}}text-gray-900{{else}}text-gray-400 opacity-0 group-hover:opacity-100{{end}}">
-                                    {{if and (eq .SortField `title`) (eq .SortOrder
-                                    `DESC`)}}arrow_downward{{else}}arrow_upward{{end}}
-                                </span>
-                            </a>
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            <!-- prettier-ignore -->
-                            <a href="/admin/listings?page={{.Page}}{{if .Category}}&category={{.Category}}{{end}}&sort=status{{if eq .SortOrder `ASC`}}&order=desc{{else}}&order=asc{{end}}"
-                                class="group inline-flex items-center text-gray-500 hover:text-gray-900">
-                                Status
+                                    class="px-2 py-0.5 inline-flex font-bold rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 uppercase tracking-wider">Rejected</span>
+                                {{ else }}
                                 <span
-                                    class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `status`}}text-gray-900{{else}}text-gray-400 opacity-0 group-hover:opacity-100{{end}}">
-                                    {{if and (eq .SortField `status`) (eq .SortOrder
-                                    `ASC`)}}arrow_upward{{else}}arrow_downward{{end}}
-                                </span>
-                            </a>
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner
-                        </th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    {{ if .Listings }}
-                    {{ range .Listings }}
-                    <tr class="{{ if not .IsActive }}bg-gray-50{{ end }}">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <input type="checkbox" name="selectedListings" value="{{ .ID }}"
-                                class="row-checkbox rounded border-gray-300 text-primary shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ .CreatedAt.Format "Jan 02, 2006" }}
-                        </td>
-                        <td class="px-6 py-4 text-sm font-medium text-gray-900">
-                            <a href="/listings/{{ .ID }}" target="_blank" class="text-primary hover:underline">{{ .Title
-                                }}</a>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 uppercase">
-                            {{ .Type }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            {{ if eq .Status "Approved" }}
-                            <span
-                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Approved</span>
-                            {{ else if eq .Status "Rejected" }}
-                            <span
-                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Rejected</span>
-                            {{ else }}
-                            <span
-                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
-                            {{ end }}
+                                    class="px-2 py-0.5 inline-flex font-bold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 uppercase tracking-wider">Pending</span>
+                                {{ end }}
 
-                            {{ if not .IsActive }}
-                            <span
-                                class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Inactive</span>
-                            {{ end }}
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-500 truncate max-w-[150px]">
-                            {{ if .OwnerID }}{{ .OwnerID }}{{ else }}<span class="italic text-gray-400">Unowned</span>{{
-                            end
-                            }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                            <a href="#" hx-get="/listings/{{ .ID }}/edit" hx-target="body" hx-swap="beforeend"
-                                class="text-blue-600 hover:text-blue-900" title="Edit Listing">
-                                <span class="material-symbols-outlined text-[20px] align-middle">edit</span>
-                            </a>
-                            <a href="/admin/listings/delete-confirm?id={{ .ID }}"
-                                class="text-red-500 hover:text-red-700" title="Delete Listing">
-                                <span class="material-symbols-outlined text-[20px] align-middle">delete</span>
-                            </a>
-                        </td>
-                    </tr>
-                    {{ end }}
-                    {{ else }}
-                    <tr>
-                        <td colspan="7" class="px-6 py-8 text-center text-gray-500">
-                            No listings found for this filter.
-                        </td>
-                    </tr>
-                    {{ end }}
-                </tbody>
-            </table>
-
-            <!-- Pagination Controls -->
+                                {{ if not .IsActive }}
+                                <span
+                                    class="ml-2 px-2 py-0.5 inline-flex font-bold rounded-full bg-stone-100 text-stone-800 dark:bg-stone-800 dark:text-stone-300 uppercase tracking-wider">Inactive</span>
+                                {{ end }}
+                            </td>
+                            <td
+                                class="px-6 py-4 text-xs font-medium text-stone-500 dark:text-stone-400 truncate max-w-[150px]">
+                                {{ if .OwnerID }}{{ .OwnerID }}{{ else }}<span
+                                    class="italic text-stone-400">Unowned</span>{{
+                                end
+                                }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-bold space-x-3">
+                                <a href="#" hx-get="/listings/{{ .ID }}/edit" hx-target="body" hx-swap="beforeend"
+                                    class="text-blue-500 hover:text-blue-700 transition-colors" title="Edit Listing">
+                                    <span class="material-symbols-outlined text-[20px] align-middle">edit</span>
+                                </a>
+                                <a href="/admin/listings/delete-confirm?id={{ .ID }}"
+                                    class="text-red-500 hover:text-red-700 transition-colors" title="Delete Listing">
+                                    <span class="material-symbols-outlined text-[20px] align-middle">delete</span>
+                                </a>
+                            </td>
+                        </tr>
+                        {{ end }}
+                        {{ else }}
+                        <tr>
+                            <td colspan="7" class="px-6 py-12 text-center text-stone-500 dark:text-stone-400">
+                                <div class="flex flex-col items-center gap-2">
+                                    <span class="material-symbols-outlined text-4xl opacity-20">search_off</span>
+                                    <p class="font-bold">No listings found for this filter.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {{ end }}
+                    </tbody>
+                </table>
+            </div> <!-- Pagination Controls -->
             <div class="flex justify-between items-center px-6 py-4 border-t border-gray-200 bg-gray-50">
                 {{ if gt .Page 1 }}
                 <a href="/admin/listings?page={{ sub .Page 1 }}{{ if .Category }}&category={{ .Category }}{{ end }}"

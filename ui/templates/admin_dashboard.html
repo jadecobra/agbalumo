@@ -2,133 +2,146 @@
 
 {{ define "content" }}
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-8 text-gray-900">Admin Dashboard</h1>
+    <h1 class="text-3xl font-bold mb-8 text-stone-900 dark:text-white">Admin Dashboard</h1>
 
     <!-- Metrics Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <!-- Total Users -->
-        <!-- Total Users -->
         <a href="/admin/users"
-            class="block bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500 hover:shadow-lg transition-shadow cursor-pointer">
-            <h2 class="text-gray-500 text-sm uppercase font-semibold flex justify-between items-center">
-                <h2 class="text-gray-500 text-sm uppercase font-semibold flex justify-between items-center">
-                    Total Users
-                    <span class="material-symbols-outlined text-gray-400">group</span>
-                </h2>
-                <p class="text-3xl font-bold text-gray-800">{{ .UserCount }}</p>
+            class="block bg-white dark:bg-surface-dark rounded-3xl shadow-soft p-6 border-l-4 border-blue-500 hover:shadow-md transition-all cursor-pointer">
+            <h2
+                class="text-stone-500 dark:text-stone-400 text-sm uppercase font-bold tracking-wider flex justify-between items-center mb-2">
+                Total Users
+                <span class="material-symbols-outlined text-stone-300 dark:text-stone-600">group</span>
+            </h2>
+            <p class="text-3xl font-bold text-stone-900 dark:text-white">{{ .UserCount }}</p>
         </a>
 
         <!-- Total Listings -->
         <a href="/admin/listings"
-            class="block bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500 hover:shadow-lg transition-shadow cursor-pointer">
-            <h2 class="text-gray-500 text-sm uppercase font-semibold flex justify-between items-center">
+            class="block bg-white dark:bg-surface-dark rounded-3xl shadow-soft p-6 border-l-4 border-green-500 hover:shadow-md transition-all cursor-pointer">
+            <h2
+                class="text-stone-500 dark:text-stone-400 text-sm uppercase font-bold tracking-wider flex justify-between items-center mb-2">
                 All Listings
-                <span class="material-symbols-outlined text-gray-400">list_alt</span>
+                <span class="material-symbols-outlined text-stone-300 dark:text-stone-600">list_alt</span>
             </h2>
-            <div class="mt-2 text-primary font-medium flex items-center gap-1 group-hover:underline">
+            <div class="mt-2 text-primary font-bold flex items-center gap-1 hover:underline">
                 View & Filter <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
             </div>
         </a>
 
         <!-- Feedback Counts -->
         {{ range $type, $count := .FeedbackCounts }}
-        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-yellow-500">
-            <h2 class="text-gray-500 text-sm uppercase font-semibold">Feedback: {{ $type }}</h2>
-            <p class="text-3xl font-bold text-gray-800">{{ $count }}</p>
+        <div class="bg-white dark:bg-surface-dark rounded-3xl shadow-soft p-6 border-l-4 border-yellow-500">
+            <h2
+                class="text-stone-500 dark:text-stone-400 text-sm uppercase font-bold tracking-wider flex justify-between items-center mb-2">
+                Feedback: {{ $type }}
+                <span class="material-symbols-outlined text-stone-300 dark:text-stone-600">feedback</span>
+            </h2>
+            <p class="text-3xl font-bold text-stone-900 dark:text-white">{{ $count }}</p>
         </div>
         {{ end }}
     </div>
 
     <!-- Charts -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-semibold text-gray-800 mb-4">New Listings (Last 30 Days)</h2>
+        <div
+            class="bg-white dark:bg-surface-dark rounded-3xl shadow-soft p-6 border border-stone-100 dark:border-stone-800">
+            <h2 class="text-xl font-bold text-stone-900 dark:text-white mb-4">New Listings (Last 30 Days)</h2>
             <canvas id="listingChart"></canvas>
         </div>
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-semibold text-gray-800 mb-4">New Users (Last 30 Days)</h2>
+        <div
+            class="bg-white dark:bg-surface-dark rounded-3xl shadow-soft p-6 border border-stone-100 dark:border-stone-800">
+            <h2 class="text-xl font-bold text-stone-900 dark:text-white mb-4">New Users (Last 30 Days)</h2>
             <canvas id="userChart"></canvas>
         </div>
     </div>
 
     <!-- Flash Message -->
     {{ if .FlashMessage }}
-    <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-8" role="alert">
+    <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 text-blue-700 dark:text-blue-300 p-4 mb-8 rounded-xl"
+        role="alert">
         <p class="font-bold">Notice</p>
         <p>{{ .FlashMessage }}</p>
     </div>
     {{ end }}
 
     <!-- Bulk Upload -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">Bulk Upload</h2>
+    <div
+        class="bg-white dark:bg-surface-dark rounded-3xl shadow-soft p-6 mb-8 border border-stone-100 dark:border-stone-800">
+        <h2 class="text-xl font-bold text-stone-900 dark:text-white mb-4">Bulk Upload</h2>
         <form id="bulkUploadForm" action="/admin/upload" method="POST" enctype="multipart/form-data"
             class="flex items-center gap-4"
             onsubmit="return confirm('Are you sure you want to upload this CSV document?');">
             <input type="hidden" name="_csrf" value="{{ .CSRF }}">
             <div class="flex-1">
                 <input type="file" id="csvFileInput" name="csv_file" accept=".csv" required
-                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-background-light file:text-primary hover:file:opacity-90" />
+                    class="block w-full text-sm text-stone-500 dark:text-stone-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-background-light dark:file:bg-stone-800 file:text-primary hover:file:opacity-90 transition-all" />
             </div>
             <button type="submit" id="csvUploadBtn" disabled
-                class="shrink-0 bg-primary hover:brightness-90 text-white font-bold py-2 px-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                class="shrink-0 bg-primary hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-full shadow-md shadow-orange-500/10 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100">
                 Upload CSV
             </button>
         </form>
-        <div class="mt-2 text-sm text-gray-500">
-            <p>Required Headers: <code>title, type, description</code></p>
-            <p>Optional: <code>email, origin, website, phone, whatsapp, address, hours</code></p>
+        <div class="mt-4 text-xs text-stone-500 dark:text-stone-400 flex gap-4">
+            <p><span class="font-bold text-stone-700 dark:text-stone-300">Required:</span>
+                <code>title, type, description</code></p>
+            <p><span class="font-bold text-stone-700 dark:text-stone-300">Optional:</span>
+                <code>email, phone, etc.</code></p>
         </div>
     </div>
 
     <!-- User Feedback -->
-    <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
-        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-            <h2 class="text-xl font-semibold text-gray-800">User Feedback ({{ len .Feedbacks }})</h2>
+    <div
+        class="bg-white dark:bg-surface-dark rounded-3xl shadow-soft overflow-hidden mb-8 border border-stone-100 dark:border-stone-800">
+        <div
+            class="px-6 py-4 border-b border-stone-100 dark:border-stone-800 bg-stone-50 dark:bg-stone-800/50 flex justify-between items-center">
+            <h2 class="text-xl font-bold text-stone-900 dark:text-white">User Feedback ({{ len .Feedbacks }})</h2>
         </div>
 
         {{ if .Feedbacks }}
-        <div class="max-h-96 overflow-y-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50 sticky top-0 z-10">
+        <div class="max-h-96 overflow-y-auto no-scrollbar">
+            <table class="min-w-full divide-y divide-stone-100 dark:divide-stone-800">
+                <thead class="bg-stone-50 dark:bg-stone-900/50 sticky top-0 z-10">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User
-                            ID
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Content
-                        </th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                            Date</th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                            Type</th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                            User ID</th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                            Content</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-white dark:bg-surface-dark divide-y divide-stone-100 dark:divide-stone-800">
                     {{ range .Feedbacks }}
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <tr class="hover:bg-stone-50 dark:hover:bg-stone-800/30 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-stone-500 dark:text-stone-400">
                             {{ .CreatedAt.Format "Jan 02, 2006 15:04" }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
                             {{ if eq .Type "Issue" }}
                             <span
-                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Issue</span>
+                                class="px-2 py-0.5 inline-flex text-[10px] font-bold rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 uppercase tracking-wider">Issue</span>
                             {{ else if eq .Type "Feature" }}
                             <span
-                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Feature</span>
+                                class="px-2 py-0.5 inline-flex text-[10px] font-bold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 uppercase tracking-wider">Feature</span>
                             {{ else }}
                             <span
-                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">{{
+                                class="px-2 py-0.5 inline-flex text-[10px] font-bold rounded-full bg-stone-100 text-stone-800 dark:bg-stone-800 dark:text-stone-300 uppercase tracking-wider">{{
                                 .Type }}</span>
                             {{ end }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ if .UserID }}{{ .UserID }}{{ else }}<span class="text-gray-400 italic">Anonymous</span>{{
-                            end
-                            }}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-stone-500 dark:text-stone-400">
+                            {{ if .UserID }}{{ .UserID }}{{ else }}<span
+                                class="text-stone-400 italic">Anonymous</span>{{ end }}
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-900 break-words">
+                        <td class="px-6 py-4 text-sm text-stone-900 dark:text-stone-200 break-words">
                             {{ .Content | html }}
                         </td>
                     </tr>
@@ -137,63 +150,76 @@
             </table>
         </div>
         {{ else }}
-        <div class="p-6 text-center text-gray-500">
+        <div class="p-8 text-center text-stone-500 dark:text-stone-400">
             No feedback found.
         </div>
         {{ end }}
     </div>
 
     <!-- Moderation Queue -->
-    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-            <h2 class="text-xl font-semibold text-gray-800">Moderation Queue ({{ len .PendingListings }})</h2>
+    <div
+        class="bg-white dark:bg-surface-dark rounded-3xl shadow-soft overflow-hidden border border-stone-100 dark:border-stone-800">
+        <div class="px-6 py-4 border-b border-stone-100 dark:border-stone-800 bg-stone-50 dark:bg-stone-800/50">
+            <h2 class="text-xl font-bold text-stone-900 dark:text-white">Moderation Queue ({{ len .PendingListings }})
+            </h2>
         </div>
 
         {{ if .PendingListings }}
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner
-                    </th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions
-                    </th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                {{ range .PendingListings }}
-                <tr id="listing-{{ .ID }}">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ .CreatedAt.Format "Jan 02, 2006" }}
-                    </td>
-                    <td class="px-6 py-4 text-sm font-medium text-gray-900">
-                        <a href="/listings/{{ .ID }}" target="_blank" class="text-primary hover:underline">{{ .Title
-                            }}</a>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 uppercase">
-                        {{ .Type }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ .OwnerOrigin }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                        <button hx-post="/admin/listings/{{ .ID }}/approve" hx-target="#listing-{{ .ID }}"
-                            hx-swap="outerHTML" class="text-green-600 hover:text-green-900 font-bold">
-                            Approve
-                        </button>
-                        <button hx-post="/admin/listings/{{ .ID }}/reject"
-                            hx-confirm="Are you sure you want to reject this listing?" hx-target="#listing-{{ .ID }}"
-                            hx-swap="outerHTML" class="text-red-600 hover:text-red-900 font-bold">
-                            Reject
-                        </button>
-                    </td>
-                </tr>
-                {{ end }}
-            </tbody>
-        </table>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-stone-100 dark:divide-stone-800">
+                <thead class="bg-stone-50 dark:bg-stone-900/50">
+                    <tr>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                            Date</th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                            Title</th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                            Type</th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                            Owner</th>
+                        <th
+                            class="px-6 py-3 text-right text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                            Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-surface-dark divide-y divide-stone-100 dark:divide-stone-800">
+                    {{ range .PendingListings }}
+                    <tr id="listing-{{ .ID }}" class="hover:bg-stone-50 dark:hover:bg-stone-800/30 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-stone-500 dark:text-stone-400">
+                            {{ .CreatedAt.Format "Jan 02, 2006" }}
+                        </td>
+                        <td class="px-6 py-4 text-sm font-bold text-stone-900 dark:text-stone-200">
+                            <a href="/listings/{{ .ID }}" target="_blank" class="text-primary hover:underline">{{ .Title
+                                }}</a>
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-stone-500 dark:text-stone-400 uppercase font-medium">
+                            {{ .Type }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-stone-500 dark:text-stone-400">
+                            {{ .OwnerOrigin }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-bold space-x-3">
+                            <button hx-post="/admin/listings/{{ .ID }}/approve" hx-target="#listing-{{ .ID }}"
+                                hx-swap="outerHTML" class="text-green-600 hover:text-green-700 transition-colors">
+                                Approve
+                            </button>
+                            <button hx-post="/admin/listings/{{ .ID }}/reject"
+                                hx-confirm="Are you sure you want to reject this listing?"
+                                hx-target="#listing-{{ .ID }}" hx-swap="outerHTML"
+                                class="text-red-600 hover:text-red-700 transition-colors">
+                                Reject
+                            </button>
+                        </td>
+                    </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </div>
 
         <!-- Pagination Controls -->
         <div class="flex justify-between items-center mt-4 px-6 py-3 border-t border-gray-200">

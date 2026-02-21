@@ -94,9 +94,16 @@ type Listing struct {
 * **Moderation:** Listings can be approved or rejected.
 * **Access Control:** Admin access is protected via Google Auth + a secondary Access Code.
 
-### 7. Codebase Critique & Improvements (Self-Correction)
+### 7. UI Design System (Brand Guidelines)
 
-* **Loose Coupling**: The `TemplateRenderer` was refactored to isoloate page templates, preventing namespace collisions. This is a good pattern to maintain.
-* **Security**: `DevLogin` in `auth.go` currently bypasses the Admin Claim flow by potentially granting admin roles mostly due to environmental configuration or seed state. This should be tightened in future iterations to purely simulate a generic user, forcing the claim flow even in dev.
-* **Testing**: Browser subagent tests proved critical in catching the 500 error that unit tests missed due to mocking. We should expand browser testing for the "Create Listing" flow.
+* **Colors:** Consistent use of `stone-*` tokens for neutrals and `primary` / `secondary` brand colors for accents.
+* **Shapes:** Unified shape language utilizing `rounded-3xl` (24px) for cards/modals and `rounded-xl` for form inputs.
+* **Component-Based Styling:** All templates link to a compiled `output.css` to ensure consistent utility classes and theme tokens are applied.
+
+### 8. Codebase Critique & Improvements (Self-Correction)
+
+* **UI Consistency:** The administrative interface was refactored from "programmer art" (generic grays and small radii) to a premium, brand-aligned experience. This involved standardizing on `stone` tokens and `rounded-3xl` across all templates.
+* **Loose Coupling**: The `TemplateRenderer` was refactored to isolate page templates, preventing namespace collisions.
+* **Security**: `DevLogin` in `auth.go` currently bypasses the Admin Claim flow. This should be tightened in future iterations.
+* **Testing**: Browser subagent tests proved critical in catching template errors (like unterminated strings) and visual regressions during the rebranding process.
 * **Bulk Upload**: Admin bulk upload requires confirmation and gracefully handles both malformed files (by redirecting to the dashboard with flash messages) and invalid categories (by falling back to the `Business` type).
