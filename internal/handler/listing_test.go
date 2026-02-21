@@ -280,11 +280,19 @@ func TestHandleEdit(t *testing.T) {
 		},
 		{
 			name: "Forbidden",
-			user: domain.User{ID: "other-user"},
+			user: domain.User{ID: "other-user", Role: domain.UserRoleUser},
 			setupMock: func(m *mock.MockListingRepository) {
 				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "owner-1"}, nil)
 			},
 			expectedStatus: http.StatusForbidden,
+		},
+		{
+			name: "AdminBypass",
+			user: domain.User{ID: "admin-user", Role: domain.UserRoleAdmin},
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "owner-1", Title: "Title"}, nil)
+			},
+			expectedStatus: http.StatusOK,
 		},
 		{
 			name: "NotFound",
@@ -342,12 +350,24 @@ func TestHandleUpdate(t *testing.T) {
 		},
 		{
 			name: "Forbidden",
-			user: domain.User{ID: "user2", Email: "hacker@example.com"},
+			user: domain.User{ID: "user2", Email: "hacker@example.com", Role: domain.UserRoleUser},
 			body: "",
 			setupMock: func(m *mock.MockListingRepository) {
 				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "user1", Title: "Old Title"}, nil)
 			},
 			expectedStatus: http.StatusForbidden,
+		},
+		{
+			name: "AdminBypass",
+			user: domain.User{ID: "admin-user", Role: domain.UserRoleAdmin},
+			body: "title=Updated+By+Admin&type=Business&owner_origin=Ghana&description=Updated&contact_email=admin@example.com&address=123+St",
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "user1", Title: "Old Title"}, nil)
+				m.On("Save", testifyMock.Anything, testifyMock.MatchedBy(func(l domain.Listing) bool {
+					return l.Title == "Updated By Admin"
+				})).Return(nil)
+			},
+			expectedStatus: http.StatusOK,
 		},
 		{
 			name: "RepoError",

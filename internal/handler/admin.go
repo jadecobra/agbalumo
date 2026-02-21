@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -234,6 +235,119 @@ func (h *AdminHandler) HandleReject(c echo.Context) error {
 	}
 
 	return c.NoContent(http.StatusOK)
+}
+
+// HandleBulkAction processes bulk approvals, rejections, and deletions.
+func (h *AdminHandler) HandleBulkAction(c echo.Context) error {
+	action := c.FormValue("action")
+	selectedIDs := c.Request().PostForm["selectedListings"]
+	ctx := c.Request().Context()
+
+	if len(selectedIDs) == 0 {
+		sess := customMiddleware.GetSession(c)
+		if sess != nil {
+			sess.AddFlash("No listings selected", "message")
+			sess.Save(c.Request(), c.Response())
+		}
+		return c.Redirect(http.StatusFound, "/admin/listings")
+	}
+
+	if action == "delete" {
+		// Pass IDs as query parameters to the confirmation page
+		query := url.Values{}
+		for _, id := range selectedIDs {
+			query.Add("id", id)
+		}
+		return c.Redirect(http.StatusFound, "/admin/listings/delete-confirm?"+query.Encode())
+	}
+
+	successCount := 0
+	for _, id := range selectedIDs {
+		listing, err := h.Repo.FindByID(ctx, id)
+		if err != nil {
+			continue // Skip if not found
+		}
+
+		if action == "approve" {
+			listing.Status = domain.ListingStatusApproved
+			listing.IsActive = true
+		} else if action == "reject" {
+			listing.Status = domain.ListingStatusRejected
+			listing.IsActive = false
+		} else {
+			continue // Unknown action
+		}
+
+		if err := h.Repo.Save(ctx, listing); err == nil {
+			successCount++
+		}
+	}
+
+	sess := customMiddleware.GetSession(c)
+	if sess != nil {
+		sess.AddFlash(fmt.Sprintf("Successfully processed %d listings", successCount), "message")
+		sess.Save(c.Request(), c.Response())
+	}
+
+	return c.Redirect(http.StatusFound, "/admin/listings")
+}
+
+// HandleAdminDeleteView renders the double-confirmation page for deleting listings.
+func (h *AdminHandler) HandleAdminDeleteView(c echo.Context) error {
+	// Parse IDs from query parameters (can be multiple)
+	c.Request().ParseForm()
+	ids := c.Request().Form["id"]
+
+	if len(ids) == 0 {
+		return c.Redirect(http.StatusFound, "/admin/listings")
+	}
+
+	return c.Render(http.StatusOK, "admin_delete_confirm.html", map[string]interface{}{
+		"IDs":  ids,
+		"User": c.Get("User"),
+	})
+}
+
+// HandleAdminDeleteAction processes explicit admin deletions after password confirmation.
+func (h *AdminHandler) HandleAdminDeleteAction(c echo.Context) error {
+	adminCode := c.FormValue("admin_code")
+
+	// Parse IDs (can be multiple)
+	c.Request().ParseForm()
+	ids := c.Request().PostForm["id"]
+
+	if len(ids) == 0 {
+		return c.Redirect(http.StatusFound, "/admin/listings")
+	}
+
+	// 1. Password (Admin Code) Verification
+	if adminCode != h.Cfg.AdminCode {
+		return c.Render(http.StatusOK, "admin_delete_confirm.html", map[string]interface{}{
+			"IDs":   ids,
+			"Error": "Invalid Admin Code. Deletion aborted.",
+			"User":  c.Get("User"),
+		})
+	}
+
+	// 2. Perform Deletions
+	ctx := c.Request().Context()
+	successCount := 0
+	for _, id := range ids {
+		if err := h.Repo.Delete(ctx, id); err == nil {
+			successCount++
+		} else {
+			c.Logger().Errorf("Failed to delete listing %s: %v", id, err)
+		}
+	}
+
+	// 3. Feedback
+	sess := customMiddleware.GetSession(c)
+	if sess != nil {
+		sess.AddFlash(fmt.Sprintf("Successfully deleted %d listings", successCount), "message")
+		sess.Save(c.Request(), c.Response())
+	}
+
+	return c.Redirect(http.StatusFound, "/admin/listings")
 }
 
 // HandleBulkUpload processes a CSV file upload.

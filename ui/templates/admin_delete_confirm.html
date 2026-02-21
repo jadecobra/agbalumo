@@ -1,0 +1,51 @@
+{{ template "base.html" . }}
+
+{{ define "content" }}
+<div class="container mx-auto px-4 py-8 max-w-lg">
+    <div class="bg-white rounded-lg shadow-md p-6 border-t-4 border-red-500">
+        <div class="flex items-center gap-3 mb-4 text-red-600">
+            <span class="material-symbols-outlined text-[32px]">warning</span>
+            <h1 class="text-2xl font-bold">Confirm Deletion</h1>
+        </div>
+
+        <p class="text-gray-700 mb-6">
+            You are about to permanently delete <strong>{{ len .IDs }}</strong> listing(s).<br>
+            <span class="font-medium text-red-600">This action cannot be undone.</span>
+        </p>
+
+        {{ if .Error }}
+        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+            {{ .Error }}
+        </div>
+        {{ end }}
+
+        <form method="POST" action="/admin/listings/delete">
+            <input type="hidden" name="_csrf" value="{{ $.CSRF }}">
+
+            {{ range .IDs }}
+            <input type="hidden" name="id" value="{{ . }}">
+            {{ end }}
+
+            <div class="mb-6">
+                <label for="admin_code" class="block text-sm font-medium text-gray-700 mb-2">
+                    Enter Admin Access Code to Confirm:
+                </label>
+                <input type="password" id="admin_code" name="admin_code" required
+                    class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-red-500 focus:border-red-500 sm:text-sm">
+            </div>
+
+            <div class="flex justify-end gap-3">
+                <a href="/admin/listings"
+                    class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 font-medium transition-colors">
+                    Cancel
+                </a>
+                <button type="submit"
+                    class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    Permanently Delete
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{{ end }}
+{{ define "filters" }}{{ end }}

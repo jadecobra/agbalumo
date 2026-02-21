@@ -158,6 +158,10 @@
                                 title="Edit Listing">
                                 <span class="material-symbols-outlined text-[20px] align-middle">edit</span>
                             </a>
+                            <a href="/admin/listings/delete-confirm?id={{ .ID }}"
+                                class="text-red-500 hover:text-red-700" title="Delete Listing">
+                                <span class="material-symbols-outlined text-[20px] align-middle">delete</span>
+                            </a>
                         </td>
                     </tr>
                     {{ end }}

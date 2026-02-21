@@ -125,6 +125,96 @@ func TestAdminHandler_HandleReject(t *testing.T) {
 	mockRepo.AssertExpectations(t)
 }
 
+func TestAdminHandler_HandleBulkAction_Approve(t *testing.T) {
+	e := echo.New()
+	formData := url.Values{}
+	formData.Set("action", "approve")
+	formData.Add("selectedListings", "1")
+	formData.Add("selectedListings", "2")
+	req := httptest.NewRequest(http.MethodPost, "/admin/listings/bulk", strings.NewReader(formData.Encode()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+	store := customMiddleware.NewTestSessionStore()
+	session, _ := store.Get(req, "auth_session")
+	c.Set("session", session)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", Status: domain.ListingStatusPending}, nil)
+	mockRepo.On("FindByID", testifyMock.Anything, "2").Return(domain.Listing{ID: "2", Status: domain.ListingStatusPending}, nil)
+
+	mockRepo.On("Save", testifyMock.Anything, testifyMock.MatchedBy(func(l domain.Listing) bool {
+		return l.Status == domain.ListingStatusApproved && l.IsActive && (l.ID == "1" || l.ID == "2")
+	})).Return(nil).Twice()
+
+	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
+
+	err := h.HandleBulkAction(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusFound, rec.Code)
+	assert.Equal(t, "/admin/listings", rec.Header().Get("Location"))
+	mockRepo.AssertExpectations(t)
+}
+
+func TestAdminHandler_HandleBulkAction_Reject(t *testing.T) {
+	e := echo.New()
+	formData := url.Values{}
+	formData.Set("action", "reject")
+	formData.Add("selectedListings", "1")
+	formData.Add("selectedListings", "2")
+	req := httptest.NewRequest(http.MethodPost, "/admin/listings/bulk", strings.NewReader(formData.Encode()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+	store := customMiddleware.NewTestSessionStore()
+	session, _ := store.Get(req, "auth_session")
+	c.Set("session", session)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", Status: domain.ListingStatusPending}, nil)
+	mockRepo.On("FindByID", testifyMock.Anything, "2").Return(domain.Listing{ID: "2", Status: domain.ListingStatusPending}, nil)
+
+	mockRepo.On("Save", testifyMock.Anything, testifyMock.MatchedBy(func(l domain.Listing) bool {
+		return l.Status == domain.ListingStatusRejected && !l.IsActive && (l.ID == "1" || l.ID == "2")
+	})).Return(nil).Twice()
+
+	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
+
+	err := h.HandleBulkAction(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusFound, rec.Code)
+	assert.Equal(t, "/admin/listings", rec.Header().Get("Location"))
+	mockRepo.AssertExpectations(t)
+}
+
+func TestAdminHandler_HandleBulkAction_DeleteRedirect(t *testing.T) {
+	e := echo.New()
+	formData := url.Values{}
+	formData.Set("action", "delete")
+	formData.Add("selectedListings", "1")
+	formData.Add("selectedListings", "2")
+	req := httptest.NewRequest(http.MethodPost, "/admin/listings/bulk", strings.NewReader(formData.Encode()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+
+	h := NewAdminHandler(nil, nil, config.LoadConfig())
+
+	err := h.HandleBulkAction(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusFound, rec.Code)
+	assert.Equal(t, "/admin/listings/delete-confirm?id=1&id=2", rec.Header().Get("Location"))
+}
+
 func TestAdminHandler_HandleLoginAction_Success(t *testing.T) {
 	e := echo.New()
 	formData := url.Values{}
@@ -167,6 +257,74 @@ func TestAdminHandler_HandleLoginAction_InvalidCode(t *testing.T) {
 	err := h.HandleLoginAction(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
+}
+
+func TestAdminHandler_HandleAdminDeleteView(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/admin/listings/delete-confirm?id=1&id=2", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+
+	h := NewAdminHandler(nil, nil, config.LoadConfig())
+	e.Renderer = &mock.MockRenderer{}
+
+	err := h.HandleAdminDeleteView(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
+}
+
+func TestAdminHandler_HandleAdminDeleteAction_Success(t *testing.T) {
+	e := echo.New()
+	formData := url.Values{}
+	formData.Set("admin_code", "agbalumo2024")
+	formData.Add("id", "1")
+	formData.Add("id", "2")
+	req := httptest.NewRequest(http.MethodPost, "/admin/listings/delete", strings.NewReader(formData.Encode()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+	store := customMiddleware.NewTestSessionStore()
+	session, _ := store.Get(req, "auth_session")
+	c.Set("session", session)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("Delete", testifyMock.Anything, "1").Return(nil)
+	mockRepo.On("Delete", testifyMock.Anything, "2").Return(nil)
+
+	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
+
+	err := h.HandleAdminDeleteAction(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusFound, rec.Code)
+	assert.Equal(t, "/admin/listings", rec.Header().Get("Location"))
+	mockRepo.AssertExpectations(t)
+}
+
+func TestAdminHandler_HandleAdminDeleteAction_WrongCode(t *testing.T) {
+	e := echo.New()
+	formData := url.Values{}
+	formData.Set("admin_code", "wrong")
+	formData.Add("id", "1")
+	req := httptest.NewRequest(http.MethodPost, "/admin/listings/delete", strings.NewReader(formData.Encode()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+
+	h := NewAdminHandler(nil, nil, config.LoadConfig())
+	e.Renderer = &mock.MockRenderer{}
+
+	err := h.HandleAdminDeleteAction(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code) // Re-renders form
 }
 
 func TestAdminHandler_HandleBulkUpload_Success(t *testing.T) {

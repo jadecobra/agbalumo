@@ -156,8 +156,8 @@ func (h *ListingHandler) HandleEdit(c echo.Context) error {
 		return RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
 	}
 
-	// Authorization Check
-	if listing.OwnerID != user.ID {
+	// Authorization Check (Owner or Admin)
+	if listing.OwnerID != user.ID && user.Role != domain.UserRoleAdmin {
 		return RespondError(c, echo.NewHTTPError(http.StatusForbidden, "You are not the owner of this listing"))
 	}
 
@@ -312,8 +312,8 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 		return RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
 	}
 
-	// Authorization Check
-	if listing.OwnerID != user.ID {
+	// Authorization Check (Owner or Admin)
+	if listing.OwnerID != user.ID && user.Role != domain.UserRoleAdmin {
 		return RespondError(c, echo.NewHTTPError(http.StatusForbidden, "You are not the owner of this listing"))
 	}
 
