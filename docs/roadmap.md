@@ -12,11 +12,12 @@ Audited Feb 19, 2026. Cross-referenced against `TODO`, `spec.md`, `task.md`, and
 | **Admin Dashboard** | ✅ Done | Lists users, pending items/counts, and growth charts. |
 | **Claim Ownership** | ✅ Done | MVP implemented. Users can claim unowned listings. |
 | **UI/Brand** | ✅ Stable | Using Tailwind CLI. Design system defined. |
-| **Auth** | ⚠️ Partial | Google Auth works. Apple/Facebook missing. |
+| **Auth** | ⚠️ Partial | Google Auth works. Apple/Facebook missing. Coverage >80%. |
 | **About Page** | ✅ Done | Static "About Us" page with carousel implemented. |
 | **Admin Config** | ⚠️ Partial | Users list added. Settings still missing. |
 | **CI/CD** | ✅ Done | `govulncheck`, `docker scout`, deploy to Fly.io all integrated. |
 | **Security** | ✅ Done | Secret scanner in pre-commit, history scrubbed, ImageService extracted. |
+| **Architecture** | ✅ Done | DB indexes, pagination, and auth middleware decoupling implemented. |
 
 ## Phase 2 — Completed
 
@@ -37,15 +38,17 @@ Audited Feb 19, 2026. Cross-referenced against `TODO`, `spec.md`, `task.md`, and
 - [x] **CLI**: Command-line interface for application management.
 - [x] **User Journeys**: Mapped journeys for each user type.
 
-### 3. Advanced Features
+### 3. Advanced Features & Architecture
 - [x] **Enhanced Admin**: Users view added. Charts and better moderation tools implemented.
 - [x] **CI Integration**: `govulncheck` and `docker scout` added to CI pipeline.
+- [x] **Database Optimization**: Added DB indexes for filters and pagination limit/offset for listings to prevent table scans and memory bloat.
+- [x] **Middleware Refactor**: Decoupled `AuthMiddleware` from `AuthHandler` to improve modularity.
+- [x] **Modularity**: Extracted date parsing and improved validation in domain package and simplified template rendering.
 
 ## Phase 3 — Pending
 
 ### 1. Auth & Security
 - [ ] **Auth Expansion**: Add Apple/Facebook login (requires developer accounts).
-- [x] **Auth Coverage**: Boosted from 41.7% to >80%. All handler functions at 85%+ except `Exchange` (intentionally skipped — thin OAuth wrapper).
 - [ ] **DevLogin Hardening**: Tighten `DevLogin` to simulate a generic user, forcing the claim flow even in dev (see `spec.md`).
 
 ### 2. Admin & Platform
@@ -57,6 +60,6 @@ Audited Feb 19, 2026. Cross-referenced against `TODO`, `spec.md`, `task.md`, and
 - [ ] **Security Monitoring**: Monitor `CVE-2025-60876` (busybox) in `alpine:latest`. Update base image when fixed.
 
 ## Immediate Next Steps
-1. **Auth Coverage** — Increase `auth.go` test coverage from 41.7%, focusing on `findOrCreateUser`.
-2. **Admin Customization** — Allow admin to configure colors/fonts from the dashboard.
+1. **Admin Customization** — Allow admin to configure colors/fonts from the dashboard.
+2. **Fat Handler Refactoring** — Use structural tags and a validation library to replace manual parsing inside `ListingHandler.bindAndMapListing`.
 3. **Auth Expansion** — Begin Apple/Facebook login if developer accounts are available.
