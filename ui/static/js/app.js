@@ -273,20 +273,19 @@ function setupModalActions() {
 // 6. HTMX Integration for Modals
 function setupHtmxIntegration() {
     document.body.addEventListener('htmx:afterSwap', (evt) => {
-        // If content is a dialog (or contains one), check if it needs opening
-        // Specifically for edit modals which we stripped the <script> from.
-        // We can identify them by ID prefix 'edit-listing-modal-'
-        const target = evt.target;
-        // HTMX swap target might be the element itself or parent.
-        // If we swapped outerHTML of a dialog, target is the new dialog? 
-        // No, target is the element designated by hx-target.
-        // But let's check the added nodes or look for the dialog in DOM.
-
-        // A simpler approach: if the swapped content is a dialog with known prefix, show it.
-        // evt.detail.elt is the swapped element.
+        // htmx:afterSwap provides the swapped element in evt.detail.elt
         const elt = evt.detail.elt;
-        if (elt && elt.tagName === 'DIALOG' && elt.id.startsWith('edit-listing-modal-')) {
-            elt.showModal();
+        if (!elt) return;
+
+        // Check if the swapped element is the dialog itself
+        if (elt.tagName === 'DIALOG' && elt.id.startsWith('edit-listing-modal-')) {
+            if (!elt.open) elt.showModal();
+        } else {
+            // Or if the dialog is contained within the swapped element
+            const dialogs = elt.querySelectorAll ? elt.querySelectorAll('dialog[id^="edit-listing-modal-"]') : [];
+            dialogs.forEach(d => {
+                if (!d.open) d.showModal();
+            });
         }
     });
 }

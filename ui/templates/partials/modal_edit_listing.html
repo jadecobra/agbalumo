@@ -1,4 +1,4 @@
-<dialog id="edit-listing-modal-{{.ID}}"
+<dialog id="edit-listing-modal-{{.Listing.ID}}"
     class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-sm m-auto rounded-3xl shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in">
     <div
         class="bg-background-light dark:bg-background-dark p-6 rounded-3xl border border-orange-100 dark:border-stone-800 shadow-soft relative overflow-hidden">
@@ -15,7 +15,7 @@
             </button>
         </div>
 
-        <form hx-put="/listings/{{.ID}}" hx-swap="outerHTML" hx-target="#listing-{{.ID}}" method="POST"
+        <form hx-put="/listings/{{.Listing.ID}}" hx-swap="outerHTML" hx-target="#listing-{{.Listing.ID}}" method="POST"
             enctype="multipart/form-data" class="flex flex-col gap-4" data-modal-action-submit-close>
 
             <!-- Type -->
@@ -24,12 +24,13 @@
                     class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Type</label>
                 <select name="type"
                     class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white appearance-none">
-                    <option value="Business" {{ if eq .Type "Business" }}selected{{ end }}>Business</option>
-                    <option value="Service" {{ if eq .Type "Service" }}selected{{ end }}>Service</option>
-                    <option value="Product" {{ if eq .Type "Product" }}selected{{ end }}>Product</option>
-                    <option value="Food" {{ if eq .Type "Food" }}selected{{ end }}>Food (Restaurant/Catering)</option>
-                    <option value="Event" {{ if eq .Type "Event" }}selected{{ end }}>Event</option>
-                    <option value="Request" {{ if eq .Type "Request" }}selected{{ end }}>Request</option>
+                    <option value="Business" {{ if eq .Listing.Type "Business" }}selected{{ end }}>Business</option>
+                    <option value="Service" {{ if eq .Listing.Type "Service" }}selected{{ end }}>Service</option>
+                    <option value="Product" {{ if eq .Listing.Type "Product" }}selected{{ end }}>Product</option>
+                    <option value="Food" {{ if eq .Listing.Type "Food" }}selected{{ end }}>Food (Restaurant/Catering)
+                    </option>
+                    <option value="Event" {{ if eq .Listing.Type "Event" }}selected{{ end }}>Event</option>
+                    <option value="Request" {{ if eq .Listing.Type "Request" }}selected{{ end }}>Request</option>
                 </select>
             </div>
 
@@ -37,7 +38,7 @@
             <div class="flex flex-col gap-1.5">
                 <label
                     class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Title</label>
-                <input required name="title" type="text" value="{{ .Title }}" placeholder="e.g., Mama's Kitchen"
+                <input required name="title" type="text" value="{{ .Listing.Title }}" placeholder="e.g., Mama's Kitchen"
                     class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
             </div>
 
@@ -47,29 +48,38 @@
                     class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Origin</label>
                 <select name="owner_origin"
                     class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white appearance-none">
-                    <option value="Nigeria" {{ if eq .OwnerOrigin "Nigeria" }}selected{{ end }}>Nigeria 🇳🇬</option>
-                    <option value="Benin" {{ if eq .OwnerOrigin "Benin" }}selected{{ end }}>Benin 🇧🇯</option>
-                    <option value="Burkina Faso" {{ if eq .OwnerOrigin "Burkina Faso" }}selected{{ end }}>Burkina Faso
+                    <option value="Nigeria" {{ if eq .Listing.OwnerOrigin "Nigeria" }}selected{{ end }}>Nigeria 🇳🇬
+                    </option>
+                    <option value="Benin" {{ if eq .Listing.OwnerOrigin "Benin" }}selected{{ end }}>Benin 🇧🇯</option>
+                    <option value="Burkina Faso" {{ if eq .Listing.OwnerOrigin "Burkina Faso" }}selected{{ end }}>
+                        Burkina Faso
                         🇧🇫</option>
-                    <option value="Cabo Verde" {{ if eq .OwnerOrigin "Cabo Verde" }}selected{{ end }}>Cabo Verde 🇨🇻
+                    <option value="Cabo Verde" {{ if eq .Listing.OwnerOrigin "Cabo Verde" }}selected{{ end }}>Cabo Verde
+                        🇨🇻
                     </option>
-                    <option value="Cote d'Ivoire" {{ if eq .OwnerOrigin "Cote d'Ivoire" }}selected{{ end }}>Côte
+                    <option value="Cote d'Ivoire" {{ if eq .Listing.OwnerOrigin "Cote d'Ivoire" }}selected{{ end }}>Côte
                         d'Ivoire 🇨🇮</option>
-                    <option value="Gambia" {{ if eq .OwnerOrigin "Gambia" }}selected{{ end }}>Gambia 🇬🇲</option>
-                    <option value="Ghana" {{ if eq .OwnerOrigin "Ghana" }}selected{{ end }}>Ghana 🇬🇭</option>
-                    <option value="Guinea" {{ if eq .OwnerOrigin "Guinea" }}selected{{ end }}>Guinea 🇬🇳</option>
-                    <option value="Guinea-Bissau" {{ if eq .OwnerOrigin "Guinea-Bissau" }}selected{{ end }}>
-                        Guinea-Bissau 🇬🇼</option>
-                    <option value="Liberia" {{ if eq .OwnerOrigin "Liberia" }}selected{{ end }}>Liberia 🇱🇷</option>
-                    <option value="Mali" {{ if eq .OwnerOrigin "Mali" }}selected{{ end }}>Mali 🇲🇱</option>
-                    <option value="Mauritania" {{ if eq .OwnerOrigin "Mauritania" }}selected{{ end }}>Mauritania 🇲🇷
+                    <option value="Gambia" {{ if eq .Listing.OwnerOrigin "Gambia" }}selected{{ end }}>Gambia 🇬🇲
                     </option>
-                    <option value="Niger" {{ if eq .OwnerOrigin "Niger" }}selected{{ end }}>Niger 🇳🇪</option>
-                    <option value="Senegal" {{ if eq .OwnerOrigin "Senegal" }}selected{{ end }}>Senegal 🇸🇳</option>
-                    <option value="Sierra Leone" {{ if eq .OwnerOrigin "Sierra Leone" }}selected{{ end }}>Sierra Leone
+                    <option value="Ghana" {{ if eq .Listing.OwnerOrigin "Ghana" }}selected{{ end }}>Ghana 🇬🇭</option>
+                    <option value="Guinea" {{ if eq .Listing.OwnerOrigin "Guinea" }}selected{{ end }}>Guinea 🇬🇳
+                    </option>
+                    <option value="Guinea-Bissau" {{ if eq .Listing.OwnerOrigin "Guinea-Bissau" }}selected{{ end }}>
+                        Guinea-Bissau 🇬🇼</option>
+                    <option value="Liberia" {{ if eq .Listing.OwnerOrigin "Liberia" }}selected{{ end }}>Liberia 🇱🇷
+                    </option>
+                    <option value="Mali" {{ if eq .Listing.OwnerOrigin "Mali" }}selected{{ end }}>Mali 🇲🇱</option>
+                    <option value="Mauritania" {{ if eq .Listing.OwnerOrigin "Mauritania" }}selected{{ end }}>Mauritania
+                        🇲🇷
+                    </option>
+                    <option value="Niger" {{ if eq .Listing.OwnerOrigin "Niger" }}selected{{ end }}>Niger 🇳🇪</option>
+                    <option value="Senegal" {{ if eq .Listing.OwnerOrigin "Senegal" }}selected{{ end }}>Senegal 🇸🇳
+                    </option>
+                    <option value="Sierra Leone" {{ if eq .Listing.OwnerOrigin "Sierra Leone" }}selected{{ end }}>Sierra
+                        Leone
                         🇸🇱</option>
-                    <option value="Togo" {{ if eq .OwnerOrigin "Togo" }}selected{{ end }}>Togo 🇹🇬</option>
-                    <option value="Other" {{ if eq .OwnerOrigin "Other" }}selected{{ end }}>Other 🌍</option>
+                    <option value="Togo" {{ if eq .Listing.OwnerOrigin "Togo" }}selected{{ end }}>Togo 🇹🇬</option>
+                    <option value="Other" {{ if eq .Listing.OwnerOrigin "Other" }}selected{{ end }}>Other 🌍</option>
                 </select>
             </div>
 
@@ -77,9 +87,10 @@
             <div class="flex flex-col gap-1.5">
                 <label class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Photo
                     (Optional)</label>
-                {{ if .ImageURL }}
+                {{ if .Listing.ImageURL }}
                 <div class="mb-2">
-                    <img src="{{ .ImageURL }}" class="h-16 w-16 object-cover rounded-lg border border-stone-200">
+                    <img src="{{ .Listing.ImageURL }}"
+                        class="h-16 w-16 object-cover rounded-lg border border-stone-200">
                 </div>
                 {{ end }}
                 <input name="image" type="file" accept="image/*"
@@ -91,7 +102,7 @@
                 <label
                     class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Description</label>
                 <textarea required name="description" rows="3" placeholder="Tell us about your listing..."
-                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white resize-none">{{ .Description }}</textarea>
+                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white resize-none">{{ .Listing.Description }}</textarea>
             </div>
 
             <!-- Request Deadline (Hidden by default unless Request) -->
@@ -109,14 +120,15 @@
                     <div class="flex flex-col gap-1.5">
                         <label
                             class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Company</label>
-                        <input name="company" type="text" value="{{ .Company }}" placeholder="Company Name"
+                        <input name="company" type="text" value="{{ .Listing.Company }}" placeholder="Company Name"
                             class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
                     </div>
                     <div class="flex flex-col gap-1.5">
                         <label
                             class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Pay
                             Range</label>
-                        <input name="pay_range" type="text" value="{{ .PayRange }}" placeholder="e.g. 150k-200k / yr"
+                        <input name="pay_range" type="text" value="{{ .Listing.PayRange }}"
+                            placeholder="e.g. 150k-200k / yr"
                             class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
                     </div>
                 </div>
@@ -124,7 +136,8 @@
                 <div class="flex flex-col gap-1.5">
                     <label
                         class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Skills</label>
-                    <input name="skills" type="text" value="{{ .Skills }}" placeholder="e.g. Golang, SQL, Docker"
+                    <input name="skills" type="text" value="{{ .Listing.Skills }}"
+                        placeholder="e.g. Golang, SQL, Docker"
                         class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
                 </div>
 
@@ -134,14 +147,15 @@
                             class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Start
                             Date</label>
                         <input name="job_start_date" type="datetime-local"
-                            value="{{ if not .Listing.JobStartDate.IsZero }}{{ .Listing.JobStartDate.Format "2006-01-02T15:04" }}{{ end }}"
+                            value='{{ if not .Listing.JobStartDate.IsZero }}{{ .Listing.JobStartDate.Format "2006-01-02T15:04" }}{{ end }}'
                             class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
                     </div>
                     <div class="flex flex-col gap-1.5">
                         <label
                             class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Apply
                             URL</label>
-                        <input name="job_apply_url" type="url" value="{{ .JobApplyURL }}" placeholder="https://..."
+                        <input name="job_apply_url" type="url" value="{{ .Listing.JobApplyURL }}"
+                            placeholder="https://..."
                             class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
                     </div>
                 </div>
@@ -154,8 +168,7 @@
                         class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Event
                         Start</label>
                     <input name="event_start" type="datetime-local"
-                        value="{{ if not .Listing.EventStart.IsZero }}{{ .Listing.EventStart.Format " 2006-01-02T15:04"
-                        }}{{ end }}"
+                        value='{{ if not .Listing.EventStart.IsZero }}{{ .Listing.EventStart.Format "2006-01-02T15:04" }}{{ end }}'
                         class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
                 </div>
                 <div class="flex flex-col gap-1.5">
@@ -163,8 +176,7 @@
                         class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Event
                         End</label>
                     <input name="event_end" type="datetime-local"
-                        value="{{ if not .Listing.EventEnd.IsZero }}{{ .Listing.EventEnd.Format " 2006-01-02T15:04" }}{{
-                        end }}"
+                        value='{{ if not .Listing.EventEnd.IsZero }}{{ .Listing.EventEnd.Format "2006-01-02T15:04" }}{{ end }}'
                         class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
                 </div>
             </div>
@@ -329,13 +341,13 @@
                     <div class="flex flex-col gap-1.5">
                         <label
                             class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Email</label>
-                        <input name="contact_email" type="email" value="{{ .ContactEmail }}"
+                        <input name="contact_email" type="email" value="{{ .Listing.ContactEmail }}"
                             class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
                     </div>
                     <div class="flex flex-col gap-1.5">
                         <label
                             class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Phone</label>
-                        <input name="contact_phone" type="tel" value="{{ .ContactPhone }}"
+                        <input name="contact_phone" type="tel" value="{{ .Listing.ContactPhone }}"
                             class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
                     </div>
                 </div>
@@ -343,7 +355,7 @@
                 <div class="flex flex-col gap-1.5">
                     <label
                         class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">WhatsApp</label>
-                    <input name="contact_whatsapp" type="tel" value="{{ .ContactWhatsApp }}"
+                    <input name="contact_whatsapp" type="tel" value="{{ .Listing.ContactWhatsApp }}"
                         class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
                 </div>
 
@@ -352,7 +364,7 @@
                     <label
                         class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Website
                         (Optional)</label>
-                    <input name="website_url" type="url" value="{{ .WebsiteURL }}"
+                    <input name="website_url" type="url" value="{{ .Listing.WebsiteURL }}"
                         class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
                 </div>
 
