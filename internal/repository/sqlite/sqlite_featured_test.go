@@ -11,49 +11,44 @@ import (
 
 func TestGetFeaturedListings(t *testing.T) {
 	repo, _ := newTestRepo(t)
-	// defer cleanup is handled by t.TempDir() in newTestRepo automatically cleaning up files,
-	// though DB connection closing isn't explicit in newTestRepo, it's file based.
-
 	ctx := context.Background()
-
-	// 1. Create mixed listings
-	// - Active Business (Should appear)
-	// - Inactive Business (Should NOT appear)
-	// - Active Job (Should NOT appear)
-	// - Active Product (Should appear)
 
 	listings := []domain.Listing{
 		{
 			ID:          "feat-1",
-			Title:       "Active Business",
+			Title:       "Featured Business",
 			Type:        domain.Business,
 			IsActive:    true,
+			Featured:    true,
 			OwnerOrigin: "Nigeria",
 			CreatedAt:   time.Now(),
 		},
 		{
 			ID:          "feat-2",
-			Title:       "Inactive Business",
+			Title:       "Non-Featured Business",
 			Type:        domain.Business,
-			IsActive:    false,
+			IsActive:    true,
+			Featured:    false,
 			OwnerOrigin: "Ghana",
 			CreatedAt:   time.Now(),
 		},
 		{
 			ID:          "feat-3",
-			Title:       "Active Job",
+			Title:       "Featured but Inactive",
 			Type:        domain.Job,
-			IsActive:    true,
+			IsActive:    false,
+			Featured:    true,
 			OwnerOrigin: "Senegal",
 			CreatedAt:   time.Now(),
 		},
 		{
 			ID:          "feat-4",
-			Title:       "Active Product",
+			Title:       "Another Featured",
 			Type:        domain.Product,
 			IsActive:    true,
+			Featured:    true,
 			OwnerOrigin: "Togo",
-			CreatedAt:   time.Now().Add(time.Hour), // Newer
+			CreatedAt:   time.Now().Add(time.Hour),
 		},
 	}
 
@@ -62,15 +57,11 @@ func TestGetFeaturedListings(t *testing.T) {
 		assert.NoError(t, err)
 	}
 
-	// 2. Fetch Featured
 	featured, err := repo.GetFeaturedListings(ctx)
 	assert.NoError(t, err)
 
-	// 3. Verify
-	// Should have 2 items: feat-1 and feat-4
 	assert.Len(t, featured, 2)
 
-	// Feat-4 is newer, should be first
 	assert.Equal(t, "feat-4", featured[0].ID)
 	assert.Equal(t, "feat-1", featured[1].ID)
 }
@@ -82,9 +73,10 @@ func TestGetFeaturedListings_LimitFive(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		l := domain.Listing{
 			ID:          string(rune('a' + i)),
-			Title:       "Business",
+			Title:       "Featured",
 			Type:        domain.Business,
 			IsActive:    true,
+			Featured:    true,
 			OwnerOrigin: "Nigeria",
 			CreatedAt:   time.Now().Add(time.Duration(i) * time.Hour),
 		}
@@ -96,4 +88,36 @@ func TestGetFeaturedListings_LimitFive(t *testing.T) {
 	assert.NoError(t, err)
 
 	assert.LessOrEqual(t, len(featured), 5, "GetFeaturedListings should return at most 5 items")
+}
+
+func TestSetFeatured(t *testing.T) {
+	repo, _ := newTestRepo(t)
+	ctx := context.Background()
+
+	l := domain.Listing{
+		ID:          "feat-test",
+		Title:       "Test Listing",
+		Type:        domain.Business,
+		IsActive:    true,
+		Featured:    false,
+		OwnerOrigin: "Nigeria",
+		CreatedAt:   time.Now(),
+	}
+	err := repo.Save(ctx, l)
+	assert.NoError(t, err)
+
+	err = repo.SetFeatured(ctx, "feat-test", true)
+	assert.NoError(t, err)
+
+	featured, err := repo.GetFeaturedListings(ctx)
+	assert.NoError(t, err)
+	assert.Len(t, featured, 1)
+	assert.Equal(t, "feat-test", featured[0].ID)
+
+	err = repo.SetFeatured(ctx, "feat-test", false)
+	assert.NoError(t, err)
+
+	featured, err = repo.GetFeaturedListings(ctx)
+	assert.NoError(t, err)
+	assert.Len(t, featured, 0)
 }

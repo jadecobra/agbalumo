@@ -103,6 +103,11 @@ func (m *MockListingRepository) GetFeaturedListings(ctx context.Context) ([]doma
 	return args.Get(0).([]domain.Listing), args.Error(1)
 }
 
+func (m *MockListingRepository) SetFeatured(ctx context.Context, id string, featured bool) error {
+	args := m.Called(ctx, id, featured)
+	return args.Error(0)
+}
+
 func (m *MockListingRepository) GetListingGrowth(ctx context.Context) ([]domain.DailyMetric, error) {
 	args := m.Called(ctx)
 	return args.Get(0).([]domain.DailyMetric), args.Error(1)

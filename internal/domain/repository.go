@@ -14,6 +14,7 @@ type ListingStore interface {
 	Delete(ctx context.Context, id string) error
 	GetCounts(ctx context.Context) (map[Category]int, error)
 	GetFeaturedListings(ctx context.Context) ([]Listing, error)
+	SetFeatured(ctx context.Context, id string, featured bool) error
 }
 
 // ListingSaver is the minimal interface for saving a listing.

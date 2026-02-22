@@ -52,7 +52,8 @@ type Listing struct {
 	Company          string        `json:"company" form:"company"`               // New: For Job
 	PayRange         string        `json:"pay_range" form:"pay_range"`           // New: For Job
 	IsActive         bool          `json:"is_active" form:"is_active"`
-	Status           ListingStatus `json:"status" form:"status"` // New: Moderation Status
+	Status           ListingStatus `json:"status" form:"status"`     // New: Moderation Status
+	Featured         bool          `json:"featured" form:"featured"` // Admin-selected for hero carousel
 }
 
 // ListingStatus represents the moderation state of a listing.

@@ -405,7 +405,6 @@ func (h *AdminHandler) HandleBulkUpload(c echo.Context) error {
 	if sess != nil {
 		msg := fmt.Sprintf("Processed %d items. Success: %d, Failed: %d", result.TotalProcessed, result.SuccessCount, result.FailureCount)
 		if len(result.Errors) > 0 {
-			// Truncate errors if too long?
 			if len(result.Errors) > 3 {
 				msg += fmt.Sprintf(". Errors: %v ...", result.Errors[:3])
 			} else {
@@ -417,4 +416,24 @@ func (h *AdminHandler) HandleBulkUpload(c echo.Context) error {
 	}
 
 	return c.Redirect(http.StatusFound, "/admin")
+}
+
+// HandleToggleFeatured toggles the featured status of a listing.
+func (h *AdminHandler) HandleToggleFeatured(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Listing ID is required"))
+	}
+
+	featured := c.FormValue("featured") == "true"
+	ctx := c.Request().Context()
+
+	if err := h.Repo.SetFeatured(ctx, id, featured); err != nil {
+		return RespondError(c, err)
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"id":       id,
+		"featured": featured,
+	})
 }

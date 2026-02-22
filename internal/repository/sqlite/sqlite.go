@@ -16,7 +16,7 @@ const listingSelections = `
 	website_url, image_url, created_at, deadline, is_active,
 	event_start, event_end,
 	COALESCE(skills, ''), job_start_date, COALESCE(job_apply_url, ''),
-	COALESCE(company, ''), COALESCE(pay_range, ''), COALESCE(status, 'Approved')
+	COALESCE(company, ''), COALESCE(pay_range, ''), COALESCE(status, 'Approved'), featured
 `
 
 type Scanner interface {
@@ -33,7 +33,7 @@ func scanListing(s Scanner) (domain.Listing, error) {
 		&l.WebsiteURL, &l.ImageURL, &l.CreatedAt, &deadline, &l.IsActive,
 		&eventStart, &eventEnd,
 		&l.Skills, &jobStart, &l.JobApplyURL,
-		&l.Company, &l.PayRange, &l.Status,
+		&l.Company, &l.PayRange, &l.Status, &l.Featured,
 	)
 	if err != nil {
 		return domain.Listing{}, err
@@ -192,6 +192,9 @@ func (r *SQLiteRepository) migrate() error {
 	// Add Role Column to Users
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'User';")
 
+	// Add Featured Column
+	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN featured BOOLEAN DEFAULT 0;")
+
 	// Ensure google_id is unique for ON CONFLICT clause
 	_, _ = r.db.ExecContext(context.Background(), "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id);")
 
@@ -205,8 +208,8 @@ func (r *SQLiteRepository) migrate() error {
 // Save inserts or updates a listing.
 func (r *SQLiteRepository) Save(ctx context.Context, l domain.Listing) error {
 	query := `
-	INSERT INTO listings (id, owner_id, title, description, type, owner_origin, city, address, hours_of_operation, is_active, created_at, image_url, contact_email, contact_phone, contact_whatsapp, website_url, deadline, event_start, event_end, skills, job_start_date, job_apply_url, company, pay_range, status)
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	INSERT INTO listings (id, owner_id, title, description, type, owner_origin, city, address, hours_of_operation, is_active, created_at, image_url, contact_email, contact_phone, contact_whatsapp, website_url, deadline, event_start, event_end, skills, job_start_date, job_apply_url, company, pay_range, status, featured)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	ON CONFLICT(id) DO UPDATE SET
 		owner_id = excluded.owner_id,
 		title = excluded.title,
@@ -230,13 +233,14 @@ func (r *SQLiteRepository) Save(ctx context.Context, l domain.Listing) error {
 		job_apply_url = excluded.job_apply_url,
 		company = excluded.company,
 		pay_range = excluded.pay_range,
-		status = excluded.status;
+		status = excluded.status,
+		featured = excluded.featured;
 	`
 
 	_, err := r.db.ExecContext(ctx, query,
 		l.ID, l.OwnerID, l.Title, l.Description, l.Type, l.OwnerOrigin, l.City, l.Address, l.HoursOfOperation, l.IsActive, l.CreatedAt,
 		l.ImageURL, l.ContactEmail, l.ContactPhone, l.ContactWhatsApp, l.WebsiteURL, l.Deadline, l.EventStart, l.EventEnd,
-		l.Skills, l.JobStartDate, l.JobApplyURL, l.Company, l.PayRange, l.Status,
+		l.Skills, l.JobStartDate, l.JobApplyURL, l.Company, l.PayRange, l.Status, l.Featured,
 	)
 	return err
 }
@@ -536,12 +540,12 @@ func (r *SQLiteRepository) GetAllUsers(ctx context.Context) ([]domain.User, erro
 	return users, nil
 }
 
-// GetFeaturedListings returns the latest 5 active listings of type Business, Service, or Product.
+// GetFeaturedListings returns featured listings set by admin.
 func (r *SQLiteRepository) GetFeaturedListings(ctx context.Context) ([]domain.Listing, error) {
 	query := `
 		SELECT ` + listingSelections + `
 		FROM listings 
-		WHERE type IN ('Business', 'Service', 'Product') 
+		WHERE featured = 1 
 		AND is_active = 1 
 		ORDER BY created_at DESC 
 		LIMIT 5
@@ -561,6 +565,13 @@ func (r *SQLiteRepository) GetFeaturedListings(ctx context.Context) ([]domain.Li
 		listings = append(listings, l)
 	}
 	return listings, nil
+}
+
+// SetFeatured toggles the featured status of a listing.
+func (r *SQLiteRepository) SetFeatured(ctx context.Context, id string, featured bool) error {
+	query := `UPDATE listings SET featured = ? WHERE id = ?`
+	_, err := r.db.ExecContext(ctx, query, featured, id)
+	return err
 }
 
 // GetFeedbackCounts... (existing)
