@@ -1,0 +1,31 @@
+colors {
+  primary: #FF8A00          // ripe agbalumo skin
+  primaryVariant: #F57C00
+  secondary: #689F38        // fresh leaf green
+  surface: #FFF8F0          // creamy white flesh
+  onPrimary: #FFFFFF
+  onSurface: #3E2723        // deep Nigerian earth brown
+  accentStar: #C2185B       // subtle star-seed magenta for highlights
+}
+radius {
+  sm: 12px   // soft juicy corners
+  md: 20px
+  lg: 32px   // hero pill shapes
+}
+space {
+  xs: 8px
+  sm: 16px
+  md: 24px
+  lg: 48px
+  xl: 80px   // generous tropical breathing room
+}
+type {
+  displayLarge: 42px / 700 / "Playfair Display" or system serif (for headlines – warm & inviting)
+  headline: 28px / 600 / sans
+  body: 16px / 400 / sans
+  label: 14px / 500 / sans
+}
+motion {
+  durationShort: 200ms ease-out
+  durationMedium: 300ms cubic-bezier(0.4, 0, 0.2, 1)  // juicy bounce
+}
