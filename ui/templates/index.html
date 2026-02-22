@@ -4,7 +4,7 @@
 
 {{ define "filters" }}
 <div class="w-full border-t border-orange-50 dark:border-stone-800/50 bg-white/40 dark:bg-black/20 backdrop-blur-md">
-    <div id="filter-container" class="max-w-7xl mx-auto px-4 py-2 overflow-x-auto no-scrollbar flex gap-2">
+    <div id="filter-container" class="max-w-7xl mx-auto px-4 py-2 flex flex-wrap gap-2 justify-center">
         <!-- Filters -->
         <button hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
             class="chip-fruit flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-full bg-stone-900 text-white dark:bg-white dark:text-stone-900 px-4 shadow-sm border border-transparent transition-transform active:scale-95 text-xs font-bold uppercase">

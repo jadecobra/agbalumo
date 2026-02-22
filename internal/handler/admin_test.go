@@ -865,6 +865,7 @@ func TestAdminHandler_HandleAllListings(t *testing.T) {
 
 		mockRepo := &mock.MockListingRepository{}
 		mockRepo.On("FindAll", testifyMock.Anything, "Business", "", true, 50, 0).Return([]domain.Listing{{ID: "1"}}, nil)
+		mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{domain.Business: 5, domain.Food: 3}, nil)
 
 		h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
 		c.Set("User", domain.User{ID: "admin-1"})

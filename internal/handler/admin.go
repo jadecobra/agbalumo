@@ -191,6 +191,19 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 
 	hasNextPage := len(listings) == limit
 
+	counts, err := h.Repo.GetCounts(ctx)
+	if err != nil {
+		c.Logger().Errorf("failed to get listing counts: %v", err)
+		counts = make(map[domain.Category]int)
+	}
+
+	strCounts := make(map[string]int)
+	totalCount := 0
+	for cat, count := range counts {
+		strCounts[string(cat)] = count
+		totalCount += count
+	}
+
 	return c.Render(http.StatusOK, "admin_listings.html", map[string]interface{}{
 		"Listings":    listings,
 		"Page":        page,
@@ -198,6 +211,8 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 		"Category":    category,
 		"SortField":   sortField,
 		"SortOrder":   sortOrder,
+		"Counts":      strCounts,
+		"TotalCount":  totalCount,
 		"User":        c.Get("User"),
 	})
 }

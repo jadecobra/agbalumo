@@ -176,6 +176,63 @@ func TestFilterUIValues(t *testing.T) {
 	}
 }
 
+func TestHomepageFiltersUseFlexWrap(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	templatePath := filepath.Join(projectRoot, "ui", "templates", "index.html")
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		t.Fatalf("Failed to read index.html: %v", err)
+	}
+
+	content := string(templateContent)
+
+	idx := strings.Index(content, `id="filter-container"`)
+	if idx == -1 {
+		t.Fatal("filter-container not found in template")
+	}
+
+	filterDiv := content[idx : idx+200]
+	if strings.Contains(filterDiv, "overflow-x-auto") {
+		t.Error("Homepage filter container should not use overflow-x-auto - use flex-wrap instead")
+	}
+
+	if !strings.Contains(filterDiv, "flex-wrap") {
+		t.Error("Homepage filter container should use flex-wrap class")
+	}
+}
+
+func TestAdminFiltersShowCounts(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	templatePath := filepath.Join(projectRoot, "ui", "templates", "admin_listings.html")
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		t.Fatalf("Failed to read admin_listings.html: %v", err)
+	}
+
+	content := string(templateContent)
+
+	filterSectionIdx := strings.Index(content, "Category Filters")
+	if filterSectionIdx == -1 {
+		t.Fatal("Category Filters section not found in admin_listings.html")
+	}
+
+	filterSection := content[filterSectionIdx : filterSectionIdx+2000]
+
+	if !strings.Contains(filterSection, "Counts") && !strings.Contains(filterSection, "{{ .Counts") {
+		t.Error("Admin filters should display listing counts like homepage filters")
+	}
+}
+
 func TestJobListingUI(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplate(t)}
