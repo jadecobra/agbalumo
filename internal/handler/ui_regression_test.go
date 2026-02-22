@@ -233,6 +233,40 @@ func TestAdminFiltersShowCounts(t *testing.T) {
 	}
 }
 
+func TestHomepageFiltersScrollWithContent(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	templatePath := filepath.Join(projectRoot, "ui", "templates", "index.html")
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		t.Fatalf("Failed to read index.html: %v", err)
+	}
+
+	content := string(templateContent)
+
+	filtersBlockIdx := strings.Index(content, `{{ define "filters" }}`)
+	contentBlockIdx := strings.Index(content, `{{ define "content" }}`)
+
+	if filtersBlockIdx == -1 {
+		t.Error("Homepage should define filters block inside content for scrolling behavior")
+	}
+
+	if contentBlockIdx == -1 {
+		t.Fatal("content block not found")
+	}
+
+	contentBlockEnd := strings.Index(content[contentBlockIdx:], `{{ end }}`)
+	contentBlock := content[contentBlockIdx : contentBlockIdx+contentBlockEnd]
+
+	if !strings.Contains(contentBlock, "filter-container") {
+		t.Error("Homepage filters should be inside content block so they scroll away with page content, not in a separate filters block that stays sticky in header")
+	}
+}
+
 func TestJobListingUI(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplate(t)}
