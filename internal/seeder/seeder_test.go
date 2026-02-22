@@ -2,6 +2,7 @@ package seeder_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
@@ -39,6 +40,15 @@ func TestEnsureSeeded_NotEmpty(t *testing.T) {
 	mockRepo := &mock.MockListingRepository{}
 	// FindAll returns something -> skip seed
 	mockRepo.On("FindAll", context.Background(), testifyMock.Anything, testifyMock.Anything, testifyMock.Anything, 1, 0).Return([]domain.Listing{{Title: "Existing"}}, nil)
+
+	seeder.EnsureSeeded(context.Background(), mockRepo)
+
+	mockRepo.AssertNotCalled(t, "Save", context.Background(), testifyMock.Anything)
+}
+
+func TestEnsureSeeded_FindAllError(t *testing.T) {
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindAll", context.Background(), testifyMock.Anything, testifyMock.Anything, testifyMock.Anything, 1, 0).Return([]domain.Listing{}, errors.New("db error"))
 
 	seeder.EnsureSeeded(context.Background(), mockRepo)
 

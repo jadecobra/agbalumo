@@ -75,8 +75,8 @@ function setupFilterButtons() {
         if (btn) {
             const container = document.getElementById('filter-container');
             const buttons = container.querySelectorAll('button');
-            const activeState = "chip-fruit flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-stone-900 text-white dark:bg-white dark:text-stone-900 px-4 shadow-sm border border-transparent transition-transform active:scale-95 text-xs font-bold uppercase";
-            const inactiveState = "chip-fruit flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase";
+            const activeState = "chip-fruit flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-full bg-stone-900 text-white dark:bg-white dark:text-stone-900 px-4 shadow-sm border border-transparent transition-transform active:scale-95 text-xs font-bold uppercase";
+            const inactiveState = "chip-fruit flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase";
 
             buttons.forEach(b => {
                 b.className = inactiveState;
@@ -212,6 +212,20 @@ function toggleListingFields(typeSelect) {
     }
 }
 
+// Google Maps lazy loading
+let googleMapsLoaded = false;
+
+function loadGoogleMapsApi(apiKey) {
+    if (googleMapsLoaded || !apiKey) return;
+    
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMaps`;
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+    googleMapsLoaded = true;
+}
+
 // Google Maps Init (Global scope needed for callback)
 window.initGoogleMaps = function () {
     const input = document.getElementById('create-address-input');
@@ -256,6 +270,22 @@ window.initGoogleMaps = function () {
 
         if (place.formatted_address) {
             input.value = place.formatted_address;
+        }
+    });
+}
+
+// Load Google Maps when create-listing modal opens
+function setupGoogleMapsLazyLoad() {
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-modal-id="create-listing-modal"]');
+        if (btn) {
+            const input = document.getElementById('create-address-input');
+            if (input) {
+                const apiKey = input.dataset.googleMapsKey;
+                if (apiKey) {
+                    loadGoogleMapsApi(apiKey);
+                }
+            }
         }
     });
 }
@@ -390,4 +420,5 @@ initApp = function () {
     setupHtmxIntegration();
     setupCsrf();
     setupDynamicBackgrounds();
+    setupGoogleMapsLazyLoad();
 };

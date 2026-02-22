@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 )
@@ -20,6 +21,12 @@ func TestListingCardRendering(t *testing.T) {
 				dict[key] = values[i+1]
 			}
 			return dict, nil
+		},
+		"isNew": func(createdAt time.Time) bool {
+			if createdAt.IsZero() {
+				return false
+			}
+			return time.Since(createdAt) < 7*24*time.Hour
 		},
 	})
 

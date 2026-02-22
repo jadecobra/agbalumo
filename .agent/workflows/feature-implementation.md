@@ -60,7 +60,7 @@ This enforces:
 - `go mod tidy`
 - `go vet`
 - Race detection
-- Coverage >= 88.0% threshold (NEVER lower this — write more tests instead)
+- Coverage >= 89.2% threshold (NEVER lower this — write more tests instead)
 - Secret scanning
 
 **Gate**: Script MUST exit 0.

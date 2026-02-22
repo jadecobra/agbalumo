@@ -7,6 +7,7 @@ import (
 	"io"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -91,6 +92,12 @@ func buildGlobalFuncMap() template.FuncMap {
 				return "", err
 			}
 			return template.JS(b), nil
+		},
+		"isNew": func(createdAt time.Time) bool {
+			if createdAt.IsZero() {
+				return false
+			}
+			return time.Since(createdAt) < 7*24*time.Hour
 		},
 	}
 }

@@ -222,7 +222,7 @@
         </div>
 
         <!-- Pagination Controls -->
-        <div class="flex justify-between items-center mt-4 px-6 py-3 border-t border-gray-200">
+        <div class="flex justify-between items-center mt-4 px-6 py-3 border-t border-stone-200">
             {{ if gt .Page 1 }}
             <a href="/admin?page={{ sub .Page 1 }}"
                 class="text-sm font-medium text-primary hover:underline flex items-center gap-1">
@@ -232,7 +232,7 @@
             <div></div>
             {{ end }}
 
-            <div class="text-sm text-gray-500">Page {{ .Page }}</div>
+            <div class="text-sm text-stone-500">Page {{ .Page }}</div>
 
             {{ if .HasNextPage }}
             <a href="/admin?page={{ add .Page 1 }}"
@@ -244,7 +244,7 @@
             {{ end }}
         </div>
         {{ else }}
-        <div class="p-6 text-center text-gray-500">
+        <div class="p-6 text-center text-stone-500">
             No pending listings. Good job!
         </div>
         {{ end }}

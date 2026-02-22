@@ -82,7 +82,8 @@
                         class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Address
                         (Validated)</label>
                     <input id="create-address-input" name="address" type="text" placeholder="Start typing address..."
-                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white"
+                        data-google-maps-key="{{ if .GoogleMapsApiKey }}{{ .GoogleMapsApiKey }}{{ end }}">
                     <input type="hidden" id="create-city-input" name="city">
                 </div>
             </div>
@@ -94,15 +95,6 @@
                 <input name="hours_of_operation" type="text" placeholder="e.g. Mon-Fri 9am-6pm"
                     class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
             </div>
-
-            <!-- Google Maps Script Reference -->
-            {{ if .GoogleMapsApiKey }}
-            <script
-                src="https://maps.googleapis.com/maps/api/js?key={{.GoogleMapsApiKey}}&libraries=places&callback=initGoogleMaps"
-                async defer></script>
-            {{ else }}
-            <script>console.warn("Google Maps API Key not configured. Autocomplete disabled.");</script>
-            {{ end }}
 
             <!-- Description -->
             <div class="flex flex-col gap-1.5">
@@ -199,10 +191,12 @@
                     class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
             </div>
 
-            <button type="submit"
-                class="mt-2 w-full flex items-center justify-center gap-2 bg-primary hover:bg-orange-600 text-white font-bold h-12 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-orange-500/20">
-                <span class="material-symbols-outlined text-[20px]">send</span>
-                Post Listing
+            <button type="submit" id="create-listing-submit"
+                class="mt-2 w-full flex items-center justify-center gap-2 bg-primary hover:bg-orange-600 text-white font-bold h-12 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-orange-500/20 disabled:opacity-50 disabled:cursor-not-allowed">
+                <span class="material-symbols-outlined text-[20px] htmx-request:hidden">send</span>
+                <span class="material-symbols-outlined text-[20px] animate-spin hidden htmx-request:block">progress_activity</span>
+                <span class="htmx-request:hidden">Post Listing</span>
+                <span class="hidden htmx-request:block">Posting...</span>
             </button>
         </form>
     </div>

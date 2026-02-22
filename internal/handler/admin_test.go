@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -218,6 +219,112 @@ func TestAdminHandler_HandleBulkAction_DeleteRedirect(t *testing.T) {
 	assert.Equal(t, "/admin/listings/delete-confirm?id=1&id=2", rec.Header().Get("Location"))
 }
 
+func TestAdminHandler_HandleBulkAction_NoSelection(t *testing.T) {
+	e := echo.New()
+	formData := url.Values{}
+	formData.Set("action", "approve")
+	req := httptest.NewRequest(http.MethodPost, "/admin/listings/bulk", strings.NewReader(formData.Encode()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+	store := customMiddleware.NewTestSessionStore()
+	session, _ := store.Get(req, "auth_session")
+	c.Set("session", session)
+
+	h := NewAdminHandler(nil, nil, config.LoadConfig())
+
+	err := h.HandleBulkAction(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusFound, rec.Code)
+	assert.Equal(t, "/admin/listings", rec.Header().Get("Location"))
+}
+
+func TestAdminHandler_HandleBulkAction_FindByIDError(t *testing.T) {
+	e := echo.New()
+	formData := url.Values{}
+	formData.Set("action", "approve")
+	formData.Add("selectedListings", "1")
+	req := httptest.NewRequest(http.MethodPost, "/admin/listings/bulk", strings.NewReader(formData.Encode()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+	store := customMiddleware.NewTestSessionStore()
+	session, _ := store.Get(req, "auth_session")
+	c.Set("session", session)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{}, errors.New("not found"))
+
+	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
+
+	err := h.HandleBulkAction(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusFound, rec.Code)
+	mockRepo.AssertExpectations(t)
+}
+
+func TestAdminHandler_HandleBulkAction_UnknownAction(t *testing.T) {
+	e := echo.New()
+	formData := url.Values{}
+	formData.Set("action", "unknown")
+	formData.Add("selectedListings", "1")
+	req := httptest.NewRequest(http.MethodPost, "/admin/listings/bulk", strings.NewReader(formData.Encode()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+	store := customMiddleware.NewTestSessionStore()
+	session, _ := store.Get(req, "auth_session")
+	c.Set("session", session)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1"}, nil)
+
+	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
+
+	err := h.HandleBulkAction(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusFound, rec.Code)
+	mockRepo.AssertExpectations(t)
+	mockRepo.AssertNotCalled(t, "Save", testifyMock.Anything, testifyMock.Anything)
+}
+
+func TestAdminHandler_HandleBulkAction_SaveError(t *testing.T) {
+	e := echo.New()
+	formData := url.Values{}
+	formData.Set("action", "approve")
+	formData.Add("selectedListings", "1")
+	req := httptest.NewRequest(http.MethodPost, "/admin/listings/bulk", strings.NewReader(formData.Encode()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+	store := customMiddleware.NewTestSessionStore()
+	session, _ := store.Get(req, "auth_session")
+	c.Set("session", session)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", Status: domain.ListingStatusPending}, nil)
+	mockRepo.On("Save", testifyMock.Anything, testifyMock.Anything).Return(errors.New("save failed"))
+
+	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
+
+	err := h.HandleBulkAction(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusFound, rec.Code)
+	mockRepo.AssertExpectations(t)
+}
+
 func TestAdminHandler_HandleLoginAction_Success(t *testing.T) {
 	e := echo.New()
 	formData := url.Values{}
@@ -395,6 +502,77 @@ func TestAdminHandler_HandleBulkUpload_NoFile(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusFound, rec.Code)
 	assert.Equal(t, "/admin", rec.Header().Get("Location"))
+}
+
+func TestAdminHandler_HandleBulkUpload_ParseError(t *testing.T) {
+	e := echo.New()
+
+	csvContent := "title,description\nTest,Desc"
+
+	body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile("csv_file", "upload.csv")
+	if err != nil {
+		t.Fatal(err)
+	}
+	part.Write([]byte(csvContent))
+	writer.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/admin/upload", body)
+	req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+
+	store := customMiddleware.NewTestSessionStore()
+	session, _ := store.Get(req, "auth_session")
+	c.Set("session", session)
+
+	h := NewAdminHandler(nil, service.NewCSVService(), config.LoadConfig())
+
+	err = h.HandleBulkUpload(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusFound, rec.Code)
+	assert.Equal(t, "/admin", rec.Header().Get("Location"))
+}
+
+func TestAdminHandler_HandleBulkUpload_WithErrors(t *testing.T) {
+	e := echo.New()
+
+	csvContent := "title,type,description,origin,email\nGood,Business,Desc,NG,a@b.com\nBad,Business,,NG,b@b.com\nBad2,Business,,NG,c@b.com\nBad3,Business,,NG,d@b.com"
+
+	body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile("csv_file", "upload.csv")
+	if err != nil {
+		t.Fatal(err)
+	}
+	part.Write([]byte(csvContent))
+	writer.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/admin/upload", body)
+	req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+
+	store := customMiddleware.NewTestSessionStore()
+	session, _ := store.Get(req, "auth_session")
+	c.Set("session", session)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
+	mockRepo.On("Save", testifyMock.Anything, testifyMock.Anything).Return(nil).Maybe()
+
+	h := NewAdminHandler(mockRepo, service.NewCSVService(), config.LoadConfig())
+
+	err = h.HandleBulkUpload(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusFound, rec.Code)
 }
 
 // --- AdminMiddleware Tests ---

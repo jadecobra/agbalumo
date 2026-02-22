@@ -1,4 +1,5 @@
 {{ define "listing_list" }}
+{{ if .Listings }}
 {{ range $i, $e := .Listings }}
 {{ $gridClass := "" }}
 {{ $mod := mod $i 6 }}
@@ -9,4 +10,15 @@
 {{ end }}
 
 {{ template "listing_card" dict "Listing" . "User" $.User "GridClass" $gridClass "Index" $i }}
-{{ end }}{{ end }}
+{{ end }}
+{{ else }}
+<div class="col-span-full flex flex-col items-center justify-center py-16 text-center">
+    <span class="material-symbols-outlined text-6xl text-stone-300 dark:text-stone-600 mb-4">search_off</span>
+    <h3 class="text-xl font-bold text-stone-600 dark:text-stone-400 mb-2">No listings found</h3>
+    <p class="text-stone-500 dark:text-stone-500 mb-6">Try adjusting your search or filters</p>
+    <a href="/" class="px-6 py-2 bg-primary text-white rounded-full font-bold hover:bg-orange-600 transition-colors">
+        View All Listings
+    </a>
+</div>
+{{ end }}
+{{ end }}
