@@ -536,16 +536,15 @@ func (r *SQLiteRepository) GetAllUsers(ctx context.Context) ([]domain.User, erro
 	return users, nil
 }
 
-// GetFeaturedListings returns the latest 10 active listings of type Business, Service, or Product.
+// GetFeaturedListings returns the latest 5 active listings of type Business, Service, or Product.
 func (r *SQLiteRepository) GetFeaturedListings(ctx context.Context) ([]domain.Listing, error) {
-	// Use shared selection constant to match scanListing
 	query := `
 		SELECT ` + listingSelections + `
 		FROM listings 
 		WHERE type IN ('Business', 'Service', 'Product') 
 		AND is_active = 1 
 		ORDER BY created_at DESC 
-		LIMIT 10
+		LIMIT 5
 	`
 	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {

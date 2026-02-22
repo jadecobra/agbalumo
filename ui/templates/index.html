@@ -57,21 +57,68 @@
         </div>
     </div>
 
-    <!-- Featured Carousel -->
+    <!-- Featured Carousel Hero -->
     {{ if .FeaturedListings }}
-    <div class="mb-8 mt-4">
-        <div class="flex items-center justify-between mb-4 px-2">
-            <h2
-                class="text-2xl md:text-3xl font-bold text-stone-900 dark:text-white flex items-center gap-2 font-serif">
-                <span class="material-symbols-outlined text-primary animate-gentle-pulse">verified</span>
-                Featured
-            </h2>
-        </div>
-        <!-- Scroll Container -->
-        <div class="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory no-scrollbar -mx-4 px-4 md:mx-0 md:px-0">
-            {{ range .FeaturedListings }}
-            {{ template "featured_card" dict "Listing" . }}
-            {{ end }}
+    <div class="mb-8 -mx-4 md:mx-0">
+        <div id="featured-carousel" class="relative bg-stone-900 dark:bg-stone-800 rounded-none md:rounded-3xl overflow-hidden shadow-2xl" data-autoplay="true">
+            <!-- Slides Container -->
+            <div class="carousel-slides relative h-[200px] md:h-[280px]">
+                {{ range $i, $listing := .FeaturedListings }}
+                <div class="carousel-slide absolute inset-0 transition-opacity duration-700 {{ if eq $i 0 }}opacity-100 z-10{{ else }}opacity-0 z-0{{ end }}"
+                    data-index="{{ $i }}"
+                    hx-get="/listings/{{ $listing.ID }}" 
+                    hx-target="body" 
+                    hx-swap="beforeend">
+                    <!-- Background Image -->
+                    <div class="absolute inset-0 bg-cover bg-center"
+                        style="background-image: url('{{ if $listing.ImageURL }}{{ $listing.ImageURL }}{{ else }}/static/images/logo.png{{ end }}');">
+                        <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
+                    </div>
+                    <!-- Content -->
+                    <div class="relative h-full flex flex-col justify-center px-6 md:px-12 max-w-2xl">
+                        <span class="inline-flex items-center gap-2 mb-2">
+                            <span class="px-3 py-1 bg-primary/90 text-white text-[10px] uppercase font-bold rounded-full tracking-wider">
+                                {{ $listing.Type }}
+                            </span>
+                            {{ if $listing.City }}
+                            <span class="text-white/70 text-xs font-medium">{{ $listing.City }}</span>
+                            {{ end }}
+                        </span>
+                        <h2 class="text-2xl md:text-4xl font-bold text-white mb-2 font-serif leading-tight">
+                            {{ $listing.Title }}
+                        </h2>
+                        {{ if $listing.Description }}
+                        <p class="text-white/80 text-sm md:text-base line-clamp-2 mb-4 hidden md:block">
+                            {{ $listing.Description }}
+                        </p>
+                        {{ end }}
+                        <span class="text-primary font-bold text-sm uppercase tracking-wider flex items-center gap-1 group-hover:gap-2 transition-all">
+                            View Details
+                            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                        </span>
+                    </div>
+                </div>
+                {{ end }}
+            </div>
+
+            <!-- Navigation Arrows -->
+            <button class="carousel-prev absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full text-white transition-all"
+                aria-label="Previous slide">
+                <span class="material-symbols-outlined">chevron_left</span>
+            </button>
+            <button class="carousel-next absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full text-white transition-all"
+                aria-label="Next slide">
+                <span class="material-symbols-outlined">chevron_right</span>
+            </button>
+
+            <!-- Dots Indicator -->
+            <div class="carousel-dots absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+                {{ range $i, $listing := .FeaturedListings }}
+                <button class="carousel-dot w-2 h-2 md:w-3 md:h-3 rounded-full transition-all {{ if eq $i 0 }}bg-white w-6 md:w-8{{ else }}bg-white/40{{ end }}"
+                    data-index="{{ $i }}"
+                    aria-label="Go to slide {{ add $i 1 }}"></button>
+                {{ end }}
+            </div>
         </div>
     </div>
     {{ end }}

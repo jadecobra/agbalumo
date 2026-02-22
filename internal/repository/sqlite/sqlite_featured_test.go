@@ -74,3 +74,26 @@ func TestGetFeaturedListings(t *testing.T) {
 	assert.Equal(t, "feat-4", featured[0].ID)
 	assert.Equal(t, "feat-1", featured[1].ID)
 }
+
+func TestGetFeaturedListings_LimitFive(t *testing.T) {
+	repo, _ := newTestRepo(t)
+	ctx := context.Background()
+
+	for i := 0; i < 10; i++ {
+		l := domain.Listing{
+			ID:          string(rune('a' + i)),
+			Title:       "Business",
+			Type:        domain.Business,
+			IsActive:    true,
+			OwnerOrigin: "Nigeria",
+			CreatedAt:   time.Now().Add(time.Duration(i) * time.Hour),
+		}
+		err := repo.Save(ctx, l)
+		assert.NoError(t, err)
+	}
+
+	featured, err := repo.GetFeaturedListings(ctx)
+	assert.NoError(t, err)
+
+	assert.LessOrEqual(t, len(featured), 5, "GetFeaturedListings should return at most 5 items")
+}

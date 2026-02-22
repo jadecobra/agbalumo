@@ -403,7 +403,6 @@ function setupDynamicBackgrounds() {
         observer.observe(el);
     });
 
-    // Also handle HTMX swaps
     document.body.addEventListener('htmx:afterSwap', (evt) => {
         evt.detail.elt.querySelectorAll('.dynamic-bg').forEach(el => {
             observer.observe(el);
@@ -411,7 +410,100 @@ function setupDynamicBackgrounds() {
     });
 }
 
-// Add to init
+// 9. Featured Carousel
+function setupFeaturedCarousel() {
+    const carousel = document.getElementById('featured-carousel');
+    if (!carousel) return;
+
+    const slides = carousel.querySelectorAll('.carousel-slide');
+    const dots = carousel.querySelectorAll('.carousel-dot');
+    const prevBtn = carousel.querySelector('.carousel-prev');
+    const nextBtn = carousel.querySelector('.carousel-next');
+
+    if (slides.length <= 1) return;
+
+    let currentIndex = 0;
+    let interval = null;
+    let isPaused = false;
+
+    function goToSlide(index) {
+        slides.forEach((slide, i) => {
+            slide.classList.toggle('opacity-100', i === index);
+            slide.classList.toggle('z-10', i === index);
+            slide.classList.toggle('opacity-0', i !== index);
+            slide.classList.toggle('z-0', i !== index);
+        });
+
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('bg-white', i === index);
+            dot.classList.toggle('w-6', i === index);
+            dot.classList.toggle('md:w-8', i === index);
+            dot.classList.toggle('bg-white/40', i !== index);
+            dot.classList.toggle('w-2', i !== index);
+            dot.classList.toggle('md:w-3', i !== index);
+        });
+
+        currentIndex = index;
+    }
+
+    function nextSlide() {
+        goToSlide((currentIndex + 1) % slides.length);
+    }
+
+    function prevSlide() {
+        goToSlide((currentIndex - 1 + slides.length) % slides.length);
+    }
+
+    function startAutoplay() {
+        if (interval) clearInterval(interval);
+        const delay = 5000 + Math.random() * 3000;
+        interval = setInterval(() => {
+            if (!isPaused) nextSlide();
+        }, delay);
+    }
+
+    function pauseAutoplay() {
+        isPaused = true;
+    }
+
+    function resumeAutoplay() {
+        isPaused = false;
+    }
+
+    if (prevBtn) {
+        prevBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            prevSlide();
+            startAutoplay();
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            nextSlide();
+            startAutoplay();
+        });
+    }
+
+    dots.forEach((dot, i) => {
+        dot.addEventListener('click', (e) => {
+            e.stopPropagation();
+            goToSlide(i);
+            startAutoplay();
+        });
+    });
+
+    carousel.addEventListener('mouseenter', pauseAutoplay);
+    carousel.addEventListener('mouseleave', resumeAutoplay);
+    carousel.addEventListener('focusin', pauseAutoplay);
+    carousel.addEventListener('focusout', resumeAutoplay);
+
+    if (carousel.dataset.autoplay === 'true') {
+        startAutoplay();
+    }
+}
+
 const originalInit = initApp;
 initApp = function () {
     originalInit();
@@ -421,4 +513,5 @@ initApp = function () {
     setupCsrf();
     setupDynamicBackgrounds();
     setupGoogleMapsLazyLoad();
+    setupFeaturedCarousel();
 };

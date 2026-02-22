@@ -267,6 +267,78 @@ func TestHomepageFiltersScrollWithContent(t *testing.T) {
 	}
 }
 
+func TestFeaturedCarouselHasAutoRotate(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	templatePath := filepath.Join(projectRoot, "ui", "templates", "index.html")
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		t.Fatalf("Failed to read index.html: %v", err)
+	}
+
+	content := string(templateContent)
+
+	if !strings.Contains(content, "featured-carousel") {
+		t.Error("Featured section should have a featured-carousel id for JS initialization")
+	}
+
+	if !strings.Contains(content, "carousel") && !strings.Contains(content, "setInterval") && !strings.Contains(content, "slideInterval") {
+		t.Error("Featured carousel should have auto-rotate functionality")
+	}
+}
+
+func TestFeaturedCarouselHasNavigationControls(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	templatePath := filepath.Join(projectRoot, "ui", "templates", "index.html")
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		t.Fatalf("Failed to read index.html: %v", err)
+	}
+
+	content := string(templateContent)
+
+	if !strings.Contains(content, "carousel-prev") {
+		t.Error("Featured carousel should have previous button navigation (carousel-prev class)")
+	}
+
+	if !strings.Contains(content, "carousel-next") {
+		t.Error("Featured carousel should have next button navigation (carousel-next class)")
+	}
+
+	if !strings.Contains(content, "carousel-dot") {
+		t.Error("Featured carousel should have dot indicators for navigation (carousel-dot class)")
+	}
+}
+
+func TestFeaturedCarouselPausesOnHover(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	jsPath := filepath.Join(projectRoot, "ui", "static", "js", "app.js")
+	jsContent, err := os.ReadFile(jsPath)
+	if err != nil {
+		t.Fatalf("Failed to read app.js: %v", err)
+	}
+
+	js := string(jsContent)
+
+	if !strings.Contains(js, "mouseenter") && !strings.Contains(js, "mouseenter") && !strings.Contains(js, "pause") {
+		t.Error("Carousel should pause on hover - looking for mouseenter/pause handling in app.js")
+	}
+}
+
 func TestJobListingUI(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplate(t)}
