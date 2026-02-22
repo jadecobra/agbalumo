@@ -94,16 +94,25 @@ type Listing struct {
 * **Moderation:** Listings can be approved or rejected.
 * **Access Control:** Admin access is protected via Google Auth + a secondary Access Code.
 
-### 7. UI Design System (Brand Guidelines)
+### 7. UI Design System (TOON Tokens)
 
-* **Colors:** Consistent use of `stone-*` tokens for neutrals and `primary` / `secondary` brand colors for accents.
-* **Shapes:** Unified shape language utilizing `rounded-3xl` (24px) for cards/modals and `rounded-xl` for form inputs.
-* **Component-Based Styling:** All templates link to a compiled `output.css` to ensure consistent utility classes and theme tokens are applied.
+Agbalumo uses a "Juicy Fruit" design aesthetic, inspired by Yoruba roots and community-first values.
+
+* **Colors:**
+  - `primary`: #FF8A00 (Agbalumo orange)
+  - `secondary`: #689F38 (Leaf green for CTAs)
+  - `accent-star`: #C2185B (Seed magenta for badges)
+  - `surface`: #FFF8F0 (Warm cream)
+  - `background`: #FFFBF5 (Inviting off-white)
+* **Typography:** `Playfair Display` (Serif) for headings to add warmth; `Inter` (Sans) for high-performance UI components.
+* **Shapes:** `rounded-3xl` (32px) for a soft, premium feel; `rounded-xl` for interactive elements.
+* **Motion:** `juice-bounce` (scale 0.94 → 1.02) on clicks; `gentle-pulse` for verified status and new badges.
+* **Shadows:** `shadow-juicy` (orange tinted) and `shadow-lifted` for tactile depth.
 
 ### 8. Codebase Critique & Improvements (Self-Correction)
 
-* **UI Consistency:** The administrative interface was refactored from "programmer art" (generic grays and small radii) to a premium, brand-aligned experience. This involved standardizing on `stone` tokens and `rounded-3xl` across all templates.
-* **Loose Coupling**: The `TemplateRenderer` was refactored to isolate page templates, preventing namespace collisions.
-* **Security**: `DevLogin` in `auth.go` currently bypasses the Admin Claim flow. This should be tightened in future iterations.
-* **Testing**: Browser subagent tests proved critical in catching template errors (like unterminated strings) and visual regressions during the rebranding process.
-* **Bulk Upload**: Admin bulk upload requires confirmation and gracefully handles both malformed files (by redirecting to the dashboard with flash messages) and invalid categories (by falling back to the `Business` type).
+* **UI Transformation:** The codebase successfully migrated from a generic corporate look to a "warm and juicy" diaspora identity. The use of custom TOON CSS variables in `input.css` allows for rapid theme adjustments while maintaining design system integrity.
+* **Verification Loop:** The "3-layer verification" (TDD, manual check, and browser subagent) proved essential. In Phase 5, browser verification caught a CSS specificity conflict that would have broken the high-contrast "Just Added" badge.
+* **Visual Hierarchy:** Unified CTA colors (`btn-leaf`) successfully resolved the "chaotic contact layer" issue where multiple different colors competed for the user's attention.
+* **Performance:** CSS build steps are integrated via `npm build:css`. Future work includes image optimization (WebP) and further HTMX lazy-loading for heavy image components.
+* **Critique (Agbalumo Spirit):** The UI now feels "Sweet like Agbalumo." The warm palette (#FFFBF5) significantly departs from the "Default SaaS" look, reinforcing the project's goal of fostering community trust.
