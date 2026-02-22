@@ -11,15 +11,15 @@
         <!-- Placeholder image logic: Title fallback -->
         {{ if not .Listing.ImageURL }}
         <div class="w-full h-full flex flex-col items-center justify-center p-6 text-center transform group-hover:scale-105 transition-transform duration-500 relative overflow-hidden
-            {{ if eq .Listing.Type " Job" }}bg-gradient-to-br from-blue-500 to-blue-700 dark:from-blue-700
-            dark:to-blue-900 {{ else if eq .Listing.Type "Food" }}bg-gradient-to-br from-orange-500 to-orange-700
-            dark:from-orange-700 dark:to-orange-900 {{ else if eq .Listing.Type "Event" }}bg-gradient-to-br
-            from-purple-500 to-purple-700 dark:from-purple-700 dark:to-purple-900 {{ else if eq .Listing.Type "Request"
-            }}bg-gradient-to-br from-teal-500 to-teal-700 dark:from-teal-700 dark:to-teal-900 {{ else if eq
-            .Listing.Type "Business" }}bg-gradient-to-br from-indigo-500 to-indigo-700 dark:from-indigo-700
-            dark:to-indigo-900 {{ else if eq .Listing.Type "Service" }}bg-gradient-to-br from-emerald-500 to-emerald-700
-            dark:from-emerald-700 dark:to-emerald-900 {{ else }}bg-gradient-to-br from-stone-400 to-stone-600
-            dark:from-stone-600 dark:to-stone-800{{ end }}">
+            {{ if eq .Listing.Type " Job" }}bg-gradient-to-br from-amber-400 to-orange-500 dark:from-amber-600
+            dark:to-orange-800 {{ else if eq .Listing.Type "Food" }}bg-gradient-to-br from-orange-400 to-red-500
+            dark:from-orange-600 dark:to-red-800 {{ else if eq .Listing.Type "Event" }}bg-gradient-to-br from-rose-400
+            to-accent-star dark:from-rose-600 dark:to-accent-star {{ else if eq .Listing.Type "Request"
+            }}bg-gradient-to-br from-lime-400 to-secondary dark:from-lime-600 dark:to-secondary {{ else if eq
+            .Listing.Type "Business" }}bg-gradient-to-br from-orange-500 to-amber-700 dark:from-orange-700
+            dark:to-amber-900 {{ else if eq .Listing.Type "Service" }}bg-gradient-to-br from-yellow-400 to-secondary
+            dark:from-yellow-600 dark:to-secondary {{ else }}bg-gradient-to-br from-orange-100 to-orange-200
+            dark:from-stone-700 dark:to-stone-800{{ end }}">
 
             <!-- Large Watermark Icon -->
             <span
@@ -42,7 +42,8 @@
         <div class="h-48 bg-stone-200 dark:bg-stone-700 relative dynamic-bg" data-bg-image="{{.Listing.ImageURL}}">
         </div>
         {{ end }}
-        <div class="badge-star absolute top-3 right-3 backdrop-blur-sm px-3 py-1 rounded-full text-xs shadow-sm z-0">
+        <div
+            class="badge-star absolute top-3 right-3 bg-accent-star text-white px-3 py-1 rounded-full text-xs font-bold shadow-md z-0 animate-pulse">
             Just Added
         </div>
 
@@ -66,7 +67,7 @@
             <div>
                 <div class="flex items-center gap-2 mb-1">
                     <span
-                        class="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-[10px] uppercase font-bold px-2 py-0.5 rounded-md tracking-wider whitespace-nowrap">{{
+                        class="bg-primary/10 dark:bg-primary/20 text-primary dark:text-orange-400 text-[10px] uppercase font-bold px-2 py-0.5 rounded-md tracking-wider whitespace-nowrap">{{
                         .Listing.Type }}</span>
                     {{ if and (eq .Listing.Type "Event") (not .Listing.EventStart.IsZero) }}
                     <span
@@ -121,20 +122,20 @@
             </a>
             {{ else if .Listing.WebsiteURL }}
             <a href="{{ .Listing.WebsiteURL }}" target="_blank"
-                class="mt-2 w-full flex items-center justify-center gap-2 bg-primary hover:bg-orange-600 text-white font-medium h-11 rounded-xl transition-all active:scale-[0.98]">
+                class="btn-leaf mt-2 w-full flex items-center justify-center gap-2 font-medium h-11 rounded-xl transition-all active:scale-[0.98]">
                 <span class="material-symbols-outlined text-[20px]">language</span>
                 Visit Website
             </a>
             {{ else if .Listing.ContactEmail }}
             <a href="mailto:{{ .Listing.ContactEmail }}"
-                class="mt-2 w-full flex items-center justify-center gap-2 bg-stone-700 hover:bg-stone-800 text-white font-medium h-11 rounded-xl transition-all active:scale-[0.98]">
+                class="btn-leaf mt-2 w-full flex items-center justify-center gap-2 font-medium h-11 rounded-xl transition-all active:scale-[0.98]">
                 <span class="material-symbols-outlined text-[20px]">mail</span>
                 Email
             </a>
             {{ else }}
-            <!-- Fallback View Button (Also relative z-20, though redundant if overlay works, but good for explicit UI affordance) -->
+            <!-- Fallback View Button -->
             <button
-                class="mt-2 w-full flex items-center justify-center gap-2 bg-primary hover:bg-orange-600 text-white font-medium h-11 rounded-xl transition-all active:scale-[0.98]"
+                class="btn-leaf mt-2 w-full flex items-center justify-center gap-2 font-medium h-11 rounded-xl transition-all active:scale-[0.98]"
                 hx-get="/listings/{{ .Listing.ID }}" hx-target="body" hx-swap="beforeend">
                 <span class="material-symbols-outlined text-[20px]">visibility</span>
                 View Details
