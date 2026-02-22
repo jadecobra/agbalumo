@@ -8,7 +8,8 @@
     <title>{{ block "title" . }}Agbalumo{{ end }}</title>
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&amp;display=swap"
         rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
@@ -82,7 +83,7 @@
                     <!-- Centered Search Bar (Max Width) -->
                     <div class="flex-1 max-w-2xl relative">
                         <div
-                            class="relative flex items-center h-10 md:h-12 rounded-full bg-white/60 dark:bg-surface-dark/60 shadow-sm border border-orange-100/50 dark:border-stone-700/50 group focus-within:ring-2 focus-within:ring-primary/20 focus-within:bg-white dark:focus-within:bg-surface-dark transition-all">
+                            class="search-glow relative flex items-center h-10 md:h-12 rounded-full bg-white/60 dark:bg-surface-dark/60 shadow-sm border border-orange-100/50 dark:border-stone-700/50 group focus-within:bg-white dark:focus-within:bg-surface-dark transition-all">
                             <div class="grid place-items-center h-full w-10 md:w-12 text-text-sub">
                                 <span class="material-symbols-outlined text-[18px] md:text-[20px]">search</span>
                             </div>
@@ -164,15 +165,17 @@
             <!-- Content -->
             {{ block "content" . }}{{ end }}
 
-            <!-- Simple Footer -->
-            <footer
-                class="py-8 text-center text-sm text-stone-400 dark:text-stone-600 mt-auto border-t border-stone-100 dark:border-stone-800/50">
-                <div class="flex justify-center gap-6 mb-2">
-                    <a href="/about" class="hover:text-primary transition-colors font-medium">About</a>
-                    <a href="#" class="hover:text-primary transition-colors">Privacy</a>
-                    <a href="#" class="hover:text-primary transition-colors">Terms</a>
+            <!-- Fruit-Themed Footer -->
+            <footer class="footer-fruit py-12 text-center text-sm text-text-sub mt-auto">
+                <div class="max-w-7xl mx-auto px-4">
+                    <div class="flex justify-center gap-8 mb-4">
+                        <a href="/about"
+                            class="hover:text-primary transition-colors font-semibold text-text-main">About</a>
+                        <a href="#" class="hover:text-primary transition-colors font-medium">Privacy</a>
+                        <a href="#" class="hover:text-primary transition-colors font-medium">Terms</a>
+                    </div>
+                    <p class="text-text-sub/70">&copy; 2025 Agbalumo. Made with 🍊 for the diaspora.</p>
                 </div>
-                <p>&copy; 2025 Agbalumo. All rights reserved.</p>
             </footer>
         </main>
 

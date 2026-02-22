@@ -1,6 +1,6 @@
 {{ define "listing_card" }}
 <div id="listing-{{.Listing.ID}}"
-    class="group relative flex flex-col gap-3 p-4 rounded-3xl bg-white dark:bg-surface-dark border border-stone-100 dark:border-stone-800 shadow-sm hover:shadow-md transition-all duration-300 {{ .GridClass }}">
+    class="card-juicy group relative flex flex-col gap-3 p-4 rounded-3xl bg-white dark:bg-surface-dark border border-stone-100 dark:border-stone-800 shadow-sm hover:shadow-juicy transition-all duration-300 {{ .GridClass }}">
     <!-- Full Card Click Overlay -->
     <div class="absolute inset-0 z-10 cursor-pointer" hx-get="/listings/{{ .Listing.ID }}" hx-target="body"
         hx-swap="beforeend">
@@ -42,8 +42,7 @@
         <div class="h-48 bg-stone-200 dark:bg-stone-700 relative dynamic-bg" data-bg-image="{{.Listing.ImageURL}}">
         </div>
         {{ end }}
-        <div
-            class="absolute top-3 right-3 bg-white/90 dark:bg-black/80 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-secondary dark:text-green-400 border border-green-100 dark:border-green-900 shadow-sm z-0">
+        <div class="badge-star absolute top-3 right-3 backdrop-blur-sm px-3 py-1 rounded-full text-xs shadow-sm z-0">
             Just Added
         </div>
 
@@ -110,13 +109,13 @@
         <div class="relative z-20 pointer-events-auto">
             {{ if .Listing.ContactWhatsApp }}
             <a href="https://wa.me/{{ .Listing.ContactWhatsApp }}" target="_blank"
-                class="mt-2 w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium h-11 rounded-xl transition-all active:scale-[0.98]">
+                class="btn-leaf mt-2 w-full flex items-center justify-center gap-2 font-medium h-11 rounded-xl transition-all active:scale-[0.98]">
                 <span class="material-symbols-outlined text-[20px]">chat</span>
                 WhatsApp
             </a>
             {{ else if .Listing.ContactPhone }}
             <a href="tel:{{ .Listing.ContactPhone }}"
-                class="mt-2 w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium h-11 rounded-xl transition-all active:scale-[0.98]">
+                class="btn-leaf mt-2 w-full flex items-center justify-center gap-2 font-medium h-11 rounded-xl transition-all active:scale-[0.98]">
                 <span class="material-symbols-outlined text-[20px]">call</span>
                 Call
             </a>

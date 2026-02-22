@@ -7,45 +7,45 @@
     <div id="filter-container" class="max-w-7xl mx-auto px-4 py-2 overflow-x-auto no-scrollbar flex gap-2">
         <!-- Filters -->
         <button hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
-            class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-stone-900 text-white dark:bg-white dark:text-stone-900 px-4 shadow-sm border border-transparent transition-transform active:scale-95 text-xs font-bold uppercase">
+            class="chip-fruit flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-stone-900 text-white dark:bg-white dark:text-stone-900 px-4 shadow-sm border border-transparent transition-transform active:scale-95 text-xs font-bold uppercase">
             All ({{.TotalCount}})
         </button>
         <button hx-get="/listings/fragment?type=Food" hx-target="#listings-container" hx-indicator="#listings-loading"
-            class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
+            class="chip-fruit flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
             <span>Food ({{index .Counts "Food"}})</span>
             <span class="material-symbols-outlined text-[14px] text-text-sub">restaurant</span>
         </button>
         <button hx-get="/listings/fragment?type=Business" hx-target="#listings-container"
             hx-indicator="#listings-loading"
-            class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
+            class="chip-fruit flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
             <span>Business ({{index .Counts "Business"}})</span>
             <span class="material-symbols-outlined text-[14px] text-text-sub">storefront</span>
         </button>
         <button hx-get="/listings/fragment?type=Service" hx-target="#listings-container"
             hx-indicator="#listings-loading"
-            class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
+            class="chip-fruit flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
             <span>Services ({{index .Counts "Service"}})</span>
             <span class="material-symbols-outlined text-[14px] text-text-sub">construction</span>
         </button>
         <button hx-get="/listings/fragment?type=Product" hx-target="#listings-container"
             hx-indicator="#listings-loading"
-            class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
+            class="chip-fruit flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
             <span>Products ({{index .Counts "Product"}})</span>
             <span class="material-symbols-outlined text-[14px] text-text-sub">shopping_bag</span>
         </button>
         <button hx-get="/listings/fragment?type=Event" hx-target="#listings-container" hx-indicator="#listings-loading"
-            class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
+            class="chip-fruit flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
             <span>Events ({{index .Counts "Event"}})</span>
             <span class="material-symbols-outlined text-[14px] text-text-sub">event</span>
         </button>
         <button hx-get="/listings/fragment?type=Job" hx-target="#listings-container" hx-indicator="#listings-loading"
-            class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
+            class="chip-fruit flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
             <span>Jobs ({{index .Counts "Job"}})</span>
             <span class="material-symbols-outlined text-[14px] text-text-sub">work</span>
         </button>
         <button hx-get="/listings/fragment?type=Request" hx-target="#listings-container"
             hx-indicator="#listings-loading"
-            class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
+            class="chip-fruit flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
             <span>Requests ({{index .Counts "Request"}})</span>
             <span class="material-symbols-outlined text-[14px] text-text-sub">campaign</span>
         </button>
@@ -60,8 +60,8 @@
     {{ if .FeaturedListings }}
     <div class="mb-8 mt-4">
         <div class="flex items-center justify-between mb-4 px-2">
-            <h2 class="text-lg font-bold text-stone-900 dark:text-white flex items-center gap-2">
-                <span class="material-symbols-outlined text-primary">verified</span>
+            <h2 class="text-xl font-bold text-stone-900 dark:text-white flex items-center gap-2 font-serif">
+                <span class="material-symbols-outlined text-primary animate-gentle-pulse">verified</span>
                 Featured
             </h2>
         </div>
