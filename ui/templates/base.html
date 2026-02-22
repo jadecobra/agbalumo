@@ -64,9 +64,12 @@
                 <!-- Mobile Full Width Logo -->
                 <div
                     class="md:hidden flex flex-col justify-center items-center w-full py-2 border-b border-orange-50/30">
-                    <img src="/static/images/logo.png" alt="Agbalumo Logo" class="h-12 w-auto object-contain">
-                    <span class="text-[10px] text-primary font-medium tracking-wide -mt-1 font-display">find what you
-                        want</span>
+                    <h1 class="flex flex-col items-center">
+                        <img src="/static/images/logo.png" alt="Agbalumo Logo" class="h-12 w-auto object-contain">
+                        <span class="text-[10px] text-primary font-medium tracking-wide -mt-1 font-display">find what
+                            you
+                            want</span>
+                    </h1>
                 </div>
 
                 <div
@@ -74,16 +77,19 @@
 
                     <!-- Desktop Logo -->
                     <a href="/" class="hidden md:flex flex-col shrink-0 items-center justify-center gap-0 group">
-                        <img src="/static/images/logo.png" alt="Agbalumo Logo"
-                            class="h-8 md:h-10 object-contain group-hover:scale-105 transition-transform">
-                        <span class="text-[10px] text-primary font-medium tracking-wide -mt-1 font-display">find what
-                            you want</span>
+                        <h1 class="flex flex-col items-center">
+                            <img src="/static/images/logo.png" alt="Agbalumo Logo"
+                                class="h-8 md:h-10 object-contain group-hover:scale-105 transition-transform">
+                            <span class="text-[10px] text-primary font-medium tracking-wide -mt-1 font-display">find
+                                what
+                                you want</span>
+                        </h1>
                     </a>
 
                     <!-- Centered Search Bar (Max Width) -->
                     <div class="flex-1 max-w-2xl relative">
                         <div
-                            class="search-glow relative flex items-center h-10 md:h-12 rounded-full bg-white/60 dark:bg-surface-dark/60 shadow-sm border border-orange-100/50 dark:border-stone-700/50 group focus-within:bg-white dark:focus-within:bg-surface-dark transition-all">
+                            class="search-glow relative flex items-center h-11 md:h-12 rounded-full bg-white/60 dark:bg-surface-dark/60 shadow-sm border border-orange-100/50 dark:border-stone-700/50 group focus-within:bg-white dark:focus-within:bg-surface-dark transition-all">
                             <div class="grid place-items-center h-full w-10 md:w-12 text-text-sub">
                                 <span class="material-symbols-outlined text-[18px] md:text-[20px]">search</span>
                             </div>
@@ -116,13 +122,13 @@
                         <div class="flex items-center gap-3 border-l border-stone-200 dark:border-stone-700 pl-4">
                             <button data-auth-action="modal" data-modal-id="create-request-modal"
                                 data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
-                                class="flex items-center gap-2 bg-secondary/10 hover:bg-secondary/20 text-secondary dark:text-green-400 dark:hover:bg-green-900/30 px-4 h-10 rounded-full transition-all font-semibold font-display text-sm">
+                                class="flex items-center gap-2 bg-secondary/10 hover:bg-secondary/20 text-secondary dark:text-green-400 dark:hover:bg-green-900/30 px-4 h-11 rounded-full transition-all font-semibold font-display text-sm">
                                 <span class="material-symbols-outlined text-[18px]">campaign</span>
                                 Ask
                             </button>
                             <button data-auth-action="modal" data-modal-id="create-listing-modal"
                                 data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
-                                class="flex items-center gap-2 bg-primary hover:bg-orange-600 shadow-md shadow-orange-500/20 text-white px-5 h-10 rounded-full transition-all active:scale-95 font-semibold font-display text-sm">
+                                class="flex items-center gap-2 bg-primary hover:bg-orange-600 shadow-md shadow-orange-500/20 text-white px-5 h-11 rounded-full transition-all active:scale-95 font-semibold font-display text-sm">
                                 <span class="material-symbols-outlined text-[18px]">add_circle</span>
                                 Post
                             </button>
@@ -190,7 +196,7 @@
                         <p class="text-text-sub/70 font-medium tracking-wide italic">"Find what you want. Now. Sweet
                             like
                             Agbalumo."</p>
-                        <p class="text-text-sub/50 text-xs mt-2">&copy; 2025 Agbalumo. Made with 🍊 for the global
+                        <p class="text-text-sub/50 text-xs mt-2">&copy; 2026 Agbalumo. Made with 🍊 for the global
                             diaspora.</p>
                     </div>
                 </div>

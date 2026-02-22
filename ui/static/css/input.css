@@ -104,6 +104,19 @@
   box-shadow: 0 4px 12px rgba(194, 24, 91, 0.3);
 }
 
+/* ── Accessible Focus Indicators ── */
+:focus-visible {
+  outline: 3px solid var(--color-primary) !important;
+  outline-offset: 2px !important;
+  border-radius: inherit !important;
+}
+
+/* ── Typographic Contrast Fixes ── */
+.text-description {
+  color: #4E342E !important;
+  /* Deep Espresso for WCAG AA compliance (ratio > 4.5:1 on cream) */
+}
+
 /* ── Warm Search Focus Glow ── */
 .search-glow:focus-within {
   box-shadow: 0 0 0 3px rgba(255, 138, 0, 0.2);

@@ -3,7 +3,7 @@
     hx-get="/listings/{{.Listing.ID}}" hx-target="body" hx-swap="beforeend">
 
     <!-- Background Image -->
-    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110
+    <div role="img" aria-label="{{ .Listing.Title }} featured visual" class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110
         {{ if not .Listing.ImageURL }}
             {{ if eq .Listing.Type " Job" }}bg-gradient-to-br from-amber-400 to-orange-500 {{ else if eq
         .Listing.Type "Food" }}bg-gradient-to-br from-orange-400 to-red-500 {{ else if eq .Listing.Type "Event"

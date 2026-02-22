@@ -108,11 +108,16 @@ Agbalumo uses a "Juicy Fruit" design aesthetic, inspired by Yoruba roots and com
 * **Shapes:** `rounded-3xl` (32px) for a soft, premium feel; `rounded-xl` for interactive elements.
 * **Motion:** `juice-bounce` (scale 0.94 → 1.02) on clicks; `gentle-pulse` for verified status and new badges.
 * **Shadows:** `shadow-juicy` (orange tinted) and `shadow-lifted` for tactile depth.
+* **Accessibility & Ergonomics (The 10x Standard):**
+  - Semantic Landmark: `<h1>` logo wrap for screen-reader navigation.
+  - Color Contrast: Listing descriptions meet WCAG AA (4.5:1 ratio).
+  - Touch Targets: All primary mobile targets (chips, search, nav) are at least 44px.
+  - Interaction: High-visibility 3px orange focus rings for keyboard users.
+  - ARIA: Placeholders and images include roles and descriptive labels.
 
 ### 8. Codebase Critique & Improvements (Self-Correction)
 
-* **UI Transformation:** The codebase successfully migrated from a generic corporate look to a "warm and juicy" diaspora identity. The use of custom TOON CSS variables in `input.css` allows for rapid theme adjustments while maintaining design system integrity.
-* **Verification Loop:** The "3-layer verification" (TDD, manual check, and browser subagent) proved essential. In Phase 5, browser verification caught a CSS specificity conflict that would have broken the high-contrast "Just Added" badge.
-* **Visual Hierarchy:** Unified CTA colors (`btn-leaf`) successfully resolved the "chaotic contact layer" issue where multiple different colors competed for the user's attention.
-* **Performance:** CSS build steps are integrated via `npm build:css`. Future work includes image optimization (WebP) and further HTMX lazy-loading for heavy image components.
-* **Critique (Agbalumo Spirit):** The UI now feels "Sweet like Agbalumo." The warm palette (#FFFBF5) significantly departs from the "Default SaaS" look, reinforcing the project's goal of fostering community trust.
+* **Visual Hierarchy:** Unified CTA colors (`btn-leaf`) and mobile heading scaling (H2 > H3) successfully resolved the "chaotic layout" issues.
+* **Accessibility First:** The project now adheres to WCAG AA contrast and semantic landmark standards. The "10x" engineer protocol was applied to ensure the UI is robust for all users.
+* **Performance:** CSS build steps are integrated via `npm build:css`. Future work includes image optimization (WebP) and further HTMX lazy-loading.
+* **Critique (Agbalumo Spirit):** The UI now feels "Sweet like Agbalumo." It is warm, accessible, and premium.
