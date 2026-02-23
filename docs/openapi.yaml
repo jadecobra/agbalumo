@@ -1,0 +1,743 @@
+openapi: 3.0.3
+info:
+  title: Agbalumo API
+  description: |
+    REST API for the Agbalumo directory platform - a web application for the West African diaspora community.
+    
+    ## Authentication
+    - Session-based authentication using cookies
+    - Google OAuth 2.0 for social login
+    - CSRF protection required for state-changing operations
+    
+    ## Rate Limiting
+    - Default: 60 requests per minute
+    - Admin login: 5 requests per minute
+  version: 1.0.0
+  contact:
+    name: Agbalumo Team
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8080
+    description: Development server
+  - url: https://agbalumo.com
+    description: Production server
+
+tags:
+  - name: Public
+    description: Public endpoints (no auth required)
+  - name: Auth
+    description: Authentication endpoints
+  - name: Listings
+    description: User listing operations
+  - name: Admin
+    description: Administrative operations
+
+paths:
+  /:
+    get:
+      summary: Home page
+      description: Returns the homepage with featured listings
+      tags:
+        - Public
+      responses:
+        '200':
+          description: HTML page
+          content:
+            text/html:
+              schema:
+                type: string
+
+  /about:
+    get:
+      summary: About page
+      tags:
+        - Public
+      responses:
+        '200':
+          description: HTML page
+          content:
+            text/html:
+              schema:
+                type: string
+
+  /listings:
+    post:
+      summary: Create a new listing
+      description: Create a new business listing, service, job, event, or request
+      tags:
+        - Listings
+      security:
+        - CookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ListingInput'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ListingInput'
+      responses:
+        '302':
+          description: Redirect to listing detail
+          headers:
+            Location:
+              schema:
+                type: string
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+
+  /listings/fragment:
+    get:
+      summary: Get listings fragment
+      description: Returns HTML fragment for HTMX partial updates
+      tags:
+        - Public
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: city
+          in: query
+          schema:
+            type: string
+        - name: origin
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: HTML fragment
+
+  /listings/{id}:
+    get:
+      summary: Get listing details
+      description: Returns full details of a specific listing
+      tags:
+        - Public
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Listing details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+        '404':
+          description: Listing not found
+
+    put:
+      summary: Update a listing
+      description: Update an existing listing
+      tags:
+        - Listings
+      security:
+        - CookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ListingInput'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ListingInput'
+      responses:
+        '302':
+          description: Redirect to listing detail
+        '401':
+          description: Unauthorized
+        '404':
+          description: Listing not found
+
+    delete:
+      summary: Delete a listing
+      description: Delete a listing (owner or admin only)
+      tags:
+        - Listings
+      security:
+        - CookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Redirect to home
+        '401':
+          description: Unauthorized
+        '404':
+          description: Listing not found
+
+  /listings/{id}/edit:
+    get:
+      summary: Get edit form
+      description: Returns HTML form for editing a listing
+      tags:
+        - Listings
+      security:
+        - CookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: HTML form
+        '401':
+          description: Unauthorized
+        '404':
+          description: Listing not found
+
+  /listings/{id}/claim:
+    post:
+      summary: Claim a listing
+      description: Claim ownership of an unclaimed listing
+      tags:
+        - Listings
+      security:
+        - CookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Redirect to profile
+        '401':
+          description: Unauthorized
+
+  /profile:
+    get:
+      summary: Get user profile
+      description: Returns the authenticated user's profile and their listings
+      tags:
+        - Listings
+      security:
+        - CookieAuth: []
+      responses:
+        '200':
+          description: User profile page
+        '401':
+          description: Unauthorized
+
+  /feedback:
+    post:
+      summary: Submit feedback
+      description: Submit user feedback
+      tags:
+        - Listings
+      security:
+        - CookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                listing_id:
+                  type: string
+                message:
+                  type: string
+                rating:
+                  type: integer
+      responses:
+        '302':
+          description: Redirect to listing
+        '401':
+          description: Unauthorized
+
+  /feedback/modal:
+    get:
+      summary: Get feedback modal
+      description: Returns HTML modal for feedback form
+      tags:
+        - Listings
+      security:
+        - CookieAuth: []
+      responses:
+        '200':
+          description: HTML modal
+
+  # Authentication Routes
+  /auth/dev:
+    get:
+      summary: Dev login
+      description: Development-only login endpoint (bypasses OAuth)
+      tags:
+        - Auth
+      responses:
+        '302':
+          description: Redirect to home with session
+
+  /auth/logout:
+    get:
+      summary: Logout
+      description: Clear session and redirect to home
+      tags:
+        - Auth
+      responses:
+        '302':
+          description: Redirect to home
+
+  /auth/google/login:
+    get:
+      summary: Google login
+      description: Initiate Google OAuth flow
+      tags:
+        - Auth
+      responses:
+        '302':
+          description: Redirect to Google OAuth
+
+  /auth/google/callback:
+    get:
+      summary: Google callback
+      description: Handle OAuth callback from Google
+      tags:
+        - Auth
+      responses:
+        '302':
+          description: Redirect to home with session
+
+  # Admin Routes
+  /admin:
+    get:
+      summary: Admin dashboard
+      description: Returns admin dashboard with statistics
+      tags:
+        - Admin
+      security:
+        - CookieAuth: []
+      responses:
+        '200':
+          description: Admin dashboard HTML
+        '302':
+          description: Redirect to login
+
+  /admin/login:
+    get:
+      summary: Admin login form
+      tags:
+        - Admin
+      responses:
+        '200':
+          description: Login form HTML
+
+    post:
+      summary: Admin login action
+      tags:
+        - Admin
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - code
+              properties:
+                code:
+                  type: string
+      responses:
+        '200':
+          description: Login result
+        '400':
+          description: Invalid code
+
+  /admin/users:
+    get:
+      summary: List all users
+      description: Returns list of all registered users
+      tags:
+        - Admin
+      security:
+        - CookieAuth: []
+      responses:
+        '200':
+          description: Users list HTML
+
+  /admin/listings:
+    get:
+      summary: List all listings (admin)
+      description: Returns all listings with moderation controls
+      tags:
+        - Admin
+      security:
+        - CookieAuth: []
+      responses:
+        '200':
+          description: Listings list HTML
+
+  /admin/listings/{id}/approve:
+    post:
+      summary: Approve listing
+      description: Approve a pending listing
+      tags:
+        - Admin
+      security:
+        - CookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Redirect to listings
+        '404':
+          description: Listing not found
+
+  /admin/listings/{id}/reject:
+    post:
+      summary: Reject listing
+      description: Reject a listing
+      tags:
+        - Admin
+      security:
+        - CookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Redirect to listings
+        '404':
+          description: Listing not found
+
+  /admin/listings/{id}/featured:
+    post:
+      summary: Toggle featured
+      description: Toggle featured status of a listing
+      tags:
+        - Admin
+      security:
+        - CookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Redirect to listings
+
+  /admin/listings/bulk:
+    post:
+      summary: Bulk action
+      description: Perform bulk action on multiple listings
+      tags:
+        - Admin
+      security:
+        - CookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  enum: [approve, reject, delete]
+                ids:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '302':
+          description: Redirect to listings
+
+  /admin/listings/delete-confirm:
+    get:
+      summary: Delete confirmation
+      description: Returns delete confirmation modal
+      tags:
+        - Admin
+      security:
+        - CookieAuth: []
+      responses:
+        '200':
+          description: Confirmation modal HTML
+
+  /admin/listings/delete:
+    post:
+      summary: Delete listing (admin)
+      description: Admin can delete any listing
+      tags:
+        - Admin
+      security:
+        - CookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - id
+              properties:
+                id:
+                  type: string
+      responses:
+        '302':
+          description: Redirect to listings
+
+  /admin/upload:
+    post:
+      summary: Bulk upload
+      description: Upload CSV file for bulk listing import
+      tags:
+        - Admin
+      security:
+        - CookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '302':
+          description: Redirect to listings
+
+components:
+  securitySchemes:
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: session
+
+  schemas:
+    Listing:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "abc123"
+        owner_id:
+          type: string
+          example: "user-456"
+        owner_origin:
+          type: string
+          example: "Nigeria"
+        type:
+          type: string
+          enum: [Business, Service, Product, Food, Event, Job, Request]
+          example: "Business"
+        anchor:
+          type: string
+          example: "Professional"
+        title:
+          type: string
+          example: "Lagos Restaurant"
+        description:
+          type: string
+          example: "Authentic Nigerian cuisine"
+        city:
+          type: string
+          example: "Lagos"
+        address:
+          type: string
+          example: "123 Main Street"
+        hours_of_operation:
+          type: string
+          example: "Mon-Fri: 9am-6pm"
+        image_url:
+          type: string
+          example: "/uploads/listing-abc123.jpg"
+        contact_email:
+          type: string
+          format: email
+          example: "info@example.com"
+        contact_phone:
+          type: string
+          example: "+2341234567890"
+        contact_whatsapp:
+          type: string
+          example: "+2340987654321"
+        website_url:
+          type: string
+          format: uri
+          example: "https://example.com"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        deadline:
+          type: string
+          format: date-time
+        event_start:
+          type: string
+          format: date-time
+        event_end:
+          type: string
+          format: date-time
+        skills:
+          type: string
+          example: "JavaScript, React, Node.js"
+        job_start_date:
+          type: string
+          format: date-time
+        job_apply_url:
+          type: string
+          format: uri
+        company:
+          type: string
+          example: "Tech Corp"
+        pay_range:
+          type: string
+          example: "$50,000 - $70,000"
+        is_active:
+          type: boolean
+          example: true
+        status:
+          type: string
+          enum: [Pending, Approved, Rejected]
+          example: "Approved"
+        featured:
+          type: boolean
+          example: false
+
+    ListingInput:
+      type: object
+      required:
+        - title
+        - type
+        - owner_origin
+        - city
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+          example: "Lagos Restaurant"
+        type:
+          type: string
+          enum: [Business, Service, Product, Food, Event, Job, Request]
+          example: "Business"
+        owner_origin:
+          type: string
+          example: "Nigeria"
+        description:
+          type: string
+          maxLength: 2000
+          example: "Authentic Nigerian cuisine"
+        city:
+          type: string
+          example: "Lagos"
+        address:
+          type: string
+          example: "123 Main Street"
+        hours_of_operation:
+          type: string
+          example: "Mon-Fri: 9am-6pm"
+        contact_email:
+          type: string
+          format: email
+        contact_phone:
+          type: string
+        contact_whatsapp:
+          type: string
+        website_url:
+          type: string
+          format: uri
+        deadline:
+          type: string
+          format: date-time
+        event_start:
+          type: string
+          format: date-time
+        event_end:
+          type: string
+          format: date-time
+        skills:
+          type: string
+        job_start_date:
+          type: string
+          format: date-time
+        job_apply_url:
+          type: string
+          format: uri
+        company:
+          type: string
+        pay_range:
+          type: string
+        image:
+          type: string
+          format: binary
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "user-123"
+        google_id:
+          type: string
+          example: "google-123456"
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        name:
+          type: string
+          example: "John Doe"
+        avatar_url:
+          type: string
+          format: uri
+        role:
+          type: string
+          enum: [Admin, User]
+          example: "User"
+        created_at:
+          type: string
+          format: date-time
+
+    Feedback:
+      type: object
+      properties:
+        listing_id:
+          type: string
+        message:
+          type: string
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5

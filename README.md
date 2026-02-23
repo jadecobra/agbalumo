@@ -1,6 +1,22 @@
 # Agbalumo
 
-A robust web application platform.
+A robust web application platform for the West African diaspora community, featuring a business directory, job board, event listings, and community requests.
+
+## Quick Start
+
+```bash
+# Build and start the server
+./scripts/verify_restart.sh
+
+# Access the application
+open https://localhost:8443
+```
+
+## Documentation
+
+- **[CLI Commands](docs/cli.md)** - Command-line interface for managing listings and admin operations
+- **[HTTP API Reference](docs/api.md)** - REST API endpoints and authentication
+- **[OpenAPI Specification](docs/openapi.yaml)** - Full API schema (OpenAPI 3.0.3)
 
 ## Environment & Setup
 
