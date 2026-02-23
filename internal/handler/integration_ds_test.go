@@ -61,7 +61,7 @@ func TestIntegration_DataValidation(t *testing.T) {
 		{
 			name:      "Invalid Origin",
 			body:      "title=Bad+Biz&type=Business&owner_origin=Mars&description=Alien&contact_email=a@b.com",
-			wantError: "owner origin must be a West African country",
+			wantError: "owner origin must be an African country",
 		},
 		{
 			name:      "Missing Contact",
