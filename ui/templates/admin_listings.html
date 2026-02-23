@@ -221,47 +221,5 @@
         </div>
     </form>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const selectAll = document.getElementById('selectAll');
-        const checkboxes = document.querySelectorAll('.row-checkbox');
-        const selectionCount = document.getElementById('selectionCount');
-        const bulkActionSelect = document.getElementById('bulkActionSelect');
-        const bulkActionButton = document.getElementById('bulkActionButton');
-
-        function updateSelectionState() {
-            const checkedCount = document.querySelectorAll('.row-checkbox:checked').length;
-            selectionCount.textContent = `${checkedCount} selected`;
-
-            const hasSelection = checkedCount > 0;
-            bulkActionSelect.disabled = !hasSelection;
-            bulkActionButton.disabled = !hasSelection || bulkActionSelect.value === "";
-
-            selectAll.checked = checkedCount === checkboxes.length && checkboxes.length > 0;
-            selectAll.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
-        }
-
-        if (selectAll) {
-            selectAll.addEventListener('change', function () {
-                checkboxes.forEach(cb => {
-                    cb.checked = selectAll.checked;
-                });
-                updateSelectionState();
-            });
-        }
-
-        checkboxes.forEach(cb => {
-            cb.addEventListener('change', updateSelectionState);
-        });
-
-        if (bulkActionSelect) {
-            bulkActionSelect.addEventListener('change', updateSelectionState);
-        }
-
-        // Initialize state
-        updateSelectionState();
-    });
-</script>
 {{ end }}
 {{ define "filters" }}{{ end }}

@@ -48,12 +48,12 @@
         <div
             class="bg-white dark:bg-surface-dark rounded-3xl shadow-soft p-6 border border-stone-100 dark:border-stone-800">
             <h2 class="text-xl font-bold text-stone-900 dark:text-white mb-4">New Listings (Last 30 Days)</h2>
-            <canvas id="listingChart"></canvas>
+            <canvas id="listingChart" data-chart-data="{{ .ListingGrowth | toJson }}"></canvas>
         </div>
         <div
             class="bg-white dark:bg-surface-dark rounded-3xl shadow-soft p-6 border border-stone-100 dark:border-stone-800">
             <h2 class="text-xl font-bold text-stone-900 dark:text-white mb-4">New Users (Last 30 Days)</h2>
-            <canvas id="userChart"></canvas>
+            <canvas id="userChart" data-chart-data="{{ .UserGrowth | toJson }}"></canvas>
         </div>
     </div>
 
@@ -252,78 +252,4 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Prepare Data
-        const listingData = {{ .ListingGrowth | toJson
-    }}; // Comes as list of structs
-    const userData = {{ .UserGrowth | toJson }};
-
-    // Helper to parse data for Chart.js
-    function parseData(data) {
-        if (!data) return { labels: [], values: [] };
-        const labels = data.map(d => d.Date);
-        const values = data.map(d => d.Count);
-        return { labels, values };
-    }
-
-    const listings = parseData(listingData);
-    const users = parseData(userData);
-
-    // Listing Chart
-    new Chart(document.getElementById('listingChart'), {
-        type: 'line',
-        data: {
-            labels: listings.labels,
-            datasets: [{
-                label: 'New Listings',
-                data: listings.values,
-                borderColor: '#ea580c', // primary-600
-                backgroundColor: 'rgba(234, 88, 12, 0.1)',
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-        }
-    });
-
-    // User Chart
-    new Chart(document.getElementById('userChart'), {
-        type: 'line',
-        data: {
-            labels: users.labels,
-            datasets: [{
-                label: 'New Users',
-                data: users.values,
-                borderColor: '#3b82f6', // blue-500
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-        }
-    });
-
-    // Bulk Upload Button Enabling
-    const csvFileInput = document.getElementById('csvFileInput');
-    const csvUploadBtn = document.getElementById('csvUploadBtn');
-    if (csvFileInput && csvUploadBtn) {
-        csvFileInput.addEventListener('change', function () {
-            if (this.files.length > 0) {
-                csvUploadBtn.disabled = false;
-            } else {
-                csvUploadBtn.disabled = true;
-            }
-        });
-    }
-    });
-</script>
 {{ end }}{{ define "filters" }}{{ end }}
