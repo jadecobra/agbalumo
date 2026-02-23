@@ -1,10 +1,12 @@
 package handler
 
 import (
+	"fmt"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -267,6 +269,9 @@ func (h *ListingHandler) HandleCreate(c echo.Context) error {
 	}
 
 	if err := h.bindAndMapListing(c, &l); err != nil {
+		if isImageError(err) {
+			return h.renderImageErrorToast(c, err)
+		}
 		return RespondError(c, err)
 	}
 
@@ -318,6 +323,9 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 	}
 
 	if err := h.bindAndMapListing(c, &listing); err != nil {
+		if isImageError(err) {
+			return h.renderImageErrorToast(c, err)
+		}
 		return RespondError(c, err)
 	}
 
@@ -405,7 +413,7 @@ func (h *ListingHandler) handleImageUpload(c echo.Context, l *domain.Listing) er
 		l.ImageURL = imageURL
 		return nil
 	} else if err != nil {
-		return RespondError(c, err)
+		return err
 	}
 	return nil
 }
@@ -482,4 +490,52 @@ func (h *ListingHandler) getFileHeader(c echo.Context, key string) *multipart.Fi
 		return nil
 	}
 	return file
+}
+
+func isImageError(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := err.Error()
+	return strings.Contains(msg, "File size exceeds") ||
+		strings.Contains(msg, "Invalid file type") ||
+		strings.Contains(msg, "Invalid or unsupported image")
+}
+
+func (h *ListingHandler) renderImageErrorToast(c echo.Context, err error) error {
+	var msg string
+	if he, ok := err.(*echo.HTTPError); ok {
+		if m, ok := he.Message.(string); ok {
+			msg = m
+		}
+	}
+
+	toastID := uuid.New().String()
+
+	c.Response().Header().Set("HX-Reswap", "none")
+	c.Response().Header().Set("Content-Type", "text/html")
+
+	return c.HTML(http.StatusBadRequest, fmt.Sprintf(`
+	<div id="toast-%s" 
+	     class="fixed top-4 right-4 z-50 max-w-sm w-full bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl shadow-lg p-4 flex items-start gap-3 animate-in slide-in-from-top-2 fade-in"
+	     role="alert">
+	    <span class="material-symbols-outlined text-red-500 text-[20px] mt-0.5">error</span>
+	    <div class="flex-1 min-w-0">
+	        <p class="text-sm font-medium text-red-800 dark:text-red-200">Image Upload Failed</p>
+	        <p class="text-sm text-red-600 dark:text-red-300 mt-1">%s</p>
+	    </div>
+	    <button onclick="this.parentElement.remove()" 
+	            class="text-red-400 hover:text-red-600 dark:hover:text-red-200 transition-colors">
+	        <span class="material-symbols-outlined text-[18px]">close</span>
+	    </button>
+	</div>
+	<script>
+	    setTimeout(() => {
+	        const toast = document.getElementById('toast-%s');
+	        if (toast) {
+	            toast.style.animation = 'fade-out 0.3s ease-out forwards';
+	            setTimeout(() => toast.remove(), 300);
+	        }
+	    }, 5000);
+	</script>`, toastID, msg, toastID))
 }
