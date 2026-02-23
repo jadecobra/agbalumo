@@ -152,10 +152,20 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 	e.POST("/feedback", feedbackHandler.HandleSubmit, authMw.RequireAuth)
 
 	// Admin Routes
+	// Strict rate limiter for sensitive admin login endpoint (5 req/min, burst 10)
+	adminAuthLimiter := customMiddleware.NewRateLimiter(customMiddleware.RateLimitConfig{
+		Rate:  rate.Limit(5),
+		Burst: 10,
+	})
+
 	adminGroup := e.Group("/admin")
 	adminGroup.Use(authMw.OptionalAuth)
 	adminGroup.GET("/login", adminHandler.HandleLoginView, authMw.RequireAuth)
-	adminGroup.POST("/login", adminHandler.HandleLoginAction, authMw.RequireAuth)
+
+	// Admin login POST with strict rate limiting
+	adminLoginGroup := adminGroup.Group("/login")
+	adminLoginGroup.Use(adminAuthLimiter.Middleware())
+	adminLoginGroup.POST("", adminHandler.HandleLoginAction, authMw.RequireAuth)
 	adminGroup.Use(adminHandler.AdminMiddleware)
 	adminGroup.GET("", adminHandler.HandleDashboard)
 	adminGroup.GET("/users", adminHandler.HandleUsers)

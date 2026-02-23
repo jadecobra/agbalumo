@@ -14,8 +14,15 @@ func SecureHeaders(next echo.HandlerFunc) echo.HandlerFunc {
 		// - HTMX (unpkg.com)
 		// - Google Auth (accounts.google.com)
 		// - Google Maps (maps.googleapis.com, maps.gstatic.com)
-		// - Inline scripts (unsafe-inline) - Required for current setup (HTMX/Tailwind config in HTML)
-		//   TODO: Move inline scripts to files to enable stricter CSP.
+		// - Inline scripts (unsafe-inline) - Required for current setup
+		//
+		// SECURITY NOTE: 'unsafe-inline' weakens XSS protection.
+		// To fix: Either move all inline scripts to external JS files,
+		// or implement CSP nonces (see docs/TODO for tracking).
+		// Affected files:
+		//   - ui/templates/partials/*.html (8+ files with inline <script>)
+		//   - internal/handler/listing.go (renderImageErrorToast)
+		//   - internal/handler/feedback.go (HTMX responses)
 		csp := "default-src 'self'; " +
 			"script-src 'self' 'unsafe-inline' https://unpkg.com https://maps.googleapis.com https://cdn.jsdelivr.net https://cdn.tailwindcss.com; " +
 			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; " +
