@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"image"
+	"image/png"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -431,7 +433,10 @@ func TestHandleCreate_WithImage(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	part.Write([]byte{0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A})
+	img := image.NewRGBA(image.Rect(0, 0, 1, 1))
+	var imgBuf bytes.Buffer
+	png.Encode(&imgBuf, img)
+	part.Write(imgBuf.Bytes())
 	writer.Close()
 
 	req := httptest.NewRequest(http.MethodPost, "/listings", body)

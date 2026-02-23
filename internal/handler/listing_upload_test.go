@@ -2,6 +2,8 @@ package handler_test
 
 import (
 	"bytes"
+	"image"
+	"image/png"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -87,10 +89,12 @@ func TestListingHandler_Upload_Valid(t *testing.T) {
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
 
-	// Add Valid GIF/PNG/JPG magic bytes
+	// Add valid PNG image
 	part, _ := writer.CreateFormFile("image", "valid.png")
-	// tiny png signature (8 bytes)
-	part.Write([]byte{0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A})
+	img := image.NewRGBA(image.Rect(0, 0, 1, 1))
+	var imgBuf bytes.Buffer
+	png.Encode(&imgBuf, img)
+	part.Write(imgBuf.Bytes())
 
 	// Add Fields
 	writer.WriteField("title", "Valid Title")

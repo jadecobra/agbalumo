@@ -1,7 +1,11 @@
 package service
 
 import (
+	"bytes"
 	"context"
+	"image"
+	"image/jpeg"
+	"image/png"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -18,19 +22,21 @@ type ImageService interface {
 
 // LocalImageService handles saving images to the local filesystem
 type LocalImageService struct {
-	UploadDir     string
-	MaxUploadSize int64
+	UploadDir          string
+	MaxUploadSize      int64
+	CompressionQuality int // 1-100, higher = better quality, larger file
 }
 
 // NewLocalImageService creates a new instance with default settings
 func NewLocalImageService() *LocalImageService {
 	return &LocalImageService{
-		UploadDir:     "ui/static/uploads",
-		MaxUploadSize: 5 * 1024 * 1024, // 5MB
+		UploadDir:          "ui/static/uploads",
+		MaxUploadSize:      5 * 1024 * 1024, // 5MB
+		CompressionQuality: 80,              // Good balance of quality and file size
 	}
 }
 
-// UploadImage validates and saves the uploaded image
+// UploadImage validates, compresses, and saves the uploaded image
 func (s *LocalImageService) UploadImage(ctx context.Context, file *multipart.FileHeader, listingID string) (string, error) {
 	if file == nil {
 		return "", nil // No file to upload
@@ -64,20 +70,19 @@ func (s *LocalImageService) UploadImage(ctx context.Context, file *multipart.Fil
 		return "", err
 	}
 
-	// Ensure directory exists
+	// 2. Decode the image
+	img, _, err := image.Decode(src)
+	if err != nil {
+		return "", echo.NewHTTPError(http.StatusBadRequest, "Invalid image file")
+	}
+
+	// 3. Ensure directory exists
 	if err := os.MkdirAll(s.UploadDir, 0755); err != nil {
 		return "", err
 	}
 
-	// Determine Extension
-	ext := ".jpg"
-	if fileType == "image/png" {
-		ext = ".png"
-	} else if fileType == "image/webp" {
-		ext = ".webp"
-	}
-
-	filename := listingID + ext
+	// 4. Compress and save as JPEG (best compression)
+	filename := listingID + ".jpg"
 	dstPath := filepath.Join(s.UploadDir, filename)
 
 	dst, err := os.Create(dstPath)
@@ -86,10 +91,49 @@ func (s *LocalImageService) UploadImage(ctx context.Context, file *multipart.Fil
 	}
 	defer dst.Close()
 
-	if _, err = io.Copy(dst, src); err != nil {
+	// Encode with compression quality
+	quality := s.CompressionQuality
+	if quality <= 0 || quality > 100 {
+		quality = 80
+	}
+
+	err = jpeg.Encode(dst, img, &jpeg.Options{Quality: quality})
+	if err != nil {
 		return "", err
 	}
 
 	// Return web-accessible path
 	return "/static/uploads/" + filename, nil
+}
+
+// CompressImage compresses an image buffer and returns compressed bytes
+func (s *LocalImageService) CompressImage(src io.Reader) (io.Reader, error) {
+	img, _, err := image.Decode(src)
+	if err != nil {
+		return nil, err
+	}
+
+	var buf bytes.Buffer
+	err = jpeg.Encode(&buf, img, &jpeg.Options{Quality: s.CompressionQuality})
+	if err != nil {
+		return nil, err
+	}
+
+	return &buf, nil
+}
+
+// PNGToJPEG converts a PNG image to JPEG
+func (s *LocalImageService) PNGToJPEG(src io.Reader) (io.Reader, error) {
+	img, err := png.Decode(src)
+	if err != nil {
+		return nil, err
+	}
+
+	var buf bytes.Buffer
+	err = jpeg.Encode(&buf, img, &jpeg.Options{Quality: s.CompressionQuality})
+	if err != nil {
+		return nil, err
+	}
+
+	return &buf, nil
 }
