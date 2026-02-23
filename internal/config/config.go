@@ -3,10 +3,10 @@ package config
 import (
 	"log/slog"
 	"os"
+	"path/filepath"
 	"strconv"
 )
 
-// Config holds all application configuration values.
 type Config struct {
 	Env            string
 	DatabaseURL    string
@@ -15,11 +15,18 @@ type Config struct {
 	DevAuthEmail   string
 	RateLimitRate  int
 	RateLimitBurst int
+	UploadDir      string
 }
 
-// LoadConfig reads environment variables and returns a populated Config with defaults.
 func LoadConfig() *Config {
 	env := getEnv("AGBALUMO_ENV", "development")
+
+	uploadDir := getEnv("UPLOAD_DIR", "ui/static/uploads")
+	if !filepath.IsAbs(uploadDir) {
+		if cwd, err := os.Getwd(); err == nil {
+			uploadDir = filepath.Join(cwd, uploadDir)
+		}
+	}
 
 	return &Config{
 		Env:            env,
@@ -29,10 +36,10 @@ func LoadConfig() *Config {
 		DevAuthEmail:   getEnv("DEV_AUTH_EMAIL", "dev@agbalumo.com"),
 		RateLimitRate:  getEnvAsInt("RATE_LIMIT_RATE", 20),
 		RateLimitBurst: getEnvAsInt("RATE_LIMIT_BURST", 40),
+		UploadDir:      uploadDir,
 	}
 }
 
-// getAdminCode returns the admin code, failing in production if not set.
 func getAdminCode(env string) string {
 	code := os.Getenv("ADMIN_CODE")
 
@@ -41,7 +48,6 @@ func getAdminCode(env string) string {
 		os.Exit(1)
 	}
 
-	// In development, use a default but warn
 	if code == "" {
 		slog.Warn("Using default admin code - set ADMIN_CODE for production")
 		code = "agbalumo2024"
@@ -50,7 +56,6 @@ func getAdminCode(env string) string {
 	return code
 }
 
-// getEnv returns the env var value or a fallback if empty.
 func getEnv(key, fallback string) string {
 	if val, ok := os.LookupEnv(key); ok && val != "" {
 		return val
@@ -58,7 +63,6 @@ func getEnv(key, fallback string) string {
 	return fallback
 }
 
-// getEnvAsInt returns the env var as an integer, or the fallback if missing/invalid.
 func getEnvAsInt(key string, fallback int) int {
 	valStr := getEnv(key, "")
 	if valStr == "" {

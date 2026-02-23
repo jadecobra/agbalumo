@@ -113,7 +113,7 @@ func initRenderer() (*ui.TemplateRenderer, error) {
 // setupRoutes registers all HTTP routes.
 func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config) {
 	// Handlers
-	listingHandler := handler.NewListingHandler(repo, nil)
+	listingHandler := handler.NewListingHandler(repo, nil, cfg.UploadDir)
 	csvService := service.NewCSVService()
 	adminHandler := handler.NewAdminHandler(repo, csvService, cfg)
 	authHandler := handler.NewAuthHandler(repo, nil, cfg)

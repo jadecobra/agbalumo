@@ -34,7 +34,7 @@ func createValidJPEG() []byte {
 }
 
 func TestNewLocalImageService(t *testing.T) {
-	svc := service.NewLocalImageService()
+	svc := service.NewLocalImageService("")
 
 	assert.NotNil(t, svc)
 	assert.Equal(t, "ui/static/uploads", svc.UploadDir)
@@ -80,7 +80,7 @@ func TestLocalImageService_UploadImage(t *testing.T) {
 }
 
 func TestLocalImageService_UploadImage_Validation(t *testing.T) {
-	svc := service.NewLocalImageService()
+	svc := service.NewLocalImageService("")
 	svc.MaxUploadSize = 100
 
 	path, err := svc.UploadImage(context.Background(), nil, "start")
@@ -114,7 +114,7 @@ func TestLocalImageService_UploadImage_Validation(t *testing.T) {
 }
 
 func TestLocalImageService_UploadImage_JPEG(t *testing.T) {
-	svc := service.NewLocalImageService()
+	svc := service.NewLocalImageService("")
 	svc.UploadDir = t.TempDir()
 
 	jpegData := createValidJPEG()
@@ -137,7 +137,7 @@ func TestLocalImageService_UploadImage_JPEG(t *testing.T) {
 }
 
 func TestLocalImageService_UploadImage_Compression(t *testing.T) {
-	svc := service.NewLocalImageService()
+	svc := service.NewLocalImageService("")
 	svc.UploadDir = t.TempDir()
 	svc.InitialQuality = 50
 
@@ -212,7 +212,7 @@ func TestLocalImageService_UploadImage_Errors(t *testing.T) {
 }
 
 func TestLocalImageService_CompressImage(t *testing.T) {
-	svc := service.NewLocalImageService()
+	svc := service.NewLocalImageService("")
 	svc.InitialQuality = 80
 
 	img := image.NewRGBA(image.Rect(0, 0, 10, 10))
@@ -227,7 +227,7 @@ func TestLocalImageService_CompressImage(t *testing.T) {
 }
 
 func TestLocalImageService_PNGToJPEG(t *testing.T) {
-	svc := service.NewLocalImageService()
+	svc := service.NewLocalImageService("")
 	svc.InitialQuality = 80
 
 	img := image.NewRGBA(image.Rect(0, 0, 10, 10))
@@ -313,14 +313,14 @@ func TestLocalImageService_UploadImage_DecodeError(t *testing.T) {
 }
 
 func TestLocalImageService_CompressImage_DecodeError(t *testing.T) {
-	svc := service.NewLocalImageService()
+	svc := service.NewLocalImageService("")
 
 	_, err := svc.CompressImage(strings.NewReader("not an image"))
 	assert.Error(t, err)
 }
 
 func TestLocalImageService_PNGToJPEG_DecodeError(t *testing.T) {
-	svc := service.NewLocalImageService()
+	svc := service.NewLocalImageService("")
 
 	_, err := svc.PNGToJPEG(strings.NewReader("not a png"))
 	assert.Error(t, err)

@@ -122,7 +122,13 @@
             <div id="image-upload-section" class="flex flex-col gap-1.5">
                 <label class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Photo
                     (Optional)</label>
-                <input name="image" type="file" accept="image/*"
+                <div id="image-preview-container" class="hidden relative mb-2">
+                    <img id="image-preview" class="h-24 w-24 object-cover rounded-xl border border-stone-200" alt="Preview">
+                    <button type="button" id="remove-image-btn" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600">
+                        <span class="material-symbols-outlined text-[16px]">close</span>
+                    </button>
+                </div>
+                <input name="image" type="file" accept="image/*" id="image-input"
                     class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all text-text-sub">
             </div>
 
@@ -252,3 +258,35 @@
         </form>
     </div>
 </dialog>
+</dialog>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var imageInput = document.getElementById('image-input');
+    var previewContainer = document.getElementById('image-preview-container');
+    var previewImg = document.getElementById('image-preview');
+    var removeBtn = document.getElementById('remove-image-btn');
+
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewContainer.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    if (removeBtn) {
+        removeBtn.addEventListener('click', function() {
+            imageInput.value = '';
+            previewContainer.classList.add('hidden');
+            previewImg.src = '';
+        });
+    }
+});
+</script>

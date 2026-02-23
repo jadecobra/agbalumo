@@ -31,14 +31,17 @@ type LocalImageService struct {
 	MinQuality     int   // 1-100, minimum quality to try before downscaling
 }
 
-// NewLocalImageService creates a new instance with default settings
-func NewLocalImageService() *LocalImageService {
+// NewLocalImageService creates a new instance with the specified upload directory.
+func NewLocalImageService(uploadDir string) *LocalImageService {
+	if uploadDir == "" {
+		uploadDir = "ui/static/uploads"
+	}
 	return &LocalImageService{
-		UploadDir:      "ui/static/uploads",
-		MaxUploadSize:  1 * 1024 * 1024, // 1MB max upload
-		MaxFileSize:    200 * 1024,      // 200KB max final file size
-		InitialQuality: 85,              // Start with good quality
-		MinQuality:     20,              // Minimum quality before downscaling
+		UploadDir:      uploadDir,
+		MaxUploadSize:  1 * 1024 * 1024,
+		MaxFileSize:    200 * 1024,
+		InitialQuality: 85,
+		MinQuality:     20,
 	}
 }
 

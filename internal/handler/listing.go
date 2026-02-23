@@ -21,9 +21,13 @@ type ListingHandler struct {
 	ListingSvc   *service.ListingService
 }
 
-func NewListingHandler(repo domain.ListingStore, imageService service.ImageService) *ListingHandler {
+func NewListingHandler(repo domain.ListingStore, imageService service.ImageService, opts ...string) *ListingHandler {
+	var uploadDir string
+	if len(opts) > 0 {
+		uploadDir = opts[0]
+	}
 	if imageService == nil {
-		imageService = service.NewLocalImageService()
+		imageService = service.NewLocalImageService(uploadDir)
 	}
 	listingSvc := service.NewListingService(repo)
 	return &ListingHandler{Repo: repo, ImageService: imageService, ListingSvc: listingSvc}

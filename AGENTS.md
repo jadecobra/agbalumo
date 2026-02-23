@@ -161,7 +161,7 @@ ui/
 ## Key Rules
 
 - **TDD**: Write tests first. A feature isn't done until tests pass.
-- **Coverage**: NEVER lower the 89.0% threshold - write more tests instead
+- **Coverage**: NEVER lower the 89.5% threshold - write more tests instead
 - **Commits**: Short, imperative mood ("add user auth" not "added user auth")
 - **Functions**: Small, single-purpose (SRP)
 - **NO comments**: Code should be self-documenting
