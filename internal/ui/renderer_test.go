@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -48,6 +49,7 @@ func TestTemplateRenderer_Render(t *testing.T) {
 	tmplContent := `
 	{{- /* Test FuncMap */ -}}
 	Add: {{ add 1 2 }}
+	Sub: {{ sub 5 2 }}
 	Mod: {{ mod 10 3 }}
 	Seq: {{ seq 1 3 }}
 	Dict: {{ $d := dict "k" "v" }}{{ $d.k }}
@@ -70,22 +72,100 @@ func TestTemplateRenderer_Render(t *testing.T) {
 		t.Fatalf("Render failed: %v", err)
 	}
 
-	// Verify Output
 	out := buf.String()
-	// weak check contains
 	if !contains(out, "Add: 3") {
 		t.Errorf("Expected Add: 3 in %q", out)
+	}
+	if !contains(out, "Sub: 3") {
+		t.Errorf("Expected Sub: 3 in %q", out)
 	}
 	if !contains(out, "Mod: 1") {
 		t.Errorf("Expected Mod: 1 in %q", out)
 	}
-	// Seq returns slice, print might be [1 2 3]
 	if !contains(out, "Seq: [1 2 3]") {
 		t.Errorf("Expected Seq: [1 2 3] in %q", out)
 	}
 	if !contains(out, "Dict: v") {
 		t.Errorf("Expected Dict: v in %q", out)
 	}
+}
+
+func TestTemplateRenderer_Render_IsNew(t *testing.T) {
+	tempDir := t.TempDir()
+	tmplContent := `{{ if isNew .CreatedAt }}new{{ else }}old{{ end }}`
+	tmplPath := filepath.Join(tempDir, "isnew.html")
+	if err := os.WriteFile(tmplPath, []byte(tmplContent), 0644); err != nil {
+		t.Fatalf("Failed to write func template: %v", err)
+	}
+
+	renderer, err := NewTemplateRenderer(filepath.Join(tempDir, "*.html"))
+	if err != nil {
+		t.Fatalf("Failed to create renderer: %v", err)
+	}
+
+	e := echo.New()
+	c := e.NewContext(nil, nil)
+
+	t.Run("recent item", func(t *testing.T) {
+		buf := new(bytes.Buffer)
+		data := map[string]interface{}{"CreatedAt": time.Now()}
+		if err := renderer.Render(buf, "isnew.html", data, c); err != nil {
+			t.Fatalf("Render failed: %v", err)
+		}
+		if !bytes.Contains(buf.Bytes(), []byte("new")) {
+			t.Errorf("Expected 'new' for recent item, got %s", buf.String())
+		}
+	})
+
+	t.Run("old item", func(t *testing.T) {
+		buf := new(bytes.Buffer)
+		data := map[string]interface{}{"CreatedAt": time.Now().Add(-8 * 24 * time.Hour)}
+		if err := renderer.Render(buf, "isnew.html", data, c); err != nil {
+			t.Fatalf("Render failed: %v", err)
+		}
+		if !bytes.Contains(buf.Bytes(), []byte("old")) {
+			t.Errorf("Expected 'old' for old item, got %s", buf.String())
+		}
+	})
+
+	t.Run("zero time", func(t *testing.T) {
+		buf := new(bytes.Buffer)
+		data := map[string]interface{}{"CreatedAt": time.Time{}}
+		if err := renderer.Render(buf, "isnew.html", data, c); err != nil {
+			t.Fatalf("Render failed: %v", err)
+		}
+		if !bytes.Contains(buf.Bytes(), []byte("old")) {
+			t.Errorf("Expected 'old' for zero time, got %s", buf.String())
+		}
+	})
+}
+
+func TestTemplateRenderer_Render_ToJson(t *testing.T) {
+	tempDir := t.TempDir()
+	tmplContent := `{{ $j := toJson . }}{{ $j }}`
+	tmplPath := filepath.Join(tempDir, "tojson.html")
+	if err := os.WriteFile(tmplPath, []byte(tmplContent), 0644); err != nil {
+		t.Fatalf("Failed to write func template: %v", err)
+	}
+
+	renderer, err := NewTemplateRenderer(filepath.Join(tempDir, "*.html"))
+	if err != nil {
+		t.Fatalf("Failed to create renderer: %v", err)
+	}
+
+	e := echo.New()
+	c := e.NewContext(nil, nil)
+
+	t.Run("valid object", func(t *testing.T) {
+		buf := new(bytes.Buffer)
+		data := map[string]interface{}{"name": "test", "count": 42}
+		if err := renderer.Render(buf, "tojson.html", data, c); err != nil {
+			t.Fatalf("Render failed: %v", err)
+		}
+		if !bytes.Contains(buf.Bytes(), []byte(`name`)) || !bytes.Contains(buf.Bytes(), []byte(`test`)) {
+			t.Errorf("Expected JSON output with name/test, got %s", buf.String())
+		}
+	})
 }
 
 func contains(s, substr string) bool {

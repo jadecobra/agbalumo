@@ -28,7 +28,7 @@ go test -race ./...
 ```bash
 ./scripts/pre-commit.sh
 ```
-Runs: `gofmt`, `go mod tidy`, `go vet`, race tests, coverage (>=89.0%), secret scanning.
+Runs: `gofmt`, `go mod tidy`, `go vet`, race tests, coverage (>=89.5%), secret scanning.
 
 ### Build & Restart Server
 ```bash

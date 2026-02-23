@@ -167,3 +167,71 @@ func TestLocalImageService_UploadImage_WebP(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Contains(t, path, ".webp")
 }
+
+func TestLocalImageService_UploadImage_JPEG(t *testing.T) {
+	svc := service.NewLocalImageService()
+	svc.UploadDir = t.TempDir()
+
+	body := &strings.Builder{}
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile("image", "test.jpg")
+	assert.NoError(t, err)
+
+	// Write JPEG magic bytes: FF D8 FF
+	magic := []byte{0xFF, 0xD8, 0xFF, 0xE0}
+	part.Write(magic)
+	writer.Close()
+
+	req := httptest.NewRequest("POST", "/", strings.NewReader(body.String()))
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.ParseMultipartForm(1024)
+	fileHeader := req.MultipartForm.File["image"][0]
+
+	path, err := svc.UploadImage(context.Background(), fileHeader, "jpeg-listing")
+	assert.NoError(t, err)
+	assert.Contains(t, path, ".jpg")
+}
+
+func TestLocalImageService_UploadImage_Errors(t *testing.T) {
+	t.Run("mkdir error", func(t *testing.T) {
+		svc := &service.LocalImageService{
+			UploadDir:     "/dev/null/nonexistent/path/that/fails",
+			MaxUploadSize: 1024 * 1024,
+		}
+
+		body := &strings.Builder{}
+		writer := multipart.NewWriter(body)
+		part, _ := writer.CreateFormFile("image", "test.png")
+		part.Write([]byte{0x89, 0x50, 0x4E, 0x47}) // PNG magic
+		writer.Close()
+
+		req := httptest.NewRequest("POST", "/", strings.NewReader(body.String()))
+		req.Header.Set("Content-Type", writer.FormDataContentType())
+		req.ParseMultipartForm(1024)
+		header := req.MultipartForm.File["image"][0]
+
+		_, err := svc.UploadImage(context.Background(), header, "err")
+		assert.Error(t, err)
+	})
+
+	t.Run("create error", func(t *testing.T) {
+		svc := &service.LocalImageService{
+			UploadDir:     "/",
+			MaxUploadSize: 1024 * 1024,
+		}
+
+		body := &strings.Builder{}
+		writer := multipart.NewWriter(body)
+		part, _ := writer.CreateFormFile("image", "test.png")
+		part.Write([]byte{0x89, 0x50, 0x4E, 0x47}) // PNG magic
+		writer.Close()
+
+		req := httptest.NewRequest("POST", "/", strings.NewReader(body.String()))
+		req.Header.Set("Content-Type", writer.FormDataContentType())
+		req.ParseMultipartForm(1024)
+		header := req.MultipartForm.File["image"][0]
+
+		_, err := svc.UploadImage(context.Background(), header, "err")
+		assert.Error(t, err)
+	})
+}
