@@ -74,7 +74,7 @@ func (h *FeedbackHandler) HandleSubmit(c echo.Context) error {
 			</div>
 			<h3 class="text-xl font-bold text-stone-800 dark:text-white">Thank You!</h3>
 			<p class="text-stone-500 dark:text-stone-400 max-w-xs">Your feedback has been received and helps us improve Agbalumo.</p>
-			<button onclick="this.closest('dialog').close(); this.closest('dialog').remove();" class="mt-4 px-6 py-2 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 rounded-full font-bold text-sm transition-colors">
+			<button hx-on:click="this.closest('dialog').close(); this.closest('dialog').remove();" class="mt-4 px-6 py-2 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 rounded-full font-bold text-sm transition-colors">
 				Close
 			</button>
 		</div>

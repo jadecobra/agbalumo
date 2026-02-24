@@ -261,32 +261,5 @@
 </dialog>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    var imageInput = document.getElementById('image-input');
-    var previewContainer = document.getElementById('image-preview-container');
-    var previewImg = document.getElementById('image-preview');
-    var removeBtn = document.getElementById('remove-image-btn');
-
-    if (imageInput) {
-        imageInput.addEventListener('change', function(e) {
-            var file = e.target.files[0];
-            if (file) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    previewImg.src = e.target.result;
-                    previewContainer.classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-
-    if (removeBtn) {
-        removeBtn.addEventListener('click', function() {
-            imageInput.value = '';
-            previewContainer.classList.add('hidden');
-            previewImg.src = '';
-        });
-    }
-});
+    initCreateImagePreview();
 </script>

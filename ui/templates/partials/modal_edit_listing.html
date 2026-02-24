@@ -223,82 +223,6 @@
                 </div>
             </div>
 
-            <script>
-                (function () {
-                    const form = document.querySelector('#edit-listing-modal-{{.Listing.ID}} form');
-                    if (!form) return;
-
-                    const typeSelect = form.querySelector('select[name="type"]');
-                    const eventSection = document.getElementById('edit-event-dates-section-{{.Listing.ID}}');
-                    const requestSection = document.getElementById('edit-request-section-{{.Listing.ID}}');
-                    const jobSection = document.getElementById('edit-job-section-{{.Listing.ID}}');
-
-                    function toggleFields() {
-                        const val = typeSelect.value;
-
-                        // Reset all sections
-                        eventSection.classList.add('hidden');
-                        requestSection.classList.add('hidden');
-                        jobSection.classList.add('hidden');
-
-                        // Reset required attributes
-                        [eventSection, requestSection, jobSection].forEach(section => {
-                            section.querySelectorAll('input').forEach(i => i.required = false);
-                        });
-
-                        // Event Logic
-                        if (val === 'Event') {
-                            eventSection.classList.remove('hidden');
-                            eventSection.querySelectorAll('input').forEach(i => i.required = true);
-                        }
-                        // Request Logic
-                        else if (val === 'Request') {
-                            requestSection.classList.remove('hidden');
-                        }
-                        // Job Logic
-                        else if (val === 'Job') {
-                            jobSection.classList.remove('hidden');
-                            jobSection.querySelectorAll('input').forEach(i => i.required = true);
-                        }
-
-                        // Address Requirement Logic
-                        const addressInput = document.getElementById('edit-address-input-{{.Listing.ID}}');
-                        if (addressInput) {
-                            if (val === 'Service' || val === 'Job' || val === 'Request') {
-                                addressInput.required = false;
-                                addressInput.placeholder = "Address (Optional)";
-                                const label = addressInput.previousElementSibling;
-                                if (label) label.textContent = "Address (Optional)";
-                            } else {
-                                addressInput.required = true;
-                                addressInput.placeholder = "Start typing address...";
-                                const label = addressInput.previousElementSibling;
-                                if (label) label.textContent = "Address (Validated)";
-                            }
-                        }
-
-                        // Hours of Operation Logic
-                        const hoursInput = document.querySelector('#edit-listing-modal-{{.Listing.ID}} input[name="hours_of_operation"]');
-                        if (hoursInput) {
-                            const hoursContainer = hoursInput.closest('div');
-                            // Allowed: Business, Service, Food
-                            if (val === 'Business' || val === 'Service' || val === 'Food') {
-                                if (hoursContainer) hoursContainer.classList.remove('hidden');
-                                hoursInput.disabled = false;
-                            } else {
-                                if (hoursContainer) hoursContainer.classList.add('hidden');
-                                hoursInput.value = '';
-                                hoursInput.disabled = true;
-                            }
-                        }
-                    }
-
-                    typeSelect.addEventListener('change', toggleFields);
-                    // Run on init
-                    toggleFields();
-                })();
-            </script>
-
             <!-- Neighborhood -->
             <!-- Location Section -->
             <div class="grid grid-cols-1 gap-4">
@@ -324,54 +248,6 @@
                         placeholder="e.g. Mon-Fri 9am-6pm"
                         class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
                 </div>
-
-                <script>
-                    (function () {
-                        function initEditMaps() {
-                            const input = document.getElementById('edit-address-input-{{.Listing.ID}}');
-                            if (!input) return;
-
-                            const options = {
-                                fields: ["address_components", "geometry", "formatted_address"],
-                                types: ["address"],
-                            };
-                            const autocomplete = new google.maps.places.Autocomplete(input, options);
-                            autocomplete.addListener("place_changed", () => {
-                                const place = autocomplete.getPlace();
-                                let city = "";
-                                for (const component of place.address_components) {
-                                    const types = component.types;
-                                    if (types.includes("locality")) {
-                                        city = component.long_name;
-                                        break;
-                                    }
-                                    if (types.includes("postal_town")) {
-                                        city = component.long_name;
-                                    }
-                                    if (!city && types.includes("administrative_area_level_2")) {
-                                        city = component.long_name;
-                                    }
-                                }
-
-                                if (city) {
-                                    document.getElementById('edit-city-input-{{.Listing.ID}}').value = city;
-                                }
-
-                                if (place.formatted_address) {
-                                    input.value = place.formatted_address;
-                                }
-                            });
-                        }
-
-                        if (typeof google === 'object' && typeof google.maps === 'object') {
-                            initEditMaps();
-                        } else {
-                            // Fallback if script isn't loaded yet (unlikely if index loaded it, but safe)
-                            // For edit modal, we assume base loaded it. If not, we might have issue.
-                            // But Create Modal logic handles loading.
-                        }
-                    })();
-                </script>
 
                 <!-- Contact Section -->
                 <div class="grid grid-cols-2 gap-4">
@@ -415,50 +291,12 @@
 </dialog>
 
 <script>
-function initEditImagePreview(listingId) {
-    var imageInput = document.getElementById('edit-image-input-' + listingId);
-    var previewContainer = document.getElementById('edit-image-preview-container-' + listingId);
-    var previewImg = document.getElementById('edit-image-preview-' + listingId);
-    var existingImage = document.getElementById('edit-existing-image-' + listingId);
-
-    if (imageInput) {
-        imageInput.addEventListener('change', function(e) {
-            var file = e.target.files[0];
-            if (file) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    previewImg.src = e.target.result;
-                    previewContainer.classList.remove('hidden');
-                    if (existingImage) existingImage.classList.add('hidden');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-}
-
-function removeEditImage(listingId) {
-    var imageInput = document.getElementById('edit-image-input-' + listingId);
-    var previewContainer = document.getElementById('edit-image-preview-container-' + listingId);
-    var previewImg = document.getElementById('edit-image-preview-' + listingId);
-    var existingImage = document.getElementById('edit-existing-image-' + listingId);
-    if (imageInput) imageInput.value = '';
-    if (previewContainer) previewContainer.classList.add('hidden');
-    if (previewImg) previewImg.src = '';
-    if (existingImage) existingImage.classList.remove('hidden');
-}
-
-function clearEditImage(listingId) {
-    var imageInput = document.getElementById('edit-image-input-' + listingId);
-    var previewContainer = document.getElementById('edit-image-preview-container-' + listingId);
-    var existingImage = document.getElementById('edit-existing-image-' + listingId);
-    if (imageInput) imageInput.value = '';
-    if (previewContainer) previewContainer.classList.add('hidden');
-    if (existingImage) existingImage.classList.add('hidden');
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     var listingId = '{{.Listing.ID}}';
-    if (listingId) initEditImagePreview(listingId);
+    if (listingId) {
+        initEditTypeToggle(listingId);
+        initEditMaps(listingId);
+        initEditImagePreview(listingId);
+    }
 });
 </script>
