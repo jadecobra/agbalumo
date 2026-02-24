@@ -15,8 +15,8 @@ fi
 # Using copy/script to ensure correct path execution
 cat > "$PRE_COMMIT_HOOK" <<EOF
 #!/bin/sh
-./scripts/pre-commit.sh
+./scripts/security-check.sh && ./scripts/pre-commit.sh
 EOF
 
 chmod +x "$PRE_COMMIT_HOOK"
-echo "✅ Git pre-commit hook installed!"
+echo "✅ Git pre-commit hook installed with security checks!"
