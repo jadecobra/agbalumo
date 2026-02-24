@@ -246,5 +246,5 @@ func printListing(l domain.Listing) {
 }
 
 func printListingSummary(l domain.Listing) {
-	fmt.Printf("[%s] %s - %s (%s) [%s]\n", l.ID[:8], l.Title, l.Type, l.City, l.Status)
+	fmt.Printf("[%s] %s - %s (%s) [%s]\n", l.ID, l.Title, l.Type, l.City, l.Status)
 }

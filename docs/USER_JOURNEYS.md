@@ -60,3 +60,45 @@ Administrators are authenticated users with elevated privileges allowing them to
     *   `POST /admin/listings/bulk` - **Bulk Operations:** Applies an action (like approve or reject) to multiple selected listings simultaneously.
 *   **Data Ingestion:**
     *   `POST /admin/upload` - **Bulk Upload:** Uploads a CSV data file to programmatically create many listings at once.
+
+---
+
+## 4. CLI Command Line Journey
+
+Administrators and developers can interact with the platform via the command-line interface for scripting and automation.
+
+### Listing Management
+
+*   **List Listings:**
+    *   `agbalumo listing list` - View all listings in the system.
+*   **Create Listing:**
+    *   `agbalumo listing create -t "Title" -d "Description" -c "City" -o "Nigeria"` - Create a new listing.
+*   **View Listing:**
+    *   `agbalumo listing get [id]` - View detailed information about a specific listing.
+*   **Update Listing:**
+    *   `agbalumo listing update [id] -t "New Title" -c "New City"` - Modify an existing listing.
+*   **Delete Listing:**
+    *   `agbalumo listing delete [id]` - Remove a listing from the system.
+
+### Admin Operations
+
+*   **Approve Listing:**
+    *   `agbalumo admin approve [id]` - Approve a pending listing.
+*   **Reject Listing:**
+    *   `agbalumo admin reject [id]` - Reject a listing.
+*   **Toggle Featured:**
+    *   `agbalumo admin featured [id]` - Toggle featured status for homepage promotion.
+*   **View Pending:**
+    *   `agbalumo admin pending` - List all listings awaiting approval.
+*   **User Management:**
+    *   `agbalumo admin users` - List all registered users.
+    *   `agbalumo admin promote [user-id]` - Promote a user to admin role.
+
+### Server Management
+
+*   **Start Server:**
+    *   `agbalumo serve` - Start the web server (default: development on port 8443).
+*   **Seed Database:**
+    *   `agbalumo seed` - Seed the database with sample data.
+
+For complete CLI documentation, see [cli.md](cli.md).

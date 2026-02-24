@@ -112,7 +112,7 @@ var adminPendingCmd = &cobra.Command{
 
 		fmt.Printf("Found %d pending listings:\n\n", len(listings))
 		for _, l := range listings {
-			fmt.Printf("[%s] %s - %s (%s)\n", l.ID[:8], l.Title, l.Type, l.Status)
+			fmt.Printf("[%s] %s - %s (%s)\n", l.ID, l.Title, l.Type, l.Status)
 		}
 	},
 }
@@ -140,7 +140,7 @@ var adminUsersCmd = &cobra.Command{
 			if role == "" {
 				role = "user"
 			}
-			fmt.Printf("[%s] %s - %s\n", u.ID[:8], u.Email, role)
+			fmt.Printf("[%s] %s - %s\n", u.ID, u.Email, role)
 		}
 	},
 }
