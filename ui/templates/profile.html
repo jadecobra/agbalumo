@@ -3,11 +3,16 @@
 {{ define "title" }}My Profile - Agbalumo{{ end }}
 
 {{ define "content" }}
-<div class="max-w-7xl mx-auto px-4 py-8">
+<div id="profile-container" class="max-w-7xl mx-auto px-4 py-8">
+    <div id="profile-header" class="mb-8">
+        <h1 class="text-3xl font-bold text-text-main dark:text-white">{{ .User.Name }}</h1>
+        <p class="text-text-sub dark:text-stone-400">{{ .User.Email }}</p>
+    </div>
+
     <div
         class="bg-white dark:bg-surface-dark rounded-3xl shadow-soft border border-orange-100 dark:border-stone-800 overflow-hidden">
         <div class="p-8">
-            <h2 class="text-2xl font-bold mb-8">My Listings</h2>
+            <h2 class="text-2xl font-bold mb-8 text-text-main dark:text-white">Your Listings</h2>
             {{ if .Listings }}
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {{ range .Listings }}
@@ -15,7 +20,7 @@
                 {{ end }}
             </div>
             {{ else }}
-            <p>No listings.</p>
+            <p class="text-text-sub dark:text-stone-400">No listings found.</p>
             {{ end }}
         </div>
     </div>
