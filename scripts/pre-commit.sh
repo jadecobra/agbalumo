@@ -38,7 +38,7 @@ go tool cover -func=coverage.out
 # Enforce minimum coverage
 # Using grep -oE to extract the first decimal number for better robustness
 COVERAGE=$(go tool cover -func=coverage.out | grep total | grep -oE "[0-9]+(\.[0-9]+)?" | head -1)
-THRESHOLD=89.8
+THRESHOLD=90.0
 
 if [ -z "$COVERAGE" ]; then
     echo "❌ Could not parse coverage value"
