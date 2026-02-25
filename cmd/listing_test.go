@@ -95,3 +95,34 @@ func TestPrintListingSummary(t *testing.T) {
 
 	printListingSummary(listing)
 }
+
+func TestPrintListingAllFields(t *testing.T) {
+	listing := domain.Listing{
+		ID:               "full-test-id",
+		Title:            "Full Test Job",
+		Type:             domain.Job,
+		OwnerOrigin:      "Ghana",
+		Status:           domain.ListingStatusApproved,
+		Featured:         true,
+		Description:      "A very detailed job description",
+		City:             "Accra",
+		Address:          "456 Job Lane",
+		HoursOfOperation: "Mon-Fri 8am-5pm",
+		ContactEmail:     "job@test.com",
+		ContactPhone:     "+123456789",
+		ContactWhatsApp:  "+987654321",
+		WebsiteURL:       "https://job.test.com",
+		ImageURL:         "https://job.test.com/logo.png",
+		CreatedAt:        time.Now(),
+		Deadline:         time.Now().Add(30 * 24 * time.Hour),
+		EventStart:       time.Now().Add(24 * time.Hour),
+		EventEnd:         time.Now().Add(48 * time.Hour),
+		Skills:           "Go, CLI, Testing",
+		JobStartDate:     time.Now().Add(60 * 24 * time.Hour),
+		JobApplyURL:      "https://job.test.com/apply",
+		Company:          "CLI Corp",
+		PayRange:         "$120k-$150k",
+	}
+
+	printListing(listing)
+}

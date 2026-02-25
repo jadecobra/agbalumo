@@ -69,6 +69,10 @@ type Listing struct {
     * `Event` types must have valid start/end times.
     * `Job` types must have a valid start date.
 * **Contact Integrity:** Every listing must contain at least one valid communication method.
+* **Image Management:**
+    * Users can **replace** or **remove** images from their listings.
+    * Image URLs are **cache-busted** with timestamps to ensure immediate visibility of updates.
+    * Images are strictly validated (type, size) and compressed to maintain performance.
 
 ### 4. TDD Specification
 

@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
 	"github.com/spf13/cobra"
@@ -24,6 +25,16 @@ var (
 	flagWhatsApp    string
 	flagWebsite     string
 	flagOwnerID     string
+	flagImageURL    string
+	flagRemoveImage bool
+	flagDeadline    string
+	flagEventStart  string
+	flagEventEnd    string
+	flagSkills      string
+	flagJobStart    string
+	flagApplyURL    string
+	flagCompany     string
+	flagPayRange    string
 )
 
 var listingCmd = &cobra.Command{
@@ -50,9 +61,37 @@ var listingCreateCmd = &cobra.Command{
 			ContactPhone:    flagPhone,
 			ContactWhatsApp: flagWhatsApp,
 			WebsiteURL:      flagWebsite,
+			ImageURL:        flagImageURL,
 			CreatedAt:       time.Now(),
 			IsActive:        true,
 			Status:          domain.ListingStatusApproved,
+			Skills:          flagSkills,
+			JobApplyURL:     flagApplyURL,
+			Company:         flagCompany,
+			PayRange:        flagPayRange,
+		}
+
+		if flagDeadline != "" {
+			if t, err := time.Parse("2006-01-02", flagDeadline); err == nil {
+				listing.Deadline = t
+			} else {
+				slog.Warn("Invalid deadline format, expected YYYY-MM-DD", "error", err)
+			}
+		}
+		if flagEventStart != "" {
+			if t, err := time.Parse("2006-01-02T15:04", flagEventStart); err == nil {
+				listing.EventStart = t
+			}
+		}
+		if flagEventEnd != "" {
+			if t, err := time.Parse("2006-01-02T15:04", flagEventEnd); err == nil {
+				listing.EventEnd = t
+			}
+		}
+		if flagJobStart != "" {
+			if t, err := time.Parse("2006-01-02T15:04", flagJobStart); err == nil {
+				listing.JobStartDate = t
+			}
 		}
 
 		if err := repo.Save(context.Background(), listing); err != nil {
@@ -143,6 +182,44 @@ var listingUpdateCmd = &cobra.Command{
 		if flagWebsite != "" {
 			listing.WebsiteURL = flagWebsite
 		}
+		if flagImageURL != "" {
+			listing.ImageURL = flagImageURL
+		}
+		if flagRemoveImage {
+			listing.ImageURL = ""
+		}
+		if flagDeadline != "" {
+			if t, err := time.Parse("2006-01-02", flagDeadline); err == nil {
+				listing.Deadline = t
+			}
+		}
+		if flagEventStart != "" {
+			if t, err := time.Parse("2006-01-02T15:04", flagEventStart); err == nil {
+				listing.EventStart = t
+			}
+		}
+		if flagEventEnd != "" {
+			if t, err := time.Parse("2006-01-02T15:04", flagEventEnd); err == nil {
+				listing.EventEnd = t
+			}
+		}
+		if flagSkills != "" {
+			listing.Skills = flagSkills
+		}
+		if flagJobStart != "" {
+			if t, err := time.Parse("2006-01-02T15:04", flagJobStart); err == nil {
+				listing.JobStartDate = t
+			}
+		}
+		if flagApplyURL != "" {
+			listing.JobApplyURL = flagApplyURL
+		}
+		if flagCompany != "" {
+			listing.Company = flagCompany
+		}
+		if flagPayRange != "" {
+			listing.PayRange = flagPayRange
+		}
 
 		if err := repo.Save(context.Background(), listing); err != nil {
 			slog.Error("Failed to update listing", "error", err)
@@ -189,7 +266,16 @@ func init() {
 	listingCreateCmd.Flags().StringVarP(&flagPhone, "phone", "p", "", "Contact phone")
 	listingCreateCmd.Flags().StringVarP(&flagWhatsApp, "whatsapp", "w", "", "WhatsApp number")
 	listingCreateCmd.Flags().StringVarP(&flagWebsite, "website", "s", "", "Website URL")
+	listingCreateCmd.Flags().StringVarP(&flagImageURL, "image-url", "i", "", "Image URL")
 	listingCreateCmd.Flags().StringVarP(&flagOwnerID, "owner-id", "", "", "Owner user ID")
+	listingCreateCmd.Flags().StringVar(&flagDeadline, "deadline", "", "Deadline (YYYY-MM-DD)")
+	listingCreateCmd.Flags().StringVar(&flagEventStart, "event-start", "", "Event start (YYYY-MM-DDTHH:MM)")
+	listingCreateCmd.Flags().StringVar(&flagEventEnd, "event-end", "", "Event end (YYYY-MM-DDTHH:MM)")
+	listingCreateCmd.Flags().StringVar(&flagSkills, "skills", "", "Required skills")
+	listingCreateCmd.Flags().StringVar(&flagJobStart, "job-start", "", "Job start date (YYYY-MM-DDTHH:MM)")
+	listingCreateCmd.Flags().StringVar(&flagApplyURL, "apply-url", "", "Job application URL")
+	listingCreateCmd.Flags().StringVar(&flagCompany, "company", "", "Company name")
+	listingCreateCmd.Flags().StringVar(&flagPayRange, "pay-range", "", "Pay range")
 
 	listingUpdateCmd.Flags().StringVarP(&flagTitle, "title", "t", "", "New title")
 	listingUpdateCmd.Flags().StringVarP(&flagDescription, "description", "d", "", "New description")
@@ -199,6 +285,16 @@ func init() {
 	listingUpdateCmd.Flags().StringVarP(&flagPhone, "phone", "p", "", "New phone")
 	listingUpdateCmd.Flags().StringVarP(&flagWhatsApp, "whatsapp", "w", "", "New WhatsApp")
 	listingUpdateCmd.Flags().StringVarP(&flagWebsite, "website", "s", "", "New website")
+	listingUpdateCmd.Flags().StringVarP(&flagImageURL, "image-url", "i", "", "New image URL")
+	listingUpdateCmd.Flags().BoolVar(&flagRemoveImage, "remove-image", false, "Remove listing image")
+	listingUpdateCmd.Flags().StringVar(&flagDeadline, "deadline", "", "New deadline (YYYY-MM-DD)")
+	listingUpdateCmd.Flags().StringVar(&flagEventStart, "event-start", "", "New event start")
+	listingUpdateCmd.Flags().StringVar(&flagEventEnd, "event-end", "", "New event end")
+	listingUpdateCmd.Flags().StringVar(&flagSkills, "skills", "", "New skills")
+	listingUpdateCmd.Flags().StringVar(&flagJobStart, "job-start", "", "New job start")
+	listingUpdateCmd.Flags().StringVar(&flagApplyURL, "apply-url", "", "New apply URL")
+	listingUpdateCmd.Flags().StringVar(&flagCompany, "company", "", "New company")
+	listingUpdateCmd.Flags().StringVar(&flagPayRange, "pay-range", "", "New pay range")
 
 	listingCreateCmd.MarkFlagRequired("title")
 }
@@ -221,27 +317,42 @@ func getDatabaseURL() string {
 }
 
 func generateID() string {
-	return fmt.Sprintf("cli-%d", time.Now().UnixNano())
+	return fmt.Sprintf("cli-%s", uuid.New().String()[:8])
 }
 
 func printListing(l domain.Listing) {
 	fmt.Println("==================================")
-	fmt.Printf("ID:          %s\n", l.ID)
-	fmt.Printf("Title:       %s\n", l.Title)
-	fmt.Printf("Type:        %s\n", l.Type)
-	fmt.Printf("Origin:      %s\n", l.OwnerOrigin)
-	fmt.Printf("Status:      %s\n", l.Status)
-	fmt.Printf("Featured:    %v\n", l.Featured)
-	fmt.Printf("Description: %s\n", l.Description)
-	fmt.Printf("City:        %s\n", l.City)
-	fmt.Printf("Address:     %s\n", l.Address)
-	fmt.Printf("Email:       %s\n", l.ContactEmail)
-	fmt.Printf("Phone:       %s\n", l.ContactPhone)
-	fmt.Printf("WhatsApp:    %s\n", l.ContactWhatsApp)
-	fmt.Printf("Website:     %s\n", l.WebsiteURL)
-	fmt.Printf("Created:     %s\n", l.CreatedAt.Format(time.RFC3339))
+	fmt.Printf("ID:              %s\n", l.ID)
+	fmt.Printf("Title:           %s\n", l.Title)
+	fmt.Printf("Type:            %s\n", l.Type)
+	fmt.Printf("Origin:          %s\n", l.OwnerOrigin)
+	fmt.Printf("Status:          %s\n", l.Status)
+	fmt.Printf("Featured:        %v\n", l.Featured)
+	fmt.Printf("Description:     %s\n", l.Description)
+	fmt.Printf("City:            %s\n", l.City)
+	fmt.Printf("Address:         %s\n", l.Address)
+	fmt.Printf("Hours:           %s\n", l.HoursOfOperation)
+	fmt.Printf("Email:           %s\n", l.ContactEmail)
+	fmt.Printf("Phone:           %s\n", l.ContactPhone)
+	fmt.Printf("WhatsApp:        %s\n", l.ContactWhatsApp)
+	fmt.Printf("Website:         %s\n", l.WebsiteURL)
+	fmt.Printf("Image URL:       %s\n", l.ImageURL)
+	fmt.Printf("Created:         %s\n", l.CreatedAt.Format(time.RFC3339))
 	if !l.Deadline.IsZero() {
-		fmt.Printf("Deadline:    %s\n", l.Deadline.Format(time.RFC3339))
+		fmt.Printf("Deadline:        %s\n", l.Deadline.Format("2006-01-02"))
+	}
+	if !l.EventStart.IsZero() {
+		fmt.Printf("Event Start:     %s\n", l.EventStart.Format(time.RFC3339))
+	}
+	if !l.EventEnd.IsZero() {
+		fmt.Printf("Event End:       %s\n", l.EventEnd.Format(time.RFC3339))
+	}
+	if l.Type == domain.Job {
+		fmt.Printf("Company:         %s\n", l.Company)
+		fmt.Printf("Skills:          %s\n", l.Skills)
+		fmt.Printf("Job Start:       %s\n", l.JobStartDate.Format(time.RFC3339))
+		fmt.Printf("Apply URL:       %s\n", l.JobApplyURL)
+		fmt.Printf("Pay Range:       %s\n", l.PayRange)
 	}
 }
 

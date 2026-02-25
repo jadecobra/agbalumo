@@ -1,0 +1,146 @@
+=== RUN   TestAdminHandler_HandleDashboard
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminHandler_HandleDashboard (0.00s)
+=== RUN   TestAdminHandler_HandleUsers
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminHandler_HandleUsers (0.00s)
+=== RUN   TestAdminHandler_HandleApprove
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminHandler_HandleApprove (0.00s)
+=== RUN   TestAdminHandler_HandleReject
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminHandler_HandleReject (0.00s)
+=== RUN   TestAdminHandler_HandleBulkAction_Approve
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminHandler_HandleBulkAction_Approve (0.00s)
+=== RUN   TestAdminHandler_HandleBulkAction_Reject
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminHandler_HandleBulkAction_Reject (0.00s)
+=== RUN   TestAdminHandler_HandleBulkAction_DeleteRedirect
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminHandler_HandleBulkAction_DeleteRedirect (0.00s)
+=== RUN   TestAdminHandler_HandleBulkAction_NoSelection
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminHandler_HandleBulkAction_NoSelection (0.00s)
+=== RUN   TestAdminHandler_HandleBulkAction_FindByIDError
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminHandler_HandleBulkAction_FindByIDError (0.00s)
+=== RUN   TestAdminHandler_HandleBulkAction_UnknownAction
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminHandler_HandleBulkAction_UnknownAction (0.00s)
+=== RUN   TestAdminHandler_HandleBulkAction_SaveError
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminHandler_HandleBulkAction_SaveError (0.00s)
+=== RUN   TestAdminHandler_HandleLoginAction_Success
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminHandler_HandleLoginAction_Success (0.00s)
+=== RUN   TestAdminHandler_HandleLoginAction_InvalidCode
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminHandler_HandleLoginAction_InvalidCode (0.00s)
+=== RUN   TestAdminHandler_HandleAdminDeleteView
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminHandler_HandleAdminDeleteView (0.00s)
+=== RUN   TestAdminHandler_HandleAdminDeleteAction_Success
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminHandler_HandleAdminDeleteAction_Success (0.00s)
+=== RUN   TestAdminHandler_HandleAdminDeleteAction_WrongCode
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminHandler_HandleAdminDeleteAction_WrongCode (0.00s)
+=== RUN   TestAdminHandler_HandleBulkUpload_Success
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminHandler_HandleBulkUpload_Success (0.00s)
+=== RUN   TestAdminHandler_HandleBulkUpload_NoFile
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminHandler_HandleBulkUpload_NoFile (0.00s)
+=== RUN   TestAdminHandler_HandleBulkUpload_ParseError
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminHandler_HandleBulkUpload_ParseError (0.00s)
+=== RUN   TestAdminHandler_HandleBulkUpload_WithErrors
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminHandler_HandleBulkUpload_WithErrors (0.00s)
+=== RUN   TestAdminMiddleware_NoUser
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminMiddleware_NoUser (0.00s)
+=== RUN   TestAdminMiddleware_NonAdminUser
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminMiddleware_NonAdminUser (0.00s)
+=== RUN   TestAdminMiddleware_AdminUser
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminMiddleware_AdminUser (0.00s)
+=== RUN   TestAdminHandler_HandleLoginView_AlreadyAdmin
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminHandler_HandleLoginView_AlreadyAdmin (0.00s)
+=== RUN   TestAdminHandler_HandleLoginView_NotAdmin
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminHandler_HandleLoginView_NotAdmin (0.00s)
+=== RUN   TestAdminHandler_HandleDashboard_PendingListingsError
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+2026/02/24 00:37:35 ERROR Request failed request_id="" error="assert.AnError general error for testing"
+--- PASS: TestAdminHandler_HandleDashboard_PendingListingsError (0.00s)
+=== RUN   TestAdminHandler_HandleDashboard_UserCountError
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+2026/02/24 00:37:35 ERROR Request failed request_id="" error="assert.AnError general error for testing"
+--- PASS: TestAdminHandler_HandleDashboard_UserCountError (0.00s)
+=== RUN   TestAdminHandler_HandleDashboard_FeedbackCountsError
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+2026/02/24 00:37:35 ERROR Request failed request_id="" error="assert.AnError general error for testing"
+--- PASS: TestAdminHandler_HandleDashboard_FeedbackCountsError (0.00s)
+=== RUN   TestAdminHandler_HandleDashboard_ListingGrowthError
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+2026/02/24 00:37:35 ERROR Request failed request_id="" error="assert.AnError general error for testing"
+--- PASS: TestAdminHandler_HandleDashboard_ListingGrowthError (0.00s)
+=== RUN   TestAdminHandler_HandleDashboard_UserGrowthError
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+2026/02/24 00:37:35 ERROR Request failed request_id="" error="assert.AnError general error for testing"
+--- PASS: TestAdminHandler_HandleDashboard_UserGrowthError (0.00s)
+=== RUN   TestAdminHandler_HandleDashboard_GetAllFeedbackError
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+2026/02/24 00:37:35 ERROR Request failed request_id="" error="assert.AnError general error for testing"
+--- PASS: TestAdminHandler_HandleDashboard_GetAllFeedbackError (0.00s)
+=== RUN   TestAdminHandler_HandleLoginAction_NoUser
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAdminHandler_HandleLoginAction_NoUser (0.00s)
+=== RUN   TestAdminHandler_HandleAllListings
+=== RUN   TestAdminHandler_HandleAllListings/Success
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+=== RUN   TestAdminHandler_HandleAllListings/DBError
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+2026/02/24 00:37:35 ERROR Request failed request_id="" error="assert.AnError general error for testing"
+--- PASS: TestAdminHandler_HandleAllListings (0.00s)
+    --- PASS: TestAdminHandler_HandleAllListings/Success (0.00s)
+    --- PASS: TestAdminHandler_HandleAllListings/DBError (0.00s)
+=== RUN   TestAdminHandler_HandleToggleFeatured
+=== RUN   TestAdminHandler_HandleToggleFeatured/Feature
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+=== RUN   TestAdminHandler_HandleToggleFeatured/Unfeature
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+=== RUN   TestAdminHandler_HandleToggleFeatured/DBError
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+2026/02/24 00:37:35 ERROR Request failed request_id="" error="db error"
+=== RUN   TestAdminHandler_HandleToggleFeatured/InvalidBoolean
+2026/02/24 00:37:35 WARN Using default admin code - set ADMIN_CODE for production
+--- FAIL: TestAdminHandler_HandleToggleFeatured (0.00s)
+    --- PASS: TestAdminHandler_HandleToggleFeatured/Feature (0.00s)
+    --- PASS: TestAdminHandler_HandleToggleFeatured/Unfeature (0.00s)
+    --- PASS: TestAdminHandler_HandleToggleFeatured/DBError (0.00s)
+    --- FAIL: TestAdminHandler_HandleToggleFeatured/InvalidBoolean (0.00s)
+panic: runtime error: invalid memory address or nil pointer dereference [recovered, repanicked]
+[signal SIGSEGV: segmentation violation code=0x2 addr=0xb8 pc=0x104908498]
+
+goroutine 75 [running]:
+testing.tRunner.func1.2({0x104ef4860, 0x105043950})
+	/opt/homebrew/Cellar/go/1.26.0/libexec/src/testing/testing.go:1974 +0x1a0
+testing.tRunner.func1()
+	/opt/homebrew/Cellar/go/1.26.0/libexec/src/testing/testing.go:1977 +0x318
+panic({0x104ef4860?, 0x105043950?})
+	/opt/homebrew/Cellar/go/1.26.0/libexec/src/runtime/panic.go:860 +0x12c
+github.com/jadecobra/agbalumo/internal/handler.(*AdminHandler).HandleToggleFeatured(0x688a99cf1ef0, {0x104fc3ef0, 0x688a99dbd4a0})
+	/Users/johnnyblase/gym/agbalumo/internal/handler/admin.go:431 +0x138
+github.com/jadecobra/agbalumo/internal/handler.TestAdminHandler_HandleToggleFeatured.func4(0x688a99e5a008)
+	/Users/johnnyblase/gym/agbalumo/internal/handler/admin_test.go:973 +0x41c
+testing.tRunner(0x688a99e5a008, 0x688a99e4e5c0)
+	/opt/homebrew/Cellar/go/1.26.0/libexec/src/testing/testing.go:2036 +0xc4
+created by testing.(*T).Run in goroutine 71
+	/opt/homebrew/Cellar/go/1.26.0/libexec/src/testing/testing.go:2101 +0x3a8
+FAIL	github.com/jadecobra/agbalumo/internal/handler	0.410s
+FAIL

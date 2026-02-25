@@ -18,8 +18,16 @@ type ServerConfig struct {
 
 // ResolveServerConfig determines the server configuration based on environment and file existence
 func ResolveServerConfig(env, port string, fileExists func(string) bool) ServerConfig {
+	certFile := "certs/cert.pem"
+	keyFile := "certs/key.pem"
+	hasCerts := fileExists(certFile) && fileExists(keyFile)
+
 	if port == "" {
-		port = "8080"
+		if hasCerts && env != "production" {
+			port = "8443"
+		} else {
+			port = "8080"
+		}
 	}
 
 	// In production (Fly.io), TLS is handled by the proxy. We just listen on PORT.
@@ -28,12 +36,9 @@ func ResolveServerConfig(env, port string, fileExists func(string) bool) ServerC
 	}
 
 	// Development Mode
-	certFile := "certs/cert.pem"
-	keyFile := "certs/key.pem"
-
-	if fileExists(certFile) && fileExists(keyFile) {
+	if hasCerts {
 		return ServerConfig{
-			Addr:     ":8443",
+			Addr:     ":" + port,
 			TLS:      true,
 			CertFile: certFile,
 			KeyFile:  keyFile,

@@ -98,22 +98,22 @@ paths:
       tags:
         - Public
       parameters:
-        - name: category
+        - name: type
           in: query
+          description: Filter by category
           schema:
             type: string
-        - name: search
+        - name: q
           in: query
+          description: Search term
           schema:
             type: string
-        - name: city
+        - name: page
           in: query
+          description: Page number
           schema:
-            type: string
-        - name: origin
-          in: query
-          schema:
-            type: string
+            type: integer
+            default: 1
       responses:
         '200':
           description: HTML fragment
@@ -137,6 +137,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Listing'
+        '404':
+          description: Listing not found
+
+    post:
+      summary: Update a listing (POST)
+      description: Alternative update endpoint for forms
+      tags:
+        - Listings
+      security:
+        - CookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ListingInput'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ListingInput'
+      responses:
+        '302':
+          description: Redirect to listing detail
+        '401':
+          description: Unauthorized
         '404':
           description: Listing not found
 
@@ -271,6 +301,8 @@ paths:
       responses:
         '302':
           description: Redirect to listing
+        '400':
+          description: Validation error
         '401':
           description: Unauthorized
 
@@ -392,6 +424,28 @@ paths:
         - Admin
       security:
         - CookieAuth: []
+      parameters:
+        - name: category
+          in: query
+          description: Filter by category
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: Sort field
+          schema:
+            type: string
+        - name: order
+          in: query
+          description: Sort order
+          schema:
+            type: string
+            enum: [ASC, DESC]
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
       responses:
         '200':
           description: Listings list HTML
@@ -450,9 +504,23 @@ paths:
           required: true
           schema:
             type: string
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - featured
+              properties:
+                featured:
+                  type: string
+                  enum: ["true", "false"]
       responses:
-        '302':
-          description: Redirect to listings
+        '200':
+          description: Success
+        '400':
+          description: Bad request
 
   /admin/listings/bulk:
     post:
@@ -468,11 +536,14 @@ paths:
           application/x-www-form-urlencoded:
             schema:
               type: object
+              required:
+                - action
+                - selectedListings
               properties:
                 action:
                   type: string
                   enum: [approve, reject, delete]
-                ids:
+                selectedListings:
                   type: array
                   items:
                     type: string
@@ -488,6 +559,14 @@ paths:
         - Admin
       security:
         - CookieAuth: []
+      parameters:
+        - name: id
+          in: query
+          description: ID(s) to delete
+          schema:
+            type: array
+            items:
+              type: string
       responses:
         '200':
           description: Confirmation modal HTML
@@ -508,8 +587,13 @@ paths:
               type: object
               required:
                 - id
+                - admin_code
               properties:
                 id:
+                  type: array
+                  items:
+                    type: string
+                admin_code:
                   type: string
       responses:
         '302':
@@ -529,8 +613,10 @@ paths:
           multipart/form-data:
             schema:
               type: object
+              required:
+                - csv_file
               properties:
-                file:
+                csv_file:
                   type: string
                   format: binary
       responses:
@@ -678,9 +764,9 @@ components:
         website_url:
           type: string
           format: uri
-        deadline:
+        deadline_date:
           type: string
-          format: date-time
+          format: date
         event_start:
           type: string
           format: date-time
@@ -702,6 +788,9 @@ components:
         image:
           type: string
           format: binary
+        remove_image:
+          type: boolean
+          description: Set to true to remove existing image
 
     User:
       type: object

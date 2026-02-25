@@ -896,6 +896,7 @@ func TestAdminHandler_HandleAllListings(t *testing.T) {
 
 func TestAdminHandler_HandleToggleFeatured(t *testing.T) {
 	e := echo.New()
+	e.Renderer = &mock.MockRenderer{}
 
 	t.Run("Feature", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodPost, "/admin/listings/123/featured", strings.NewReader("featured=true"))
@@ -935,5 +936,107 @@ func TestAdminHandler_HandleToggleFeatured(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusOK, rec.Code)
 		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("DBError", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodPost, "/admin/listings/123/featured", strings.NewReader("featured=true"))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetParamNames("id")
+		c.SetParamValues("123")
+
+		mockRepo := &mock.MockListingRepository{}
+		mockRepo.On("SetFeatured", testifyMock.Anything, "123", true).Return(errors.New("db error"))
+
+		h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
+		c.Set("User", domain.User{ID: "admin-1", Role: domain.UserRoleAdmin})
+
+		err := h.HandleToggleFeatured(c)
+		assert.NoError(t, err)
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("InvalidBoolean", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodPost, "/admin/listings/123/featured", strings.NewReader("featured=notabool"))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetParamNames("id")
+		c.SetParamValues("123")
+
+		mockRepo := &mock.MockListingRepository{}
+		// Current implementation parses "notabool" == "true" as false and proceeds to DB
+		mockRepo.On("SetFeatured", testifyMock.Anything, "123", false).Return(nil)
+
+		h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
+		c.Set("User", domain.User{ID: "admin-1", Role: domain.UserRoleAdmin})
+		e.Renderer = &mock.MockRenderer{}
+
+		err := h.HandleToggleFeatured(c)
+		assert.NoError(t, err)
+		assert.Equal(t, http.StatusOK, rec.Code)
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("MissingID", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodPost, "/admin/listings//featured", strings.NewReader("featured=true"))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetParamNames("id")
+		c.SetParamValues("")
+
+		mockRepo := &mock.MockListingRepository{}
+		h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
+		c.Set("User", domain.User{ID: "admin-1", Role: domain.UserRoleAdmin})
+		e.Renderer = &mock.MockRenderer{}
+
+		err := h.HandleToggleFeatured(c)
+		assert.NoError(t, err)
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
+	})
+}
+
+func TestAdminHandler_HandleApprove_ErrorPaths(t *testing.T) {
+	e := echo.New()
+	e.Renderer = &mock.MockRenderer{}
+
+	t.Run("NotFound", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodPost, "/admin/listings/999/approve", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetPath("/admin/listings/:id/approve")
+		c.SetParamNames("id")
+		c.SetParamValues("999")
+		c.Set("User", domain.User{Role: domain.UserRoleAdmin})
+
+		mockRepo := &mock.MockListingRepository{}
+		mockRepo.On("FindByID", testifyMock.Anything, "999").Return(domain.Listing{}, errors.New("not found"))
+
+		h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
+		err := h.HandleApprove(c)
+		assert.NoError(t, err)
+		assert.Equal(t, http.StatusNotFound, rec.Code)
+	})
+
+	t.Run("SaveError", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodPost, "/admin/listings/1/approve", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetPath("/admin/listings/:id/approve")
+		c.SetParamNames("id")
+		c.SetParamValues("1")
+		c.Set("User", domain.User{Role: domain.UserRoleAdmin})
+
+		mockRepo := &mock.MockListingRepository{}
+		mockRepo.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1"}, nil)
+		mockRepo.On("Save", testifyMock.Anything, testifyMock.Anything).Return(errors.New("save failed"))
+
+		h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
+		err := h.HandleApprove(c)
+		assert.NoError(t, err)
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	})
 }

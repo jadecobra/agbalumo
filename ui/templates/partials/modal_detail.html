@@ -11,8 +11,8 @@
             </div>
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
 
-            <button onclick="this.closest('dialog').remove()"
-                class="absolute top-4 right-4 bg-black/40 hover:bg-black/60 text-white p-3 rounded-full backdrop-blur-md transition-colors z-50">
+            <button hx-on:click="this.closest('dialog').remove()"
+                class="absolute top-4 right-4 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition-colors z-[60]">
                 <span class="material-symbols-outlined">close</span>
             </button>
 

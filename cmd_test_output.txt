@@ -1,0 +1,268 @@
+=== RUN   TestListingCLI_ImageFlags
+--- PASS: TestListingCLI_ImageFlags (0.00s)
+=== RUN   TestGenerateID
+    listing_test.go:22: generateID() should return unique IDs
+--- FAIL: TestGenerateID (0.00s)
+=== RUN   TestGetDatabaseURL
+=== RUN   TestGetDatabaseURL/default
+=== RUN   TestGetDatabaseURL/from_env
+--- PASS: TestGetDatabaseURL (0.00s)
+    --- PASS: TestGetDatabaseURL/default (0.00s)
+    --- PASS: TestGetDatabaseURL/from_env (0.00s)
+=== RUN   TestInitRepo
+--- PASS: TestInitRepo (0.00s)
+=== RUN   TestPrintListing
+==================================
+ID:          test-id-123
+Title:       Test Business
+Type:        Business
+Origin:      Nigeria
+Status:      Approved
+Featured:    true
+Description: A test business description
+City:        Lagos
+Address:     123 Test Street
+Email:       test@example.com
+Phone:       +2341234567890
+WhatsApp:    +2340987654321
+Website:     https://test.com
+Image URL:   
+Created:     0001-01-01T00:00:00Z
+--- PASS: TestPrintListing (0.00s)
+=== RUN   TestPrintListingWithDeadline
+==================================
+ID:          test-id-456
+Title:       Test Event
+Type:        Event
+Origin:      
+Status:      Pending
+Featured:    false
+Description: 
+City:        Abuja
+Address:     
+Email:       
+Phone:       
+WhatsApp:    
+Website:     
+Image URL:   
+Created:     0001-01-01T00:00:00Z
+Deadline:    2026-02-24T23:10:08-06:00
+--- PASS: TestPrintListingWithDeadline (0.00s)
+=== RUN   TestPrintListingSummary
+[summary-test-id-789] Summary Test Business - Business (Ibadan) [Approved]
+--- PASS: TestPrintListingSummary (0.00s)
+=== RUN   TestExecute
+Agbalumo is a high-performance directory and request platform for the West African diaspora.
+
+Usage:
+  agbalumo [command]
+
+Available Commands:
+  admin       Admin operations
+  completion  Generate the autocompletion script for the specified shell
+  help        Help about any command
+  listing     Manage listings
+  seed        Seed the database with initial data
+  serve       Start the Agbalumo web server
+
+Flags:
+  -h, --help   help for agbalumo
+
+Use "agbalumo [command] --help" for more information about a command.
+--- PASS: TestExecute (0.00s)
+=== RUN   TestResolveSeedConfig
+=== RUN   TestResolveSeedConfig/Default
+=== RUN   TestResolveSeedConfig/WithArgument
+=== RUN   TestResolveSeedConfig/WithEnvVar
+=== RUN   TestResolveSeedConfig/ArgOverridesEnv
+=== RUN   TestResolveSeedConfig/ExplicitDefaultArg
+--- PASS: TestResolveSeedConfig (0.00s)
+    --- PASS: TestResolveSeedConfig/Default (0.00s)
+    --- PASS: TestResolveSeedConfig/WithArgument (0.00s)
+    --- PASS: TestResolveSeedConfig/WithEnvVar (0.00s)
+    --- PASS: TestResolveSeedConfig/ArgOverridesEnv (0.00s)
+    --- PASS: TestResolveSeedConfig/ExplicitDefaultArg (0.00s)
+=== RUN   TestResolveServerConfig
+=== RUN   TestResolveServerConfig/Production_Default
+=== RUN   TestResolveServerConfig/Production_With_Port
+=== RUN   TestResolveServerConfig/Dev_Default_(No_Certs)
+=== RUN   TestResolveServerConfig/Dev_With_Port_(No_Certs)
+=== RUN   TestResolveServerConfig/Dev_With_Certs
+--- PASS: TestResolveServerConfig (0.00s)
+    --- PASS: TestResolveServerConfig/Production_Default (0.00s)
+    --- PASS: TestResolveServerConfig/Production_With_Port (0.00s)
+    --- PASS: TestResolveServerConfig/Dev_Default_(No_Certs) (0.00s)
+    --- PASS: TestResolveServerConfig/Dev_With_Port_(No_Certs) (0.00s)
+    --- PASS: TestResolveServerConfig/Dev_With_Certs (0.00s)
+=== RUN   TestSetupServer
+2026/02/23 23:10:08 WARN Using default admin code - set ADMIN_CODE for production
+time=2026-02-23T23:10:08.711-06:00 level=WARN msg="Using default dev session key"
+time=2026-02-23T23:10:08.725-06:00 level=INFO msg="Database empty. Seeding data..."
+time=2026-02-23T23:10:08.725-06:00 level=INFO msg=Seeding group=Businesses
+Saved: Lagos Import Export
+Saved: Accra Market Square
+Saved: Dakar Textiles
+Saved: Monrovia Money Transfer
+Saved: Freetown Logistics
+Saved: Bamako Braid Shop
+Saved: Cotonou Car Dealership
+Saved: Lome Electronics
+Saved: Conakry Construction Co.
+Saved: Ouaga Office Supplies
+time=2026-02-23T23:10:08.727-06:00 level=INFO msg=Seeding group=Services
+Saved: Yoruba Language Tutors
+Saved: Ashanti Web Design
+Saved: Wolof Interpreters
+Saved: Monrovia Legal Aid
+Saved: Freetown Tax Prep
+Saved: Bamako Moving Services
+Saved: Cotonou Cleaning Crew
+Saved: Lome IT Support
+Saved: Conakry Caregivers
+Saved: Niamey Notary Public
+time=2026-02-23T23:10:08.728-06:00 level=INFO msg=Seeding group=Products
+Saved: Handmade Shea Butter
+Saved: Nigerian Ankara Fabrics
+Saved: Senegalese Baskets
+Saved: Liberian Coffee Beans
+Saved: Sierra Leone Diamonds (Art.)
+Saved: Malian Mud Cloth
+Saved: Benin Bronze Art
+Saved: Togo Cocoa Butter
+Saved: Guinea Pepper Spice
+Saved: Niger Leather Bags
+Saved: Ivory Coast Cocoa Powder
+time=2026-02-23T23:10:08.729-06:00 level=INFO msg=Seeding group=Jobs
+Saved: Experienced Chef Needed
+Saved: Sales Associate
+Saved: Delivery Driver
+Saved: Hair Stylist
+Saved: Java Developer
+Saved: Event Planner Assistant
+Saved: Auto Mechanic
+Saved: French Teacher
+Saved: Construction Worker
+Saved: Accountant
+time=2026-02-23T23:10:08.730-06:00 level=INFO msg=Seeding group=Requests
+Saved: Looking for Zobo leaves
+Saved: Graphic Designer needed
+Saved: Anyone flying to Senegal?
+Saved: French Tutor for kids
+Saved: Apartment to rent
+Saved: Used Toyota Camry
+Saved: Web Developer partner
+Saved: Caterer for Naming Ceremony
+Saved: Roommate Wanted
+Saved: Shipping Barrel to Mali
+time=2026-02-23T23:10:08.731-06:00 level=INFO msg=Seeding group=Food
+Saved: Mama Put Dallas
+Saved: Accra Chop Bar
+Saved: Dakar Delights Catering
+Saved: Monrovia Bakery
+Saved: Freetown Kitchen
+Saved: Bamako Grill
+Saved: Cotonou Cuisine
+Saved: Lome Snacks
+Saved: Conakry Cafe
+Saved: Ouaga Spicy Pot
+time=2026-02-23T23:10:08.733-06:00 level=INFO msg=Seeding group=Events
+Saved: Naija Independence Day Bash
+Saved: Ghana Fest Texas
+Saved: Senegal Music Night
+Saved: Liberian Community Picnic
+Saved: Sierra Leone Charity Gala
+Saved: Mali Art Exhibition
+Saved: Benin Cultural Day
+Saved: Togo Independence Party
+Saved: Guinea Fashion Week
+Saved: Burkina Faso Film Screening
+time=2026-02-23T23:10:08.734-06:00 level=INFO msg="[Background] Service started. Ticking every 1 hour."
+--- PASS: TestSetupServer (0.02s)
+=== RUN   TestServeCmd_Run
+time=2026-02-23T23:10:08.734-06:00 level=INFO msg="[Background] Expired listings" count=20
+time=2026-02-23T23:10:08.734-06:00 level=WARN msg="Using default admin code - set ADMIN_CODE for production"
+time=2026-02-23T23:10:08.746-06:00 level=INFO msg="Database empty. Seeding data..."
+time=2026-02-23T23:10:08.746-06:00 level=INFO msg=Seeding group=Businesses
+Saved: Lagos Import Export
+Saved: Accra Market Square
+Saved: Dakar Textiles
+Saved: Monrovia Money Transfer
+Saved: Freetown Logistics
+Saved: Bamako Braid Shop
+Saved: Cotonou Car Dealership
+Saved: Lome Electronics
+Saved: Conakry Construction Co.
+Saved: Ouaga Office Supplies
+time=2026-02-23T23:10:08.747-06:00 level=INFO msg=Seeding group=Services
+Saved: Yoruba Language Tutors
+Saved: Ashanti Web Design
+Saved: Wolof Interpreters
+Saved: Monrovia Legal Aid
+Saved: Freetown Tax Prep
+Saved: Bamako Moving Services
+Saved: Cotonou Cleaning Crew
+Saved: Lome IT Support
+Saved: Conakry Caregivers
+Saved: Niamey Notary Public
+time=2026-02-23T23:10:08.748-06:00 level=INFO msg=Seeding group=Products
+Saved: Handmade Shea Butter
+Saved: Nigerian Ankara Fabrics
+Saved: Senegalese Baskets
+Saved: Liberian Coffee Beans
+Saved: Sierra Leone Diamonds (Art.)
+Saved: Malian Mud Cloth
+Saved: Benin Bronze Art
+Saved: Togo Cocoa Butter
+Saved: Guinea Pepper Spice
+Saved: Niger Leather Bags
+Saved: Ivory Coast Cocoa Powder
+time=2026-02-23T23:10:08.749-06:00 level=INFO msg=Seeding group=Jobs
+Saved: Experienced Chef Needed
+Saved: Sales Associate
+Saved: Delivery Driver
+Saved: Hair Stylist
+Saved: Java Developer
+Saved: Event Planner Assistant
+Saved: Auto Mechanic
+Saved: French Teacher
+Saved: Construction Worker
+Saved: Accountant
+time=2026-02-23T23:10:08.751-06:00 level=INFO msg=Seeding group=Requests
+Saved: Looking for Zobo leaves
+Saved: Graphic Designer needed
+Saved: Anyone flying to Senegal?
+Saved: French Tutor for kids
+Saved: Apartment to rent
+Saved: Used Toyota Camry
+Saved: Web Developer partner
+Saved: Caterer for Naming Ceremony
+Saved: Roommate Wanted
+Saved: Shipping Barrel to Mali
+time=2026-02-23T23:10:08.753-06:00 level=INFO msg=Seeding group=Food
+Saved: Mama Put Dallas
+Saved: Accra Chop Bar
+Saved: Dakar Delights Catering
+Saved: Monrovia Bakery
+Saved: Freetown Kitchen
+Saved: Bamako Grill
+Saved: Cotonou Cuisine
+Saved: Lome Snacks
+Saved: Conakry Cafe
+Saved: Ouaga Spicy Pot
+time=2026-02-23T23:10:08.754-06:00 level=INFO msg=Seeding group=Events
+Saved: Naija Independence Day Bash
+Saved: Ghana Fest Texas
+Saved: Senegal Music Night
+Saved: Liberian Community Picnic
+Saved: Sierra Leone Charity Gala
+Saved: Mali Art Exhibition
+Saved: Benin Cultural Day
+Saved: Togo Independence Party
+Saved: Guinea Fashion Week
+Saved: Burkina Faso Film Screening
+time=2026-02-23T23:10:08.755-06:00 level=INFO msg="Dry Run configuration" config="{Addr::8443 TLS:true CertFile:certs/cert.pem KeyFile:certs/key.pem}"
+time=2026-02-23T23:10:08.756-06:00 level=INFO msg="[Background] Service started. Ticking every 1 hour."
+--- PASS: TestServeCmd_Run (0.02s)
+FAIL
+FAIL	github.com/jadecobra/agbalumo/cmd	0.393s
+FAIL

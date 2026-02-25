@@ -1,3 +1,4 @@
+{{ define "modal_edit_listing" }}
 <dialog id="edit-listing-modal-{{.Listing.ID}}"
     class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-none md:max-w-sm m-0 md:m-auto rounded-none md:rounded-3xl shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed md:relative inset-0 md:inset-auto h-full md:h-auto">
     <div
@@ -9,7 +10,7 @@
 
         <div class="flex justify-between items-center mb-6">
             <h3 class="text-xl font-bold text-text-main dark:text-white">Edit Listing</h3>
-            <button onclick="this.closest('dialog').close(); this.closest('dialog').remove();"
+            <button hx-on:click="this.closest('dialog').close(); this.closest('dialog').remove();"
                 class="p-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 transition-colors">
                 <span class="material-symbols-outlined text-[20px]">close</span>
             </button>
@@ -50,69 +51,123 @@
                     class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white appearance-none">
                     <option value="" disabled>Select Country</option>
                     <optgroup label="West Africa">
-                        <option value="Benin" {{ if eq .Listing.OwnerOrigin "Benin" }}selected{{ end }}>Benin 🇧🇯</option>
-                        <option value="Burkina Faso" {{ if eq .Listing.OwnerOrigin "Burkina Faso" }}selected{{ end }}>Burkina Faso 🇧🇫</option>
-                        <option value="Cabo Verde" {{ if eq .Listing.OwnerOrigin "Cabo Verde" }}selected{{ end }}>Cabo Verde 🇨🇻</option>
-                        <option value="Cote d'Ivoire" {{ if eq .Listing.OwnerOrigin "Cote d'Ivoire" }}selected{{ end }}>Côte d'Ivoire 🇨🇮</option>
-                        <option value="Gambia" {{ if eq .Listing.OwnerOrigin "Gambia" }}selected{{ end }}>Gambia 🇬🇲</option>
-                        <option value="Ghana" {{ if eq .Listing.OwnerOrigin "Ghana" }}selected{{ end }}>Ghana 🇬🇭</option>
-                        <option value="Guinea" {{ if eq .Listing.OwnerOrigin "Guinea" }}selected{{ end }}>Guinea 🇬🇳</option>
-                        <option value="Guinea-Bissau" {{ if eq .Listing.OwnerOrigin "Guinea-Bissau" }}selected{{ end }}>Guinea-Bissau 🇬🇼</option>
-                        <option value="Liberia" {{ if eq .Listing.OwnerOrigin "Liberia" }}selected{{ end }}>Liberia 🇱🇷</option>
+                        <option value="Benin" {{ if eq .Listing.OwnerOrigin "Benin" }}selected{{ end }}>Benin 🇧🇯
+                        </option>
+                        <option value="Burkina Faso" {{ if eq .Listing.OwnerOrigin "Burkina Faso" }}selected{{ end }}>
+                            Burkina Faso 🇧🇫</option>
+                        <option value="Cabo Verde" {{ if eq .Listing.OwnerOrigin "Cabo Verde" }}selected{{ end }}>Cabo
+                            Verde 🇨🇻</option>
+                        <option value="Cote d'Ivoire" {{ if eq .Listing.OwnerOrigin "Cote d'Ivoire" }}selected{{ end }}>
+                            Côte d'Ivoire 🇨🇮</option>
+                        <option value="Gambia" {{ if eq .Listing.OwnerOrigin "Gambia" }}selected{{ end }}>Gambia 🇬🇲
+                        </option>
+                        <option value="Ghana" {{ if eq .Listing.OwnerOrigin "Ghana" }}selected{{ end }}>Ghana 🇬🇭
+                        </option>
+                        <option value="Guinea" {{ if eq .Listing.OwnerOrigin "Guinea" }}selected{{ end }}>Guinea 🇬🇳
+                        </option>
+                        <option value="Guinea-Bissau" {{ if eq .Listing.OwnerOrigin "Guinea-Bissau" }}selected{{ end }}>
+                            Guinea-Bissau 🇬🇼</option>
+                        <option value="Liberia" {{ if eq .Listing.OwnerOrigin "Liberia" }}selected{{ end }}>Liberia 🇱🇷
+                        </option>
                         <option value="Mali" {{ if eq .Listing.OwnerOrigin "Mali" }}selected{{ end }}>Mali 🇲🇱</option>
-                        <option value="Mauritania" {{ if eq .Listing.OwnerOrigin "Mauritania" }}selected{{ end }}>Mauritania 🇲🇷</option>
-                        <option value="Niger" {{ if eq .Listing.OwnerOrigin "Niger" }}selected{{ end }}>Niger 🇳🇪</option>
-                        <option value="Nigeria" {{ if eq .Listing.OwnerOrigin "Nigeria" }}selected{{ end }}>Nigeria 🇳🇬</option>
-                        <option value="Senegal" {{ if eq .Listing.OwnerOrigin "Senegal" }}selected{{ end }}>Senegal 🇸🇳</option>
-                        <option value="Sierra Leone" {{ if eq .Listing.OwnerOrigin "Sierra Leone" }}selected{{ end }}>Sierra Leone 🇸🇱</option>
+                        <option value="Mauritania" {{ if eq .Listing.OwnerOrigin "Mauritania" }}selected{{ end }}>
+                            Mauritania 🇲🇷</option>
+                        <option value="Niger" {{ if eq .Listing.OwnerOrigin "Niger" }}selected{{ end }}>Niger 🇳🇪
+                        </option>
+                        <option value="Nigeria" {{ if eq .Listing.OwnerOrigin "Nigeria" }}selected{{ end }}>Nigeria 🇳🇬
+                        </option>
+                        <option value="Senegal" {{ if eq .Listing.OwnerOrigin "Senegal" }}selected{{ end }}>Senegal 🇸🇳
+                        </option>
+                        <option value="Sierra Leone" {{ if eq .Listing.OwnerOrigin "Sierra Leone" }}selected{{ end }}>
+                            Sierra Leone 🇸🇱</option>
                         <option value="Togo" {{ if eq .Listing.OwnerOrigin "Togo" }}selected{{ end }}>Togo 🇹🇬</option>
                     </optgroup>
                     <optgroup label="North Africa">
-                        <option value="Algeria" {{ if eq .Listing.OwnerOrigin "Algeria" }}selected{{ end }}>Algeria 🇩🇿</option>
-                        <option value="Egypt" {{ if eq .Listing.OwnerOrigin "Egypt" }}selected{{ end }}>Egypt 🇪🇬</option>
-                        <option value="Libya" {{ if eq .Listing.OwnerOrigin "Libya" }}selected{{ end }}>Libya 🇱🇾</option>
-                        <option value="Morocco" {{ if eq .Listing.OwnerOrigin "Morocco" }}selected{{ end }}>Morocco 🇲🇦</option>
-                        <option value="Sudan" {{ if eq .Listing.OwnerOrigin "Sudan" }}selected{{ end }}>Sudan 🇸🇩</option>
-                        <option value="Tunisia" {{ if eq .Listing.OwnerOrigin "Tunisia" }}selected{{ end }}>Tunisia 🇹🇳</option>
-                        <option value="Western Sahara" {{ if eq .Listing.OwnerOrigin "Western Sahara" }}selected{{ end }}>Western Sahara</option>
+                        <option value="Algeria" {{ if eq .Listing.OwnerOrigin "Algeria" }}selected{{ end }}>Algeria 🇩🇿
+                        </option>
+                        <option value="Egypt" {{ if eq .Listing.OwnerOrigin "Egypt" }}selected{{ end }}>Egypt 🇪🇬
+                        </option>
+                        <option value="Libya" {{ if eq .Listing.OwnerOrigin "Libya" }}selected{{ end }}>Libya 🇱🇾
+                        </option>
+                        <option value="Morocco" {{ if eq .Listing.OwnerOrigin "Morocco" }}selected{{ end }}>Morocco 🇲🇦
+                        </option>
+                        <option value="Sudan" {{ if eq .Listing.OwnerOrigin "Sudan" }}selected{{ end }}>Sudan 🇸🇩
+                        </option>
+                        <option value="Tunisia" {{ if eq .Listing.OwnerOrigin "Tunisia" }}selected{{ end }}>Tunisia 🇹🇳
+                        </option>
+                        <option value="Western Sahara" {{ if eq .Listing.OwnerOrigin "Western Sahara" }}selected{{ end
+                            }}>Western Sahara</option>
                     </optgroup>
                     <optgroup label="East Africa">
-                        <option value="Burundi" {{ if eq .Listing.OwnerOrigin "Burundi" }}selected{{ end }}>Burundi 🇧🇮</option>
-                        <option value="Comoros" {{ if eq .Listing.OwnerOrigin "Comoros" }}selected{{ end }}>Comoros 🇰🇲</option>
-                        <option value="Djibouti" {{ if eq .Listing.OwnerOrigin "Djibouti" }}selected{{ end }}>Djibouti 🇩🇯</option>
-                        <option value="Eritrea" {{ if eq .Listing.OwnerOrigin "Eritrea" }}selected{{ end }}>Eritrea 🇪🇷</option>
-                        <option value="Ethiopia" {{ if eq .Listing.OwnerOrigin "Ethiopia" }}selected{{ end }}>Ethiopia 🇪🇹</option>
-                        <option value="Kenya" {{ if eq .Listing.OwnerOrigin "Kenya" }}selected{{ end }}>Kenya 🇰🇪</option>
-                        <option value="Madagascar" {{ if eq .Listing.OwnerOrigin "Madagascar" }}selected{{ end }}>Madagascar 🇲🇬</option>
-                        <option value="Malawi" {{ if eq .Listing.OwnerOrigin "Malawi" }}selected{{ end }}>Malawi 🇲🇼</option>
-                        <option value="Mauritius" {{ if eq .Listing.OwnerOrigin "Mauritius" }}selected{{ end }}>Mauritius 🇲🇺</option>
-                        <option value="Mozambique" {{ if eq .Listing.OwnerOrigin "Mozambique" }}selected{{ end }}>Mozambique 🇲🇿</option>
-                        <option value="Rwanda" {{ if eq .Listing.OwnerOrigin "Rwanda" }}selected{{ end }}>Rwanda 🇷🇼</option>
-                        <option value="Seychelles" {{ if eq .Listing.OwnerOrigin "Seychelles" }}selected{{ end }}>Seychelles 🇸🇨</option>
-                        <option value="Somalia" {{ if eq .Listing.OwnerOrigin "Somalia" }}selected{{ end }}>Somalia 🇸🇴</option>
-                        <option value="South Sudan" {{ if eq .Listing.OwnerOrigin "South Sudan" }}selected{{ end }}>South Sudan 🇸🇸</option>
-                        <option value="Tanzania" {{ if eq .Listing.OwnerOrigin "Tanzania" }}selected{{ end }}>Tanzania 🇹🇿</option>
-                        <option value="Uganda" {{ if eq .Listing.OwnerOrigin "Uganda" }}selected{{ end }}>Uganda 🇺🇬</option>
-                        <option value="Zambia" {{ if eq .Listing.OwnerOrigin "Zambia" }}selected{{ end }}>Zambia 🇿🇲</option>
-                        <option value="Zimbabwe" {{ if eq .Listing.OwnerOrigin "Zimbabwe" }}selected{{ end }}>Zimbabwe 🇿🇼</option>
+                        <option value="Burundi" {{ if eq .Listing.OwnerOrigin "Burundi" }}selected{{ end }}>Burundi 🇧🇮
+                        </option>
+                        <option value="Comoros" {{ if eq .Listing.OwnerOrigin "Comoros" }}selected{{ end }}>Comoros 🇰🇲
+                        </option>
+                        <option value="Djibouti" {{ if eq .Listing.OwnerOrigin "Djibouti" }}selected{{ end }}>Djibouti
+                            🇩🇯</option>
+                        <option value="Eritrea" {{ if eq .Listing.OwnerOrigin "Eritrea" }}selected{{ end }}>Eritrea 🇪🇷
+                        </option>
+                        <option value="Ethiopia" {{ if eq .Listing.OwnerOrigin "Ethiopia" }}selected{{ end }}>Ethiopia
+                            🇪🇹</option>
+                        <option value="Kenya" {{ if eq .Listing.OwnerOrigin "Kenya" }}selected{{ end }}>Kenya 🇰🇪
+                        </option>
+                        <option value="Madagascar" {{ if eq .Listing.OwnerOrigin "Madagascar" }}selected{{ end }}>
+                            Madagascar 🇲🇬</option>
+                        <option value="Malawi" {{ if eq .Listing.OwnerOrigin "Malawi" }}selected{{ end }}>Malawi 🇲🇼
+                        </option>
+                        <option value="Mauritius" {{ if eq .Listing.OwnerOrigin "Mauritius" }}selected{{ end }}>
+                            Mauritius 🇲🇺</option>
+                        <option value="Mozambique" {{ if eq .Listing.OwnerOrigin "Mozambique" }}selected{{ end }}>
+                            Mozambique 🇲🇿</option>
+                        <option value="Rwanda" {{ if eq .Listing.OwnerOrigin "Rwanda" }}selected{{ end }}>Rwanda 🇷🇼
+                        </option>
+                        <option value="Seychelles" {{ if eq .Listing.OwnerOrigin "Seychelles" }}selected{{ end }}>
+                            Seychelles 🇸🇨</option>
+                        <option value="Somalia" {{ if eq .Listing.OwnerOrigin "Somalia" }}selected{{ end }}>Somalia 🇸🇴
+                        </option>
+                        <option value="South Sudan" {{ if eq .Listing.OwnerOrigin "South Sudan" }}selected{{ end }}>
+                            South Sudan 🇸🇸</option>
+                        <option value="Tanzania" {{ if eq .Listing.OwnerOrigin "Tanzania" }}selected{{ end }}>Tanzania
+                            🇹🇿</option>
+                        <option value="Uganda" {{ if eq .Listing.OwnerOrigin "Uganda" }}selected{{ end }}>Uganda 🇺🇬
+                        </option>
+                        <option value="Zambia" {{ if eq .Listing.OwnerOrigin "Zambia" }}selected{{ end }}>Zambia 🇿🇲
+                        </option>
+                        <option value="Zimbabwe" {{ if eq .Listing.OwnerOrigin "Zimbabwe" }}selected{{ end }}>Zimbabwe
+                            🇿🇼</option>
                     </optgroup>
                     <optgroup label="Central Africa">
-                        <option value="Angola" {{ if eq .Listing.OwnerOrigin "Angola" }}selected{{ end }}>Angola 🇦🇴</option>
-                        <option value="Cameroon" {{ if eq .Listing.OwnerOrigin "Cameroon" }}selected{{ end }}>Cameroon 🇨🇲</option>
-                        <option value="Central African Republic" {{ if eq .Listing.OwnerOrigin "Central African Republic" }}selected{{ end }}>Central African Republic 🇨🇫</option>
+                        <option value="Angola" {{ if eq .Listing.OwnerOrigin "Angola" }}selected{{ end }}>Angola 🇦🇴
+                        </option>
+                        <option value="Cameroon" {{ if eq .Listing.OwnerOrigin "Cameroon" }}selected{{ end }}>Cameroon
+                            🇨🇲</option>
+                        <option value="Central African Republic" {{ if eq
+                            .Listing.OwnerOrigin "Central African Republic" }}selected{{ end }}>Central African Republic
+                            🇨🇫</option>
                         <option value="Chad" {{ if eq .Listing.OwnerOrigin "Chad" }}selected{{ end }}>Chad 🇹🇩</option>
-                        <option value="Congo" {{ if eq .Listing.OwnerOrigin "Congo" }}selected{{ end }}>Congo 🇨🇬</option>
-                        <option value="Democratic Republic of the Congo" {{ if eq .Listing.OwnerOrigin "Democratic Republic of the Congo" }}selected{{ end }}>DRC 🇨🇩</option>
-                        <option value="Equatorial Guinea" {{ if eq .Listing.OwnerOrigin "Equatorial Guinea" }}selected{{ end }}>Equatorial Guinea 🇬🇶</option>
-                        <option value="Gabon" {{ if eq .Listing.OwnerOrigin "Gabon" }}selected{{ end }}>Gabon 🇬🇦</option>
-                        <option value="Sao Tome and Principe" {{ if eq .Listing.OwnerOrigin "Sao Tome and Principe" }}selected{{ end }}>São Tomé and Príncipe 🇸🇹</option>
+                        <option value="Congo" {{ if eq .Listing.OwnerOrigin "Congo" }}selected{{ end }}>Congo 🇨🇬
+                        </option>
+                        <option value="Democratic Republic of the Congo" {{ if eq
+                            .Listing.OwnerOrigin "Democratic Republic of the Congo" }}selected{{ end }}>DRC 🇨🇩
+                        </option>
+                        <option value="Equatorial Guinea" {{ if eq .Listing.OwnerOrigin "Equatorial Guinea" }}selected{{
+                            end }}>Equatorial Guinea 🇬🇶</option>
+                        <option value="Gabon" {{ if eq .Listing.OwnerOrigin "Gabon" }}selected{{ end }}>Gabon 🇬🇦
+                        </option>
+                        <option value="Sao Tome and Principe" {{ if eq .Listing.OwnerOrigin "Sao Tome and Principe"
+                            }}selected{{ end }}>São Tomé and Príncipe 🇸🇹</option>
                     </optgroup>
                     <optgroup label="Southern Africa">
-                        <option value="Botswana" {{ if eq .Listing.OwnerOrigin "Botswana" }}selected{{ end }}>Botswana 🇧🇼</option>
-                        <option value="Eswatini" {{ if eq .Listing.OwnerOrigin "Eswatini" }}selected{{ end }}>Eswatini 🇸🇿</option>
-                        <option value="Lesotho" {{ if eq .Listing.OwnerOrigin "Lesotho" }}selected{{ end }}>Lesotho 🇱🇸</option>
-                        <option value="Namibia" {{ if eq .Listing.OwnerOrigin "Namibia" }}selected{{ end }}>Namibia 🇳🇦</option>
-                        <option value="South Africa" {{ if eq .Listing.OwnerOrigin "South Africa" }}selected{{ end }}>South Africa 🇿🇦</option>
+                        <option value="Botswana" {{ if eq .Listing.OwnerOrigin "Botswana" }}selected{{ end }}>Botswana
+                            🇧🇼</option>
+                        <option value="Eswatini" {{ if eq .Listing.OwnerOrigin "Eswatini" }}selected{{ end }}>Eswatini
+                            🇸🇿</option>
+                        <option value="Lesotho" {{ if eq .Listing.OwnerOrigin "Lesotho" }}selected{{ end }}>Lesotho 🇱🇸
+                        </option>
+                        <option value="Namibia" {{ if eq .Listing.OwnerOrigin "Namibia" }}selected{{ end }}>Namibia 🇳🇦
+                        </option>
+                        <option value="South Africa" {{ if eq .Listing.OwnerOrigin "South Africa" }}selected{{ end }}>
+                            South Africa 🇿🇦</option>
                     </optgroup>
                     <option value="Other" {{ if eq .Listing.OwnerOrigin "Other" }}selected{{ end }}>Other 🌍</option>
                 </select>
@@ -122,17 +177,23 @@
             <div class="flex flex-col gap-1.5">
                 <label class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Photo
                     (Optional)</label>
+                <input type="hidden" name="remove_image" id="remove-image-{{.Listing.ID}}" value="false">
                 <div id="edit-image-preview-container-{{.Listing.ID}}" class="hidden relative mb-2">
-                    <img id="edit-image-preview-{{.Listing.ID}}" class="h-24 w-24 object-cover rounded-xl border border-stone-200" alt="Preview">
-                    <button type="button" onclick="removeEditImage('{{.Listing.ID}}')" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600">
+                    <img id="edit-image-preview-{{.Listing.ID}}"
+                        class="h-24 w-24 object-cover rounded-xl border border-stone-200" alt="Preview">
+                    <button type="button" hx-on:click="removeEditImagePreview('{{.Listing.ID}}')"
+                        class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600">
                         <span class="material-symbols-outlined text-[16px]">close</span>
                     </button>
                 </div>
                 {{ if .Listing.ImageURL }}
-                <div id="edit-existing-image-{{.Listing.ID}}" class="mb-2">
+                <div id="edit-existing-image-{{.Listing.ID}}" class="mb-2 relative inline-block">
                     <img src="{{ .Listing.ImageURL }}"
                         class="h-24 w-24 object-cover rounded-xl border border-stone-200">
-                    <button type="button" onclick="clearEditImage('{{.Listing.ID}}')" class="mt-1 text-xs text-red-500 hover:text-red-700">Remove</button>
+                    <button type="button" hx-on:click="clearEditImage('{{.Listing.ID}}')"
+                        class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 shadow-md">
+                        <span class="material-symbols-outlined text-[16px]">close</span>
+                    </button>
                 </div>
                 {{ end }}
                 <input name="image" type="file" accept="image/*" id="edit-image-input-{{.Listing.ID}}"
@@ -234,9 +295,6 @@
                         value="{{ .Listing.Address }}" placeholder="Start typing address..."
                         class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
                     <input type="hidden" id="edit-city-input-{{.Listing.ID}}" name="city" value="{{ .Listing.City }}">
-                    <div class="h-full w-full bg-center bg-cover rounded-xl dynamic-bg"
-                        data-bg-image="{{.Listing.ImageURL}}" data-alt="{{ .Listing.Title }}">
-                    </div>
                 </div>
 
                 <!-- Hours of Operation (Optional) -->
@@ -288,15 +346,5 @@
         </form>
     </div>
 </dialog>
-</dialog>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var listingId = '{{.Listing.ID}}';
-    if (listingId) {
-        initEditTypeToggle(listingId);
-        initEditMaps(listingId);
-        initEditImagePreview(listingId);
-    }
-});
-</script>
+{{ end }}

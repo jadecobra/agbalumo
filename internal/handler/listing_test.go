@@ -20,6 +20,7 @@ import (
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/jadecobra/agbalumo/internal/mock"
 	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
 	testifyMock "github.com/stretchr/testify/mock"
 )
 
@@ -786,6 +787,11 @@ func (m *MockImageService) UploadImage(ctx context.Context, file *multipart.File
 	return args.String(0), args.Error(1)
 }
 
+func (m *MockImageService) DeleteImage(ctx context.Context, imageURL string) error {
+	args := m.Called(ctx, imageURL)
+	return args.Error(0)
+}
+
 // --- Profile Edge Case Tests ---
 
 func TestHandleProfile_NoUser(t *testing.T) {
@@ -967,4 +973,35 @@ func TestHandleUpdate_NotFound(t *testing.T) {
 	if rec.Code != http.StatusNotFound {
 		t.Errorf("Expected status 404, got %d", rec.Code)
 	}
+}
+
+func TestListingHandler_Helpers(t *testing.T) {
+	t.Run("IsImageError", func(t *testing.T) {
+		assert.False(t, handler.IsImageError(nil))
+		assert.True(t, handler.IsImageError(errors.New("Invalid file type")))
+		assert.False(t, handler.IsImageError(errors.New("some other error")))
+	})
+}
+
+func TestHandleDelete_ErrorPaths(t *testing.T) {
+	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+
+	t.Run("ListingNotFound", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodDelete, "/listings/999", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetPath("/listings/:id")
+		c.SetParamNames("id")
+		c.SetParamValues("999")
+		c.Set("User", domain.User{ID: "u1"})
+
+		mockRepo := &mock.MockListingRepository{}
+		mockRepo.On("FindByID", testifyMock.Anything, "999").Return(domain.Listing{}, errors.New("not found"))
+
+		h := handler.NewListingHandler(mockRepo, nil)
+		_ = h.HandleDelete(c)
+
+		assert.Equal(t, http.StatusNotFound, rec.Code)
+	})
 }

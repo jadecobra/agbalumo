@@ -13,16 +13,16 @@ function closeModal(modalId) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('dialog[id][data-auto-open]').forEach(modal => {
         modal.showModal();
     });
 
     document.querySelectorAll('dialog[id]').forEach(modal => {
-        modal.addEventListener('click', function(event) {
+        modal.addEventListener('click', function (event) {
             const rect = modal.getBoundingClientRect();
             const isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height
-              && rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
+                && rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
             if (!isInDialog) {
                 modal.close();
             }
@@ -39,6 +39,48 @@ document.addEventListener('DOMContentLoaded', function() {
     if (feedbackModal) {
         feedbackModal.showModal();
     }
+
+    // Initialize edit modals if present on initial load
+    document.querySelectorAll('dialog[id^="edit-listing-modal-"]').forEach(modal => {
+        const listingId = modal.id.replace('edit-listing-modal-', '');
+        if (listingId) {
+            initEditTypeToggle(listingId);
+            initEditMaps(listingId);
+            initEditImagePreview(listingId);
+        }
+    });
+});
+
+// HTMX Listener for dynamically loaded content
+document.addEventListener('htmx:afterSettle', function (event) {
+    const target = event.detail.target;
+    if (!target) return;
+
+    // Handle new edit listing modals
+    const editModal = target.querySelector('dialog[id^="edit-listing-modal-"]') ||
+        (target.id?.startsWith('edit-listing-modal-') ? target : null);
+
+    if (editModal) {
+        const listingId = editModal.id.replace('edit-listing-modal-', '');
+        if (listingId) {
+            editModal.showModal();
+            initEditTypeToggle(listingId);
+            initEditMaps(listingId);
+            initEditImagePreview(listingId);
+        }
+    }
+
+    // Auto-open detail modals loaded via HTMX
+    target.querySelectorAll('dialog[id^="detail-modal-"]').forEach(modal => {
+        modal.showModal();
+    });
+
+    // Auto-open feedback modal loaded via HTMX
+    const feedbackModal = target.querySelector('#feedback-modal') ||
+        (target.id === 'feedback-modal' ? target : null);
+    if (feedbackModal) {
+        feedbackModal.showModal();
+    }
 });
 
 // Image preview for create listing
@@ -49,11 +91,11 @@ function initCreateImagePreview() {
     var removeBtn = document.getElementById('remove-image-btn');
 
     if (imageInput) {
-        imageInput.addEventListener('change', function(e) {
+        imageInput.addEventListener('change', function (e) {
             var file = e.target.files[0];
             if (file) {
                 var reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     previewImg.src = e.target.result;
                     previewContainer.classList.remove('hidden');
                 };
@@ -63,7 +105,7 @@ function initCreateImagePreview() {
     }
 
     if (removeBtn) {
-        removeBtn.addEventListener('click', function() {
+        removeBtn.addEventListener('click', function () {
             imageInput.value = '';
             previewContainer.classList.add('hidden');
         });
@@ -183,11 +225,11 @@ function initEditImagePreview(listingId) {
     var existingImage = document.getElementById('edit-existing-image-' + listingId);
 
     if (imageInput) {
-        imageInput.addEventListener('change', function(e) {
+        imageInput.addEventListener('change', function (e) {
             var file = e.target.files[0];
             if (file) {
                 var reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     previewImg.src = e.target.result;
                     previewContainer.classList.remove('hidden');
                     if (existingImage) existingImage.classList.add('hidden');
@@ -195,5 +237,35 @@ function initEditImagePreview(listingId) {
                 reader.readAsDataURL(file);
             }
         });
+    }
+}
+// Clear existing image (for database update)
+function clearEditImage(listingId) {
+    const removeInput = document.getElementById('remove-image-' + listingId);
+    if (removeInput) {
+        removeInput.value = 'true';
+    }
+    const container = document.getElementById('edit-existing-image-' + listingId);
+    if (container) {
+        container.classList.add('hidden');
+    }
+}
+
+// Remove new image preview (just purely cosmetic)
+function removeEditImagePreview(listingId) {
+    const input = document.getElementById('edit-image-input-' + listingId);
+    if (input) {
+        input.value = '';
+    }
+    const container = document.getElementById('edit-image-preview-container-' + listingId);
+    if (container) {
+        container.classList.add('hidden');
+    }
+    const existing = document.getElementById('edit-existing-image-' + listingId);
+    const removeInput = document.getElementById('remove-image-' + listingId);
+    // If we had an existing image that was hidden by the preview, show it again
+    // unless it was explicitly removed.
+    if (existing && (!removeInput || removeInput.value !== 'true')) {
+        existing.classList.remove('hidden');
     }
 }

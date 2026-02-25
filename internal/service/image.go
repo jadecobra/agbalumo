@@ -20,6 +20,7 @@ import (
 // ImageService defines the interface for handling image uploads
 type ImageService interface {
 	UploadImage(ctx context.Context, file *multipart.FileHeader, listingID string) (string, error)
+	DeleteImage(ctx context.Context, imageURL string) error
 }
 
 // LocalImageService handles saving images to the local filesystem
@@ -166,6 +167,30 @@ func (s *LocalImageService) UploadImage(ctx context.Context, file *multipart.Fil
 
 	// Return web-accessible path
 	return "/static/uploads/" + filename, nil
+}
+
+// DeleteImage removes the image from the local filesystem
+func (s *LocalImageService) DeleteImage(ctx context.Context, imageURL string) error {
+	if imageURL == "" {
+		return nil
+	}
+
+	// Assuming imageURL is like "/static/uploads/listing-123.jpg"
+	// and we need to map it back to the local path.
+	filename := filepath.Base(imageURL)
+	// Strip query parameters if any (for cache busting)
+	if idx := strings.Index(filename, "?"); idx != -1 {
+		filename = filename[:idx]
+	}
+
+	dstPath := filepath.Join(s.UploadDir, filename)
+
+	// Check if file exists before trying to delete
+	if _, err := os.Stat(dstPath); os.IsNotExist(err) {
+		return nil
+	}
+
+	return os.Remove(dstPath)
 }
 
 // CompressImage compresses an image buffer and returns compressed bytes

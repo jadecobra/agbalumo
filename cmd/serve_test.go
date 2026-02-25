@@ -49,11 +49,19 @@ func TestResolveServerConfig(t *testing.T) {
 			expectedTLS:  false,
 		},
 		{
-			name:         "Dev With Certs",
+			name:         "Dev With Certs (Port Override)",
 			env:          "development",
 			port:         "3000",
 			filesExist:   true,
-			expectedAddr: ":8443", // Should override port and use 8443
+			expectedAddr: ":3000",
+			expectedTLS:  true,
+		},
+		{
+			name:         "Dev With Certs (Default Port)",
+			env:          "development",
+			port:         "",
+			filesExist:   true,
+			expectedAddr: ":8443",
 			expectedTLS:  true,
 		},
 	}

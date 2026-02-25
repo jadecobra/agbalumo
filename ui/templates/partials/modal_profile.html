@@ -11,7 +11,7 @@
                 <span class="material-symbols-outlined text-primary">account_circle</span>
                 My Profile
             </h2>
-            <button onclick="this.closest('dialog').close()"
+            <button hx-on:click="this.closest('dialog').close()"
                 class="p-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
                 <span class="material-symbols-outlined">close</span>
             </button>
@@ -42,7 +42,7 @@
             </div>
             <div class="ml-auto flex gap-2">
                 <button hx-get="/feedback/modal" hx-target="body" hx-swap="beforeend"
-                    onclick="document.getElementById('profile-modal').close()"
+                    hx-on:click="document.getElementById('profile-modal').close()"
                     class="flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 font-bold text-sm hover:bg-stone-50 dark:hover:bg-stone-800 transition-all shadow-sm hover:shadow-md hover:scale-105">
                     <span class="material-symbols-outlined text-[18px]">feedback</span>
                     Feedback
@@ -84,13 +84,13 @@
                     requests yet. Start connecting with the community!</p>
                 <div class="flex gap-3 justify-center">
                     <button
-                        onclick="document.getElementById('create-listing-modal').showModal(); document.getElementById('profile-modal').close()"
+                        hx-on:click="document.getElementById('create-listing-modal').showModal(); document.getElementById('profile-modal').close()"
                         class="px-5 py-2.5 bg-primary text-white rounded-full font-bold shadow-soft hover:shadow-lg hover:bg-orange-600 transition-all text-sm flex items-center gap-2">
                         <span class="material-symbols-outlined text-[18px]">add_circle</span>
                         Post Listing
                     </button>
                     <button
-                        onclick="document.getElementById('create-request-modal').showModal(); document.getElementById('profile-modal').close()"
+                        hx-on:click="document.getElementById('create-request-modal').showModal(); document.getElementById('profile-modal').close()"
                         class="px-5 py-2.5 bg-secondary text-white rounded-full font-bold shadow-soft hover:shadow-lg hover:bg-green-800 transition-all text-sm flex items-center gap-2">
                         <span class="material-symbols-outlined text-[18px]">campaign</span>
                         Ask Request

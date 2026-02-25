@@ -22,9 +22,9 @@ echo ""
 echo "1. Checking for inline <script> tags in templates..."
 
 # Check for any <script> tags in HTML templates (excluding external script src)
-if git diff --cached --name-only | grep -E "\.html$" | xargs git diff --cached --name-only | xargs -I{} sh -c 'git show --cached {} 2>/dev/null | grep -n "<script>" | head -5' 2>/dev/null || true; then
+if git diff --cached --name-only | grep -E "\.html$" | xargs git diff --cached --name-only | xargs -I{} sh -c 'git diff --cached {} 2>/dev/null | grep "^+" | grep -n "<script>" | head -5' 2>/dev/null || true; then
     # More precise check using git diff
-    INLINE_SCRIPTS=$(git diff --cached -- '*.html' 2>/dev/null | grep -c '<script>' || true)
+    INLINE_SCRIPTS=$(git diff --cached -- '*.html' 2>/dev/null | grep "^+" | grep -c '<script>' || true)
     if [ "$INLINE_SCRIPTS" -gt 0 ]; then
         echo "${RED}❌ FAIL: Found inline <script> tags in HTML templates${NC}"
         echo "   Templates should use external JS files from /static/js/"
@@ -69,7 +69,7 @@ echo ""
 echo "2. Checking for insecure onclick handlers..."
 
 # Check Go handler files for inline onclick (should use hx-on)
-if git diff --cached --name-only | grep -E "\.(go|html)$" | xargs git diff --cached 2>/dev/null | grep -q 'onclick='; then
+if git diff --cached --name-only | grep -E "\.(go|html)$" | xargs git diff --cached 2>/dev/null | grep "^+" | grep -q 'onclick='; then
     echo "${RED}❌ FAIL: Found onclick= handlers${NC}"
     echo "   Use hx-on:click instead for HTMX event handling"
     echo "   Example: hx-on:click=\"this.parentElement.remove()\""

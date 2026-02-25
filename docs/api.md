@@ -44,10 +44,9 @@ No authentication required.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `category` | string | Filter by category |
-| `search` | string | Search term |
-| `city` | string | Filter by city |
-| `origin` | string | Filter by country of origin |
+| `type` | string | Filter by category (category) |
+| `q` | string | Search term (search) |
+| `page` | integer | Page number for pagination |
 
 ## User Endpoints
 
@@ -87,7 +86,7 @@ Requires authentication (session cookie).
   "contact_phone": "string",
   "contact_whatsapp": "string",
   "website_url": "string",
-  "deadline": "datetime (Request type)",
+  "deadline_date": "date (Request type)",
   "event_start": "datetime (Event type)",
   "event_end": "datetime (Event type)",
   "skills": "string (Job type)",
@@ -95,7 +94,8 @@ Requires authentication (session cookie).
   "job_apply_url": "string (Job type)",
   "company": "string (Job type)",
   "pay_range": "string (Job type)",
-  "image": "file (multipart)"
+  "image": "file (multipart)",
+  "remove_image": "boolean (optional, for updates)"
 }
 ```
 
@@ -112,18 +112,27 @@ Requires admin role and session authentication.
 | GET | `/admin/listings` | List all listings |
 | POST | `/admin/listings/:id/approve` | Approve listing |
 | POST | `/admin/listings/:id/reject` | Reject listing |
-| POST | `/admin/listings/:id/featured` | Toggle featured |
+| POST | `/admin/listings/:id/featured` | Toggle featured (`featured=true/false`) |
 | POST | `/admin/listings/bulk` | Bulk action |
-| GET | `/admin/listings/delete-confirm` | Delete confirmation |
-| POST | `/admin/listings/delete` | Delete listing |
-| POST | `/admin/upload` | Bulk CSV upload |
+| GET | `/admin/listings/delete-confirm` | Delete confirmation (query param `id`) |
+| POST | `/admin/listings/delete` | Delete listing (`admin_code` required) |
+| POST | `/admin/upload` | Bulk CSV upload (`csv_file`) |
+
+### Admin Listing Filters (GET `/admin/listings`)
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `category` | string | Filter by type |
+| `sort` | string | Sort field (title, created_at, status) |
+| `order` | string | Sort order (ASC, DESC) |
+| `page` | integer | Page number |
 
 ### Bulk Action Request
 
 ```json
 {
   "action": "approve|reject|delete",
-  "ids": ["id1", "id2", "id3"]
+  "selectedListings": ["id1", "id2", "id3"]
 }
 ```
 

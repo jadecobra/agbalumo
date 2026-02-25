@@ -230,6 +230,7 @@ type ListingFormRequest struct {
 	JobApplyURL      string `form:"job_apply_url"`
 	Company          string `form:"company"`
 	PayRange         string `form:"pay_range"`
+	RemoveImage      bool   `form:"remove_image"`
 }
 
 // ToListing maps the DTO fields directly to the domain Listing and parses dates.
@@ -273,7 +274,7 @@ func (h *ListingHandler) HandleCreate(c echo.Context) error {
 	}
 
 	if err := h.bindAndMapListing(c, &l); err != nil {
-		if isImageError(err) {
+		if IsImageError(err) {
 			return h.renderImageErrorToast(c, err)
 		}
 		return RespondError(c, err)
@@ -327,10 +328,21 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 	}
 
 	if err := h.bindAndMapListing(c, &listing); err != nil {
-		if isImageError(err) {
+		if IsImageError(err) {
 			return h.renderImageErrorToast(c, err)
 		}
 		return RespondError(c, err)
+	}
+
+	// Handle Image Removal
+	var req ListingFormRequest
+	_ = c.Bind(&req) // Re-bind to check RemoveImage flag
+	if req.RemoveImage && listing.ImageURL != "" {
+		if err := h.ImageService.DeleteImage(ctx, listing.ImageURL); err == nil {
+			listing.ImageURL = ""
+		} else {
+			c.Logger().Errorf("Failed to delete image: %v", err)
+		}
 	}
 
 	// Check for duplicate title
@@ -414,7 +426,8 @@ func (h *ListingHandler) bindAndMapListing(c echo.Context, l *domain.Listing) er
 func (h *ListingHandler) handleImageUpload(c echo.Context, l *domain.Listing) error {
 	imageURL, err := h.ImageService.UploadImage(c.Request().Context(), h.getFileHeader(c, "image"), l.ID)
 	if err == nil && imageURL != "" {
-		l.ImageURL = imageURL
+		// Cache-busting: append timestamp
+		l.ImageURL = fmt.Sprintf("%s?t=%d", imageURL, time.Now().Unix())
 		return nil
 	} else if err != nil {
 		return err
@@ -496,7 +509,7 @@ func (h *ListingHandler) getFileHeader(c echo.Context, key string) *multipart.Fi
 	return file
 }
 
-func isImageError(err error) bool {
+func IsImageError(err error) bool {
 	if err == nil {
 		return false
 	}
