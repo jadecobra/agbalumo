@@ -161,12 +161,12 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 
 	adminGroup := e.Group("/admin")
 	adminGroup.Use(authMw.OptionalAuth)
-	adminGroup.GET("/login", adminHandler.HandleLoginView, authMw.RequireAuth)
+	adminGroup.GET("/login", adminHandler.HandleLoginView)
 
 	// Admin login POST with strict rate limiting
 	adminLoginGroup := adminGroup.Group("/login")
 	adminLoginGroup.Use(adminAuthLimiter.Middleware())
-	adminLoginGroup.POST("", adminHandler.HandleLoginAction, authMw.RequireAuth)
+	adminLoginGroup.POST("", adminHandler.HandleLoginAction)
 	adminGroup.Use(adminHandler.AdminMiddleware)
 	adminGroup.GET("", adminHandler.HandleDashboard)
 	adminGroup.GET("/users", adminHandler.HandleUsers)
