@@ -150,11 +150,9 @@ ui/
 
 ## Feature Development Workflow
 
-**Follow the 3-layer verification** (`.agent/workflows/feature-implementation.md`):
-
-1. **Layer 1 - Unit Tests**: Write failing test (Red) → Implement (Green) → Refactor
-2. **Layer 2 - CLI/Integration**: Run `./scripts/pre-commit.sh` + `./scripts/verify_restart.sh`
-3. **Layer 3 - Browser**: Use browser subagent to verify UI works
+**Follow the verification workflow** (`.agent/workflows/feature-implementation.md`):
+- All changes must strictly follow this workflow.
+- Refer strictly to `.agent/workflows/feature-implementation.md` for specific layers and gates.
 
 ---
 

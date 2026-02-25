@@ -8,14 +8,16 @@
 <div class="relative flex-1 px-4 pb-24 md:pb-8 pt-0 w-full max-w-7xl mx-auto">
 
     <!-- Filters Bar -->
-    <div class="w-full border-t border-orange-50 dark:border-stone-800/50 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-3xl mb-6">
+    <div
+        class="w-full border-t border-orange-50 dark:border-stone-800/50 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-3xl mb-6">
         <div id="filter-container" class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap gap-2 justify-center">
             <!-- Filters -->
             <button hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
                 class="chip-fruit flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-full bg-stone-900 text-white dark:bg-white dark:text-stone-900 px-4 shadow-sm border border-transparent transition-transform active:scale-95 text-xs font-bold uppercase">
                 All ({{.TotalCount}})
             </button>
-            <button hx-get="/listings/fragment?type=Food" hx-target="#listings-container" hx-indicator="#listings-loading"
+            <button hx-get="/listings/fragment?type=Food" hx-target="#listings-container"
+                hx-indicator="#listings-loading"
                 class="chip-fruit flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
                 <span>Food ({{index .Counts "Food"}})</span>
                 <span class="material-symbols-outlined text-[14px] text-text-sub">restaurant</span>
@@ -38,12 +40,14 @@
                 <span>Products ({{index .Counts "Product"}})</span>
                 <span class="material-symbols-outlined text-[14px] text-text-sub">shopping_bag</span>
             </button>
-            <button hx-get="/listings/fragment?type=Event" hx-target="#listings-container" hx-indicator="#listings-loading"
+            <button hx-get="/listings/fragment?type=Event" hx-target="#listings-container"
+                hx-indicator="#listings-loading"
                 class="chip-fruit flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
                 <span>Events ({{index .Counts "Event"}})</span>
                 <span class="material-symbols-outlined text-[14px] text-text-sub">event</span>
             </button>
-            <button hx-get="/listings/fragment?type=Job" hx-target="#listings-container" hx-indicator="#listings-loading"
+            <button hx-get="/listings/fragment?type=Job" hx-target="#listings-container"
+                hx-indicator="#listings-loading"
                 class="chip-fruit flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
                 <span>Jobs ({{index .Counts "Job"}})</span>
                 <span class="material-symbols-outlined text-[14px] text-text-sub">work</span>
@@ -60,24 +64,25 @@
     <!-- Featured Carousel Hero -->
     {{ if .FeaturedListings }}
     <div class="mb-8 -mx-4 md:mx-0">
-        <div id="featured-carousel" class="relative bg-stone-900 dark:bg-stone-800 rounded-none md:rounded-3xl overflow-hidden shadow-2xl" data-autoplay="true">
+        <div id="featured-carousel"
+            class="relative bg-stone-900 dark:bg-stone-800 rounded-none md:rounded-3xl overflow-hidden shadow-2xl"
+            data-autoplay="true">
             <!-- Slides Container -->
             <div class="carousel-slides relative h-[200px] md:h-[280px]">
                 {{ range $i, $listing := .FeaturedListings }}
                 <div class="carousel-slide absolute inset-0 transition-opacity duration-700 {{ if eq $i 0 }}opacity-100 z-10{{ else }}opacity-0 z-0{{ end }}"
-                    data-index="{{ $i }}"
-                    hx-get="/listings/{{ $listing.ID }}" 
-                    hx-target="body" 
-                    hx-swap="beforeend">
+                    data-index="{{ $i }}" hx-get="/listings/{{ $listing.ID }}" hx-target="body" hx-swap="beforeend">
                     <!-- Background Image -->
                     <div class="absolute inset-0 bg-cover bg-center"
                         style="background-image: url('{{ if $listing.ImageURL }}{{ $listing.ImageURL }}{{ else }}/static/images/logo.png{{ end }}');">
                         <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
                     </div>
                     <!-- Content -->
-                    <div class="relative h-full flex flex-col justify-center px-6 md:px-12 pl-12 md:pl-20 max-w-2xl mx-auto text-center items-center">
+                    <div
+                        class="relative h-full flex flex-col justify-center px-6 md:px-12 pl-12 md:pl-20 max-w-2xl mx-auto text-center items-center">
                         <span class="inline-flex items-center gap-2 mb-2">
-                            <span class="px-3 py-1 bg-primary/90 text-white text-[10px] uppercase font-bold rounded-full tracking-wider">
+                            <span
+                                class="px-3 py-1 bg-primary/90 text-white text-[10px] uppercase font-bold rounded-full tracking-wider">
                                 {{ $listing.Type }}
                             </span>
                             {{ if $listing.City }}
@@ -92,7 +97,8 @@
                             {{ $listing.Description }}
                         </p>
                         {{ end }}
-                        <span class="text-primary font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-1 group-hover:gap-2 transition-all">
+                        <span
+                            class="text-primary font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-1 group-hover:gap-2 transition-all">
                             View Details
                             <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
                         </span>
@@ -102,11 +108,13 @@
             </div>
 
             <!-- Navigation Arrows -->
-            <button class="carousel-prev absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full text-white transition-all"
+            <button
+                class="carousel-prev absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full text-white transition-all"
                 aria-label="Previous slide">
                 <span class="material-symbols-outlined">chevron_left</span>
             </button>
-            <button class="carousel-next absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full text-white transition-all"
+            <button
+                class="carousel-next absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full text-white transition-all"
                 aria-label="Next slide">
                 <span class="material-symbols-outlined">chevron_right</span>
             </button>
@@ -114,9 +122,9 @@
             <!-- Dots Indicator -->
             <div class="carousel-dots absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2">
                 {{ range $i, $listing := .FeaturedListings }}
-                <button class="carousel-dot w-2 h-2 md:w-3 md:h-3 rounded-full transition-all {{ if eq $i 0 }}bg-white w-6 md:w-8{{ else }}bg-white/40{{ end }}"
-                    data-index="{{ $i }}"
-                    aria-label="Go to slide {{ add $i 1 }}"></button>
+                <button
+                    class="carousel-dot w-2 h-2 md:w-3 md:h-3 rounded-full transition-all {{ if eq $i 0 }}bg-white w-6 md:w-8{{ else }}bg-white/40{{ end }}"
+                    data-index="{{ $i }}" aria-label="Go to slide {{ add $i 1 }}"></button>
                 {{ end }}
             </div>
         </div>

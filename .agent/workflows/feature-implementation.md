@@ -1,141 +1,126 @@
 ---
-description: Workflow for implementing new features with strict TDD and 3-layer verification
+description: Workflow for implementing new features with strict TDD, API-first design, and full validation (CLI, UI, Browser)
 ---
 
-# Feature Implementation Workflow (3-Layer Verification)
+# Feature Implementation & Validation Workflow
 
-> **Rule**: A feature is NOT done until it passes all 3 layers.
+> **Rule**: A feature is NOT done until it passes all of these layers. We do not write code without tests. We are 10x.
 
 ---
 
-## Layer 1: Unit Tests (Red → Green → Refactor)
+## 1. API Specification & Red Test (Design First)
 
-### 1a. Write Failing Test (RED)
+Before writing any implementation code, prove the feature doesn't exist and define its contract.
 
+### 1a. Write Failing Unit Test (RED)
 - *Role*: SDET Agent
 - *File*: Create or update the relevant `*_test.go` file.
+- Write a test expecting the new feature to work (e.g. hitting the hypothetical endpoint).
 - *Run*:
   ```bash
   // turbo
   go test -v -run TestNewFeatureName ./internal/package_name/...
   ```
-- **Gate**: The test MUST **FAIL**. If it passes, the test is not testing new behavior. Rewrite it.
-- *Verify*: Failure is due to *missing logic*, not a compilation error (unless adding a new API/struct).
+- **Gate**: The test MUST **FAIL** (e.g., 404 Not Found, or missing struct field). It proves the implementation is not in the API yet.
 
-### 1b. Implement (GREEN)
+### 1b. Update API Specifications (Source of Truth)
+- *Role*: Lead Architect
+- *Files*: Update `@[docs/api.md]` and `@[docs/openapi.yaml]` to map out the exact request/response/path for the feature. This acts as the absolute source of truth.
+- Include appropriate validation rules and security requirements.
+- *Lint Spec* (Optional but recommended):
+  ```bash
+  swagger-cli validate docs/openapi.yaml
+  ```
+- **Gate**: Specification accurately describes the goal.
 
+---
+
+## 2. Core Implementation (GREEN & REFACTOR)
+
+Write the minimum code necessary to satisfy the API spec and pass the test.
+
+### 2a. Implement Logic (GREEN)
 - *Role*: Backend Agent
-- *Constraint*: Write the **minimal** code to make the test pass. Do not add untested features.
+- Write the logic in `handler/`, `service/`, etc.
+- Also ensure tests cover `400 Bad Request` schema validations and `401/403` auth checks defined in the spec.
 - *Run*:
   ```bash
   // turbo
   go test -v -run TestNewFeatureName ./internal/package_name/...
   ```
-- **Gate**: The test MUST **PASS**.
+- **Gate**: Test MUST **PASS**. The implementation completely meets the specification in `@[docs/api.md]` and `@[docs/openapi.yaml]`.
 
-### 1c. Refactor
-
-- *Role*: Backend Agent / Lead Architect
+### 2b. Refactor & Regression
 - *Run full regression*:
   ```bash
   // turbo
   go test -race ./...
   ```
-- **Gate**: ALL existing tests MUST still pass. Zero regressions.
+- **Gate**: Zero regressions.
+
+### 2c. Pre-Commit Quality Gate
+- *Run*:
+  ```bash
+  ./scripts/pre-commit.sh
+  ```
+- **Gate**: Script MUST exit 0 (Coverage >= 82.5%, no lint errors).
 
 ---
 
-## Layer 2: CLI / Integration Test
+## 3. Command Line & Integration Testing
 
-Validates the feature works end-to-end through the application's command layer.
+Validate that the application can be used from the command line/terminal as an admin or user.
 
-### 2a. Run Pre-Commit Quality Gate
-
-```bash
-./scripts/pre-commit.sh
-```
-
-This enforces:
-- `gofmt` formatting
-- `go mod tidy`
-- `go vet`
-- Race detection
-- Coverage >= 89.0% threshold (NEVER lower this — write more tests instead)
-- Secret scanning
-
-**Gate**: Script MUST exit 0.
-
-### 2b. Build & Restart Server
-
-```bash
-./scripts/verify_restart.sh
-```
-
-This enforces:
-- Runs pre-commit checks (Layer 2a)
-- Builds CSS assets (`npm run build:css`)
-- Compiles binary (`go build -o bin/agbalumo main.go`)
-- Kills old process on :8443/:8080
-- Starts new server
-- Confirms server stays alive for 2s
-
-**Gate**: Server MUST be running after script completes.
-
-### 2c. CLI Smoke Test (if applicable)
-
-For command-line features (seed, serve config, etc.):
-
-```bash
-// turbo
-go test -v ./cmd/...
-```
-
-**Gate**: All cmd tests pass.
+### 3a. CLI Test
+- *Role*: SDET Agent
+- Test with the `agbalumo` CLI.
+- Ensure the newly implemented feature can be invoked from the command line and works end-to-end as intended.
+- *Run*:
+  ```bash
+  // turbo
+  go test -v ./cmd/...
+  ```
+- **Gate**: The feature can be successfully invoked and verified via CLI for user/admin personas.
 
 ---
 
-## Layer 3: Browser Subagent Verification
+## 4. UI & Browser Verification
 
-Validates the feature works for a real user in the browser.
+Ensure the implemented feature is fully functional and pixel-perfect in the UI.
 
-### 3a. Launch Browser Subagent
+### 4a. Build & Restart Server
+- *Run*:
+  ```bash
+  ./scripts/verify_restart.sh
+  ```
+- **Gate**: Server MUST compile successfully and remain running on expected ports.
 
-Use the `browser_subagent` tool with a task like:
+### 4b. Programmatic UI Test
+- *Role*: SDET / UI Engineer
+- Add or update integration/UI tests (e.g. HTMX renders, form posts) calling the handlers to simulate browser interactions programmatically.
+- **Gate**: Programmatic UI tests pass and accurately reflect user/admin workflows.
 
-```
-Task: "Navigate to https://localhost:8443. Verify [SPECIFIC FEATURE].
-  1. [Step to reach the feature, e.g. 'Click on Create Listing']
-  2. [Step to interact, e.g. 'Fill in Title with Senior Go Engineer']
-  3. [Step to verify, e.g. 'Confirm the listing card shows Company Name']
-  Return: Screenshot proof and pass/fail for each step."
-
-RecordingName: "verify_feature_name"
-```
-
-### 3b. What to Verify
-
-| Check | How |
-|:---|:---|
-| **Feature exists** | Element is visible and interactive |
-| **Data renders** | Correct values appear (not empty, not placeholder) |
-| **Visual quality** | Spacing, colors, typography match brand (Orange #FF5E0E, Green #2D5A27) |
-| **Responsiveness** | Resize to mobile (375px) and verify layout |
-| **Micro-interactions** | Hover effects, transitions, loading indicators work |
-| **Error states** | Submit invalid data → error message appears |
-| **Console clean** | No JS errors, no 404s, no CSP violations |
-
-### 3c. Capture Recording
-
-Every browser verification creates a `.webp` recording artifact automatically.
-Name recordings descriptively: `verify_job_listing`, `verify_bulk_upload`, etc.
-
-**Gate**: All visual checks pass. No console errors.
+### 4c. Browser Subagent Verification
+- *Role*: QA / UI Engineer
+- Use the `browser_subagent` tool with a detailed task:
+  ```
+  Task: "Navigate to https://localhost:8443. Check [FEATURE].
+    1. Act as user/admin. Navigate to the view.
+    2. Attempt to use feature (fill forms, click buttons).
+    3. Verify success states and error states.
+    4. Perform basic accessibility check (tab order, visual focus)."
+  RecordingName: "verify_feature_name_ui"
+  ```
+- **Gate**:
+  - Feature exists and data renders correctly.
+  - Visual quality is premium (brand colors, layout).
+  - No JavaScript or CSP errors in the console.
 
 ---
 
-## Layer 4: Final Server Restart
+## 5. Final Reset
 
-After every 3-step verification is complete, reset the application state to ensure clean operations going forward by running the restart server workflow:
+After every 3-step verification is complete, reset the application state by running the restart server workflow:
 @[.agent/workflows/restart-server.md]
 
 ---
@@ -144,14 +129,17 @@ After every 3-step verification is complete, reset the application state to ensu
 
 A feature is **DONE** when ALL boxes are checked:
 
-- [ ] Unit test was written FIRST and **failed** (Red)
-- [ ] Minimal code was written and test **passed** (Green)
+- [ ] Unit test was written FIRST and **failed** (Red), verifying implementation is not in the API
+- [ ] Requirements defined cleanly in `@[docs/api.md]` and `@[docs/openapi.yaml]` as the source of truth
+- [ ] Minimal code implemented, edge cases (400, 401, 403) covered, and tests **passed** (Green), verifying it meets specification
+- [ ] Tested with `agbalumo` CLI as user/admin to verify it works from the command line
+- [ ] Programmatic UI tests as user/admin verify it can be used from the UI
 - [ ] `go test -race ./...` passes (no regressions)
-- [ ] `./scripts/pre-commit.sh` exits 0 (coverage ≥ 82.5%)
-- [ ] `./scripts/verify_restart.sh` succeeds (server running)
-- [ ] Browser subagent verified feature works for user
+- [ ] `./scripts/pre-commit.sh` exits 0 (strict coverage maintained)
+- [ ] `./scripts/verify_restart.sh` executed successfully (server running)
+- [ ] Browser subagent as user/admin verified the feature works from the UI natively
 - [ ] Recording artifact saved with descriptive name
 - [ ] `task.md` updated with completed status
 - [ ] `spec.md` reviewed and updated if needed
 - [ ] `@[.agent/workflows/restart-server.md]` was run after verification
-- [ ] Commit with short, imperative message (e.g., "add bulk upload validation")
+- [ ] Commit with short, imperative message

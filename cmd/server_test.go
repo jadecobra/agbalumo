@@ -8,14 +8,7 @@ import (
 )
 
 func TestSetupServer(t *testing.T) {
-	// Change CWD to project root for templates
-	if err := os.Chdir(".."); err != nil {
-		t.Fatal(err)
-	}
-	// Revert CWD after test
-	defer func() {
-		os.Chdir("cmd")
-	}()
+	// go test ./cmd runs from project root, so template paths are already correct
 
 	// Setup Env
 	os.Setenv("AGBALUMO_ENV", "test")
@@ -49,13 +42,7 @@ func TestSetupServer(t *testing.T) {
 }
 
 func TestServeCmd_Run(t *testing.T) {
-	// Change CWD to project root for templates
-	if err := os.Chdir(".."); err != nil {
-		t.Fatal(err)
-	}
-	defer func() {
-		os.Chdir("cmd")
-	}()
+	// go test ./cmd runs from project root, so template paths are already correct
 
 	os.Setenv("AGBALUMO_ENV", "test")
 	os.Setenv("AGBALUMO_DRY_RUN", "true")
