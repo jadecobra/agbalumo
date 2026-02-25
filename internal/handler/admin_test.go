@@ -378,7 +378,11 @@ func TestAdminHandler_HandleAdminDeleteView(t *testing.T) {
 	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
 	c.Set("User", adminUser)
 
-	h := NewAdminHandler(nil, nil, config.LoadConfig())
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1"}, nil)
+	mockRepo.On("FindByID", testifyMock.Anything, "2").Return(domain.Listing{ID: "2"}, nil)
+
+	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
 	e.Renderer = &mock.MockRenderer{}
 
 	err := h.HandleAdminDeleteView(c)
@@ -1039,4 +1043,53 @@ func TestAdminHandler_HandleApprove_ErrorPaths(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	})
+}
+
+func TestAdminHandler_HandleReject_RepoError(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodPost, "/admin/listings/1/reject", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/admin/listings/:id/reject")
+	c.SetParamNames("id")
+	c.SetParamValues("1")
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{}, errors.New("repo error"))
+
+	h := NewAdminHandler(mockRepo, nil, &config.Config{})
+	_ = h.HandleReject(c)
+
+	assert.Equal(t, http.StatusNotFound, rec.Code)
+}
+
+func TestAdminHandler_HandleAdminDeleteView_RepoError(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/admin/listings/delete-confirm?id=1", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{}, errors.New("repo error"))
+
+	h := NewAdminHandler(mockRepo, nil, &config.Config{})
+	_ = h.HandleAdminDeleteView(c)
+
+	assert.Equal(t, http.StatusNotFound, rec.Code)
+}
+
+func TestAdminHandler_HandleUsers_RepoError(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/admin/users", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("GetAllUsers", testifyMock.Anything).Return([]domain.User{}, errors.New("repo error"))
+
+	h := NewAdminHandler(mockRepo, nil, &config.Config{})
+	e.Renderer = &mock.MockRenderer{}
+	_ = h.HandleUsers(c)
+
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
 }

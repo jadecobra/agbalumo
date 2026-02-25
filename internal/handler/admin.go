@@ -323,6 +323,13 @@ func (h *AdminHandler) HandleAdminDeleteView(c echo.Context) error {
 		return c.Redirect(http.StatusFound, "/admin/listings")
 	}
 
+	ctx := c.Request().Context()
+	for _, id := range ids {
+		if _, err := h.Repo.FindByID(ctx, id); err != nil {
+			return c.String(http.StatusNotFound, "Listing not found")
+		}
+	}
+
 	return c.Render(http.StatusOK, "admin_delete_confirm.html", map[string]interface{}{
 		"IDs":  ids,
 		"User": c.Get("User"),

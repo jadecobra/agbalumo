@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
-export PATH=$PATH:/opt/homebrew/bin
+# Robust PATH discovery for macOS and Linux
+for dir in /usr/local/bin /opt/homebrew/bin /usr/bin /bin; do
+    case ":$PATH:" in
+        *":$dir:"*) ;;
+        *) export PATH="$PATH:$dir" ;;
+    esac
+done
 
 
 # 1. Run Quality Checks (Tests + Coverage)
@@ -9,7 +15,6 @@ echo "🔍 Running Quality Checks..."
 
 # 2. Build Assets & Server
 echo "🎨 Building CSS..."
-export PATH=$PATH:/opt/homebrew/bin
 npm run build:css
 
 echo "🔨 Building Server..."
@@ -19,19 +24,30 @@ go build -o bin/agbalumo main.go
 # 3. Restart the Server
 echo "🔄 Restarting Server..."
 
-# Find and kill existing process on port 8443
-PID_HTTPS=$(lsof -ti:8443 || true)
-if [ -n "$PID_HTTPS" ]; then
-  echo "Killing existing HTTPS server (PID: $PID_HTTPS)..."
-  kill -9 $PID_HTTPS
-fi
+# Function for graceful shutdown
+shutdown_port() {
+  local port=$1
+  local pid=$(lsof -ti:$port || true)
+  if [ -n "$pid" ]; then
+    echo "Attempting graceful shutdown of port $port (PID: $pid)..."
+    kill "$pid" # SIGTERM
+    
+    # Wait up to 5 seconds for it to exit
+    for i in {1..5}; do
+      if ! ps -p "$pid" > /dev/null; then
+        echo "✅ Process on port $port exited gracefully."
+        return 0
+      fi
+      sleep 1
+    done
+    
+    echo "⚠️  Process on port $port did not exit, forcing (SIGKILL)..."
+    kill -9 "$pid"
+  fi
+}
 
-# Find and kill existing process on port 8080
-PID_HTTP=$(lsof -ti:8080 || true)
-if [ -n "$PID_HTTP" ]; then
-  echo "Killing existing HTTP server (PID: $PID_HTTP)..."
-  kill -9 $PID_HTTP
-fi
+shutdown_port 8443
+shutdown_port 8080
 
 # Start the new server in the background
 echo "🚀 Starting new server instance..."
@@ -50,3 +66,4 @@ else
    cat server.log
    exit 1
 fi
+

@@ -1005,3 +1005,101 @@ func TestHandleDelete_ErrorPaths(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, rec.Code)
 	})
 }
+
+func TestHandleCreate_DuplicateTitle(t *testing.T) {
+	formData := "title=Duplicate&type=Business&owner_origin=Nigeria&city=Lagos&address=123+Street&contact_email=test@example.com"
+	c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(formData))
+	c.Set("User", domain.User{ID: "u1"})
+
+	mockRepo := &mock.MockListingRepository{}
+	// Return existing listing with same title
+	mockRepo.On("FindByTitle", testifyMock.Anything, "Duplicate").Return([]domain.Listing{{ID: "existing"}}, nil)
+
+	h := handler.NewListingHandler(mockRepo, nil)
+	_ = h.HandleCreate(c)
+
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
+	assert.Contains(t, rec.Body.String(), "Title already exists")
+}
+
+func TestHandleCreate_DefaultDeadline(t *testing.T) {
+	formData := "title=Request+With+Default&type=Request&owner_origin=Nigeria&city=Lagos&contact_email=test@example.com"
+	c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(formData))
+	c.Set("User", domain.User{ID: "u1"})
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindByTitle", testifyMock.Anything, "Request With Default").Return([]domain.Listing{}, nil)
+	mockRepo.On("Save", testifyMock.Anything, testifyMock.MatchedBy(func(l domain.Listing) bool {
+		return l.Type == domain.Request && !l.Deadline.IsZero()
+	})).Return(nil)
+
+	h := handler.NewListingHandler(mockRepo, nil)
+	_ = h.HandleCreate(c)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	mockRepo.AssertExpectations(t)
+}
+
+func TestHandleUpdate_DuplicateTitleMismatch(t *testing.T) {
+	formData := "title=Other+Title&type=Business&owner_origin=Nigeria&city=Lagos&address=123+Street&contact_email=test@example.com"
+	c, rec := setupTestContext(http.MethodPost, "/listings/1", strings.NewReader(formData))
+	c.SetPath("/listings/:id")
+	c.SetParamNames("id")
+	c.SetParamValues("1")
+	c.Set("User", domain.User{ID: "u1"})
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "u1", Title: "Old Title"}, nil)
+	// Title "Other Title" belongs to listing "2"
+	mockRepo.On("FindByTitle", testifyMock.Anything, "Other Title").Return([]domain.Listing{{ID: "2", Title: "Other Title"}}, nil)
+
+	h := handler.NewListingHandler(mockRepo, nil)
+	_ = h.HandleUpdate(c)
+
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
+	assert.Contains(t, rec.Body.String(), "Title already exists")
+}
+
+func TestHandleUpdate_UnauthorizedOtherOwner(t *testing.T) {
+	formData := "title=Update&type=Business&owner_origin=Nigeria&city=Lagos&address=123+Street&contact_email=test@example.com"
+	c, rec := setupTestContext(http.MethodPost, "/listings/1", strings.NewReader(formData))
+	c.SetPath("/listings/:id")
+	c.SetParamNames("id")
+	c.SetParamValues("1")
+	c.Set("User", domain.User{ID: "u2"}) // User u2 trying to update u1's listing
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "u1"}, nil)
+
+	h := handler.NewListingHandler(mockRepo, nil)
+	_ = h.HandleUpdate(c)
+
+	assert.Equal(t, http.StatusForbidden, rec.Code)
+}
+
+func TestHandleUpdate_RemoveImage(t *testing.T) {
+	formData := "title=Update&type=Business&owner_origin=Nigeria&city=Lagos&address=123+Street&contact_email=test@example.com&remove_image=true"
+	c, rec := setupTestContext(http.MethodPost, "/listings/1", strings.NewReader(formData))
+	c.SetPath("/listings/:id")
+	c.SetParamNames("id")
+	c.SetParamValues("1")
+	c.Set("User", domain.User{ID: "u1"})
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "u1", ImageURL: "/uploads/img.jpg"}, nil)
+	mockRepo.On("FindByTitle", testifyMock.Anything, "Update").Return([]domain.Listing{}, nil)
+	mockRepo.On("Save", testifyMock.Anything, testifyMock.MatchedBy(func(l domain.Listing) bool {
+		return l.ImageURL == ""
+	})).Return(nil)
+
+	mockImageSvc := &MockImageService{}
+	mockImageSvc.On("UploadImage", testifyMock.Anything, testifyMock.Anything, "1").Return("", nil)
+	mockImageSvc.On("DeleteImage", testifyMock.Anything, "/uploads/img.jpg").Return(nil)
+
+	h := handler.NewListingHandler(mockRepo, mockImageSvc)
+	_ = h.HandleUpdate(c)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	mockRepo.AssertExpectations(t)
+	mockImageSvc.AssertExpectations(t)
+}
