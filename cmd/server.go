@@ -34,6 +34,7 @@ func SetupServer() (*echo.Echo, error) {
 	slog.SetDefault(logger)
 
 	e := echo.New()
+	e.Use(middleware.Logger())
 
 	setupMiddleware(e, cfg)
 

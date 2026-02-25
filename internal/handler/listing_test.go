@@ -44,6 +44,7 @@ func NewMainTemplate() *template.Template {
 	t.New("modal_edit_listing.html").Parse(`Edit: {{.Title}}`)
 	t.New("modal_feedback.html").Parse(`Feedback Modal`)
 	t.New("modal_profile").Parse(`Profile: {{.User.Name}}, Listings: {{len .Listings}}`)
+	t.New("profile.html").Parse(`Profile Page: {{.User.Name}}, Listings: {{len .Listings}}, Email: {{.User.Email}}`)
 	t.New("error.html").Parse(`Error Page: {{if .Message}}{{.Message}}{{end}}`)
 	return t
 }
@@ -535,6 +536,7 @@ func TestHandleProfile(t *testing.T) {
 	e := echo.New()
 	t_temp := template.New("base")
 	t_temp.New("modal_profile").Parse(`Profile: {{.User.Name}}, Listings: {{len .Listings}}`)
+	t_temp.New("profile.html").Parse(`Profile: {{.User.Name}}, Listings: {{len .Listings}}`)
 	e.Renderer = &TestRenderer{templates: t_temp}
 
 	req := httptest.NewRequest(http.MethodGet, "/profile", nil)

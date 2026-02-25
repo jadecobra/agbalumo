@@ -167,7 +167,7 @@ func (h *ListingHandler) HandleEdit(c echo.Context) error {
 		return RespondError(c, echo.NewHTTPError(http.StatusForbidden, "You are not the owner of this listing"))
 	}
 
-	return c.Render(http.StatusOK, "modal_edit_listing.html", map[string]interface{}{
+	return c.Render(http.StatusOK, "modal_edit_listing", map[string]interface{}{
 		"Listing":          listing,
 		"GoogleMapsApiKey": os.Getenv("GOOGLE_MAPS_API_KEY"),
 	})
@@ -397,11 +397,17 @@ func (h *ListingHandler) HandleProfile(c echo.Context) error {
 		return RespondError(c, err)
 	}
 
-	return c.Render(http.StatusOK, "modal_profile", map[string]interface{}{
+	data := map[string]interface{}{
 		"User":             u,
 		"Listings":         listings,
 		"GoogleMapsApiKey": os.Getenv("GOOGLE_MAPS_API_KEY"),
-	})
+	}
+
+	if c.Request().Header.Get("HX-Request") == "true" {
+		return c.Render(http.StatusOK, "modal_profile", data)
+	}
+
+	return c.Render(http.StatusOK, "profile.html", data)
 }
 
 // Helper methods

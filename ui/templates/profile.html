@@ -1,0 +1,23 @@
+{{ template "base.html" . }}
+
+{{ define "title" }}My Profile - Agbalumo{{ end }}
+
+{{ define "content" }}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div
+        class="bg-white dark:bg-surface-dark rounded-3xl shadow-soft border border-orange-100 dark:border-stone-800 overflow-hidden">
+        <div class="p-8">
+            <h2 class="text-2xl font-bold mb-8">My Listings</h2>
+            {{ if .Listings }}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {{ range .Listings }}
+                {{ template "listing_card" dict "Listing" . "User" $.User }}
+                {{ end }}
+            </div>
+            {{ else }}
+            <p>No listings.</p>
+            {{ end }}
+        </div>
+    </div>
+</div>
+{{ end }}

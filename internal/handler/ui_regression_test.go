@@ -82,6 +82,14 @@ func NewRealTemplate(t *testing.T) *template.Template {
 		t.Fatalf("Failed to parse partial templates: %v", err)
 	}
 
+	// Re-parse index.html last to ensure its "content" block takes precedence
+	// over other pages (like profile.html) that also define "content"
+	indexPath := filepath.Join(projectRoot, "ui", "templates", "index.html")
+	_, err = tmpl.ParseFiles(indexPath)
+	if err != nil {
+		t.Fatalf("Failed to re-parse index.html: %v", err)
+	}
+
 	return tmpl
 }
 
