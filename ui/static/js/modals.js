@@ -81,6 +81,17 @@ document.addEventListener('htmx:afterSettle', function (event) {
     if (feedbackModal) {
         feedbackModal.showModal();
     }
+
+    // Auto-open any loaded data-auto-open modals
+    const autoOpenModals = target.querySelectorAll('dialog[id][data-auto-open]');
+    if (autoOpenModals) {
+        autoOpenModals.forEach(modal => {
+            modal.showModal();
+        });
+    }
+    if (target.matches && target.matches('dialog[id][data-auto-open]')) {
+        target.showModal();
+    }
 });
 
 // Image preview for create listing

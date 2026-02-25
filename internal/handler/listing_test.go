@@ -1105,3 +1105,65 @@ func TestHandleUpdate_RemoveImage(t *testing.T) {
 	mockRepo.AssertExpectations(t)
 	mockImageSvc.AssertExpectations(t)
 }
+
+func TestToListing_NormalizeURL(t *testing.T) {
+	tests := []struct {
+		name       string
+		input      string
+		expected   string
+		isJobApply bool
+	}{
+		{
+			name:     "Empty",
+			input:    "",
+			expected: "",
+		},
+		{
+			name:     "Whitespace",
+			input:    "   ",
+			expected: "",
+		},
+		{
+			name:     "No Protocol",
+			input:    "example.com",
+			expected: "https://example.com",
+		},
+		{
+			name:     "HTTP Protocol",
+			input:    "http://example.com",
+			expected: "http://example.com",
+		},
+		{
+			name:     "HTTPS Protocol",
+			input:    "https://example.com",
+			expected: "https://example.com",
+		},
+		{
+			name:       "Job Apply URL No Protocol",
+			input:      "jobs.com/apply",
+			expected:   "https://jobs.com/apply",
+			isJobApply: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req := &handler.ListingFormRequest{}
+			if tt.isJobApply {
+				req.JobApplyURL = tt.input
+			} else {
+				req.WebsiteURL = tt.input
+			}
+
+			l := &domain.Listing{}
+			err := req.ToListing(l)
+			assert.NoError(t, err)
+
+			if tt.isJobApply {
+				assert.Equal(t, tt.expected, l.JobApplyURL)
+			} else {
+				assert.Equal(t, tt.expected, l.WebsiteURL)
+			}
+		})
+	}
+}

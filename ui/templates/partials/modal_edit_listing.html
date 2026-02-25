@@ -268,7 +268,7 @@
                         <label
                             class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Apply
                             URL</label>
-                        <input name="job_apply_url" type="url" value="{{ .Listing.JobApplyURL }}"
+                        <input name="job_apply_url" type="text" inputmode="url" value="{{ .Listing.JobApplyURL }}"
                             placeholder="https://..."
                             class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
                     </div>
@@ -346,7 +346,7 @@
                     <label
                         class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Website
                         (Optional)</label>
-                    <input name="website_url" type="url" value="{{ .Listing.WebsiteURL }}"
+                    <input name="website_url" type="text" inputmode="url" value="{{ .Listing.WebsiteURL }}"
                         class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
                 </div>
 

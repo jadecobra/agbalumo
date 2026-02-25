@@ -233,6 +233,19 @@ type ListingFormRequest struct {
 	RemoveImage      bool   `form:"remove_image"`
 }
 
+// normalizeURL ensures the given string url has a 'http://' or 'https://' prefix.
+// If not, it prepends 'https://' as a default protocol.
+func normalizeURL(u string) string {
+	u = strings.TrimSpace(u)
+	if u == "" {
+		return ""
+	}
+	if !strings.HasPrefix(u, "http://") && !strings.HasPrefix(u, "https://") {
+		return "https://" + u
+	}
+	return u
+}
+
 // ToListing maps the DTO fields directly to the domain Listing and parses dates.
 func (req *ListingFormRequest) ToListing(l *domain.Listing) error {
 	l.Title = req.Title
@@ -245,9 +258,9 @@ func (req *ListingFormRequest) ToListing(l *domain.Listing) error {
 	l.ContactEmail = req.ContactEmail
 	l.ContactPhone = req.ContactPhone
 	l.ContactWhatsApp = req.ContactWhatsApp
-	l.WebsiteURL = req.WebsiteURL
+	l.WebsiteURL = normalizeURL(req.WebsiteURL)
 	l.Skills = req.Skills
-	l.JobApplyURL = req.JobApplyURL
+	l.JobApplyURL = normalizeURL(req.JobApplyURL)
 	l.Company = req.Company
 	l.PayRange = req.PayRange
 
