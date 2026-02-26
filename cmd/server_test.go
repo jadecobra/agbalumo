@@ -58,3 +58,42 @@ func TestServeCmd_Run(t *testing.T) {
 	// serveCmd is global in cmd package
 	serveCmd.Run(serveCmd, []string{})
 }
+
+func TestSetupServerProduction(t *testing.T) {
+	// Test SetupServer with production environment (JSON logging)
+	os.Setenv("AGBALUMO_ENV", "production")
+	os.Setenv("SESSION_SECRET", "production-secret-key")
+	os.Setenv("DATABASE_URL", "test_server_prod.db")
+	os.Setenv("ADMIN_CODE", "test-admin-code")
+	defer func() {
+		os.Unsetenv("AGBALUMO_ENV")
+		os.Unsetenv("SESSION_SECRET")
+		os.Unsetenv("DATABASE_URL")
+		os.Unsetenv("ADMIN_CODE")
+		os.Remove("test_server_prod.db")
+	}()
+
+	e, err := SetupServer()
+	require.NoError(t, err)
+	require.NotNil(t, e)
+}
+
+func TestSetupBackgroundServicesProduction(t *testing.T) {
+	// Test setupBackgroundServices in production (should skip seeding)
+	os.Setenv("AGBALUMO_ENV", "production")
+	os.Setenv("SESSION_SECRET", "test-secret-key")
+	os.Setenv("DATABASE_URL", "test_bg_prod.db")
+	os.Setenv("ADMIN_CODE", "test-admin-code")
+	defer func() {
+		os.Unsetenv("AGBALUMO_ENV")
+		os.Unsetenv("SESSION_SECRET")
+		os.Unsetenv("DATABASE_URL")
+		os.Unsetenv("ADMIN_CODE")
+		os.Remove("test_bg_prod.db")
+	}()
+
+	e, err := SetupServer()
+	require.NoError(t, err)
+	require.NotNil(t, e)
+	// Background services are started in goroutine, so we just verify server setup
+}

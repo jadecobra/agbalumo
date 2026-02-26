@@ -150,4 +150,25 @@ Random Type,Random,Desc,a@b.com
 		}
 		repo.AssertExpectations(t)
 	})
+
+	t.Run("Save Error", func(t *testing.T) {
+		csvContent := `title,type,description,email
+SaveErrorBiz,Business,Desc,test@test.com
+`
+		repo := &mock.MockListingRepository{}
+		repo.On("FindByTitle", ctx, "SaveErrorBiz").Return([]domain.Listing{}, nil)
+		repo.On("Save", ctx, testifyMock.Anything).Return(errors.New("save failed"))
+
+		result, err := svc.ParseAndImport(ctx, strings.NewReader(csvContent), repo)
+		if err != nil {
+			t.Fatalf("Unexpected error: %v", err)
+		}
+		if result.FailureCount != 1 {
+			t.Errorf("Expected 1 failure, got %d", result.FailureCount)
+		}
+		if !strings.Contains(result.Errors[0], "Database error") {
+			t.Errorf("Expected Database error, got %s", result.Errors[0])
+		}
+		repo.AssertExpectations(t)
+	})
 }
