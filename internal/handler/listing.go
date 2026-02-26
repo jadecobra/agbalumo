@@ -129,12 +129,7 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 		return RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
 	}
 
-	var user domain.User
-	var ok bool
-	u := c.Get("User")
-	if u != nil {
-		user, ok = u.(domain.User)
-	}
+	user, ok := GetUser(c)
 
 	// Check if the current user can claim this listing
 	canClaim := listing.OwnerID == "" && domain.ClaimableTypes[listing.Type]
@@ -155,7 +150,10 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 // HandleEdit renders the edit modal
 func (h *ListingHandler) HandleEdit(c echo.Context) error {
 	id := c.Param("id")
-	user := c.Get("User").(domain.User)
+	user, ok := GetUser(c)
+	if !ok {
+		return RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, "Login required"))
+	}
 
 	listing, err := h.Repo.FindByID(c.Request().Context(), id)
 	if err != nil {
@@ -182,7 +180,7 @@ func (h *ListingHandler) HandleAbout(c echo.Context) error {
 
 // HandleClaim processes a request to claim an unowned listing.
 func (h *ListingHandler) HandleClaim(c echo.Context) error {
-	user, ok := c.Get("User").(domain.User)
+	user, ok := GetUser(c)
 	if !ok {
 		// If not logged in, redirect to login
 		// For HTMX, this might need a specific header to trigger client-side redirect,
@@ -374,7 +372,10 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 
 func (h *ListingHandler) HandleDelete(c echo.Context) error {
 	id := c.Param("id")
-	user := c.Get("User").(domain.User)
+	user, ok := GetUser(c)
+	if !ok {
+		return RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, "Login required"))
+	}
 
 	ctx := c.Request().Context()
 	listing, err := h.Repo.FindByID(ctx, id)

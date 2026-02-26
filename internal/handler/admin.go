@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strconv"
 	"strings"
 
 	"github.com/jadecobra/agbalumo/internal/config"
@@ -91,19 +90,14 @@ func (h *AdminHandler) HandleLoginAction(c echo.Context) error {
 func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	page, _ := strconv.Atoi(c.QueryParam("page"))
-	if page < 1 {
-		page = 1
-	}
-	limit := 50
-	offset := (page - 1) * limit
+	pagination := GetPagination(c, 50)
 
-	pendingListings, err := h.Repo.GetPendingListings(ctx, limit, offset)
+	pendingListings, err := h.Repo.GetPendingListings(ctx, pagination.Limit, pagination.Offset)
 	if err != nil {
 		return RespondError(c, err)
 	}
 
-	hasNextPage := len(pendingListings) == limit
+	hasNextPage := len(pendingListings) == pagination.Limit
 
 	userCount, err := h.Repo.GetUserCount(ctx)
 	if err != nil {
@@ -142,7 +136,7 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 
 	return c.Render(http.StatusOK, "admin_dashboard.html", map[string]interface{}{
 		"PendingListings": pendingListings,
-		"Page":            page,
+		"Page":            pagination.Page,
 		"HasNextPage":     hasNextPage,
 		"UserCount":       userCount,
 		"FeedbackCounts":  feedbackCounts,
@@ -172,24 +166,19 @@ func (h *AdminHandler) HandleUsers(c echo.Context) error {
 func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	page, _ := strconv.Atoi(c.QueryParam("page"))
-	if page < 1 {
-		page = 1
-	}
-	limit := 50
-	offset := (page - 1) * limit
+	pagination := GetPagination(c, 50)
 
 	category := c.QueryParam("category")
 	sortField := c.QueryParam("sort")
 	sortOrder := strings.ToUpper(c.QueryParam("order"))
 
 	// Fetch all listings with the given category filter, including inactive ones.
-	listings, err := h.Repo.FindAll(ctx, category, "", sortField, sortOrder, true, limit, offset)
+	listings, err := h.Repo.FindAll(ctx, category, "", sortField, sortOrder, true, pagination.Limit, pagination.Offset)
 	if err != nil {
 		return RespondError(c, err)
 	}
 
-	hasNextPage := len(listings) == limit
+	hasNextPage := len(listings) == pagination.Limit
 
 	counts, err := h.Repo.GetCounts(ctx)
 	if err != nil {
@@ -197,16 +186,11 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 		counts = make(map[domain.Category]int)
 	}
 
-	strCounts := make(map[string]int)
-	totalCount := 0
-	for cat, count := range counts {
-		strCounts[string(cat)] = count
-		totalCount += count
-	}
+	strCounts, totalCount := ConvertCounts(counts)
 
 	return c.Render(http.StatusOK, "admin_listings.html", map[string]interface{}{
 		"Listings":    listings,
-		"Page":        page,
+		"Page":        pagination.Page,
 		"HasNextPage": hasNextPage,
 		"Category":    category,
 		"SortField":   sortField,
