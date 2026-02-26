@@ -60,12 +60,14 @@ func setupMiddleware(e *echo.Echo, cfg *config.Config) {
 	// Security Headers (CSP, Strict-Transport-Security, etc.)
 	e.Use(customMiddleware.SecureHeaders)
 
-	// Rate Limiter
-	rateLimiter := customMiddleware.NewRateLimiter(customMiddleware.RateLimitConfig{
-		Rate:  rate.Limit(cfg.RateLimitRate),
-		Burst: cfg.RateLimitBurst,
-	})
-	e.Use(rateLimiter.Middleware())
+	// Rate Limiter (skip in test environment)
+	if cfg.Env != "test" {
+		rateLimiter := customMiddleware.NewRateLimiter(customMiddleware.RateLimitConfig{
+			Rate:  rate.Limit(cfg.RateLimitRate),
+			Burst: cfg.RateLimitBurst,
+		})
+		e.Use(rateLimiter.Middleware())
+	}
 
 	// CSRF Protection
 	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
