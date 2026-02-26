@@ -94,6 +94,8 @@ document.addEventListener('htmx:afterSettle', function (event) {
     }
 });
 
+// ========== Image Upload Functions ==========
+
 // Image preview for create listing
 function initCreateImagePreview() {
     var imageInput = document.getElementById('image-input');
@@ -105,10 +107,17 @@ function initCreateImagePreview() {
         imageInput.addEventListener('change', function (e) {
             var file = e.target.files[0];
             if (file) {
+                showImageUploadLoading(imageInput, true);
+                
                 var reader = new FileReader();
                 reader.onload = function (e) {
                     previewImg.src = e.target.result;
                     previewContainer.classList.remove('hidden');
+                    showImageUploadLoading(imageInput, false);
+                };
+                reader.onerror = function() {
+                    showImageUploadLoading(imageInput, false);
+                    showImageError('Failed to read file');
                 };
                 reader.readAsDataURL(file);
             }
@@ -123,58 +132,180 @@ function initCreateImagePreview() {
     }
 }
 
+// Show/hide loading state on image input (safe: no innerHTML)
+function showImageUploadLoading(inputEl, show) {
+    var form = inputEl.closest('form');
+    if (!form) return;
+    
+    var loadingIndicator = form.querySelector('.image-upload-loading');
+    if (show) {
+        if (!loadingIndicator) {
+            loadingIndicator = document.createElement('div');
+            loadingIndicator.className = 'image-upload-loading flex items-center gap-2 text-sm text-stone-500 mt-1';
+            var spinner = document.createElement('span');
+            spinner.className = 'material-symbols-outlined animate-spin text-[16px]';
+            spinner.textContent = 'progress_activity';
+            var text = document.createTextNode(' Processing image...');
+            loadingIndicator.appendChild(spinner);
+            loadingIndicator.appendChild(text);
+            inputEl.parentNode.insertBefore(loadingIndicator, inputEl.nextSibling);
+        }
+        loadingIndicator.classList.remove('hidden');
+    } else if (loadingIndicator) {
+        loadingIndicator.classList.add('hidden');
+    }
+}
+
+// Show image upload error (safe: no innerHTML)
+function showImageError(message) {
+    var existingError = document.querySelector('.image-upload-error');
+    if (existingError) {
+        existingError.remove();
+    }
+    
+    var errorDiv = document.createElement('div');
+    errorDiv.className = 'image-upload-error flex items-center gap-2 text-sm text-red-600 dark:text-red-400 mt-1 px-3 py-2 bg-red-50 dark:bg-red-900/20 rounded-lg';
+    var icon = document.createElement('span');
+    icon.className = 'material-symbols-outlined text-[16px]';
+    icon.textContent = 'error';
+    var text = document.createTextNode(' ' + message);
+    errorDiv.appendChild(icon);
+    errorDiv.appendChild(text);
+    
+    var imageInput = document.querySelector('[name="image"]');
+    if (imageInput) {
+        var container = imageInput.closest('.flex.flex-col.gap-1\\.5');
+        if (container) {
+            container.appendChild(errorDiv);
+        }
+    }
+    
+    setTimeout(function() {
+        errorDiv.remove();
+    }, 5000);
+}
+
+// Image preview for edit listing
+function initEditImagePreview(listingId) {
+    var imageInput = document.getElementById('edit-image-input-' + listingId);
+    var previewContainer = document.getElementById('edit-image-preview-container-' + listingId);
+    var previewImg = document.getElementById('edit-image-preview-' + listingId);
+    var existingImage = document.getElementById('edit-existing-image-' + listingId);
+
+    if (imageInput) {
+        imageInput.addEventListener('change', function (e) {
+            var file = e.target.files[0];
+            if (file) {
+                showImageUploadLoading(imageInput, true);
+                
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    previewImg.src = e.target.result;
+                    previewContainer.classList.remove('hidden');
+                    if (existingImage) existingImage.classList.add('hidden');
+                    showImageUploadLoading(imageInput, false);
+                };
+                reader.onerror = function() {
+                    showImageUploadLoading(imageInput, false);
+                    showImageError('Failed to read file');
+                };
+                reader.readAsDataURL(file);
+                
+                // Reset remove_image flag since user selected a new image
+                var removeInput = document.getElementById('remove-image-' + listingId);
+                if (removeInput) {
+                    removeInput.value = 'false';
+                }
+            }
+        });
+    }
+}
+
+// Clear existing image (for database update)
+function clearEditImage(listingId) {
+    var removeInput = document.getElementById('remove-image-' + listingId);
+    if (removeInput) {
+        removeInput.value = 'true';
+    }
+    var container = document.getElementById('edit-existing-image-' + listingId);
+    if (container) {
+        container.classList.add('hidden');
+    }
+}
+
+// Remove new image preview (just purely cosmetic)
+function removeEditImagePreview(listingId) {
+    var input = document.getElementById('edit-image-input-' + listingId);
+    if (input) {
+        input.value = '';
+    }
+    var container = document.getElementById('edit-image-preview-container-' + listingId);
+    if (container) {
+        container.classList.add('hidden');
+    }
+    var existing = document.getElementById('edit-existing-image-' + listingId);
+    var removeInput = document.getElementById('remove-image-' + listingId);
+    // If we had an existing image that was hidden by the preview, show it again
+    // unless it was explicitly removed.
+    if (existing && (!removeInput || removeInput.value !== 'true')) {
+        existing.classList.remove('hidden');
+    }
+}
+
+// ========== Type & Fields Functions ==========
+
 // Type field toggle for edit listing
 function initEditTypeToggle(listingId) {
-    const form = document.querySelector('#edit-listing-modal-' + listingId + ' form');
+    var form = document.querySelector('#edit-listing-modal-' + listingId + ' form');
     if (!form) return;
 
-    const typeSelect = form.querySelector('select[name="type"]');
-    const eventSection = document.getElementById('edit-event-dates-section-' + listingId);
-    const requestSection = document.getElementById('edit-request-section-' + listingId);
-    const jobSection = document.getElementById('edit-job-section-' + listingId);
+    var typeSelect = form.querySelector('select[name="type"]');
+    var eventSection = document.getElementById('edit-event-dates-section-' + listingId);
+    var requestSection = document.getElementById('edit-request-section-' + listingId);
+    var jobSection = document.getElementById('edit-job-section-' + listingId);
 
     function toggleFields() {
-        const val = typeSelect.value;
+        var val = typeSelect.value;
 
         eventSection.classList.add('hidden');
         requestSection.classList.add('hidden');
         jobSection.classList.add('hidden');
 
-        [eventSection, requestSection, jobSection].forEach(section => {
-            section.querySelectorAll('input').forEach(i => i.required = false);
+        [eventSection, requestSection, jobSection].forEach(function(section) {
+            section.querySelectorAll('input').forEach(function(i) { i.required = false; });
         });
 
         if (val === 'Event') {
             eventSection.classList.remove('hidden');
-            eventSection.querySelectorAll('input').forEach(i => i.required = true);
+            eventSection.querySelectorAll('input').forEach(function(i) { i.required = true; });
         } else if (val === 'Request') {
             requestSection.classList.remove('hidden');
-            requestSection.querySelectorAll('input').forEach(i => i.required = true);
+            requestSection.querySelectorAll('input').forEach(function(i) { i.required = true; });
         } else if (val === 'Job') {
             jobSection.classList.remove('hidden');
-            jobSection.querySelectorAll('input').forEach(i => i.required = true);
+            jobSection.querySelectorAll('input').forEach(function(i) { i.required = true; });
         }
 
         // Address Requirement Logic
-        const addressInput = document.getElementById('edit-address-input-' + listingId);
+        var addressInput = document.getElementById('edit-address-input-' + listingId);
         if (addressInput) {
             if (val === 'Service' || val === 'Job' || val === 'Request') {
                 addressInput.required = false;
                 addressInput.placeholder = "Address (Optional)";
-                const label = addressInput.previousElementSibling;
+                var label = addressInput.previousElementSibling;
                 if (label) label.textContent = "Address (Optional)";
             } else {
                 addressInput.required = true;
                 addressInput.placeholder = "Start typing address...";
-                const label = addressInput.previousElementSibling;
+                var label = addressInput.previousElementSibling;
                 if (label) label.textContent = "Address (Validated)";
             }
         }
 
         // Hours of Operation Logic
-        const hoursInput = document.querySelector('#edit-listing-modal-' + listingId + ' input[name="hours_of_operation"]');
+        var hoursInput = document.querySelector('#edit-listing-modal-' + listingId + ' input[name="hours_of_operation"]');
         if (hoursInput) {
-            const hoursContainer = hoursInput.closest('div');
+            var hoursContainer = hoursInput.closest('div');
             // Allowed: Business, Service, Food
             if (val === 'Business' || val === 'Service' || val === 'Food') {
                 if (hoursContainer) hoursContainer.classList.remove('hidden');
@@ -195,21 +326,22 @@ function initEditTypeToggle(listingId) {
 
 // Google Maps autocomplete for edit listing
 function initEditMaps(listingId) {
-    const input = document.getElementById('edit-address-input-' + listingId);
+    var input = document.getElementById('edit-address-input-' + listingId);
     if (!input) return;
 
     if (typeof google === 'undefined' || !google.maps || !google.maps.places) return;
 
-    const options = {
+    var options = {
         fields: ["address_components", "geometry", "formatted_address"],
         types: ["address"],
     };
-    const autocomplete = new google.maps.places.Autocomplete(input, options);
-    autocomplete.addListener("place_changed", () => {
-        const place = autocomplete.getPlace();
-        let city = "";
-        for (const component of place.address_components) {
-            const types = component.types;
+    var autocomplete = new google.maps.places.Autocomplete(input, options);
+    autocomplete.addEventListener("place_changed", function() {
+        var place = autocomplete.getPlace();
+        var city = "";
+        for (var i = 0; i < place.address_components.length; i++) {
+            var component = place.address_components[i];
+            var types = component.types;
             if (types.includes("locality")) {
                 city = component.long_name;
                 break;
@@ -221,62 +353,9 @@ function initEditMaps(listingId) {
                 city = component.long_name;
             }
         }
-        const cityInput = document.getElementById('edit-city-input-' + listingId);
+        var cityInput = document.getElementById('edit-city-input-' + listingId);
         if (cityInput) {
             cityInput.value = city || "Unknown";
         }
     });
-}
-
-// Image preview for edit listing
-function initEditImagePreview(listingId) {
-    var imageInput = document.getElementById('edit-image-input-' + listingId);
-    var previewContainer = document.getElementById('edit-image-preview-container-' + listingId);
-    var previewImg = document.getElementById('edit-image-preview-' + listingId);
-    var existingImage = document.getElementById('edit-existing-image-' + listingId);
-
-    if (imageInput) {
-        imageInput.addEventListener('change', function (e) {
-            var file = e.target.files[0];
-            if (file) {
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    previewImg.src = e.target.result;
-                    previewContainer.classList.remove('hidden');
-                    if (existingImage) existingImage.classList.add('hidden');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-}
-// Clear existing image (for database update)
-function clearEditImage(listingId) {
-    const removeInput = document.getElementById('remove-image-' + listingId);
-    if (removeInput) {
-        removeInput.value = 'true';
-    }
-    const container = document.getElementById('edit-existing-image-' + listingId);
-    if (container) {
-        container.classList.add('hidden');
-    }
-}
-
-// Remove new image preview (just purely cosmetic)
-function removeEditImagePreview(listingId) {
-    const input = document.getElementById('edit-image-input-' + listingId);
-    if (input) {
-        input.value = '';
-    }
-    const container = document.getElementById('edit-image-preview-container-' + listingId);
-    if (container) {
-        container.classList.add('hidden');
-    }
-    const existing = document.getElementById('edit-existing-image-' + listingId);
-    const removeInput = document.getElementById('remove-image-' + listingId);
-    // If we had an existing image that was hidden by the preview, show it again
-    // unless it was explicitly removed.
-    if (existing && (!removeInput || removeInput.value !== 'true')) {
-        existing.classList.remove('hidden');
-    }
 }

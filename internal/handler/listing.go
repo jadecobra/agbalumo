@@ -338,6 +338,9 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 		return RespondError(c, echo.NewHTTPError(http.StatusForbidden, "You are not the owner of this listing"))
 	}
 
+	// Save original image URL BEFORE bindAndMapListing may modify it
+	originalImageURL := listing.ImageURL
+
 	if err := h.bindAndMapListing(c, &listing); err != nil {
 		if IsImageError(err) {
 			return h.renderImageErrorToast(c, err)
@@ -345,14 +348,20 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 		return RespondError(c, err)
 	}
 
-	// Handle Image Removal
+	// Handle Image Removal - delete the ORIGINAL image if requested
+	// We need to check the form's remove_image flag AND compare URLs
 	var req ListingFormRequest
-	_ = c.Bind(&req) // Re-bind to check RemoveImage flag
-	if req.RemoveImage && listing.ImageURL != "" {
-		if err := h.ImageService.DeleteImage(ctx, listing.ImageURL); err == nil {
-			listing.ImageURL = ""
-		} else {
+	_ = c.Bind(&req)
+	// Delete the original image if:
+	// 1. User explicitly requested removal (req.RemoveImage), OR
+	// 2. User replaced the image (listing.ImageURL != originalImageURL)
+	if originalImageURL != "" && (req.RemoveImage || listing.ImageURL != originalImageURL) {
+		if err := h.ImageService.DeleteImage(ctx, originalImageURL); err != nil {
 			c.Logger().Errorf("Failed to delete image: %v", err)
+		}
+		// Clear the image URL if explicitly removed
+		if req.RemoveImage {
+			listing.ImageURL = ""
 		}
 	}
 

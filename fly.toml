@@ -8,6 +8,10 @@ primary_region = 'dfw'
 
 [env]
   AGBALUMO_ENV = 'production'
+  UPLOAD_DIR = '/data/uploads'
+  AGBALUMO_ENV = 'production'
+  UPLOAD_DIR = '/data/uploads'
+  AGBALUMO_ENV = 'production'
 
 [build]
 
