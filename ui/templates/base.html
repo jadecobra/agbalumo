@@ -167,6 +167,11 @@
 
                     <!-- Mobile Action Buttons (Visible only on mobile header) -->
                     <div class="flex md:hidden items-center gap-2">
+                        <button data-auth-action="modal" data-modal-id="create-request-modal"
+                            data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
+                            class="w-9 h-9 flex items-center justify-center bg-secondary/20 text-secondary rounded-full shadow-sm active:scale-95">
+                            <span class="material-symbols-outlined text-[20px]">campaign</span>
+                        </button>
                         <button data-auth-action="modal" data-modal-id="create-listing-modal"
                             data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
                             class="w-9 h-9 flex items-center justify-center bg-earth-accent text-white rounded-full shadow-sm active:scale-95">

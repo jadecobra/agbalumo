@@ -124,4 +124,4 @@ Agbalumo uses a "Juicy Fruit" design aesthetic, inspired by Yoruba roots and com
 * **Visual Hierarchy:** Unified CTA colors (`btn-leaf`) and mobile heading scaling (H2 > H3) successfully resolved the "chaotic layout" issues.
 * **Accessibility First:** The project now adheres to WCAG AA contrast and semantic landmark standards. The "10x" engineer protocol was applied to ensure the UI is robust for all users.
 * **Performance:** CSS build steps are integrated via `npm build:css`. Future work includes image optimization (WebP) and further HTMX lazy-loading.
-* **Critique (Agbalumo Spirit):** The UI now feels "Sweet like Agbalumo." It is warm, accessible, and premium.
+* **Critique (Agbalumo Spirit):** The UI now feels "Sweet like Agbalumo." It is warm, accessible, and premium. The addition of dual "POST | ASK" buttons in the header ensures users can easily offer listings or request help on any device.
