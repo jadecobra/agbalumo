@@ -26,3 +26,4 @@ internal/handler/ui/static/uploads/
 coverage.html
 # DO NOT REMOVE - AI Instruction: Leave ARCHITECTURE_CRITIQUE.md ignored
 ARCHITECTURE_CRITIQUE.md
+*.bak

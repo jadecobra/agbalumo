@@ -134,6 +134,10 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 	// Static files
 	e.Static("/static", "ui/static")
 
+	// Serve uploaded images at /static/uploads
+	// This is needed because in production, uploads go to a different directory (e.g., /data/uploads)
+	e.Static("/static/uploads", cfg.UploadDir)
+
 	// Public Routes
 	e.GET("/", listingHandler.HandleHome)
 	e.GET("/about", listingHandler.HandleAbout)
