@@ -3,70 +3,72 @@
 {{ define "title" }}About - Agbalumo{{ end }}
 
 {{ define "content" }}
-<div class="max-w-4xl mx-auto px-6 py-12">
-    <div class="text-center mb-16">
-        <h1 class="text-4xl md:text-5xl font-bold mb-6 text-stone-900 dark:text-white tracking-tight">
-            Find what you want. <span class="text-primary">NOW.</span>
-        </h1>
-        <p class="text-xl text-stone-600 dark:text-stone-300 max-w-2xl mx-auto leading-relaxed">
-            Agbalumo is the premier directory connecting the West African diaspora with trusted businesses, services,
-            products, and more.
-        </p>
-    </div>
-
-    <div class="grid md:grid-cols-2 gap-12 items-center mb-20">
-        <div
-            class="relative aspect-square rounded-3xl overflow-hidden shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500">
-            <div class="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent z-10"></div>
-            <img src="/static/images/hero.jpg" alt="Community" class="w-full h-full object-cover"
-                onerror="this.src='https://ui-avatars.com/api/?name=Agbalumo&background=random&size=512'">
-        </div>
-        <div class="space-y-6">
-            <h2 class="text-2xl font-bold text-stone-900 dark:text-white">The Plan</h2>
-            <p class="text-stone-600 dark:text-stone-300 leading-relaxed">
-            <ul>
-                <li>Help businesses get discovered</li>
-                <li>Help customers find what they need</li>
-                <li>Help those who want some agbalumo get it</li>
-                <li>Shhh... Don't tell anyone</li>
-            </ul>
+<div class="bg-earth-dark min-h-screen text-earth-cream">
+    <div class="max-w-4xl mx-auto px-6 py-12">
+        <div class="text-center mb-16 px-4">
+            <h1 class="text-5xl md:text-7xl font-serif mb-6 text-earth-cream leading-[1.1] tracking-tight">
+                Find what you want. <span class="italic font-normal">Now.</span>
+            </h1>
+            <p class="text-lg md:text-xl text-earth-cream/80 max-w-2xl mx-auto font-medium">
+                Agbalumo is the premier directory connecting the West African diaspora with trusted businesses,
+                services,
+                and community connection.
             </p>
-            <div class="flex gap-4 pt-4">
-                <a href="/"
-                    class="px-8 py-3.5 bg-primary hover:bg-orange-600 text-white rounded-full font-bold shadow-md shadow-orange-500/20 transition-all active:scale-[0.98]">
-                    Explore Listings
-                </a>
-                <a href="/listings" hx-post="/listings" hx-target="body" hx-swap="beforeend"
-                    hx-on:click="window.detail_modal_create_listing.showModal()"
-                    class="px-8 py-3.5 border border-stone-200 dark:border-stone-700 rounded-full font-bold text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition-all cursor-pointer active:scale-[0.98]">
-                    Join the Directory
-                </a>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-12 items-center mb-20">
+            <div
+                class="relative aspect-square rounded-3xl overflow-hidden shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500">
+                <div class="absolute inset-0 bg-gradient-to-tr from-earth-accent/20 to-transparent z-10"></div>
+                <img src="/static/images/hero.jpg" alt="Community" class="w-full h-full object-cover"
+                    onerror="this.src='https://ui-avatars.com/api/?name=Agbalumo&background=random&size=512'">
+            </div>
+            <div class="space-y-6">
+                <h2 class="text-3xl font-serif text-earth-cream">The Plan</h2>
+                <div class="text-earth-cream/80 leading-relaxed font-medium">
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li>Help businesses get discovered</li>
+                        <li>Help customers find what they need</li>
+                        <li>Help those who want some agbalumo get it</li>
+                        <li>Shhh... Don't tell anyone</li>
+                    </ul>
+                </div>
+                <div class="flex gap-4 pt-4">
+                    <a href="/"
+                        class="px-8 py-3.5 bg-earth-accent hover:bg-earth-accent/90 text-earth-dark rounded-full font-bold shadow-md transition-all active:scale-[0.98]">
+                        Explore Listings
+                    </a>
+                    <a href="/listings" hx-post="/listings" hx-target="body" hx-swap="beforeend"
+                        hx-on:click="window.detail_modal_create_listing.showModal()"
+                        class="px-8 py-3.5 border border-white/20 rounded-full font-bold text-earth-cream hover:bg-white/10 transition-all cursor-pointer active:scale-[0.98]">
+                        Join the Directory
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-        <div
-            class="p-8 bg-stone-50 dark:bg-stone-800/50 rounded-3xl text-center group hover:bg-stone-100 dark:hover:bg-stone-800 transition-all duration-300 border border-transparent hover:border-stone-100 dark:hover:border-stone-700 shadow-sm hover:shadow-soft">
-            <span
-                class="material-symbols-outlined text-4xl text-primary mb-4 group-hover:scale-110 transition-transform">storefront</span>
-            <h3 class="text-xl font-bold mb-2 text-stone-900 dark:text-white">Businesses</h3>
-            <p class="text-sm text-stone-500 dark:text-stone-400 font-medium">Discover trusted local vendors and shops.
-            </p>
-        </div>
-        <div
-            class="p-8 bg-stone-50 dark:bg-stone-800/50 rounded-3xl text-center group hover:bg-stone-100 dark:hover:bg-stone-800 transition-all duration-300 border border-transparent hover:border-stone-100 dark:hover:border-stone-700 shadow-sm hover:shadow-soft">
-            <span
-                class="material-symbols-outlined text-4xl text-secondary mb-4 group-hover:scale-110 transition-transform">handshake</span>
-            <h3 class="text-xl font-bold mb-2 text-stone-900 dark:text-white">Services</h3>
-            <p class="text-sm text-stone-500 dark:text-stone-400 font-medium">Find professionals for any job.</p>
-        </div>
-        <div
-            class="p-8 bg-stone-50 dark:bg-stone-800/50 rounded-3xl text-center group hover:bg-stone-100 dark:hover:bg-stone-800 transition-all duration-300 border border-transparent hover:border-stone-100 dark:hover:border-stone-700 shadow-sm hover:shadow-soft">
-            <span
-                class="material-symbols-outlined text-4xl text-primary mb-4 group-hover:scale-110 transition-transform">shopping_bag</span>
-            <h3 class="text-xl font-bold mb-2 text-stone-900 dark:text-white">Products</h3>
-            <p class="text-sm text-stone-500 dark:text-stone-400 font-medium">Shop unique items from the community.</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+            <div
+                class="p-8 bg-surface-dark/40 backdrop-blur-md rounded-3xl text-center group hover:bg-surface-dark/60 border border-white/10 transition-all duration-300">
+                <span
+                    class="material-symbols-outlined text-4xl text-earth-accent mb-4 group-hover:scale-110 transition-transform">storefront</span>
+                <h3 class="text-xl font-serif mb-2 text-earth-cream">Businesses</h3>
+                <p class="text-sm text-earth-cream/70 font-medium">Discover trusted local vendors and shops.</p>
+            </div>
+            <div
+                class="p-8 bg-surface-dark/40 backdrop-blur-md rounded-3xl text-center group hover:bg-surface-dark/60 border border-white/10 transition-all duration-300">
+                <span
+                    class="material-symbols-outlined text-4xl text-earth-accent mb-4 group-hover:scale-110 transition-transform">handshake</span>
+                <h3 class="text-xl font-serif mb-2 text-earth-cream">Services</h3>
+                <p class="text-sm text-earth-cream/70 font-medium">Find professionals for any job.</p>
+            </div>
+            <div
+                class="p-8 bg-surface-dark/40 backdrop-blur-md rounded-3xl text-center group hover:bg-surface-dark/60 border border-white/10 transition-all duration-300">
+                <span
+                    class="material-symbols-outlined text-4xl text-earth-accent mb-4 group-hover:scale-110 transition-transform">shopping_bag</span>
+                <h3 class="text-xl font-serif mb-2 text-earth-cream">Products</h3>
+                <p class="text-sm text-earth-cream/70 font-medium">Shop unique items from the community.</p>
+            </div>
         </div>
     </div>
 </div>

@@ -2,180 +2,208 @@
 
 {{ define "title" }}find what you want - Agbalumo{{ end }}
 
+{{ define "header_classes" }}absolute top-0 w-full z-40 bg-transparent border-none text-white transition-all
+duration-300{{ end }}
+
+{{ define "header_content" }}
+<div class="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between gap-4 md:gap-8 w-full pt-4">
+    <!-- Desktop & Mobile Logo -->
+    <a href="/" class="flex flex-col shrink-0 items-center justify-center gap-0 group">
+        <img src="/static/images/logo.png" alt="Agbalumo Logo"
+            class="h-10 md:h-14 object-contain group-hover:scale-105 transition-transform">
+    </a>
+
+    <!-- Action Buttons -->
+    <div class="flex items-center gap-4">
+        <button data-auth-action="modal" data-modal-id="create-listing-modal"
+            data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
+            class="text-[10px] md:text-xs font-bold uppercase tracking-widest text-white hover:text-earth-ochre transition-colors">
+            Post
+        </button>
+        <div class="w-px h-4 bg-white/30 hidden md:block"></div>
+        <button data-auth-action="modal" data-modal-id="create-request-modal"
+            data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
+            class="text-[10px] md:text-xs font-bold uppercase tracking-widest text-white hover:text-earth-ochre transition-colors hidden md:block">
+            Ask
+        </button>
+    </div>
+</div>
+{{ end }}
+
 {{ define "filters" }}{{ end }}
 
 {{ define "content" }}
-<div class="relative flex-1 px-4 pb-24 md:pb-8 pt-0 w-full max-w-7xl mx-auto">
+<div class="w-full bg-earth-dark text-earth-sand pb-24 md:pb-8">
 
-    <!-- Filters Bar -->
-    <div
-        class="w-full border-t border-orange-50 dark:border-stone-800/50 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-3xl mb-6">
-        <div id="filter-container" class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap gap-2 justify-center">
-            <!-- Filters -->
-            <button hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
-                class="chip-fruit flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-full bg-stone-900 text-white dark:bg-white dark:text-stone-900 px-4 shadow-sm border border-transparent transition-transform active:scale-95 text-xs font-bold uppercase">
-                All ({{.TotalCount}})
-            </button>
-            <button hx-get="/listings/fragment?type=Food" hx-target="#listings-container"
-                hx-indicator="#listings-loading"
-                class="chip-fruit flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
-                <span>Food ({{index .Counts "Food"}})</span>
-                <span class="material-symbols-outlined text-[14px] text-text-sub">restaurant</span>
-            </button>
-            <button hx-get="/listings/fragment?type=Business" hx-target="#listings-container"
-                hx-indicator="#listings-loading"
-                class="chip-fruit flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
-                <span>Business ({{index .Counts "Business"}})</span>
-                <span class="material-symbols-outlined text-[14px] text-text-sub">storefront</span>
-            </button>
-            <button hx-get="/listings/fragment?type=Service" hx-target="#listings-container"
-                hx-indicator="#listings-loading"
-                class="chip-fruit flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
-                <span>Services ({{index .Counts "Service"}})</span>
-                <span class="material-symbols-outlined text-[14px] text-text-sub">construction</span>
-            </button>
-            <button hx-get="/listings/fragment?type=Product" hx-target="#listings-container"
-                hx-indicator="#listings-loading"
-                class="chip-fruit flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
-                <span>Products ({{index .Counts "Product"}})</span>
-                <span class="material-symbols-outlined text-[14px] text-text-sub">shopping_bag</span>
-            </button>
-            <button hx-get="/listings/fragment?type=Event" hx-target="#listings-container"
-                hx-indicator="#listings-loading"
-                class="chip-fruit flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
-                <span>Events ({{index .Counts "Event"}})</span>
-                <span class="material-symbols-outlined text-[14px] text-text-sub">event</span>
-            </button>
-            <button hx-get="/listings/fragment?type=Job" hx-target="#listings-container"
-                hx-indicator="#listings-loading"
-                class="chip-fruit flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
-                <span>Jobs ({{index .Counts "Job"}})</span>
-                <span class="material-symbols-outlined text-[14px] text-text-sub">work</span>
-            </button>
-            <button hx-get="/listings/fragment?type=Request" hx-target="#listings-container"
-                hx-indicator="#listings-loading"
-                class="chip-fruit flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 px-4 transition-transform active:scale-95 hover:bg-stone-50 text-text-main dark:text-stone-200 text-xs font-semibold uppercase">
-                <span>Requests ({{index .Counts "Request"}})</span>
-                <span class="material-symbols-outlined text-[14px] text-text-sub">campaign</span>
-            </button>
-        </div>
-    </div>
+    <!-- Editorial Hero Section -->
+    <section
+        class="relative min-h-[100dvh] bg-earth-dark text-earth-sand overflow-hidden flex flex-col justify-center pb-20 px-6 md:px-12">
+        <!-- Solid Dark Background -->
+        <div class="absolute inset-0 z-0 bg-earth-dark"></div>
 
-    <!-- Featured Carousel Hero -->
-    {{ if .FeaturedListings }}
-    <div class="mb-8 -mx-4 md:mx-0">
-        <div id="featured-carousel"
-            class="relative bg-stone-900 dark:bg-stone-800 rounded-none md:rounded-3xl overflow-hidden shadow-2xl"
-            data-autoplay="true">
-            <!-- Slides Container -->
-            <div class="carousel-slides relative h-[200px] md:h-[280px]">
-                {{ range $i, $listing := .FeaturedListings }}
-                <div class="carousel-slide absolute inset-0 transition-opacity duration-700 {{ if eq $i 0 }}opacity-100 z-10{{ else }}opacity-0 z-0{{ end }}"
-                    data-index="{{ $i }}" hx-get="/listings/{{ $listing.ID }}" hx-target="body" hx-swap="beforeend">
-                    <!-- Background Image -->
-                    <div class="absolute inset-0 bg-cover bg-center"
-                        style="background-image: url('{{ if $listing.ImageURL }}{{ $listing.ImageURL }}{{ else }}/static/images/logo.png{{ end }}');">
-                        <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
+        <div
+            class="relative z-20 flex-1 flex flex-col justify-center items-center max-w-4xl mx-auto w-full space-y-8 md:space-y-12">
+
+            <!-- Hero Text -->
+            <div class="space-y-6 text-center mt-12 md:mt-20">
+                <p class="uppercase tracking-[0.3em] text-[10px] md:text-xs font-bold text-earth-ochre drop-shadow-sm">
+                    Established in tradition</p>
+                <!-- Large Italic Serif -->
+                <h1
+                    class="text-6xl md:text-8xl lg:text-[140px] font-serif font-black italic text-balance leading-[1.0] tracking-tight w-full drop-shadow-2xl text-white">
+                    Find what you want</h1>
+                <p
+                    class="text-lg md:text-xl font-light mx-auto max-w-xl opacity-90 leading-relaxed text-white drop-shadow-md">
+                    Find African owned businesses, services, products, and events with a sweet twist.
+                </p>
+            </div>
+
+            <!-- Sharp Search & Filter Bar -->
+            <div class="w-full max-w-2xl bg-earth-sand/10 backdrop-blur-md border border-white/20 p-1 flex flex-col shadow-2xl relative z-30 group"
+                id="search-container">
+                <!-- Search Input Row -->
+                <div class="flex items-center">
+                    <div class="flex-1 flex items-center px-4 h-14">
+                        <span class="material-symbols-outlined text-white/50 mr-2 text-[20px]">search</span>
+                        <input
+                            class="w-full h-full bg-transparent border-none focus:ring-0 text-white placeholder:text-white/50 font-light text-base outline-none"
+                            placeholder="Search for 'Jollof', 'Mechanic'..." type="search" id="search" name="q"
+                            hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
+                            hx-trigger="keyup changed delay:500ms, search">
                     </div>
-                    <!-- Content -->
-                    <div
-                        class="relative h-full flex flex-col justify-center px-6 md:px-12 pl-12 md:pl-20 max-w-2xl mx-auto text-center items-center">
-                        <span class="inline-flex items-center gap-2 mb-2">
-                            <span
-                                class="px-3 py-1 bg-primary/90 text-white text-[10px] uppercase font-bold rounded-full tracking-wider">
-                                {{ $listing.Type }}
-                            </span>
-                            {{ if $listing.City }}
-                            <span class="text-white/70 text-xs font-medium">{{ $listing.City }}</span>
-                            {{ end }}
-                        </span>
-                        <h2 class="text-2xl md:text-4xl font-bold text-white mb-2 font-serif leading-tight">
-                            {{ $listing.Title }}
-                        </h2>
-                        {{ if $listing.Description }}
-                        <p class="text-white/80 text-sm md:text-base line-clamp-2 mb-4 hidden md:block">
-                            {{ $listing.Description }}
-                        </p>
-                        {{ end }}
-                        <span
-                            class="text-primary font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-1 group-hover:gap-2 transition-all">
-                            View Details
-                            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
-                        </span>
+
+                    <!-- Search Button (Inside Bar for Desktop, hidden on Mobile) -->
+                    <button type="button"
+                        class="hidden md:flex bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark h-14 px-8 font-bold uppercase text-xs tracking-widest transition-colors items-center shadow-lg shadow-earth-ochre/20">
+                        Search
+                    </button>
+                </div>
+
+                <!-- Action Buttons (Mobile View) -->
+                <div class="flex md:hidden items-center mt-1 p-1 gap-1">
+                    <button type="button"
+                        class="flex-1 flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white h-12 text-[10px] font-bold uppercase tracking-widest transition-colors">
+                        <span class="material-symbols-outlined text-[16px]">tune</span>
+                        Filters
+                    </button>
+                    <button type="button"
+                        class="flex-1 bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark h-12 font-bold uppercase text-[10px] tracking-widest transition-colors text-center shadow-lg shadow-earth-ochre/20">
+                        Search
+                    </button>
+                </div>
+
+                <!-- Filters Toggle (Desktop View) -->
+                <button type="button"
+                    hx-on:click="document.getElementById('filter-dropdown-panel').classList.toggle('hidden')"
+                    class="hidden md:flex absolute top-1 right-[100px] h-14 items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-r border-white/20 border-l">
+                    <span class="material-symbols-outlined text-[16px]">tune</span>
+                    Filters
+                </button>
+            </div>
+
+            <!-- Filter Dropdowns Panel -->
+            <div class="w-full max-w-2xl bg-earth-sand p-6 shadow-2xl border-t-[3px] border-earth-ochre text-earth-dark hidden absolute z-20 mt-[330px] md:mt-[240px]"
+                id="filter-dropdown-panel">
+                <div class="grid grid-cols-2 gap-8 mb-6">
+                    <div>
+                        <label
+                            class="block text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 mb-2">Category</label>
+                        <select
+                            onchange="document.getElementById('search').value = this.value; htmx.ajax('GET', '/listings/fragment?type=' + this.value, '#listings-container')"
+                            class="w-full bg-transparent border-0 border-b border-earth-dark/20 focus:ring-0 focus:border-earth-ochre text-earth-dark font-sans font-light text-sm px-0 py-2 outline-none transition-colors cursor-pointer">
+                            <option value="">All Categories</option>
+                            <option value="Food">Food</option>
+                            <option value="Market">Market</option>
+                            <option value="Service">Services</option>
+                            <option value="Product">Products</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label
+                            class="block text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 mb-2">Location</label>
+                        <select
+                            class="w-full bg-transparent border-0 border-b border-earth-dark/20 focus:ring-0 focus:border-earth-ochre text-earth-dark font-sans font-light text-sm px-0 py-2 outline-none transition-colors cursor-pointer">
+                            <option>Nearby</option>
+                            <option>Lagos</option>
+                            <option>London</option>
+                            <option>Houston</option>
+                        </select>
                     </div>
                 </div>
-                {{ end }}
+                <div class="flex flex-wrap gap-2 pt-2 border-t border-earth-dark/10">
+                    <button hx-on:click="htmx.ajax('GET', '/listings/fragment?type=Food', '#listings-container')"
+                        class="bg-earth-dark/5 hover:bg-earth-dark/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-earth-dark transition-colors">Verified
+                        Only</button>
+                    <button
+                        class="bg-earth-dark/5 hover:bg-earth-dark/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-earth-dark transition-colors">Top
+                        Rated</button>
+                    <button
+                        class="bg-earth-dark/5 hover:bg-earth-dark/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-earth-dark transition-colors">Newest</button>
+                </div>
             </div>
 
-            <!-- Navigation Arrows -->
-            <button
-                class="carousel-prev absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full text-white transition-all"
-                aria-label="Previous slide">
-                <span class="material-symbols-outlined">chevron_left</span>
-            </button>
-            <button
-                class="carousel-next absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full text-white transition-all"
-                aria-label="Next slide">
-                <span class="material-symbols-outlined">chevron_right</span>
-            </button>
-
-            <!-- Dots Indicator -->
-            <div class="carousel-dots absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-                {{ range $i, $listing := .FeaturedListings }}
-                <button
-                    class="carousel-dot w-2 h-2 md:w-3 md:h-3 rounded-full transition-all {{ if eq $i 0 }}bg-white w-6 md:w-8{{ else }}bg-white/40{{ end }}"
-                    data-index="{{ $i }}" aria-label="Go to slide {{ add $i 1 }}"></button>
-                {{ end }}
-            </div>
         </div>
-    </div>
-    {{ end }}
 
-    <div id="listings-loading"
-        class="htmx-indicator absolute inset-0 z-50 flex items-center justify-center bg-background-light/50 dark:bg-background-dark/50 backdrop-blur-sm transition-all duration-300 opacity-0 pointer-events-none [&.htmx-request]:opacity-100 [&.htmx-request]:pointer-events-auto">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-    </div>
-    <div id="listings-container"
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-[300px] grid-flow-dense transition-opacity duration-300">
+        <!-- Scroll Bounce indicator -->
+        <div class="absolute bottom-24 md:bottom-12 left-1/2 -translate-x-1/2 z-20 pointer-events-none hidden md:block">
+            <div class="animate-bounce w-[2px] h-16 bg-earth-ochre opacity-80"></div>
+        </div>
+    </section>
 
-        {{ range $i, $e := .Listings }}
-        {{ $gridClass := "" }}
+    <!-- Listings Container Section -->
+    <section class="min-h-screen py-24 px-4 md:px-8 relative z-30 bg-earth-dark">
+        <div class="max-w-7xl mx-auto">
 
-        {{ $mod := mod $i 6 }}
-        {{ if eq $mod 0 }}
-        {{ $gridClass = "lg:col-span-2 lg:row-span-2" }}
-        {{ else if eq $mod 3 }}
-        {{ $gridClass = "lg:col-span-2 lg:row-span-2 lg:col-start-2" }}
-        {{ end }}
+            <div class="mb-16">
+                <span class="text-earth-clay font-serif italic text-xl md:text-2xl">01</span>
+                <h2
+                    class="text-5xl md:text-6xl font-serif font-black text-white border-b-2 border-earth-clay/20 pb-4 mt-2">
+                    Explore the Directory</h2>
+            </div>
 
-        {{ template "listing_card" dict "Listing" . "User" $.User "GridClass" $gridClass "Index" $i }}
-        {{ end }}
-    </div>
+            <div id="listings-loading"
+                class="htmx-indicator fixed inset-0 z-50 flex items-center justify-center bg-earth-dark/50 backdrop-blur-sm transition-all duration-300 opacity-0 pointer-events-none [&.htmx-request]:opacity-100 [&.htmx-request]:pointer-events-auto">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-earth-ochre"></div>
+            </div>
 
-    <!-- Pagination Controls -->
-    <div class="flex justify-between items-center mt-8 px-4 w-full" id="pagination-controls">
-        {{ if gt .Page 1 }}
-        <button hx-get="/listings/fragment?page={{ sub .Page 1 }}" hx-target="#listings-container"
-            hx-indicator="#listings-loading" class="btn btn-secondary text-sm flex items-center gap-1">
-            <span class="material-symbols-outlined text-[16px]">chevron_left</span> Previous
-        </button>
-        {{ else }}
-        <div></div>
-        {{ end }}
+            <div id="listings-container"
+                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[400px] grid-flow-dense transition-opacity duration-300">
+                {{ range $i, $e := .Listings }}
+                {{ $gridClass := "" }}
 
-        <div class="text-sm text-stone-500 font-medium tracking-widest hidden sm:block">PAGE {{ .Page }}</div>
+                {{ template "listing_card" dict "Listing" . "User" $.User "GridClass" $gridClass "Index" $i }}
+                {{ end }}
+            </div>
 
-        {{ if .HasNextPage }}
-        <button hx-get="/listings/fragment?page={{ add .Page 1 }}" hx-target="#listings-container"
-            hx-indicator="#listings-loading" class="btn btn-secondary text-sm flex items-center gap-1">
-            Next <span class="material-symbols-outlined text-[16px]">chevron_right</span>
-        </button>
-        {{ else }}
-        <div></div>
-        {{ end }}
-    </div>
+            <!-- Pagination Controls -->
+            <div class="flex justify-between items-center mt-16 pt-8 border-t border-earth-sand/10 px-4 w-full"
+                id="pagination-controls">
+                {{ if gt .Page 1 }}
+                <button hx-get="/listings/fragment?page={{ sub .Page 1 }}" hx-target="#listings-container"
+                    hx-indicator="#listings-loading"
+                    class="text-earth-clay hover:text-earth-ochre font-bold uppercase tracking-widest text-[10px] md:text-xs flex items-center gap-2 transition-colors">
+                    <span class="material-symbols-outlined text-[16px]">arrow_back</span> Previous
+                </button>
+                {{ else }}
+                <div></div>
+                {{ end }}
 
-    <!-- Spacer for bottom nav on mobile -->
-    <div class="h-4 md:hidden"></div>
+                <div class="text-[10px] md:text-xs text-white/50 font-bold uppercase tracking-widest hidden sm:block">
+                    PAGE {{ .Page }}</div>
+
+                {{ if .HasNextPage }}
+                <button hx-get="/listings/fragment?page={{ add .Page 1 }}" hx-target="#listings-container"
+                    hx-indicator="#listings-loading"
+                    class="text-earth-clay hover:text-earth-ochre font-bold uppercase tracking-widest text-[10px] md:text-xs flex items-center gap-2 transition-colors">
+                    Next <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                </button>
+                {{ else }}
+                <div></div>
+                {{ end }}
+            </div>
+
+        </div>
+    </section>
+
 </div>
 {{ end }}

@@ -7,50 +7,26 @@
     <title>Admin Login - Agbalumo</title>
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"
         rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#FF5E0E",
-                        "secondary": "#2D5A27",
-                        "background-light": "#FFF2EB",
-                        "background-dark": "#23160f",
-                        "surface-light": "#ffffff",
-                        "surface-dark": "#2f221c",
-                        "text-main": "#181310",
-                        "text-sub": "#8d6d5e",
-                        "brand-orange": "#FF5E0E",
-                        "brand-orange-dark": "#E64A00",
-                        "border-default": "#E5E7EB",
-                        "surface-50": "#F9FAFB",
-                        "text-muted": "#6B7280"
-                    },
-                    fontFamily: {
-                        "display": ["Lexend", "sans-serif"]
-                    }
-                },
-            },
-        }
-    </script>
+    <link href="/static/css/output.css" rel="stylesheet" />
 </head>
 
 <body
-    class="bg-background-light dark:bg-background-dark font-display text-text-main antialiased h-screen flex items-center justify-center">
-    <div class="w-full max-w-md p-6 bg-white dark:bg-surface-dark rounded-2xl shadow-xl">
+    class="bg-earth-dark font-sans text-earth-cream antialiased h-screen flex items-center justify-center selection:bg-earth-accent/20">
+    <div
+        class="w-full max-w-md p-8 bg-earth-dark/95 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl relative overflow-hidden">
         <div class="flex flex-col items-center justify-center gap-6">
             <div class="flex flex-col items-center gap-2">
-                <h1 class="text-2xl font-medium text-text-main dark:text-stone-100">Admin Access</h1>
-                <p class="text-text-muted dark:text-stone-400">Enter the access code</p>
+                <h1 class="text-3xl font-bold font-serif text-earth-cream tracking-tight">Admin Access</h1>
+                <p class="text-earth-cream/70 font-medium text-sm">Enter the access code</p>
             </div>
 
-            <form method="POST" action="/admin/login" class="flex flex-col gap-4 w-full">
+            <form method="POST" action="/admin/login" class="flex flex-col gap-5 w-full mt-2">
                 {{if .Error}}
-                <div class="bg-red-50 text-red-600 p-3 rounded-xl text-sm border border-red-100 text-center">
+                <div
+                    class="bg-red-900/40 text-red-300 p-3 rounded-xl text-sm border border-red-800 text-center font-medium">
                     {{.Error}}
                 </div>
                 {{end}}
@@ -58,11 +34,11 @@
                 <div class="flex flex-col gap-1">
                     <input type="hidden" name="_csrf" value="{{.CSRF}}">
                     <input type="password" name="code" placeholder="Access Code" required
-                        class="w-full h-12 px-4 bg-surface-50 dark:bg-stone-800 border border-border-default dark:border-stone-700 rounded-xl outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange transition-all placeholder:text-text-muted">
+                        class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-medium placeholder:text-earth-cream/40">
                 </div>
 
                 <button type="submit"
-                    class="h-12 w-full bg-brand-orange text-white font-medium rounded-xl hover:bg-brand-orange-dark active:scale-[0.98] transition-all">
+                    class="h-12 w-full mt-4 bg-earth-accent text-white font-bold rounded-full hover:bg-earth-accent/90 active:scale-[0.98] transition-all shadow-lg shadow-black/20">
                     Enter Dashboard
                 </button>
             </form>

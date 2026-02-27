@@ -1,0 +1,61 @@
+
+func getSessionCookie(rec *httptest.ResponseRecorder) string {
+	for _, cookie := range rec.Result().Cookies() {
+		if cookie.Name == "session" {
+			return cookie.String()
+		}
+	}
+	return ""
+}
+
+func TestUserRoutes(t *testing.T) {
+	// 1. Dev Login
+	req := httptest.NewRequest(http.MethodGet, "/auth/dev?email=dev@agbalumo.com", nil)
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	assert.Equal(t, http.StatusFound, rec.Code) // Should redirect to /
+	cookie := getSessionCookie(rec)
+	assert.NotEmpty(t, cookie, "Expected session cookie after login")
+
+	// 2. User Profile
+	req = httptest.NewRequest(http.MethodGet, "/profile", nil)
+	req.Header.Set("Cookie", cookie)
+	rec = httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	body := rec.Body.String()
+	assert.Contains(t, body, "dev@agbalumo.com") // Profile shows email
+
+	// 3. Create Listing
+	// Normally create listing needs CSRF, let's bypass CSRF for tests or extract CSRF token?
+	// The CSRF middleware applies if not disabled. We used e.Use(middleware.CSRF...).
+	// To test POST, we need a valid CSRF token, which is set in a cookie and header/form field.
+	// Since extracting CSRF during an integration test from Echo is tricky if we don't scrape it,
+	// let's scrape it from the profile page.
+	idx := strings.Index(body, "name=\"_csrf\" value=\"")
+	if idx == -1 {
+		t.Fatal("Could not find CSRF token in profile page")
+	}
+	sub := body[idx+len("name=\"_csrf\" value=\""):]
+	endIdx := strings.Index(sub, "\"")
+	csrfToken := sub[:endIdx]
+
+	// Need to also grab the _csrf cookie
+	var csrfCookie string
+	for _, c := range rec.Result().Cookies() {
+		if c.Name == "_csrf" {
+			csrfCookie = c.String()
+		}
+	}
+
+	form := strings.NewReader("title=My+Test+Listing&type=Service&owner_origin=Nigeria&description=Testing&contact_email=dev@test.com&_csrf=" + csrfToken)
+	req = httptest.NewRequest(http.MethodPost, "/listings", form)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Cookie", cookie+"; "+csrfCookie)
+	rec = httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	assert.Equal(t, http.StatusSeeOther, rec.Code) // Redirect after create
+}

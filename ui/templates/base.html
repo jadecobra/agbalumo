@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
     <link
-        href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&amp;display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"
         rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
@@ -54,10 +54,10 @@
 </head>
 
 <body
-    class="bg-background-light dark:bg-background-dark font-display text-text-main antialiased selection:bg-primary/20">
+    class="bg-background-light dark:bg-background-dark font-display text-text-main antialiased selection:bg-earth-accent/20">
     <!-- Skip to main content link for accessibility -->
     <a href="#main-content"
-        class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded-full focus:font-bold">
+        class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-earth-accent focus:text-white focus:rounded-full focus:font-bold">
         Skip to main content
     </a>
     <!-- Main App Container -->
@@ -68,15 +68,15 @@
         <main id="main-content"
             class="flex-1 flex flex-col h-screen overflow-y-auto no-scrollbar relative w-full pb-20 md:pb-0">
             <!-- Unified Top Header (Glassmorphic) -->
-            <header
-                class="sticky top-0 z-40 w-full backdrop-blur-md bg-background-light/80 dark:bg-background-dark/80 border-b border-orange-100/50 dark:border-stone-800/50 transition-all duration-300">
-
+            <header class="{{ block " header_classes" . }}sticky top-0 z-40 w-full backdrop-blur-md bg-earth-dark
+                border-b border-earth-clay/20 transition-all duration-300{{ end }}">
+                {{ block "header_content" . }}
                 <!-- Mobile Full Width Logo -->
-                <div
-                    class="md:hidden flex flex-col justify-center items-center w-full py-2 border-b border-orange-50/30">
+                <div class="md:hidden flex flex-col justify-center items-center w-full py-2 border-b border-white/10">
                     <h1 class="flex flex-col items-center">
                         <img src="/static/images/logo.png" alt="Agbalumo Logo" class="h-12 w-auto object-contain">
-                        <span class="text-[10px] text-primary font-medium tracking-wide -mt-1 font-display">find what
+                        <span class="text-[10px] text-earth-accent font-medium tracking-wide -mt-1 font-display">find
+                            what
                             you
                             want</span>
                     </h1>
@@ -90,7 +90,8 @@
                         <h1 class="flex flex-col items-center">
                             <img src="/static/images/logo.png" alt="Agbalumo Logo"
                                 class="h-8 md:h-10 object-contain group-hover:scale-105 transition-transform">
-                            <span class="text-[10px] text-primary font-medium tracking-wide -mt-1 font-display">find
+                            <span
+                                class="text-[10px] text-earth-accent font-medium tracking-wide -mt-1 font-display">find
                                 what
                                 you want</span>
                         </h1>
@@ -99,12 +100,12 @@
                     <!-- Centered Search Bar (Max Width) -->
                     <div class="flex-1 max-w-2xl relative">
                         <div
-                            class="search-glow relative flex items-center h-11 md:h-12 rounded-full bg-white/60 dark:bg-surface-dark/60 shadow-sm border border-orange-100/50 dark:border-stone-700/50 group focus-within:bg-white dark:focus-within:bg-surface-dark transition-all">
-                            <div class="grid place-items-center h-full w-10 md:w-12 text-text-sub">
+                            class="search-glow relative flex items-center h-11 md:h-12 rounded-none bg-transparent shadow-sm border border-white/20 group focus-within:border-earth-accent transition-all">
+                            <div class="grid place-items-center h-full w-10 md:w-12 text-white/50">
                                 <span class="material-symbols-outlined text-[18px] md:text-[20px]">search</span>
                             </div>
                             <input
-                                class="peer h-full w-full outline-none text-sm text-text-main dark:text-stone-100 bg-transparent pr-4 placeholder:text-stone-400 font-medium focus:outline-none focus:ring-0 focus:border-0 focus:shadow-none"
+                                class="peer h-full w-full outline-none text-sm text-earth-cream bg-transparent pr-4 placeholder:text-white/40 font-medium focus:outline-none focus:ring-0 focus:border-0 focus:shadow-none"
                                 style="box-shadow: none !important; outline: none !important;" id="search" name="q"
                                 placeholder="Search... (e.g. 'Jollof', 'Mechanic')" type="search"
                                 hx-get="/listings/fragment" hx-target="#listings-container"
@@ -117,12 +118,12 @@
                         <!-- Navigation Links -->
                         <nav class="flex items-center gap-1">
                             <button hx-get="/feedback/modal" hx-target="body" hx-swap="beforeend"
-                                class="p-2 rounded-full text-stone-500 hover:text-primary hover:bg-orange-50 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors"
+                                class="p-2 rounded-full text-stone-500 hover:text-earth-accent hover:bg-surface-dark/40 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors"
                                 title="Feedback">
                                 <span class="material-symbols-outlined">feedback</span>
                             </button>
                             <button
-                                class="p-2 rounded-full text-stone-500 hover:text-primary hover:bg-orange-50 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors"
+                                class="p-2 rounded-full text-stone-500 hover:text-earth-accent hover:bg-surface-dark/40 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors"
                                 title="Saved">
                                 <span class="material-symbols-outlined">favorite</span>
                             </button>
@@ -138,7 +139,7 @@
                             </button>
                             <button data-auth-action="modal" data-modal-id="create-listing-modal"
                                 data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
-                                class="flex items-center gap-2 bg-primary hover:bg-orange-600 shadow-md shadow-orange-500/20 text-white px-5 h-11 rounded-full transition-all active:scale-95 font-semibold font-display text-sm">
+                                class="flex items-center gap-2 bg-earth-accent hover:bg-earth-accent/90 shadow-md shadow-earth-accent/20 text-white px-5 h-11 rounded-full transition-all active:scale-95 font-semibold font-display text-sm">
                                 <span class="material-symbols-outlined text-[18px]">add_circle</span>
                                 Post
                             </button>
@@ -168,7 +169,7 @@
                     <div class="flex md:hidden items-center gap-2">
                         <button data-auth-action="modal" data-modal-id="create-listing-modal"
                             data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
-                            class="w-9 h-9 flex items-center justify-center bg-primary text-white rounded-full shadow-sm active:scale-95">
+                            class="w-9 h-9 flex items-center justify-center bg-earth-accent text-white rounded-full shadow-sm active:scale-95">
                             <span class="material-symbols-outlined text-[20px]">add</span>
                         </button>
                     </div>
@@ -176,6 +177,7 @@
 
                 <!-- Filters Bar (Attached to Header) -->
                 {{ block "filters" . }}{{ end }}
+                {{ end }}
             </header>
 
             <!-- Content -->
@@ -192,16 +194,16 @@
                     </div>
                     <div class="flex justify-center flex-wrap gap-x-8 gap-y-4 mb-8">
                         <a href="/about"
-                            class="hover:text-primary transition-colors font-semibold text-text-main border-b-2 border-transparent hover:border-primary">About
+                            class="hover:text-earth-accent transition-colors font-semibold text-text-main border-b-2 border-transparent hover:border-primary">About
                             Agbalumo</a>
                         <a href="mailto:hello@agbalumo.com"
-                            class="hover:text-primary transition-colors font-medium">Contact Us</a>
+                            class="hover:text-earth-accent transition-colors font-medium">Contact Us</a>
                     </div>
-                    <div class="pt-8 border-t border-orange-100/50 flex flex-col items-center gap-4">
+                    <div class="pt-8 border-t border-white/10 flex flex-col items-center gap-4">
                         <div class="flex gap-4">
-                            <span class="material-symbols-outlined text-primary/40">language</span>
-                            <span class="material-symbols-outlined text-primary/40">groups</span>
-                            <span class="material-symbols-outlined text-primary/40">volunteer_activism</span>
+                            <span class="material-symbols-outlined text-earth-accent/40">language</span>
+                            <span class="material-symbols-outlined text-earth-accent/40">groups</span>
+                            <span class="material-symbols-outlined text-earth-accent/40">volunteer_activism</span>
                         </div>
                         <p class="text-text-sub/70 font-medium tracking-wide italic">"Find what you want. Now. Sweet
                             like
@@ -212,50 +214,47 @@
                 </div>
             </footer>
         </main>
-
-        <!-- Mobile Bottom Nav (Hidden on Desktop) -->
-        <div id="mobile-bottom-nav"
-            class="md:hidden fixed bottom-0 w-full bg-white dark:bg-surface-dark border-t border-stone-100 dark:border-stone-800 pb-safe z-50 transition-transform duration-300">
-            <div class="flex justify-around items-center h-16">
-                <a href="/" class="flex flex-col items-center justify-center w-full h-full gap-1 text-primary">
-                    <span class="material-symbols-outlined filled"
-                        style="font-variation-settings: 'FILL' 1;">home</span>
-                    <span class="text-[10px] font-medium">Home</span>
-                </a>
-                <button
-                    class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
-                    <span class="material-symbols-outlined">favorite</span>
-                    <span class="text-[10px] font-medium">Saved</span>
-                </button>
-                <button data-auth-action="modal" data-modal-id="create-request-modal"
-                    data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
-                    class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
-                    <span class="material-symbols-outlined">campaign</span>
-                    <span class="text-[10px] font-medium">Ask</span>
-                </button>
-                <button data-auth-action="modal" data-modal-id="create-listing-modal"
-                    data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
-                    class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
-                    <span class="material-symbols-outlined">add_circle</span>
-                    <span class="text-[10px] font-medium">Post</span>
-                </button>
-                {{ if .User }}
-                <button hx-get="/profile" hx-target="body" hx-swap="beforeend"
-                    class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
-                    <img src="{{ .User.AvatarURL }}" alt="{{ .User.Name }}"
-                        class="w-6 h-6 rounded-full border border-orange-200">
-                    <span class="text-[10px] font-medium">Profile</span>
-                </button>
-                {{ else }}
-                <a href="/auth/google/login"
-                    class="flex flex-col items-center justify-center w-full h-full gap-1 text-stone-400 dark:text-stone-500 hover:text-secondary transition-colors">
-                    <span class="material-symbols-outlined">login</span>
-                    <span class="text-[10px] font-medium">Sign In</span>
-                </a>
-                {{ end }}
-            </div>
-        </div>
     </div>
+
+    <!-- Mobile Bottom Nav (Floating Pill) -->
+    <nav id="mobile-bottom-nav"
+        class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm bg-earth-dark/95 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl pb-safe z-50 transition-all duration-300">
+        <div class="flex justify-around items-center h-16 px-4">
+            <a href="/"
+                class="flex flex-col items-center justify-center flex-1 h-full text-earth-ochre hover:text-earth-ochre-light transition-colors">
+                <span class="material-symbols-outlined filled" style="font-variation-settings: 'FILL' 1;">home</span>
+            </a>
+            <a href="/"
+                class="flex flex-col items-center justify-center flex-1 h-full text-white/50 hover:text-white transition-colors">
+                <span class="material-symbols-outlined">explore</span>
+            </a>
+
+            <!-- Centered Action Button (Post) -->
+            <button data-auth-action="modal" data-modal-id="create-listing-modal"
+                data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
+                class="flex flex-col items-center justify-center flex-1 h-full text-white/50 hover:text-white transition-colors">
+                <span class="material-symbols-outlined text-[28px]">add_circle</span>
+            </button>
+
+            <button
+                class="flex flex-col items-center justify-center flex-1 h-full text-white/50 hover:text-white transition-colors">
+                <span class="material-symbols-outlined">favorite</span>
+            </button>
+
+            {{ if .User }}
+            <button hx-get="/profile" hx-target="body" hx-swap="beforeend"
+                class="flex flex-col items-center justify-center flex-1 h-full text-white/50 hover:text-white transition-colors">
+                <img src="{{ .User.AvatarURL }}" alt="{{ .User.Name }}"
+                    class="w-6 h-6 rounded-full border border-white/20">
+            </button>
+            {{ else }}
+            <a href="/auth/google/login"
+                class="flex flex-col items-center justify-center flex-1 h-full text-white/50 hover:text-white transition-colors">
+                <span class="material-symbols-outlined">person</span>
+            </a>
+            {{ end }}
+        </div>
+    </nav>
 
 
     <div id="modal-container"></div>

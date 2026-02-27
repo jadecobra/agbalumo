@@ -1,0 +1,129 @@
+# UI Refactor Task Checklist
+
+## Phase 1: Global Theme Rollout & Design System Refinement
+
+### 1.1 — Design System Update (`tailwind.config.js` & `base.html`)
+- [x] Update `tailwind.config.js`: refine earth colors (`earth-dark` `#1A120E`, `earth-cream` `#FAF8F1`, `earth-accent` `#F58608`).
+- [x] Update `tailwind.config.js`: swap sans font to `Inter` and serif to `Playfair Display`.
+- [x] Update `base.html`: modify Google Fonts `<link>` to load `Inter` instead of `Lexend`.
+- [x] Write/Update regression test verifying `Inter` is in the font link tag.
+
+### 1.2 — Dark Theme on `profile.html`
+- [x] Write UI regression test verifying `profile.html` uses `earth-dark` background and high-contrast text
+- [x] Update `profile.html`: replace `bg-white dark:bg-surface-dark`, `text-text-main dark:text-white`, `rounded-3xl` card with dark earth palette. Add `Playfair Display` heading.
+- [x] Verify tests pass: `go test ./internal/handler/... -run TestProfile`
+
+### 1.3 — Dark Theme on `about.html`
+- [x] Write UI regression test verifying `about.html` uses `earth-dark` background
+- [x] Update `about.html`: replace `text-text-main dark:text-white` and `bg-stone-50 dark:bg-stone-800` feature cards with dark earth palette. Apply `font-serif` to headings.
+- [x] Verify tests pass: `go test ./internal/handler/... -run TestAbout`
+
+### 1.4 — Dark Theme on `error.html`
+- [x] Write UI regression test verifying `error.html` uses `earth-dark` background
+- [x] Update `error.html` for dark theme contrast
+
+### 1.5 — Standardize Button & Tag Components (Global Audit)
+- [x] Audit all templates for inconsistent button styles (`bg-orange-600`, `hover:bg-stone-50`, `rounded-full` vs sharp)
+- [x] Standardize to the earth palette (`earth-accent` primary CTA, sharp-edge or consistent rounding)
+- [x] Write regression test verifying no raw `gray-*` color classes remain in public templates (extends `TestAdminDashboardColorConsistency` pattern)
+
+---
+
+## Phase 2: Modals & Forms Dark Theme
+
+### 2.1 — Refactor `modal_create_listing.html`
+- [x] Write regression test checking for dark/frosted wrapper class on Create Listing modal
+- [x] Update background: `bg-earth-dark/95 backdrop-blur-xl border-white/10`
+- [x] Update inputs to transparent bottom-bordered style (`border-b border-white/20 focus:border-earth-accent`)
+- [x] Apply `bg-earth-accent` to primary action button
+- [x] Verify tests pass: `go test ./internal/handler/... -run TestListing`
+
+### 2.2 — Refactor `modal_edit_listing.html`
+- [ ] Write regression test for Edit Listing modal design
+- [ ] Apply dark/frosted wrapper, transparent bottom-bordered input styling, and update action button
+- [ ] Ensure single-image upload UI renders correctly on dark mode
+- [ ] Verify tests pass: `go test ./internal/handler/... -run TestListing`
+
+### 2.3 — Dark Theme on `modal_create_request.html`
+- [ ] Write UI regression test
+- [ ] Apply dark styling to modal wrapper and form fields
+
+### 2.4 — Dark Theme on `modal_detail.html`
+- [ ] Write UI regression test verifying listing detail uses `Playfair Display` for the title
+- [ ] Apply edge-to-edge imagery approach, `font-serif` for title, dark background
+
+### 2.5 — Dark Theme on `modal_profile.html`
+- [ ] Write UI regression test verifying the profile modal uses earth-dark background
+- [ ] Update `modal_profile.html` to use dark earth palette
+
+### 2.6 — Dark Theme on `modal_feedback.html`
+- [ ] Update `modal_feedback.html` to match dark palette
+
+### 2.7 — Single Image Upload Enforcement
+- [x] Confirm `modal_create_listing.html` limits to single file upload (already `type="file"` — verify no multi-image remnants)
+- [x] Add regression test asserting `multiple` attribute is NOT present on the image input
+
+---
+
+## Phase 3: Admin Pages Dark Theme
+
+### 3.1 — Dark Theme on `admin_dashboard.html`
+- [ ] Write UI regression test verifying admin dashboard uses `earth-dark` background
+- [ ] Apply `earth-dark` background to page wrapper; update metric cards to dark surface style
+- [ ] Replace `stone-*` and `gray-*` lightness with the dark `#140e0a` admin background token from Stitch
+
+### 3.2 — Dark Theme on `admin_listings.html`
+- [ ] Write UI regression test
+- [ ] Apply `earth-dark` theme to table, filter bar, and pagination
+
+### 3.3 — Dark Theme on `admin_users.html`
+- [ ] Write UI regression test
+- [ ] Apply `earth-dark` theme to user list table
+
+### 3.4 — Dark Theme on `admin_login.html`
+- [ ] Write UI regression test
+- [ ] Apply `earth-dark` background, clean up form styling to match the transparent bottom-bordered token
+
+### 3.5 — Dark Theme on `admin_delete_confirm.html`
+- [ ] Write UI regression test
+- [ ] Apply dark theme
+
+---
+
+## Phase 4: Listing Detail & Micro-Animations
+
+### 4.1 — Listing Detail View (`modal_detail.html`)
+- [ ] Apply `Playfair Display` to listing title (font-serif class)
+- [ ] Ensure image is edge-to-edge and full width
+- [ ] Write test verifying `font-serif` is applied to the detail title element
+
+### 4.2 — Micro-Animations (Global)
+- [ ] Add `active:scale-95` to all primary CTA buttons that lack it
+- [ ] Add `hover:scale-105` to listing cards (already partially there)
+- [ ] Add `transition-all duration-300` to all interactive state changes
+- [ ] Write regression test verifying primary submit buttons have `active:scale` class
+
+### 4.3 — Empty States & Error Messages
+- [ ] Update `listing_list.html` empty state: use earth palette, descriptive icon, dark-contrast text (extends `TestListingListHasEmptyState`)
+- [ ] Update `error.html`: dark background, large serif heading, humanized message
+- [ ] Update `toast_error.html`: dark/earth-themed toast vs current light red
+
+---
+
+## Verification
+
+### After each phase:
+```bash
+# Run pre-commit script
+./scripts/pre-commit.sh
+
+# Run all handler tests including UI regressions
+go test ./internal/handler/... -v -count=1
+
+# Run full suite
+go test ./...
+```
+
+### Browser verification (after all phases complete):
+- Use browser subagent to navigate to `/`, `/about`, `/profile` and open all modals
+- Verify consistent dark earth palette across all pages and modals

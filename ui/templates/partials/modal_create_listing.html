@@ -1,14 +1,14 @@
 <dialog id="create-listing-modal"
     class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-none md:max-w-sm m-0 md:m-auto rounded-none md:rounded-3xl shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed md:relative inset-0 md:inset-auto h-full md:h-auto">
     <div
-        class="bg-background-light dark:bg-background-dark p-6 rounded-none md:rounded-3xl border-0 md:border border-orange-100 dark:border-stone-800 shadow-soft relative overflow-y-auto h-full md:h-auto md:max-h-[85vh]">
+        class="bg-earth-dark/95 backdrop-blur-xl border border-white/10 p-6 rounded-none md:rounded-3xl shadow-2xl relative overflow-y-auto h-full md:h-auto md:max-h-[85vh]">
         <!-- Decorative Background -->
         <div
-            class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -z-10 transform translate-x-10 -translate-y-10">
+            class="absolute top-0 right-0 w-32 h-32 bg-earth-accent/10 rounded-full blur-3xl -z-10 transform translate-x-10 -translate-y-10">
         </div>
 
         <div class="flex justify-between items-center mb-6">
-            <h3 class="text-xl font-bold text-text-main dark:text-white">New Listing</h3>
+            <h3 class="text-xl font-bold text-earth-cream font-serif">New Listing</h3>
             <button data-modal-action="close"
                 class="p-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 transition-colors">
                 <span class="material-symbols-outlined text-[20px]">close</span>
@@ -21,10 +21,9 @@
 
             <!-- Type (No Request) -->
             <div class="flex flex-col gap-1.5">
-                <label
-                    class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Type</label>
+                <label class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Type</label>
                 <select name="type"
-                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white appearance-none">
+                    class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40 appearance-none">
                     <option value="Business">Business</option>
                     <option value="Service">Service</option>
                     <option value="Product">Product</option>
@@ -36,18 +35,16 @@
 
             <!-- Title -->
             <div class="flex flex-col gap-1.5">
-                <label
-                    class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Title</label>
+                <label class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Title</label>
                 <input required name="title" type="text" placeholder="e.g., Mama's Kitchen"
-                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                    class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40">
             </div>
 
             <!-- Origin -->
             <div class="flex flex-col gap-1.5">
-                <label
-                    class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Origin</label>
+                <label class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Origin</label>
                 <select name="owner_origin"
-                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white appearance-none">
+                    class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40 appearance-none">
                     <option value="" disabled>Select Country</option>
                     <optgroup label="West Africa">
                         <option value="Benin">Benin 🇧🇯</option>
@@ -120,7 +117,7 @@
 
             <!-- Image Upload -->
             <div id="image-upload-section" class="flex flex-col gap-1.5">
-                <label class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Photo
+                <label class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Photo
                     (Optional)</label>
                 <div id="image-preview-container" class="hidden relative mb-2">
                     <img id="image-preview" class="h-24 w-24 object-cover rounded-xl border border-stone-200"
@@ -131,17 +128,17 @@
                     </button>
                 </div>
                 <input name="image" type="file" accept="image/*" id="image-input"
-                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all text-text-sub">
+                    class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-earth-accent file:text-white hover:file:bg-earth-accent/90 transition-all text-earth-cream/70 cursor-pointer">
             </div>
 
             <!-- Location Section -->
             <div class="grid grid-cols-1 gap-4">
                 <div class="flex flex-col gap-1.5">
                     <label id="location-label"
-                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Address
+                        class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Address
                         (Validated)</label>
                     <input id="create-address-input" name="address" type="text" placeholder="Start typing address..."
-                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white"
+                        class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40"
                         data-google-maps-key="{{ if .GoogleMapsApiKey }}{{ .GoogleMapsApiKey }}{{ end }}">
                     <input type="hidden" id="create-city-input" name="city">
                 </div>
@@ -149,76 +146,70 @@
 
             <!-- Hours of Operation (Optional) -->
             <div id="hours-section" class="flex flex-col gap-1.5 hidden">
-                <label class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Hours
+                <label class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Hours
                     of Operation</label>
                 <input name="hours_of_operation" type="text" placeholder="e.g. Mon-Fri 9am-6pm"
-                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                    class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40">
             </div>
 
             <!-- Description -->
             <div class="flex flex-col gap-1.5">
                 <label id="description-label"
-                    class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Description</label>
+                    class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Description</label>
                 <textarea required name="description" rows="3" placeholder="Tell us about your listing..."
-                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white resize-none"></textarea>
+                    class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40 resize-none"></textarea>
             </div>
 
             <!-- Event Dates (Hidden by default) -->
             <div id="event-dates-section" class="grid grid-cols-2 gap-4 hidden">
                 <div class="flex flex-col gap-1.5">
-                    <label
-                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Event
+                    <label class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Event
                         Start</label>
                     <input name="event_start" type="datetime-local"
-                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
+                        class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40 placeholder:text-stone-400">
                 </div>
                 <div class="flex flex-col gap-1.5">
-                    <label
-                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Event
+                    <label class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Event
                         End</label>
                     <input name="event_end" type="datetime-local"
-                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
+                        class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40 placeholder:text-stone-400">
                 </div>
             </div>
 
             <!-- Job Fields (Hidden by default) -->
             <div id="job-fields-section" class="flex flex-col gap-4 hidden">
                 <div class="flex flex-col gap-1.5">
-                    <label
-                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Company
+                    <label class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Company
                         Name</label>
                     <input name="company" type="text" placeholder="e.g. Acme Inc."
-                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                        class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40">
                 </div>
                 <div class="flex flex-col gap-1.5">
                     <div class="flex flex-col gap-1.5">
                         <label
-                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Compensation</label>
+                            class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Compensation</label>
                         <input name="pay_range" type="text" placeholder="e.g. $80k - $120k / Competitive"
-                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                            class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40">
                     </div>
                 </div>
                 <div class="flex flex-col gap-1.5">
-                    <label
-                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Skills
+                    <label class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Skills
                         Required</label>
                     <textarea name="skills" rows="2" placeholder="e.g. Golang, SQL, Docker..."
-                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white resize-none"></textarea>
+                        class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40 resize-none"></textarea>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="flex flex-col gap-1.5">
-                        <label
-                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Start
+                        <label class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Start
                             Date</label>
                         <input name="job_start_date" type="datetime-local"
-                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
+                            class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40 placeholder:text-stone-400">
                     </div>
                     <div class="flex flex-col gap-1.5">
-                        <label
-                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Apply
+                        <label class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Apply
                             URL</label>
                         <input name="job_apply_url" type="text" inputmode="url" placeholder="https://..."
-                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                            class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40">
                     </div>
                 </div>
             </div>
@@ -228,30 +219,29 @@
             <!-- Contact Section -->
             <div class="grid grid-cols-2 gap-4">
                 <div class="flex flex-col gap-1.5">
-                    <label
-                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Email</label>
+                    <label class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Email</label>
                     <input name="contact_email" type="email" placeholder="Email"
                         value="{{ if .User }}{{ .User.Email }}{{ end }}"
-                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                        class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40">
                 </div>
                 <div class="flex flex-col gap-1.5">
                     <label
-                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Phone/WhatsApp</label>
+                        class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Phone/WhatsApp</label>
                     <input name="contact_phone" type="tel" placeholder="+1..."
-                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                        class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40">
                 </div>
             </div>
 
             <!-- Website (Optional) -->
             <div class="flex flex-col gap-1.5">
-                <label class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Website
+                <label class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Website
                     (Optional)</label>
                 <input name="website_url" type="text" inputmode="url" placeholder="https://..."
-                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                    class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40">
             </div>
 
             <button type="submit" id="create-listing-submit"
-                class="mt-2 w-full flex items-center justify-center gap-2 bg-primary hover:bg-orange-600 text-white font-bold h-12 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-orange-500/20 disabled:opacity-50 disabled:cursor-not-allowed">
+                class="mt-2 w-full flex items-center justify-center gap-2 bg-earth-accent hover:bg-earth-accent/90 text-white font-bold h-12 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-black/20 disabled:opacity-50 disabled:cursor-not-allowed">
                 <span class="material-symbols-outlined text-[20px] htmx-request:hidden">send</span>
                 <span
                     class="material-symbols-outlined text-[20px] animate-spin hidden htmx-request:block">progress_activity</span>

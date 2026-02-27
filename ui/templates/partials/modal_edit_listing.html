@@ -13,14 +13,14 @@
         })();
     </script>
     <div
-        class="bg-background-light dark:bg-background-dark p-6 rounded-none md:rounded-3xl border-0 md:border border-orange-100 dark:border-stone-800 shadow-soft relative overflow-y-auto h-full md:h-auto md:max-h-[85vh]">
+        class="bg-earth-dark/95 backdrop-blur-xl border border-white/10 p-6 rounded-none md:rounded-3xl shadow-2xl relative overflow-y-auto h-full md:h-auto md:max-h-[85vh]">
         <!-- Decorative Background -->
         <div
-            class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -z-10 transform translate-x-10 -translate-y-10">
+            class="absolute top-0 right-0 w-32 h-32 bg-earth-accent/10 rounded-full blur-3xl -z-10 transform translate-x-10 -translate-y-10">
         </div>
 
         <div class="flex justify-between items-center mb-6">
-            <h3 class="text-xl font-bold text-text-main dark:text-white">Edit Listing</h3>
+            <h3 class="text-xl font-bold text-earth-cream font-serif">Edit Listing</h3>
             <button hx-on:click="this.closest('dialog').close(); this.closest('dialog').remove();"
                 class="p-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 transition-colors">
                 <span class="material-symbols-outlined text-[20px]">close</span>
@@ -33,9 +33,9 @@
             <!-- Type -->
             <div class="flex flex-col gap-1.5">
                 <label
-                    class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Type</label>
+                    class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Type</label>
                 <select name="type"
-                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white appearance-none">
+                    class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40 appearance-none">
                     <option value="Business" {{ if eq .Listing.Type "Business" }}selected{{ end }}>Business</option>
                     <option value="Service" {{ if eq .Listing.Type "Service" }}selected{{ end }}>Service</option>
                     <option value="Product" {{ if eq .Listing.Type "Product" }}selected{{ end }}>Product</option>
@@ -49,17 +49,17 @@
             <!-- Title -->
             <div class="flex flex-col gap-1.5">
                 <label
-                    class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Title</label>
+                    class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Title</label>
                 <input required name="title" type="text" value="{{ .Listing.Title }}" placeholder="e.g., Mama's Kitchen"
-                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                    class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-earth-accent file:text-white hover:file:bg-earth-accent/90 transition-all text-earth-cream/70 cursor-pointer">
             </div>
 
             <!-- Origin -->
             <div class="flex flex-col gap-1.5">
                 <label
-                    class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Origin</label>
+                    class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Origin</label>
                 <select name="owner_origin"
-                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white appearance-none">
+                    class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40 appearance-none">
                     <option value="" disabled>Select Country</option>
                     <optgroup label="West Africa">
                         <option value="Benin" {{ if eq .Listing.OwnerOrigin "Benin" }}selected{{ end }}>Benin 🇧🇯
@@ -186,7 +186,7 @@
 
             <!-- Image Upload -->
             <div class="flex flex-col gap-1.5">
-                <label class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Photo
+                <label class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Photo
                     (Optional)</label>
                 <input type="hidden" name="remove_image" id="remove-image-{{.Listing.ID}}" value="false">
                 <div id="edit-image-preview-container-{{.Listing.ID}}" class="hidden relative mb-2">
@@ -208,24 +208,24 @@
                 </div>
                 {{ end }}
                 <input name="image" type="file" accept="image/*" id="edit-image-input-{{.Listing.ID}}"
-                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all text-text-sub">
+                    class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-earth-accent file:text-white hover:file:bg-earth-accent/90 transition-all text-earth-cream/70 cursor-pointer">
             </div>
 
             <!-- Description -->
             <div class="flex flex-col gap-1.5">
                 <label
-                    class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Description</label>
+                    class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Description</label>
                 <textarea required name="description" rows="3" placeholder="Tell us about your listing..."
-                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white resize-none">{{ .Listing.Description }}</textarea>
+                    class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40 resize-none">{{ .Listing.Description }}</textarea>
             </div>
 
             <!-- Request Deadline (Hidden by default unless Request) -->
             <div id="edit-request-section-{{.Listing.ID}}" class="flex flex-col gap-1.5 hidden">
                 <label
-                    class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Deadline</label>
+                    class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Deadline</label>
                 <input name="deadline_date" type="date"
                     value="{{ if not .Listing.Deadline.IsZero }}{{ .Listing.Deadline.Format " 2006-01-02" }}{{ end }}"
-                    class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
+                    class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-earth-accent file:text-white hover:file:bg-earth-accent/90 transition-all text-earth-cream/70 cursor-pointer">
             </div>
 
             <!-- Job Details (Hidden by default unless Job) -->
@@ -233,44 +233,44 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="flex flex-col gap-1.5">
                         <label
-                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Company</label>
+                            class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Company</label>
                         <input name="company" type="text" value="{{ .Listing.Company }}" placeholder="Company Name"
-                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
+                            class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-earth-accent file:text-white hover:file:bg-earth-accent/90 transition-all text-earth-cream/70 cursor-pointer">
                     </div>
                     <div class="flex flex-col gap-1.5">
                         <label
-                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Pay
+                            class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Pay
                             Range</label>
                         <input name="pay_range" type="text" value="{{ .Listing.PayRange }}"
                             placeholder="e.g. 150k-200k / yr"
-                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
+                            class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-earth-accent file:text-white hover:file:bg-earth-accent/90 transition-all text-earth-cream/70 cursor-pointer">
                     </div>
                 </div>
 
                 <div class="flex flex-col gap-1.5">
                     <label
-                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Skills</label>
+                        class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Skills</label>
                     <input name="skills" type="text" value="{{ .Listing.Skills }}"
                         placeholder="e.g. Golang, SQL, Docker"
-                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
+                        class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-earth-accent file:text-white hover:file:bg-earth-accent/90 transition-all text-earth-cream/70 cursor-pointer">
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="flex flex-col gap-1.5">
                         <label
-                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Start
+                            class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Start
                             Date</label>
                         <input name="job_start_date" type="datetime-local"
                             value='{{ if not .Listing.JobStartDate.IsZero }}{{ .Listing.JobStartDate.Format "2006-01-02T15:04" }}{{ end }}'
-                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
+                            class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-earth-accent file:text-white hover:file:bg-earth-accent/90 transition-all text-earth-cream/70 cursor-pointer">
                     </div>
                     <div class="flex flex-col gap-1.5">
                         <label
-                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Apply
+                            class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Apply
                             URL</label>
                         <input name="job_apply_url" type="text" inputmode="url" value="{{ .Listing.JobApplyURL }}"
                             placeholder="https://..."
-                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
+                            class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-earth-accent file:text-white hover:file:bg-earth-accent/90 transition-all text-earth-cream/70 cursor-pointer">
                     </div>
                 </div>
             </div>
@@ -279,19 +279,19 @@
             <div id="edit-event-dates-section-{{.Listing.ID}}" class="grid grid-cols-2 gap-4 hidden">
                 <div class="flex flex-col gap-1.5">
                     <label
-                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Event
+                        class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Event
                         Start</label>
                     <input name="event_start" type="datetime-local"
                         value='{{ if not .Listing.EventStart.IsZero }}{{ .Listing.EventStart.Format "2006-01-02T15:04" }}{{ end }}'
-                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
+                        class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-earth-accent file:text-white hover:file:bg-earth-accent/90 transition-all text-earth-cream/70 cursor-pointer">
                 </div>
                 <div class="flex flex-col gap-1.5">
                     <label
-                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Event
+                        class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Event
                         End</label>
                     <input name="event_end" type="datetime-local"
                         value='{{ if not .Listing.EventEnd.IsZero }}{{ .Listing.EventEnd.Format "2006-01-02T15:04" }}{{ end }}'
-                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main dark:text-white placeholder:text-stone-400">
+                        class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-earth-accent file:text-white hover:file:bg-earth-accent/90 transition-all text-earth-cream/70 cursor-pointer">
                 </div>
             </div>
 
@@ -300,58 +300,58 @@
             <div class="grid grid-cols-1 gap-4">
                 <div class="flex flex-col gap-1.5">
                     <label
-                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Address
+                        class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Address
                         (Validated)</label>
                     <input id="edit-address-input-{{.Listing.ID}}" name="address" type="text"
                         value="{{ .Listing.Address }}" placeholder="Start typing address..."
-                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                        class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-earth-accent file:text-white hover:file:bg-earth-accent/90 transition-all text-earth-cream/70 cursor-pointer">
                     <input type="hidden" id="edit-city-input-{{.Listing.ID}}" name="city" value="{{ .Listing.City }}">
                 </div>
 
                 <!-- Hours of Operation (Optional) -->
                 <div class="flex flex-col gap-1.5">
                     <label
-                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Hours
+                        class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Hours
                         of Operation</label>
                     <input name="hours_of_operation" type="text" value="{{ .Listing.HoursOfOperation }}"
                         placeholder="e.g. Mon-Fri 9am-6pm"
-                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                        class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-earth-accent file:text-white hover:file:bg-earth-accent/90 transition-all text-earth-cream/70 cursor-pointer">
                 </div>
 
                 <!-- Contact Section -->
                 <div class="grid grid-cols-2 gap-4">
                     <div class="flex flex-col gap-1.5">
                         <label
-                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Email</label>
+                            class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Email</label>
                         <input name="contact_email" type="email" value="{{ .Listing.ContactEmail }}"
-                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                            class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-earth-accent file:text-white hover:file:bg-earth-accent/90 transition-all text-earth-cream/70 cursor-pointer">
                     </div>
                     <div class="flex flex-col gap-1.5">
                         <label
-                            class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Phone</label>
+                            class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Phone</label>
                         <input name="contact_phone" type="tel" value="{{ .Listing.ContactPhone }}"
-                            class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                            class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-earth-accent file:text-white hover:file:bg-earth-accent/90 transition-all text-earth-cream/70 cursor-pointer">
                     </div>
                 </div>
 
                 <div class="flex flex-col gap-1.5">
                     <label
-                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">WhatsApp</label>
+                        class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">WhatsApp</label>
                     <input name="contact_whatsapp" type="tel" value="{{ .Listing.ContactWhatsApp }}"
-                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                        class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-earth-accent file:text-white hover:file:bg-earth-accent/90 transition-all text-earth-cream/70 cursor-pointer">
                 </div>
 
                 <!-- Website (Optional) -->
                 <div class="flex flex-col gap-1.5">
                     <label
-                        class="text-xs font-bold uppercase tracking-wider text-text-sub dark:text-stone-400 ml-1">Website
+                        class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Website
                         (Optional)</label>
                     <input name="website_url" type="text" inputmode="url" value="{{ .Listing.WebsiteURL }}"
-                        class="w-full bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-stone-400 text-text-main dark:text-white">
+                        class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-earth-accent file:text-white hover:file:bg-earth-accent/90 transition-all text-earth-cream/70 cursor-pointer">
                 </div>
 
                 <button type="submit"
-                    class="mt-2 w-full flex items-center justify-center gap-2 bg-primary hover:bg-orange-600 text-white font-bold h-12 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-orange-500/20">
+                    class="mt-2 w-full flex items-center justify-center gap-2 bg-earth-accent hover:bg-earth-accent/90 text-white font-bold h-12 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-black/20">
                     Save Changes
                 </button>
         </form>

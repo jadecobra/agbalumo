@@ -8,20 +8,37 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                "primary": "#FF8A00",           // ripe agbalumo skin
-                "primary-variant": "#F57C00",
-                "secondary": "#689F38",         // fresh leaf green
-                "background-light": "#FFFBF5",  // warm cream background
-                "background-dark": "#23160f",   // dark warm brown
-                "surface-light": "#FFF8F0",     // creamy white flesh
-                "surface-dark": "#2f221c",
-                "text-main": "#3E2723",         // deep Nigerian earth brown
-                "text-sub": "#6d4c41",
-                "accent-star": "#C2185B",       // star-seed magenta
+                primary: {
+                    DEFAULT: '#FF8A00',
+                    dark: '#E07900',
+                },
+                secondary: '#005D3A',
+                background: {
+                    light: '#F8F9FA',
+                    dark: '#1C1C1E',
+                },
+                surface: {
+                    light: '#FFFFFF',
+                    dark: '#2C2C2E',
+                },
+                text: {
+                    main: '#2C3E50',
+                    sub: '#5A6C7D',
+                },
+                earth: {
+                    clay: '#A0522D',
+                    ochre: '#CC7722',
+                    'ochre-light': '#E09540',
+                    dark: '#1A120E',
+                    sand: '#F4EBD0',
+                    cream: '#FAF8F1',
+                    accent: '#F58608'
+                }
             },
             fontFamily: {
-                "display": ["Lexend", "sans-serif"],
-                "serif": ["Playfair Display", "serif"]
+                display: ['"Inter"', 'sans-serif'],
+                sans: ['"Inter"', 'sans-serif'],
+                serif: ['"Playfair Display"', 'serif'],
             },
             borderRadius: {
                 "DEFAULT": "12px",

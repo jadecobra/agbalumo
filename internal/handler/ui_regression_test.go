@@ -118,9 +118,9 @@ func TestHomePageUIValues(t *testing.T) {
 
 	body := rec.Body.String()
 
-	// 1. Verify Listings Container is Relative
-	if !strings.Contains(body, `class="relative flex-1`) {
-		t.Error("Regression: Listings container missing 'relative' class")
+	// 1. Verify Listings Container Theme
+	if !strings.Contains(body, `bg-earth-dark text-earth-sand`) {
+		t.Error("Regression: Listings container missing dark theme classes")
 	}
 
 	// 2. Verify Helper Overlay classes
@@ -159,58 +159,16 @@ func TestFilterUIValues(t *testing.T) {
 
 	body := rec.Body.String()
 
-	if !strings.Contains(body, `id="filter-container"`) {
-		t.Error("Regression: Filter container missing ID 'filter-container'")
+	if !strings.Contains(body, `id="filter-dropdown-panel"`) {
+		t.Error("Regression: Filter dropdown panel missing")
 	}
 
-	if !strings.Contains(body, `All`) || !strings.Contains(body, `bg-stone-900 text-white`) {
-		t.Error("Regression: 'All' button does not appear to have active classes")
-	}
-
-	if !strings.Contains(body, `Food (`) {
-		t.Error("Regression: 'Food' filter button missing count")
-	}
-	foodIndex := strings.Index(body, `Food (`)
-	if foodIndex != -1 {
-		buttonStart := strings.LastIndex(body[:foodIndex], `<button`)
-		buttonTag := body[buttonStart:foodIndex]
-		if strings.Contains(buttonTag, `bg-stone-900`) {
-			t.Error("Regression: 'Food' button seems to have active class by default")
-		}
+	if !strings.Contains(body, `All Categories`) {
+		t.Error("Regression: 'All Categories' option missing")
 	}
 
 	if !strings.Contains(rec.Body.String(), `src="/static/js/app.js?v=2"`) {
 		t.Errorf("Regression: app.js script tag missing")
-	}
-}
-
-func TestHomepageFiltersUseFlexWrap(t *testing.T) {
-	wd, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	projectRoot := filepath.Join(wd, "..", "..")
-
-	templatePath := filepath.Join(projectRoot, "ui", "templates", "index.html")
-	templateContent, err := os.ReadFile(templatePath)
-	if err != nil {
-		t.Fatalf("Failed to read index.html: %v", err)
-	}
-
-	content := string(templateContent)
-
-	idx := strings.Index(content, `id="filter-container"`)
-	if idx == -1 {
-		t.Fatal("filter-container not found in template")
-	}
-
-	filterDiv := content[idx : idx+200]
-	if strings.Contains(filterDiv, "overflow-x-auto") {
-		t.Error("Homepage filter container should not use overflow-x-auto - use flex-wrap instead")
-	}
-
-	if !strings.Contains(filterDiv, "flex-wrap") {
-		t.Error("Homepage filter container should use flex-wrap class")
 	}
 }
 
@@ -238,112 +196,6 @@ func TestAdminFiltersShowCounts(t *testing.T) {
 
 	if !strings.Contains(filterSection, "Counts") && !strings.Contains(filterSection, "{{ .Counts") {
 		t.Error("Admin filters should display listing counts like homepage filters")
-	}
-}
-
-func TestHomepageFiltersScrollWithContent(t *testing.T) {
-	wd, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	projectRoot := filepath.Join(wd, "..", "..")
-
-	templatePath := filepath.Join(projectRoot, "ui", "templates", "index.html")
-	templateContent, err := os.ReadFile(templatePath)
-	if err != nil {
-		t.Fatalf("Failed to read index.html: %v", err)
-	}
-
-	content := string(templateContent)
-
-	filtersBlockIdx := strings.Index(content, `{{ define "filters" }}`)
-	contentBlockIdx := strings.Index(content, `{{ define "content" }}`)
-
-	if filtersBlockIdx == -1 {
-		t.Error("Homepage should define filters block inside content for scrolling behavior")
-	}
-
-	if contentBlockIdx == -1 {
-		t.Fatal("content block not found")
-	}
-
-	contentBlockEnd := strings.Index(content[contentBlockIdx:], `{{ end }}`)
-	contentBlock := content[contentBlockIdx : contentBlockIdx+contentBlockEnd]
-
-	if !strings.Contains(contentBlock, "filter-container") {
-		t.Error("Homepage filters should be inside content block so they scroll away with page content, not in a separate filters block that stays sticky in header")
-	}
-}
-
-func TestFeaturedCarouselHasAutoRotate(t *testing.T) {
-	wd, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	projectRoot := filepath.Join(wd, "..", "..")
-
-	templatePath := filepath.Join(projectRoot, "ui", "templates", "index.html")
-	templateContent, err := os.ReadFile(templatePath)
-	if err != nil {
-		t.Fatalf("Failed to read index.html: %v", err)
-	}
-
-	content := string(templateContent)
-
-	if !strings.Contains(content, "featured-carousel") {
-		t.Error("Featured section should have a featured-carousel id for JS initialization")
-	}
-
-	if !strings.Contains(content, "carousel") && !strings.Contains(content, "setInterval") && !strings.Contains(content, "slideInterval") {
-		t.Error("Featured carousel should have auto-rotate functionality")
-	}
-}
-
-func TestFeaturedCarouselHasNavigationControls(t *testing.T) {
-	wd, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	projectRoot := filepath.Join(wd, "..", "..")
-
-	templatePath := filepath.Join(projectRoot, "ui", "templates", "index.html")
-	templateContent, err := os.ReadFile(templatePath)
-	if err != nil {
-		t.Fatalf("Failed to read index.html: %v", err)
-	}
-
-	content := string(templateContent)
-
-	if !strings.Contains(content, "carousel-prev") {
-		t.Error("Featured carousel should have previous button navigation (carousel-prev class)")
-	}
-
-	if !strings.Contains(content, "carousel-next") {
-		t.Error("Featured carousel should have next button navigation (carousel-next class)")
-	}
-
-	if !strings.Contains(content, "carousel-dot") {
-		t.Error("Featured carousel should have dot indicators for navigation (carousel-dot class)")
-	}
-}
-
-func TestFeaturedCarouselPausesOnHover(t *testing.T) {
-	wd, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	projectRoot := filepath.Join(wd, "..", "..")
-
-	jsPath := filepath.Join(projectRoot, "ui", "static", "js", "app.js")
-	jsContent, err := os.ReadFile(jsPath)
-	if err != nil {
-		t.Fatalf("Failed to read app.js: %v", err)
-	}
-
-	js := string(jsContent)
-
-	if !strings.Contains(js, "mouseenter") && !strings.Contains(js, "mouseenter") && !strings.Contains(js, "pause") {
-		t.Error("Carousel should pause on hover - looking for mouseenter/pause handling in app.js")
 	}
 }
 
@@ -406,37 +258,6 @@ func TestJobListingUI(t *testing.T) {
 	}
 }
 
-func TestJobListingCardGradient(t *testing.T) {
-	e := echo.New()
-	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplate(t)}
-
-	job := domain.Listing{
-		ID:          "job-gradient-test",
-		Title:       "Test Job",
-		Type:        domain.Job,
-		Description: "Test description",
-	}
-
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	data := map[string]interface{}{
-		"Listing":   job,
-		"GridClass": "",
-		"User":      domain.User{},
-	}
-	if err := e.Renderer.Render(rec, "listing_card", data, c); err != nil {
-		t.Fatalf("Failed to render listing_card.html: %v", err)
-	}
-
-	cardBody := rec.Body.String()
-
-	if !strings.Contains(cardBody, "from-amber-400 to-orange-500") {
-		t.Error("Job card missing expected gradient (from-amber-400 to-orange-500). Check for typo in type comparison.")
-	}
-}
-
 func TestJustAddedBadgeOnlyShowsForRecentListings(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplate(t)}
@@ -487,13 +308,15 @@ func TestJustAddedBadgeOnlyShowsForRecentListings(t *testing.T) {
 			}
 
 			cardBody := rec.Body.String()
-			hasBadge := strings.Contains(cardBody, "Just Added")
 
-			if tt.expectBadge && !hasBadge {
-				t.Errorf("Expected 'Just Added' badge for %s, but it was not found", tt.name)
-			}
-			if !tt.expectBadge && hasBadge {
-				t.Errorf("Did not expect 'Just Added' badge for %s, but it was found", tt.name)
+			if tt.expectBadge {
+				if !strings.Contains(cardBody, `NEW`) {
+					t.Errorf("Expected 'NEW' badge for %s, but it was not found", tt.name)
+				}
+			} else {
+				if strings.Contains(cardBody, `NEW`) {
+					t.Errorf("Did not expect 'NEW' badge for %s, but it was found", tt.name)
+				}
 			}
 		})
 	}
@@ -697,6 +520,237 @@ func TestListingListHasEmptyState(t *testing.T) {
 	}
 }
 
+func TestGoogleFontsLoadInterAndPlayfair(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	templatePath := filepath.Join(projectRoot, "ui", "templates", "base.html")
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		t.Fatalf("Failed to read base.html: %v", err)
+	}
+
+	content := string(templateContent)
+
+	if !strings.Contains(content, "family=Inter") {
+		t.Error("base.html should load the Inter font from Google Fonts (defined in Stitch designs)")
+	}
+
+	if !strings.Contains(content, "family=Playfair+Display") {
+		t.Error("base.html should load the Playfair Display font from Google Fonts (defined in Stitch designs)")
+	}
+}
+
+func TestProfileTheme(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	funcMap := template.FuncMap{
+		"mod":   func(i, j int) int { return i % j },
+		"add":   func(i, j int) int { return i + j },
+		"sub":   func(i, j int) int { return i - j },
+		"split": strings.Split,
+		"dict": func(values ...interface{}) (map[string]interface{}, error) {
+			if len(values)%2 != 0 {
+				return nil, nil
+			}
+			dict := make(map[string]interface{}, len(values)/2)
+			for i := 0; i < len(values); i += 2 {
+				key, ok := values[i].(string)
+				if !ok {
+					return nil, nil
+				}
+				dict[key] = values[i+1]
+			}
+			return dict, nil
+		},
+		"toJson": func(v interface{}) (template.JS, error) {
+			b, err := json.Marshal(v)
+			return template.JS(b), err
+		},
+		"isNew": func(createdAt time.Time) bool {
+			return false
+		},
+	}
+
+	tmpl := template.New("base").Funcs(funcMap)
+	tmpl, _ = tmpl.ParseFiles(
+		filepath.Join(projectRoot, "ui", "templates", "base.html"),
+		filepath.Join(projectRoot, "ui", "templates", "profile.html"),
+	)
+	tmpl, _ = tmpl.ParseGlob(filepath.Join(projectRoot, "ui", "templates", "partials", "*.html"))
+
+	e := echo.New()
+	e.Renderer = &RealTemplateRenderer{templates: tmpl}
+
+	user := domain.User{
+		Name:  "Test User",
+		Email: "test@example.com",
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "/profile", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	data := map[string]interface{}{
+		"User": user,
+	}
+	if err := e.Renderer.Render(rec, "profile.html", data, c); err != nil {
+		t.Fatalf("Failed to render profile.html: %v", err)
+	}
+
+	body := rec.Body.String()
+
+	if !strings.Contains(body, "bg-earth-dark") {
+		t.Error("profile.html should use bg-earth-dark for the main container background")
+	}
+	if !strings.Contains(body, "text-earth-cream") {
+		t.Error("profile.html should use text-earth-cream for high contrast text")
+	}
+	if !strings.Contains(body, "font-serif") {
+		t.Error("profile.html should use font-serif (Playfair Display) for headings")
+	}
+}
+
+func TestAboutTheme(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	funcMap := template.FuncMap{
+		"mod":   func(i, j int) int { return i % j },
+		"add":   func(i, j int) int { return i + j },
+		"sub":   func(i, j int) int { return i - j },
+		"split": strings.Split,
+		"dict": func(values ...interface{}) (map[string]interface{}, error) {
+			if len(values)%2 != 0 {
+				return nil, nil
+			}
+			dict := make(map[string]interface{}, len(values)/2)
+			for i := 0; i < len(values); i += 2 {
+				key, ok := values[i].(string)
+				if !ok {
+					return nil, nil
+				}
+				dict[key] = values[i+1]
+			}
+			return dict, nil
+		},
+		"toJson": func(v interface{}) (template.JS, error) {
+			b, err := json.Marshal(v)
+			return template.JS(b), err
+		},
+		"isNew": func(createdAt time.Time) bool {
+			return false
+		},
+	}
+
+	tmpl := template.New("base").Funcs(funcMap)
+	tmpl, _ = tmpl.ParseFiles(
+		filepath.Join(projectRoot, "ui", "templates", "base.html"),
+		filepath.Join(projectRoot, "ui", "templates", "about.html"),
+	)
+	tmpl, _ = tmpl.ParseGlob(filepath.Join(projectRoot, "ui", "templates", "partials", "*.html"))
+
+	e := echo.New()
+	e.Renderer = &RealTemplateRenderer{templates: tmpl}
+
+	req := httptest.NewRequest(http.MethodGet, "/about", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	if err := e.Renderer.Render(rec, "about.html", nil, c); err != nil {
+		t.Fatalf("Failed to render about.html: %v", err)
+	}
+
+	body := rec.Body.String()
+
+	if !strings.Contains(body, "bg-earth-dark") {
+		t.Error("about.html should use bg-earth-dark for the main container background")
+	}
+	if !strings.Contains(body, "text-earth-cream") {
+		t.Error("about.html should use text-earth-cream for high contrast text")
+	}
+	if !strings.Contains(body, "font-serif") {
+		t.Error("about.html should use font-serif (Playfair Display) for headings")
+	}
+	if !strings.Contains(body, "bg-earth-accent") {
+		t.Error("about.html should use bg-earth-accent for primary calls to action")
+	}
+}
+
+func TestErrorTheme(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	templatePath := filepath.Join(projectRoot, "ui", "templates", "error.html")
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		t.Fatalf("Failed to read error.html: %v", err)
+	}
+
+	content := string(templateContent)
+
+	if !strings.Contains(content, "bg-earth-dark") {
+		t.Error("error.html should use bg-earth-dark for the main background")
+	}
+	if !strings.Contains(content, "text-earth-cream") {
+		t.Error("error.html should use text-earth-cream for high contrast text")
+	}
+	if !strings.Contains(content, "font-serif") {
+		t.Error("error.html should use font-serif (Playfair Display) for the heading")
+	}
+	if !strings.Contains(content, "bg-earth-accent") {
+		t.Error("error.html should use bg-earth-accent for the primary CTA button")
+	}
+}
+
+func TestNoRawColors(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	var templates []string
+	filepath.Walk(filepath.Join(projectRoot, "ui", "templates"), func(path string, info os.FileInfo, err error) error {
+		if err == nil && !info.IsDir() && strings.HasSuffix(path, ".html") {
+			templates = append(templates, path)
+		}
+		return nil
+	})
+
+	for _, tmpl := range templates {
+		contentBytes, err := os.ReadFile(tmpl)
+		if err != nil {
+			t.Fatalf("Failed to read template %s: %v", tmpl, err)
+		}
+		content := string(contentBytes)
+
+		// Find any class attributes and check for raw gray/yellow/blue etc (except custom classes if needed)
+		if strings.Contains(content, "bg-gray-") || strings.Contains(content, "text-gray-") || strings.Contains(content, "border-gray-") {
+			t.Errorf("Template %s contains raw 'gray' Tailwind classes. Use 'stone' or 'earth-...' tokens instead.", filepath.Base(tmpl))
+		}
+		if strings.Contains(content, "bg-primary") || strings.Contains(content, "text-primary") {
+			t.Errorf("Template %s contains legacy 'primary' class. Use 'earth-accent' instead.", filepath.Base(tmpl))
+		}
+		if strings.Contains(content, "bg-orange-") || strings.Contains(content, "text-orange-") {
+			t.Errorf("Template %s contains raw 'orange' class. Use 'earth-accent' instead.", filepath.Base(tmpl))
+		}
+	}
+}
+
 func min(a, b int) int {
 	if a < b {
 		return a
@@ -709,4 +763,319 @@ func max(a, b int) int {
 		return a
 	}
 	return b
+}
+
+func TestCreateListingModalTheme(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	templatePath := filepath.Join(projectRoot, "ui", "templates", "partials", "modal_create_listing.html")
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		t.Fatalf("Failed to read modal_create_listing.html: %v", err)
+	}
+
+	content := string(templateContent)
+
+	if !strings.Contains(content, `bg-earth-dark/95 backdrop-blur-xl border border-white/10`) {
+		t.Error("Create Listing modal missing expected dark theme wrapper classes")
+	}
+
+	if !strings.Contains(content, `bg-transparent border-0 border-b border-white/20`) {
+		t.Error("Create Listing modal inputs missing transparent bottom border styling")
+	}
+
+	if strings.Contains(content, `multiple`) && strings.Contains(content, `type="file"`) {
+		t.Error("Regression: Create Listing modal image input should NOT have 'multiple' attribute (single file upload only)")
+	}
+}
+
+func TestEditListingModalTheme(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	templatePath := filepath.Join(projectRoot, "ui", "templates", "partials", "modal_edit_listing.html")
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		t.Fatalf("Failed to read modal_edit_listing.html: %v", err)
+	}
+
+	content := string(templateContent)
+
+	if !strings.Contains(content, `bg-earth-dark/95 backdrop-blur-xl border border-white/10`) {
+		t.Error("Edit Listing modal missing expected dark theme wrapper classes")
+	}
+
+	if !strings.Contains(content, `bg-transparent border-0 border-b border-white/20`) {
+		t.Error("Edit Listing modal inputs missing transparent bottom border styling")
+	}
+}
+
+func TestCreateRequestModalTheme(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	templatePath := filepath.Join(projectRoot, "ui", "templates", "partials", "modal_create_request.html")
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		t.Fatalf("Failed to read modal_create_request.html: %v", err)
+	}
+
+	content := string(templateContent)
+
+	if !strings.Contains(content, `bg-earth-dark/95 backdrop-blur-xl border border-white/10`) {
+		t.Error("Create Request modal missing expected dark theme wrapper classes")
+	}
+
+	if !strings.Contains(content, `bg-transparent border-0 border-b border-white/20`) {
+		t.Error("Create Request modal inputs missing transparent bottom border styling")
+	}
+
+	if !strings.Contains(content, `bg-earth-accent hover:bg-earth-accent/90`) {
+		t.Error("Create Request modal button missing expected earth-accent styling")
+	}
+}
+
+func TestDetailModalTheme(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	templatePath := filepath.Join(projectRoot, "ui", "templates", "partials", "modal_detail.html")
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		t.Fatalf("Failed to read modal_detail.html: %v", err)
+	}
+
+	content := string(templateContent)
+
+	if !strings.Contains(content, `bg-earth-dark/95 backdrop-blur-xl border border-white/10`) {
+		t.Error("Detail modal missing expected dark theme wrapper classes")
+	}
+
+	if !strings.Contains(content, `<h2 class="text-2xl font-bold font-serif leading-tight">`) {
+		t.Error("Detail modal title missing font-serif (Playfair Display) class")
+	}
+}
+
+func TestProfileModalTheme(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	templatePath := filepath.Join(projectRoot, "ui", "templates", "partials", "modal_profile.html")
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		t.Fatalf("Failed to read modal_profile.html: %v", err)
+	}
+
+	content := string(templateContent)
+
+	if !strings.Contains(content, `bg-earth-dark/95 backdrop-blur-xl border border-white/10`) {
+		t.Error("Profile modal missing expected dark theme wrapper classes")
+	}
+
+	if !strings.Contains(content, `<h2 class="text-xl font-bold font-serif text-earth-cream`) {
+		t.Error("Profile modal title missing font-serif class")
+	}
+}
+
+func TestFeedbackModalTheme(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	templatePath := filepath.Join(projectRoot, "ui", "templates", "partials", "modal_feedback.html")
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		t.Fatalf("Failed to read modal_feedback.html: %v", err)
+	}
+
+	content := string(templateContent)
+
+	if !strings.Contains(content, `bg-earth-dark/95 backdrop-blur-xl border border-white/10`) {
+		t.Error("Feedback modal missing expected dark theme wrapper classes")
+	}
+
+	if !strings.Contains(content, `border border-white/20 bg-white/5`) {
+		t.Error("Feedback modal textarea missing translucent styling")
+	}
+}
+
+func TestSearchBarTheme(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	templatePath := filepath.Join(projectRoot, "ui", "templates", "base.html")
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		t.Fatalf("Failed to read base.html: %v", err)
+	}
+
+	content := string(templateContent)
+
+	if !strings.Contains(content, `rounded-none bg-transparent shadow-sm border border-white/20`) {
+		t.Error("Search Bar wrapper missing transparent sharp-edged styling")
+	}
+
+	if !strings.Contains(content, `text-earth-cream bg-transparent`) {
+		t.Error("Search Bar input missing transparent styling")
+	}
+}
+
+func TestTypographyConstraints(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	// Verify tailwind.config.js enforces Inter and Playfair Display
+	tailwindPath := filepath.Join(projectRoot, "tailwind.config.js")
+	tailwindContent, err := os.ReadFile(tailwindPath)
+	if err != nil {
+		t.Fatalf("Failed to read tailwind.config.js: %v", err)
+	}
+	content := string(tailwindContent)
+	if !strings.Contains(content, `"Inter"`) || !strings.Contains(content, `"Playfair Display"`) {
+		t.Error("tailwind.config.js does not define Inter and Playfair Display fonts")
+	}
+}
+
+func TestAdminDashboardTheme(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	templatePath := filepath.Join(projectRoot, "ui", "templates", "admin_dashboard.html")
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		t.Fatalf("Failed to read admin_dashboard.html: %v", err)
+	}
+
+	content := string(templateContent)
+
+	if !strings.Contains(content, `bg-earth-dark min-h-screen`) {
+		t.Error("Admin dashboard missing expected base dark theme wrapper classes")
+	}
+
+	if !strings.Contains(content, `bg-white/5`) {
+		t.Error("Admin dashboard cards missing translucent dark styling")
+	}
+}
+
+func TestAdminListingsTheme(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	templatePath := filepath.Join(projectRoot, "ui", "templates", "admin_listings.html")
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		t.Fatalf("Failed to read admin_listings.html: %v", err)
+	}
+
+	content := string(templateContent)
+
+	if !strings.Contains(content, `bg-earth-dark min-h-screen`) {
+		t.Error("Admin listings missing expected base dark theme wrapper classes")
+	}
+
+	if !strings.Contains(content, `divide-white/10`) {
+		t.Error("Admin listings table missing translucent divide styling")
+	}
+}
+
+func TestAdminUsersTheme(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	templatePath := filepath.Join(projectRoot, "ui", "templates", "admin_users.html")
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		t.Fatalf("Failed to read admin_users.html: %v", err)
+	}
+
+	content := string(templateContent)
+
+	if !strings.Contains(content, `bg-earth-dark min-h-screen`) {
+		t.Error("Admin users missing expected base dark theme wrapper classes")
+	}
+
+	if !strings.Contains(content, `divide-white/10`) {
+		t.Error("Admin users table missing translucent divide styling")
+	}
+}
+
+func TestAdminLoginTheme(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	templatePath := filepath.Join(projectRoot, "ui", "templates", "admin_login.html")
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		t.Fatalf("Failed to read admin_login.html: %v", err)
+	}
+
+	content := string(templateContent)
+
+	if !strings.Contains(content, `bg-earth-dark font-sans`) {
+		t.Error("Admin login body missing expected dark theme classes")
+	}
+
+	if !strings.Contains(content, `border-b border-white/20`) {
+		t.Error("Admin login input missing border-bottom styling")
+	}
+}
+
+func TestAdminDeleteConfirmTheme(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	templatePath := filepath.Join(projectRoot, "ui", "templates", "admin_delete_confirm.html")
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		t.Fatalf("Failed to read admin_delete_confirm.html: %v", err)
+	}
+
+	content := string(templateContent)
+
+	if !strings.Contains(content, `bg-earth-dark min-h-screen`) {
+		t.Error("Admin delete confirm missing expected base dark theme wrapper classes")
+	}
+
+	if !strings.Contains(content, `bg-earth-dark/95 backdrop-blur-xl border border-white/10`) {
+		t.Error("Admin delete confirm card missing requested dark classes")
+	}
 }
