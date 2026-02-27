@@ -1,4 +1,4 @@
-# Agbalumo Brand Guidelines
+# agbalumo Brand Guidelines
 
 > **Purpose**: Single source of truth for all visual elements across every page and modal. Every new template, component, or page MUST reference this guide.
 
@@ -297,12 +297,12 @@ These deviations from the brand system should be corrected over time:
 | [admin_users.html](file:///Users/johnnyblase/gym/agbalumo/ui/templates/admin_users.html) | Likely uses `gray-*` (same pattern as dashboard). |
 | [admin_listings.html](file:///Users/johnnyblase/gym/agbalumo/ui/templates/admin_listings.html) | Likely uses `gray-*`. |
 | [error.html](file:///Users/johnnyblase/gym/agbalumo/ui/templates/error.html) | Hardcoded hex values (`bg-[#FFF2EB]`, `text-[#FF5E0E]`, `bg-[#2D5A27]`) instead of tokens. Loads Tailwind CDN instead of `output.css`. |
-| [about.html](file:///Users/johnnyblase/gym/agbalumo/ui/templates/about.html) | "Explore Listings" button uses `bg-stone-900` instead of brand primary/secondary. "Services" icon uses `text-blue-500` and "Products" uses `text-green-500` — not brand colors. |
+| [about.html](file:///Users/johnnyblase/gym/agbalumo/ui/templates/about.html) | "explore" button uses `bg-stone-900` instead of brand primary/secondary. "Services" icon uses `text-blue-500` and "Products" uses `text-green-500` — not brand colors. |
 
 ---
 
 ## 11. Reference Screenshots
 
-![Agbalumo Homepage](file:///Users/johnnyblase/.gemini/antigravity/brain/62c1ce97-7538-478d-8440-ffa2a449b107/homepage_screenshot_1771707186729.png)
+![agbalumo Homepage](file:///Users/johnnyblase/.gemini/antigravity/brain/62c1ce97-7538-478d-8440-ffa2a449b107/homepage_screenshot_1771707186729.png)
 
-![Agbalumo About Page](file:///Users/johnnyblase/.gemini/antigravity/brain/62c1ce97-7538-478d-8440-ffa2a449b107/about_page_screenshot_1771707193543.png)
+![agbalumo About Page](file:///Users/johnnyblase/.gemini/antigravity/brain/62c1ce97-7538-478d-8440-ffa2a449b107/about_page_screenshot_1771707193543.png)

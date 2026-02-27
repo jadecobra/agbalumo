@@ -1,4 +1,4 @@
-# Security Audit Report — Agbalumo
+# Security Audit Report — agbalumo
 
 **Date**: February 23, 2026  
 **Overall Grade**: **A**
@@ -7,7 +7,7 @@
 
 ## Executive Summary
 
-The Agbalumo application has solid security foundations. Recent fixes have addressed critical authentication and rate limiting issues. The remaining items are defense-in-depth improvements. This audit verifies the current state against the previous recommendations.
+The agbalumo application has solid security foundations. Recent fixes have addressed critical authentication and rate limiting issues. The remaining items are defense-in-depth improvements. This audit verifies the current state against the previous recommendations.
 
 ---
 

@@ -1,6 +1,6 @@
 # UI Refactoring Status
 
-This document tracks the progress of aligning the Agbalumo UI with the premium, editorial aesthetic prescribed by the Stitch design files. **All major UI refactoring phases have been successfully completed.**
+This document tracks the progress of aligning the agbalumo UI with the premium, editorial aesthetic prescribed by the Stitch design files. **All major UI refactoring phases have been successfully completed.**
 
 ---
 

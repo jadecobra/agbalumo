@@ -37,7 +37,7 @@ fi
 # Create pre-commit hook
 cat > "$PRE_COMMIT_HOOK" <<EOF
 #!/bin/sh
-# Agbalumo 10x Engineer Pre-commit Hook
+# agbalumo 10x Engineer Pre-commit Hook
 # Runs security checks and quality checks before commit
 
 ./scripts/security-check.sh && ./scripts/pre-commit.sh

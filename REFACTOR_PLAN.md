@@ -1,7 +1,7 @@
-# Agbalumo Refactoring Plan
+# agbalumo Refactoring Plan
 
 ## Goal
-Refactor the Agbalumo codebase to remove duplication, simplify structure, and maintain all functionality while ensuring all tests pass and API specification is met.
+Refactor the agbalumo codebase to remove duplication, simplify structure, and maintain all functionality while ensuring all tests pass and API specification is met.
 
 ## Current State Analysis (Last Updated: Feb 2026)
 

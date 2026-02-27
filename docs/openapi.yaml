@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
-  title: Agbalumo API
+  title: agbalumo API
   description: |
-    REST API for the Agbalumo directory platform - a web application for the West African diaspora community.
+    REST API for the agbalumo directory platform - a web application for the West African diaspora community.
     
     ## Authentication
     - Session-based authentication using cookies
@@ -14,7 +14,7 @@ info:
     - Admin login: 5 requests per minute
   version: 1.0.0
   contact:
-    name: Agbalumo Team
+    name: agbalumo Team
   license:
     name: MIT
 

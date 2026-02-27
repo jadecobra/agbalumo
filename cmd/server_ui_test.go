@@ -51,14 +51,14 @@ func TestPublicRoutes(t *testing.T) {
 			method:         http.MethodGet,
 			path:           "/",
 			expectedStatus: http.StatusOK,
-			expectedBody:   []string{"featured-carousel"}, // "Verify homepage loads and shows featured listings"
+			expectedBody:   []string{"listings-container"}, // "Verify homepage loads and shows listings"
 		},
 		{
 			name:           "About loads",
 			method:         http.MethodGet,
 			path:           "/about",
 			expectedStatus: http.StatusOK,
-			expectedBody:   []string{"About"},
+			expectedBody:   []string{"about"},
 		},
 		{
 			name:           "Search/Filter Fragment loads",

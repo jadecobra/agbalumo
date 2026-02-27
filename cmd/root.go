@@ -6,8 +6,8 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "agbalumo",
-	Short: "Agbalumo is a directory and request platform",
-	Long:  `Agbalumo is a high-performance directory and request platform for the West African diaspora.`,
+	Short: "agbalumo is a directory and request platform",
+	Long:  `agbalumo is a high-performance directory and request platform for the West African diaspora.`,
 }
 
 func Execute() error {

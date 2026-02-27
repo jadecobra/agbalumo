@@ -1,6 +1,6 @@
-# Agbalumo HTTP API Reference
+# agbalumo HTTP API Reference
 
-REST API documentation for the Agbalumo web application.
+REST API documentation for the agbalumo web application.
 
 ## Base URL
 

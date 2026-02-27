@@ -50,7 +50,7 @@ func ResolveServerConfig(env, port string, fileExists func(string) bool) ServerC
 
 var serveCmd = &cobra.Command{
 	Use:   "serve",
-	Short: "Start the Agbalumo web server",
+	Short: "Start the agbalumo web server",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Load .env file
 		godotenv.Load(".env")

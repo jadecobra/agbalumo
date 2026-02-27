@@ -1,8 +1,8 @@
-# Agbalumo - Agent Guidelines
+# agbalumo - Agent Guidelines
 
 ## Project Overview
 
-Agbalumo is a Go web application for the West African diaspora community, featuring a business directory, job board, event listings, and community requests. Built with Echo framework, SQLite, HTMX, and Tailwind CSS.
+agbalumo is a Go web application for the West African diaspora community, featuring a business directory, job board, event listings, and community requests. Built with Echo framework, SQLite, HTMX, and Tailwind CSS.
 
 ---
 

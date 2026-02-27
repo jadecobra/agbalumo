@@ -1,8 +1,8 @@
-## spec.md: Agbalumo MVP (Golang Edition)
+## spec.md: agbalumo MVP (Golang Edition)
 
 ### 1. Project Overview
 
-**Agbalumo** is a high-performance directory and request platform for the West African diaspora.
+**agbalumo** is a high-performance directory and request platform for the West African diaspora.
 
 * **Goal:** users can find West African businesses, services, products, food, jobs, and events that meet their needs.
 * **Architecture:** **Go (Golang)** for the backend, utilizing `Echo` for high-concurrency routing, `HTMX` for dynamic frontend interactions, and `SQLite` for local data persistence.
@@ -100,10 +100,10 @@ type Listing struct {
 
 ### 7. UI Design System (TOON Tokens)
 
-Agbalumo uses a "Juicy Fruit" design aesthetic, inspired by Yoruba roots and community-first values.
+agbalumo uses a "Juicy Fruit" design aesthetic, inspired by Yoruba roots and community-first values.
 
 * **Colors:**
-  - `primary`: #FF8A00 (Agbalumo orange)
+  - `primary`: #FF8A00 (agbalumo orange)
   - `secondary`: #689F38 (Leaf green for CTAs)
   - `accent-star`: #C2185B (Seed magenta for badges)
   - `surface`: #FFF8F0 (Warm cream)
@@ -124,4 +124,4 @@ Agbalumo uses a "Juicy Fruit" design aesthetic, inspired by Yoruba roots and com
 * **Visual Hierarchy:** Unified CTA colors (`btn-leaf`) and mobile heading scaling (H2 > H3) successfully resolved the "chaotic layout" issues.
 * **Accessibility First:** The project now adheres to WCAG AA contrast and semantic landmark standards. The "10x" engineer protocol was applied to ensure the UI is robust for all users.
 * **Performance:** CSS build steps are integrated via `npm build:css`. Future work includes image optimization (WebP) and further HTMX lazy-loading.
-* **Critique (Agbalumo Spirit):** The UI now feels "Sweet like Agbalumo." It is warm, accessible, and premium. The addition of dual "POST | ASK" buttons in the header ensures users can easily offer listings or request help on any device.
+* **Critique (agbalumo Spirit):** The UI now feels "Sweet like agbalumo." It is warm, accessible, and premium. The addition of dual "POST | ASK" buttons in the header ensures users can easily offer listings or request help on any device.

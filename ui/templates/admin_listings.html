@@ -43,8 +43,8 @@
         <input type="hidden" name="_csrf" value="{{ $.CSRF }}">
         <div class="mb-4 flex items-center justify-between">
             <div class="flex items-center gap-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-earth-cream/70"
-                    id="selectionCount">0 selected</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-earth-cream/70" id="selectionCount">0
+                    selected</span>
                 <select name="action"
                     class="block text-sm bg-white/10 border-white/10 rounded-xl px-4 py-2 focus:ring-primary focus:border-primary transition-all disabled:opacity-50"
                     disabled id="bulkActionSelect">
@@ -60,8 +60,7 @@
         </div>
 
         <!-- Listings Table -->
-        <div
-            class="bg-white/5 rounded-3xl shadow-soft overflow-hidden border border-white/10">
+        <div class="bg-white/5 rounded-3xl shadow-soft overflow-hidden border border-white/10">
             <div class="overflow-x-auto no-scrollbar">
                 <table class="min-w-full divide-y divide-white/10">
                     <thead class="bg-white/5">
@@ -163,8 +162,7 @@
                                     class="ml-2 px-2 py-0.5 inline-flex font-bold rounded-full bg-stone-100 text-stone-800 dark:bg-stone-800 dark:text-stone-300 uppercase tracking-wider">Inactive</span>
                                 {{ end }}
                             </td>
-                            <td
-                                class="px-6 py-4 text-xs font-medium text-earth-cream/70 truncate max-w-[150px]">
+                            <td class="px-6 py-4 text-xs font-medium text-earth-cream/70 truncate max-w-[150px]">
                                 {{ if .OwnerID }}{{ .OwnerID }}{{ else }}<span
                                     class="italic text-stone-400">Unowned</span>{{
                                 end
@@ -204,8 +202,7 @@
                     </tbody>
                 </table>
             </div> <!-- Pagination Controls -->
-            <div
-                class="flex justify-between items-center px-6 py-4 border-t border-white/10 bg-white/5">
+            <div class="flex justify-between items-center px-6 py-4 border-t border-white/10 bg-white/5">
                 {{ if gt .Page 1 }}
                 <a href="/admin/listings?page={{ sub .Page 1 }}{{ if .Category }}&category={{ .Category }}{{ end }}"
                     class="px-4 py-2 border border-white/10 rounded-md text-sm font-medium text-earth-cream hover:bg-white/10 transition">
@@ -221,13 +218,19 @@
                 <div class="text-sm text-earth-cream/70 font-medium">Page {{ .Page }}</div>
 
                 {{ if .HasNextPage }}
-                <a href="/admin/listings?page={{ add .Page 1 }}{{ if .Category }}&category={{ .Category }}{{ end }}" {{
-                    else }} <div>
-            </div> <!-- Spacer -->
-            {{ end }}
+                <a href="/admin/listings?page={{ add .Page 1 }}{{ if .Category }}&category={{ .Category }}{{ end }}"
+                    class="px-4 py-2 border border-white/10 rounded-md text-sm font-medium text-earth-cream hover:bg-white/10 transition">
+                    Next
+                </a>
+                {{ else }}
+                <div
+                    class="px-4 py-2 border border-white/10 rounded-md text-sm font-medium text-stone-400 dark:text-stone-600 bg-white/5 cursor-not-allowed">
+                    Next
+                </div>
+                {{ end }}
+            </div>
         </div>
-</div>
-</form>
+    </form>
 </div>
 {{ end }}
 {{ define "filters" }}{{ end }}

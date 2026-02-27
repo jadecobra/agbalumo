@@ -1,6 +1,6 @@
 ### The Master Instruction Prompt
 
-> **Task:** Initialize the "Agbalumo" Diaspora Directory project in Go using a multi-agent TDD workflow.
+> **Task:** Initialize the "agbalumo" Diaspora Directory project in Go using a multi-agent TDD workflow.
 > **Core Objective:** Build a high-performance, low-cost directory and request platform for the West African diaspora. Use Go (Golang) for the backend and a Test-Driven Development (TDD) cycle.
 > **Project Rules (SOP):**
 > 1. **TDD Protocol:** strict "Red-Green-Refactor" cycle. You must pass `./scripts/pre-commit.sh` locally before submitting any code.
@@ -20,4 +20,4 @@
 > 
 > **Next Step:** Create an `Artifact` representing the initial `project_plan.md` and a `Listing` struct definition. Once approved, dispatch the SDET agent to write the first validation tests for the 90-day deadline constraint.
 
-**UI Design Spec**: We are using Stitch for the design system. All frontend templates must follow the 'Agbalumo' visual theme (Orange/Green palette) and prioritize the 'Contact Card' modal layout. Use HTMX with the Go backend to ensure the UI feels like a single-page app without the weight of a JS framework.
+**UI Design Spec**: We are using Stitch for the design system. All frontend templates must follow the 'agbalumo' visual theme (Orange/Green palette) and prioritize the 'Contact Card' modal layout. Use HTMX with the Go backend to ensure the UI feels like a single-page app without the weight of a JS framework.

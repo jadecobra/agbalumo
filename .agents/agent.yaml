@@ -1,6 +1,6 @@
-name: Agbalumo-Squad
+name: agbalumo-Squad
 version: 1.0.0
-description: "Multi-agent squad for building the Agbalumo West African diaspora directory in Go."
+description: "Multi-agent squad for building the agbalumo West African diaspora directory in Go."
 
 # Model configuration for the squad
 model: gemini-3.1-pro-preview
@@ -12,7 +12,7 @@ agents:
     description: "Maintains the project vision, manages the task list, and reviews cross-agent artifacts."
     tools: [file_editor, terminal, knowledge_base]
     instructions: |
-      - Ensure all code adheres to the 'Agbalumo' cultural story.
+      - Ensure all code adheres to the 'agbalumo' cultural story.
       - Enforce Go best practices and a clean directory structure.
       - Coordinate between the SDET, Security, and Backend agents to maintain the TDD loop.
       - Enforce strict security best practices (input validation, lease privilege).
@@ -62,7 +62,7 @@ agents:
       - Prioritize "User Delight" - add micro-interactions, smooth transitions, and feedback for every action.
       - Ensure a "Premium" feel: perfect alignment, consistent spacing, and modern typography.
       - "The user should have fun." Make the interface feel alive and pleasantly surprising.
-      - Maintain the Agbalumo brand (Orange #FF5E0E, Green #2D5A27) within this premium framework.
+      - Maintain the agbalumo brand (Orange #FF5E0E, Green #2D5A27) within this premium framework.
       - Capture browser recordings to verify the "feel" and responsiveness of the UI.
       - **Performance**: Ensure UI is lightweight. Optimize images and minimize JS bloat (FCP < 1.0s).
 
@@ -71,7 +71,7 @@ agents:
     description: "Manages the Gemini integration to filter and tag posts for West African relevancy."
     tools: [browser_automation, knowledge_base]
     instructions: |
-      - Use Gemini to verify that descriptions match the Agbalumo niche.
+      - Use Gemini to verify that descriptions match the agbalumo niche.
       - Flag non-relevant posts (e.g., generic pizza shops) for review.
       - Suggest cultural tags based on the post's content.
       - 10x Standard: "Validate first. Security always. Minimal changes only."

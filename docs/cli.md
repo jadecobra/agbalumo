@@ -1,6 +1,6 @@
-# Agbalumo CLI Documentation
+# agbalumo CLI Documentation
 
-Command-line interface for managing the Agbalumo directory platform.
+Command-line interface for managing the agbalumo directory platform.
 
 ## Commands
 
@@ -263,7 +263,7 @@ agbalumo seed custom.db
 
 ### serve
 
-Start the Agbalumo web server.
+Start the agbalumo web server.
 
 ```bash
 agbalumo serve [flags]

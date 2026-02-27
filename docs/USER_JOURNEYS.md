@@ -1,4 +1,4 @@
-# Agbalumo: User and Admin Journeys Mapping
+# agbalumo: User and Admin Journeys Mapping
 
 Based on the current routing structure in `cmd/server.go`, here is the comprehensive mapping of user and admin journeys throughout the application.
 

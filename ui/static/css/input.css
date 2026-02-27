@@ -27,7 +27,7 @@
   }
 }
 
-/* ── Agbalumo Brand Design Tokens ── */
+/* ── agbalumo Brand Design Tokens ── */
 :root {
   /* Colors — TOON */
   --color-primary: #FF8A00;
@@ -74,7 +74,7 @@
   scrollbar-width: none;
 }
 
-/* ── Agbalumo Juicy Card ── */
+/* ── agbalumo Juicy Card ── */
 .card-juicy {
   border-radius: var(--radius-sm) !important;
   transition: transform var(--duration-medium) var(--ease-juicy),

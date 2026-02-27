@@ -1,4 +1,4 @@
-// Agbalumo Main Application Logic
+// agbalumo Main Application Logic
 
 document.addEventListener('DOMContentLoaded', () => {
     initApp();
@@ -217,7 +217,7 @@ let googleMapsLoaded = false;
 
 function loadGoogleMapsApi(apiKey) {
     if (googleMapsLoaded || !apiKey) return;
-    
+
     const script = document.createElement('script');
     script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMaps`;
     script.async = true;

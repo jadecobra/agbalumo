@@ -1,4 +1,4 @@
-# Agbalumo
+# agbalumo
 
 A robust web application platform for the West African diaspora community, featuring a business directory, job board, event listings, and community requests.
 

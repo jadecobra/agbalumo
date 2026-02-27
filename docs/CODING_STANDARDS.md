@@ -1,4 +1,4 @@
-# Agbalumo Coding Standards (10x Engineer Edition)
+# agbalumo Coding Standards (10x Engineer Edition)
 
 > "We do not write code that breaks. We do not write code without tests. We are 10x."
 
