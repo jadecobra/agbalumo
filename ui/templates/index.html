@@ -72,6 +72,14 @@ duration-300{{ end }}
                             hx-trigger="keyup changed delay:500ms, search">
                     </div>
 
+                    <!-- Filters Toggle (Desktop View) -->
+                    <button type="button"
+                        hx-on:click="document.getElementById('filter-dropdown-panel').classList.toggle('hidden')"
+                        class="hidden md:flex h-14 items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-l border-white/20">
+                        <span class="material-symbols-outlined text-[16px]">tune</span>
+                        Filters
+                    </button>
+
                     <!-- Search Button (Inside Bar for Desktop, hidden on Mobile) -->
                     <button type="button"
                         class="hidden md:flex bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark h-14 px-8 font-bold uppercase text-xs tracking-widest transition-colors items-center shadow-lg shadow-earth-ochre/20">
@@ -80,8 +88,9 @@ duration-300{{ end }}
                 </div>
 
                 <!-- Action Buttons (Mobile View) -->
-                <div class="flex md:hidden items-center mt-1 p-1 gap-1">
+                <div class="flex md:hidden items-center mt-1 p-1">
                     <button type="button"
+                        hx-on:click="document.getElementById('filter-dropdown-panel').classList.toggle('hidden')"
                         class="flex-1 flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white h-12 text-[10px] font-bold uppercase tracking-widest transition-colors">
                         <span class="material-symbols-outlined text-[16px]">tune</span>
                         Filters
@@ -91,14 +100,6 @@ duration-300{{ end }}
                         Search
                     </button>
                 </div>
-
-                <!-- Filters Toggle (Desktop View) -->
-                <button type="button"
-                    hx-on:click="document.getElementById('filter-dropdown-panel').classList.toggle('hidden')"
-                    class="hidden md:flex absolute top-1 right-[100px] h-14 items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-r border-white/20 border-l">
-                    <span class="material-symbols-outlined text-[16px]">tune</span>
-                    Filters
-                </button>
             </div>
 
             <!-- Filter Dropdowns Panel -->
