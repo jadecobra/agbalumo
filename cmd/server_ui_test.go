@@ -18,7 +18,7 @@ import (
 var e *echo.Echo
 
 func TestMain(m *testing.M) {
-	os.Setenv("ENV", "test")
+	os.Setenv("AGBALUMO_ENV", "development")
 	// Keep ENV=test for test compatibility but set high rate limits to avoid 429 in tests
 	os.Setenv("RATE_LIMIT_RATE", "10000")
 	os.Setenv("RATE_LIMIT_BURST", "20000")
