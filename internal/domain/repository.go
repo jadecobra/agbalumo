@@ -14,6 +14,7 @@ type ListingStore interface {
 	FindAllByOwner(ctx context.Context, ownerID string, limit int, offset int) ([]Listing, error)
 	Delete(ctx context.Context, id string) error
 	GetCounts(ctx context.Context) (map[Category]int, error)
+	GetLocations(ctx context.Context) ([]string, error)
 	GetFeaturedListings(ctx context.Context) ([]Listing, error)
 	SetFeatured(ctx context.Context, id string, featured bool) error
 }

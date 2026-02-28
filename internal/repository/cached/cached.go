@@ -11,10 +11,12 @@ import (
 // CachedListingStore wraps a ListingStore and caches GetCounts results with a TTL.
 type CachedListingStore struct {
 	domain.ListingStore
-	mu         sync.RWMutex
-	counts     map[domain.Category]int
-	countsTime time.Time
-	ttl        time.Duration
+	mu            sync.RWMutex
+	counts        map[domain.Category]int
+	countsTime    time.Time
+	locations     []string
+	locationsTime time.Time
+	ttl           time.Duration
 }
 
 // NewCachedListingStore creates a new cached wrapper around a ListingStore.
@@ -57,5 +59,36 @@ func (c *CachedListingStore) GetCounts(ctx context.Context) (map[domain.Category
 	for k, v := range counts {
 		result[k] = v
 	}
+	return result, nil
+}
+
+// GetLocations returns cached locations, refreshing from the underlying store
+// if the cache is expired or empty.
+func (c *CachedListingStore) GetLocations(ctx context.Context) ([]string, error) {
+	c.mu.RLock()
+	if c.locations != nil && time.Since(c.locationsTime) < c.ttl {
+		// Cache hit — return a copy to prevent mutation
+		result := make([]string, len(c.locations))
+		copy(result, c.locations)
+		c.mu.RUnlock()
+		return result, nil
+	}
+	c.mu.RUnlock()
+
+	// Cache miss — fetch from underlying store
+	locations, err := c.ListingStore.GetLocations(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Store in cache
+	c.mu.Lock()
+	c.locations = locations
+	c.locationsTime = time.Now()
+	c.mu.Unlock()
+
+	// Return a copy
+	result := make([]string, len(locations))
+	copy(result, locations)
 	return result, nil
 }

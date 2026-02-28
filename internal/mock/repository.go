@@ -68,6 +68,14 @@ func (m *MockListingRepository) GetCounts(ctx context.Context) (map[domain.Categ
 	return args.Get(0).(map[domain.Category]int), args.Error(1)
 }
 
+func (m *MockListingRepository) GetLocations(ctx context.Context) ([]string, error) {
+	args := m.Called(ctx)
+	if args.Get(0) != nil {
+		return args.Get(0).([]string), args.Error(1)
+	}
+	return nil, args.Error(1)
+}
+
 func (m *MockListingRepository) ExpireListings(ctx context.Context) (int64, error) {
 	args := m.Called(ctx)
 	return args.Get(0).(int64), args.Error(1)

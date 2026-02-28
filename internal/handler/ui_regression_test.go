@@ -104,6 +104,7 @@ func TestHomePageUIValues(t *testing.T) {
 	// Expect calls for Home Page
 	mockRepo.On("FindAll", testifyMock.Anything, "", "", false, 20, 0).Return([]domain.Listing{}, nil)
 	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{}, nil)
+	mockRepo.On("GetLocations", testifyMock.Anything).Return([]string{}, nil)
 	mockRepo.On("GetFeaturedListings", testifyMock.Anything).Return([]domain.Listing{}, nil)
 
 	h := handler.NewListingHandler(mockRepo, nil)
@@ -149,6 +150,7 @@ func TestFilterUIValues(t *testing.T) {
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindAll", testifyMock.Anything, "", "", false, 20, 0).Return([]domain.Listing{}, nil)
 	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{}, nil)
+	mockRepo.On("GetLocations", testifyMock.Anything).Return([]string{}, nil)
 	mockRepo.On("GetFeaturedListings", testifyMock.Anything).Return([]domain.Listing{}, nil)
 
 	h := handler.NewListingHandler(mockRepo, nil)
@@ -159,15 +161,15 @@ func TestFilterUIValues(t *testing.T) {
 
 	body := rec.Body.String()
 
-	if !strings.Contains(body, `id="filter-dropdown-panel"`) {
-		t.Error("Regression: Filter dropdown panel missing")
+	if !strings.Contains(body, `data-action="toggle-filters"`) {
+		t.Error("Regression: Filter button missing data-action toggle-filters")
 	}
 
 	if !strings.Contains(body, `All Categories`) {
 		t.Error("Regression: 'All Categories' option missing")
 	}
 
-	if !strings.Contains(rec.Body.String(), `src="/static/js/app.js?v=3"`) {
+	if !strings.Contains(rec.Body.String(), `src="/static/js/app.js?v=4"`) {
 		t.Errorf("Regression: app.js script tag missing")
 	}
 }

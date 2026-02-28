@@ -538,15 +538,55 @@ function setupCreateImagePreviewInit() {
     });
 }
 
-// 11. Category Toggle Logic
-function setupCategoryToggle() {
+// 11. Filter Toggle Logic
+function setupFilterToggle() {
+    const activeClasses = ['bg-earth-ochre', 'text-earth-dark'];
+    const inactiveClasses = ['bg-white/10', 'text-white'];
+
+    const updateButtonStates = (isFilterOpen) => {
+        const filtersBtns = document.querySelectorAll('.filters-btn');
+        const searchBtns = document.querySelectorAll('.search-btn');
+
+        if (isFilterOpen) {
+            filtersBtns.forEach(btn => {
+                btn.classList.add(...activeClasses);
+                btn.classList.remove(...inactiveClasses);
+            });
+            searchBtns.forEach(btn => {
+                btn.classList.remove(...activeClasses);
+                btn.classList.add(...inactiveClasses);
+            });
+        } else {
+            filtersBtns.forEach(btn => {
+                btn.classList.remove(...activeClasses);
+                btn.classList.add(...inactiveClasses);
+            });
+            searchBtns.forEach(btn => {
+                btn.classList.add(...activeClasses);
+                btn.classList.remove(...inactiveClasses);
+            });
+        }
+    };
+
     document.addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-action="toggle-categories"]');
-        if (btn) {
+        const filtersBtn = e.target.closest('[data-action="toggle-filters"]');
+        if (filtersBtn) {
             const panel = document.getElementById('filter-dropdown-panel');
             if (panel) {
+                const isWillBeOpen = panel.classList.contains('hidden');
                 panel.classList.toggle('hidden');
+                updateButtonStates(isWillBeOpen);
             }
+            return;
+        }
+
+        const searchBtn = e.target.closest('.search-btn');
+        if (searchBtn) {
+            const panel = document.getElementById('filter-dropdown-panel');
+            if (panel && !panel.classList.contains('hidden')) {
+                panel.classList.add('hidden');
+            }
+            updateButtonStates(false);
         }
     });
 }
@@ -562,5 +602,5 @@ initApp = function () {
     setupGoogleMapsLazyLoad();
     setupFeaturedCarousel();
     setupCreateImagePreviewInit();
-    setupCategoryToggle();
+    setupFilterToggle();
 };

@@ -24,6 +24,10 @@ func (s *stubListingStore) GetCounts(ctx context.Context) (map[domain.Category]i
 	return map[domain.Category]int{domain.Business: 5, domain.Food: 3}, nil
 }
 
+func (s *stubListingStore) GetLocations(ctx context.Context) ([]string, error) {
+	return []string{"Lagos", "London"}, nil
+}
+
 func TestCachedGetCounts_CacheMiss(t *testing.T) {
 	stub := &stubListingStore{}
 	cache := NewCachedListingStore(stub, 60*time.Second)

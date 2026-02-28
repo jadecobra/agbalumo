@@ -72,38 +72,38 @@ duration-300{{ end }}
                             hx-trigger="keyup changed delay:500ms, search">
                     </div>
 
-                    <!-- Filters Toggle (Desktop View) -->
-                    <button type="button" data-action="toggle-categories"
-                        class="hidden md:flex h-14 items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-l border-white/20">
-                        <span class="material-symbols-outlined text-[16px]">tune</span>
-                        Categories
-                    </button>
-
                     <!-- Search Button (Inside Bar for Desktop, hidden on Mobile) -->
                     <button type="button"
-                        class="hidden md:flex bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark h-14 px-8 font-bold uppercase text-xs tracking-widest transition-colors items-center shadow-lg shadow-earth-ochre/20">
+                        class="search-btn hidden md:flex bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark h-14 px-8 font-bold uppercase text-xs tracking-widest transition-colors items-center shadow-lg shadow-earth-ochre/20 border-l border-white/20">
                         Search
+                    </button>
+
+                    <!-- Filters Toggle (Desktop View) -->
+                    <button type="button" data-action="toggle-filters"
+                        class="filters-btn hidden md:flex h-14 items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 text-[10px] font-bold uppercase tracking-widest transition-colors">
+                        <span class="material-symbols-outlined text-[16px]">tune</span>
+                        Filters
                     </button>
                 </div>
 
                 <!-- Action Buttons (Mobile View) -->
-                <div class="flex md:hidden items-center mt-1 p-1">
-                    <button type="button" data-action="toggle-categories"
-                        class="flex-1 flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white h-12 text-[10px] font-bold uppercase tracking-widest transition-colors">
-                        <span class="material-symbols-outlined text-[16px]">tune</span>
-                        Categories
-                    </button>
+                <div class="flex md:hidden items-center mt-1 p-1 gap-1">
                     <button type="button"
-                        class="flex-1 bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark h-12 font-bold uppercase text-[10px] tracking-widest transition-colors text-center shadow-lg shadow-earth-ochre/20">
+                        class="search-btn flex-1 bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark h-12 font-bold uppercase text-[10px] tracking-widest transition-colors text-center shadow-lg shadow-earth-ochre/20">
                         Search
+                    </button>
+                    <button type="button" data-action="toggle-filters"
+                        class="filters-btn flex-1 flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white h-12 text-[10px] font-bold uppercase tracking-widest transition-colors">
+                        <span class="material-symbols-outlined text-[16px]">tune</span>
+                        Filters
                     </button>
                 </div>
             </div>
 
             <!-- Filter Dropdowns Panel -->
-            <div class="w-full max-w-2xl bg-earth-sand p-6 shadow-2xl border-t-[3px] border-earth-ochre text-earth-dark hidden absolute z-20 mt-[330px] md:mt-[240px]"
+            <div class="w-full max-w-2xl bg-earth-sand p-6 shadow-2xl border-t-[3px] border-earth-ochre text-earth-dark hidden absolute z-20 top-full mt-2 right-0 md:left-auto md:right-0"
                 id="filter-dropdown-panel">
-                <div class="grid grid-cols-2 gap-8 mb-6">
+                <div class="flex flex-col gap-6 mb-6">
                     <div>
                         <label
                             class="block text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 mb-2">Category</label>
@@ -111,10 +111,9 @@ duration-300{{ end }}
                             onchange="document.getElementById('search').value = this.value; htmx.ajax('GET', '/listings/fragment?type=' + this.value, '#listings-container')"
                             class="w-full bg-transparent border-0 border-b border-earth-dark/20 focus:ring-0 focus:border-earth-ochre text-earth-dark font-sans font-light text-sm px-0 py-2 outline-none transition-colors cursor-pointer">
                             <option value="">All Categories</option>
-                            <option value="Food">Food</option>
-                            <option value="Market">Market</option>
-                            <option value="Service">Services</option>
-                            <option value="Product">Products</option>
+                            {{ range $category, $count := .Counts }}
+                            <option value="{{ $category }}">{{ $category }} ({{ $count }})</option>
+                            {{ end }}
                         </select>
                     </div>
                     <div>
@@ -123,19 +122,14 @@ duration-300{{ end }}
                         <select
                             class="w-full bg-transparent border-0 border-b border-earth-dark/20 focus:ring-0 focus:border-earth-ochre text-earth-dark font-sans font-light text-sm px-0 py-2 outline-none transition-colors cursor-pointer">
                             <option>Nearby</option>
-                            <option>Lagos</option>
-                            <option>London</option>
-                            <option>Houston</option>
+                            {{ range .Locations }}
+                            <option value="{{ . }}">{{ . }}</option>
+                            {{ end }}
                         </select>
                     </div>
                 </div>
+                <!-- Action Row within Filters (Kept Newest) -->
                 <div class="flex flex-wrap gap-2 pt-2 border-t border-earth-dark/10">
-                    <button hx-on:click="htmx.ajax('GET', '/listings/fragment?type=Food', '#listings-container')"
-                        class="bg-earth-dark/5 hover:bg-earth-dark/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-earth-dark transition-colors">Verified
-                        Only</button>
-                    <button
-                        class="bg-earth-dark/5 hover:bg-earth-dark/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-earth-dark transition-colors">Top
-                        Rated</button>
                     <button
                         class="bg-earth-dark/5 hover:bg-earth-dark/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-earth-dark transition-colors">Newest</button>
                 </div>

@@ -47,18 +47,20 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 
 	// P1.3: Run all three queries in parallel
 	var (
-		listings []domain.Listing
-		counts   map[domain.Category]int
-		featured []domain.Listing
+		listings  []domain.Listing
+		counts    map[domain.Category]int
+		featured  []domain.Listing
+		locations []string
 
-		listingsErr error
-		countsErr   error
-		featuredErr error
+		listingsErr  error
+		countsErr    error
+		featuredErr  error
+		locationsErr error
 
 		wg sync.WaitGroup
 	)
 
-	wg.Add(3)
+	wg.Add(4)
 	go func() {
 		defer wg.Done()
 		listings, listingsErr = h.Repo.FindAll(ctx, "", "", "", "", false, limit, offset)
@@ -70,6 +72,10 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	go func() {
 		defer wg.Done()
 		featured, featuredErr = h.Repo.GetFeaturedListings(ctx)
+	}()
+	go func() {
+		defer wg.Done()
+		locations, locationsErr = h.Repo.GetLocations(ctx)
 	}()
 	wg.Wait()
 
@@ -97,12 +103,18 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 
 	user := c.Get("User")
 
+	if locationsErr != nil {
+		c.Logger().Errorf("failed to get locations: %v", locationsErr)
+		locations = []string{}
+	}
+
 	return c.Render(http.StatusOK, "index.html", map[string]interface{}{
 		"Listings":         listings,
 		"Page":             page,
 		"HasNextPage":      hasNextPage,
 		"FeaturedListings": featured,
 		"Counts":           strCounts,
+		"Locations":        locations,
 		"TotalCount":       totalCount,
 		"User":             user,
 		"GoogleMapsApiKey": h.GoogleMapsAPIKey,

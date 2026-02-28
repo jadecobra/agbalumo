@@ -502,6 +502,25 @@ func (r *SQLiteRepository) GetCounts(ctx context.Context) (map[domain.Category]i
 	return counts, rows.Err()
 }
 
+func (r *SQLiteRepository) GetLocations(ctx context.Context) ([]string, error) {
+	query := `SELECT DISTINCT city FROM listings WHERE is_active = true AND city != '' ORDER BY city ASC`
+	rows, err := r.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var locations []string
+	for rows.Next() {
+		var city string
+		if err := rows.Scan(&city); err != nil {
+			return nil, err
+		}
+		locations = append(locations, city)
+	}
+	return locations, rows.Err()
+}
+
 func (r *SQLiteRepository) ExpireListings(ctx context.Context) (int64, error) {
 	// Use Go's time to ensure driver handles serialization correctly and we control the timezone (UTC)
 	now := time.Now().UTC()

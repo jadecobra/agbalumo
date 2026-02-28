@@ -62,6 +62,7 @@ func TestHandleHome(t *testing.T) {
 		{Title: "Test Listing 2"},
 	}, nil)
 	mockRepo.On("GetCounts", context.Background()).Return(map[domain.Category]int{}, nil)
+	mockRepo.On("GetLocations", context.Background()).Return([]string{}, nil)
 	mockRepo.On("GetFeaturedListings", context.Background()).Return([]domain.Listing{}, nil)
 
 	h := handler.NewListingHandler(mockRepo, nil)
@@ -93,6 +94,7 @@ func TestHandleHome_Counts(t *testing.T) {
 		domain.Food:     5,
 		domain.Business: 3,
 	}, nil)
+	mockRepo.On("GetLocations", context.Background()).Return([]string{}, nil)
 	mockRepo.On("GetFeaturedListings", context.Background()).Return([]domain.Listing{}, nil)
 
 	h := handler.NewListingHandler(mockRepo, nil)
@@ -144,6 +146,7 @@ func TestHandleHome_Error(t *testing.T) {
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindAll", context.Background(), "", "", false, 20, 0).Return([]domain.Listing{}, errors.New("db connection failed"))
 	mockRepo.On("GetCounts", context.Background()).Return(map[domain.Category]int{}, nil).Maybe()
+	mockRepo.On("GetLocations", context.Background()).Return([]string{}, nil).Maybe()
 	mockRepo.On("GetFeaturedListings", context.Background()).Return([]domain.Listing{}, nil).Maybe()
 
 	h := handler.NewListingHandler(mockRepo, nil)
@@ -904,6 +907,7 @@ func TestHandleHome_CountsError_Fallback(t *testing.T) {
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindAll", testifyMock.Anything, "", "", false, 20, 0).Return([]domain.Listing{{Title: "L1"}}, nil)
 	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{}, errors.New("counts query failed"))
+	mockRepo.On("GetLocations", testifyMock.Anything).Return([]string{}, nil)
 	mockRepo.On("GetFeaturedListings", testifyMock.Anything).Return([]domain.Listing{}, nil)
 
 	h := handler.NewListingHandler(mockRepo, nil)
@@ -928,6 +932,7 @@ func TestHandleHome_FeaturedError_Fallback(t *testing.T) {
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindAll", testifyMock.Anything, "", "", false, 20, 0).Return([]domain.Listing{{Title: "L1"}}, nil)
 	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{}, nil)
+	mockRepo.On("GetLocations", testifyMock.Anything).Return([]string{}, errors.New("locations query failed"))
 	mockRepo.On("GetFeaturedListings", testifyMock.Anything).Return([]domain.Listing{}, errors.New("featured query failed"))
 
 	h := handler.NewListingHandler(mockRepo, nil)
