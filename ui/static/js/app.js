@@ -587,6 +587,34 @@ function setupFilterToggle() {
                 panel.classList.add('hidden');
             }
             updateButtonStates(false);
+            return;
+        }
+
+        // Filter chip click handler
+        const chip = e.target.closest('[data-filter-type]');
+        if (chip) {
+            const filterType = chip.dataset.filterType;
+            const filterValue = chip.dataset.filterValue;
+            const container = chip.parentElement;
+
+            // Update active chip styles within the same group
+            if (container) {
+                container.querySelectorAll('button').forEach(b => {
+                    b.classList.remove('bg-earth-ochre', 'text-white');
+                    b.classList.add('bg-earth-dark/5', 'text-earth-dark');
+                });
+                chip.classList.add('bg-earth-ochre', 'text-white');
+                chip.classList.remove('bg-earth-dark/5', 'text-earth-dark');
+            }
+
+            // Build HTMX request URL
+            let url = '/listings/fragment';
+            if (filterType === 'category' && filterValue) {
+                url += '?type=' + encodeURIComponent(filterValue);
+            } else if (filterType === 'location' && filterValue) {
+                url += '?q=' + encodeURIComponent(filterValue);
+            }
+            htmx.ajax('GET', url, '#listings-container');
         }
     });
 }

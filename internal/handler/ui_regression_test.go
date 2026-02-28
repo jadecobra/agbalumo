@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -102,7 +103,7 @@ func TestHomePageUIValues(t *testing.T) {
 
 	mockRepo := &mock.MockListingRepository{}
 	// Expect calls for Home Page
-	mockRepo.On("FindAll", testifyMock.Anything, "", "", false, 20, 0).Return([]domain.Listing{}, nil)
+	mockRepo.On("FindAll", testifyMock.Anything, "", "", "", "", false, 20, 0).Return([]domain.Listing{}, nil)
 	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{}, nil)
 	mockRepo.On("GetLocations", testifyMock.Anything).Return([]string{}, nil)
 	mockRepo.On("GetFeaturedListings", testifyMock.Anything).Return([]domain.Listing{}, nil)
@@ -148,7 +149,7 @@ func TestFilterUIValues(t *testing.T) {
 	c := e.NewContext(req, rec)
 
 	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("FindAll", testifyMock.Anything, "", "", false, 20, 0).Return([]domain.Listing{}, nil)
+	mockRepo.On("FindAll", testifyMock.Anything, "", "", "", "", false, 20, 0).Return([]domain.Listing{}, nil)
 	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{}, nil)
 	mockRepo.On("GetLocations", testifyMock.Anything).Return([]string{}, nil)
 	mockRepo.On("GetFeaturedListings", testifyMock.Anything).Return([]domain.Listing{}, nil)
@@ -165,12 +166,149 @@ func TestFilterUIValues(t *testing.T) {
 		t.Error("Regression: Filter button missing data-action toggle-filters")
 	}
 
-	if !strings.Contains(body, `All Categories`) {
+	if !containsNormalized(body, "All Categories") {
 		t.Error("Regression: 'All Categories' option missing")
 	}
 
 	if !strings.Contains(rec.Body.String(), `src="/static/js/app.js?v=4"`) {
 		t.Errorf("Regression: app.js script tag missing")
+	}
+}
+
+func TestFilterPanelStructure(t *testing.T) {
+	e := echo.New()
+	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplate(t)}
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindAll", testifyMock.Anything, "", "", "", "", false, 20, 0).Return([]domain.Listing{}, nil)
+	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{
+		"Business": 5,
+		"Food":     3,
+	}, nil)
+	mockRepo.On("GetLocations", testifyMock.Anything).Return([]string{"Lagos", "Accra"}, nil)
+	mockRepo.On("GetFeaturedListings", testifyMock.Anything).Return([]domain.Listing{}, nil)
+
+	h := handler.NewListingHandler(mockRepo, nil)
+	if err := h.HandleHome(c); err != nil {
+		t.Fatalf("HandleHome failed: %v", err)
+	}
+
+	body := rec.Body.String()
+
+	// Filter panel must NOT contain native <select> elements (replaced with inline chips)
+	panelIdx := strings.Index(body, `id="filter-dropdown-panel"`)
+	if panelIdx == -1 {
+		t.Fatal("Filter panel with id='filter-dropdown-panel' not found")
+	}
+	// Look backward to find the opening <div tag to capture class attributes too
+	tagStart := strings.LastIndex(body[:panelIdx], "<div")
+	if tagStart == -1 {
+		tagStart = panelIdx
+	}
+	panelSection := body[tagStart:min(len(body), panelIdx+3000)]
+
+	if strings.Contains(panelSection, "<select") {
+		t.Error("Filter panel should NOT contain <select> elements — use inline chips instead")
+	}
+
+	// Must have category chips container
+	if !strings.Contains(panelSection, `id="filter-category-chips"`) {
+		t.Error("Filter panel missing category chips container (id='filter-category-chips')")
+	}
+
+	// Must have location chips container
+	if !strings.Contains(panelSection, `id="filter-location-chips"`) {
+		t.Error("Filter panel missing location chips container (id='filter-location-chips')")
+	}
+
+	// Theme: panel should use earth-sand background
+	if !strings.Contains(panelSection, "bg-earth-sand") {
+		t.Error("Filter panel missing bg-earth-sand theme class")
+	}
+
+	// Theme: panel should have ochre accent border
+	if !strings.Contains(panelSection, "border-earth-ochre") {
+		t.Error("Filter panel missing border-earth-ochre accent")
+	}
+}
+
+func TestFilterPanelPositioning(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	templatePath := filepath.Join(projectRoot, "ui", "templates", "index.html")
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		t.Fatalf("Failed to read index.html: %v", err)
+	}
+
+	content := string(templateContent)
+
+	// Find the filter panel div
+	panelIdx := strings.Index(content, `id="filter-dropdown-panel"`)
+	if panelIdx == -1 {
+		t.Fatal("Filter panel with id='filter-dropdown-panel' not found in index.html")
+	}
+
+	// Get the surrounding div attributes (look backward for the opening tag)
+	tagStart := strings.LastIndex(content[:panelIdx], "<div")
+	if tagStart == -1 {
+		t.Fatal("Could not find opening <div for filter panel")
+	}
+	panelTag := content[tagStart : panelIdx+50]
+
+	// Panel must NOT have mt-2 (causes gap between button and dropdown)
+	if strings.Contains(panelTag, "mt-2") {
+		t.Error("Filter panel should NOT have 'mt-2' class — panel must be flush against the search bar")
+	}
+
+	// Panel must have top-full for positioning
+	if !strings.Contains(panelTag, "top-full") {
+		t.Error("Filter panel missing 'top-full' positioning class")
+	}
+}
+
+func TestFilterPanelLocationsRendered(t *testing.T) {
+	e := echo.New()
+	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplate(t)}
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindAll", testifyMock.Anything, "", "", "", "", false, 20, 0).Return([]domain.Listing{}, nil)
+	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{}, nil)
+	mockRepo.On("GetLocations", testifyMock.Anything).Return([]string{"Lagos", "Accra", "London"}, nil)
+	mockRepo.On("GetFeaturedListings", testifyMock.Anything).Return([]domain.Listing{}, nil)
+
+	h := handler.NewListingHandler(mockRepo, nil)
+	if err := h.HandleHome(c); err != nil {
+		t.Fatalf("HandleHome failed: %v", err)
+	}
+
+	body := rec.Body.String()
+
+	// All mock locations must appear in the rendered HTML
+	for _, loc := range []string{"Lagos", "Accra", "London"} {
+		if !strings.Contains(body, loc) {
+			t.Errorf("Location '%s' not found in rendered filter panel", loc)
+		}
+	}
+
+	// Must have "All Locations" default option
+	if !containsNormalized(body, "All Locations") {
+		t.Error("Filter panel missing 'All Locations' default option")
+	}
+
+	// Must have "All Categories" default option
+	if !containsNormalized(body, "All Categories") {
+		t.Error("Filter panel missing 'All Categories' default option")
 	}
 }
 
@@ -765,6 +903,18 @@ func max(a, b int) int {
 		return a
 	}
 	return b
+}
+
+// normalizeWS collapses runs of whitespace to a single space, for HTML text matching.
+var wsRE = regexp.MustCompile(`\s+`)
+
+func normalizeWS(s string) string {
+	return strings.TrimSpace(wsRE.ReplaceAllString(s, " "))
+}
+
+// containsNormalized checks if haystack contains needle after collapsing whitespace.
+func containsNormalized(haystack, needle string) bool {
+	return strings.Contains(normalizeWS(haystack), normalizeWS(needle))
 }
 
 func TestCreateListingModalTheme(t *testing.T) {

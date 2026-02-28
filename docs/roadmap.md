@@ -57,7 +57,10 @@ Audited Feb 19, 2026. Cross-referenced against `TODO`, `spec.md`, `task.md`, and
 - [ ] **Admin Customization**: Allow admin to change colors/fonts from dashboard (requested in TODO).
 - [ ] **Expiration Ticker**: Background service to deactivate listings past `Deadline` or `EventEnd` (specified in `spec.md` §4.2, never built).
 
-### 3. Testing & Quality
+### 3. Filtering & Search
+- [ ] **Dedicated Location Filter**: Add `filterLocation string` parameter to `FindAll` interface for precise city-based filtering (currently uses FTS text search as a simpler workaround). Requires updating `domain/repository.go`, `sqlite.go`, `mock/repository.go`, and all callers.
+
+### 4. Testing & Quality
 - [ ] **Browser Test Expansion**: Expand browser subagent tests to cover the "Create Listing" flow (see `spec.md`).
 - [ ] **Security Monitoring**: Monitor `CVE-2025-60876` (busybox) in `alpine:latest`. Update base image when fixed.
 

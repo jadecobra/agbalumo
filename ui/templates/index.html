@@ -101,31 +101,32 @@ duration-300{{ end }}
             </div>
 
             <!-- Filter Dropdowns Panel -->
-            <div class="w-full max-w-2xl bg-earth-sand p-6 shadow-2xl border-t-[3px] border-earth-ochre text-earth-dark hidden absolute z-20 top-full mt-2 right-0 md:left-auto md:right-0"
+            <div class="w-full max-w-2xl bg-earth-sand p-6 shadow-2xl border-t-[3px] border-earth-ochre text-earth-dark hidden absolute z-20 top-full left-0"
                 id="filter-dropdown-panel">
                 <div class="flex flex-col gap-6 mb-6">
                     <div>
                         <label
-                            class="block text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 mb-2">Category</label>
-                        <select
-                            onchange="document.getElementById('search').value = this.value; htmx.ajax('GET', '/listings/fragment?type=' + this.value, '#listings-container')"
-                            class="w-full bg-transparent border-0 border-b border-earth-dark/20 focus:ring-0 focus:border-earth-ochre text-earth-dark font-sans font-light text-sm px-0 py-2 outline-none transition-colors cursor-pointer">
-                            <option value="">All Categories</option>
-                            {{ range $category, $count := .Counts }}
-                            <option value="{{ $category }}">{{ $category }} ({{ $count }})</option>
-                            {{ end }}
-                        </select>
+                            class="block text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 mb-3">Category</label>
+                        <div class="flex flex-wrap gap-2" id="filter-category-chips">
+                            <button type="button" data-filter-type="category" data-filter-value=""
+                                class="filter-chip bg-earth-ochre text-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors">All
+                                Categories</button>{{ range $category, $count := .Counts }}
+                            <button type="button" data-filter-type="category" data-filter-value="{{ $category }}"
+                                class="filter-chip bg-earth-dark/5 hover:bg-earth-dark/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-earth-dark transition-colors">{{
+                                $category }} ({{ $count }})</button>{{ end }}
+                        </div>
                     </div>
                     <div>
                         <label
-                            class="block text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 mb-2">Location</label>
-                        <select
-                            class="w-full bg-transparent border-0 border-b border-earth-dark/20 focus:ring-0 focus:border-earth-ochre text-earth-dark font-sans font-light text-sm px-0 py-2 outline-none transition-colors cursor-pointer">
-                            <option>Nearby</option>
-                            {{ range .Locations }}
-                            <option value="{{ . }}">{{ . }}</option>
-                            {{ end }}
-                        </select>
+                            class="block text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 mb-3">Location</label>
+                        <div class="flex flex-wrap gap-2" id="filter-location-chips">
+                            <button type="button" data-filter-type="location" data-filter-value=""
+                                class="filter-chip bg-earth-ochre text-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors">All
+                                Locations</button>{{ range .Locations }}
+                            <button type="button" data-filter-type="location" data-filter-value="{{ . }}"
+                                class="filter-chip bg-earth-dark/5 hover:bg-earth-dark/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-earth-dark transition-colors">{{
+                                . }}</button>{{ end }}
+                        </div>
                     </div>
                 </div>
                 <!-- Action Row within Filters (Kept Newest) -->

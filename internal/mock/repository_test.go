@@ -54,7 +54,7 @@ func TestMockListingRepository_AdditionalMethods(t *testing.T) {
 	ctx := context.Background()
 
 	// FindAll
-	m.On("FindAll", ctx, "type", "query", false, 10, 0).Return([]domain.Listing{{ID: "1"}}, nil).Once()
+	m.On("FindAll", ctx, "type", "query", "", "", false, 10, 0).Return([]domain.Listing{{ID: "1"}}, nil).Once()
 	listings, err := m.FindAll(ctx, "type", "query", "", "", false, 10, 0)
 	if err != nil || len(listings) != 1 {
 		t.Error("FindAll failed")
