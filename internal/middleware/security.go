@@ -7,7 +7,7 @@ import (
 func SecureHeaders(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		csp := "default-src 'self'; " +
-			"script-src 'self' 'unsafe-inline' https://maps.googleapis.com; " +
+			"script-src 'self' https://maps.googleapis.com; " +
 			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
 			"font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; " +
 			"img-src 'self' data: https://*.googleusercontent.com https://ui-avatars.com https://maps.googleapis.com https://maps.gstatic.com; " +

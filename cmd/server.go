@@ -137,6 +137,11 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 	e.GET("/auth/google/login", authHandler.GoogleLogin)
 	e.GET("/auth/google/callback", authHandler.GoogleCallback)
 
+	// Health Check (before auth middleware — bypasses CSRF, rate limiting, sessions)
+	e.GET("/healthz", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
+	})
+
 	// Global Auth Middleware
 	e.Use(authMw.OptionalAuth)
 

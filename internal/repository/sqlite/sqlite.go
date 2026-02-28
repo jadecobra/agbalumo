@@ -505,30 +505,51 @@ func (r *SQLiteRepository) GetCounts(ctx context.Context) (map[domain.Category]i
 func (r *SQLiteRepository) ExpireListings(ctx context.Context) (int64, error) {
 	// Use Go's time to ensure driver handles serialization correctly and we control the timezone (UTC)
 	now := time.Now().UTC()
+	var totalAffected int64
+	batchSize := 100
 
 	// Expire Requests past deadline AND Events past end time
 	query := `
 		UPDATE listings 
 		SET is_active = false 
-		WHERE is_active = true 
-		AND (
-			(type = 'Request' AND deadline < ?) 
-			OR 
-			(type = 'Event' AND event_end < ?)
-			OR
-			(type = 'Job' AND job_start_date < ?)
+		WHERE rowid IN (
+			SELECT rowid FROM listings
+			WHERE is_active = true 
+			AND (
+				(type = 'Request' AND deadline < ?) 
+				OR 
+				(type = 'Event' AND event_end < ?)
+				OR
+				(type = 'Job' AND job_start_date < ?)
+			)
+			LIMIT ?
 		)
 	`
 	// Added Job expiration rule for consistency
-	// Passed 'now' 3 times for the 3 placeholders
+	// Passed 'now' 3 times for the 3 placeholders, plus batchSize
 
-	result, err := r.db.ExecContext(ctx, query, now, now, now.AddDate(0, 0, -90))
-	// Note: Job rule was < now - 90 days. So we pass now.Add(-90 days).
+	for {
+		result, err := r.db.ExecContext(ctx, query, now, now, now.AddDate(0, 0, -90), batchSize)
+		if err != nil {
+			return totalAffected, err
+		}
 
-	if err != nil {
-		return 0, err
+		affected, err := result.RowsAffected()
+		if err != nil {
+			return totalAffected, err
+		}
+
+		totalAffected += affected
+
+		if affected < int64(batchSize) {
+			break
+		}
+
+		// Brief sleep to allow other connections to access the database
+		time.Sleep(10 * time.Millisecond)
 	}
-	return result.RowsAffected()
+
+	return totalAffected, nil
 }
 
 func (r *SQLiteRepository) GetPendingListings(ctx context.Context, limit int, offset int) ([]domain.Listing, error) {

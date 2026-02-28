@@ -34,7 +34,7 @@ INLINE_SCRIPT_FAILED=0
 # Check all staged HTML files for inline script tags
 # We ignore lines that start with <script src= (external scripts)
 for file in $(git diff --cached --name-only -- 'ui/templates/**/*.html'); do
-    if git show --cached "$file" | grep -v "<script src=" | grep -q "<script"; then
+    if git show :"$file" | grep -v "<script src=" | grep -q "<script"; then
         echo "${RED}❌ FAIL: Inline <script> tag found in $file${NC}"
         INLINE_SCRIPT_FAILED=1
     fi
@@ -91,7 +91,7 @@ echo "4. Checking CSP configuration..."
 
 # Check security.go for CSP - should only allow maps.googleapis.com and fonts.googleapis.com
 if git diff --cached --name-only | grep -q "internal/middleware/security.go"; then
-    CSP_CONTENT=$(git show --cached internal/middleware/security.go 2>/dev/null)
+    CSP_CONTENT=$(git show :internal/middleware/security.go 2>/dev/null)
     
     # Check for forbidden domains in CSP
     if echo "$CSP_CONTENT" | grep -qE "unpkg.com|jsdelivr.net|cdn.tailwindcss.com"; then

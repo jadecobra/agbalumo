@@ -348,15 +348,31 @@ function setupHtmxIntegration() {
         const elt = evt.detail.elt;
         if (!elt) return;
 
+        // Auto-open and init edit modals inserted via HTMX
+        function initEditDialog(d) {
+            if (d.dataset.autoOpen === 'true' && !d.open) {
+                d.showModal();
+                const listingId = d.dataset.listingId;
+                if (listingId) {
+                    if (window.initEditTypeToggle) window.initEditTypeToggle(listingId);
+                    if (window.initEditMaps) window.initEditMaps(listingId);
+                    if (window.initEditImagePreview) window.initEditImagePreview(listingId);
+                }
+            }
+        }
+
         // Check if the swapped element is the dialog itself
         if (elt.tagName === 'DIALOG' && elt.id.startsWith('edit-listing-modal-')) {
-            if (!elt.open) elt.showModal();
+            initEditDialog(elt);
         } else {
             // Or if the dialog is contained within the swapped element
             const dialogs = elt.querySelectorAll ? elt.querySelectorAll('dialog[id^="edit-listing-modal-"]') : [];
-            dialogs.forEach(d => {
-                if (!d.open) d.showModal();
-            });
+            dialogs.forEach(d => initEditDialog(d));
+        }
+
+        // Init create image preview when create modal is swapped in
+        if (elt.id === 'create-listing-modal' || (elt.querySelectorAll && elt.querySelector('#create-listing-modal'))) {
+            if (window.initCreateImagePreview) window.initCreateImagePreview();
         }
     });
 
@@ -504,6 +520,24 @@ function setupFeaturedCarousel() {
     }
 }
 
+// 10. Create Image Preview Init (replaces inline script)
+function setupCreateImagePreviewInit() {
+    // Init on page load if create modal already exists in DOM
+    if (document.getElementById('create-listing-modal') && window.initCreateImagePreview) {
+        window.initCreateImagePreview();
+    }
+
+    // Also init when create modal is opened via button click
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-modal-id="create-listing-modal"]');
+        if (btn) {
+            setTimeout(() => {
+                if (window.initCreateImagePreview) window.initCreateImagePreview();
+            }, 50);
+        }
+    });
+}
+
 const originalInit = initApp;
 initApp = function () {
     originalInit();
@@ -514,4 +548,5 @@ initApp = function () {
     setupDynamicBackgrounds();
     setupGoogleMapsLazyLoad();
     setupFeaturedCarousel();
+    setupCreateImagePreviewInit();
 };

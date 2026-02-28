@@ -1,11 +1,38 @@
 package cmd
 
 import (
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
+
+func TestHealthzEndpoint(t *testing.T) {
+	os.Setenv("AGBALUMO_ENV", "test")
+	os.Setenv("DATABASE_URL", "test_healthz.db")
+	defer func() {
+		os.Unsetenv("AGBALUMO_ENV")
+		os.Unsetenv("DATABASE_URL")
+		os.Remove("test_healthz.db")
+	}()
+
+	e, err := SetupServer()
+	require.NoError(t, err)
+
+	req := httptest.NewRequest(http.MethodGet, "/healthz", nil)
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	require.Equal(t, http.StatusOK, rec.Code)
+
+	var body map[string]string
+	err = json.Unmarshal(rec.Body.Bytes(), &body)
+	require.NoError(t, err)
+	require.Equal(t, "ok", body["status"])
+}
 
 func TestSetupServer(t *testing.T) {
 	// go test ./cmd runs from project root, so template paths are already correct
