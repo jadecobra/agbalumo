@@ -98,41 +98,47 @@ duration-300{{ end }}
                         Filters
                     </button>
                 </div>
-            </div>
 
-            <!-- Filter Dropdowns Panel -->
-            <div class="w-full max-w-2xl bg-earth-sand p-6 shadow-2xl border-t-[3px] border-earth-ochre text-earth-dark hidden absolute z-20 top-full left-0"
-                id="filter-dropdown-panel">
-                <div class="flex flex-col gap-6 mb-6">
-                    <div>
-                        <label
-                            class="block text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 mb-3">Category</label>
-                        <div class="flex flex-wrap gap-2" id="filter-category-chips">
+                <!-- NEW Filter Dropdowns Panel (Relative to search-container) -->
+                <div class="absolute right-0 top-full mt-2 w-56 bg-earth-sand shadow-2xl border-[3px] border-earth-ochre text-earth-dark hidden z-50 overflow-hidden"
+                    id="filter-dropdown-panel">
+                    <div class="flex flex-col w-full max-h-80 overflow-y-auto">
+                        <!-- Category Group -->
+                        <div class="px-5 py-2 bg-earth-dark/10 border-b border-earth-dark/10">
+                            <span
+                                class="text-[9px] font-bold uppercase tracking-widest text-earth-clay opacity-80">Category</span>
+                        </div>
+                        <div class="flex flex-col w-full">
                             <button type="button" data-filter-type="category" data-filter-value=""
-                                class="filter-chip bg-earth-ochre text-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors">All
-                                Categories</button>{{ range $category, $count := .Counts }}
+                                class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-ochre text-white transition-colors w-full border-b border-earth-dark/5">
+                                All Categories
+                            </button>
+                            {{ range $category, $count := .Counts }}
                             <button type="button" data-filter-type="category" data-filter-value="{{ $category }}"
-                                class="filter-chip bg-earth-dark/5 hover:bg-earth-dark/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-earth-dark transition-colors">{{
-                                $category }} ({{ $count }})</button>{{ end }}
+                                class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-dark/5 hover:bg-earth-dark/10 text-earth-dark transition-colors w-full border-b border-earth-dark/5">
+                                {{ $category }} ({{ $count }})
+                            </button>
+                            {{ end }}
                         </div>
-                    </div>
-                    <div>
-                        <label
-                            class="block text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 mb-3">Location</label>
-                        <div class="flex flex-wrap gap-2" id="filter-location-chips">
+
+                        <!-- Location Group -->
+                        <div class="px-5 py-2 bg-earth-dark/10 border-y border-earth-dark/10">
+                            <span
+                                class="text-[9px] font-bold uppercase tracking-widest text-earth-clay opacity-80">Location</span>
+                        </div>
+                        <div class="flex flex-col w-full">
                             <button type="button" data-filter-type="location" data-filter-value=""
-                                class="filter-chip bg-earth-ochre text-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors">All
-                                Locations</button>{{ range .Locations }}
+                                class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-ochre text-white transition-colors w-full border-b border-earth-dark/5">
+                                All Locations
+                            </button>
+                            {{ range .Locations }}
                             <button type="button" data-filter-type="location" data-filter-value="{{ . }}"
-                                class="filter-chip bg-earth-dark/5 hover:bg-earth-dark/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-earth-dark transition-colors">{{
-                                . }}</button>{{ end }}
+                                class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-dark/5 hover:bg-earth-dark/10 text-earth-dark transition-colors w-full border-b border-earth-dark/5">
+                                {{ . }}
+                            </button>
+                            {{ end }}
                         </div>
                     </div>
-                </div>
-                <!-- Action Row within Filters (Kept Newest) -->
-                <div class="flex flex-wrap gap-2 pt-2 border-t border-earth-dark/10">
-                    <button
-                        class="bg-earth-dark/5 hover:bg-earth-dark/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-earth-dark transition-colors">Newest</button>
                 </div>
             </div>
 

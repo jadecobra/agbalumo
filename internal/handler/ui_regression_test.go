@@ -198,7 +198,7 @@ func TestFilterPanelStructure(t *testing.T) {
 
 	body := rec.Body.String()
 
-	// Filter panel must NOT contain native <select> elements (replaced with inline chips)
+	// Filter panel must NOT contain native <select> elements (replaced with inline dropdown list)
 	panelIdx := strings.Index(body, `id="filter-dropdown-panel"`)
 	if panelIdx == -1 {
 		t.Fatal("Filter panel with id='filter-dropdown-panel' not found")
@@ -211,17 +211,12 @@ func TestFilterPanelStructure(t *testing.T) {
 	panelSection := body[tagStart:min(len(body), panelIdx+3000)]
 
 	if strings.Contains(panelSection, "<select") {
-		t.Error("Filter panel should NOT contain <select> elements — use inline chips instead")
+		t.Error("Filter panel should NOT contain <select> elements — use custom dropdown layout instead")
 	}
 
-	// Must have category chips container
-	if !strings.Contains(panelSection, `id="filter-category-chips"`) {
-		t.Error("Filter panel missing category chips container (id='filter-category-chips')")
-	}
-
-	// Must have location chips container
-	if !strings.Contains(panelSection, `id="filter-location-chips"`) {
-		t.Error("Filter panel missing location chips container (id='filter-location-chips')")
+	// Must have category filter buttons
+	if !strings.Contains(panelSection, `data-filter-type="category"`) {
+		t.Error("Filter panel missing category filter buttons")
 	}
 
 	// Theme: panel should use earth-sand background
@@ -261,14 +256,17 @@ func TestFilterPanelPositioning(t *testing.T) {
 	if tagStart == -1 {
 		t.Fatal("Could not find opening <div for filter panel")
 	}
-	panelTag := content[tagStart : panelIdx+50]
+	panelTag := content[tagStart : panelIdx+100]
 
-	// Panel must NOT have mt-2 (causes gap between button and dropdown)
-	if strings.Contains(panelTag, "mt-2") {
-		t.Error("Filter panel should NOT have 'mt-2' class — panel must be flush against the search bar")
+	// Panel must have absolute positioning since it's a dropdown relative to search bar
+	if !strings.Contains(panelTag, "absolute") {
+		t.Error("Filter panel missing 'absolute' positional class")
+	}
+	if !strings.Contains(panelTag, "right-0") {
+		t.Error("Filter panel missing 'right-0' positional class to align below filter button")
 	}
 
-	// Panel must have top-full for positioning
+	// Panel must have top-full for positioning below
 	if !strings.Contains(panelTag, "top-full") {
 		t.Error("Filter panel missing 'top-full' positioning class")
 	}
