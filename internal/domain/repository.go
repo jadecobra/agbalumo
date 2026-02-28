@@ -10,7 +10,8 @@ type ListingStore interface {
 	FindAll(ctx context.Context, filterType string, queryText string, sortField string, sortOrder string, includeInactive bool, limit int, offset int) ([]Listing, error)
 	FindByID(ctx context.Context, id string) (Listing, error)
 	FindByTitle(ctx context.Context, title string) ([]Listing, error)
-	FindAllByOwner(ctx context.Context, ownerID string) ([]Listing, error)
+	TitleExists(ctx context.Context, title string) (bool, error)
+	FindAllByOwner(ctx context.Context, ownerID string, limit int, offset int) ([]Listing, error)
 	Delete(ctx context.Context, id string) error
 	GetCounts(ctx context.Context) (map[Category]int, error)
 	GetFeaturedListings(ctx context.Context) ([]Listing, error)

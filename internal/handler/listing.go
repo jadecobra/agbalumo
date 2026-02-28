@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"mime/multipart"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -16,9 +16,10 @@ import (
 )
 
 type ListingHandler struct {
-	Repo         domain.ListingStore
-	ImageService service.ImageService
-	ListingSvc   *service.ListingService
+	Repo             domain.ListingStore
+	ImageService     service.ImageService
+	ListingSvc       *service.ListingService
+	GoogleMapsAPIKey string
 }
 
 func NewListingHandler(repo domain.ListingStore, imageService service.ImageService, opts ...string) *ListingHandler {
@@ -44,22 +45,46 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	limit := 20
 	offset := (page - 1) * limit
 
-	listings, err := h.Repo.FindAll(ctx, "", "", "", "", false, limit, offset)
-	if err != nil {
-		return RespondError(c, err)
+	// P1.3: Run all three queries in parallel
+	var (
+		listings []domain.Listing
+		counts   map[domain.Category]int
+		featured []domain.Listing
+
+		listingsErr error
+		countsErr   error
+		featuredErr error
+
+		wg sync.WaitGroup
+	)
+
+	wg.Add(3)
+	go func() {
+		defer wg.Done()
+		listings, listingsErr = h.Repo.FindAll(ctx, "", "", "", "", false, limit, offset)
+	}()
+	go func() {
+		defer wg.Done()
+		counts, countsErr = h.Repo.GetCounts(ctx)
+	}()
+	go func() {
+		defer wg.Done()
+		featured, featuredErr = h.Repo.GetFeaturedListings(ctx)
+	}()
+	wg.Wait()
+
+	if listingsErr != nil {
+		return RespondError(c, listingsErr)
 	}
 	hasNextPage := len(listings) == limit
 
-	counts, err := h.Repo.GetCounts(ctx)
-	if err != nil {
-		// if just the counts query fails for some reason.
-		c.Logger().Errorf("failed to get listing counts: %v", err)
+	if countsErr != nil {
+		c.Logger().Errorf("failed to get listing counts: %v", countsErr)
 		counts = make(map[domain.Category]int)
 	}
 
-	featured, err := h.Repo.GetFeaturedListings(ctx)
-	if err != nil {
-		c.Logger().Errorf("failed to get featured listings: %v", err)
+	if featuredErr != nil {
+		c.Logger().Errorf("failed to get featured listings: %v", featuredErr)
 		featured = []domain.Listing{} // Graceful fallback
 	}
 
@@ -80,7 +105,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		"Counts":           strCounts,
 		"TotalCount":       totalCount,
 		"User":             user,
-		"GoogleMapsApiKey": os.Getenv("GOOGLE_MAPS_API_KEY"),
+		"GoogleMapsApiKey": h.GoogleMapsAPIKey,
 	})
 }
 
@@ -167,7 +192,7 @@ func (h *ListingHandler) HandleEdit(c echo.Context) error {
 
 	return c.Render(http.StatusOK, "modal_edit_listing", map[string]interface{}{
 		"Listing":          listing,
-		"GoogleMapsApiKey": os.Getenv("GOOGLE_MAPS_API_KEY"),
+		"GoogleMapsApiKey": h.GoogleMapsAPIKey,
 	})
 }
 
@@ -415,7 +440,8 @@ func (h *ListingHandler) HandleProfile(c echo.Context) error {
 	}
 	u := user.(domain.User)
 
-	listings, err := h.Repo.FindAllByOwner(c.Request().Context(), u.ID)
+	p := GetPagination(c, 50)
+	listings, err := h.Repo.FindAllByOwner(c.Request().Context(), u.ID, p.Limit, p.Offset)
 	if err != nil {
 		return RespondError(c, err)
 	}
@@ -423,7 +449,7 @@ func (h *ListingHandler) HandleProfile(c echo.Context) error {
 	data := map[string]interface{}{
 		"User":             u,
 		"Listings":         listings,
-		"GoogleMapsApiKey": os.Getenv("GOOGLE_MAPS_API_KEY"),
+		"GoogleMapsApiKey": h.GoogleMapsAPIKey,
 	}
 
 	if c.Request().Header.Get("HX-Request") == "true" {

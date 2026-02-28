@@ -397,7 +397,7 @@ func TestFindAllByOwner(t *testing.T) {
 	}
 
 	// Test
-	results, err := repo.FindAllByOwner(ctx, "user1")
+	results, err := repo.FindAllByOwner(ctx, "user1", 50, 0)
 	if err != nil {
 		t.Fatalf("FindAllByOwner failed: %v", err)
 	}
@@ -416,7 +416,7 @@ func TestFindAllByOwner(t *testing.T) {
 	}
 
 	// Test Empty
-	resultsEmpty, err := repo.FindAllByOwner(ctx, "non-existent")
+	resultsEmpty, err := repo.FindAllByOwner(ctx, "non-existent", 50, 0)
 	if err != nil {
 		t.Fatalf("FindAllByOwner empty failed: %v", err)
 	}
@@ -674,8 +674,10 @@ func TestRepository_Errors(t *testing.T) {
 	checkError("FindUserByGoogleID", err)
 	_, err = repo.FindUserByID(ctx, "u1")
 	checkError("FindUserByID", err)
-	_, err = repo.FindAllByOwner(ctx, "owner")
+	_, err = repo.FindAllByOwner(ctx, "owner", 50, 0)
 	checkError("FindAllByOwner", err)
+	_, err = repo.TitleExists(ctx, "test")
+	checkError("TitleExists", err)
 	_, err = repo.GetPendingListings(ctx, 20, 0)
 	checkError("GetPendingListings", err)
 	_, err = repo.GetUserCount(ctx)

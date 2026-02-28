@@ -121,6 +121,7 @@ func initRenderer() (*ui.TemplateRenderer, error) {
 func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config) {
 	// Handlers
 	listingHandler := handler.NewListingHandler(repo, nil, cfg.UploadDir)
+	listingHandler.GoogleMapsAPIKey = cfg.GoogleMapsAPIKey
 	csvService := service.NewCSVService()
 	adminHandler := handler.NewAdminHandler(repo, csvService, cfg)
 	authHandler := handler.NewAuthHandler(repo, nil, cfg)

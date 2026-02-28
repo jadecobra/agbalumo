@@ -297,7 +297,7 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 		}
 		listings = append(listings, l)
 	}
-	return listings, nil
+	return listings, rows.Err()
 }
 
 func (r *SQLiteRepository) FindByID(ctx context.Context, id string) (domain.Listing, error) {
@@ -335,7 +335,7 @@ func (r *SQLiteRepository) FindByTitle(ctx context.Context, title string) ([]dom
 		}
 		listings = append(listings, l)
 	}
-	return listings, nil
+	return listings, rows.Err()
 }
 
 // SaveUser inserts or updates a user.
@@ -400,13 +400,14 @@ func (r *SQLiteRepository) FindUserByID(ctx context.Context, id string) (domain.
 	return u, err
 }
 
-func (r *SQLiteRepository) FindAllByOwner(ctx context.Context, ownerID string) ([]domain.Listing, error) {
+func (r *SQLiteRepository) FindAllByOwner(ctx context.Context, ownerID string, limit int, offset int) ([]domain.Listing, error) {
 	query := `SELECT ` + listingSelections + `
               FROM listings 
               WHERE owner_id = ? 
-              ORDER BY created_at DESC`
+              ORDER BY created_at DESC
+              LIMIT ? OFFSET ?`
 
-	rows, err := r.db.QueryContext(ctx, query, ownerID)
+	rows, err := r.db.QueryContext(ctx, query, ownerID, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -420,7 +421,15 @@ func (r *SQLiteRepository) FindAllByOwner(ctx context.Context, ownerID string) (
 		}
 		listings = append(listings, l)
 	}
-	return listings, nil
+	return listings, rows.Err()
+}
+
+// TitleExists checks if a listing with the given title exists using an efficient EXISTS query.
+func (r *SQLiteRepository) TitleExists(ctx context.Context, title string) (bool, error) {
+	var exists bool
+	query := `SELECT EXISTS(SELECT 1 FROM listings WHERE title = ?)`
+	err := r.db.QueryRowContext(ctx, query, title).Scan(&exists)
+	return exists, err
 }
 
 func (r *SQLiteRepository) Delete(ctx context.Context, id string) error {
@@ -456,7 +465,7 @@ func (r *SQLiteRepository) GetCounts(ctx context.Context) (map[domain.Category]i
 		}
 		counts[cat] = count
 	}
-	return counts, nil
+	return counts, rows.Err()
 }
 
 func (r *SQLiteRepository) ExpireListings(ctx context.Context) (int64, error) {
@@ -509,7 +518,7 @@ func (r *SQLiteRepository) GetPendingListings(ctx context.Context, limit int, of
 		}
 		listings = append(listings, l)
 	}
-	return listings, nil
+	return listings, rows.Err()
 }
 
 func (r *SQLiteRepository) GetUserCount(ctx context.Context) (int, error) {
@@ -537,7 +546,7 @@ func (r *SQLiteRepository) GetAllUsers(ctx context.Context) ([]domain.User, erro
 		}
 		users = append(users, u)
 	}
-	return users, nil
+	return users, rows.Err()
 }
 
 // GetFeaturedListings returns featured listings set by admin.
@@ -564,7 +573,7 @@ func (r *SQLiteRepository) GetFeaturedListings(ctx context.Context) ([]domain.Li
 		}
 		listings = append(listings, l)
 	}
-	return listings, nil
+	return listings, rows.Err()
 }
 
 // SetFeatured toggles the featured status of a listing.
@@ -592,7 +601,7 @@ func (r *SQLiteRepository) GetFeedbackCounts(ctx context.Context) (map[domain.Fe
 		}
 		counts[t] = count
 	}
-	return counts, nil
+	return counts, rows.Err()
 }
 
 // queryDailyMetrics runs a date-grouped COUNT query and returns daily metrics.

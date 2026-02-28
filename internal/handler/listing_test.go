@@ -143,6 +143,8 @@ func TestHandleHome_Error(t *testing.T) {
 
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindAll", context.Background(), "", "", false, 20, 0).Return([]domain.Listing{}, errors.New("db connection failed"))
+	mockRepo.On("GetCounts", context.Background()).Return(map[domain.Category]int{}, nil).Maybe()
+	mockRepo.On("GetFeaturedListings", context.Background()).Return([]domain.Listing{}, nil).Maybe()
 
 	h := handler.NewListingHandler(mockRepo, nil)
 
@@ -547,7 +549,7 @@ func TestHandleProfile(t *testing.T) {
 	c.Set("User", user)
 
 	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("FindAllByOwner", testifyMock.Anything, "u1").Return([]domain.Listing{
+	mockRepo.On("FindAllByOwner", testifyMock.Anything, "u1", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{
 		{Title: "L1"}, {Title: "L2"},
 	}, nil)
 
@@ -832,7 +834,7 @@ func TestHandleProfile_RepoError(t *testing.T) {
 	c.Set("User", user)
 
 	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("FindAllByOwner", testifyMock.Anything, "u1").Return([]domain.Listing{}, errors.New("db error"))
+	mockRepo.On("FindAllByOwner", testifyMock.Anything, "u1", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, errors.New("db error"))
 
 	h := handler.NewListingHandler(mockRepo, nil)
 

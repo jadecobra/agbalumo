@@ -48,9 +48,14 @@ func (m *MockListingRepository) FindUserByID(ctx context.Context, id string) (do
 	return args.Get(0).(domain.User), args.Error(1)
 }
 
-func (m *MockListingRepository) FindAllByOwner(ctx context.Context, ownerID string) ([]domain.Listing, error) {
-	args := m.Called(ctx, ownerID)
+func (m *MockListingRepository) FindAllByOwner(ctx context.Context, ownerID string, limit int, offset int) ([]domain.Listing, error) {
+	args := m.Called(ctx, ownerID, limit, offset)
 	return args.Get(0).([]domain.Listing), args.Error(1)
+}
+
+func (m *MockListingRepository) TitleExists(ctx context.Context, title string) (bool, error) {
+	args := m.Called(ctx, title)
+	return args.Bool(0), args.Error(1)
 }
 
 func (m *MockListingRepository) Delete(ctx context.Context, id string) error {

@@ -8,14 +8,15 @@ import (
 )
 
 type Config struct {
-	Env            string
-	DatabaseURL    string
-	SessionSecret  string
-	AdminCode      string
-	DevAuthEmail   string
-	RateLimitRate  int
-	RateLimitBurst int
-	UploadDir      string
+	Env              string
+	DatabaseURL      string
+	SessionSecret    string
+	AdminCode        string
+	DevAuthEmail     string
+	RateLimitRate    int
+	RateLimitBurst   int
+	UploadDir        string
+	GoogleMapsAPIKey string
 }
 
 func LoadConfig() *Config {
@@ -29,14 +30,15 @@ func LoadConfig() *Config {
 	}
 
 	return &Config{
-		Env:            env,
-		DatabaseURL:    getEnv("DATABASE_URL", "agbalumo.db"),
-		SessionSecret:  getEnv("SESSION_SECRET", "dev-secret-key"),
-		AdminCode:      getAdminCode(env),
-		DevAuthEmail:   getEnv("DEV_AUTH_EMAIL", "dev@agbalumo.com"),
-		RateLimitRate:  getEnvAsInt("RATE_LIMIT_RATE", 20),
-		RateLimitBurst: getEnvAsInt("RATE_LIMIT_BURST", 40),
-		UploadDir:      uploadDir,
+		Env:              env,
+		DatabaseURL:      getEnv("DATABASE_URL", "agbalumo.db"),
+		SessionSecret:    getEnv("SESSION_SECRET", "dev-secret-key"),
+		AdminCode:        getAdminCode(env),
+		DevAuthEmail:     getEnv("DEV_AUTH_EMAIL", "dev@agbalumo.com"),
+		RateLimitRate:    getEnvAsInt("RATE_LIMIT_RATE", 20),
+		RateLimitBurst:   getEnvAsInt("RATE_LIMIT_BURST", 40),
+		UploadDir:        uploadDir,
+		GoogleMapsAPIKey: getEnv("GOOGLE_MAPS_API_KEY", ""),
 	}
 }
 
