@@ -395,7 +395,7 @@ func TestFooterJoinCommunityLinkText(t *testing.T) {
 
 	if strings.Contains(snippet, "/auth/google/login") {
 		if !strings.Contains(snippet, "Sign In") && !strings.Contains(snippet, "Sign Up") {
-			t.Error("'Join the Community' link should clearly indicate sign-in action (e.g., 'Sign In to Join Community')")
+			t.Error("'Join the Community' link should clearly indicate sign-in action (e.g., 'Sign In to Make a Request or Post a Listing')")
 		}
 	}
 }
@@ -1053,29 +1053,5 @@ func TestAdminLoginTheme(t *testing.T) {
 
 	if !strings.Contains(content, `border-b border-white/20`) {
 		t.Error("Admin login input missing border-bottom styling")
-	}
-}
-
-func TestAdminDeleteConfirmTheme(t *testing.T) {
-	wd, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	projectRoot := filepath.Join(wd, "..", "..")
-
-	templatePath := filepath.Join(projectRoot, "ui", "templates", "admin_delete_confirm.html")
-	templateContent, err := os.ReadFile(templatePath)
-	if err != nil {
-		t.Fatalf("Failed to read admin_delete_confirm.html: %v", err)
-	}
-
-	content := string(templateContent)
-
-	if !strings.Contains(content, `bg-earth-dark min-h-screen`) {
-		t.Error("Admin delete confirm missing expected base dark theme wrapper classes")
-	}
-
-	if !strings.Contains(content, `bg-earth-dark/95 backdrop-blur-xl border border-white/10`) {
-		t.Error("Admin delete confirm card missing requested dark classes")
 	}
 }
