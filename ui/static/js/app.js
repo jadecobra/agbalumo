@@ -538,6 +538,19 @@ function setupCreateImagePreviewInit() {
     });
 }
 
+// 11. Category Toggle Logic
+function setupCategoryToggle() {
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action="toggle-categories"]');
+        if (btn) {
+            const panel = document.getElementById('filter-dropdown-panel');
+            if (panel) {
+                panel.classList.toggle('hidden');
+            }
+        }
+    });
+}
+
 const originalInit = initApp;
 initApp = function () {
     originalInit();
@@ -549,4 +562,5 @@ initApp = function () {
     setupGoogleMapsLazyLoad();
     setupFeaturedCarousel();
     setupCreateImagePreviewInit();
+    setupCategoryToggle();
 };

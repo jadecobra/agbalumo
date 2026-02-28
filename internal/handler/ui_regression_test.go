@@ -167,7 +167,7 @@ func TestFilterUIValues(t *testing.T) {
 		t.Error("Regression: 'All Categories' option missing")
 	}
 
-	if !strings.Contains(rec.Body.String(), `src="/static/js/app.js?v=2"`) {
+	if !strings.Contains(rec.Body.String(), `src="/static/js/app.js?v=3"`) {
 		t.Errorf("Regression: app.js script tag missing")
 	}
 }

@@ -54,7 +54,7 @@ duration-300{{ end }}
                     find what you want</h1>
                 <p
                     class="text-lg md:text-xl font-light mx-auto max-w-xl opacity-90 leading-relaxed text-white drop-shadow-md">
-                    African owned businesses, services, products, events and agbalumo.
+                    businesses, services, products, events, even agbalumo
                 </p>
             </div>
 
@@ -73,8 +73,7 @@ duration-300{{ end }}
                     </div>
 
                     <!-- Filters Toggle (Desktop View) -->
-                    <button type="button"
-                        hx-on:click="document.getElementById('filter-dropdown-panel').classList.toggle('hidden')"
+                    <button type="button" data-action="toggle-categories"
                         class="hidden md:flex h-14 items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-l border-white/20">
                         <span class="material-symbols-outlined text-[16px]">tune</span>
                         Categories
@@ -89,8 +88,7 @@ duration-300{{ end }}
 
                 <!-- Action Buttons (Mobile View) -->
                 <div class="flex md:hidden items-center mt-1 p-1">
-                    <button type="button"
-                        hx-on:click="document.getElementById('filter-dropdown-panel').classList.toggle('hidden')"
+                    <button type="button" data-action="toggle-categories"
                         class="flex-1 flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white h-12 text-[10px] font-bold uppercase tracking-widest transition-colors">
                         <span class="material-symbols-outlined text-[16px]">tune</span>
                         Categories
