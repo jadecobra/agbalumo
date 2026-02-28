@@ -24,26 +24,33 @@ go build -o bin/agbalumo main.go
 # 3. Restart the Server
 echo "🔄 Restarting Server..."
 
-# Function for graceful shutdown
+# Function for graceful shutdown (portable: works on macOS bash 3.2+)
 shutdown_port() {
   local port=$1
-  local pid=$(lsof -ti:$port || true)
-  if [ -n "$pid" ]; then
+  local pid
+
+  # lsof -t returns one PID per line; iterate each one individually
+  while IFS= read -r pid; do
+    [ -z "$pid" ] && continue
     echo "Attempting graceful shutdown of port $port (PID: $pid)..."
-    kill "$pid" # SIGTERM
-    
-    # Wait up to 5 seconds for it to exit
-    for i in {1..5}; do
-      if ! ps -p "$pid" > /dev/null; then
-        echo "✅ Process on port $port exited gracefully."
-        return 0
+    kill "$pid" 2>/dev/null || true  # SIGTERM
+
+    # Wait up to 5 seconds for graceful exit
+    local i
+    for i in 1 2 3 4 5; do
+      if ! ps -p "$pid" > /dev/null 2>&1; then
+        echo "✅ Process $pid on port $port exited gracefully."
+        break
       fi
       sleep 1
     done
-    
-    echo "⚠️  Process on port $port did not exit, forcing (SIGKILL)..."
-    kill -9 "$pid"
-  fi
+
+    # Force-kill if still alive
+    if ps -p "$pid" > /dev/null 2>&1; then
+      echo "⚠️  Process $pid on port $port did not exit, forcing (SIGKILL)..."
+      kill -9 "$pid" 2>/dev/null || true
+    fi
+  done < <(lsof -ti:"$port" 2>/dev/null || true)
 }
 
 shutdown_port 8443
