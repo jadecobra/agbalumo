@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gorilla/sessions"
 	"github.com/jadecobra/agbalumo/internal/config"
@@ -57,6 +58,9 @@ func SetupServer() (*echo.Echo, error) {
 
 // setupMiddleware wires security, rate limiting, CSRF, and session middleware.
 func setupMiddleware(e *echo.Echo, cfg *config.Config) {
+	// P0.1: Gzip Compression — reduces payload 60-80%
+	e.Use(middleware.Gzip())
+
 	// Security Headers (CSP, Strict-Transport-Security, etc.)
 	e.Use(customMiddleware.SecureHeaders)
 
@@ -131,12 +135,13 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 	// Global Auth Middleware
 	e.Use(authMw.OptionalAuth)
 
-	// Static files
-	e.Static("/static", "ui/static")
+	// Static files with cache-control (P0.2)
+	staticCacheMiddleware := staticCacheHeaders()
+	e.Group("/static", staticCacheMiddleware).Static("/", "ui/static")
 
 	// Serve uploaded images at /static/uploads
 	// This is needed because in production, uploads go to a different directory (e.g., /data/uploads)
-	e.Static("/static/uploads", cfg.UploadDir)
+	e.Group("/static/uploads", staticCacheMiddleware).Static("/", cfg.UploadDir)
 
 	// Public Routes
 	e.GET("/", listingHandler.HandleHome)
@@ -184,6 +189,23 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 	adminGroup.POST("/listings/delete", adminHandler.HandleAdminDeleteAction)
 	adminGroup.POST("/listings/:id/featured", adminHandler.HandleToggleFeatured)
 	adminGroup.POST("/upload", adminHandler.HandleBulkUpload)
+}
+
+// staticCacheHeaders returns middleware that sets Cache-Control headers for static assets.
+// Immutable assets (CSS, JS, fonts, images) get a 1-year cache.
+func staticCacheHeaders() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			path := c.Request().URL.Path
+			if strings.HasSuffix(path, ".css") || strings.HasSuffix(path, ".js") ||
+				strings.HasSuffix(path, ".png") || strings.HasSuffix(path, ".jpg") ||
+				strings.HasSuffix(path, ".jpeg") || strings.HasSuffix(path, ".svg") ||
+				strings.HasSuffix(path, ".woff2") || strings.HasSuffix(path, ".woff") {
+				c.Response().Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+			}
+			return next(c)
+		}
+	}
 }
 
 // setupBackgroundServices starts seeding and background tickers.
