@@ -624,7 +624,7 @@ func TestGetAllUsers(t *testing.T) {
 	repo.SaveUser(ctx, domain.User{ID: "u1", GoogleID: "g1", Email: "e1", CreatedAt: time.Now()})
 	repo.SaveUser(ctx, domain.User{ID: "u2", GoogleID: "g2", Email: "e2", CreatedAt: time.Now().Add(time.Hour)})
 
-	users, err := repo.GetAllUsers(ctx)
+	users, err := repo.GetAllUsers(ctx, 100, 0)
 	if err != nil {
 		t.Fatalf("Failed to get users: %v", err)
 	}
@@ -682,7 +682,7 @@ func TestRepository_Errors(t *testing.T) {
 	checkError("GetPendingListings", err)
 	_, err = repo.GetUserCount(ctx)
 	checkError("GetUserCount", err)
-	_, err = repo.GetAllUsers(ctx)
+	_, err = repo.GetAllUsers(ctx, 100, 0)
 	checkError("GetAllUsers", err)
 	_, err = repo.GetListingGrowth(ctx)
 	checkError("GetListingGrowth", err)

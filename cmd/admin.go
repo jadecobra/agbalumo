@@ -123,7 +123,7 @@ var adminUsersCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		repo := initRepo()
 
-		users, err := repo.GetAllUsers(context.Background())
+		users, err := repo.GetAllUsers(context.Background(), 100, 0)
 		if err != nil {
 			slog.Error("Failed to get users", "error", err)
 			os.Exit(1)

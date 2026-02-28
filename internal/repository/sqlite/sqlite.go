@@ -202,6 +202,41 @@ func (r *SQLiteRepository) migrate() error {
 	_, _ = r.db.ExecContext(context.Background(), "CREATE INDEX IF NOT EXISTS idx_listings_owner_id ON listings(owner_id);")
 	_, _ = r.db.ExecContext(context.Background(), "CREATE INDEX IF NOT EXISTS idx_listings_active_status_type ON listings(is_active, status, type);")
 
+	// P2.1: FTS5 with trigram tokenizer for substring search
+	_, _ = r.db.ExecContext(context.Background(), `
+		CREATE VIRTUAL TABLE IF NOT EXISTS listings_fts USING fts5(
+			title, description, city,
+			content=listings,
+			content_rowid=rowid,
+			tokenize='trigram'
+		);
+	`)
+
+	// Triggers to keep FTS5 in sync
+	_, _ = r.db.ExecContext(context.Background(), `
+		CREATE TRIGGER IF NOT EXISTS listings_ai AFTER INSERT ON listings BEGIN
+			INSERT INTO listings_fts(rowid, title, description, city)
+			VALUES (new.rowid, new.title, new.description, new.city);
+		END;
+	`)
+	_, _ = r.db.ExecContext(context.Background(), `
+		CREATE TRIGGER IF NOT EXISTS listings_ad AFTER DELETE ON listings BEGIN
+			INSERT INTO listings_fts(listings_fts, rowid, title, description, city)
+			VALUES ('delete', old.rowid, old.title, old.description, old.city);
+		END;
+	`)
+	_, _ = r.db.ExecContext(context.Background(), `
+		CREATE TRIGGER IF NOT EXISTS listings_au AFTER UPDATE ON listings BEGIN
+			INSERT INTO listings_fts(listings_fts, rowid, title, description, city)
+			VALUES ('delete', old.rowid, old.title, old.description, old.city);
+			INSERT INTO listings_fts(rowid, title, description, city)
+			VALUES (new.rowid, new.title, new.description, new.city);
+		END;
+	`)
+
+	// Rebuild FTS index to pick up any existing data
+	_, _ = r.db.ExecContext(context.Background(), "INSERT INTO listings_fts(listings_fts) VALUES('rebuild');")
+
 	return nil
 }
 
@@ -259,9 +294,8 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 	}
 
 	if queryText != "" {
-		query += ` AND (title LIKE ? OR description LIKE ? OR city LIKE ?)`
-		likeQuery := "%" + queryText + "%"
-		args = append(args, likeQuery, likeQuery, likeQuery)
+		query += ` AND rowid IN (SELECT rowid FROM listings_fts WHERE listings_fts MATCH ?)`
+		args = append(args, queryText)
 	}
 
 	orderClause := "created_at DESC"
@@ -530,9 +564,9 @@ func (r *SQLiteRepository) GetUserCount(ctx context.Context) (int, error) {
 	return count, nil
 }
 
-func (r *SQLiteRepository) GetAllUsers(ctx context.Context) ([]domain.User, error) {
-	query := `SELECT id, google_id, email, name, avatar_url, COALESCE(role, 'User'), created_at FROM users ORDER BY created_at DESC LIMIT 100`
-	rows, err := r.db.QueryContext(ctx, query)
+func (r *SQLiteRepository) GetAllUsers(ctx context.Context, limit int, offset int) ([]domain.User, error) {
+	query := `SELECT id, google_id, email, name, avatar_url, COALESCE(role, 'User'), created_at FROM users ORDER BY created_at DESC LIMIT ? OFFSET ?`
+	rows, err := r.db.QueryContext(ctx, query, limit, offset)
 	if err != nil {
 		return nil, err
 	}

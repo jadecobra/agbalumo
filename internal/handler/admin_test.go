@@ -64,7 +64,7 @@ func TestAdminHandler_HandleUsers(t *testing.T) {
 
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
-	mockRepo.On("GetAllUsers", testifyMock.Anything).Return([]domain.User{{ID: "u1", Name: "User 1"}}, nil)
+	mockRepo.On("GetAllUsers", testifyMock.Anything, 50, 0).Return([]domain.User{{ID: "u1", Name: "User 1"}}, nil)
 
 	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
 	e.Renderer = &mock.MockRenderer{}
@@ -1085,7 +1085,7 @@ func TestAdminHandler_HandleUsers_RepoError(t *testing.T) {
 	c := e.NewContext(req, rec)
 
 	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("GetAllUsers", testifyMock.Anything).Return([]domain.User{}, errors.New("repo error"))
+	mockRepo.On("GetAllUsers", testifyMock.Anything, 50, 0).Return([]domain.User{}, errors.New("repo error"))
 
 	h := NewAdminHandler(mockRepo, nil, &config.Config{})
 	e.Renderer = &mock.MockRenderer{}

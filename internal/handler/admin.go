@@ -151,14 +151,17 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 // HandleUsers renders the list of users for admins.
 func (h *AdminHandler) HandleUsers(c echo.Context) error {
 	ctx := c.Request().Context()
-	users, err := h.Repo.GetAllUsers(ctx)
+	p := GetPagination(c, 50)
+	users, err := h.Repo.GetAllUsers(ctx, p.Limit, p.Offset)
 	if err != nil {
 		return RespondError(c, err)
 	}
+	p.HasNextPage = len(users) == p.Limit
 
 	return c.Render(http.StatusOK, "admin_users.html", map[string]interface{}{
-		"Users": users,
-		"User":  c.Get("User"),
+		"Users":      users,
+		"User":       c.Get("User"),
+		"Pagination": p,
 	})
 }
 

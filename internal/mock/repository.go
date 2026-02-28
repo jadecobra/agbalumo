@@ -98,8 +98,8 @@ func (m *MockListingRepository) GetUserCount(ctx context.Context) (int, error) {
 	return args.Int(0), args.Error(1)
 }
 
-func (m *MockListingRepository) GetAllUsers(ctx context.Context) ([]domain.User, error) {
-	args := m.Called(ctx)
+func (m *MockListingRepository) GetAllUsers(ctx context.Context, limit int, offset int) ([]domain.User, error) {
+	args := m.Called(ctx, limit, offset)
 	return args.Get(0).([]domain.User), args.Error(1)
 }
 

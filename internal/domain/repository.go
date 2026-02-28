@@ -46,7 +46,7 @@ type FeedbackStore interface {
 type AdminStore interface {
 	GetPendingListings(ctx context.Context, limit int, offset int) ([]Listing, error)
 	GetUserCount(ctx context.Context) (int, error)
-	GetAllUsers(ctx context.Context) ([]User, error)
+	GetAllUsers(ctx context.Context, limit int, offset int) ([]User, error)
 }
 
 // AnalyticsStore handles growth/analytics queries.

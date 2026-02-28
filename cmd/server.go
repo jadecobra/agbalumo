@@ -6,11 +6,13 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gorilla/sessions"
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/handler"
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
+	"github.com/jadecobra/agbalumo/internal/repository/cached"
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
 	"github.com/jadecobra/agbalumo/internal/seeder"
 	"github.com/jadecobra/agbalumo/internal/service"
@@ -120,7 +122,9 @@ func initRenderer() (*ui.TemplateRenderer, error) {
 // setupRoutes registers all HTTP routes.
 func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config) {
 	// Handlers
-	listingHandler := handler.NewListingHandler(repo, nil, cfg.UploadDir)
+	// P2.3: Wrap repo with cached store for GetCounts (60s TTL)
+	cachedRepo := cached.NewCachedListingStore(repo, 60*time.Second)
+	listingHandler := handler.NewListingHandler(cachedRepo, nil, cfg.UploadDir)
 	listingHandler.GoogleMapsAPIKey = cfg.GoogleMapsAPIKey
 	csvService := service.NewCSVService()
 	adminHandler := handler.NewAdminHandler(repo, csvService, cfg)

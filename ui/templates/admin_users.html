@@ -10,20 +10,16 @@
         </a>
     </div>
 
-    <div
-        class="bg-white/5 rounded-3xl shadow-soft border border-white/10 overflow-hidden">
+    <div class="bg-white/5 rounded-3xl shadow-soft border border-white/10 overflow-hidden">
         <div class="overflow-x-auto no-scrollbar">
             <table class="min-w-full divide-y divide-white/10">
                 <thead class="bg-white/5">
                     <tr>
-                        <th
-                            class="px-6 py-4 text-left text-xs font-bold text-earth-cream/70 uppercase tracking-wider">
+                        <th class="px-6 py-4 text-left text-xs font-bold text-earth-cream/70 uppercase tracking-wider">
                             User</th>
-                        <th
-                            class="px-6 py-4 text-left text-xs font-bold text-earth-cream/70 uppercase tracking-wider">
+                        <th class="px-6 py-4 text-left text-xs font-bold text-earth-cream/70 uppercase tracking-wider">
                             Role</th>
-                        <th
-                            class="px-6 py-4 text-left text-xs font-bold text-earth-cream/70 uppercase tracking-wider">
+                        <th class="px-6 py-4 text-left text-xs font-bold text-earth-cream/70 uppercase tracking-wider">
                             Joined</th>
                     </tr>
                 </thead>
@@ -68,5 +64,28 @@
         </div>
         {{ end }}
     </div>
+
+    <!-- Pagination Controls -->
+    {{ if .Pagination }}
+    <div class="flex items-center justify-between mt-6 px-2">
+        <div>
+            {{ if gt .Pagination.Page 1 }}
+            <a href="/admin/users?page={{ add .Pagination.Page -1 }}"
+                class="px-5 py-2.5 bg-white/10 text-earth-cream rounded-full hover:bg-white/20 transition-all font-bold text-sm flex items-center gap-1 active:scale-95">
+                <span class="material-symbols-outlined text-[18px]">chevron_left</span> Prev
+            </a>
+            {{ end }}
+        </div>
+        <span class="text-sm text-earth-cream/70 font-medium">Page {{ .Pagination.Page }}</span>
+        <div>
+            {{ if .Pagination.HasNextPage }}
+            <a href="/admin/users?page={{ add .Pagination.Page 1 }}"
+                class="px-5 py-2.5 bg-white/10 text-earth-cream rounded-full hover:bg-white/20 transition-all font-bold text-sm flex items-center gap-1 active:scale-95">
+                Next <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+            </a>
+            {{ end }}
+        </div>
+    </div>
+    {{ end }}
 </div>
 {{ end }}
