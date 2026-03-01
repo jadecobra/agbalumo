@@ -930,12 +930,12 @@ func TestCreateListingModalTheme(t *testing.T) {
 
 	content := string(templateContent)
 
-	if !strings.Contains(content, `bg-earth-dark/95 backdrop-blur-xl border border-white/10`) {
+	if !strings.Contains(content, `bg-earth-dark/95 backdrop-blur-xl p-6`) {
 		t.Error("Create Listing modal missing expected dark theme wrapper classes")
 	}
 
-	if !strings.Contains(content, `bg-transparent border-0 border-b border-white/20`) {
-		t.Error("Create Listing modal inputs missing transparent bottom border styling")
+	if !strings.Contains(content, `bg-earth-sand/10 border border-white/20 p-1`) {
+		t.Error("Create Listing modal inputs missing new sharp border wrapper styling")
 	}
 
 	if strings.Contains(content, `multiple`) && strings.Contains(content, `type="file"`) {
@@ -982,16 +982,16 @@ func TestCreateRequestModalTheme(t *testing.T) {
 
 	content := string(templateContent)
 
-	if !strings.Contains(content, `bg-earth-dark/95 backdrop-blur-xl border border-white/10`) {
+	if !strings.Contains(content, `bg-earth-dark/95 backdrop-blur-xl p-6`) {
 		t.Error("Create Request modal missing expected dark theme wrapper classes")
 	}
 
-	if !strings.Contains(content, `bg-transparent border-0 border-b border-white/20`) {
-		t.Error("Create Request modal inputs missing transparent bottom border styling")
+	if !strings.Contains(content, `bg-earth-sand/10 border border-white/20 p-1`) {
+		t.Error("Create Request modal inputs missing sharp border wrapper styling")
 	}
 
-	if !strings.Contains(content, `bg-earth-accent hover:bg-earth-accent/90`) {
-		t.Error("Create Request modal button missing expected earth-accent styling")
+	if !strings.Contains(content, `bg-earth-ochre hover:bg-earth-ochre-light`) {
+		t.Error("Create Request modal button missing expected earth-ochre styling")
 	}
 }
 

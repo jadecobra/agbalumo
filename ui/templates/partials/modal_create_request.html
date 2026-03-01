@@ -1,22 +1,22 @@
 <dialog id="create-request-modal"
-    class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-none md:max-w-sm m-0 md:m-auto rounded-none md:rounded-3xl shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed md:relative inset-0 md:inset-auto h-full md:h-auto">
+    class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-none md:max-w-sm m-0 md:m-auto rounded-none shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed md:relative inset-0 md:inset-auto h-full md:h-auto border border-white/20">
     <div
-        class="bg-earth-dark/95 backdrop-blur-xl border border-white/10 p-6 rounded-none md:rounded-3xl shadow-2xl relative overflow-y-auto h-full md:h-auto md:max-h-[85vh]">
+        class="bg-earth-dark/95 backdrop-blur-xl p-6 relative overflow-y-auto h-full md:h-auto md:max-h-[85vh]">
         <!-- Decorative Background (Green theme for Requests) -->
         <div
             class="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full blur-3xl -z-10 transform translate-x-10 -translate-y-10">
         </div>
 
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="text-xl font-bold text-earth-cream font-serif">Request Help</h3>
+        <div class="flex justify-between items-start mb-8">
+            <h2 class="font-serif italic text-4xl leading-tight text-white drop-shadow-md">Request Help</h2>
             <button data-modal-action="close" data-modal-id="create-request-modal"
-                class="p-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 transition-colors">
-                <span class="material-symbols-outlined text-[20px]">close</span>
+                class="p-2 -mr-2 -mt-2 text-white/50 hover:text-white transition-colors">
+                <span class="material-symbols-outlined text-[24px]">close</span>
             </button>
         </div>
 
         <form hx-post="/listings" hx-swap="afterbegin transition:true" hx-target="#listings-container" method="POST"
-            class="flex flex-col gap-4" autocomplete="off" data-modal-action-submit-close>
+            class="flex flex-col gap-5" autocomplete="off" data-modal-action-submit-close>
 
             <!-- Hidden Type -->
             <input type="hidden" name="type" value="Request">
@@ -24,127 +24,149 @@
             <!-- Origin -->
             <div class="flex flex-col gap-1.5">
                 <label
-                    class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Origin</label>
-                <select required name="owner_origin"
-                    class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40 appearance-none">
-                    <option value="" disabled>Select Country</option>
-                    <optgroup label="West Africa">
-                        <option value="Benin">Benin 🇧🇯</option>
-                        <option value="Burkina Faso">Burkina Faso 🇧🇫</option>
-                        <option value="Cabo Verde">Cabo Verde 🇨🇻</option>
-                        <option value="Cote d'Ivoire">Côte d'Ivoire 🇨🇮</option>
-                        <option value="Gambia">Gambia 🇬🇲</option>
-                        <option value="Ghana">Ghana 🇬🇭</option>
-                        <option value="Guinea">Guinea 🇬🇳</option>
-                        <option value="Guinea-Bissau">Guinea-Bissau 🇬🇼</option>
-                        <option value="Liberia">Liberia 🇱🇷</option>
-                        <option value="Mali">Mali 🇲🇱</option>
-                        <option value="Mauritania">Mauritania 🇲🇷</option>
-                        <option value="Niger">Niger 🇳🇪</option>
-                        <option value="Nigeria" selected>Nigeria 🇳🇬</option>
-                        <option value="Senegal">Senegal 🇸🇳</option>
-                        <option value="Sierra Leone">Sierra Leone 🇸🇱</option>
-                        <option value="Togo">Togo 🇹🇬</option>
-                    </optgroup>
-                    <optgroup label="North Africa">
-                        <option value="Algeria">Algeria 🇩🇿</option>
-                        <option value="Egypt">Egypt 🇪🇬</option>
-                        <option value="Libya">Libya 🇱🇾</option>
-                        <option value="Morocco">Morocco 🇲🇦</option>
-                        <option value="Sudan">Sudan 🇸🇩</option>
-                        <option value="Tunisia">Tunisia 🇹🇳</option>
-                        <option value="Western Sahara">Western Sahara</option>
-                    </optgroup>
-                    <optgroup label="East Africa">
-                        <option value="Burundi">Burundi 🇧🇮</option>
-                        <option value="Comoros">Comoros 🇰🇲</option>
-                        <option value="Djibouti">Djibouti 🇩🇯</option>
-                        <option value="Eritrea">Eritrea 🇪🇷</option>
-                        <option value="Ethiopia">Ethiopia 🇪🇹</option>
-                        <option value="Kenya">Kenya 🇰🇪</option>
-                        <option value="Madagascar">Madagascar 🇲🇬</option>
-                        <option value="Malawi">Malawi 🇲🇼</option>
-                        <option value="Mauritius">Mauritius 🇲🇺</option>
-                        <option value="Mozambique">Mozambique 🇲🇿</option>
-                        <option value="Rwanda">Rwanda 🇷🇼</option>
-                        <option value="Seychelles">Seychelles 🇸🇨</option>
-                        <option value="Somalia">Somalia 🇸🇴</option>
-                        <option value="South Sudan">South Sudan 🇸🇸</option>
-                        <option value="Tanzania">Tanzania 🇹🇿</option>
-                        <option value="Uganda">Uganda 🇺🇬</option>
-                        <option value="Zambia">Zambia 🇿🇲</option>
-                        <option value="Zimbabwe">Zimbabwe 🇿🇼</option>
-                    </optgroup>
-                    <optgroup label="Central Africa">
-                        <option value="Angola">Angola 🇦🇴</option>
-                        <option value="Cameroon">Cameroon 🇨🇲</option>
-                        <option value="Central African Republic">Central African Republic 🇨🇫</option>
-                        <option value="Chad">Chad 🇹🇩</option>
-                        <option value="Congo">Congo 🇨🇬</option>
-                        <option value="Democratic Republic of the Congo">DRC 🇨🇩</option>
-                        <option value="Equatorial Guinea">Equatorial Guinea 🇬🇶</option>
-                        <option value="Gabon">Gabon 🇬🇦</option>
-                        <option value="Sao Tome and Principe">São Tomé and Príncipe 🇸🇹</option>
-                    </optgroup>
-                    <optgroup label="Southern Africa">
-                        <option value="Botswana">Botswana 🇧🇼</option>
-                        <option value="Eswatini">Eswatini 🇸🇿</option>
-                        <option value="Lesotho">Lesotho 🇱🇸</option>
-                        <option value="Namibia">Namibia 🇳🇦</option>
-                        <option value="South Africa">South Africa 🇿🇦</option>
-                    </optgroup>
-                    <option value="Other">Other 🌍</option>
-                </select>
+                    class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Origin</label>
+                <div class="bg-earth-sand/10 border border-white/20 p-1 relative flex items-center">
+                    <select required name="owner_origin"
+                        class="w-full bg-transparent border-none px-4 py-3 h-12 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50 appearance-none">
+                        <option value="" disabled class="bg-earth-dark text-white">Select Country</option>
+                        <optgroup label="West Africa" class="bg-earth-dark text-white font-bold">
+                            <option value="Benin" class="bg-earth-dark text-white font-normal">Benin 🇧🇯</option>
+                            <option value="Burkina Faso" class="bg-earth-dark text-white font-normal">Burkina Faso 🇧🇫</option>
+                            <option value="Cabo Verde" class="bg-earth-dark text-white font-normal">Cabo Verde 🇨🇻</option>
+                            <option value="Cote d'Ivoire" class="bg-earth-dark text-white font-normal">Côte d'Ivoire 🇨🇮</option>
+                            <option value="Gambia" class="bg-earth-dark text-white font-normal">Gambia 🇬🇲</option>
+                            <option value="Ghana" class="bg-earth-dark text-white font-normal">Ghana 🇬🇭</option>
+                            <option value="Guinea" class="bg-earth-dark text-white font-normal">Guinea 🇬🇳</option>
+                            <option value="Guinea-Bissau" class="bg-earth-dark text-white font-normal">Guinea-Bissau 🇬🇼</option>
+                            <option value="Liberia" class="bg-earth-dark text-white font-normal">Liberia 🇱🇷</option>
+                            <option value="Mali" class="bg-earth-dark text-white font-normal">Mali 🇲🇱</option>
+                            <option value="Mauritania" class="bg-earth-dark text-white font-normal">Mauritania 🇲🇷</option>
+                            <option value="Niger" class="bg-earth-dark text-white font-normal">Niger 🇳🇪</option>
+                            <option value="Nigeria" selected class="bg-earth-dark text-white font-normal">Nigeria 🇳🇬</option>
+                            <option value="Senegal" class="bg-earth-dark text-white font-normal">Senegal 🇸🇳</option>
+                            <option value="Sierra Leone" class="bg-earth-dark text-white font-normal">Sierra Leone 🇸🇱</option>
+                            <option value="Togo" class="bg-earth-dark text-white font-normal">Togo 🇹🇬</option>
+                        </optgroup>
+                        <optgroup label="North Africa" class="bg-earth-dark text-white font-bold">
+                            <option value="Algeria" class="bg-earth-dark text-white font-normal">Algeria 🇩🇿</option>
+                            <option value="Egypt" class="bg-earth-dark text-white font-normal">Egypt 🇪🇬</option>
+                            <option value="Libya" class="bg-earth-dark text-white font-normal">Libya 🇱🇾</option>
+                            <option value="Morocco" class="bg-earth-dark text-white font-normal">Morocco 🇲🇦</option>
+                            <option value="Sudan" class="bg-earth-dark text-white font-normal">Sudan 🇸🇩</option>
+                            <option value="Tunisia" class="bg-earth-dark text-white font-normal">Tunisia 🇹🇳</option>
+                            <option value="Western Sahara" class="bg-earth-dark text-white font-normal">Western Sahara</option>
+                        </optgroup>
+                        <optgroup label="East Africa" class="bg-earth-dark text-white font-bold">
+                            <option value="Burundi" class="bg-earth-dark text-white font-normal">Burundi 🇧🇮</option>
+                            <option value="Comoros" class="bg-earth-dark text-white font-normal">Comoros 🇰🇲</option>
+                            <option value="Djibouti" class="bg-earth-dark text-white font-normal">Djibouti 🇩🇯</option>
+                            <option value="Eritrea" class="bg-earth-dark text-white font-normal">Eritrea 🇪🇷</option>
+                            <option value="Ethiopia" class="bg-earth-dark text-white font-normal">Ethiopia 🇪🇹</option>
+                            <option value="Kenya" class="bg-earth-dark text-white font-normal">Kenya 🇰🇪</option>
+                            <option value="Madagascar" class="bg-earth-dark text-white font-normal">Madagascar 🇲🇬</option>
+                            <option value="Malawi" class="bg-earth-dark text-white font-normal">Malawi 🇲🇼</option>
+                            <option value="Mauritius" class="bg-earth-dark text-white font-normal">Mauritius 🇲🇺</option>
+                            <option value="Mozambique" class="bg-earth-dark text-white font-normal">Mozambique 🇲🇿</option>
+                            <option value="Rwanda" class="bg-earth-dark text-white font-normal">Rwanda 🇷🇼</option>
+                            <option value="Seychelles" class="bg-earth-dark text-white font-normal">Seychelles 🇸🇨</option>
+                            <option value="Somalia" class="bg-earth-dark text-white font-normal">Somalia 🇸🇴</option>
+                            <option value="South Sudan" class="bg-earth-dark text-white font-normal">South Sudan 🇸🇸</option>
+                            <option value="Tanzania" class="bg-earth-dark text-white font-normal">Tanzania 🇹🇿</option>
+                            <option value="Uganda" class="bg-earth-dark text-white font-normal">Uganda 🇺🇬</option>
+                            <option value="Zambia" class="bg-earth-dark text-white font-normal">Zambia 🇿🇲</option>
+                            <option value="Zimbabwe" class="bg-earth-dark text-white font-normal">Zimbabwe 🇿🇼</option>
+                        </optgroup>
+                        <optgroup label="Central Africa" class="bg-earth-dark text-white font-bold">
+                            <option value="Angola" class="bg-earth-dark text-white font-normal">Angola 🇦🇴</option>
+                            <option value="Cameroon" class="bg-earth-dark text-white font-normal">Cameroon 🇨🇲</option>
+                            <option value="Central African Republic" class="bg-earth-dark text-white font-normal">Central African Republic 🇨🇫</option>
+                            <option value="Chad" class="bg-earth-dark text-white font-normal">Chad 🇹🇩</option>
+                            <option value="Congo" class="bg-earth-dark text-white font-normal">Congo 🇨🇬</option>
+                            <option value="Democratic Republic of the Congo" class="bg-earth-dark text-white font-normal">DRC 🇨🇩</option>
+                            <option value="Equatorial Guinea" class="bg-earth-dark text-white font-normal">Equatorial Guinea 🇬🇶</option>
+                            <option value="Gabon" class="bg-earth-dark text-white font-normal">Gabon 🇬🇦</option>
+                            <option value="Sao Tome and Principe" class="bg-earth-dark text-white font-normal">São Tomé and Príncipe 🇸🇹</option>
+                        </optgroup>
+                        <optgroup label="Southern Africa" class="bg-earth-dark text-white font-bold">
+                            <option value="Botswana" class="bg-earth-dark text-white font-normal">Botswana 🇧🇼</option>
+                            <option value="Eswatini" class="bg-earth-dark text-white font-normal">Eswatini 🇸🇿</option>
+                            <option value="Lesotho" class="bg-earth-dark text-white font-normal">Lesotho 🇱🇸</option>
+                            <option value="Namibia" class="bg-earth-dark text-white font-normal">Namibia 🇳🇦</option>
+                            <option value="South Africa" class="bg-earth-dark text-white font-normal">South Africa 🇿🇦</option>
+                        </optgroup>
+                        <option value="Other" class="bg-earth-dark text-white font-normal">Other 🌍</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white/50">
+                        <span class="material-symbols-outlined text-[20px]">expand_more</span>
+                    </div>
+                </div>
             </div>
 
             <!-- Title -->
             <div class="flex flex-col gap-1.5">
-                <label class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">What do
+                <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">What do
                     you need?</label>
-                <input required name="title" type="text" placeholder="e.g., Looking for hair braider"
-                    class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40">
+                <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
+                    <input required name="title" type="text" placeholder="e.g., Looking for hair braider"
+                        class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
+                </div>
             </div>
-
-
 
             <!-- Deadline (Required for Requests) -->
             <div class="flex flex-col gap-1.5">
-                <label class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">When do
+                <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">When do
                     you want it by?</label>
-                <input required name="deadline_date" type="date"
-                    class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40">
+                <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
+                    <input required name="deadline_date" type="date"
+                        class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-sm md:text-base outline-none transition-all placeholder:text-white/50 color-scheme-dark">
+                </div>
             </div>
 
             <!-- Description -->
             <div class="flex flex-col gap-1.5">
                 <label
-                    class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Details</label>
-                <textarea required name="description" rows="3" placeholder="Describe fully what you are looking for..."
-                    class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40 resize-none"></textarea>
+                    class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Details</label>
+                <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
+                    <textarea required name="description" rows="3" placeholder="Describe fully what you are looking for..."
+                        class="w-full bg-transparent border-none px-4 py-3 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50 resize-none"></textarea>
+                </div>
             </div>
 
             <!-- Contact Section -->
             <div class="grid grid-cols-2 gap-4">
                 <div class="flex flex-col gap-1.5">
                     <label
-                        class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Email</label>
-                    <input name="contact_email" type="email" placeholder="Email"
-                        value="{{ if .User }}{{ .User.Email }}{{ end }}"
-                        class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40">
+                        class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Email</label>
+                    <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
+                        <input name="contact_email" type="email" placeholder="Email"
+                            value="{{ if .User }}{{ .User.Email }}{{ end }}"
+                            class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
+                    </div>
                 </div>
                 <div class="flex flex-col gap-1.5">
                     <label
-                        class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1">Phone/WhatsApp</label>
-                    <input name="contact_phone" type="tel" placeholder="+1..."
-                        class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-serif placeholder:text-earth-cream/40">
+                        class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Phone/WhatsApp</label>
+                    <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
+                        <input name="contact_phone" type="tel" placeholder="+1..."
+                            class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
+                    </div>
                 </div>
             </div>
 
             <button type="submit"
-                class="mt-2 w-full flex items-center justify-center gap-2 bg-earth-accent hover:bg-earth-accent/90 text-white font-bold h-12 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-black/20">
-                <span class="material-symbols-outlined text-[20px]">campaign</span>
-                Post Request
+                class="mt-4 w-full flex items-center justify-center gap-2 bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark h-14 font-bold uppercase text-[10px] md:text-xs tracking-widest transition-colors shadow-lg shadow-earth-ochre/20 disabled:opacity-50 disabled:cursor-not-allowed border border-earth-ochre-light">
+                <span class="material-symbols-outlined text-[18px] htmx-request:hidden">campaign</span>
+                <span
+                    class="material-symbols-outlined text-[18px] animate-spin hidden htmx-request:block">progress_activity</span>
+                <span class="htmx-request:hidden">Post Request</span>
+                <span class="hidden htmx-request:block">Posting...</span>
             </button>
         </form>
     </div>
 </dialog>
+<style>
+/* Add dark color scheme to datetime inputs to prevent white dropdown on mobile */
+.color-scheme-dark {
+    color-scheme: dark;
+}
+</style>
