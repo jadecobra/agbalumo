@@ -3,71 +3,159 @@
 {{ define "title" }}About - agbalumo{{ end }}
 
 {{ define "content" }}
-<div class="bg-earth-dark min-h-screen text-earth-cream">
-    <div class="max-w-4xl mx-auto px-6 py-12">
-        <div class="text-center mb-16 px-4">
-            <h1 class="text-5xl md:text-7xl font-serif mb-6 text-earth-cream leading-[1.1] tracking-tight">
-                find what you want<span class="italic font-normal">Now.</span>
-            </h1>
-            <p class="text-lg md:text-xl text-earth-cream/80 max-w-2xl mx-auto font-medium">
-                agbalumo is the premier directory connecting the West African diaspora with trusted businesses,
-                services,
-                and community connection.
+<div class="bg-earth-dark min-h-screen text-earth-cream overflow-hidden">
+    <!-- Hero Section -->
+    <section class="relative h-[60vh] md:h-[70vh] w-full mb-16 px-4">
+        <div class="relative h-full w-full rounded-3xl overflow-hidden shadow-2xl group border border-white/10">
+            <div
+                class="absolute inset-x-0 bottom-0 top-1/4 bg-gradient-to-t from-earth-dark via-earth-dark/60 to-transparent z-10 transition-all duration-700 group-hover:via-earth-dark/40">
+            </div>
+            <img src="/static/images/hero.jpg" alt="Our Community"
+                class="w-full h-full object-cover grayscale-[20%] group-hover:scale-105 transition-transform duration-1000"
+                onerror="this.src='https://ui-avatars.com/api/?name=agbalumo&background=3E2723&color=FFF8F0&size=1024'">
+            <div class="absolute inset-0 z-20 flex flex-col items-center justify-end pb-12 px-6 text-center">
+                <h1
+                    class="text-5xl md:text-8xl font-serif mb-4 text-earth-cream leading-[1.1] tracking-tighter drop-shadow-2xl animate-juice-bounce">
+                    Agbalumo.com
+                </h1>
+                <p class="text-lg md:text-2xl text-earth-cream/90 max-w-2xl font-medium tracking-wide drop-shadow-md">
+                    "Raised in Lagos, connected to the world."
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission & Value Props -->
+    <div class="max-w-6xl mx-auto px-6 mb-24">
+        <div class="max-w-3xl mx-auto text-center mb-20">
+            <span
+                class="inline-block px-4 py-1.5 rounded-full border border-earth-ochre text-earth-ochre font-bold text-[10px] tracking-[0.2em] uppercase mb-6 drop-shadow-sm">
+                The Mission
+            </span>
+            <h2 class="text-4xl md:text-6xl font-serif mb-8 text-earth-cream leading-tight">
+                Connecting the Yoruba Diaspora
+            </h2>
+            <p class="text-xl text-earth-cream/80 leading-relaxed font-medium">
+                Agbalumo.com is more than just a directory; it's a digital home for our community across the globe, to
+                help you find others like you. We bridge the gap between home and the diaspora for businesses and
+                creators.
             </p>
         </div>
 
-        <div class="grid md:grid-cols-2 gap-12 items-center mb-20">
+        <!-- Key Feature Cards -->
+        <div class="grid md:grid-cols-2 gap-10 mb-24">
             <div
-                class="relative aspect-square rounded-3xl overflow-hidden shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500">
-                <div class="absolute inset-0 bg-gradient-to-tr from-earth-accent/20 to-transparent z-10"></div>
-                <img src="/static/images/hero.jpg" alt="Community" class="w-full h-full object-cover"
-                    onerror="this.src='https://ui-avatars.com/api/?name=agbalumo&background=random&size=512'">
-            </div>
-            <div class="space-y-6">
-                <h2 class="text-3xl font-serif text-earth-cream">The Plan</h2>
-                <div class="text-earth-cream/80 leading-relaxed font-medium">
-                    <ul class="list-disc pl-5 space-y-2">
-                        <li>Help businesses get discovered</li>
-                        <li>Help customers find what they need</li>
-                        <li>Help those who want some agbalumo get it</li>
-                        <li>Shhh... Don't tell anyone</li>
-                    </ul>
+                class="p-10 bg-surface-dark/40 backdrop-blur-md rounded-3xl border border-white/10 group hover:border-earth-accent/30 transition-all duration-300 shadow-xl overflow-hidden relative">
+                <div class="absolute top-0 right-0 p-8 text-earth-accent/10 pointer-events-none">
+                    <span class="material-symbols-outlined text-9xl">storefront</span>
                 </div>
-                <div class="flex gap-4 pt-4">
-                    <a href="/"
-                        class="px-8 py-3.5 bg-earth-accent hover:bg-earth-accent/90 text-earth-dark rounded-full font-bold shadow-md transition-all active:scale-[0.98]">
-                        explore
-                    </a>
-                    <a href="/listings" hx-post="/listings" hx-target="body" hx-swap="beforeend"
-                        hx-on:click="window.detail_modal_create_listing.showModal()"
-                        class="px-8 py-3.5 border border-white/20 rounded-full font-bold text-earth-cream hover:bg-white/10 transition-all cursor-pointer active:scale-[0.98]">
-                        Join the Directory
-                    </a>
+                <div class="relative z-10">
+                    <div
+                        class="w-14 h-14 bg-earth-accent/20 rounded-2xl flex items-center justify-center text-earth-accent mb-6 group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-3xl">storefront</span>
+                    </div>
+                    <h3 class="text-2xl font-serif mb-4 text-earth-cream">A Global Directory</h3>
+                    <p class="text-earth-cream/70 leading-relaxed font-medium">
+                        Whether you are looking for an authentic Amala spot near you or a Yoruba-speaking lawyer in
+                        Houston, we bring the community to your fingertips.
+                    </p>
+                </div>
+            </div>
+            <div
+                class="p-10 bg-surface-dark/40 backdrop-blur-md rounded-3xl border border-white/10 group hover:border-earth-ochre/30 transition-all duration-300 shadow-xl overflow-hidden relative">
+                <div class="absolute top-0 right-0 p-8 text-earth-ochre/10 pointer-events-none">
+                    <span class="material-symbols-outlined text-9xl">history_edu</span>
+                </div>
+                <div class="relative z-10">
+                    <div
+                        class="w-14 h-14 bg-earth-ochre/20 rounded-2xl flex items-center justify-center text-earth-ochre mb-6 group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-3xl">history_edu</span>
+                    </div>
+                    <h3 class="text-2xl font-serif mb-4 text-earth-cream">Cultural Preservation</h3>
+                    <p class="text-earth-cream/70 leading-relaxed font-medium">
+                        We celebrate the nuances of our heritage. From the language to the traditions, Agbalumo ensures
+                        we stay connected and vibrant in a digital world.
+                    </p>
                 </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+        <!-- The Agbalumo Inspiration Section -->
+        <div
+            class="max-w-5xl mx-auto px-6 py-20 bg-earth-ochre/5 rounded-[40px] border border-earth-ochre/10 mb-32 relative overflow-hidden text-center group">
+            <!-- Background metaphor decoration -->
             <div
-                class="p-8 bg-surface-dark/40 backdrop-blur-md rounded-3xl text-center group hover:bg-surface-dark/60 border border-white/10 transition-all duration-300">
-                <span
-                    class="material-symbols-outlined text-4xl text-earth-accent mb-4 group-hover:scale-110 transition-transform">storefront</span>
-                <h3 class="text-xl font-serif mb-2 text-earth-cream">Businesses</h3>
-                <p class="text-sm text-earth-cream/70 font-medium">Discover trusted local vendors and shops.</p>
+                class="absolute -bottom-20 -right-20 w-80 h-80 bg-earth-ochre/10 rounded-full blur-[100px] pointer-events-none">
             </div>
-            <div
-                class="p-8 bg-surface-dark/40 backdrop-blur-md rounded-3xl text-center group hover:bg-surface-dark/60 border border-white/10 transition-all duration-300">
-                <span
-                    class="material-symbols-outlined text-4xl text-earth-accent mb-4 group-hover:scale-110 transition-transform">handshake</span>
-                <h3 class="text-xl font-serif mb-2 text-earth-cream">Services</h3>
-                <p class="text-sm text-earth-cream/70 font-medium">Find professionals for any job.</p>
+
+            <div class="relative z-10">
+                <div
+                    class="inline-flex items-center justify-center w-20 h-20 bg-earth-ochre text-white rounded-full mb-10 shadow-lg group-hover:scale-110 transition-transform duration-500 animate-gentle-pulse">
+                    <span class="material-symbols-outlined text-4xl filled"
+                        style="font-variation-settings: 'FILL' 1;">star</span>
+                </div>
+                <h2 class="text-3xl md:text-5xl font-serif mb-8 text-earth-cream tracking-tight italic">
+                    The &ldquo;Agbalumo&rdquo; inspiration
+                </h2>
+                <div class="max-w-2xl mx-auto mb-16">
+                    <p class="text-2xl text-earth-ochre-light font-medium italic leading-relaxed">
+                        &ldquo;The African Star Apple (Agbalumo, Udara, Agualumo)&mdash;sweet, tangy, and deeply
+                        nostalgic. Like the fruit, our community is a cluster of seeds held together by a shared
+                        core.&rdquo;
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-16 text-left">
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3 text-earth-ochre mb-2">
+                            <span class="material-symbols-outlined text-2xl">lan</span>
+                            <h4 class="text-xl font-bold font-display uppercase tracking-wider">Leaf Veins (Our
+                                Connections)</h4>
+                        </div>
+                        <p class="text-earth-cream/70 leading-relaxed font-medium pl-9">
+                            The intricate network of veins in an Agbalumo leaf represents the pathways of our
+                            diaspora&mdash;different directions, yet all pulling life from the same roots.
+                        </p>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3 text-earth-accent mb-2">
+                            <span class="material-symbols-outlined text-2xl">water_drop</span>
+                            <h4 class="text-xl font-bold font-display uppercase tracking-wider">Juice Drops (The
+                                Vibrancy)</h4>
+                        </div>
+                        <p class="text-earth-cream/70 leading-relaxed font-medium pl-9">
+                            The sweetness of the juice reflects the joy, creativity, and success of our people wherever
+                            they find themselves in the world.
+                        </p>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <!-- Join Journey Section (CTA) -->
+        <div
+            class="relative max-w-4xl mx-auto px-10 py-20 bg-earth-accent rounded-3xl overflow-hidden shadow-2xl text-center group">
+            <!-- Decorative circle -->
             <div
-                class="p-8 bg-surface-dark/40 backdrop-blur-md rounded-3xl text-center group hover:bg-surface-dark/60 border border-white/10 transition-all duration-300">
-                <span
-                    class="material-symbols-outlined text-4xl text-earth-accent mb-4 group-hover:scale-110 transition-transform">shopping_bag</span>
-                <h3 class="text-xl font-serif mb-2 text-earth-cream">Products</h3>
-                <p class="text-sm text-earth-cream/70 font-medium">Shop unique items from the community.</p>
+                class="absolute -top-24 -left-24 w-60 h-60 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all duration-700">
+            </div>
+
+            <div class="relative z-10">
+                <h2 class="text-4xl md:text-5xl font-serif text-white mb-6">Join our journey</h2>
+                <p class="text-white/90 text-xl font-medium mb-10 max-w-2xl mx-auto">
+                    List your business or discover others in the diaspora. Be part of our growing community today.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <a href="/"
+                        class="px-10 py-4 bg-white text-earth-accent hover:bg-earth-cream rounded-full font-bold text-lg shadow-xl hover:shadow-2xl transition-all active:scale-95 group-hover:animate-juice-bounce">
+                        Get Started
+                    </a>
+                    <a href="/listings" hx-post="/listings" hx-target="body" hx-swap="beforeend"
+                        hx-on:click="window.detail_modal_create_listing.showModal()"
+                        class="px-10 py-4 border-2 border-white/30 text-white hover:bg-white/10 rounded-full font-bold text-lg transition-all active:scale-95">
+                        Join the Directory
+                    </a>
+                </div>
             </div>
         </div>
     </div>

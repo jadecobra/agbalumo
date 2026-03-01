@@ -811,6 +811,7 @@ func TestAboutTheme(t *testing.T) {
 
 	body := rec.Body.String()
 
+	// --- Dark-theme class checks (existing) ---
 	if !strings.Contains(body, "bg-earth-dark") {
 		t.Error("about.html should use bg-earth-dark for the main container background")
 	}
@@ -822,6 +823,42 @@ func TestAboutTheme(t *testing.T) {
 	}
 	if !strings.Contains(body, "bg-earth-accent") {
 		t.Error("about.html should use bg-earth-accent for primary calls to action")
+	}
+
+	// --- New content section checks (Stitch "Our Story" design) ---
+
+	// Hero section
+	if !containsNormalized(body, "Agbalumo.com") {
+		t.Error("about.html should contain 'Agbalumo.com' brand name in hero section")
+	}
+
+	// Mission section
+	if !containsNormalized(body, "Connecting the") {
+		t.Error("about.html should contain mission heading 'Connecting the...' section")
+	}
+
+	// Feature cards
+	if !containsNormalized(body, "Global Directory") {
+		t.Error("about.html should contain 'Global Directory' feature card")
+	}
+	if !containsNormalized(body, "Cultural Preservation") {
+		t.Error("about.html should contain 'Cultural Preservation' feature card")
+	}
+
+	// Agbalumo metaphor section
+	if !containsNormalized(body, "Our Connections") {
+		t.Error("about.html should contain 'Our Connections' (Leaf Veins) section")
+	}
+	if !containsNormalized(body, "The Vibrancy") {
+		t.Error("about.html should contain 'The Vibrancy' (Juice Drops) section")
+	}
+
+	// CTA section
+	if !containsNormalized(body, "Join our journey") {
+		t.Error("about.html should contain 'Join our journey' CTA heading")
+	}
+	if !containsNormalized(body, "Get Started") {
+		t.Error("about.html should contain 'Get Started' CTA button")
 	}
 }
 
