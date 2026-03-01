@@ -1,7 +1,6 @@
 <dialog id="create-listing-modal"
-    class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-none md:max-w-sm m-0 md:m-auto rounded-none shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed md:relative inset-0 md:inset-auto h-full md:h-auto border border-white/20">
-    <div
-        class="bg-earth-dark/95 backdrop-blur-xl p-6 relative overflow-y-auto h-full md:h-auto md:max-h-[85vh]">
+    class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-none md:max-w-sm m-auto rounded-none shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed inset-0 h-full md:h-auto border border-white/20">
+    <div class="bg-earth-dark/95 backdrop-blur-xl p-6 relative overflow-y-auto h-full md:h-auto md:max-h-[85vh]">
         <!-- Decorative Background -->
         <div
             class="absolute top-0 right-0 w-32 h-32 bg-earth-accent/10 rounded-full blur-3xl -z-10 transform translate-x-10 -translate-y-10">
@@ -9,8 +8,7 @@
 
         <div class="flex justify-between items-start mb-8">
             <h2 class="font-serif italic text-4xl leading-tight text-white drop-shadow-md">Post a Listing</h2>
-            <button data-modal-action="close"
-                class="p-2 -mr-2 -mt-2 text-white/50 hover:text-white transition-colors">
+            <button data-modal-action="close" class="p-2 -mr-2 -mt-2 text-white/50 hover:text-white transition-colors">
                 <span class="material-symbols-outlined text-[24px]">close</span>
             </button>
         </div>
@@ -21,7 +19,8 @@
 
             <!-- Type -->
             <div class="flex flex-col gap-1.5">
-                <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Type</label>
+                <label
+                    class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Type</label>
                 <div class="bg-earth-sand/10 border border-white/20 p-1 relative flex items-center">
                     <select name="type"
                         class="w-full bg-transparent border-none px-4 py-3 h-12 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50 appearance-none">
@@ -40,7 +39,8 @@
 
             <!-- Title -->
             <div class="flex flex-col gap-1.5">
-                <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Title</label>
+                <label
+                    class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Title</label>
                 <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
                     <input required name="title" type="text" placeholder="e.g., Mama's Kitchen"
                         class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
@@ -49,27 +49,35 @@
 
             <!-- Origin -->
             <div class="flex flex-col gap-1.5">
-                <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Origin</label>
+                <label
+                    class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Origin</label>
                 <div class="bg-earth-sand/10 border border-white/20 p-1 relative flex items-center">
                     <select name="owner_origin"
                         class="w-full bg-transparent border-none px-4 py-3 h-12 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50 appearance-none">
                         <option value="" disabled class="bg-earth-dark text-white">Select Country</option>
                         <optgroup label="West Africa" class="bg-earth-dark text-white font-bold">
                             <option value="Benin" class="bg-earth-dark text-white font-normal">Benin 🇧🇯</option>
-                            <option value="Burkina Faso" class="bg-earth-dark text-white font-normal">Burkina Faso 🇧🇫</option>
-                            <option value="Cabo Verde" class="bg-earth-dark text-white font-normal">Cabo Verde 🇨🇻</option>
-                            <option value="Cote d'Ivoire" class="bg-earth-dark text-white font-normal">Côte d'Ivoire 🇨🇮</option>
+                            <option value="Burkina Faso" class="bg-earth-dark text-white font-normal">Burkina Faso 🇧🇫
+                            </option>
+                            <option value="Cabo Verde" class="bg-earth-dark text-white font-normal">Cabo Verde 🇨🇻
+                            </option>
+                            <option value="Cote d'Ivoire" class="bg-earth-dark text-white font-normal">Côte d'Ivoire
+                                🇨🇮</option>
                             <option value="Gambia" class="bg-earth-dark text-white font-normal">Gambia 🇬🇲</option>
                             <option value="Ghana" class="bg-earth-dark text-white font-normal">Ghana 🇬🇭</option>
                             <option value="Guinea" class="bg-earth-dark text-white font-normal">Guinea 🇬🇳</option>
-                            <option value="Guinea-Bissau" class="bg-earth-dark text-white font-normal">Guinea-Bissau 🇬🇼</option>
+                            <option value="Guinea-Bissau" class="bg-earth-dark text-white font-normal">Guinea-Bissau
+                                🇬🇼</option>
                             <option value="Liberia" class="bg-earth-dark text-white font-normal">Liberia 🇱🇷</option>
                             <option value="Mali" class="bg-earth-dark text-white font-normal">Mali 🇲🇱</option>
-                            <option value="Mauritania" class="bg-earth-dark text-white font-normal">Mauritania 🇲🇷</option>
+                            <option value="Mauritania" class="bg-earth-dark text-white font-normal">Mauritania 🇲🇷
+                            </option>
                             <option value="Niger" class="bg-earth-dark text-white font-normal">Niger 🇳🇪</option>
-                            <option value="Nigeria" selected class="bg-earth-dark text-white font-normal">Nigeria 🇳🇬</option>
+                            <option value="Nigeria" selected class="bg-earth-dark text-white font-normal">Nigeria 🇳🇬
+                            </option>
                             <option value="Senegal" class="bg-earth-dark text-white font-normal">Senegal 🇸🇳</option>
-                            <option value="Sierra Leone" class="bg-earth-dark text-white font-normal">Sierra Leone 🇸🇱</option>
+                            <option value="Sierra Leone" class="bg-earth-dark text-white font-normal">Sierra Leone 🇸🇱
+                            </option>
                             <option value="Togo" class="bg-earth-dark text-white font-normal">Togo 🇹🇬</option>
                         </optgroup>
                         <optgroup label="North Africa" class="bg-earth-dark text-white font-bold">
@@ -79,7 +87,8 @@
                             <option value="Morocco" class="bg-earth-dark text-white font-normal">Morocco 🇲🇦</option>
                             <option value="Sudan" class="bg-earth-dark text-white font-normal">Sudan 🇸🇩</option>
                             <option value="Tunisia" class="bg-earth-dark text-white font-normal">Tunisia 🇹🇳</option>
-                            <option value="Western Sahara" class="bg-earth-dark text-white font-normal">Western Sahara</option>
+                            <option value="Western Sahara" class="bg-earth-dark text-white font-normal">Western Sahara
+                            </option>
                         </optgroup>
                         <optgroup label="East Africa" class="bg-earth-dark text-white font-bold">
                             <option value="Burundi" class="bg-earth-dark text-white font-normal">Burundi 🇧🇮</option>
@@ -88,14 +97,19 @@
                             <option value="Eritrea" class="bg-earth-dark text-white font-normal">Eritrea 🇪🇷</option>
                             <option value="Ethiopia" class="bg-earth-dark text-white font-normal">Ethiopia 🇪🇹</option>
                             <option value="Kenya" class="bg-earth-dark text-white font-normal">Kenya 🇰🇪</option>
-                            <option value="Madagascar" class="bg-earth-dark text-white font-normal">Madagascar 🇲🇬</option>
+                            <option value="Madagascar" class="bg-earth-dark text-white font-normal">Madagascar 🇲🇬
+                            </option>
                             <option value="Malawi" class="bg-earth-dark text-white font-normal">Malawi 🇲🇼</option>
-                            <option value="Mauritius" class="bg-earth-dark text-white font-normal">Mauritius 🇲🇺</option>
-                            <option value="Mozambique" class="bg-earth-dark text-white font-normal">Mozambique 🇲🇿</option>
+                            <option value="Mauritius" class="bg-earth-dark text-white font-normal">Mauritius 🇲🇺
+                            </option>
+                            <option value="Mozambique" class="bg-earth-dark text-white font-normal">Mozambique 🇲🇿
+                            </option>
                             <option value="Rwanda" class="bg-earth-dark text-white font-normal">Rwanda 🇷🇼</option>
-                            <option value="Seychelles" class="bg-earth-dark text-white font-normal">Seychelles 🇸🇨</option>
+                            <option value="Seychelles" class="bg-earth-dark text-white font-normal">Seychelles 🇸🇨
+                            </option>
                             <option value="Somalia" class="bg-earth-dark text-white font-normal">Somalia 🇸🇴</option>
-                            <option value="South Sudan" class="bg-earth-dark text-white font-normal">South Sudan 🇸🇸</option>
+                            <option value="South Sudan" class="bg-earth-dark text-white font-normal">South Sudan 🇸🇸
+                            </option>
                             <option value="Tanzania" class="bg-earth-dark text-white font-normal">Tanzania 🇹🇿</option>
                             <option value="Uganda" class="bg-earth-dark text-white font-normal">Uganda 🇺🇬</option>
                             <option value="Zambia" class="bg-earth-dark text-white font-normal">Zambia 🇿🇲</option>
@@ -104,20 +118,25 @@
                         <optgroup label="Central Africa" class="bg-earth-dark text-white font-bold">
                             <option value="Angola" class="bg-earth-dark text-white font-normal">Angola 🇦🇴</option>
                             <option value="Cameroon" class="bg-earth-dark text-white font-normal">Cameroon 🇨🇲</option>
-                            <option value="Central African Republic" class="bg-earth-dark text-white font-normal">Central African Republic 🇨🇫</option>
+                            <option value="Central African Republic" class="bg-earth-dark text-white font-normal">
+                                Central African Republic 🇨🇫</option>
                             <option value="Chad" class="bg-earth-dark text-white font-normal">Chad 🇹🇩</option>
                             <option value="Congo" class="bg-earth-dark text-white font-normal">Congo 🇨🇬</option>
-                            <option value="Democratic Republic of the Congo" class="bg-earth-dark text-white font-normal">DRC 🇨🇩</option>
-                            <option value="Equatorial Guinea" class="bg-earth-dark text-white font-normal">Equatorial Guinea 🇬🇶</option>
+                            <option value="Democratic Republic of the Congo"
+                                class="bg-earth-dark text-white font-normal">DRC 🇨🇩</option>
+                            <option value="Equatorial Guinea" class="bg-earth-dark text-white font-normal">Equatorial
+                                Guinea 🇬🇶</option>
                             <option value="Gabon" class="bg-earth-dark text-white font-normal">Gabon 🇬🇦</option>
-                            <option value="Sao Tome and Principe" class="bg-earth-dark text-white font-normal">São Tomé and Príncipe 🇸🇹</option>
+                            <option value="Sao Tome and Principe" class="bg-earth-dark text-white font-normal">São Tomé
+                                and Príncipe 🇸🇹</option>
                         </optgroup>
                         <optgroup label="Southern Africa" class="bg-earth-dark text-white font-bold">
                             <option value="Botswana" class="bg-earth-dark text-white font-normal">Botswana 🇧🇼</option>
                             <option value="Eswatini" class="bg-earth-dark text-white font-normal">Eswatini 🇸🇿</option>
                             <option value="Lesotho" class="bg-earth-dark text-white font-normal">Lesotho 🇱🇸</option>
                             <option value="Namibia" class="bg-earth-dark text-white font-normal">Namibia 🇳🇦</option>
-                            <option value="South Africa" class="bg-earth-dark text-white font-normal">South Africa 🇿🇦</option>
+                            <option value="South Africa" class="bg-earth-dark text-white font-normal">South Africa 🇿🇦
+                            </option>
                         </optgroup>
                         <option value="Other" class="bg-earth-dark text-white font-normal">Other 🌍</option>
                     </select>
@@ -151,8 +170,10 @@
                     <label id="location-label"
                         class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Address
                         (Validated)</label>
-                    <div class="bg-earth-sand/10 border border-white/20 p-1 flex flex-col relative w-full overflow-hidden">
-                        <input id="create-address-input" name="address" type="text" placeholder="Start typing address..."
+                    <div
+                        class="bg-earth-sand/10 border border-white/20 p-1 flex flex-col relative w-full overflow-hidden">
+                        <input id="create-address-input" name="address" type="text"
+                            placeholder="Start typing address..."
                             class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50 truncate"
                             data-google-maps-key="{{ if .GoogleMapsApiKey }}{{ .GoogleMapsApiKey }}{{ end }}">
                     </div>
@@ -203,7 +224,8 @@
             <!-- Job Fields (Hidden by default) -->
             <div id="job-fields-section" class="flex flex-col gap-4 hidden">
                 <div class="flex flex-col gap-1.5">
-                    <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Company
+                    <label
+                        class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Company
                         Name</label>
                     <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
                         <input name="company" type="text" placeholder="e.g. Acme Inc."
@@ -219,7 +241,8 @@
                     </div>
                 </div>
                 <div class="flex flex-col gap-1.5">
-                    <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Skills
+                    <label
+                        class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Skills
                         Required</label>
                     <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
                         <textarea name="skills" rows="2" placeholder="e.g. Golang, SQL, Docker..."
@@ -228,7 +251,8 @@
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="flex flex-col gap-1.5">
-                        <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Start
+                        <label
+                            class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Start
                             Date</label>
                         <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
                             <input name="job_start_date" type="datetime-local"
@@ -236,7 +260,8 @@
                         </div>
                     </div>
                     <div class="flex flex-col gap-1.5">
-                        <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Apply
+                        <label
+                            class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Apply
                             URL</label>
                         <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
                             <input name="job_apply_url" type="text" inputmode="url" placeholder="https://..."
@@ -247,9 +272,10 @@
             </div>
 
             <!-- Contact Section -->
-            <div class="grid grid-cols-2 gap-4">
+            <div class="flex flex-col gap-5">
                 <div class="flex flex-col gap-1.5">
-                    <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Email</label>
+                    <label
+                        class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Email</label>
                     <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
                         <input name="contact_email" type="email" placeholder="Email"
                             value="{{ if .User }}{{ .User.Email }}{{ end }}"
@@ -289,8 +315,8 @@
     </div>
 </dialog>
 <style>
-/* Add dark color scheme to datetime inputs to prevent white dropdown on mobile */
-.color-scheme-dark {
-    color-scheme: dark;
-}
+    /* Add dark color scheme to datetime inputs to prevent white dropdown on mobile */
+    .color-scheme-dark {
+        color-scheme: dark;
+    }
 </style>
