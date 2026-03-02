@@ -139,13 +139,13 @@
                         <div class="flex items-center gap-3 border-l border-stone-200 dark:border-stone-700 pl-4">
                             <button data-auth-action="modal" data-modal-id="create-request-modal"
                                 data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
-                                class="flex items-center gap-2 bg-secondary/10 hover:bg-secondary/20 text-secondary dark:text-green-400 dark:hover:bg-green-900/30 px-4 h-11 rounded-full transition-all font-semibold font-display text-sm">
+                                class="flex items-center gap-2 bg-secondary/10 hover:bg-secondary/20 text-secondary dark:text-green-400 dark:hover:bg-green-900/30 px-4 h-11 transition-all font-semibold font-display text-sm border border-secondary/20 rounded-none">
                                 <span class="material-symbols-outlined text-[18px]">campaign</span>
                                 Ask
                             </button>
                             <button data-auth-action="modal" data-modal-id="create-listing-modal"
                                 data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
-                                class="flex items-center gap-2 bg-earth-accent hover:bg-earth-accent/90 shadow-md shadow-earth-accent/20 text-white px-5 h-11 rounded-full transition-all active:scale-95 font-semibold font-display text-sm">
+                                class="flex items-center gap-2 bg-earth-accent hover:bg-earth-accent/90 shadow-md shadow-earth-accent/20 text-white px-5 h-11 transition-all active:scale-95 font-semibold font-display text-sm border border-earth-accent-light rounded-none">
                                 <span class="material-symbols-outlined text-[18px]">add_circle</span>
                                 Post
                             </button>

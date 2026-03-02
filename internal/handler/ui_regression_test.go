@@ -815,50 +815,50 @@ func TestAboutTheme(t *testing.T) {
 	if !strings.Contains(body, "bg-earth-dark") {
 		t.Error("about.html should use bg-earth-dark for the main container background")
 	}
-	if !strings.Contains(body, "text-earth-cream") {
-		t.Error("about.html should use text-earth-cream for high contrast text")
+	if !strings.Contains(body, "text-white") {
+		t.Error("about.html should use text-white for high contrast text to match homepage")
 	}
-	if !strings.Contains(body, "font-serif") {
-		t.Error("about.html should use font-serif (Playfair Display) for headings")
+	if !strings.Contains(body, "font-serif font-black italic") {
+		t.Error("about.html should use font-serif font-black italic for headings to match homepage")
 	}
-	if !strings.Contains(body, "bg-earth-accent") {
-		t.Error("about.html should use bg-earth-accent for primary calls to action")
+	if !strings.Contains(body, "bg-earth-sand/10 border border-white/20") {
+		t.Error("about.html should use sharp nested containers (bg-earth-sand/10 border border-white/20 p-1)")
 	}
 
 	// --- New content section checks (Stitch "Our Story" design) ---
 
-	// Hero section
-	if !containsNormalized(body, "Agbalumo.com") {
-		t.Error("about.html should contain 'Agbalumo.com' brand name in hero section")
-	}
+	// Hero section has been removed as per user request
 
 	// Mission section
-	if !containsNormalized(body, "Connecting the") {
-		t.Error("about.html should contain mission heading 'Connecting the...' section")
+	if !containsNormalized(body, "find what you want") {
+		t.Error("about.html should contain mission heading 'find what you want' section")
 	}
 
 	// Feature cards
-	if !containsNormalized(body, "Global Directory") {
-		t.Error("about.html should contain 'Global Directory' feature card")
+	if !containsNormalized(body, "find what you want") {
+		t.Error("about.html should contain 'find what you want' feature card")
 	}
-	if !containsNormalized(body, "Cultural Preservation") {
-		t.Error("about.html should contain 'Cultural Preservation' feature card")
+	if !containsNormalized(body, "connections") {
+		t.Error("about.html should contain 'connections' feature card")
 	}
 
 	// Agbalumo metaphor section
-	if !containsNormalized(body, "Our Connections") {
-		t.Error("about.html should contain 'Our Connections' (Leaf Veins) section")
+	if !containsNormalized(body, "Leaf Veins (Our Connections)") {
+		t.Error("about.html should contain 'Leaf Veins (Our Connections)' section")
 	}
-	if !containsNormalized(body, "The Vibrancy") {
-		t.Error("about.html should contain 'The Vibrancy' (Juice Drops) section")
+	if !containsNormalized(body, "Juice Drops (The Vibrancy)") {
+		t.Error("about.html should contain 'Juice Drops (The Vibrancy)' section")
 	}
 
 	// CTA section
-	if !containsNormalized(body, "Join our journey") {
-		t.Error("about.html should contain 'Join our journey' CTA heading")
+	if !containsNormalized(body, "Join Us") {
+		t.Error("about.html should contain 'Join Us' CTA heading")
 	}
-	if !containsNormalized(body, "Get Started") {
-		t.Error("about.html should contain 'Get Started' CTA button")
+	if !containsNormalized(body, "ASK") {
+		t.Error("about.html should contain 'ASK' CTA button")
+	}
+	if !containsNormalized(body, "POST") {
+		t.Error("about.html should contain 'POST' CTA button")
 	}
 }
 
