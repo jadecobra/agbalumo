@@ -1147,12 +1147,12 @@ func TestAdminDashboardTheme(t *testing.T) {
 
 	content := string(templateContent)
 
-	if !strings.Contains(content, `bg-earth-dark min-h-screen`) {
-		t.Error("Admin dashboard missing expected base dark theme wrapper classes")
+	if !strings.Contains(content, `bg-[#2a1f18]`) {
+		t.Error("Admin dashboard cards missing new Stitch dark styling bg-[#2a1f18]")
 	}
 
-	if !strings.Contains(content, `bg-white/5`) {
-		t.Error("Admin dashboard cards missing translucent dark styling")
+	if !strings.Contains(content, `font-serif text-white`) {
+		t.Error("Admin dashboard heading missing font-serif text-white classes")
 	}
 }
 

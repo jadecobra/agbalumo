@@ -1,7 +1,7 @@
 function initAdminDashboard() {
     const listingChartEl = document.getElementById('listingChart');
     const userChartEl = document.getElementById('userChart');
-    
+
     if (listingChartEl || userChartEl) {
         if (typeof Chart === 'undefined') {
             console.warn('Chart.js not loaded');
@@ -14,7 +14,7 @@ function initAdminDashboard() {
                         labels: data.map(d => d.Date),
                         values: data.map(d => d.Count)
                     };
-                } catch(e) {
+                } catch (e) {
                     return { labels: [], values: [] };
                 }
             }
@@ -73,6 +73,35 @@ function initAdminDashboard() {
             csvUploadBtn.disabled = !(this.files && this.files.length > 0);
         });
     }
+
+    // Modal Handling
+    document.addEventListener('click', function (e) {
+        // Open Modal
+        let openTrigger = e.target.closest('[data-action="open-modal"]');
+        if (openTrigger) {
+            e.preventDefault();
+            const targetId = openTrigger.dataset.target;
+            const targetModal = document.getElementById(targetId);
+            if (targetModal) {
+                targetModal.classList.remove('hidden');
+
+                // If opening charts modal, we might need to force a reflow/update 
+                // for Chart.js if they were initialized while hidden.
+                // Chart.instances are global if stored, but 'responsive: true' usually handles it.
+            }
+        }
+
+        // Close Modal
+        let closeTrigger = e.target.closest('[data-action="close-modal"]');
+        if (closeTrigger) {
+            e.preventDefault();
+            const targetId = closeTrigger.dataset.target;
+            const targetModal = document.getElementById(targetId);
+            if (targetModal) {
+                targetModal.classList.add('hidden');
+            }
+        }
+    });
 }
 
 document.addEventListener('DOMContentLoaded', initAdminDashboard);

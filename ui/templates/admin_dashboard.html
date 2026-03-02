@@ -1,59 +1,110 @@
 {{ template "base.html" . }}
 
 {{ define "content" }}
-<div class="container mx-auto px-4 py-8 bg-earth-dark min-h-screen">
-    <h1 class="text-3xl font-bold mb-8 text-earth-cream">Admin Dashboard</h1>
+<div class="container mx-auto px-4 py-8 max-w-4xl" data-purpose="app-content">
 
-    <!-- Metrics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <!-- Total Users -->
-        <a href="/admin/users"
-            class="block bg-white/5 rounded-3xl shadow-soft p-6 border-l-4 border-blue-500 hover:shadow-md transition-all cursor-pointer">
-            <h2
-                class="text-earth-cream/70 text-sm uppercase font-bold tracking-wider flex justify-between items-center mb-2">
-                Total Users
-                <span class="material-symbols-outlined text-earth-cream/40">group</span>
-            </h2>
-            <p class="text-3xl font-bold text-earth-cream">{{ .UserCount }}</p>
-        </a>
+    <div class="mb-8" data-purpose="page-title">
+        <h1 class="text-3xl font-serif text-white mb-2">Admin Dashboard</h1>
+    </div>
 
-        <!-- Total Listings -->
-        <a href="/admin/listings"
-            class="block bg-white/5 rounded-3xl shadow-soft p-6 border-l-4 border-green-500 hover:shadow-md transition-all cursor-pointer">
-            <h2
-                class="text-earth-cream/70 text-sm uppercase font-bold tracking-wider flex justify-between items-center mb-2">
-                All Listings
-                <span class="material-symbols-outlined text-earth-cream/40">list_alt</span>
-            </h2>
-            <div class="mt-2 text-earth-accent font-bold flex items-center gap-1 hover:underline">
-                View & Filter <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+    <!-- BEGIN: Top Metrics Banner -->
+    <div class="bg-[#2a1f18] rounded-2xl p-6 mb-8 border border-white/5 shadow-xl relative overflow-hidden"
+        data-purpose="summary-card">
+        <!-- Decorative background element -->
+        <div class="absolute -right-12 -top-12 w-48 h-48 bg-agbalumo-orange/10 rounded-full blur-3xl rounded-full">
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 relative z-10">
+            <div class="text-center border-r border-white/10 pr-4">
+                <p class="text-sm text-agbalumo-cream/70 mb-1 uppercase tracking-wider text-[10px] font-bold">Total
+                    Listings</p>
+                <p class="text-3xl font-serif text-white">{{ .ListingCount }}</p>
             </div>
-        </a>
-
-        <!-- Feedback Counts -->
-        {{ range $type, $count := .FeedbackCounts }}
-        <div class="bg-white/5 rounded-3xl shadow-soft p-6 border-l-4 border-yellow-500">
-            <h2
-                class="text-earth-cream/70 text-sm uppercase font-bold tracking-wider flex justify-between items-center mb-2">
-                Feedback: {{ $type }}
-                <span class="material-symbols-outlined text-earth-cream/40">feedback</span>
-            </h2>
-            <p class="text-3xl font-bold text-earth-cream">{{ $count }}</p>
-        </div>
-        {{ end }}
-    </div>
-
-    <!-- Charts -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <div class="bg-white/5 rounded-3xl shadow-soft p-6 border border-white/10">
-            <h2 class="text-xl font-bold text-earth-cream mb-4">New Listings (Last 30 Days)</h2>
-            <canvas id="listingChart" data-chart-data="{{ .ListingGrowth | toJson }}"></canvas>
-        </div>
-        <div class="bg-white/5 rounded-3xl shadow-soft p-6 border border-white/10">
-            <h2 class="text-xl font-bold text-earth-cream mb-4">New Users (Last 30 Days)</h2>
-            <canvas id="userChart" data-chart-data="{{ .UserGrowth | toJson }}"></canvas>
+            <div class="text-center border-r border-white/10 px-4">
+                <p class="text-sm text-agbalumo-cream/70 mb-1 uppercase tracking-wider text-[10px] font-bold">Pending
+                </p>
+                <p class="text-3xl font-serif text-agbalumo-orange">{{ len .PendingListings }}</p>
+            </div>
+            <div class="text-center pl-4">
+                <p class="text-sm text-agbalumo-cream/70 mb-1 uppercase tracking-wider text-[10px] font-bold">Total
+                    Users</p>
+                <p class="text-3xl font-serif text-white">{{ .UserCount }}</p>
+            </div>
         </div>
     </div>
+    <!-- END: Top Metrics Banner -->
+
+    <!-- BEGIN: Admin Tools Grid -->
+    <div class="mb-8">
+        <h2 class="text-sm font-bold text-white mb-4 uppercase tracking-widest text-[11px] opacity-70">Admin Tools</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+            <button data-action="open-modal" data-target="chartsModal"
+                class="bg-[#2a1f18] hover:bg-white/10 transition-colors p-4 rounded-2xl border border-white/5 flex items-center justify-between group">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 rounded-full bg-agbalumo-pink/20 flex items-center justify-center text-agbalumo-pink">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 3v18h18" />
+                            <path d="m19 9-5 5-4-4-3 3" />
+                        </svg>
+                    </div>
+                    <span class="font-medium text-white">View Charts</span>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="text-white/30 group-hover:text-white/70 transition-colors">
+                    <path d="m9 18 6-6-6-6" />
+                </svg>
+            </button>
+
+            <button data-action="open-modal" data-target="uploadModal"
+                class="bg-[#2a1f18] hover:bg-white/10 transition-colors p-4 rounded-2xl border border-white/5 flex items-center justify-between group">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="17 8 12 3 7 8" />
+                            <line x1="12" x2="12" y1="3" y2="15" />
+                        </svg>
+                    </div>
+                    <span class="font-medium text-white">Bulk Upload CSV</span>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="text-white/30 group-hover:text-white/70 transition-colors">
+                    <path d="m9 18 6-6-6-6" />
+                </svg>
+            </button>
+
+            <button data-action="open-modal" data-target="moderationModal"
+                class="bg-[#2a1f18] hover:bg-white/10 transition-colors p-4 rounded-2xl border border-white/5 flex items-center justify-between group">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 rounded-full bg-agbalumo-orange/20 flex items-center justify-center text-agbalumo-orange relative">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
+                        {{ if gt (len .PendingListings) 0 }}
+                        <span
+                            class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-[#2a1f18]"></span>
+                        {{ end }}
+                    </div>
+                    <span class="font-medium text-white">Moderation Queue</span>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="text-white/30 group-hover:text-white/70 transition-colors">
+                    <path d="m9 18 6-6-6-6" />
+                </svg>
+            </button>
+
+        </div>
+    </div>
+    <!-- END: Admin Tools Grid -->
 
     <!-- Flash Message -->
     {{ if .FlashMessage }}
@@ -64,180 +115,315 @@
     </div>
     {{ end }}
 
-    <!-- Bulk Upload -->
-    <div class="bg-white/5 rounded-3xl shadow-soft p-6 mb-8 border border-white/10">
-        <h2 class="text-xl font-bold text-earth-cream mb-4">Bulk Upload</h2>
-        <form id="bulkUploadForm" action="/admin/upload" method="POST" enctype="multipart/form-data"
-            class="flex items-center gap-4"
-            hx-on:click="if(!confirm('Are you sure you want to upload this CSV document?')) event.preventDefault()">
-            <input type="hidden" name="_csrf" value="{{ .CSRF }}">
-            <div class="flex-1">
-                <input type="file" id="csvFileInput" name="csv_file" accept=".csv" required
-                    class="block w-full text-sm text-earth-cream/70 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-white/10 file:text-earth-accent hover:file:opacity-90 transition-all" />
-            </div>
-            <button type="submit" id="csvUploadBtn" disabled
-                class="shrink-0 bg-earth-accent hover:bg-earth-accent/90 text-white font-bold py-2 px-6 rounded-full shadow-md shadow-orange-500/10 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100">
-                Upload CSV
-            </button>
-        </form>
-        <div class="mt-4 text-xs text-earth-cream/70 flex gap-4">
-            <p><span class="font-bold text-earth-cream">Required:</span>
-                <code>title, type, description</code>
-            </p>
-            <p><span class="font-bold text-earth-cream">Optional:</span>
-                <code>email, phone, etc.</code>
-            </p>
-        </div>
+    <!-- BEGIN: User Feedback List -->
+    <div class="mb-6 flex justify-between items-end" data-purpose="section-header">
+        <h2 class="text-sm font-bold text-white uppercase tracking-widest text-[11px] opacity-70">User Feedback</h2>
     </div>
 
-    <!-- User Feedback -->
-    <div class="bg-white/5 rounded-3xl shadow-soft overflow-hidden mb-8 border border-white/10">
-        <div class="px-6 py-4 border-b border-white/10 bg-white/5 flex justify-between items-center">
-            <h2 class="text-xl font-bold text-earth-cream">User Feedback ({{ len .Feedbacks }})</h2>
-        </div>
-
-        {{ if .Feedbacks }}
-        <div class="max-h-96 overflow-y-auto no-scrollbar">
-            <table class="min-w-full divide-y divide-white/10">
-                <thead class="bg-white/5 sticky top-0 z-10">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-bold text-earth-cream/70 uppercase tracking-wider">
-                            Date</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold text-earth-cream/70 uppercase tracking-wider">
-                            Type</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold text-earth-cream/70 uppercase tracking-wider">
-                            User ID</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold text-earth-cream/70 uppercase tracking-wider">
-                            Content</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white/5 divide-y divide-white/10">
-                    {{ range .Feedbacks }}
-                    <tr class="hover:bg-white/10 transition-colors">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-earth-cream/70">
-                            {{ .CreatedAt.Format "Jan 02, 2006 15:04" }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            {{ if eq .Type "Issue" }}
-                            <span
-                                class="px-2 py-0.5 inline-flex text-[10px] font-bold rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 uppercase tracking-wider">Issue</span>
-                            {{ else if eq .Type "Feature" }}
-                            <span
-                                class="px-2 py-0.5 inline-flex text-[10px] font-bold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 uppercase tracking-wider">Feature</span>
-                            {{ else }}
-                            <span
-                                class="px-2 py-0.5 inline-flex text-[10px] font-bold rounded-full bg-stone-100 text-stone-800 dark:bg-stone-800 dark:text-stone-300 uppercase tracking-wider">{{
-                                .Type }}</span>
-                            {{ end }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-earth-cream/70">
-                            {{ if .UserID }}{{ .UserID }}{{ else }}<span
-                                class="text-stone-400 italic">Anonymous</span>{{ end }}
-                        </td>
-                        <td class="px-6 py-4 text-sm text-earth-cream break-words">
-                            {{ .Content | html }}
-                        </td>
-                    </tr>
-                    {{ end }}
-                </tbody>
-            </table>
+    <div class="space-y-4" data-purpose="approvals-list">
+        {{ range .Feedbacks }}
+        <!-- Feedback Item -->
+        <div
+            class="bg-[#2a1f18] rounded-2xl p-4 border border-white/5 flex items-center justify-between hover:bg-white/5 transition-colors cursor-pointer">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="text-white/50">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-white font-medium text-sm line-clamp-1 break-words max-w-xs">{{ .Content | html }}
+                    </h3>
+                    <p class="text-agbalumo-cream/70 text-xs mt-1">
+                        {{ .CreatedAt.Format "Jan 02, 2006 15:04" }} &bull;
+                        {{ if eq .Type "Issue" }}
+                        <span class="text-red-400">Issue</span>
+                        {{ else if eq .Type "Feature" }}
+                        <span class="text-green-400">Feature</span>
+                        {{ else }}
+                        <span class="text-stone-300">{{ .Type }}</span>
+                        {{ end }}
+                        &bull; {{ if .UserID }}{{ .UserID }}{{ else }}Anonymous{{ end }}
+                    </p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button
+                    class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+                    title="View Details">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" x2="12" y1="15" y2="3" />
+                    </svg>
+                </button>
+            </div>
         </div>
         {{ else }}
-        <div class="p-8 text-center text-earth-cream/70">
+        <div class="p-8 text-center text-agbalumo-cream/70 bg-[#2a1f18] rounded-2xl border border-white/5">
             No feedback found.
         </div>
         {{ end }}
     </div>
+    <!-- END: User Feedback List -->
 
-    <!-- Moderation Queue -->
-    <div class="bg-white/5 rounded-3xl shadow-soft overflow-hidden border border-white/10">
-        <div class="px-6 py-4 border-b border-white/10 bg-white/5">
-            <h2 class="text-xl font-bold text-earth-cream">Moderation Queue ({{ len .PendingListings }})
-            </h2>
+</div>
+
+<!-- BEGIN: Charts Modal -->
+<div id="chartsModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+    aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-black/80 transition-opacity backdrop-blur-sm" aria-hidden="true"
+            data-action="close-modal" data-target="chartsModal"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div
+            class="inline-block align-bottom bg-[#2a1f18] rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl w-full border border-white/10 p-6 relative">
+
+            <button data-action="close-modal" data-target="chartsModal"
+                class="absolute top-4 right-4 text-white/50 hover:text-white transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+
+            <h2 class="text-2xl font-serif text-white mb-6">Growth Charts</h2>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white/5 rounded-2xl p-4 border border-white/5">
+                    <h3 class="text-lg font-medium text-white mb-4">New Listings (Last 30 Days)</h3>
+                    <canvas id="listingChart" data-chart-data="{{ .ListingGrowth | toJson }}"></canvas>
+                </div>
+                <div class="bg-white/5 rounded-2xl p-4 border border-white/5">
+                    <h3 class="text-lg font-medium text-white mb-4">New Users (Last 30 Days)</h3>
+                    <canvas id="userChart" data-chart-data="{{ .UserGrowth | toJson }}"></canvas>
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-end">
+                <button type="button" data-action="close-modal" data-target="chartsModal"
+                    class="bg-white/10 hover:bg-white/20 text-white font-medium py-2 px-6 rounded-full transition-colors active:scale-95">
+                    Close
+                </button>
+            </div>
         </div>
-
-        {{ if .PendingListings }}
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-white/10">
-                <thead class="bg-white/5">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-bold text-earth-cream/70 uppercase tracking-wider">
-                            Date</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold text-earth-cream/70 uppercase tracking-wider">
-                            Title</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold text-earth-cream/70 uppercase tracking-wider">
-                            Type</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold text-earth-cream/70 uppercase tracking-wider">
-                            Owner</th>
-                        <th class="px-6 py-3 text-right text-xs font-bold text-earth-cream/70 uppercase tracking-wider">
-                            Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white/5 divide-y divide-white/10">
-                    {{ range .PendingListings }}
-                    <tr id="listing-{{ .ID }}" class="hover:bg-white/10 transition-colors">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-earth-cream/70">
-                            {{ .CreatedAt.Format "Jan 02, 2006" }}
-                        </td>
-                        <td class="px-6 py-4 text-sm font-bold text-earth-cream">
-                            <a href="/listings/{{ .ID }}" target="_blank" class="text-earth-accent hover:underline">{{
-                                .Title
-                                }}</a>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-earth-cream/70 uppercase font-medium">
-                            {{ .Type }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-earth-cream/70">
-                            {{ .OwnerOrigin }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-bold space-x-3">
-                            <button hx-post="/admin/listings/{{ .ID }}/approve" hx-target="#listing-{{ .ID }}"
-                                hx-swap="outerHTML" class="text-green-600 hover:text-green-700 transition-colors">
-                                Approve
-                            </button>
-                            <button hx-post="/admin/listings/{{ .ID }}/reject"
-                                hx-confirm="Are you sure you want to reject this listing?"
-                                hx-target="#listing-{{ .ID }}" hx-swap="outerHTML"
-                                class="text-red-600 hover:text-red-700 transition-colors">
-                                Reject
-                            </button>
-                        </td>
-                    </tr>
-                    {{ end }}
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Pagination Controls -->
-        <div class="flex justify-between items-center mt-4 px-6 py-3 border-t border-white/10">
-            {{ if gt .Page 1 }}
-            <a href="/admin?page={{ sub .Page 1 }}"
-                class="text-sm font-medium text-earth-accent hover:underline flex items-center gap-1">
-                <span class="material-symbols-outlined text-[16px]">chevron_left</span> Previous
-            </a>
-            {{ else }}
-            <div></div>
-            {{ end }}
-
-            <div class="text-sm text-earth-cream/70">Page {{ .Page }}</div>
-
-            {{ if .HasNextPage }}
-            <a href="/admin?page={{ add .Page 1 }}"
-                class="text-sm font-medium text-earth-accent hover:underline flex items-center gap-1">
-                Next <span class="material-symbols-outlined text-[16px]">chevron_right</span>
-            </a>
-            {{ else }}
-            <div></div>
-            {{ end }}
-        </div>
-        {{ else }}
-        <div class="p-6 text-center text-earth-cream/70">
-            No pending listings. Good job!
-        </div>
-        {{ end }}
     </div>
 </div>
+<!-- END: Charts Modal -->
+
+<!-- BEGIN: Bulk Upload Modal -->
+<div id="uploadModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+    aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-black/80 transition-opacity backdrop-blur-sm" aria-hidden="true"
+            data-action="close-modal" data-target="uploadModal"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div
+            class="inline-block align-bottom bg-[#2a1f18] rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl w-full border border-white/10 p-6 relative">
+
+            <button data-action="close-modal" data-target="uploadModal"
+                class="absolute top-4 right-4 text-white/50 hover:text-white transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17 8 12 3 7 8" />
+                        <line x1="12" x2="12" y1="3" y2="15" />
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-serif text-white">Bulk Upload Listings</h2>
+            </div>
+
+            <form id="bulkUploadForm" action="/admin/upload" method="POST" enctype="multipart/form-data"
+                class="space-y-6"
+                hx-on:click="if(!confirm('Are you sure you want to upload this CSV document?')) event.preventDefault()">
+                <input type="hidden" name="_csrf" value="{{ .CSRF }}">
+
+                <div
+                    class="border-2 border-dashed border-white/20 rounded-2xl p-8 text-center hover:border-agbalumo-orange/50 transition-colors bg-white/5">
+                    <input type="file" id="csvFileInput" name="csv_file" accept=".csv" required
+                        class="block w-full text-sm text-agbalumo-cream/70 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-medium file:bg-white/10 file:text-white hover:file:bg-white/20 transition-all cursor-pointer" />
+                    <p class="mt-4 text-xs text-agbalumo-cream/50">Supported format: .csv</p>
+                </div>
+
+                <div class="bg-white/5 rounded-xl p-4 text-sm text-agbalumo-cream/70 shadow-inner">
+                    <p class="mb-2"><span class="font-bold text-white">Required columns:</span>
+                        <code>title, type, description</code>
+                    </p>
+                    <p><span class="font-bold text-white">Optional columns:</span> <code>email, phone, etc.</code></p>
+                </div>
+
+                <div class="flex justify-end gap-3 mt-8">
+                    <button type="button" data-action="close-modal" data-target="uploadModal"
+                        class="bg-white/10 hover:bg-white/20 text-white font-medium py-3 px-6 rounded-full transition-colors active:scale-95">
+                        Cancel
+                    </button>
+                    <button type="submit" id="csvUploadBtn" disabled
+                        class="bg-agbalumo-orange hover:bg-agbalumo-orange/90 text-[#140e0a] font-bold py-3 px-8 rounded-full shadow-lg shadow-orange-500/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Upload CSV
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- END: Bulk Upload Modal -->
+
+<!-- BEGIN: Moderation Queue Modal -->
+<div id="moderationModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+    aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-black/80 transition-opacity backdrop-blur-sm" aria-hidden="true"
+            data-action="close-modal" data-target="moderationModal"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div
+            class="inline-block align-bottom bg-[#2a1f18] rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle w-full max-w-5xl border border-white/10 relative flex flex-col max-h-[90vh]">
+
+            <div class="px-6 py-5 border-b border-white/10 flex justify-between items-center shrink-0">
+                <h2 class="text-xl font-serif text-white flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 rounded-full bg-agbalumo-orange/20 flex items-center justify-center text-agbalumo-orange">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
+                    </div>
+                    Moderation Queue <span
+                        class="text-sm font-sans text-white/50 bg-white/10 px-2 py-0.5 rounded-full ml-2">{{ len
+                        .PendingListings }}</span>
+                </h2>
+                <button data-action="close-modal" data-target="moderationModal"
+                    class="text-white/50 hover:text-white transition-colors p-2">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div class="overflow-y-auto grow p-6 bg-[#18100B]">
+                {{ if .PendingListings }}
+                <div class="overflow-x-auto rounded-2xl border border-white/10 bg-[#2a1f18]">
+                    <table class="min-w-full divide-y divide-white/10">
+                        <thead class="bg-white/5">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                    Date</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                    Title</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                    Type</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                    Owner</th>
+                                <th class="px-6 py-4 text-right text-xs font-bold text-white uppercase tracking-wider">
+                                    Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            {{ range .PendingListings }}
+                            <tr id="listing-{{ .ID }}" class="hover:bg-white/5 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-agbalumo-cream/70">
+                                    {{ .CreatedAt.Format "Jan 02, 2006" }}
+                                </td>
+                                <td class="px-6 py-4 text-sm font-medium text-white">
+                                    <a href="/listings/{{ .ID }}" target="_blank"
+                                        class="hover:text-agbalumo-orange transition-colors">{{ .Title }}</a>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-agbalumo-cream/70 uppercase">
+                                    {{ .Type }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-agbalumo-cream/70">
+                                    {{ .OwnerOrigin }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm space-x-2">
+                                    <button hx-post="/admin/listings/{{ .ID }}/approve" hx-target="#listing-{{ .ID }}"
+                                        hx-swap="outerHTML"
+                                        class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-500/10 text-green-400 hover:bg-green-500/20 hover:text-green-300 transition-colors"
+                                        title="Approve">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="20 6 9 17 4 12" />
+                                        </svg>
+                                    </button>
+                                    <button hx-post="/admin/listings/{{ .ID }}/reject"
+                                        hx-confirm="Are you sure you want to reject this listing?"
+                                        hx-target="#listing-{{ .ID }}" hx-swap="outerHTML"
+                                        class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors"
+                                        title="Reject">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="18" x2="6" y1="6" y2="18" />
+                                            <line x1="6" x2="18" y1="6" y2="18" />
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                            {{ end }}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination Nav (Inside Modal) -->
+                <div class="flex justify-between items-center mt-6">
+                    {{ if gt .Page 1 }}
+                    <a href="/admin?page={{ sub .Page 1 }}"
+                        class="text-sm font-medium text-white hover:text-agbalumo-orange transition-colors flex items-center gap-1 bg-white/5 py-2 px-4 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m15 18-6-6 6-6" />
+                        </svg> Previous
+                    </a>
+                    {{ else }}
+                    <div></div>
+                    {{ end }}
+
+                    <div class="text-sm text-agbalumo-cream/50 bg-white/5 py-1 px-3 rounded-full">Page {{ .Page }}</div>
+
+                    {{ if .HasNextPage }}
+                    <a href="/admin?page={{ add .Page 1 }}"
+                        class="text-sm font-medium text-white hover:text-agbalumo-orange transition-colors flex items-center gap-1 bg-white/5 py-2 px-4 rounded-full">
+                        Next <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path d="m9 18 6-6-6-6" />
+                        </svg>
+                    </a>
+                    {{ else }}
+                    <div></div>
+                    {{ end }}
+                </div>
+
+                {{ else }}
+                <div
+                    class="p-12 text-center text-agbalumo-cream/70 bg-[#2a1f18] rounded-2xl border border-white/5 flex flex-col items-center justify-center">
+                    <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 text-white/30">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m9 12 2 2 4-4" />
+                            <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+                        </svg>
+                    </div>
+                    <p class="text-lg font-medium text-white mb-1">Queue is Empty</p>
+                    <p class="text-sm text-white/50">There are no listings awaiting moderation.</p>
+                </div>
+                {{ end }}
+            </div>
+
+            <div class="px-6 py-4 border-t border-white/10 shrink-0 flex justify-end bg-[#2a1f18]">
+                <button type="button" data-action="close-modal" data-target="moderationModal"
+                    class="bg-white/10 hover:bg-white/20 text-white font-medium py-2.5 px-6 rounded-full transition-colors active:scale-95">
+                    Close Queue
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: Moderation Queue Modal -->
 
 <script src="/static/js/chart.umd.min.js" defer></script>
 {{ end }}{{ define "extra_scripts" }}
-<script src="/static/js/admin-dashboard.js" defer></script>{{ end }}{{ define "filters" }}{{ end }}
+<script src="/static/js/admin-dashboard.js" defer></script>
+{{ end }}{{ define "filters" }}{{ end }}
