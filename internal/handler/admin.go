@@ -134,6 +134,12 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 		}
 	}
 
+	counts, _ := h.Repo.GetCounts(ctx)
+	listingCount := 0
+	for _, c := range counts {
+		listingCount += c
+	}
+
 	return c.Render(http.StatusOK, "admin_dashboard.html", map[string]interface{}{
 		"PendingListings": pendingListings,
 		"Page":            pagination.Page,
@@ -145,6 +151,7 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 		"Feedbacks":       feedbacks,
 		"User":            c.Get("User"),
 		"FlashMessage":    flashMsg,
+		"ListingCount":    listingCount,
 	})
 }
 
