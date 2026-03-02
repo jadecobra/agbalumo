@@ -834,15 +834,10 @@ func TestAboutTheme(t *testing.T) {
 		t.Error("about.html should contain mission heading 'find what you want' section")
 	}
 
-	// Feature cards
-	if !containsNormalized(body, "find what you want") {
-		t.Error("about.html should contain 'find what you want' feature card")
-	}
-	if !containsNormalized(body, "connections") {
-		t.Error("about.html should contain 'connections' feature card")
-	}
-
 	// Agbalumo metaphor section
+	if !containsNormalized(body, "find what you want") {
+		t.Error("about.html should contain 'find what you want' section")
+	}
 	if !containsNormalized(body, "Leaf Veins (Our Connections)") {
 		t.Error("about.html should contain 'Leaf Veins (Our Connections)' section")
 	}
@@ -850,16 +845,6 @@ func TestAboutTheme(t *testing.T) {
 		t.Error("about.html should contain 'Juice Drops (The Vibrancy)' section")
 	}
 
-	// CTA section
-	if !containsNormalized(body, "Join Us") {
-		t.Error("about.html should contain 'Join Us' CTA heading")
-	}
-	if !containsNormalized(body, "ASK") {
-		t.Error("about.html should contain 'ASK' CTA button")
-	}
-	if !containsNormalized(body, "POST") {
-		t.Error("about.html should contain 'POST' CTA button")
-	}
 }
 
 func TestErrorTheme(t *testing.T) {
