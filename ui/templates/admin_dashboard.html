@@ -43,9 +43,9 @@ duration-300{{ end }}
         <!-- BEGIN: Top Metrics Banner -->
         <div class="bg-earth-sand py-2 mb-12 shadow-2xl border-l-[6px] border-earth-ochre" data-purpose="summary-card">
             <div class="grid grid-cols-3 divide-x divide-earth-dark/10">
-                {{ template "metric_stat_sharp" dict "Label" "Total Listings" "Value" .ListingCount }}
-                {{ template "metric_stat_sharp" dict "Label" "Pending" "Value" (len .PendingListings) }}
-                {{ template "metric_stat_sharp" dict "Label" "Total Users" "Value" .UserCount }}
+                {{ template "metric_stat_sharp" dict "Label" "Total Listings" "Value" .ListingCount "Modal" "chartsModal" }}
+                {{ template "metric_stat_sharp" dict "Label" "Pending" "Value" (len .PendingListings) "Modal" "moderationModal" }}
+                {{ template "metric_stat_sharp" dict "Label" "Total Users" "Value" .UserCount "Modal" "chartsModal" }}
             </div>
         </div>
         <!-- END: Top Metrics Banner -->

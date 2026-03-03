@@ -140,3 +140,44 @@ func TestAdminDashboardFooterPosition(t *testing.T) {
 		}
 	}
 }
+
+func TestMetricCardsHaveModalTriggers(t *testing.T) {
+	e := echo.New()
+	e.Renderer = &RealTemplateRenderer{templates: NewAdminTemplate(t)}
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("GetPendingListings", testifyMock.Anything, 50, 0).Return([]domain.Listing{}, nil)
+	mockRepo.On("GetUserCount", testifyMock.Anything).Return(42, nil)
+	mockRepo.On("GetFeedbackCounts", testifyMock.Anything).Return(map[domain.FeedbackType]int{}, nil)
+	mockRepo.On("GetListingGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)
+	mockRepo.On("GetUserGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)
+	mockRepo.On("GetAllFeedback", testifyMock.Anything).Return([]domain.Feedback{}, nil)
+	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{domain.Business: 5}, nil)
+
+	h := handler.NewAdminHandler(mockRepo, nil, nil)
+
+	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	if err := h.HandleDashboard(c); err != nil {
+		t.Fatalf("HandleDashboard failed: %v", err)
+	}
+
+	body := rec.Body.String()
+
+	// Total Listings metric → chartsModal
+	if !strings.Contains(body, `data-modal-target="chartsModal"`) {
+		t.Error("Expected Total Listings metric card to have data-modal-target=\"chartsModal\"")
+	}
+
+	// Pending metric → moderationModal
+	if !strings.Contains(body, `data-modal-target="moderationModal"`) {
+		t.Error("Expected Pending metric card to have data-modal-target=\"moderationModal\"")
+	}
+
+	// Metric cards should be clickable (have open-modal action)
+	if !strings.Contains(body, `data-action="open-modal"`) {
+		t.Error("Expected metric cards to have data-action=\"open-modal\"")
+	}
+}
