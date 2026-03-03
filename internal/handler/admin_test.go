@@ -42,6 +42,8 @@ func TestAdminHandler_HandleDashboard(t *testing.T) {
 	mockRepo.On("GetListingGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)
 	mockRepo.On("GetUserGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)
 	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{}, nil)
+	mockRepo.On("GetCategories", testifyMock.Anything, testifyMock.Anything).Return([]domain.CategoryData{}, nil)
+	mockRepo.On("GetAllUsers", testifyMock.Anything, 10, 0).Return([]domain.User{}, nil)
 
 	h := NewAdminHandler(mockRepo, service.NewCSVService(), config.LoadConfig())
 

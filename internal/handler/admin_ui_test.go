@@ -102,6 +102,7 @@ func TestAdminDashboardFooterPosition(t *testing.T) {
 	mockRepo.On("GetListingGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)
 	mockRepo.On("GetUserGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)
 	mockRepo.On("GetAllFeedback", testifyMock.Anything).Return(feedbacks, nil)
+	mockRepo.On("GetAllUsers", testifyMock.Anything, 10, 0).Return([]domain.User{}, nil)
 	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{domain.Business: 10}, nil)
 
 	h := handler.NewAdminHandler(mockRepo, nil, nil)
@@ -152,6 +153,7 @@ func TestMetricCardsHaveModalTriggers(t *testing.T) {
 	mockRepo.On("GetListingGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)
 	mockRepo.On("GetUserGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)
 	mockRepo.On("GetAllFeedback", testifyMock.Anything).Return([]domain.Feedback{}, nil)
+	mockRepo.On("GetAllUsers", testifyMock.Anything, 10, 0).Return([]domain.User{}, nil)
 	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{domain.Business: 5}, nil)
 
 	h := handler.NewAdminHandler(mockRepo, nil, nil)
@@ -174,6 +176,11 @@ func TestMetricCardsHaveModalTriggers(t *testing.T) {
 	// Pending metric → moderationModal
 	if !strings.Contains(body, `data-modal-target="moderationModal"`) {
 		t.Error("Expected Pending metric card to have data-modal-target=\"moderationModal\"")
+	}
+
+	// Total Users metric → usersModal
+	if !strings.Contains(body, `data-modal-target="usersModal"`) {
+		t.Error("Expected Total Users metric card to have data-modal-target=\"usersModal\"")
 	}
 
 	// Metric cards should be clickable (have open-modal action)

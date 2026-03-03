@@ -146,6 +146,12 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 		categories = []domain.CategoryData{}
 	}
 
+	users, err := h.Repo.GetAllUsers(ctx, 10, 0)
+	if err != nil {
+		c.Logger().Errorf("failed to get users: %v", err)
+		users = []domain.User{}
+	}
+
 	return c.Render(http.StatusOK, "admin_dashboard.html", map[string]interface{}{
 		"PendingListings": pendingListings,
 		"Page":            pagination.Page,
@@ -159,6 +165,7 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 		"FlashMessage":    flashMsg,
 		"ListingCount":    listingCount,
 		"Categories":      categories,
+		"Users":           users,
 	})
 }
 

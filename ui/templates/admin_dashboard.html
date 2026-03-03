@@ -43,9 +43,11 @@ duration-300{{ end }}
         <!-- BEGIN: Top Metrics Banner -->
         <div class="bg-earth-sand py-2 mb-12 shadow-2xl border-l-[6px] border-earth-ochre" data-purpose="summary-card">
             <div class="grid grid-cols-3 divide-x divide-earth-dark/10">
-                {{ template "metric_stat_sharp" dict "Label" "Total Listings" "Value" .ListingCount "Modal" "chartsModal" }}
-                {{ template "metric_stat_sharp" dict "Label" "Pending" "Value" (len .PendingListings) "Modal" "moderationModal" }}
-                {{ template "metric_stat_sharp" dict "Label" "Total Users" "Value" .UserCount "Modal" "chartsModal" }}
+                {{ template "metric_stat_sharp" dict "Label" "Total Listings" "Value" .ListingCount "Modal"
+                "chartsModal" }}
+                {{ template "metric_stat_sharp" dict "Label" "Pending" "Value" (len .PendingListings) "Modal"
+                "moderationModal" }}
+                {{ template "metric_stat_sharp" dict "Label" "Total Users" "Value" .UserCount "Modal" "usersModal" }}
             </div>
         </div>
         <!-- END: Top Metrics Banner -->
@@ -56,13 +58,17 @@ duration-300{{ end }}
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-                {{ template "admin_tool_btn_sharp" dict "Target" "chartsModal" "Label" "View Charts" "IconBgClass" "bg-earth-ochre/10" "IconColorClass" "text-earth-ochre" "Icon" "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'> <path d='M3 3v18h18' /> <path d='m19 9-5 5-4-4-3 3' /> </svg>" }}
+                {{ template "admin_tool_btn_sharp" dict "Target" "chartsModal" "Label" "View Charts" "IconBgClass"
+                "bg-earth-ochre/10" "IconColorClass" "text-earth-ochre" "Icon" "" }}
 
-                {{ template "admin_tool_btn_sharp" dict "Target" "uploadModal" "Label" "Bulk Upload CSV" "IconBgClass" "bg-blue-500/10" "IconColorClass" "text-blue-500" "Icon" "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'> <path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4' /> <polyline points='17 8 12 3 7 8' /> <line x1='12' x2='12' y1='3' y2='15' /> </svg>" }}
+                {{ template "admin_tool_btn_sharp" dict "Target" "uploadModal" "Label" "Bulk Upload CSV" "IconBgClass"
+                "bg-blue-500/10" "IconColorClass" "text-blue-500" "Icon" "" }}
 
-                {{ template "admin_tool_btn_sharp" dict "Target" "moderationModal" "Label" "Moderation Queue" "IconBgClass" "bg-earth-ochre/10" "IconColorClass" "text-earth-ochre" "Icon" "<div class='relative'><svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'> <path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' /> </svg></div>" }}
+                {{ template "admin_tool_btn_sharp" dict "Target" "moderationModal" "Label" "Moderation Queue"
+                "IconBgClass" "bg-earth-ochre/10" "IconColorClass" "text-earth-ochre" "Icon" "" }}
 
-                {{ template "admin_tool_btn_sharp" dict "Target" "categoryModal" "Label" "Manage Categories" "IconBgClass" "bg-green-500/10" "IconColorClass" "text-green-500" "Icon" "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M3 3h18v18H3z'/><path d='M9 3v18'/><path d='M3 9h18'/><path d='M3 15h18'/></svg>" }}
+                {{ template "admin_tool_btn_sharp" dict "Target" "categoryModal" "Label" "Manage Categories"
+                "IconBgClass" "bg-green-500/10" "IconColorClass" "text-green-500" "Icon" "" }}
 
             </div>
         </div>
@@ -78,7 +84,8 @@ duration-300{{ end }}
 
         <!-- BEGIN: User Feedback List -->
         <div class="mb-8 border-b border-white/10 pb-4" data-purpose="section-header">
-            <h2 class="text-[10px] font-bold text-earth-ochre mb-6 uppercase tracking-[0.3em] opacity-90">User Feedback
+            <h2 class="text-[10px] font-bold text-earth-ochre mb-6 uppercase tracking-[0.3em] opacity-90">User
+                Feedback
             </h2>
         </div>
 
@@ -100,11 +107,14 @@ duration-300{{ end }}
                                 class="text-white font-bold text-sm tracking-wide truncate max-w-[200px] sm:max-w-xs uppercase">
                                 {{ .Content | html }}</h3>
                             {{ if eq .Type "Issue" }}
-                            {{ template "status_badge_sharp" dict "Label" "issue" "ColorClasses" "bg-red-600 text-white" }}
+                            {{ template "status_badge_sharp" dict "Label" "issue" "ColorClasses" `bg-red-600 text-white`
+                            }}
                             {{ else if eq .Type "Feature" }}
-                            {{ template "status_badge_sharp" dict "Label" "feature" "ColorClasses" "bg-blue-600 text-white" }}
+                            {{ template "status_badge_sharp" dict "Label" "feature" "ColorClasses" `bg-blue-600
+                            text-white` }}
                             {{ else }}
-                            {{ template "status_badge_sharp" dict "Label" .Type "ColorClasses" "bg-white/10 text-white/70" }}
+                            {{ template "status_badge_sharp" dict "Label" .Type "ColorClasses" `bg-white/10
+                            text-white/70` }}
                             {{ end }}
                         </div>
                         <p class="font-bold text-[10px] uppercase tracking-[0.2em] text-white/50">
@@ -156,19 +166,112 @@ duration-300{{ end }}
                     <canvas id="listingChart" data-chart-data="{{ .ListingGrowth | toJson }}"></canvas>
                 </div>
                 <div class="bg-white/5 p-6 border border-white/5">
-                    <h3 class="text-[10px] font-bold text-earth-ochre mb-6 uppercase tracking-[0.2em]">New Users (Last
+                    <h3 class="text-[10px] font-bold text-earth-ochre mb-6 uppercase tracking-[0.2em]">New Users
+                        (Last
                         30 Days)</h3>
                     <canvas id="userChart" data-chart-data="{{ .UserGrowth | toJson }}"></canvas>
                 </div>
             </div>
 
             <div class="mt-12 flex justify-end">
-                {{ template "button_sharp" dict "Label" "Close" "DataAction" "close-modal" "DataTarget" "chartsModal" "Classes" "bg-white/10 hover:bg-white/20 text-white px-8 py-3 font-bold uppercase text-xs tracking-widest transition-all" }}
+                {{ template "button_sharp" dict "Label" "Close" "DataAction" "close-modal" "DataTarget" "chartsModal"
+                "Classes" `bg-white/10 hover:bg-white/20 text-white px-8 py-3 font-bold uppercase text-xs
+                tracking-widest transition-all` }}
             </div>
         </div>
     </div>
 </div>
 <!-- END: Charts Modal -->
+
+<!-- BEGIN: Users Modal -->
+<div id="usersModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+    aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-earth-dark/90 transition-opacity backdrop-blur-sm" aria-hidden="true"
+            data-action="close-modal" data-target="usersModal"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div
+            class="inline-block align-bottom bg-earth-dark border border-white/10 text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl w-full p-8 relative">
+
+            <button data-action="close-modal" data-target="usersModal"
+                class="absolute top-6 right-6 text-white/30 hover:text-white transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+
+            <h2 class="text-3xl font-serif text-white mb-8 uppercase tracking-tight">Recent Users</h2>
+
+            <div class="bg-white/5 border border-white/10 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-white/10">
+                        <thead class="bg-white/5">
+                            <tr>
+                                <th
+                                    class="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+                                    User</th>
+                                <th
+                                    class="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+                                    Role</th>
+                                <th
+                                    class="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+                                    Joined</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            {{ range .Users }}
+                            <tr class="hover:bg-white/5 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="h-8 w-8 shrink-0">
+                                            <img class="h-8 w-8 object-cover border border-white/10"
+                                                src="{{ if .AvatarURL }}{{ .AvatarURL }}{{ else }}/static/images/default-avatar.png{{ end }}"
+                                                alt="{{ .Name }}">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-xs font-bold text-white uppercase tracking-wide">{{ .Name
+                                                }}</div>
+                                            <div class="text-[10px] text-white/40 uppercase tracking-widest">{{ .Email
+                                                }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    {{ if eq .Role "Admin" }}
+                                    {{ template "status_badge_sharp" dict "Label" "Admin" "ColorClasses" `bg-purple-600
+                                    text-white` }}
+                                    {{ else }}
+                                    {{ template "status_badge_sharp" dict "Label" .Role "ColorClasses" `bg-white/10
+                                    text-white/70` }}
+                                    {{ end }}
+                                </td>
+                                <td
+                                    class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                                    {{ .CreatedAt.Format "Jan 02, 2006" }}
+                                </td>
+                            </tr>
+                            {{ end }}
+                        </tbody>
+                    </table>
+                </div>
+                {{ if not .Users }}
+                <div class="p-12 text-center text-white/30 border-t border-white/5">
+                    <p class="uppercase tracking-[0.3em] text-[10px] font-bold">No users found</p>
+                </div>
+                {{ end }}
+            </div>
+
+            <div class="mt-8 flex justify-between items-center">
+                <a href="/admin/users"
+                    class="text-[10px] font-bold text-earth-ochre hover:text-earth-ochre-light uppercase tracking-widest transition-colors flex items-center gap-2">
+                    View All Users <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </a>
+                {{ template "button_sharp" dict "Label" "Close" "DataAction" "close-modal" "DataTarget" "usersModal"
+                "Classes" `bg-white/10 hover:bg-white/20 text-white px-8 py-3 font-bold uppercase text-xs
+                tracking-widest transition-all` }}
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: Users Modal -->
 
 <!-- BEGIN: Bulk Upload Modal -->
 <div id="uploadModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
@@ -205,7 +308,8 @@ duration-300{{ end }}
                     <div class="relative z-0">
                         <span
                             class="material-symbols-outlined text-white/20 text-4xl mb-4 group-hover:text-earth-ochre transition-colors">add</span>
-                        <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60">Choose CSV File</p>
+                        <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60">Choose CSV File
+                        </p>
                     </div>
                 </div>
 
@@ -218,7 +322,9 @@ duration-300{{ end }}
                 </div>
 
                 <div class="flex justify-end gap-4">
-                    {{ template "button_sharp" dict "Label" "Cancel" "DataAction" "close-modal" "DataTarget" "uploadModal" "Classes" "bg-white/10 hover:bg-white/20 text-white px-8 py-3 font-bold uppercase text-xs tracking-widest transition-all" }}
+                    {{ template "button_sharp" dict "Label" "Cancel" "DataAction" "close-modal" "DataTarget"
+                    "uploadModal" "Classes" `bg-white/10 hover:bg-white/20 text-white px-8 py-3 font-bold uppercase
+                    text-xs tracking-widest transition-all` }}
                     <button type="submit" id="csvUploadBtn" disabled
                         class="bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark px-10 py-3 font-bold uppercase text-xs tracking-[0.2em] transition-all disabled:opacity-30 disabled:grayscale">
                         Upload CSV
@@ -328,7 +434,8 @@ duration-300{{ end }}
                             class="border border-white/10 px-6 py-2 text-[10px] font-bold uppercase tracking-widest text-white/60 hover:text-white hover:bg-white/5 transition-all">Next</a>
                         {{ end }}
                     </div>
-                    <div class="text-[10px] font-bold tracking-[0.2em] text-white/30 uppercase">Page {{ .Page }}</div>
+                    <div class="text-[10px] font-bold tracking-[0.2em] text-white/30 uppercase">Page {{ .Page }}
+                    </div>
                 </div>
 
                 {{ else }}
@@ -341,7 +448,9 @@ duration-300{{ end }}
             </div>
 
             <div class="px-8 py-6 border-t border-white/10 shrink-0 flex justify-end">
-                {{ template "button_sharp" dict "Label" "Close Queue" "DataAction" "close-modal" "DataTarget" "moderationModal" "Classes" "bg-white/10 hover:bg-white/20 text-white px-10 py-3 font-bold uppercase text-xs tracking-widest transition-all" }}
+                {{ template "button_sharp" dict "Label" "Close Queue" "DataAction" "close-modal" "DataTarget"
+                "moderationModal" "Classes" `bg-white/10 hover:bg-white/20 text-white px-10 py-3 font-bold uppercase
+                text-xs tracking-widest transition-all` }}
             </div>
         </div>
     </div>
