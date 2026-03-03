@@ -56,6 +56,13 @@ type AnalyticsStore interface {
 	GetUserGrowth(ctx context.Context) ([]DailyMetric, error)
 }
 
+// CategoryStore handles category persistence and retrieval.
+type CategoryStore interface {
+	GetCategories(ctx context.Context, filter CategoryFilter) ([]CategoryData, error)
+	GetCategory(ctx context.Context, name string) (CategoryData, error)
+	SaveCategory(ctx context.Context, c CategoryData) error
+}
+
 // --- Composed Super-Interface (Backward Compatible) ---
 
 // ListingRepository composes all store interfaces into a single contract.
@@ -67,6 +74,7 @@ type ListingRepository interface {
 	FeedbackStore
 	AdminStore
 	AnalyticsStore
+	CategoryStore
 }
 
 // DailyMetric represents a daily count of an entity.

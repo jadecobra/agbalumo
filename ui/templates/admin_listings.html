@@ -15,27 +15,12 @@
         <a href="/admin/listings"
             class="px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all border {{ if not .Category }}bg-earth-accent text-white border-primary shadow-md shadow-orange-500/20{{ else }}bg-white/10 text-earth-cream border-white/10 hover:border-primary hover:text-earth-accent{{ end }}">All
             ({{.TotalCount}})</a>
-        <a href="/admin/listings?category=Business"
-            class="px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all border {{ if eq .Category `Business` }}bg-earth-accent text-white border-primary shadow-md shadow-orange-500/20{{ else }}bg-white/10 text-earth-cream border-white/10 hover:border-primary hover:text-earth-accent{{ end }}">Business
-            ({{index .Counts "Business"}})</a>
-        <a href="/admin/listings?category=Service"
-            class="px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all border {{ if eq .Category `Service` }}bg-earth-accent text-white border-primary shadow-md shadow-orange-500/20{{ else }}bg-white/10 text-earth-cream border-white/10 hover:border-primary hover:text-earth-accent{{ end }}">Service
-            ({{index .Counts "Service"}})</a>
-        <a href="/admin/listings?category=Product"
-            class="px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all border {{ if eq .Category `Product` }}bg-earth-accent text-white border-primary shadow-md shadow-orange-500/20{{ else }}bg-white/10 text-earth-cream border-white/10 hover:border-primary hover:text-earth-accent{{ end }}">Product
-            ({{index .Counts "Product"}})</a>
-        <a href="/admin/listings?category=Food"
-            class="px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all border {{ if eq .Category `Food` }}bg-earth-accent text-white border-primary shadow-md shadow-orange-500/20{{ else }}bg-white/10 text-earth-cream border-white/10 hover:border-primary hover:text-earth-accent{{ end }}">Food
-            ({{index .Counts "Food"}})</a>
-        <a href="/admin/listings?category=Event"
-            class="px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all border {{ if eq .Category `Event` }}bg-earth-accent text-white border-primary shadow-md shadow-orange-500/20{{ else }}bg-white/10 text-earth-cream border-white/10 hover:border-primary hover:text-earth-accent{{ end }}">Event
-            ({{index .Counts "Event"}})</a>
-        <a href="/admin/listings?category=Job"
-            class="px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all border {{ if eq .Category `Job` }}bg-earth-accent text-white border-primary shadow-md shadow-orange-500/20{{ else }}bg-white/10 text-earth-cream border-white/10 hover:border-primary hover:text-earth-accent{{ end }}">Job
-            ({{index .Counts "Job"}})</a>
-        <a href="/admin/listings?category=Request"
-            class="px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all border {{ if eq .Category `Request` }}bg-earth-accent text-white border-primary shadow-md shadow-orange-500/20{{ else }}bg-white/10 text-earth-cream border-white/10 hover:border-primary hover:text-earth-accent{{ end }}">Request
-            ({{index .Counts "Request"}})</a>
+        {{ range .Categories }}
+        <a href="/admin/listings?category={{ .Name }}"
+            class="px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all border {{ if eq $.Category .Name }}bg-earth-accent text-white border-primary shadow-md shadow-orange-500/20{{ else }}bg-white/10 text-earth-cream border-white/10 hover:border-primary hover:text-earth-accent{{ end }}">{{
+            .Name }}
+            ({{index $.Counts .Name}})</a>
+        {{ end }}
     </div>
 
     <!-- Bulk Actions Form -->

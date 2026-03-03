@@ -237,6 +237,23 @@ func (r *SQLiteRepository) migrate() error {
 	// Rebuild FTS index to pick up any existing data
 	_, _ = r.db.ExecContext(context.Background(), "INSERT INTO listings_fts(listings_fts) VALUES('rebuild');")
 
+	// Create Categories Table
+	createCategoriesTable := `
+	CREATE TABLE IF NOT EXISTS categories (
+		id TEXT PRIMARY KEY,
+		name TEXT,
+		claimable BOOLEAN,
+		is_system BOOLEAN,
+		active BOOLEAN,
+		requires_special_validation BOOLEAN,
+		created_at DATETIME,
+		updated_at DATETIME
+	);`
+
+	if _, err := r.db.ExecContext(context.Background(), createCategoriesTable); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -721,4 +738,117 @@ func (r *SQLiteRepository) GetUserGrowth(ctx context.Context) ([]domain.DailyMet
 		GROUP BY day
 		ORDER BY day ASC
 	`)
+}
+
+// --- Categories ---
+
+// SaveCategory inserts or updates a category.
+func (r *SQLiteRepository) SaveCategory(ctx context.Context, c domain.CategoryData) error {
+	query := `
+	INSERT INTO categories (id, name, claimable, is_system, active, requires_special_validation, created_at, updated_at)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+	ON CONFLICT(id) DO UPDATE SET
+		name = excluded.name,
+		claimable = excluded.claimable,
+		is_system = excluded.is_system,
+		active = excluded.active,
+		requires_special_validation = excluded.requires_special_validation,
+		updated_at = excluded.updated_at;
+	`
+	_, err := r.db.ExecContext(ctx, query,
+		c.ID, c.Name, c.Claimable, c.IsSystem, c.Active, c.RequiresSpecialValidation, c.CreatedAt, c.UpdatedAt,
+	)
+	return err
+}
+
+// GetCategories retrieves categories based on the provided filter.
+func (r *SQLiteRepository) GetCategories(ctx context.Context, filter domain.CategoryFilter) ([]domain.CategoryData, error) {
+	query := `
+		SELECT id, name, claimable, is_system, active, requires_special_validation, created_at, updated_at
+		FROM categories
+		WHERE 1=1
+	`
+	var args []interface{}
+
+	if filter.ActiveOnly {
+		query += ` AND active = 1`
+	}
+
+	query += ` ORDER BY name ASC`
+
+	rows, err := r.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var categories []domain.CategoryData
+	for rows.Next() {
+		var c domain.CategoryData
+		var created, updated sql.NullTime
+		err := rows.Scan(&c.ID, &c.Name, &c.Claimable, &c.IsSystem, &c.Active, &c.RequiresSpecialValidation, &created, &updated)
+		if err != nil {
+			return nil, err
+		}
+		if created.Valid {
+			c.CreatedAt = created.Time
+		}
+		if updated.Valid {
+			c.UpdatedAt = updated.Time
+		}
+		categories = append(categories, c)
+	}
+	return categories, rows.Err()
+}
+
+// EnsureCoreCategories seeds the categories table with core types that must exist.
+// This handles the JSON to DB sync process.
+// Note: It avoids setting 'active' to false if an admin has manually toggled it.
+// It will only upsert foundational settings.
+func (r *SQLiteRepository) UpsertCoreCategory(ctx context.Context, c domain.CategoryData) error {
+	// Let's do a smart upsert that doesn't blindly override 'active' if it already exists,
+	// allowing admins to disable core categories if they choose to (though the system
+	// flag is retained to indicate they shouldn't delete it).
+	// But it will override name, claimable, requires_special_validation over time as upgrades happen.
+	query := `
+	INSERT INTO categories (id, name, claimable, is_system, active, requires_special_validation, created_at, updated_at)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+	ON CONFLICT(id) DO UPDATE SET
+		name = excluded.name,
+		claimable = excluded.claimable,
+		is_system = excluded.is_system,
+		requires_special_validation = excluded.requires_special_validation,
+		updated_at = excluded.updated_at;
+	`
+	_, err := r.db.ExecContext(ctx, query,
+		c.ID, c.Name, c.Claimable, c.IsSystem, c.Active, c.RequiresSpecialValidation, c.CreatedAt, c.UpdatedAt,
+	)
+	return err
+}
+
+// GetCategory retrieves a single category by its name (ID).
+func (r *SQLiteRepository) GetCategory(ctx context.Context, name string) (domain.CategoryData, error) {
+	query := `
+		SELECT id, name, claimable, is_system, active, requires_special_validation, created_at, updated_at
+		FROM categories
+		WHERE id = ?
+	`
+	row := r.db.QueryRowContext(ctx, query, name)
+
+	var c domain.CategoryData
+	var created, updated sql.NullTime
+	err := row.Scan(&c.ID, &c.Name, &c.Claimable, &c.IsSystem, &c.Active, &c.RequiresSpecialValidation, &created, &updated)
+	if err == sql.ErrNoRows {
+		return domain.CategoryData{}, domain.ErrCategoryNotFound
+	}
+	if err != nil {
+		return domain.CategoryData{}, err
+	}
+	if created.Valid {
+		c.CreatedAt = created.Time
+	}
+	if updated.Valid {
+		c.UpdatedAt = updated.Time
+	}
+	return c, nil
 }

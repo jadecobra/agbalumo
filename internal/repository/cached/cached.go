@@ -8,9 +8,9 @@ import (
 	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
-// CachedListingStore wraps a ListingStore and caches GetCounts results with a TTL.
+// CachedListingStore wraps a ListingRepository and caches GetCounts results with a TTL.
 type CachedListingStore struct {
-	domain.ListingStore
+	domain.ListingRepository
 	mu            sync.RWMutex
 	counts        map[domain.Category]int
 	countsTime    time.Time
@@ -19,11 +19,11 @@ type CachedListingStore struct {
 	ttl           time.Duration
 }
 
-// NewCachedListingStore creates a new cached wrapper around a ListingStore.
-func NewCachedListingStore(store domain.ListingStore, ttl time.Duration) *CachedListingStore {
+// NewCachedListingStore creates a new cached wrapper around a ListingRepository.
+func NewCachedListingStore(store domain.ListingRepository, ttl time.Duration) *CachedListingStore {
 	return &CachedListingStore{
-		ListingStore: store,
-		ttl:          ttl,
+		ListingRepository: store,
+		ttl:               ttl,
 	}
 }
 
@@ -43,7 +43,7 @@ func (c *CachedListingStore) GetCounts(ctx context.Context) (map[domain.Category
 	c.mu.RUnlock()
 
 	// Cache miss — fetch from underlying store
-	counts, err := c.ListingStore.GetCounts(ctx)
+	counts, err := c.ListingRepository.GetCounts(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func (c *CachedListingStore) GetLocations(ctx context.Context) ([]string, error)
 	c.mu.RUnlock()
 
 	// Cache miss — fetch from underlying store
-	locations, err := c.ListingStore.GetLocations(ctx)
+	locations, err := c.ListingRepository.GetLocations(ctx)
 	if err != nil {
 		return nil, err
 	}

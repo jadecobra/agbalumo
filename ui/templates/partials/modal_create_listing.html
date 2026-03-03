@@ -24,12 +24,9 @@
                 <div class="bg-earth-sand/10 border border-white/20 p-1 relative flex items-center">
                     <select name="type"
                         class="w-full bg-transparent border-none px-4 py-3 h-12 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50 appearance-none">
-                        <option value="Business" class="bg-earth-dark text-white">Business</option>
-                        <option value="Service" class="bg-earth-dark text-white">Service</option>
-                        <option value="Product" class="bg-earth-dark text-white">Product</option>
-                        <option value="Food" class="bg-earth-dark text-white">Food (Restaurant/Catering)</option>
-                        <option value="Event" class="bg-earth-dark text-white">Event 📅</option>
-                        <option value="Job" class="bg-earth-dark text-white">Job</option>
+                        {{ range .Categories }}
+                        <option value="{{ .Name }}" class="bg-earth-dark text-white">{{ .Name }}</option>
+                        {{ end }}
                     </select>
                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white/50">
                         <span class="material-symbols-outlined text-[20px]">expand_more</span>
@@ -151,8 +148,7 @@
                 <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Photo
                     (Optional)</label>
                 <div id="image-preview-container" class="hidden relative mb-2">
-                    <img id="image-preview" class="h-24 w-24 object-cover  border border-white/20"
-                        alt="Preview">
+                    <img id="image-preview" class="h-24 w-24 object-cover  border border-white/20" alt="Preview">
                     <button type="button" id="remove-image-btn"
                         class="absolute -top-2 -right-2 bg-earth-ochre text-earth-dark p-1 hover:bg-earth-ochre-light shadow-lg">
                         <span class="material-symbols-outlined text-[16px]">close</span>

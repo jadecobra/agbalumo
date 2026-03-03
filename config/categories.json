@@ -1,0 +1,58 @@
+[
+    {
+        "id": "Business",
+        "name": "Business",
+        "claimable": true,
+        "is_system": true,
+        "active": true,
+        "requires_special_validation": false
+    },
+    {
+        "id": "Service",
+        "name": "Service",
+        "claimable": true,
+        "is_system": true,
+        "active": true,
+        "requires_special_validation": false
+    },
+    {
+        "id": "Product",
+        "name": "Product",
+        "claimable": true,
+        "is_system": true,
+        "active": true,
+        "requires_special_validation": false
+    },
+    {
+        "id": "Job",
+        "name": "Job",
+        "claimable": false,
+        "is_system": true,
+        "active": true,
+        "requires_special_validation": true
+    },
+    {
+        "id": "Request",
+        "name": "Request",
+        "claimable": false,
+        "is_system": true,
+        "active": true,
+        "requires_special_validation": true
+    },
+    {
+        "id": "Food",
+        "name": "Food",
+        "claimable": false,
+        "is_system": true,
+        "active": true,
+        "requires_special_validation": false
+    },
+    {
+        "id": "Event",
+        "name": "Event",
+        "claimable": true,
+        "is_system": true,
+        "active": true,
+        "requires_special_validation": true
+    }
+]

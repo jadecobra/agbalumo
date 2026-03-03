@@ -172,7 +172,8 @@ func TestHandleDetail(t *testing.T) {
 	c.SetParamValues("1")
 
 	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("FindByID", context.Background(), "1").Return(domain.Listing{Title: "Found It", Description: "Details here"}, nil)
+	mockRepo.On("FindByID", context.Background(), "1").Return(domain.Listing{Title: "Found It", Description: "Details here", Type: domain.Business}, nil)
+	mockRepo.On("GetCategory", context.Background(), string(domain.Business)).Return(domain.CategoryData{ID: string(domain.Business), Claimable: true}, nil).Maybe()
 
 	h := handler.NewListingHandler(mockRepo, nil)
 
@@ -631,6 +632,7 @@ func TestHandleClaim(t *testing.T) {
 			user: domain.User{ID: "claimer"},
 			setupMock: func(m *mock.MockListingRepository) {
 				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "", Type: domain.Business}, nil)
+				m.On("GetCategory", testifyMock.Anything, string(domain.Business)).Return(domain.CategoryData{ID: string(domain.Business), Claimable: true}, nil).Maybe()
 				m.On("Save", testifyMock.Anything, testifyMock.MatchedBy(func(l domain.Listing) bool {
 					return l.OwnerID == "claimer"
 				})).Return(nil)

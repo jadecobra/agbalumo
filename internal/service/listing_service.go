@@ -7,13 +7,19 @@ import (
 	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
+// ListingServiceRepo is the required repository interface for the listing service.
+type ListingServiceRepo interface {
+	domain.ListingStore
+	domain.CategoryStore
+}
+
 // ListingService encapsulates business logic for listing operations.
 type ListingService struct {
-	Repo domain.ListingStore
+	Repo ListingServiceRepo
 }
 
 // NewListingService creates a new ListingService.
-func NewListingService(repo domain.ListingStore) *ListingService {
+func NewListingService(repo ListingServiceRepo) *ListingService {
 	return &ListingService{Repo: repo}
 }
 
@@ -33,7 +39,12 @@ func (s *ListingService) ClaimListing(ctx context.Context, userID, listingID str
 		return domain.Listing{}, errors.New("listing is already owned")
 	}
 
-	if !domain.ClaimableTypes[listing.Type] {
+	categoryInfo, err := s.Repo.GetCategory(ctx, string(listing.Type))
+	if err != nil {
+		return domain.Listing{}, errors.New("invalid category type")
+	}
+
+	if !categoryInfo.Claimable {
 		return domain.Listing{}, errors.New("listing type cannot be claimed")
 	}
 

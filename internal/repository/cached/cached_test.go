@@ -11,7 +11,7 @@ import (
 
 // stubListingStore is a minimal stub satisfying domain.ListingStore for testing.
 type stubListingStore struct {
-	domain.ListingStore
+	domain.ListingRepository
 	getCountsCalls int
 	getCountsFunc  func() (map[domain.Category]int, error)
 }

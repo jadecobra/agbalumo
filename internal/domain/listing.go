@@ -5,19 +5,6 @@ import (
 	"time"
 )
 
-// Categories
-type Category string
-
-const (
-	Business Category = "Business"
-	Service  Category = "Service"
-	Product  Category = "Product"
-	Job      Category = "Job"
-	Request  Category = "Request"
-	Food     Category = "Food"
-	Event    Category = "Event"
-)
-
 var (
 	ErrInvalidDeadline = errors.New("request deadline cannot exceed 90 days")
 	ErrMissingContact  = errors.New("at least one contact method is required")
@@ -128,14 +115,6 @@ var ValidOrigins = map[string]bool{
 	"South Africa": true,
 	// Other
 	"Other": true,
-}
-
-// ClaimableTypes defines which listing categories can be claimed by users.
-var ClaimableTypes = map[Category]bool{
-	Business: true,
-	Service:  true,
-	Product:  true,
-	Event:    true,
 }
 
 // Validate enforces domain rules for the Listing.

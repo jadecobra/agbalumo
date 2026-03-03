@@ -1,6 +1,6 @@
 {{ template "base.html" . }}
 
-{{ define "title" }}find what you want - agbalumo{{ end }}
+{{ define "title" }}agbalumo: find what you want{{ end }}
 
 {{ define "header_classes" }}absolute top-0 w-full z-40 bg-transparent border-none text-white transition-all
 duration-300{{ end }}
@@ -54,7 +54,7 @@ duration-300{{ end }}
                     find what you want</h1>
                 <p
                     class="text-lg md:text-xl font-light mx-auto max-w-xl opacity-90 leading-relaxed text-white drop-shadow-md">
-                    businesses, services, products, events, even agbalumo
+                    businesses, services, products, events, agbalumo
                 </p>
             </div>
 
@@ -113,10 +113,10 @@ duration-300{{ end }}
                                 class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-ochre text-white transition-colors w-full border-b border-earth-dark/5">
                                 All Categories
                             </button>
-                            {{ range $category, $count := .Counts }}
-                            <button type="button" data-filter-type="category" data-filter-value="{{ $category }}"
+                            {{ range .Categories }}
+                            <button type="button" data-filter-type="category" data-filter-value="{{ .Name }}"
                                 class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-dark/5 hover:bg-earth-dark/10 text-earth-dark transition-colors w-full border-b border-earth-dark/5">
-                                {{ $category }} ({{ $count }})
+                                {{ .Name }} ({{ index $.Counts .Name }})
                             </button>
                             {{ end }}
                         </div>

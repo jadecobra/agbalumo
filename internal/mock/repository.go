@@ -130,3 +130,24 @@ func (m *MockListingRepository) GetUserGrowth(ctx context.Context) ([]domain.Dai
 	args := m.Called(ctx)
 	return args.Get(0).([]domain.DailyMetric), args.Error(1)
 }
+
+func (m *MockListingRepository) GetCategories(ctx context.Context, filter domain.CategoryFilter) ([]domain.CategoryData, error) {
+	for _, call := range m.ExpectedCalls {
+		if call.Method == "GetCategories" {
+			args := m.Called(ctx, filter)
+			return args.Get(0).([]domain.CategoryData), args.Error(1)
+		}
+	}
+	// Fallback to avoid panics in tests that haven't explicitly set this mock
+	return []domain.CategoryData{}, nil
+}
+
+func (m *MockListingRepository) GetCategory(ctx context.Context, name string) (domain.CategoryData, error) {
+	args := m.Called(ctx, name)
+	return args.Get(0).(domain.CategoryData), args.Error(1)
+}
+
+func (m *MockListingRepository) SaveCategory(ctx context.Context, c domain.CategoryData) error {
+	args := m.Called(ctx, c)
+	return args.Error(0)
+}

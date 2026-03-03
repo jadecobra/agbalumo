@@ -20,6 +20,7 @@ func TestListingService_ClaimListing(t *testing.T) {
 		svc := service.NewListingService(mockRepo)
 
 		mockRepo.On("FindByID", ctx, "loc-123").Return(domain.Listing{ID: "loc-123", Type: domain.Business}, nil)
+		mockRepo.On("GetCategory", ctx, string(domain.Business)).Return(domain.CategoryData{ID: string(domain.Business), Claimable: true}, nil).Maybe()
 		mockRepo.On("Save", ctx, testifyMock.MatchedBy(func(l domain.Listing) bool {
 			return l.OwnerID == "user-123"
 		})).Return(nil)
@@ -67,6 +68,7 @@ func TestListingService_ClaimListing(t *testing.T) {
 		svc := service.NewListingService(mockRepo)
 
 		mockRepo.On("FindByID", ctx, "loc-123").Return(domain.Listing{ID: "loc-123", Type: domain.Job}, nil)
+		mockRepo.On("GetCategory", ctx, string(domain.Job)).Return(domain.CategoryData{ID: string(domain.Job), Claimable: false}, nil).Maybe()
 
 		_, err := svc.ClaimListing(ctx, "user-123", "loc-123")
 		require.Error(t, err)
@@ -78,6 +80,7 @@ func TestListingService_ClaimListing(t *testing.T) {
 		svc := service.NewListingService(mockRepo)
 
 		mockRepo.On("FindByID", ctx, "loc-123").Return(domain.Listing{ID: "loc-123", Type: domain.Business}, nil)
+		mockRepo.On("GetCategory", ctx, string(domain.Business)).Return(domain.CategoryData{ID: string(domain.Business), Claimable: true}, nil).Maybe()
 		mockRepo.On("Save", ctx, testifyMock.Anything).Return(errors.New("db error"))
 
 		_, err := svc.ClaimListing(ctx, "user-123", "loc-123")

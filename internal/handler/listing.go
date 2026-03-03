@@ -16,13 +16,13 @@ import (
 )
 
 type ListingHandler struct {
-	Repo             domain.ListingStore
+	Repo             domain.ListingRepository
 	ImageService     service.ImageService
 	ListingSvc       *service.ListingService
 	GoogleMapsAPIKey string
 }
 
-func NewListingHandler(repo domain.ListingStore, imageService service.ImageService, opts ...string) *ListingHandler {
+func NewListingHandler(repo domain.ListingRepository, imageService service.ImageService, opts ...string) *ListingHandler {
 	var uploadDir string
 	if len(opts) > 0 {
 		uploadDir = opts[0]
@@ -108,7 +108,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		locations = []string{}
 	}
 
-	return c.Render(http.StatusOK, "index.html", map[string]interface{}{
+	return h.renderWithBaseContext(c, "index.html", map[string]interface{}{
 		"Listings":         listings,
 		"Page":             page,
 		"HasNextPage":      hasNextPage,
@@ -169,14 +169,20 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 	user, ok := GetUser(c)
 
 	// Check if the current user can claim this listing
-	canClaim := listing.OwnerID == "" && domain.ClaimableTypes[listing.Type]
+	canClaim := false
+	if listing.OwnerID == "" {
+		categoryInfo, err := h.Repo.GetCategory(c.Request().Context(), string(listing.Type))
+		if err == nil && categoryInfo.Claimable {
+			canClaim = true
+		}
+	}
 
 	isOwner := false
 	if ok {
 		isOwner = listing.OwnerID == user.ID
 	}
 
-	return c.Render(http.StatusOK, "modal_detail", map[string]interface{}{
+	return h.renderWithBaseContext(c, "modal_detail", map[string]interface{}{
 		"Listing":  listing,
 		"User":     user,
 		"IsOwner":  isOwner,
@@ -202,7 +208,7 @@ func (h *ListingHandler) HandleEdit(c echo.Context) error {
 		return RespondError(c, echo.NewHTTPError(http.StatusForbidden, "You are not the owner of this listing"))
 	}
 
-	return c.Render(http.StatusOK, "modal_edit_listing", map[string]interface{}{
+	return h.renderWithBaseContext(c, "modal_edit_listing", map[string]interface{}{
 		"Listing":          listing,
 		"GoogleMapsApiKey": h.GoogleMapsAPIKey,
 	})
@@ -210,7 +216,7 @@ func (h *ListingHandler) HandleEdit(c echo.Context) error {
 
 // HandleAbout renders the generic about page.
 func (h *ListingHandler) HandleAbout(c echo.Context) error {
-	return c.Render(http.StatusOK, "about.html", map[string]interface{}{
+	return h.renderWithBaseContext(c, "about.html", map[string]interface{}{
 		"User": c.Get("User"),
 	})
 }
@@ -465,10 +471,10 @@ func (h *ListingHandler) HandleProfile(c echo.Context) error {
 	}
 
 	if c.Request().Header.Get("HX-Request") == "true" {
-		return c.Render(http.StatusOK, "modal_profile", data)
+		return h.renderWithBaseContext(c, "modal_profile", data)
 	}
 
-	return c.Render(http.StatusOK, "profile.html", data)
+	return h.renderWithBaseContext(c, "profile.html", data)
 }
 
 // Helper methods
@@ -561,7 +567,7 @@ func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error
 		user = u
 	}
 
-	return c.Render(http.StatusOK, "listing_card", map[string]interface{}{
+	return h.renderWithBaseContext(c, "listing_card", map[string]interface{}{
 		"Listing": l,
 		"User":    user,
 	})
@@ -612,6 +618,18 @@ func (h *ListingHandler) renderImageErrorToast(c echo.Context, err error) error 
 	    <button hx-on:click="this.parentElement.remove()" 
 	            class="text-red-400 hover:text-red-600 dark:hover:text-red-200 transition-colors">
 	        <span class="material-symbols-outlined text-[18px]">close</span>
-	    </button>
 	</div>`, toastID, toastID, msg))
+}
+
+// renderWithBaseContext injects standard components like Categories into the payload
+func (h *ListingHandler) renderWithBaseContext(c echo.Context, tmpl string, data map[string]interface{}) error {
+	ctx := c.Request().Context()
+	categories, err := h.Repo.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: true})
+	if err != nil {
+		c.Logger().Errorf("Failed to retrieve categories: %v", err)
+		categories = []domain.CategoryData{}
+	}
+
+	data["Categories"] = categories
+	return c.Render(http.StatusOK, tmpl, data)
 }

@@ -140,6 +140,12 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 		listingCount += c
 	}
 
+	categories, err := h.Repo.GetCategories(ctx, domain.CategoryFilter{})
+	if err != nil {
+		c.Logger().Errorf("failed to get categories: %v", err)
+		categories = []domain.CategoryData{}
+	}
+
 	return c.Render(http.StatusOK, "admin_dashboard.html", map[string]interface{}{
 		"PendingListings": pendingListings,
 		"Page":            pagination.Page,
@@ -152,7 +158,42 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 		"User":            c.Get("User"),
 		"FlashMessage":    flashMsg,
 		"ListingCount":    listingCount,
+		"Categories":      categories,
 	})
+}
+
+// HandleAddCategory processes the form submission to add a new category
+func (h *AdminHandler) HandleAddCategory(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	name := c.FormValue("name")
+	if name == "" {
+		return c.Redirect(http.StatusFound, "/admin")
+	}
+
+	claimableStr := c.FormValue("claimable")
+	claimable := claimableStr == "true"
+
+	cat := domain.CategoryData{
+		Name:      name,
+		Claimable: claimable,
+		IsSystem:  false,
+		Active:    true,
+	}
+
+	err := h.Repo.SaveCategory(ctx, cat)
+	if err != nil {
+		c.Logger().Errorf("failed to save custom category: %v", err)
+	}
+
+	// Add success flash message (optional but good practice)
+	sess := customMiddleware.GetSession(c)
+	if sess != nil {
+		sess.AddFlash("Category added successfully!", "message")
+		sess.Save(c.Request(), c.Response())
+	}
+
+	return c.Redirect(http.StatusFound, "/admin")
 }
 
 // HandleUsers renders the list of users for admins.
@@ -196,6 +237,12 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 		counts = make(map[domain.Category]int)
 	}
 
+	categories, err := h.Repo.GetCategories(ctx, domain.CategoryFilter{})
+	if err != nil {
+		c.Logger().Errorf("failed to get categories: %v", err)
+		categories = []domain.CategoryData{}
+	}
+
 	strCounts, totalCount := ConvertCounts(counts)
 
 	return c.Render(http.StatusOK, "admin_listings.html", map[string]interface{}{
@@ -206,6 +253,7 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 		"SortField":   sortField,
 		"SortOrder":   sortOrder,
 		"Counts":      strCounts,
+		"Categories":  categories,
 		"TotalCount":  totalCount,
 		"User":        c.Get("User"),
 	})
