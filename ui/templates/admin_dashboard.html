@@ -31,7 +31,7 @@ duration-300{{ end }}
 {{ end }}
 
 {{ define "content" }}
-<div class="bg-earth-dark min-h-[100dvh] text-earth-sand w-full pb-20 pt-32 md:pt-40">
+<div class="bg-earth-dark flex-1 text-earth-sand w-full pb-20 pt-32 md:pt-40">
     <div class="container mx-auto px-4 max-w-4xl" data-purpose="app-content">
 
         <div class="mb-8" data-purpose="page-title">
@@ -148,7 +148,7 @@ duration-300{{ end }}
 
         <!-- BEGIN: User Feedback List -->
         <div class="mb-6 flex justify-between items-end" data-purpose="section-header">
-            <h2 class="text-2xl text-agbalumo-cream font-serif font-normal mb-6" >User Feedback</h2>
+            <h2 class="text-2xl text-agbalumo-cream font-serif font-normal mb-6">User Feedback</h2>
         </div>
 
         <!-- Need to close the inner container so that the list items can span to the edge if needed, but keeping it inside the container is fine. -->
@@ -182,7 +182,7 @@ duration-300{{ end }}
                                 .Type }}</span>
                             {{ end }}
                         </div>
-                        <p class="font-sans text-xs mt-1 leading-relaxed text-[#B0B0B0]" >
+                        <p class="font-sans text-xs mt-1 leading-relaxed text-[#B0B0B0]">
                             {{ .CreatedAt.Format "Jan 02, 2006 15:04" }} &bull; {{ if .UserID }}{{ .UserID }}{{ else
                             }}Anonymous{{ end }}
                         </p>
