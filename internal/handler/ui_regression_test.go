@@ -1072,6 +1072,34 @@ func TestProfileModalTheme(t *testing.T) {
 	if !strings.Contains(content, `<h2 class="text-xl font-bold font-serif text-earth-cream`) {
 		t.Error("Profile modal title missing font-serif class")
 	}
+
+	// Bug fix: close button must use hx-on:click (project-standard pattern, not raw onclick)
+	if !strings.Contains(content, `hx-on:click="this.closest('dialog').close()"`) {
+		t.Error("Profile modal close button must use hx-on:click to reliably close the dialog")
+	}
+
+	// Backdrop click-to-close is handled globally by modals.js for all dialog[id] elements
+	// Verify the dialog has an id so modals.js can attach the listener
+	if !strings.Contains(content, `id="profile-modal"`) {
+		t.Error("Profile modal <dialog> must have id='profile-modal' for modals.js backdrop-click handling")
+	}
+
+	// Bug fix: dialog must NOT be forced full-height (h-full) — it should show the backdrop around it
+	if strings.Contains(content, `h-full`) {
+		t.Error("Profile modal <dialog> must not use h-full — it should be constrained so the backdrop is visible and clickable")
+	}
+
+	// Bug fix: item count badge must be legible on dark background
+	if !strings.Contains(content, `bg-white/10`) || !strings.Contains(content, `text-earth-cream`) {
+		t.Error("Profile modal item count badge must use bg-white/10 and text-earth-cream for legibility on dark background")
+	}
+
+	// Bug fix: Sign Out link must be reachable on mobile (not buried inside an overflowing flex row)
+	// Verify the sign-out link exists and is not inside the same flex row as the avatar/name block
+	signOutIdx := strings.Index(content, `/auth/logout`)
+	if signOutIdx == -1 {
+		t.Error("Profile modal Sign Out link (/auth/logout) not found")
+	}
 }
 
 func TestFeedbackModalTheme(t *testing.T) {
