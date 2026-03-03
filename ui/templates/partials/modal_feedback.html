@@ -1,17 +1,16 @@
 <dialog id="feedback-modal"
-    class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-none md:max-w-lg m-0 md:m-auto rounded-none md:rounded-3xl shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed md:relative inset-0 md:inset-auto h-full md:h-auto">
+    class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-none md:max-w-lg m-0 md:m-auto  shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed md:relative inset-0 md:inset-auto h-full md:h-auto">
     <div
-        class="bg-earth-dark/95 backdrop-blur-xl border border-white/10 p-0 rounded-none md:rounded-3xl shadow-2xl relative overflow-y-auto flex flex-col h-full md:h-auto md:max-h-[85vh]">
+        class="bg-earth-dark/95 backdrop-blur-xl border border-white/10 p-0  shadow-2xl relative overflow-y-auto flex flex-col h-full md:h-auto md:max-h-[85vh]">
 
         <!-- Header -->
-        <div
-            class="flex items-center justify-between p-4 border-b border-white/10 bg-white/5 backdrop-blur-sm">
+        <div class="flex items-center justify-between p-4 border-b border-white/10 bg-white/5 backdrop-blur-sm">
             <h2 class="text-xl font-bold font-serif text-earth-cream flex items-center gap-2">
                 <span class="material-symbols-outlined text-earth-accent">feedback</span>
                 Submit Feedback
             </h2>
             <button hx-on:click="this.closest('dialog').close(); this.closest('dialog').remove();"
-                class="p-2 rounded-full hover:bg-white/10 text-stone-400 hover:text-white transition-colors">
+                class="p-2 hover:bg-white/10 text-stone-400 hover:text-white transition-colors">
                 <span class="material-symbols-outlined">close</span>
             </button>
         </div>
@@ -23,7 +22,8 @@
                 <label class="block text-sm font-bold text-earth-cream/70">Feedback Type</label>
                 <div class="flex gap-4">
                     <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="type" value="Issue" class="text-earth-accent focus:ring-primary" checked>
+                        <input type="radio" name="type" value="Issue" class="text-earth-accent focus:ring-primary"
+                            checked>
                         <span class="text-sm font-medium text-earth-cream">Issue</span>
                     </label>
                     <label class="flex items-center gap-2 cursor-pointer">
@@ -39,21 +39,20 @@
 
             <!-- Content -->
             <div class="space-y-1">
-                <label for="feedback-content"
-                    class="block text-sm font-bold text-earth-cream/70">Details</label>
+                <label for="feedback-content" class="block text-sm font-bold text-earth-cream/70">Details</label>
                 <textarea id="feedback-content" name="content" rows="4" required
-                    class="w-full rounded-xl border border-white/20 bg-white/5 focus:border-earth-accent focus:ring-1 focus:ring-earth-accent outline-none transition-all text-sm resize-none text-earth-cream placeholder:text-earth-cream/40"
+                    class="w-full border border-white/20 bg-white/5 focus:border-earth-accent focus:ring-1 focus:ring-earth-accent outline-none transition-all text-sm resize-none text-earth-cream placeholder:text-earth-cream/40"
                     placeholder="Tell us about the issue or feature..."></textarea>
             </div>
 
             <!-- Actions -->
             <div class="flex justify-end gap-3 pt-2">
                 <button type="button" hx-on:click="this.closest('dialog').close(); this.closest('dialog').remove();"
-                    class="px-5 py-2.5 rounded-full border border-white/20 font-bold text-earth-cream hover:bg-white/10 transition-all text-sm">
+                    class="px-5 py-2.5 border border-white/20 font-bold text-earth-cream hover:bg-white/10 transition-all text-sm">
                     Cancel
                 </button>
                 <button type="submit"
-                    class="px-5 py-2.5 bg-earth-accent text-white rounded-full font-bold shadow-soft hover:shadow-lg hover:bg-earth-accent/90 transition-all text-sm flex items-center gap-2">
+                    class="px-5 py-2.5 bg-earth-accent text-white font-bold shadow-soft hover:shadow-lg hover:bg-earth-accent/90 transition-all text-sm flex items-center gap-2">
                     <span class="material-symbols-outlined text-[18px]">send</span>
                     Submit
                 </button>

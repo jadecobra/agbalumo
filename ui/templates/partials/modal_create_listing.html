@@ -1,9 +1,9 @@
 <dialog id="create-listing-modal"
-    class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-none md:max-w-sm m-auto rounded-none shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed inset-0 h-full md:h-auto border border-white/20">
+    class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-none md:max-w-sm m-auto  shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed inset-0 h-full md:h-auto border border-white/20">
     <div class="bg-earth-dark/95 backdrop-blur-xl p-6 relative overflow-y-auto h-full md:h-auto md:max-h-[85vh]">
         <!-- Decorative Background -->
         <div
-            class="absolute top-0 right-0 w-32 h-32 bg-earth-accent/10 rounded-full blur-3xl -z-10 transform translate-x-10 -translate-y-10">
+            class="absolute top-0 right-0 w-32 h-32 bg-earth-accent/10 blur-3xl -z-10 transform translate-x-10 -translate-y-10">
         </div>
 
         <div class="flex justify-between items-start mb-8">
@@ -151,16 +151,16 @@
                 <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Photo
                     (Optional)</label>
                 <div id="image-preview-container" class="hidden relative mb-2">
-                    <img id="image-preview" class="h-24 w-24 object-cover rounded-none border border-white/20"
+                    <img id="image-preview" class="h-24 w-24 object-cover  border border-white/20"
                         alt="Preview">
                     <button type="button" id="remove-image-btn"
-                        class="absolute -top-2 -right-2 bg-earth-ochre text-earth-dark rounded-full p-1 hover:bg-earth-ochre-light shadow-lg">
+                        class="absolute -top-2 -right-2 bg-earth-ochre text-earth-dark p-1 hover:bg-earth-ochre-light shadow-lg">
                         <span class="material-symbols-outlined text-[16px]">close</span>
                     </button>
                 </div>
                 <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
                     <input name="image" type="file" accept="image/*" id="image-input"
-                        class="w-full text-white font-light text-sm file:mr-3 file:py-3 file:px-6 file:rounded-none file:border-0 file:text-[10px] file:uppercase file:tracking-widest file:font-bold file:bg-white/10 file:text-white hover:file:bg-white/20 transition-all cursor-pointer bg-transparent py-1 pl-1 outline-none">
+                        class="w-full text-white font-light text-sm file:mr-3 file:py-3 file:px-6 file: file:border-0 file:text-[10px] file:uppercase file:tracking-widest file:font-bold file:bg-white/10 file:text-white hover:file:bg-white/20 transition-all cursor-pointer bg-transparent py-1 pl-1 outline-none">
                 </div>
             </div>
 

@@ -72,6 +72,9 @@ func NewRealTemplate(t *testing.T) *template.Template {
 			}
 			return time.Since(createdAt) < 7*24*time.Hour
 		},
+		"safeHTML": func(s string) template.HTML {
+			return template.HTML(s)
+		},
 	}
 
 	tmpl, err := template.New("base").Funcs(funcMap).ParseGlob(templatePattern)
@@ -715,6 +718,9 @@ func TestProfileTheme(t *testing.T) {
 		"isNew": func(createdAt time.Time) bool {
 			return false
 		},
+		"safeHTML": func(s string) template.HTML {
+			return template.HTML(s)
+		},
 	}
 
 	tmpl := template.New("base").Funcs(funcMap)
@@ -788,6 +794,9 @@ func TestAboutTheme(t *testing.T) {
 		},
 		"isNew": func(createdAt time.Time) bool {
 			return false
+		},
+		"safeHTML": func(s string) template.HTML {
+			return template.HTML(s)
 		},
 	}
 
@@ -1104,7 +1113,7 @@ func TestSearchBarTheme(t *testing.T) {
 
 	content := string(templateContent)
 
-	if !strings.Contains(content, `rounded-none bg-transparent shadow-sm border border-white/20`) {
+	if !strings.Contains(content, `bg-transparent shadow-sm border border-white/20`) {
 		t.Error("Search Bar wrapper missing transparent sharp-edged styling")
 	}
 
@@ -1147,16 +1156,16 @@ func TestAdminDashboardTheme(t *testing.T) {
 
 	content := string(templateContent)
 
-	if !strings.Contains(content, `bg-[#F8F1E5]`) {
-		t.Error("Admin dashboard metrics card missing Stitch light styling bg-[#F8F1E5]")
+	if !strings.Contains(content, `bg-earth-sand`) {
+		t.Error("Admin dashboard metrics card missing semantic sand styling bg-earth-sand")
 	}
 
 	if !strings.Contains(content, `bg-earth-dark`) {
 		t.Error("Admin dashboard page missing dark theme background bg-earth-dark")
 	}
 
-	if !strings.Contains(content, `text-[#3E2C20]`) {
-		t.Error("Admin dashboard text missing Stitch dark text color text-[#3E2C20]")
+	if !strings.Contains(content, `text-earth-dark`) {
+		t.Error("Admin dashboard text missing semantic dark text color text-earth-dark")
 	}
 }
 

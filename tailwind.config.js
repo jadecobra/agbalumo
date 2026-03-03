@@ -41,7 +41,7 @@ module.exports = {
                 serif: ['"Playfair Display"', 'serif'],
             },
             borderRadius: {
-                "DEFAULT": "12px",
+                "DEFAULT": "0px",
                 "lg": "20px",
                 "xl": "32px",
                 "full": "9999px"

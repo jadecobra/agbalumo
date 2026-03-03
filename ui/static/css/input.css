@@ -40,9 +40,9 @@
   --color-accent-star: #C2185B;
 
   /* Radius */
-  --radius-sm: 12px;
-  --radius-md: 20px;
-  --radius-lg: 32px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
 
   /* Spacing */
   --space-xs: 8px;
@@ -76,7 +76,7 @@
 
 /* ── agbalumo Juicy Card ── */
 .card-juicy {
-  border-radius: var(--radius-sm) !important;
+  border-radius: 0px !important;
   transition: transform var(--duration-medium) var(--ease-juicy),
     box-shadow var(--duration-medium) var(--ease-juicy);
 }
@@ -102,7 +102,7 @@
 .btn-leaf {
   background-color: var(--color-secondary) !important;
   color: var(--color-on-primary) !important;
-  border-radius: 9999px !important;
+  border-radius: 0px !important;
   transition: transform var(--duration-medium) var(--ease-juicy),
     background-color var(--duration-short) ease-out,
     box-shadow var(--duration-short) ease-out;
@@ -126,7 +126,7 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 4px 12px;
-  border-radius: 9999px;
+  border-radius: 0px !important;
   box-shadow: 0 4px 12px rgba(194, 24, 91, 0.3);
 }
 

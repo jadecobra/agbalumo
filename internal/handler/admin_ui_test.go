@@ -54,6 +54,9 @@ func NewAdminTemplate(t *testing.T) *template.Template {
 			}
 			return time.Since(createdAt) < 7*24*time.Hour
 		},
+		"safeHTML": func(s string) template.HTML {
+			return template.HTML(s)
+		},
 	}
 
 	tmpl := template.New("base.html").Funcs(funcMap)

@@ -1,5 +1,5 @@
 {{ define "featured_card" }}
-<div class="card-juicy snap-center shrink-0 w-[240px] h-[280px] relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg hover:shadow-lifted transition-all duration-300"
+<div class="card-juicy snap-center shrink-0 w-[240px] h-[280px] relative  overflow-hidden group cursor-pointer shadow-lg hover:shadow-lifted transition-all duration-300"
     hx-get="/listings/{{.Listing.ID}}" hx-target="body" hx-swap="beforeend">
 
     <!-- Background Image -->
@@ -22,7 +22,7 @@
         <!-- Badge -->
         <div class="absolute top-4 left-4">
             <span
-                class="px-3 py-1 bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] uppercase font-bold rounded-full tracking-wider shadow-sm">
+                class="px-3 py-1 bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] uppercase font-bold  tracking-wider shadow-sm">
                 {{.Listing.Type}}
             </span>
         </div>

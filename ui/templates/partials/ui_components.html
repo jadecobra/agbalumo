@@ -1,0 +1,37 @@
+{{ define "button_sharp" }}
+<button type="{{ if .Type }}{{ .Type }}{{ else }}button{{ end }}" {{ if .ID }}id="{{ .ID }}" {{ end }} {{ if .DataAction
+    }}data-action="{{ .DataAction }}" {{ end }} {{ if .DataTarget }}data-target="{{ .DataTarget }}" {{ end }} {{ if
+    .HXPost }}hx-post="{{ .HXPost }}" {{ end }} {{ if .HXTarget }}hx-target="{{ .HXTarget }}" {{ end }} {{ if .HXSwap
+    }}hx-swap="{{ .HXSwap }}" {{ end }} {{ if .HXConfirm }}hx-confirm="{{ .HXConfirm }}" {{ end }}
+    class="{{ if .Classes }}{{ .Classes }}{{ else }}bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark px-8 py-3 font-bold uppercase text-xs tracking-widest transition-all active:scale-95 disabled:opacity-50{{ end }}">
+    {{ .Label }}
+</button>
+{{ end }}
+
+{{ define "metric_stat_sharp" }}
+<div class="text-center flex-1 flex flex-col items-center py-6 px-4">
+    <span class="text-3xl font-serif font-bold text-earth-dark">{{ .Value }}</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider mt-1 text-earth-dark opacity-80">{{ .Label }}</span>
+</div>
+{{ end }}
+
+{{ define "status_badge_sharp" }}
+<span
+    class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest {{ if .ColorClasses }}{{ .ColorClasses }}{{ else }}bg-white/10 text-white/70{{ end }}">
+    {{ .Label }}
+</span>
+{{ end }}
+
+{{ define "admin_tool_btn_sharp" }}
+<button data-action="open-modal" data-target="{{ .Target }}"
+    class="bg-earth-sand text-earth-dark hover:bg-white transition-colors p-6 shadow-2xl flex items-center justify-between group">
+    <div class="flex items-center gap-4">
+        <div class="w-12 h-12 {{ .IconBgClass }} flex items-center justify-center {{ .IconColorClass }}">
+            {{ .Icon | safeHTML }}
+        </div>
+        <span class="font-bold uppercase tracking-widest text-xs">{{ .Label }}</span>
+    </div>
+    <span
+        class="material-symbols-outlined text-earth-dark/30 group-hover:text-earth-dark transition-colors">arrow_forward</span>
+</button>
+{{ end }}

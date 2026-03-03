@@ -1,6 +1,6 @@
 {{ define "listing_card" }}
 <div id="listing-{{.Listing.ID}}"
-    class="card-juicy group relative flex flex-col overflow-hidden rounded-[32px] bg-white dark:bg-surface-dark border border-stone-100 dark:border-stone-800 shadow-sm hover:shadow-juicy transition-all duration-500 {{ .GridClass }}">
+    class="card-juicy group relative flex flex-col overflow-hidden bg-white dark:bg-surface-dark border border-stone-100 dark:border-stone-800 shadow-sm hover:shadow-juicy transition-all duration-500 {{ .GridClass }}">
 
     <!-- Full Card Click Overlay -->
     <div class="absolute inset-0 z-10 cursor-pointer" hx-get="/listings/{{ .Listing.ID }}" hx-target="body"
@@ -29,7 +29,7 @@
         <!-- New Badge -->
         {{ if isNew .Listing.CreatedAt }}
         <div
-            class="absolute top-4 right-4 bg-earth-accent text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg z-20 animate-juice-bounce">
+            class="absolute top-4 right-4 bg-earth-accent text-white text-[10px] font-bold px-3 py-1 shadow-lg z-20 animate-juice-bounce">
             NEW
         </div>
         {{ end }}
@@ -38,12 +38,12 @@
         {{ if and .User (eq .User.ID .Listing.OwnerID) }}
         <div class="absolute top-4 left-4 flex gap-2 z-30 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
-                class="bg-white/90 backdrop-blur-md text-text-main p-2 rounded-full shadow-lg hover:bg-white transition-all active:scale-95"
+                class="bg-white/90 backdrop-blur-md text-text-main p-2 shadow-lg hover:bg-white transition-all active:scale-95"
                 hx-get="/listings/{{ .Listing.ID }}/edit" hx-target="#modal-container" hx-swap="innerHTML">
                 <span class="material-symbols-outlined text-[18px]">edit</span>
             </button>
             <button
-                class="bg-red-500/90 backdrop-blur-md text-white p-2 rounded-full shadow-lg hover:bg-red-500 transition-all active:scale-95"
+                class="bg-red-500/90 backdrop-blur-md text-white p-2 shadow-lg hover:bg-red-500 transition-all active:scale-95"
                 hx-delete="/listings/{{ .Listing.ID }}" hx-confirm="Are you sure?">
                 <span class="material-symbols-outlined text-[18px]">delete</span>
             </button>

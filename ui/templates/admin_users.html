@@ -5,12 +5,12 @@
     <div class="flex items-center justify-between mb-8">
         <h1 class="text-3xl font-bold text-earth-cream">Users</h1>
         <a href="/admin"
-            class="px-5 py-2.5 bg-white/10 text-earth-cream rounded-full hover:bg-white/20 transition-all font-bold text-sm flex items-center gap-1 active:scale-95">
+            class="px-5 py-2.5 bg-white/10 text-earth-cream  hover:bg-white/20 transition-all font-bold text-sm flex items-center gap-1 active:scale-95">
             <span class="material-symbols-outlined text-[18px]">arrow_back</span> Back
         </a>
     </div>
 
-    <div class="bg-white/5 rounded-3xl shadow-soft border border-white/10 overflow-hidden">
+    <div class="bg-white/5  shadow-soft border border-white/10 overflow-hidden">
         <div class="overflow-x-auto no-scrollbar">
             <table class="min-w-full divide-y divide-white/10">
                 <thead class="bg-white/5">
@@ -29,7 +29,7 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
                                 <div class="h-10 w-10 shrink-0">
-                                    <img class="h-10 w-10 rounded-full object-cover border border-white/10"
+                                    <img class="h-10 w-10  object-cover border border-white/10"
                                         src="{{ if .AvatarURL }}{{ .AvatarURL }}{{ else }}/static/images/default-avatar.png{{ end }}"
                                         alt="{{ .Name }}">
                                 </div>
@@ -40,7 +40,7 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 py-0.5 inline-flex text-[10px] leading-5 font-bold rounded-full uppercase tracking-wider
+                            <span class="px-2 py-0.5 inline-flex text-[10px] leading-5 font-bold  uppercase tracking-wider
                                 {{ if eq .Role " Admin" }}bg-purple-100 text-purple-800 dark:bg-purple-900/30
                                 dark:text-purple-300 {{ else }}bg-green-100 text-green-800 dark:bg-green-900/30
                                 dark:text-green-300{{ end }}">
@@ -71,7 +71,7 @@
         <div>
             {{ if gt .Pagination.Page 1 }}
             <a href="/admin/users?page={{ add .Pagination.Page -1 }}"
-                class="px-5 py-2.5 bg-white/10 text-earth-cream rounded-full hover:bg-white/20 transition-all font-bold text-sm flex items-center gap-1 active:scale-95">
+                class="px-5 py-2.5 bg-white/10 text-earth-cream  hover:bg-white/20 transition-all font-bold text-sm flex items-center gap-1 active:scale-95">
                 <span class="material-symbols-outlined text-[18px]">chevron_left</span> Prev
             </a>
             {{ end }}
@@ -80,7 +80,7 @@
         <div>
             {{ if .Pagination.HasNextPage }}
             <a href="/admin/users?page={{ add .Pagination.Page 1 }}"
-                class="px-5 py-2.5 bg-white/10 text-earth-cream rounded-full hover:bg-white/20 transition-all font-bold text-sm flex items-center gap-1 active:scale-95">
+                class="px-5 py-2.5 bg-white/10 text-earth-cream  hover:bg-white/20 transition-all font-bold text-sm flex items-center gap-1 active:scale-95">
                 Next <span class="material-symbols-outlined text-[18px]">chevron_right</span>
             </a>
             {{ end }}
