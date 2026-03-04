@@ -8,8 +8,14 @@
 </button>
 {{ end }}
 
-{{ define "metric_stat_sharp" }}{{ if .Modal }}<button type="button" data-action="open-modal" data-target="{{ .Modal }}"
-    data-modal-target="{{ .Modal }}"
+{{ define "metric_stat_sharp" }}{{ if .Link }}<a href="{{ .Link }}"
+    class="text-center flex-1 flex flex-col items-center py-6 px-4 cursor-pointer hover:bg-earth-ochre/10 transition-colors group"
+    title="Click to view details"><span
+        class="text-3xl font-serif font-bold text-earth-dark group-hover:text-earth-ochre transition-colors">{{ .Value
+        }}</span><span
+        class="text-[10px] font-bold uppercase tracking-wider mt-1 text-earth-dark opacity-80 group-hover:opacity-100 transition-opacity">{{
+        .Label }}</span></a>{{ else if .Modal }}<button type="button" data-action="open-modal"
+    data-target="{{ .Modal }}" data-modal-target="{{ .Modal }}"
     class="text-center flex-1 flex flex-col items-center py-6 px-4 cursor-pointer hover:bg-earth-ochre/10 transition-colors group focus:outline-none"
     title="Click to view details"><span
         class="text-3xl font-serif font-bold text-earth-dark group-hover:text-earth-ochre transition-colors">{{ .Value

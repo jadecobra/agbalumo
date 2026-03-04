@@ -168,9 +168,9 @@ func TestMetricCardsHaveModalTriggers(t *testing.T) {
 
 	body := rec.Body.String()
 
-	// Total Listings metric → chartsModal
-	if !strings.Contains(body, `data-modal-target="chartsModal"`) {
-		t.Error("Expected Total Listings metric card to have data-modal-target=\"chartsModal\"")
+	// Total Listings metric → /admin/listings link
+	if !strings.Contains(body, `href="/admin/listings"`) {
+		t.Error("Expected Total Listings metric card to link to /admin/listings")
 	}
 
 	// Pending metric → moderationModal
