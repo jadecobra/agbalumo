@@ -26,7 +26,11 @@ FROM alpine:latest
 WORKDIR /app
 
 # Install CA certificates for external API calls
-RUN apk --no-cache add ca-certificates tzdata
+RUN apk --no-cache add ca-certificates tzdata wget bash
+
+# Download Litestream
+ADD https://github.com/benbjohnson/litestream/releases/download/v0.3.13/litestream-v0.3.13-linux-amd64.tar.gz /tmp/litestream.tar.gz
+RUN tar -C /usr/local/bin -xzf /tmp/litestream.tar.gz && rm /tmp/litestream.tar.gz
 
 # Create a non-root user
 RUN adduser -D -g '' appuser
@@ -45,8 +49,12 @@ ENV AGBALUMO_ENV=production
 ENV PORT=8080
 ENV DATABASE_URL=/data/agbalumo.db
 
+# Copy litestream config and entrypoint
+COPY etc/litestream.yml /etc/litestream.yml
+COPY entrypoint.sh /app/entrypoint.sh
+
 # Use non-root user
 USER appuser
 
-# Run the server
-CMD ["./server", "serve"]
+# Run the entrypoint script
+CMD ["/app/entrypoint.sh"]
