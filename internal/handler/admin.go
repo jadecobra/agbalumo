@@ -90,14 +90,10 @@ func (h *AdminHandler) HandleLoginAction(c echo.Context) error {
 func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	pagination := GetPagination(c, 50)
-
-	pendingListings, err := h.Repo.GetPendingListings(ctx, pagination.Limit, pagination.Offset)
+	claimRequests, err := h.Repo.GetPendingClaimRequests(ctx)
 	if err != nil {
 		return RespondError(c, err)
 	}
-
-	hasNextPage := len(pendingListings) == pagination.Limit
 
 	userCount, err := h.Repo.GetUserCount(ctx)
 	if err != nil {
@@ -153,19 +149,17 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 	}
 
 	return c.Render(http.StatusOK, "admin_dashboard.html", map[string]interface{}{
-		"PendingListings": pendingListings,
-		"Page":            pagination.Page,
-		"HasNextPage":     hasNextPage,
-		"UserCount":       userCount,
-		"FeedbackCounts":  feedbackCounts,
-		"ListingGrowth":   listingGrowth,
-		"UserGrowth":      userGrowth,
-		"Feedbacks":       feedbacks,
-		"User":            c.Get("User"),
-		"FlashMessage":    flashMsg,
-		"ListingCount":    listingCount,
-		"Categories":      categories,
-		"Users":           users,
+		"ClaimRequests":  claimRequests,
+		"UserCount":      userCount,
+		"FeedbackCounts": feedbackCounts,
+		"ListingGrowth":  listingGrowth,
+		"UserGrowth":     userGrowth,
+		"Feedbacks":      feedbacks,
+		"User":           c.Get("User"),
+		"FlashMessage":   flashMsg,
+		"ListingCount":   listingCount,
+		"Categories":     categories,
+		"Users":          users,
 	})
 }
 
@@ -266,42 +260,25 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 	})
 }
 
-// HandleApprove approves a listing (clears Pending status).
-func (h *AdminHandler) HandleApprove(c echo.Context) error {
+// HandleApproveClaim approves a user's claim request and transfers listing ownership.
+func (h *AdminHandler) HandleApproveClaim(c echo.Context) error {
 	id := c.Param("id")
 	ctx := c.Request().Context()
 
-	listing, err := h.Repo.FindByID(ctx, id)
-	if err != nil {
-		return c.String(http.StatusNotFound, "Listing not found")
+	if err := h.Repo.UpdateClaimRequestStatus(ctx, id, domain.ClaimStatusApproved); err != nil {
+		return c.String(http.StatusNotFound, "Claim request not found")
 	}
 
-	listing.Status = domain.ListingStatusApproved
-	listing.IsActive = true // Ensure it remains active
-
-	if err := h.Repo.Save(ctx, listing); err != nil {
-		return RespondError(c, err)
-	}
-
-	// HTMX Partial Update: Return empty 200 to remove the element from the list
 	return c.NoContent(http.StatusOK)
 }
 
-// HandleReject rejects a listing (hides it and marks Rejected).
-func (h *AdminHandler) HandleReject(c echo.Context) error {
+// HandleRejectClaim rejects a user's claim request.
+func (h *AdminHandler) HandleRejectClaim(c echo.Context) error {
 	id := c.Param("id")
 	ctx := c.Request().Context()
 
-	listing, err := h.Repo.FindByID(ctx, id)
-	if err != nil {
-		return c.String(http.StatusNotFound, "Listing not found")
-	}
-
-	listing.Status = domain.ListingStatusRejected
-	listing.IsActive = false
-
-	if err := h.Repo.Save(ctx, listing); err != nil {
-		return RespondError(c, err)
+	if err := h.Repo.UpdateClaimRequestStatus(ctx, id, domain.ClaimStatusRejected); err != nil {
+		return c.String(http.StatusNotFound, "Claim request not found")
 	}
 
 	return c.NoContent(http.StatusOK)

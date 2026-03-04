@@ -45,7 +45,7 @@ duration-300{{ end }}
             <div class="grid grid-cols-3 divide-x divide-earth-dark/10">
                 {{ template "metric_stat_sharp" dict "Label" "Total Listings" "Value" .ListingCount "Modal"
                 "chartsModal" }}
-                {{ template "metric_stat_sharp" dict "Label" "Pending" "Value" (len .PendingListings) "Modal"
+                {{ template "metric_stat_sharp" dict "Label" "Pending Claims" "Value" (len .ClaimRequests) "Modal"
                 "moderationModal" }}
                 {{ template "metric_stat_sharp" dict "Label" "Total Users" "Value" .UserCount "Modal" "usersModal" }}
             </div>
@@ -64,7 +64,7 @@ duration-300{{ end }}
                 {{ template "admin_tool_btn_sharp" dict "Target" "uploadModal" "Label" "Bulk Upload CSV" "IconBgClass"
                 "bg-blue-500/10" "IconColorClass" "text-blue-500" "Icon" "" }}
 
-                {{ template "admin_tool_btn_sharp" dict "Target" "moderationModal" "Label" "Moderation Queue"
+                {{ template "admin_tool_btn_sharp" dict "Target" "moderationModal" "Label" "Claim Requests"
                 "IconBgClass" "bg-earth-ochre/10" "IconColorClass" "text-earth-ochre" "Icon" "" }}
 
                 {{ template "admin_tool_btn_sharp" dict "Target" "categoryModal" "Label" "Manage Categories"
@@ -348,10 +348,10 @@ duration-300{{ end }}
 
             <div class="px-8 py-6 border-b border-white/10 flex justify-between items-center shrink-0">
                 <h2 class="text-3xl font-serif text-white uppercase tracking-tight flex items-center gap-4">
-                    Moderation Queue
+                    Claim Requests
                     <span
                         class="text-[10px] font-bold bg-earth-ochre text-earth-dark px-3 mt-1 py-0.5 tracking-[0.2em]">{{
-                        len .PendingListings }}</span>
+                        len .ClaimRequests }}</span>
                 </h2>
                 <button data-action="close-modal" data-target="moderationModal"
                     class="text-white/30 hover:text-white transition-colors">
@@ -360,7 +360,7 @@ duration-300{{ end }}
             </div>
 
             <div class="overflow-y-auto grow p-8 bg-black/20">
-                {{ if .PendingListings }}
+                {{ if .ClaimRequests }}
                 <div class="border border-white/10 bg-white/2">
                     <table class="min-w-full divide-y divide-white/10">
                         <thead class="bg-white/5">
@@ -370,49 +370,43 @@ duration-300{{ end }}
                                     Date</th>
                                 <th
                                     class="px-6 py-5 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
-                                    Title</th>
+                                    Listing</th>
                                 <th
                                     class="px-6 py-5 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
-                                    Type</th>
-                                <th
-                                    class="px-6 py-5 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
-                                    Owner</th>
+                                    Claimer</th>
                                 <th
                                     class="px-6 py-5 text-right text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
                                     Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-white/5">
-                            {{ range .PendingListings }}
-                            <tr id="listing-{{ .ID }}"
+                            {{ range .ClaimRequests }}
+                            <tr id="claim-{{ .ID }}"
                                 class="hover:bg-white/2 transition-colors border-l-2 border-transparent hover:border-earth-ochre">
                                 <td class="px-6 py-5 whitespace-nowrap text-[10px] font-bold text-white/60">
                                     {{ .CreatedAt.Format "Jan 02, 2006" }}
                                 </td>
                                 <td class="px-6 py-5 text-xs font-bold text-white uppercase tracking-wider">
-                                    <a href="/listings/{{ .ID }}" target="_blank"
+                                    <a href="/listings/{{ .ListingID }}" target="_blank"
                                         class="hover:text-earth-ochre transition-colors underline decoration-white/20 underline-offset-4">{{
-                                        .Title }}</a>
+                                        .ListingTitle }}</a>
                                 </td>
-                                <td
-                                    class="px-6 py-5 whitespace-nowrap text-[10px] font-bold text-earth-ochre/80 uppercase tracking-widest">
-                                    {{ .Type }}
-                                </td>
-                                <td class="px-6 py-5 whitespace-nowrap text-[10px] font-bold text-white/40">
-                                    {{ .OwnerOrigin }}
+                                <td class="px-6 py-5 whitespace-nowrap">
+                                    <div class="text-xs font-bold text-white">{{ .UserName }}</div>
+                                    <div class="text-[10px] text-white/40">{{ .UserEmail }}</div>
                                 </td>
                                 <td class="px-6 py-5 whitespace-nowrap text-right space-x-2">
-                                    <button hx-post="/admin/listings/{{ .ID }}/approve" hx-target="#listing-{{ .ID }}"
+                                    <button hx-post="/admin/claims/{{ .ID }}/approve" hx-target="#claim-{{ .ID }}"
                                         hx-swap="outerHTML"
                                         class="w-9 h-9 border border-green-500/20 text-green-500 hover:bg-green-500 hover:text-white transition-all flex items-center justify-center inline-flex"
-                                        title="Approve">
+                                        title="Approve Claim">
                                         <span class="material-symbols-outlined text-[18px]">check</span>
                                     </button>
-                                    <button hx-post="/admin/listings/{{ .ID }}/reject"
-                                        hx-confirm="Are you sure you want to reject this listing?"
-                                        hx-target="#listing-{{ .ID }}" hx-swap="outerHTML"
+                                    <button hx-post="/admin/claims/{{ .ID }}/reject"
+                                        hx-confirm="Are you sure you want to reject this claim?"
+                                        hx-target="#claim-{{ .ID }}" hx-swap="outerHTML"
                                         class="w-9 h-9 border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center inline-flex"
-                                        title="Reject">
+                                        title="Reject Claim">
                                         <span class="material-symbols-outlined text-[18px]">close</span>
                                     </button>
                                 </td>
@@ -422,40 +416,24 @@ duration-300{{ end }}
                     </table>
                 </div>
 
-                <!-- Pagination Nav (Inside Modal) -->
-                <div class="flex justify-between items-center mt-8">
-                    <div class="flex gap-2">
-                        {{ if gt .Page 1 }}
-                        <a href="/admin?page={{ sub .Page 1 }}"
-                            class="border border-white/10 px-6 py-2 text-[10px] font-bold uppercase tracking-widest text-white/60 hover:text-white hover:bg-white/5 transition-all">Previous</a>
-                        {{ end }}
-                        {{ if .HasNextPage }}
-                        <a href="/admin?page={{ add .Page 1 }}"
-                            class="border border-white/10 px-6 py-2 text-[10px] font-bold uppercase tracking-widest text-white/60 hover:text-white hover:bg-white/5 transition-all">Next</a>
-                        {{ end }}
-                    </div>
-                    <div class="text-[10px] font-bold tracking-[0.2em] text-white/30 uppercase">Page {{ .Page }}
-                    </div>
-                </div>
-
                 {{ else }}
                 <div
                     class="p-20 text-center border border-white/5 bg-white/2 flex flex-col items-center justify-center">
                     <span class="material-symbols-outlined text-white/10 text-5xl mb-6">inventory_2</span>
-                    <p class="text-[10px] font-bold text-white uppercase tracking-[0.3em]">Queue is Empty</p>
+                    <p class="text-[10px] font-bold text-white uppercase tracking-[0.3em]">No Pending Claim Requests</p>
                 </div>
                 {{ end }}
             </div>
 
             <div class="px-8 py-6 border-t border-white/10 shrink-0 flex justify-end">
-                {{ template "button_sharp" dict "Label" "Close Queue" "DataAction" "close-modal" "DataTarget"
+                {{ template "button_sharp" dict "Label" "Close" "DataAction" "close-modal" "DataTarget"
                 "moderationModal" "Classes" `bg-white/10 hover:bg-white/20 text-white px-10 py-3 font-bold uppercase
                 text-xs tracking-widest transition-all` }}
             </div>
         </div>
     </div>
 </div>
-<!-- END: Moderation Queue Modal -->
+<!-- END: Claim Requests Modal -->
 
 <script src="/static/js/chart.umd.min.js" defer></script>
 {{ end }}{{ define "extra_scripts" }}

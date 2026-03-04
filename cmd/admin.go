@@ -93,26 +93,27 @@ var adminFeaturedCmd = &cobra.Command{
 	},
 }
 
-var adminPendingCmd = &cobra.Command{
-	Use:   "pending",
-	Short: "List pending listings",
+var adminPendingClaimsCmd = &cobra.Command{
+	Use:   "pending-claims",
+	Short: "List pending claim requests",
 	Run: func(cmd *cobra.Command, args []string) {
 		repo := initRepo()
 
-		listings, err := repo.GetPendingListings(context.Background(), 100, 0)
+		claims, err := repo.GetPendingClaimRequests(context.Background())
 		if err != nil {
-			slog.Error("Failed to get pending listings", "error", err)
+			slog.Error("Failed to get pending claims", "error", err)
 			os.Exit(1)
 		}
 
-		if len(listings) == 0 {
-			fmt.Println("No pending listings")
+		if len(claims) == 0 {
+			fmt.Println("No pending claim requests")
 			return
 		}
 
-		fmt.Printf("Found %d pending listings:\n\n", len(listings))
-		for _, l := range listings {
-			fmt.Printf("[%s] %s - %s (%s)\n", l.ID, l.Title, l.Type, l.Status)
+		fmt.Printf("Found %d pending claim requests:\n\n", len(claims))
+		for _, cr := range claims {
+			fmt.Printf("[%s] Listing: %s | User: %s (%s) | %s\n",
+				cr.ID, cr.ListingTitle, cr.UserName, cr.UserEmail, cr.CreatedAt.Format("2006-01-02"))
 		}
 	},
 }
@@ -172,7 +173,7 @@ func init() {
 	adminCmd.AddCommand(adminApproveCmd)
 	adminCmd.AddCommand(adminRejectCmd)
 	adminCmd.AddCommand(adminFeaturedCmd)
-	adminCmd.AddCommand(adminPendingCmd)
+	adminCmd.AddCommand(adminPendingClaimsCmd)
 	adminCmd.AddCommand(adminUsersCmd)
 	adminCmd.AddCommand(adminPromoteCmd)
 

@@ -628,13 +628,14 @@ func TestHandleClaim(t *testing.T) {
 			expectedStatus: http.StatusForbidden,
 		},
 		{
-			name: "Success",
-			user: domain.User{ID: "claimer"},
+			name: "Success_CreatesPendingClaim",
+			user: domain.User{ID: "claimer", Name: "Test User", Email: "claimer@example.com"},
 			setupMock: func(m *mock.MockListingRepository) {
-				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "", Type: domain.Business}, nil)
-				m.On("GetCategory", testifyMock.Anything, string(domain.Business)).Return(domain.CategoryData{ID: string(domain.Business), Claimable: true}, nil).Maybe()
-				m.On("Save", testifyMock.Anything, testifyMock.MatchedBy(func(l domain.Listing) bool {
-					return l.OwnerID == "claimer"
+				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", Title: "Biz", OwnerID: "", Type: domain.Business}, nil)
+				m.On("GetCategory", testifyMock.Anything, string(domain.Business)).Return(domain.CategoryData{ID: string(domain.Business), Claimable: true}, nil)
+				m.On("GetClaimRequestByUserAndListing", testifyMock.Anything, "claimer", "1").Return(domain.ClaimRequest{}, errors.New("not found"))
+				m.On("SaveClaimRequest", testifyMock.Anything, testifyMock.MatchedBy(func(cr domain.ClaimRequest) bool {
+					return cr.UserID == "claimer" && cr.ListingID == "1" && cr.Status == domain.ClaimStatusPending
 				})).Return(nil)
 			},
 			expectedStatus: http.StatusOK,

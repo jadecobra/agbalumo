@@ -96,11 +96,6 @@ func (m *MockListingRepository) GetFeedbackCounts(ctx context.Context) (map[doma
 	return args.Get(0).(map[domain.FeedbackType]int), args.Error(1)
 }
 
-func (m *MockListingRepository) GetPendingListings(ctx context.Context, limit int, offset int) ([]domain.Listing, error) {
-	args := m.Called(ctx, limit, offset)
-	return args.Get(0).([]domain.Listing), args.Error(1)
-}
-
 func (m *MockListingRepository) GetUserCount(ctx context.Context) (int, error) {
 	args := m.Called(ctx)
 	return args.Int(0), args.Error(1)
@@ -150,4 +145,27 @@ func (m *MockListingRepository) GetCategory(ctx context.Context, name string) (d
 func (m *MockListingRepository) SaveCategory(ctx context.Context, c domain.CategoryData) error {
 	args := m.Called(ctx, c)
 	return args.Error(0)
+}
+
+func (m *MockListingRepository) SaveClaimRequest(ctx context.Context, r domain.ClaimRequest) error {
+	args := m.Called(ctx, r)
+	return args.Error(0)
+}
+
+func (m *MockListingRepository) GetPendingClaimRequests(ctx context.Context) ([]domain.ClaimRequest, error) {
+	args := m.Called(ctx)
+	if args.Get(0) != nil {
+		return args.Get(0).([]domain.ClaimRequest), args.Error(1)
+	}
+	return nil, args.Error(1)
+}
+
+func (m *MockListingRepository) UpdateClaimRequestStatus(ctx context.Context, id string, status domain.ClaimStatus) error {
+	args := m.Called(ctx, id, status)
+	return args.Error(0)
+}
+
+func (m *MockListingRepository) GetClaimRequestByUserAndListing(ctx context.Context, userID, listingID string) (domain.ClaimRequest, error) {
+	args := m.Called(ctx, userID, listingID)
+	return args.Get(0).(domain.ClaimRequest), args.Error(1)
 }

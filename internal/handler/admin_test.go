@@ -33,7 +33,7 @@ func TestAdminHandler_HandleDashboard(t *testing.T) {
 
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
-	mockRepo.On("GetPendingListings", testifyMock.Anything, 50, 0).Return([]domain.Listing{{ID: "1", Title: "Pending Listing"}}, nil)
+	mockRepo.On("GetPendingClaimRequests", testifyMock.Anything).Return([]domain.ClaimRequest{{ID: "cr1", ListingTitle: "Test Listing"}}, nil)
 	mockRepo.On("GetUserCount", testifyMock.Anything).Return(10, nil)
 	mockRepo.On("GetFeedbackCounts", testifyMock.Anything).Return(map[domain.FeedbackType]int{domain.FeedbackTypeIssue: 2}, nil)
 	mockRepo.On("GetAllFeedback", testifyMock.Anything).Return([]domain.Feedback{
@@ -78,55 +78,47 @@ func TestAdminHandler_HandleUsers(t *testing.T) {
 	mockRepo.AssertExpectations(t)
 }
 
-func TestAdminHandler_HandleApprove(t *testing.T) {
+func TestAdminHandler_HandleApproveClaim(t *testing.T) {
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodPost, "/admin/listings/1/approve", nil)
+	req := httptest.NewRequest(http.MethodPost, "/admin/claims/cr1/approve", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetPath("/admin/listings/:id/approve")
+	c.SetPath("/admin/claims/:id/approve")
 	c.SetParamNames("id")
-	c.SetParamValues("1")
+	c.SetParamValues("cr1")
 
 	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
 	c.Set("User", adminUser)
 
 	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
-	mockRepo.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", Status: domain.ListingStatusPending}, nil)
-	mockRepo.On("Save", testifyMock.Anything, testifyMock.MatchedBy(func(l domain.Listing) bool {
-		return l.Status == domain.ListingStatusApproved && l.IsActive
-	})).Return(nil)
+	mockRepo.On("UpdateClaimRequestStatus", testifyMock.Anything, "cr1", domain.ClaimStatusApproved).Return(nil)
 
 	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
 
-	err := h.HandleApprove(c)
+	err := h.HandleApproveClaim(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
 	mockRepo.AssertExpectations(t)
 }
 
-func TestAdminHandler_HandleReject(t *testing.T) {
+func TestAdminHandler_HandleRejectClaim(t *testing.T) {
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodPost, "/admin/listings/1/reject", nil)
+	req := httptest.NewRequest(http.MethodPost, "/admin/claims/cr1/reject", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetPath("/admin/listings/:id/reject")
+	c.SetPath("/admin/claims/:id/reject")
 	c.SetParamNames("id")
-	c.SetParamValues("1")
+	c.SetParamValues("cr1")
 
 	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
 	c.Set("User", adminUser)
 
 	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
-	mockRepo.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", Status: domain.ListingStatusPending}, nil)
-	mockRepo.On("Save", testifyMock.Anything, testifyMock.MatchedBy(func(l domain.Listing) bool {
-		return l.Status == domain.ListingStatusRejected && !l.IsActive
-	})).Return(nil)
+	mockRepo.On("UpdateClaimRequestStatus", testifyMock.Anything, "cr1", domain.ClaimStatusRejected).Return(nil)
 
 	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
 
-	err := h.HandleReject(c)
+	err := h.HandleRejectClaim(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
 	mockRepo.AssertExpectations(t)
@@ -688,7 +680,7 @@ func TestAdminHandler_HandleLoginView_NotAdmin(t *testing.T) {
 
 // --- HandleDashboard Error Path Tests ---
 
-func TestAdminHandler_HandleDashboard_PendingListingsError(t *testing.T) {
+func TestAdminHandler_HandleDashboard_PendingClaimRequestsError(t *testing.T) {
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
 	rec := httptest.NewRecorder()
@@ -700,8 +692,7 @@ func TestAdminHandler_HandleDashboard_PendingListingsError(t *testing.T) {
 
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
-	mockRepo.On("GetPendingListings", testifyMock.Anything, 50, 0).Return([]domain.Listing{}, assert.AnError)
-	// We might or might not call GetAllFeedback depending on where GetPendingListings fails, but we don't strict-mock it to fail, just return dummy.
+	mockRepo.On("GetPendingClaimRequests", testifyMock.Anything).Return([]domain.ClaimRequest{}, assert.AnError)
 	mockRepo.On("GetAllFeedback", testifyMock.Anything).Return([]domain.Feedback{}, nil).Maybe()
 	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{}, nil).Maybe()
 
@@ -724,7 +715,7 @@ func TestAdminHandler_HandleDashboard_UserCountError(t *testing.T) {
 
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
-	mockRepo.On("GetPendingListings", testifyMock.Anything, 50, 0).Return([]domain.Listing{}, nil)
+	mockRepo.On("GetPendingClaimRequests", testifyMock.Anything).Return([]domain.ClaimRequest{}, nil)
 	mockRepo.On("GetUserCount", testifyMock.Anything).Return(0, assert.AnError)
 	mockRepo.On("GetAllFeedback", testifyMock.Anything).Return([]domain.Feedback{}, nil).Maybe()
 	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{}, nil).Maybe()
@@ -748,7 +739,7 @@ func TestAdminHandler_HandleDashboard_FeedbackCountsError(t *testing.T) {
 
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
-	mockRepo.On("GetPendingListings", testifyMock.Anything, 50, 0).Return([]domain.Listing{}, nil)
+	mockRepo.On("GetPendingClaimRequests", testifyMock.Anything).Return([]domain.ClaimRequest{}, nil)
 	mockRepo.On("GetUserCount", testifyMock.Anything).Return(5, nil)
 	mockRepo.On("GetFeedbackCounts", testifyMock.Anything).Return(map[domain.FeedbackType]int{}, assert.AnError)
 	mockRepo.On("GetAllFeedback", testifyMock.Anything).Return([]domain.Feedback{}, nil).Maybe()
@@ -773,7 +764,7 @@ func TestAdminHandler_HandleDashboard_ListingGrowthError(t *testing.T) {
 
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
-	mockRepo.On("GetPendingListings", testifyMock.Anything, 50, 0).Return([]domain.Listing{}, nil)
+	mockRepo.On("GetPendingClaimRequests", testifyMock.Anything).Return([]domain.ClaimRequest{}, nil)
 	mockRepo.On("GetUserCount", testifyMock.Anything).Return(5, nil)
 	mockRepo.On("GetFeedbackCounts", testifyMock.Anything).Return(map[domain.FeedbackType]int{}, nil)
 	mockRepo.On("GetAllFeedback", testifyMock.Anything).Return([]domain.Feedback{}, nil).Maybe()
@@ -799,7 +790,7 @@ func TestAdminHandler_HandleDashboard_UserGrowthError(t *testing.T) {
 
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
-	mockRepo.On("GetPendingListings", testifyMock.Anything, 50, 0).Return([]domain.Listing{}, nil)
+	mockRepo.On("GetPendingClaimRequests", testifyMock.Anything).Return([]domain.ClaimRequest{}, nil)
 	mockRepo.On("GetUserCount", testifyMock.Anything).Return(5, nil)
 	mockRepo.On("GetFeedbackCounts", testifyMock.Anything).Return(map[domain.FeedbackType]int{}, nil)
 	mockRepo.On("GetAllFeedback", testifyMock.Anything).Return([]domain.Feedback{}, nil).Maybe()
@@ -826,7 +817,7 @@ func TestAdminHandler_HandleDashboard_GetAllFeedbackError(t *testing.T) {
 
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
-	mockRepo.On("GetPendingListings", testifyMock.Anything, 50, 0).Return([]domain.Listing{}, nil)
+	mockRepo.On("GetPendingClaimRequests", testifyMock.Anything).Return([]domain.ClaimRequest{}, nil)
 	mockRepo.On("GetUserCount", testifyMock.Anything).Return(5, nil)
 	mockRepo.On("GetFeedbackCounts", testifyMock.Anything).Return(map[domain.FeedbackType]int{}, nil)
 	mockRepo.On("GetListingGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)
@@ -1014,62 +1005,43 @@ func TestAdminHandler_HandleToggleFeatured(t *testing.T) {
 	})
 }
 
-func TestAdminHandler_HandleApprove_ErrorPaths(t *testing.T) {
+func TestAdminHandler_HandleApproveClaim_ErrorPaths(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &mock.MockRenderer{}
 
 	t.Run("NotFound", func(t *testing.T) {
-		req := httptest.NewRequest(http.MethodPost, "/admin/listings/999/approve", nil)
+		req := httptest.NewRequest(http.MethodPost, "/admin/claims/cr999/approve", nil)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-		c.SetPath("/admin/listings/:id/approve")
+		c.SetPath("/admin/claims/:id/approve")
 		c.SetParamNames("id")
-		c.SetParamValues("999")
+		c.SetParamValues("cr999")
 		c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
 		mockRepo := &mock.MockListingRepository{}
-		mockRepo.On("FindByID", testifyMock.Anything, "999").Return(domain.Listing{}, errors.New("not found"))
+		mockRepo.On("UpdateClaimRequestStatus", testifyMock.Anything, "cr999", domain.ClaimStatusApproved).Return(errors.New("not found"))
 
 		h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
-		err := h.HandleApprove(c)
+		err := h.HandleApproveClaim(c)
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusNotFound, rec.Code)
 	})
-
-	t.Run("SaveError", func(t *testing.T) {
-		req := httptest.NewRequest(http.MethodPost, "/admin/listings/1/approve", nil)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
-		c.SetPath("/admin/listings/:id/approve")
-		c.SetParamNames("id")
-		c.SetParamValues("1")
-		c.Set("User", domain.User{Role: domain.UserRoleAdmin})
-
-		mockRepo := &mock.MockListingRepository{}
-		mockRepo.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1"}, nil)
-		mockRepo.On("Save", testifyMock.Anything, testifyMock.Anything).Return(errors.New("save failed"))
-
-		h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
-		err := h.HandleApprove(c)
-		assert.NoError(t, err)
-		assert.Equal(t, http.StatusInternalServerError, rec.Code)
-	})
 }
 
-func TestAdminHandler_HandleReject_RepoError(t *testing.T) {
+func TestAdminHandler_HandleRejectClaim_RepoError(t *testing.T) {
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodPost, "/admin/listings/1/reject", nil)
+	req := httptest.NewRequest(http.MethodPost, "/admin/claims/cr1/reject", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetPath("/admin/listings/:id/reject")
+	c.SetPath("/admin/claims/:id/reject")
 	c.SetParamNames("id")
-	c.SetParamValues("1")
+	c.SetParamValues("cr1")
 
 	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{}, errors.New("repo error"))
+	mockRepo.On("UpdateClaimRequestStatus", testifyMock.Anything, "cr1", domain.ClaimStatusRejected).Return(errors.New("repo error"))
 
 	h := NewAdminHandler(mockRepo, nil, &config.Config{})
-	_ = h.HandleReject(c)
+	_ = h.HandleRejectClaim(c)
 
 	assert.Equal(t, http.StatusNotFound, rec.Code)
 }

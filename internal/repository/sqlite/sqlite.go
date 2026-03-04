@@ -254,6 +254,27 @@ func (r *SQLiteRepository) migrate() error {
 		return err
 	}
 
+	// Create Claim Requests Table
+	createClaimRequestsTable := `
+	CREATE TABLE IF NOT EXISTS claim_requests (
+		id TEXT PRIMARY KEY,
+		listing_id TEXT NOT NULL,
+		listing_title TEXT,
+		user_id TEXT NOT NULL,
+		user_name TEXT,
+		user_email TEXT,
+		status TEXT NOT NULL DEFAULT 'Pending',
+		created_at DATETIME
+	);`
+
+	if _, err := r.db.ExecContext(context.Background(), createClaimRequestsTable); err != nil {
+		return err
+	}
+
+	// Index for fast lookup by user/listing pair
+	_, _ = r.db.ExecContext(context.Background(), `CREATE INDEX IF NOT EXISTS idx_claim_requests_user_listing ON claim_requests(user_id, listing_id);`)
+	_, _ = r.db.ExecContext(context.Background(), `CREATE INDEX IF NOT EXISTS idx_claim_requests_status ON claim_requests(status);`)
+
 	return nil
 }
 
@@ -588,30 +609,6 @@ func (r *SQLiteRepository) ExpireListings(ctx context.Context) (int64, error) {
 	return totalAffected, nil
 }
 
-func (r *SQLiteRepository) GetPendingListings(ctx context.Context, limit int, offset int) ([]domain.Listing, error) {
-	query := `SELECT ` + listingSelections + `
-		FROM listings
-		WHERE status = ?
-		ORDER BY created_at ASC
-		LIMIT ? OFFSET ?`
-
-	rows, err := r.db.QueryContext(ctx, query, domain.ListingStatusPending, limit, offset)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var listings []domain.Listing
-	for rows.Next() {
-		l, err := scanListing(rows)
-		if err != nil {
-			return nil, err
-		}
-		listings = append(listings, l)
-	}
-	return listings, rows.Err()
-}
-
 func (r *SQLiteRepository) GetUserCount(ctx context.Context) (int, error) {
 	var count int
 	query := `SELECT COUNT(*) FROM users`
@@ -851,4 +848,95 @@ func (r *SQLiteRepository) GetCategory(ctx context.Context, name string) (domain
 		c.UpdatedAt = updated.Time
 	}
 	return c, nil
+}
+
+// --- ClaimRequest Store ---
+
+// SaveClaimRequest inserts or updates a claim request.
+func (r *SQLiteRepository) SaveClaimRequest(ctx context.Context, req domain.ClaimRequest) error {
+	query := `
+	INSERT INTO claim_requests (id, listing_id, listing_title, user_id, user_name, user_email, status, created_at)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+	ON CONFLICT(id) DO UPDATE SET
+		status = excluded.status;
+	`
+	_, err := r.db.ExecContext(ctx, query,
+		req.ID, req.ListingID, req.ListingTitle, req.UserID, req.UserName, req.UserEmail, req.Status, req.CreatedAt,
+	)
+	return err
+}
+
+// GetPendingClaimRequests returns all claim requests with status=Pending.
+func (r *SQLiteRepository) GetPendingClaimRequests(ctx context.Context) ([]domain.ClaimRequest, error) {
+	query := `
+		SELECT id, listing_id, COALESCE(listing_title,''), user_id, COALESCE(user_name,''), COALESCE(user_email,''), status, created_at
+		FROM claim_requests
+		WHERE status = 'Pending'
+		ORDER BY created_at ASC
+	`
+	rows, err := r.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var results []domain.ClaimRequest
+	for rows.Next() {
+		var cr domain.ClaimRequest
+		if err := rows.Scan(&cr.ID, &cr.ListingID, &cr.ListingTitle, &cr.UserID, &cr.UserName, &cr.UserEmail, &cr.Status, &cr.CreatedAt); err != nil {
+			return nil, err
+		}
+		results = append(results, cr)
+	}
+	return results, rows.Err()
+}
+
+// UpdateClaimRequestStatus updates a claim request's status.
+// If approved, also sets the listing's owner_id to the claiming user.
+func (r *SQLiteRepository) UpdateClaimRequestStatus(ctx context.Context, id string, status domain.ClaimStatus) error {
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// Update the claim request status
+	_, err = tx.ExecContext(ctx, `UPDATE claim_requests SET status = ? WHERE id = ?`, status, id)
+	if err != nil {
+		return err
+	}
+
+	// If approved, transfer ownership of the listing
+	if status == domain.ClaimStatusApproved {
+		_, err = tx.ExecContext(ctx, `
+			UPDATE listings SET owner_id = (
+				SELECT user_id FROM claim_requests WHERE id = ?
+			)
+			WHERE id = (
+				SELECT listing_id FROM claim_requests WHERE id = ?
+			)`, id, id)
+		if err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit()
+}
+
+// GetClaimRequestByUserAndListing retrieves any existing claim request for a user/listing pair.
+func (r *SQLiteRepository) GetClaimRequestByUserAndListing(ctx context.Context, userID, listingID string) (domain.ClaimRequest, error) {
+	query := `
+		SELECT id, listing_id, COALESCE(listing_title,''), user_id, COALESCE(user_name,''), COALESCE(user_email,''), status, created_at
+		FROM claim_requests
+		WHERE user_id = ? AND listing_id = ?
+		ORDER BY created_at DESC
+		LIMIT 1
+	`
+	row := r.db.QueryRowContext(ctx, query, userID, listingID)
+	var cr domain.ClaimRequest
+	err := row.Scan(&cr.ID, &cr.ListingID, &cr.ListingTitle, &cr.UserID, &cr.UserName, &cr.UserEmail, &cr.Status, &cr.CreatedAt)
+	if err == sql.ErrNoRows {
+		return domain.ClaimRequest{}, errors.New("claim request not found")
+	}
+	return cr, err
 }

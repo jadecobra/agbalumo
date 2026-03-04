@@ -351,23 +351,7 @@ func TestAdminRoutes(t *testing.T) {
 		if endId != -1 {
 			listingID := subStr[:endId]
 
-			// 6. Approve
-			req = httptest.NewRequest(http.MethodPost, "/admin/listings/"+listingID+"/approve", nil)
-			req.Header.Set("Cookie", cookie+"; "+csrfCookie)
-			req.Header.Set("X-CSRF-Token", csrfToken)
-			rec = httptest.NewRecorder()
-			e.ServeHTTP(rec, req)
-			assert.Equal(t, http.StatusOK, rec.Code)
-
-			// 7. Reject
-			req = httptest.NewRequest(http.MethodPost, "/admin/listings/"+listingID+"/reject", nil)
-			req.Header.Set("Cookie", cookie+"; "+csrfCookie)
-			req.Header.Set("X-CSRF-Token", csrfToken)
-			rec = httptest.NewRecorder()
-			e.ServeHTTP(rec, req)
-			assert.Equal(t, http.StatusOK, rec.Code)
-
-			// 8. Toggle Featured
+			// 6. Toggle Featured
 			req = httptest.NewRequest(http.MethodPost, "/admin/listings/"+listingID+"/featured", nil)
 			req.Header.Set("Cookie", cookie+"; "+csrfCookie)
 			req.Header.Set("X-CSRF-Token", csrfToken)
@@ -375,14 +359,14 @@ func TestAdminRoutes(t *testing.T) {
 			e.ServeHTTP(rec, req)
 			assert.Equal(t, http.StatusOK, rec.Code)
 
-			// 9. Hard Delete Confirmation View
+			// 7. Hard Delete Confirmation View
 			req = httptest.NewRequest(http.MethodGet, "/admin/listings/delete-confirm?id="+listingID, nil)
 			req.Header.Set("Cookie", cookie)
 			rec = httptest.NewRecorder()
 			e.ServeHTTP(rec, req)
 			assert.Equal(t, http.StatusOK, rec.Code)
 
-			// 10. Hard Delete Action
+			// 8. Hard Delete Action
 			form = strings.NewReader("id=" + listingID + "&_csrf=" + csrfToken)
 			req = httptest.NewRequest(http.MethodPost, "/admin/listings/delete", form)
 			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")

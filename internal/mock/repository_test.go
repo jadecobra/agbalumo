@@ -144,11 +144,32 @@ func TestMockListingRepository_AdditionalMethods(t *testing.T) {
 		t.Error("GetFeedbackCounts failed")
 	}
 
-	// GetPendingListings
-	m.On("GetPendingListings", ctx, 10, 0).Return([]domain.Listing{{ID: "1"}}, nil).Once()
-	listings, err = m.GetPendingListings(ctx, 10, 0)
-	if err != nil || len(listings) != 1 {
-		t.Error("GetPendingListings failed")
+	// GetPendingClaimRequests
+	m.On("GetPendingClaimRequests", ctx).Return([]domain.ClaimRequest{{ID: "cr1"}}, nil).Once()
+	claims, err := m.GetPendingClaimRequests(ctx)
+	if err != nil || len(claims) != 1 {
+		t.Error("GetPendingClaimRequests failed")
+	}
+
+	// SaveClaimRequest
+	m.On("SaveClaimRequest", ctx, testifyMock.Anything).Return(nil).Once()
+	err = m.SaveClaimRequest(ctx, domain.ClaimRequest{})
+	if err != nil {
+		t.Error("SaveClaimRequest failed")
+	}
+
+	// UpdateClaimRequestStatus
+	m.On("UpdateClaimRequestStatus", ctx, "cr1", domain.ClaimStatusApproved).Return(nil).Once()
+	err = m.UpdateClaimRequestStatus(ctx, "cr1", domain.ClaimStatusApproved)
+	if err != nil {
+		t.Error("UpdateClaimRequestStatus failed")
+	}
+
+	// GetClaimRequestByUserAndListing
+	m.On("GetClaimRequestByUserAndListing", ctx, "u1", "l1").Return(domain.ClaimRequest{ID: "cr1"}, nil).Once()
+	claim, err := m.GetClaimRequestByUserAndListing(ctx, "u1", "l1")
+	if err != nil || claim.ID != "cr1" {
+		t.Error("GetClaimRequestByUserAndListing failed")
 	}
 
 	// GetUserCount

@@ -96,7 +96,7 @@ func TestAdminDashboardFooterPosition(t *testing.T) {
 		},
 	}
 
-	mockRepo.On("GetPendingListings", testifyMock.Anything, 50, 0).Return([]domain.Listing{}, nil)
+	mockRepo.On("GetPendingClaimRequests", testifyMock.Anything).Return([]domain.ClaimRequest{}, nil)
 	mockRepo.On("GetUserCount", testifyMock.Anything).Return(5, nil)
 	mockRepo.On("GetFeedbackCounts", testifyMock.Anything).Return(map[domain.FeedbackType]int{domain.FeedbackTypeIssue: 1}, nil)
 	mockRepo.On("GetListingGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)
@@ -147,7 +147,7 @@ func TestMetricCardsHaveModalTriggers(t *testing.T) {
 	e.Renderer = &RealTemplateRenderer{templates: NewAdminTemplate(t)}
 
 	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("GetPendingListings", testifyMock.Anything, 50, 0).Return([]domain.Listing{}, nil)
+	mockRepo.On("GetPendingClaimRequests", testifyMock.Anything).Return([]domain.ClaimRequest{}, nil)
 	mockRepo.On("GetUserCount", testifyMock.Anything).Return(42, nil)
 	mockRepo.On("GetFeedbackCounts", testifyMock.Anything).Return(map[domain.FeedbackType]int{}, nil)
 	mockRepo.On("GetListingGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)

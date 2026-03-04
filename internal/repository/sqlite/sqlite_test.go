@@ -425,31 +425,100 @@ func TestFindAllByOwner(t *testing.T) {
 	}
 }
 
-func TestGetPendingListings(t *testing.T) {
+func TestGetPendingClaimRequests(t *testing.T) {
 	repo, _ := newTestRepo(t)
 	ctx := context.Background()
 
-	// Seed mixed status
-	repo.Save(ctx, domain.Listing{ID: "1", Title: "Approved", Status: domain.ListingStatusApproved, CreatedAt: time.Now()})
-	repo.Save(ctx, domain.Listing{ID: "2", Title: "Pending 1", Status: domain.ListingStatusPending, CreatedAt: time.Now()})
-	repo.Save(ctx, domain.Listing{ID: "3", Title: "Rejected", Status: domain.ListingStatusRejected, CreatedAt: time.Now()})
-	repo.Save(ctx, domain.Listing{ID: "4", Title: "Pending 2", Status: domain.ListingStatusPending, CreatedAt: time.Now().Add(time.Hour)})
+	// Save a listing so we can reference it
+	repo.Save(ctx, domain.Listing{ID: "l1", Title: "Unclaimed Business", Type: domain.Business, IsActive: true, CreatedAt: time.Now()})
 
-	pending, err := repo.GetPendingListings(ctx, 20, 0)
+	// Save a pending claim request
+	err := repo.SaveClaimRequest(ctx, domain.ClaimRequest{
+		ID:           "cr1",
+		ListingID:    "l1",
+		ListingTitle: "Unclaimed Business",
+		UserID:       "u1",
+		UserName:     "Test User",
+		UserEmail:    "test@example.com",
+		Status:       domain.ClaimStatusPending,
+		CreatedAt:    time.Now(),
+	})
 	if err != nil {
-		t.Fatalf("GetPendingListings failed: %v", err)
+		t.Fatalf("SaveClaimRequest failed: %v", err)
 	}
 
-	if len(pending) != 2 {
-		t.Errorf("Expected 2 pending listings, got %d", len(pending))
+	// Also save an approved one (should not appear)
+	repo.SaveClaimRequest(ctx, domain.ClaimRequest{
+		ID: "cr2", ListingID: "l1", UserID: "u2",
+		Status: domain.ClaimStatusApproved, CreatedAt: time.Now(),
+	})
+
+	pending, err := repo.GetPendingClaimRequests(ctx)
+	if err != nil {
+		t.Fatalf("GetPendingClaimRequests failed: %v", err)
+	}
+	if len(pending) != 1 {
+		t.Errorf("Expected 1 pending claim, got %d", len(pending))
+	}
+	if pending[0].ID != "cr1" {
+		t.Errorf("Expected claim ID 'cr1', got '%s'", pending[0].ID)
+	}
+	if pending[0].UserName != "Test User" {
+		t.Errorf("Expected UserName 'Test User', got '%s'", pending[0].UserName)
+	}
+}
+
+func TestUpdateClaimRequestStatus_Approve(t *testing.T) {
+	repo, _ := newTestRepo(t)
+	ctx := context.Background()
+
+	// Create listing and a user
+	repo.Save(ctx, domain.Listing{ID: "l1", Title: "Biz", Type: domain.Business, IsActive: true, CreatedAt: time.Now()})
+	repo.SaveUser(ctx, domain.User{ID: "u1", GoogleID: "g1", Email: "u1@x.com", CreatedAt: time.Now()})
+
+	// Create pending claim
+	repo.SaveClaimRequest(ctx, domain.ClaimRequest{
+		ID: "cr1", ListingID: "l1", UserID: "u1",
+		Status: domain.ClaimStatusPending, CreatedAt: time.Now(),
+	})
+
+	// Approve it
+	if err := repo.UpdateClaimRequestStatus(ctx, "cr1", domain.ClaimStatusApproved); err != nil {
+		t.Fatalf("UpdateClaimRequestStatus approve failed: %v", err)
 	}
 
-	// Verify order (Oldest first as per sqlite impl "ORDER BY created_at ASC")
-	// Although the SQL says ASC, let's verify.
-	// Pending 1 created now, Pending 2 created now+1h.
-	// Pending 1 is older (smaller time), so it should be first.
-	if pending[0].Title != "Pending 1" {
-		t.Errorf("Expected first pending to be 'Pending 1', got '%s'", pending[0].Title)
+	// Verify listing now has owner
+	listing, err := repo.FindByID(ctx, "l1")
+	if err != nil {
+		t.Fatalf("FindByID failed: %v", err)
+	}
+	if listing.OwnerID != "u1" {
+		t.Errorf("Expected OwnerID 'u1', got '%s'", listing.OwnerID)
+	}
+}
+
+func TestGetClaimRequestByUserAndListing(t *testing.T) {
+	repo, _ := newTestRepo(t)
+	ctx := context.Background()
+
+	repo.SaveClaimRequest(ctx, domain.ClaimRequest{
+		ID: "cr1", ListingID: "l1", UserID: "u1",
+		Status: domain.ClaimStatusPending, CreatedAt: time.Now(),
+	})
+
+	// Found
+	cr, err := repo.GetClaimRequestByUserAndListing(ctx, "u1", "l1")
+	if err != nil {
+		t.Fatalf("GetClaimRequestByUserAndListing failed: %v", err)
+	}
+	if cr.ID != "cr1" {
+		t.Errorf("Expected cr1, got %s", cr.ID)
+	}
+
+	// Not found
+	_, err = repo.GetClaimRequestByUserAndListing(ctx, "u1", "nonexistent")
+	if err == nil {
+		t.Error("Expected error for non-existent pair")
 	}
 }
 
@@ -678,8 +747,6 @@ func TestRepository_Errors(t *testing.T) {
 	checkError("FindAllByOwner", err)
 	_, err = repo.TitleExists(ctx, "test")
 	checkError("TitleExists", err)
-	_, err = repo.GetPendingListings(ctx, 20, 0)
-	checkError("GetPendingListings", err)
 	_, err = repo.GetUserCount(ctx)
 	checkError("GetUserCount", err)
 	_, err = repo.GetAllUsers(ctx, 100, 0)

@@ -45,9 +45,16 @@ type FeedbackStore interface {
 
 // AdminStore handles admin-specific queries.
 type AdminStore interface {
-	GetPendingListings(ctx context.Context, limit int, offset int) ([]Listing, error)
 	GetUserCount(ctx context.Context) (int, error)
 	GetAllUsers(ctx context.Context, limit int, offset int) ([]User, error)
+}
+
+// ClaimRequestStore handles claim request persistence.
+type ClaimRequestStore interface {
+	SaveClaimRequest(ctx context.Context, r ClaimRequest) error
+	GetPendingClaimRequests(ctx context.Context) ([]ClaimRequest, error)
+	UpdateClaimRequestStatus(ctx context.Context, id string, status ClaimStatus) error
+	GetClaimRequestByUserAndListing(ctx context.Context, userID, listingID string) (ClaimRequest, error)
 }
 
 // AnalyticsStore handles growth/analytics queries.
@@ -75,6 +82,7 @@ type ListingRepository interface {
 	AdminStore
 	AnalyticsStore
 	CategoryStore
+	ClaimRequestStore
 }
 
 // DailyMetric represents a daily count of an entity.

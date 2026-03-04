@@ -222,33 +222,36 @@ func (h *ListingHandler) HandleAbout(c echo.Context) error {
 }
 
 // HandleClaim processes a request to claim an unowned listing.
+// Creates a pending ClaimRequest for admin approval instead of immediately assigning ownership.
 func (h *ListingHandler) HandleClaim(c echo.Context) error {
 	user, ok := GetUser(c)
 	if !ok {
-		// If not logged in, redirect to login
-		// For HTMX, this might need a specific header to trigger client-side redirect,
-		// but standard redirect often works if HX-Redirect handled or simple link.
-		// Given detail modal handles logic, we stick to standard redirect fallback.
 		return c.Redirect(http.StatusFound, "/auth/google/login")
 	}
 
 	id := c.Param("id")
 
-	// Call the service layer to perform business logic
-	_, err := h.ListingSvc.ClaimListing(c.Request().Context(), user.ID, id)
+	_, err := h.ListingSvc.ClaimListing(c.Request().Context(), *user, id)
 	if err != nil {
-		if err.Error() == "listing not found" {
+		switch err.Error() {
+		case "listing not found":
 			return RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
-		}
-		if err.Error() == "listing is already owned" || err.Error() == "listing type cannot be claimed" {
+		case "listing is already owned", "listing type cannot be claimed":
 			return RespondError(c, echo.NewHTTPError(http.StatusForbidden, err.Error()))
+		case "you already have a pending claim for this listing":
+			return RespondError(c, echo.NewHTTPError(http.StatusConflict, err.Error()))
+		default:
+			return RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Failed to submit claim: "+err.Error()))
 		}
-		return RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Failed to claim listing: "+err.Error()))
 	}
 
-	// Success - Render the updated detail modal (HTMX Swap)
-	// We reuse HandleDetail logic to re-fetch and render the modal
-	return h.HandleDetail(c)
+	// HTMX: replace the claim button with a pending-approval notice
+	c.Response().Header().Set("Content-Type", "text/html")
+	return c.HTML(http.StatusOK, `
+		<div class="flex items-center gap-2 bg-earth-accent/10 border border-earth-accent/20 px-3 py-1.5">
+			<span class="material-symbols-outlined text-[14px] text-earth-accent">pending</span>
+			<span class="text-earth-accent text-xs font-bold uppercase tracking-widest">Claim Pending Review</span>
+		</div>`)
 }
 
 type ListingFormRequest struct {
@@ -323,8 +326,8 @@ func (h *ListingHandler) HandleCreate(c echo.Context) error {
 	l := domain.Listing{
 		ID:        uuid.New().String(),
 		CreatedAt: time.Now(),
-		IsActive:  true,                        // ACTIVE immediately (Post-Moderation)
-		Status:    domain.ListingStatusPending, // Marked as Pending for Admin review
+		IsActive:  true,
+		Status:    domain.ListingStatusApproved, // Live immediately — no moderation queue
 	}
 
 	if err := h.bindAndMapListing(c, &l); err != nil {

@@ -3,7 +3,9 @@ package service
 import (
 	"context"
 	"errors"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
@@ -11,6 +13,7 @@ import (
 type ListingServiceRepo interface {
 	domain.ListingStore
 	domain.CategoryStore
+	domain.ClaimRequestStore
 }
 
 // ListingService encapsulates business logic for listing operations.
@@ -23,35 +26,52 @@ func NewListingService(repo ListingServiceRepo) *ListingService {
 	return &ListingService{Repo: repo}
 }
 
-// ClaimListing assigns ownership of an unclaimed listing to the given user.
-// It validates that the listing exists, is unclaimed, and is a claimable type.
-func (s *ListingService) ClaimListing(ctx context.Context, userID, listingID string) (domain.Listing, error) {
-	if userID == "" {
-		return domain.Listing{}, errors.New("user ID is required")
+// ClaimListing creates a pending claim request for an unclaimed, claimable listing.
+// It validates that the listing exists, is unclaimed, is a claimable type, and that
+// the user does not already have a pending claim for this listing.
+func (s *ListingService) ClaimListing(ctx context.Context, user domain.User, listingID string) (domain.ClaimRequest, error) {
+	if user.ID == "" {
+		return domain.ClaimRequest{}, errors.New("user ID is required")
 	}
 
 	listing, err := s.Repo.FindByID(ctx, listingID)
 	if err != nil {
-		return domain.Listing{}, errors.New("listing not found")
+		return domain.ClaimRequest{}, errors.New("listing not found")
 	}
 
 	if listing.OwnerID != "" {
-		return domain.Listing{}, errors.New("listing is already owned")
+		return domain.ClaimRequest{}, errors.New("listing is already owned")
 	}
 
 	categoryInfo, err := s.Repo.GetCategory(ctx, string(listing.Type))
 	if err != nil {
-		return domain.Listing{}, errors.New("invalid category type")
+		return domain.ClaimRequest{}, errors.New("invalid category type")
 	}
 
 	if !categoryInfo.Claimable {
-		return domain.Listing{}, errors.New("listing type cannot be claimed")
+		return domain.ClaimRequest{}, errors.New("listing type cannot be claimed")
 	}
 
-	listing.OwnerID = userID
-	if err := s.Repo.Save(ctx, listing); err != nil {
-		return domain.Listing{}, errors.New("failed to save listing")
+	// Check for an existing pending claim from this user
+	existing, err := s.Repo.GetClaimRequestByUserAndListing(ctx, user.ID, listingID)
+	if err == nil && existing.Status == domain.ClaimStatusPending {
+		return domain.ClaimRequest{}, errors.New("you already have a pending claim for this listing")
 	}
 
-	return listing, nil
+	cr := domain.ClaimRequest{
+		ID:           uuid.New().String(),
+		ListingID:    listingID,
+		ListingTitle: listing.Title,
+		UserID:       user.ID,
+		UserName:     user.Name,
+		UserEmail:    user.Email,
+		Status:       domain.ClaimStatusPending,
+		CreatedAt:    time.Now(),
+	}
+
+	if err := s.Repo.SaveClaimRequest(ctx, cr); err != nil {
+		return domain.ClaimRequest{}, errors.New("failed to save claim request")
+	}
+
+	return cr, nil
 }

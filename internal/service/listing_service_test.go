@@ -12,22 +12,32 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+var testUser = domain.User{ID: "user-123", Name: "Test User", Email: "test@example.com"}
+
 func TestListingService_ClaimListing(t *testing.T) {
 	ctx := context.Background()
 
-	t.Run("success", func(t *testing.T) {
+	t.Run("success creates pending claim request", func(t *testing.T) {
 		mockRepo := new(mock.MockListingRepository)
 		svc := service.NewListingService(mockRepo)
 
-		mockRepo.On("FindByID", ctx, "loc-123").Return(domain.Listing{ID: "loc-123", Type: domain.Business}, nil)
-		mockRepo.On("GetCategory", ctx, string(domain.Business)).Return(domain.CategoryData{ID: string(domain.Business), Claimable: true}, nil).Maybe()
-		mockRepo.On("Save", ctx, testifyMock.MatchedBy(func(l domain.Listing) bool {
-			return l.OwnerID == "user-123"
+		mockRepo.On("FindByID", ctx, "loc-123").Return(domain.Listing{ID: "loc-123", Title: "Test Listing", Type: domain.Business}, nil)
+		mockRepo.On("GetCategory", ctx, string(domain.Business)).Return(domain.CategoryData{ID: string(domain.Business), Claimable: true}, nil)
+		mockRepo.On("GetClaimRequestByUserAndListing", ctx, testUser.ID, "loc-123").Return(domain.ClaimRequest{}, errors.New("not found"))
+		mockRepo.On("SaveClaimRequest", ctx, testifyMock.MatchedBy(func(cr domain.ClaimRequest) bool {
+			return cr.UserID == testUser.ID &&
+				cr.ListingID == "loc-123" &&
+				cr.Status == domain.ClaimStatusPending &&
+				cr.ListingTitle == "Test Listing" &&
+				cr.UserName == testUser.Name &&
+				cr.UserEmail == testUser.Email
 		})).Return(nil)
 
-		listing, err := svc.ClaimListing(ctx, "user-123", "loc-123")
+		cr, err := svc.ClaimListing(ctx, testUser, "loc-123")
 		require.NoError(t, err)
-		require.Equal(t, "user-123", listing.OwnerID)
+		require.Equal(t, domain.ClaimStatusPending, cr.Status)
+		require.Equal(t, testUser.ID, cr.UserID)
+		require.NotEmpty(t, cr.ID) // uuid generated
 
 		mockRepo.AssertExpectations(t)
 	})
@@ -36,7 +46,7 @@ func TestListingService_ClaimListing(t *testing.T) {
 		mockRepo := new(mock.MockListingRepository)
 		svc := service.NewListingService(mockRepo)
 
-		_, err := svc.ClaimListing(ctx, "", "loc-123")
+		_, err := svc.ClaimListing(ctx, domain.User{}, "loc-123")
 		require.Error(t, err)
 		require.Equal(t, "user ID is required", err.Error())
 	})
@@ -47,7 +57,7 @@ func TestListingService_ClaimListing(t *testing.T) {
 
 		mockRepo.On("FindByID", ctx, "bad-id").Return(domain.Listing{}, errors.New("listing not found"))
 
-		_, err := svc.ClaimListing(ctx, "user-123", "bad-id")
+		_, err := svc.ClaimListing(ctx, testUser, "bad-id")
 		require.Error(t, err)
 		require.Equal(t, "listing not found", err.Error())
 	})
@@ -58,7 +68,7 @@ func TestListingService_ClaimListing(t *testing.T) {
 
 		mockRepo.On("FindByID", ctx, "loc-123").Return(domain.Listing{ID: "loc-123", OwnerID: "someone-else", Type: domain.Business}, nil)
 
-		_, err := svc.ClaimListing(ctx, "user-123", "loc-123")
+		_, err := svc.ClaimListing(ctx, testUser, "loc-123")
 		require.Error(t, err)
 		require.Equal(t, "listing is already owned", err.Error())
 	})
@@ -68,23 +78,39 @@ func TestListingService_ClaimListing(t *testing.T) {
 		svc := service.NewListingService(mockRepo)
 
 		mockRepo.On("FindByID", ctx, "loc-123").Return(domain.Listing{ID: "loc-123", Type: domain.Job}, nil)
-		mockRepo.On("GetCategory", ctx, string(domain.Job)).Return(domain.CategoryData{ID: string(domain.Job), Claimable: false}, nil).Maybe()
+		mockRepo.On("GetCategory", ctx, string(domain.Job)).Return(domain.CategoryData{ID: string(domain.Job), Claimable: false}, nil)
 
-		_, err := svc.ClaimListing(ctx, "user-123", "loc-123")
+		_, err := svc.ClaimListing(ctx, testUser, "loc-123")
 		require.Error(t, err)
 		require.Equal(t, "listing type cannot be claimed", err.Error())
+	})
+
+	t.Run("duplicate pending claim rejected", func(t *testing.T) {
+		mockRepo := new(mock.MockListingRepository)
+		svc := service.NewListingService(mockRepo)
+
+		mockRepo.On("FindByID", ctx, "loc-123").Return(domain.Listing{ID: "loc-123", Title: "Test", Type: domain.Business}, nil)
+		mockRepo.On("GetCategory", ctx, string(domain.Business)).Return(domain.CategoryData{ID: string(domain.Business), Claimable: true}, nil)
+		mockRepo.On("GetClaimRequestByUserAndListing", ctx, testUser.ID, "loc-123").Return(
+			domain.ClaimRequest{ID: "existing", Status: domain.ClaimStatusPending}, nil,
+		)
+
+		_, err := svc.ClaimListing(ctx, testUser, "loc-123")
+		require.Error(t, err)
+		require.Equal(t, "you already have a pending claim for this listing", err.Error())
 	})
 
 	t.Run("save fails", func(t *testing.T) {
 		mockRepo := new(mock.MockListingRepository)
 		svc := service.NewListingService(mockRepo)
 
-		mockRepo.On("FindByID", ctx, "loc-123").Return(domain.Listing{ID: "loc-123", Type: domain.Business}, nil)
-		mockRepo.On("GetCategory", ctx, string(domain.Business)).Return(domain.CategoryData{ID: string(domain.Business), Claimable: true}, nil).Maybe()
-		mockRepo.On("Save", ctx, testifyMock.Anything).Return(errors.New("db error"))
+		mockRepo.On("FindByID", ctx, "loc-123").Return(domain.Listing{ID: "loc-123", Title: "Test", Type: domain.Business}, nil)
+		mockRepo.On("GetCategory", ctx, string(domain.Business)).Return(domain.CategoryData{ID: string(domain.Business), Claimable: true}, nil)
+		mockRepo.On("GetClaimRequestByUserAndListing", ctx, testUser.ID, "loc-123").Return(domain.ClaimRequest{}, errors.New("not found"))
+		mockRepo.On("SaveClaimRequest", ctx, testifyMock.Anything).Return(errors.New("db error"))
 
-		_, err := svc.ClaimListing(ctx, "user-123", "loc-123")
+		_, err := svc.ClaimListing(ctx, testUser, "loc-123")
 		require.Error(t, err)
-		require.Equal(t, "failed to save listing", err.Error())
+		require.Equal(t, "failed to save claim request", err.Error())
 	})
 }
