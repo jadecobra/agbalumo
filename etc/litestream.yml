@@ -1,0 +1,14 @@
+dbs:
+  - path: /data/agbalumo.db
+    replicas:
+      - type: s3
+        endpoint: ${LITESTREAM_ENDPOINT}
+        bucket: ${LITESTREAM_BUCKET}
+        path: agbalumo.db
+        access-key-id: ${LITESTREAM_ACCESS_KEY_ID}
+        secret-access-key: ${LITESTREAM_SECRET_ACCESS_KEY}
+        # Cloudflare R2 does not charge for egress, so we keep a generous retention window.
+        retention: 336h          # 14 days
+        retention-check-interval: 1h
+        sync-interval: 1s        # replicate WAL every second (incremental)
+        snapshot-interval: 24h   # full snapshot once daily

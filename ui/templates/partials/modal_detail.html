@@ -12,9 +12,10 @@
             </div>
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
 
-            <button hx-on:click="this.closest('dialog').remove()"
+            <button data-modal-action="close"
                 class="absolute top-4 right-4 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition-colors z-[60]">
                 <span class="material-symbols-outlined">close</span>
+                <span class="sr-only">Close</span>
             </button>
 
             <div class="absolute bottom-4 left-4 right-4 text-white">
@@ -70,8 +71,7 @@
 
             <!-- Company & Pay for Jobs -->
             {{ if eq .Listing.Type "Job" }}
-            <div
-                class="flex flex-col gap-2 mb-6 bg-white/5 p-4  border border-white/10">
+            <div class="flex flex-col gap-2 mb-6 bg-white/5 p-4  border border-white/10">
                 <div class="flex items-center gap-2.5 text-earth-cream">
                     <span class="material-symbols-outlined text-[20px] text-earth-accent">business</span>
                     <span class="font-bold uppercase tracking-widest text-sm">{{ .Listing.Company }}</span>
@@ -123,8 +123,7 @@
             </h4>
             <div class="flex flex-wrap gap-2 mb-6">
                 {{ range (split .Listing.Skills ",") }}
-                <span
-                    class="bg-white/10 text-earth-cream px-3 py-1  text-xs font-bold border border-white/10">
+                <span class="bg-white/10 text-earth-cream px-3 py-1  text-xs font-bold border border-white/10">
                     {{ . }}
                 </span>
                 {{ end }}
@@ -181,6 +180,14 @@
                 </a>
                 {{ end }}
             </div>
+        </div>
+
+        <!-- CLOSE button — large touch target, always visible at bottom -->
+        <div class="p-4 border-t border-white/10 bg-earth-dark/95 shrink-0 sticky bottom-0">
+            <button data-modal-action="close"
+                class="w-full bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark font-bold uppercase text-xs tracking-widest py-4 transition-colors active:scale-95">
+                CLOSE
+            </button>
         </div>
     </div>
 </dialog>

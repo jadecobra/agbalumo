@@ -8,9 +8,6 @@
 
         <div class="flex justify-between items-start mb-8">
             <h2 class="font-serif italic text-4xl leading-tight text-white drop-shadow-md">Post a Listing</h2>
-            <button data-modal-action="close" class="p-2 -mr-2 -mt-2 text-white/50 hover:text-white transition-colors">
-                <span class="material-symbols-outlined text-[24px]">close</span>
-            </button>
         </div>
 
         <form hx-post="/listings" hx-swap="afterbegin transition:true" hx-target="#listings-container" method="POST"
@@ -306,6 +303,12 @@
                     class="material-symbols-outlined text-[18px] animate-spin hidden htmx-request:block">progress_activity</span>
                 <span class="htmx-request:hidden">Post Listing</span>
                 <span class="hidden htmx-request:block">Posting...</span>
+            </button>
+
+            <!-- CLOSE button — large touch target for mobile -->
+            <button type="button" data-modal-action="close"
+                class="w-full bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark font-bold uppercase text-xs tracking-widest py-4 transition-colors active:scale-95">
+                CLOSE
             </button>
         </form>
     </div>

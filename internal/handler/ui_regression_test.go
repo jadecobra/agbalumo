@@ -1104,9 +1104,10 @@ func TestProfileModalTheme(t *testing.T) {
 		t.Error("Profile modal title missing font-serif class")
 	}
 
-	// Bug fix: close button must use hx-on:click (project-standard pattern, not raw onclick)
-	if !strings.Contains(content, `hx-on:click="this.closest('dialog').close()"`) {
-		t.Error("Profile modal close button must use hx-on:click to reliably close the dialog")
+	// Bug fix: close button must use data-modal-action="close" (standardized pattern)
+	// This ensures mobile touch events reliably reach the button element
+	if !strings.Contains(content, `data-modal-action="close"`) {
+		t.Error("Profile modal close button must use data-modal-action=\"close\" for reliable mobile touch handling")
 	}
 
 	// Backdrop click-to-close is handled globally by modals.js for all dialog[id] elements
@@ -1297,5 +1298,165 @@ func TestAdminLoginTheme(t *testing.T) {
 
 	if !strings.Contains(content, `border-b border-white/20`) {
 		t.Error("Admin login input missing border-bottom styling")
+	}
+}
+
+// TestModalCloseButtons verifies that every modal's close button
+// has the styled CLOSE text (not just an icon), ensuring it is tappable on mobile.
+func TestModalCloseButtons(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+	partialsDir := filepath.Join(projectRoot, "ui", "templates", "partials")
+
+	type modalCheck struct {
+		file     string
+		wantText string
+		wantAttr string
+	}
+
+	checks := []modalCheck{
+		{
+			file:     "modal_create_listing.html",
+			wantText: "CLOSE",
+			wantAttr: `data-modal-action="close"`,
+		},
+		{
+			file:     "modal_create_request.html",
+			wantText: "CLOSE",
+			wantAttr: `data-modal-action="close"`,
+		},
+		{
+			file:     "modal_profile.html",
+			wantText: "CLOSE",
+			wantAttr: `data-modal-action="close"`,
+		},
+		{
+			file:     "modal_feedback.html",
+			wantText: "CLOSE",
+			wantAttr: `data-modal-action="close"`,
+		},
+		{
+			file:     "modal_detail.html",
+			wantText: "CLOSE",
+			wantAttr: `data-modal-action="close"`,
+		},
+		{
+			file:     "modal_edit_listing.html",
+			wantText: "CLOSE",
+			wantAttr: `data-modal-action="close"`,
+		},
+	}
+
+	for _, check := range checks {
+		t.Run(check.file, func(t *testing.T) {
+			path := filepath.Join(partialsDir, check.file)
+			content, err := os.ReadFile(path)
+			if err != nil {
+				t.Fatalf("Failed to read %s: %v", check.file, err)
+			}
+			body := string(content)
+
+			if !strings.Contains(body, check.wantText) {
+				t.Errorf("%s: expected CLOSE button with text %q, not found", check.file, check.wantText)
+			}
+			if !strings.Contains(body, check.wantAttr) {
+				t.Errorf("%s: expected close button with attribute %q, not found", check.file, check.wantAttr)
+			}
+		})
+	}
+}
+
+// TestModalCloseButtonStyle verifies that modal CLOSE buttons use the ochre style
+// matching the ASK / POST buttons on the homepage.
+func TestModalCloseButtonStyle(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+	partialsDir := filepath.Join(projectRoot, "ui", "templates", "partials")
+
+	modalFiles := []string{
+		"modal_create_listing.html",
+		"modal_create_request.html",
+	}
+
+	for _, file := range modalFiles {
+		t.Run(file, func(t *testing.T) {
+			path := filepath.Join(partialsDir, file)
+			content, err := os.ReadFile(path)
+			if err != nil {
+				t.Fatalf("Failed to read %s: %v", file, err)
+			}
+			body := string(content)
+
+			// The CLOSE button should use the ochre colour to match ASK/POST buttons
+			if !strings.Contains(body, "bg-earth-ochre") {
+				t.Errorf("%s: CLOSE button missing bg-earth-ochre class (should match ASK/POST button style)", file)
+			}
+		})
+	}
+}
+
+// TestAdminDashboardModalCloseButtons verifies the admin dashboard div-based
+// modals all have accessible CLOSE buttons (already at the bottom via button_sharp).
+func TestAdminDashboardModalCloseButtons(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	path := filepath.Join(projectRoot, "ui", "templates", "admin_dashboard.html")
+	content, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("Failed to read admin_dashboard.html: %v", err)
+	}
+	body := string(content)
+
+	// Count occurrences of Close label via button_sharp template calls
+	closeCount := strings.Count(body, `"Label" "Close"`)
+	if closeCount < 4 {
+		t.Errorf("admin_dashboard.html should have at least 4 CLOSE bottom buttons (one per modal), found %d", closeCount)
+	}
+}
+
+// TestModalNoOrphanIconOnlyCloseButton ensures there are no bare icon-only close
+// buttons left (tiny <span>close</span> inside a plain <button> with no text).
+func TestModalNoOrphanIconOnlyCloseButton(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+	partialsDir := filepath.Join(projectRoot, "ui", "templates", "partials")
+
+	// Regex to find buttons that have ONLY an icon span and no text label visible
+	// Pattern: button ... > (whitespace) <span class="material-symbols-outlined">close</span> (whitespace) </button>
+	iconOnlyPattern := regexp.MustCompile(`(?s)<button[^>]*data-modal-action="close"[^>]*>\s*<span class="material-symbols-outlined[^"]*">close</span>\s*</button>`)
+
+	modalFiles := []string{
+		"modal_create_listing.html",
+		"modal_create_request.html",
+		"modal_profile.html",
+		"modal_feedback.html",
+		"modal_detail.html",
+		"modal_edit_listing.html",
+	}
+
+	for _, file := range modalFiles {
+		t.Run(file, func(t *testing.T) {
+			path := filepath.Join(partialsDir, file)
+			content, err := os.ReadFile(path)
+			if err != nil {
+				t.Fatalf("Failed to read %s: %v", file, err)
+			}
+			if iconOnlyPattern.Match(content) {
+				t.Errorf("%s: found icon-only close button with data-modal-action=\"close\" — replace with CLOSE text label for mobile accessibility", file)
+			}
+		})
 	}
 }

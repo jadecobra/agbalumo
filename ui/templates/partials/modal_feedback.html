@@ -9,9 +9,10 @@
                 <span class="material-symbols-outlined text-earth-accent">feedback</span>
                 Submit Feedback
             </h2>
-            <button hx-on:click="this.closest('dialog').close(); this.closest('dialog').remove();"
+            <button data-modal-action="close"
                 class="p-2 hover:bg-white/10 text-stone-400 hover:text-white transition-colors">
                 <span class="material-symbols-outlined">close</span>
+                <span class="sr-only">Close</span>
             </button>
         </div>
 
@@ -47,9 +48,9 @@
 
             <!-- Actions -->
             <div class="flex justify-end gap-3 pt-2">
-                <button type="button" hx-on:click="this.closest('dialog').close(); this.closest('dialog').remove();"
+                <button type="button" data-modal-action="close"
                     class="px-5 py-2.5 border border-white/20 font-bold text-earth-cream hover:bg-white/10 transition-all text-sm">
-                    Cancel
+                    CLOSE
                 </button>
                 <button type="submit"
                     class="px-5 py-2.5 bg-earth-accent text-white font-bold shadow-soft hover:shadow-lg hover:bg-earth-accent/90 transition-all text-sm flex items-center gap-2">

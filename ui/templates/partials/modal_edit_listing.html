@@ -11,9 +11,10 @@
 
         <div class="flex justify-between items-center mb-6">
             <h3 class="text-xl font-bold text-earth-cream font-serif">Edit Listing</h3>
-            <button hx-on:click="this.closest('dialog').close(); this.closest('dialog').remove();"
+            <button data-modal-action="close"
                 class="p-2 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 transition-colors">
                 <span class="material-symbols-outlined text-[20px]">close</span>
+                <span class="sr-only">Close</span>
             </button>
         </div>
 
@@ -321,6 +322,12 @@
                 <button type="submit"
                     class="mt-2 w-full flex items-center justify-center gap-2 bg-earth-accent hover:bg-earth-accent/90 text-white font-bold h-12 transition-all active:scale-[0.98] shadow-lg shadow-black/20">
                     Save Changes
+                </button>
+
+                <!-- CLOSE button — large touch target for mobile -->
+                <button type="button" data-modal-action="close"
+                    class="w-full bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark font-bold uppercase text-xs tracking-widest py-4 transition-colors active:scale-95">
+                    CLOSE
                 </button>
         </form>
     </div>
