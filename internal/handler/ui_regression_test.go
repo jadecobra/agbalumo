@@ -843,7 +843,7 @@ func TestAboutTheme(t *testing.T) {
 		t.Error("about.html should contain mission heading 'find what you want' section")
 	}
 
-	// Agbalumo metaphor section
+	// agbalumo metaphor section
 	if !containsNormalized(body, "find what you want") {
 		t.Error("about.html should contain 'find what you want' section")
 	}
