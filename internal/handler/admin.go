@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/jadecobra/agbalumo/internal/config"
 
@@ -175,11 +176,15 @@ func (h *AdminHandler) HandleAddCategory(c echo.Context) error {
 	claimableStr := c.FormValue("claimable")
 	claimable := claimableStr == "true"
 
+	now := time.Now()
 	cat := domain.CategoryData{
+		ID:        strings.ToLower(strings.ReplaceAll(strings.TrimSpace(name), " ", "-")),
 		Name:      name,
 		Claimable: claimable,
 		IsSystem:  false,
 		Active:    true,
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 
 	err := h.Repo.SaveCategory(ctx, cat)

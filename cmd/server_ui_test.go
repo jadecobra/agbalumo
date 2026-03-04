@@ -123,8 +123,8 @@ func TestListingDetail(t *testing.T) {
 	e.ServeHTTP(recDetail, reqDetail)
 
 	assert.Equal(t, http.StatusOK, recDetail.Code)
-	// It should render modal_detail which has the remove method on the close button
-	assert.Contains(t, recDetail.Body.String(), "this.closest('dialog').remove()")
+	// It should render modal_detail which has the close button with data-modal-action
+	assert.Contains(t, recDetail.Body.String(), "data-modal-action=\"close\"")
 }
 
 func getSessionCookie(rec *httptest.ResponseRecorder) string {

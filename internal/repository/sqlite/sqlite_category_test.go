@@ -252,3 +252,60 @@ func TestGetCategories_EmptyDB(t *testing.T) {
 		t.Errorf("Expected 0 categories on empty DB, got %d", len(cats))
 	}
 }
+
+// TestSaveCategory_PreservesExistingCategories verifies that adding a new category
+// does NOT overwrite pre-existing categories. This is the regression test for the
+// bug where HandleAddCategory used an empty ID, causing ON CONFLICT(id) overwrites.
+func TestSaveCategory_PreservesExistingCategories(t *testing.T) {
+	repo, _ := newTestRepo(t)
+	ctx := context.Background()
+
+	// Seed the core categories (simulates what EnsureCategoriesSeeded does)
+	coreCategories := []domain.CategoryData{
+		{ID: "Business", Name: "Business", IsSystem: true, Active: true, CreatedAt: time.Now(), UpdatedAt: time.Now()},
+		{ID: "Service", Name: "Service", IsSystem: true, Active: true, CreatedAt: time.Now(), UpdatedAt: time.Now()},
+		{ID: "Food", Name: "Food", IsSystem: true, Active: true, CreatedAt: time.Now(), UpdatedAt: time.Now()},
+	}
+	for _, c := range coreCategories {
+		if err := repo.SaveCategory(ctx, c); err != nil {
+			t.Fatalf("Failed to seed core category %s: %v", c.ID, err)
+		}
+	}
+
+	// Now add a new admin-created category with a proper unique ID
+	newCat := domain.CategoryData{
+		ID:        "music",
+		Name:      "Music",
+		IsSystem:  false,
+		Active:    true,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+	if err := repo.SaveCategory(ctx, newCat); err != nil {
+		t.Fatalf("Failed to save new category: %v", err)
+	}
+
+	// Verify ALL 4 categories exist
+	all, err := repo.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: false})
+	if err != nil {
+		t.Fatalf("GetCategories failed: %v", err)
+	}
+	if len(all) != 4 {
+		t.Errorf("Expected 4 categories after adding one new, got %d", len(all))
+		for _, c := range all {
+			t.Logf("  category: ID=%q Name=%q", c.ID, c.Name)
+		}
+	}
+
+	// Verify each core category still exists
+	for _, expected := range coreCategories {
+		got, err := repo.GetCategory(ctx, expected.ID)
+		if err != nil {
+			t.Errorf("Core category %q missing after adding new category: %v", expected.ID, err)
+			continue
+		}
+		if got.Name != expected.Name {
+			t.Errorf("Core category %q name changed from %q to %q", expected.ID, expected.Name, got.Name)
+		}
+	}
+}

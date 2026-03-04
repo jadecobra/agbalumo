@@ -1076,3 +1076,113 @@ func TestAdminHandler_HandleUsers_RepoError(t *testing.T) {
 
 	assert.Equal(t, http.StatusInternalServerError, rec.Code)
 }
+
+// --- HandleAddCategory Tests ---
+
+func TestAdminHandler_HandleAddCategory_Success(t *testing.T) {
+	e := echo.New()
+	formData := url.Values{}
+	formData.Set("name", "Music")
+	formData.Set("claimable", "true")
+	req := httptest.NewRequest(http.MethodPost, "/admin/categories/add", strings.NewReader(formData.Encode()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+	store := customMiddleware.NewTestSessionStore()
+	session, _ := store.Get(req, "auth_session")
+	c.Set("session", session)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("SaveCategory", testifyMock.Anything, testifyMock.MatchedBy(func(cat domain.CategoryData) bool {
+		// ID must be non-empty and derived from the name
+		return cat.ID == "music" && cat.Name == "Music" && cat.Claimable && !cat.IsSystem && cat.Active
+	})).Return(nil)
+
+	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
+
+	err := h.HandleAddCategory(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusFound, rec.Code)
+	assert.Equal(t, "/admin", rec.Header().Get("Location"))
+	mockRepo.AssertExpectations(t)
+}
+
+func TestAdminHandler_HandleAddCategory_MultiWordName(t *testing.T) {
+	e := echo.New()
+	formData := url.Values{}
+	formData.Set("name", "Live Music Venue")
+	req := httptest.NewRequest(http.MethodPost, "/admin/categories/add", strings.NewReader(formData.Encode()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+	store := customMiddleware.NewTestSessionStore()
+	session, _ := store.Get(req, "auth_session")
+	c.Set("session", session)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("SaveCategory", testifyMock.Anything, testifyMock.MatchedBy(func(cat domain.CategoryData) bool {
+		return cat.ID == "live-music-venue" && cat.Name == "Live Music Venue"
+	})).Return(nil)
+
+	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
+
+	err := h.HandleAddCategory(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusFound, rec.Code)
+	mockRepo.AssertExpectations(t)
+}
+
+func TestAdminHandler_HandleAddCategory_EmptyName(t *testing.T) {
+	e := echo.New()
+	formData := url.Values{}
+	formData.Set("name", "")
+	req := httptest.NewRequest(http.MethodPost, "/admin/categories/add", strings.NewReader(formData.Encode()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+
+	mockRepo := &mock.MockListingRepository{}
+	// SaveCategory should NOT be called if the name is empty
+	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
+
+	err := h.HandleAddCategory(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusFound, rec.Code)
+	mockRepo.AssertNotCalled(t, "SaveCategory", testifyMock.Anything, testifyMock.Anything)
+}
+
+func TestAdminHandler_HandleAddCategory_SaveError(t *testing.T) {
+	e := echo.New()
+	formData := url.Values{}
+	formData.Set("name", "TestCat")
+	req := httptest.NewRequest(http.MethodPost, "/admin/categories/add", strings.NewReader(formData.Encode()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
+	c.Set("User", adminUser)
+	store := customMiddleware.NewTestSessionStore()
+	session, _ := store.Get(req, "auth_session")
+	c.Set("session", session)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("SaveCategory", testifyMock.Anything, testifyMock.Anything).Return(errors.New("db error"))
+
+	h := NewAdminHandler(mockRepo, nil, config.LoadConfig())
+
+	err := h.HandleAddCategory(c)
+	assert.NoError(t, err)
+	// Should still redirect even on error
+	assert.Equal(t, http.StatusFound, rec.Code)
+	assert.Equal(t, "/admin", rec.Header().Get("Location"))
+}
