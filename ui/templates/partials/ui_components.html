@@ -8,7 +8,17 @@
 </button>
 {{ end }}
 
-{{ define "metric_stat_sharp" }}{{ if .Modal }}<button type="button" data-action="open-modal" data-target="{{ .Modal }}" data-modal-target="{{ .Modal }}" class="text-center flex-1 flex flex-col items-center py-6 px-4 cursor-pointer hover:bg-earth-ochre/10 transition-colors group focus:outline-none" title="Click to view details"><span class="text-3xl font-serif font-bold text-earth-dark group-hover:text-earth-ochre transition-colors">{{ .Value }}</span><span class="text-[10px] font-bold uppercase tracking-wider mt-1 text-earth-dark opacity-80 group-hover:opacity-100 transition-opacity">{{ .Label }}</span></button>{{ else }}<div class="text-center flex-1 flex flex-col items-center py-6 px-4"><span class="text-3xl font-serif font-bold text-earth-dark">{{ .Value }}</span><span class="text-[10px] font-bold uppercase tracking-wider mt-1 text-earth-dark opacity-80">{{ .Label }}</span></div>{{ end }}
+{{ define "metric_stat_sharp" }}{{ if .Modal }}<button type="button" data-action="open-modal" data-target="{{ .Modal }}"
+    data-modal-target="{{ .Modal }}"
+    class="text-center flex-1 flex flex-col items-center py-6 px-4 cursor-pointer hover:bg-earth-ochre/10 transition-colors group focus:outline-none"
+    title="Click to view details"><span
+        class="text-3xl font-serif font-bold text-earth-dark group-hover:text-earth-ochre transition-colors">{{ .Value
+        }}</span><span
+        class="text-[10px] font-bold uppercase tracking-wider mt-1 text-earth-dark opacity-80 group-hover:opacity-100 transition-opacity">{{
+        .Label }}</span></button>{{ else }}<div class="text-center flex-1 flex flex-col items-center py-6 px-4"><span
+        class="text-3xl font-serif font-bold text-earth-dark">{{ .Value }}</span><span
+        class="text-[10px] font-bold uppercase tracking-wider mt-1 text-earth-dark opacity-80">{{ .Label }}</span></div>
+{{ end }}
 {{ end }}
 
 {{ define "status_badge_sharp" }}
@@ -20,14 +30,12 @@
 
 {{ define "admin_tool_btn_sharp" }}
 <button data-action="open-modal" data-target="{{ .Target }}"
-    class="bg-earth-sand text-earth-dark hover:bg-white transition-colors p-6 shadow-2xl flex items-center justify-between group">
+    class="flex-1 flex flex-col items-center py-6 px-4 cursor-pointer hover:bg-earth-ochre/10 transition-colors group focus:outline-none">
     <div class="flex items-center gap-4">
         <div class="w-12 h-12 {{ .IconBgClass }} flex items-center justify-center {{ .IconColorClass }}">
             {{ .Icon | safeHTML }}
         </div>
-        <span class="font-bold uppercase tracking-widest text-xs">{{ .Label }}</span>
+        <span class="font-bold uppercase tracking-widest text-xs text-earth-dark">{{ .Label }}</span>
     </div>
-    <span
-        class="material-symbols-outlined text-earth-dark/30 group-hover:text-earth-dark transition-colors">arrow_forward</span>
 </button>
 {{ end }}
