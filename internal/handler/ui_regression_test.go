@@ -144,6 +144,37 @@ func TestHomePageUIValues(t *testing.T) {
 	}
 }
 
+func TestMobileBottomNavBorder(t *testing.T) {
+	e := echo.New()
+	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplate(t)}
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindAll", testifyMock.Anything, "", "", "", "", false, 20, 0).Return([]domain.Listing{}, nil)
+	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{}, nil)
+	mockRepo.On("GetLocations", testifyMock.Anything).Return([]string{}, nil)
+	mockRepo.On("GetFeaturedListings", testifyMock.Anything).Return([]domain.Listing{}, nil)
+
+	h := handler.NewListingHandler(mockRepo, nil)
+
+	if err := h.HandleHome(c); err != nil {
+		t.Fatalf("HandleHome failed: %v", err)
+	}
+
+	body := rec.Body.String()
+
+	// Verify Mobile Bottom Nav Border
+	if !strings.Contains(body, `id="mobile-bottom-nav"`) {
+		t.Fatal("Regression: Mobile bottom nav with id='mobile-bottom-nav' not found")
+	}
+
+	if !strings.Contains(body, `border-earth-ochre`) || !strings.Contains(body, `id="mobile-bottom-nav"`) {
+		t.Error("Regression: Mobile bottom nav missing 'border-earth-ochre' class")
+	}
+}
+
 func TestFilterUIValues(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplate(t)}

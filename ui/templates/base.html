@@ -236,7 +236,7 @@
 
     <!-- Mobile Bottom Nav (Floating Pill) -->
     <nav id="mobile-bottom-nav"
-        class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm bg-earth-dark/95 backdrop-blur-xl border border-white/10  shadow-2xl pb-safe z-50 transition-all duration-300">
+        class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm bg-earth-dark/95 backdrop-blur-xl border border-earth-ochre  shadow-2xl pb-safe z-50 transition-all duration-300">
         <div class="flex justify-around items-center h-16 px-4">
             <a href="/"
                 class="flex flex-col items-center justify-center flex-1 h-full text-earth-ochre hover:text-earth-ochre-light transition-colors">
@@ -262,8 +262,7 @@
             {{ if .User }}
             <button hx-get="/profile" hx-target="body" hx-swap="beforeend"
                 class="flex flex-col items-center justify-center flex-1 h-full text-white/50 hover:text-white transition-colors">
-                <img src="{{ .User.AvatarURL }}" alt="{{ .User.Name }}"
-                    class="w-6 h-6  border border-white/20">
+                <img src="{{ .User.AvatarURL }}" alt="{{ .User.Name }}" class="w-6 h-6  border border-white/20">
             </button>
             {{ else }}
             <a href="/auth/google/login"

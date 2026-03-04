@@ -188,3 +188,54 @@ func TestMetricCardsHaveModalTriggers(t *testing.T) {
 		t.Error("Expected metric cards to have data-action=\"open-modal\"")
 	}
 }
+
+func TestCategoryModalExists(t *testing.T) {
+	e := echo.New()
+	e.Renderer = &RealTemplateRenderer{templates: NewAdminTemplate(t)}
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("GetPendingClaimRequests", testifyMock.Anything).Return([]domain.ClaimRequest{}, nil)
+	mockRepo.On("GetUserCount", testifyMock.Anything).Return(5, nil)
+	mockRepo.On("GetFeedbackCounts", testifyMock.Anything).Return(map[domain.FeedbackType]int{}, nil)
+	mockRepo.On("GetListingGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)
+	mockRepo.On("GetUserGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)
+	mockRepo.On("GetAllFeedback", testifyMock.Anything).Return([]domain.Feedback{}, nil)
+	mockRepo.On("GetAllUsers", testifyMock.Anything, 10, 0).Return([]domain.User{}, nil)
+	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{domain.Business: 3}, nil)
+	mockRepo.On("GetCategories", testifyMock.Anything, testifyMock.Anything).Return([]domain.CategoryData{
+		{ID: "cat-1", Name: "Business", IsSystem: true, Active: true},
+		{ID: "cat-2", Name: "Crafts", IsSystem: false, Active: true},
+	}, nil)
+
+	h := handler.NewAdminHandler(mockRepo, nil, nil)
+
+	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	if err := h.HandleDashboard(c); err != nil {
+		t.Fatalf("HandleDashboard failed: %v", err)
+	}
+
+	body := rec.Body.String()
+
+	// categoryModal div must exist
+	if !strings.Contains(body, `id="categoryModal"`) {
+		t.Error("Expected categoryModal div to exist in the rendered dashboard")
+	}
+
+	// Form must post to /admin/categories
+	if !strings.Contains(body, `action="/admin/categories"`) {
+		t.Error("Expected add-category form with action=\"/admin/categories\"")
+	}
+
+	// Name input must be present
+	if !strings.Contains(body, `name="name"`) {
+		t.Error("Expected category name input field with name=\"name\"")
+	}
+
+	// Categories button in admin tools grid must target categoryModal
+	if !strings.Contains(body, `data-target="categoryModal"`) {
+		t.Error("Expected Categories admin tool button to target categoryModal")
+	}
+}

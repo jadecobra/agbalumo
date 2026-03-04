@@ -339,6 +339,113 @@ duration-300{{ end }}
 </div>
 <!-- END: Bulk Upload Modal -->
 
+<!-- BEGIN: Category Modal -->
+<div id="categoryModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+    aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-earth-dark/90 transition-opacity backdrop-blur-sm" aria-hidden="true"
+            data-action="close-modal" data-target="categoryModal"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div
+            class="inline-block align-bottom bg-earth-dark border border-white/10 text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl w-full p-8 relative">
+
+            <button data-action="close-modal" data-target="categoryModal"
+                class="absolute top-6 right-6 text-white/30 hover:text-white transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+
+            <div class="flex items-center gap-4 mb-8">
+                <div
+                    class="w-14 h-14 bg-green-500/10 flex items-center justify-center text-green-500 border border-green-500/20">
+                    <span class="material-symbols-outlined text-[28px]">category</span>
+                </div>
+                <h2 class="text-3xl font-serif text-white uppercase tracking-tight">Categories</h2>
+            </div>
+
+            <!-- Existing Categories List -->
+            {{ if .Categories }}
+            <div class="mb-8 border border-white/10 bg-white/2 max-h-48 overflow-y-auto">
+                <table class="min-w-full divide-y divide-white/10">
+                    <thead class="bg-white/5 sticky top-0">
+                        <tr>
+                            <th
+                                class="px-4 py-3 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+                                Name</th>
+                            <th
+                                class="px-4 py-3 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+                                Type</th>
+                            <th
+                                class="px-4 py-3 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+                                Claimable</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        {{ range .Categories }}
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="px-4 py-3 text-xs font-bold text-white uppercase tracking-wide">{{ .Name }}</td>
+                            <td class="px-4 py-3">
+                                {{ if .IsSystem }}
+                                {{ template "status_badge_sharp" dict "Label" "system" "ColorClasses" "bg-purple-600/20 text-purple-400" }}
+                                {{ else }}
+                                {{ template "status_badge_sharp" dict "Label" "custom" "ColorClasses" "bg-green-500/20 text-green-400" }}
+                                {{ end }}
+                            </td>
+                            <td class="px-4 py-3 text-[10px] font-bold uppercase tracking-widest">
+                                {{ if .Claimable }}
+                                <span class="text-earth-ochre">Yes</span>
+                                {{ else }}
+                                <span class="text-white/30">No</span>
+                                {{ end }}
+                            </td>
+                        </tr>
+                        {{ end }}
+                    </tbody>
+                </table>
+            </div>
+            {{ else }}
+            <div class="mb-8 p-8 text-center border border-white/5 bg-white/2">
+                <p class="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">No categories yet</p>
+            </div>
+            {{ end }}
+
+            <!-- Add New Category Form -->
+            <div class="border-t border-white/10 pt-6">
+                <p class="text-[10px] font-bold text-earth-ochre uppercase tracking-[0.2em] mb-4">Add New Category</p>
+                <form action="/admin/categories" method="POST" class="space-y-4">
+                    <input type="hidden" name="_csrf" value="{{ .CSRF }}">
+
+                    <div>
+                        <label for="categoryName"
+                            class="block text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2">Category
+                            Name</label>
+                        <input type="text" id="categoryName" name="name" required placeholder="e.g. Crafts"
+                            class="w-full bg-white/5 border border-white/10 text-white text-xs font-bold uppercase tracking-wide px-4 py-3 placeholder-white/20 focus:outline-none focus:border-earth-ochre transition-colors">
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" id="categoryClaimable" name="claimable" value="true"
+                            class="w-4 h-4 accent-earth-ochre cursor-pointer">
+                        <label for="categoryClaimable"
+                            class="text-[10px] font-bold uppercase tracking-widest text-white/70 cursor-pointer">Allow
+                            Listings to be Claimed</label>
+                    </div>
+
+                    <div class="flex justify-end gap-4 pt-2">
+                        {{ template "button_sharp" dict "Label" "Cancel" "DataAction" "close-modal" "DataTarget"
+                        "categoryModal" "Classes" `bg-white/10 hover:bg-white/20 text-white px-8 py-3 font-bold
+                        uppercase text-xs tracking-widest transition-all` }}
+                        {{ template "button_sharp" dict "Label" "Add Category" "Type" "submit" "Classes" `bg-earth-ochre
+                        hover:bg-earth-ochre-light text-earth-dark px-8 py-3 font-bold uppercase text-xs tracking-widest
+                        transition-all` }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: Category Modal -->
+
+
 <!-- BEGIN: Moderation Queue Modal -->
 <div id="moderationModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
     aria-modal="true">
