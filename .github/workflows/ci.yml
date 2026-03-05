@@ -54,11 +54,11 @@ jobs:
           echo "✅ Coverage check passed"
 
       - name: Build Server for Security Audit
-        run: go build -o server cmd/server/main.go
+        run: go build -o server .
 
       - name: Start Server (Background)
         run: |
-          nohup ./server > server.log 2>&1 &
+          nohup ./server serve > server.log 2>&1 &
           echo "Waiting for server to start..."
           # Wait loop
           for i in {1..10}; do
