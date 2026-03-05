@@ -50,7 +50,7 @@ run_task() {
 if [ -n "$STAGED_GO_FILES" ]; then
     if command -v golangci-lint >/dev/null 2>&1; then
         # Use --new-from-rev=HEAD for extremely fast local linting of only changes
-        run_task "lint" "GolangCI-Lint" golangci-lint run -c .github/workflows/golangci.yml --new-from-rev=HEAD &
+        run_task "lint" "GolangCI-Lint" golangci-lint run -c scripts/.golangci.yml --new-from-rev=HEAD &
     else
         # Fallback to standard tools if golangci-lint is not installed
         echo "  ${YELLOW}⚠️  golangci-lint not found, falling back to gofmt/govet${NC}"
