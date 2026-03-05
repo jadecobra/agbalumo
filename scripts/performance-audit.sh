@@ -63,12 +63,16 @@ echo "${BOLD}1. Static Asset Sizes${NC}"
 
 # Logo PNG — should be < 100KB (ideally WebP)
 LOGO="ui/static/images/logo.png"
+LOGO_WEBP="ui/static/images/logo.webp"
 if [ -f "$LOGO" ]; then
     LOGO_KB=$(du -k "$LOGO" | cut -f1)
-    if [ "$LOGO_KB" -gt 200 ]; then
-        fail "logo.png is ${LOGO_KB}KB (>200KB). Convert to WebP for ~50% savings."
+    if [ -f "$LOGO_WEBP" ]; then
+        WEBP_KB=$(du -k "$LOGO_WEBP" | cut -f1)
+        pass "logo.webp present (${WEBP_KB}KB vs PNG ${LOGO_KB}KB) — <picture> WebP served to modern browsers ✓"
+    elif [ "$LOGO_KB" -gt 200 ]; then
+        fail "logo.png is ${LOGO_KB}KB (>200KB) and no logo.webp exists. Convert: cwebp -q 85 ui/static/images/logo.png -o ui/static/images/logo.webp"
     elif [ "$LOGO_KB" -gt 100 ]; then
-        warn "logo.png is ${LOGO_KB}KB (>100KB). Consider WebP conversion."
+        warn "logo.png is ${LOGO_KB}KB (>100KB) and no logo.webp exists. Consider WebP conversion."
     else
         pass "logo.png is ${LOGO_KB}KB ✓"
     fi

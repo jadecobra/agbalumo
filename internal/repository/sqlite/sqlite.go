@@ -99,6 +99,15 @@ func NewSQLiteRepository(dbPath string) (*SQLiteRepository, error) {
 		return nil, err
 	}
 
+	// Connection Pool Tuning for SQLite
+	// SQLite serializes writes regardless of connection count.
+	// MaxOpenConns=1 prevents goroutine-level write contention at the pool layer.
+	// MaxIdleConns=10 keeps connections warm for concurrent WAL reads.
+	// ConnMaxLifetime=0 means connections are reused indefinitely (correct for SQLite).
+	db.SetMaxOpenConns(1)
+	db.SetMaxIdleConns(10)
+	db.SetConnMaxLifetime(0)
+
 	repo := &SQLiteRepository{db: db}
 	if err := repo.migrate(); err != nil {
 		return nil, err

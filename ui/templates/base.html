@@ -78,7 +78,10 @@
                 <!-- Mobile Full Width Logo -->
                 <div class="md:hidden flex flex-col justify-center items-center w-full py-2 border-b border-white/10">
                     <h1 class="flex flex-col items-center">
-                        <img src="/static/images/logo.png" alt="agbalumo Logo" class="h-12 w-auto object-contain">
+                        <picture>
+                            <source srcset="/static/images/logo.webp" type="image/webp">
+                            <img src="/static/images/logo.png" alt="agbalumo Logo" class="h-12 w-auto object-contain">
+                        </picture>
                         <span class="text-[10px] text-earth-accent font-medium tracking-wide -mt-1 font-display">find
                             what
                             you
@@ -92,8 +95,11 @@
                     <!-- Desktop Logo -->
                     <a href="/" class="hidden md:flex flex-col shrink-0 items-center justify-center gap-0 group">
                         <h1 class="flex flex-col items-center">
-                            <img src="/static/images/logo.png" alt="agbalumo Logo"
-                                class="h-8 md:h-10 object-contain group-hover:scale-105 transition-transform">
+                            <picture>
+                                <source srcset="/static/images/logo.webp" type="image/webp">
+                                <img src="/static/images/logo.png" alt="agbalumo Logo"
+                                    class="h-8 md:h-10 object-contain group-hover:scale-105 transition-transform">
+                            </picture>
                             <span
                                 class="text-[10px] text-earth-accent font-medium tracking-wide -mt-1 font-display">find
                                 what
