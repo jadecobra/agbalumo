@@ -27,8 +27,8 @@ func TestGetDatabaseURL(t *testing.T) {
 	t.Run("default", func(t *testing.T) {
 		os.Unsetenv("DATABASE_URL")
 		url := getDatabaseURL()
-		if url != "agbalumo.db" {
-			t.Errorf("getDatabaseURL() = %v, want agbalumo.db", url)
+		if url != "@data/agbalumo.db" {
+			t.Errorf("getDatabaseURL() = %v, want @data/agbalumo.db", url)
 		}
 	})
 

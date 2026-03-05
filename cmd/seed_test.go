@@ -15,7 +15,7 @@ func TestResolveSeedConfig(t *testing.T) {
 			name:     "Default",
 			args:     []string{},
 			env:      map[string]string{},
-			expected: "agbalumo.db",
+			expected: "@data/agbalumo.db",
 		},
 		{
 			name:     "WithArgument",
@@ -37,9 +37,9 @@ func TestResolveSeedConfig(t *testing.T) {
 		},
 		{
 			name:     "ExplicitDefaultArg",
-			args:     []string{"agbalumo.db"},
+			args:     []string{"@data/agbalumo.db"},
 			env:      map[string]string{"DATABASE_URL": "env.db"},
-			expected: "env.db", // Logic: if dbPath == "agbalumo.db", check env.
+			expected: "env.db", // Logic: if dbPath == "@data/agbalumo.db", check env.
 		},
 	}
 

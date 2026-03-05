@@ -360,7 +360,7 @@ func getDatabaseURL() string {
 	if dbURL := os.Getenv("DATABASE_URL"); dbURL != "" {
 		return dbURL
 	}
-	return "agbalumo.db"
+	return "@data/agbalumo.db"
 }
 
 func generateID() string {
