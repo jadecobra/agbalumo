@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"os"
@@ -99,8 +100,14 @@ var listingCreateCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Printf("Listing created successfully: %s\n", listing.ID)
-		printListing(listing)
+		if flagJSON {
+			data, _ := json.MarshalIndent(listing, "", "  ")
+			cmd.Println(string(data))
+			return
+		}
+
+		cmd.Printf("Listing created successfully: %s\n", listing.ID)
+		printListing(cmd, listing)
 	},
 }
 
@@ -117,13 +124,23 @@ var listingListCmd = &cobra.Command{
 		}
 
 		if len(listings) == 0 {
-			fmt.Println("No listings found")
+			if flagJSON {
+				cmd.Println("[]")
+			} else {
+				cmd.Println("No listings found")
+			}
 			return
 		}
 
-		fmt.Printf("Found %d listings:\n\n", len(listings))
+		if flagJSON {
+			data, _ := json.MarshalIndent(listings, "", "  ")
+			cmd.Println(string(data))
+			return
+		}
+
+		cmd.Printf("Found %d listings:\n\n", len(listings))
 		for _, l := range listings {
-			printListingSummary(l)
+			printListingSummary(cmd, l)
 		}
 	},
 }
@@ -141,7 +158,13 @@ var listingGetCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		printListing(listing)
+		if flagJSON {
+			data, _ := json.MarshalIndent(listing, "", "  ")
+			cmd.Println(string(data))
+			return
+		}
+
+		printListing(cmd, listing)
 	},
 }
 
@@ -226,8 +249,14 @@ var listingUpdateCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Printf("Listing updated successfully: %s\n", listing.ID)
-		printListing(listing)
+		if flagJSON {
+			data, _ := json.MarshalIndent(listing, "", "  ")
+			cmd.Println(string(data))
+			return
+		}
+
+		cmd.Printf("Listing updated successfully: %s\n", listing.ID)
+		printListing(cmd, listing)
 	},
 }
 
@@ -320,42 +349,42 @@ func generateID() string {
 	return fmt.Sprintf("cli-%s", uuid.New().String()[:8])
 }
 
-func printListing(l domain.Listing) {
-	fmt.Println("==================================")
-	fmt.Printf("ID:              %s\n", l.ID)
-	fmt.Printf("Title:           %s\n", l.Title)
-	fmt.Printf("Type:            %s\n", l.Type)
-	fmt.Printf("Origin:          %s\n", l.OwnerOrigin)
-	fmt.Printf("Status:          %s\n", l.Status)
-	fmt.Printf("Featured:        %v\n", l.Featured)
-	fmt.Printf("Description:     %s\n", l.Description)
-	fmt.Printf("City:            %s\n", l.City)
-	fmt.Printf("Address:         %s\n", l.Address)
-	fmt.Printf("Hours:           %s\n", l.HoursOfOperation)
-	fmt.Printf("Email:           %s\n", l.ContactEmail)
-	fmt.Printf("Phone:           %s\n", l.ContactPhone)
-	fmt.Printf("WhatsApp:        %s\n", l.ContactWhatsApp)
-	fmt.Printf("Website:         %s\n", l.WebsiteURL)
-	fmt.Printf("Image URL:       %s\n", l.ImageURL)
-	fmt.Printf("Created:         %s\n", l.CreatedAt.Format(time.RFC3339))
+func printListing(cmd *cobra.Command, l domain.Listing) {
+	cmd.Println("==================================")
+	cmd.Printf("ID:              %s\n", l.ID)
+	cmd.Printf("Title:           %s\n", l.Title)
+	cmd.Printf("Type:            %s\n", l.Type)
+	cmd.Printf("Origin:          %s\n", l.OwnerOrigin)
+	cmd.Printf("Status:          %s\n", l.Status)
+	cmd.Printf("Featured:        %v\n", l.Featured)
+	cmd.Printf("Description:     %s\n", l.Description)
+	cmd.Printf("City:            %s\n", l.City)
+	cmd.Printf("Address:         %s\n", l.Address)
+	cmd.Printf("Hours:           %s\n", l.HoursOfOperation)
+	cmd.Printf("Email:           %s\n", l.ContactEmail)
+	cmd.Printf("Phone:           %s\n", l.ContactPhone)
+	cmd.Printf("WhatsApp:        %s\n", l.ContactWhatsApp)
+	cmd.Printf("Website:         %s\n", l.WebsiteURL)
+	cmd.Printf("Image URL:       %s\n", l.ImageURL)
+	cmd.Printf("Created:         %s\n", l.CreatedAt.Format(time.RFC3339))
 	if !l.Deadline.IsZero() {
-		fmt.Printf("Deadline:        %s\n", l.Deadline.Format("2006-01-02"))
+		cmd.Printf("Deadline:        %s\n", l.Deadline.Format("2006-01-02"))
 	}
 	if !l.EventStart.IsZero() {
-		fmt.Printf("Event Start:     %s\n", l.EventStart.Format(time.RFC3339))
+		cmd.Printf("Event Start:     %s\n", l.EventStart.Format(time.RFC3339))
 	}
 	if !l.EventEnd.IsZero() {
-		fmt.Printf("Event End:       %s\n", l.EventEnd.Format(time.RFC3339))
+		cmd.Printf("Event End:       %s\n", l.EventEnd.Format(time.RFC3339))
 	}
 	if l.Type == domain.Job {
-		fmt.Printf("Company:         %s\n", l.Company)
-		fmt.Printf("Skills:          %s\n", l.Skills)
-		fmt.Printf("Job Start:       %s\n", l.JobStartDate.Format(time.RFC3339))
-		fmt.Printf("Apply URL:       %s\n", l.JobApplyURL)
-		fmt.Printf("Pay Range:       %s\n", l.PayRange)
+		cmd.Printf("Company:         %s\n", l.Company)
+		cmd.Printf("Skills:          %s\n", l.Skills)
+		cmd.Printf("Job Start:       %s\n", l.JobStartDate.Format(time.RFC3339))
+		cmd.Printf("Apply URL:       %s\n", l.JobApplyURL)
+		cmd.Printf("Pay Range:       %s\n", l.PayRange)
 	}
 }
 
-func printListingSummary(l domain.Listing) {
-	fmt.Printf("[%s] %s - %s (%s) [%s]\n", l.ID, l.Title, l.Type, l.City, l.Status)
+func printListingSummary(cmd *cobra.Command, l domain.Listing) {
+	cmd.Printf("[%s] %s - %s (%s) [%s]\n", l.ID, l.Title, l.Type, l.City, l.Status)
 }

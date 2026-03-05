@@ -68,7 +68,7 @@ func TestPrintListing(t *testing.T) {
 		IsActive:        true,
 	}
 
-	printListing(listing)
+	printListing(rootCmd, listing)
 }
 
 func TestPrintListingWithDeadline(t *testing.T) {
@@ -81,7 +81,7 @@ func TestPrintListingWithDeadline(t *testing.T) {
 		Deadline: testDeadline,
 	}
 
-	printListing(listing)
+	printListing(rootCmd, listing)
 }
 
 func TestPrintListingSummary(t *testing.T) {
@@ -93,7 +93,7 @@ func TestPrintListingSummary(t *testing.T) {
 		Status: domain.ListingStatusApproved,
 	}
 
-	printListingSummary(listing)
+	printListingSummary(rootCmd, listing)
 }
 
 func TestPrintListingAllFields(t *testing.T) {
@@ -124,5 +124,5 @@ func TestPrintListingAllFields(t *testing.T) {
 		PayRange:         "$120k-$150k",
 	}
 
-	printListing(listing)
+	printListing(rootCmd, listing)
 }

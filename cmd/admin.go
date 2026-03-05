@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"os"
@@ -106,13 +107,23 @@ var adminPendingClaimsCmd = &cobra.Command{
 		}
 
 		if len(claims) == 0 {
-			fmt.Println("No pending claim requests")
+			if flagJSON {
+				fmt.Println("[]")
+			} else {
+				fmt.Println("No pending claim requests")
+			}
 			return
 		}
 
-		fmt.Printf("Found %d pending claim requests:\n\n", len(claims))
+		if flagJSON {
+			data, _ := json.MarshalIndent(claims, "", "  ")
+			cmd.Println(string(data))
+			return
+		}
+
+		cmd.Printf("Found %d pending claim requests:\n\n", len(claims))
 		for _, cr := range claims {
-			fmt.Printf("[%s] Listing: %s | User: %s (%s) | %s\n",
+			cmd.Printf("[%s] Listing: %s | User: %s (%s) | %s\n",
 				cr.ID, cr.ListingTitle, cr.UserName, cr.UserEmail, cr.CreatedAt.Format("2006-01-02"))
 		}
 	},
@@ -131,17 +142,27 @@ var adminUsersCmd = &cobra.Command{
 		}
 
 		if len(users) == 0 {
-			fmt.Println("No users found")
+			if flagJSON {
+				fmt.Println("[]")
+			} else {
+				fmt.Println("No users found")
+			}
 			return
 		}
 
-		fmt.Printf("Found %d users:\n\n", len(users))
+		if flagJSON {
+			data, _ := json.MarshalIndent(users, "", "  ")
+			cmd.Println(string(data))
+			return
+		}
+
+		cmd.Printf("Found %d users:\n\n", len(users))
 		for _, u := range users {
 			role := string(u.Role)
 			if role == "" {
 				role = "user"
 			}
-			fmt.Printf("[%s] %s - %s\n", u.ID, u.Email, role)
+			cmd.Printf("[%s] %s - %s\n", u.ID, u.Email, role)
 		}
 	},
 }

@@ -3,6 +3,13 @@
 Command-line interface for managing the agbalumo directory platform.
 
 ## Commands
+### Global Flags
+
+The following flags are available for all commands:
+
+| Flag | Short | Default | Description |
+|------|-------|---------|-------------|
+| `--json` | | false | Output in JSON format for machine readability |
 
 ### listing
 
@@ -61,7 +68,7 @@ agbalumo listing create \
 
 ##### list
 
-List all listings.
+List all listings. Supports `--json` for machine-readable output.
 
 ```bash
 agbalumo listing list
@@ -77,6 +84,17 @@ agbalumo listing list
 # [abc12345] Lagos Restaurant - Business (Lagos) [Approved]
 # [def67890] Accra Market - Business (Accra) [Approved]
 # ...
+
+agbalumo listing list --json
+# Output:
+# [
+#   {
+#     "id": "abc12345",
+#     "title": "Lagos Restaurant",
+#     ...
+#   },
+#   ...
+# ]
 ```
 
 ##### get

@@ -4,6 +4,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var flagJSON bool
+
 var rootCmd = &cobra.Command{
 	Use:   "agbalumo",
 	Short: "agbalumo is a directory and request platform",
@@ -15,5 +17,5 @@ func Execute() error {
 }
 
 func init() {
-	// Global flags can be defined here
+	rootCmd.PersistentFlags().BoolVar(&flagJSON, "json", false, "Output in JSON format")
 }

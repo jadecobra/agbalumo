@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"os"
@@ -55,16 +56,26 @@ var categoryListCmd = &cobra.Command{
 		}
 
 		if len(categories) == 0 {
-			fmt.Println("No categories found.")
+			if flagJSON {
+				cmd.Println("[]")
+			} else {
+				cmd.Println("No categories found.")
+			}
 			return
 		}
 
-		fmt.Printf("\n%-20s %-10s %-15s %-10s\n", "NAME", "ACTIVE", "CLAIMABLE", "SYSTEM")
-		fmt.Printf("------------------------------------------------------------\n")
-		for _, cat := range categories {
-			fmt.Printf("%-20s %-10t %-15t %-10t\n", cat.Name, cat.Active, cat.Claimable, cat.IsSystem)
+		if flagJSON {
+			data, _ := json.MarshalIndent(categories, "", "  ")
+			cmd.Println(string(data))
+			return
 		}
-		fmt.Println()
+
+		cmd.Printf("\n%-20s %-10s %-15s %-10s\n", "NAME", "ACTIVE", "CLAIMABLE", "SYSTEM")
+		cmd.Printf("------------------------------------------------------------\n")
+		for _, cat := range categories {
+			cmd.Printf("%-20s %-10t %-15t %-10t\n", cat.Name, cat.Active, cat.Claimable, cat.IsSystem)
+		}
+		cmd.Println()
 	},
 }
 
