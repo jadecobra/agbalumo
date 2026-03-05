@@ -60,3 +60,13 @@ echo "✅ Coverage is acceptable: $COVERAGE%"
 
 
 echo "Quality Check Passed! 🚀"
+
+echo "5. Running Performance Audit..."
+# Exit 2 = critical failures (block commit). Exit 1 = warnings only (allow through).
+# We use `|| true` to prevent set -e from aborting on exit code 1 (warnings).
+sh scripts/performance-audit.sh || PERF_EXIT=$?
+PERF_EXIT="${PERF_EXIT:-0}"
+if [ "$PERF_EXIT" -eq 2 ]; then
+    echo "❌ Performance audit has critical failures. Fix them before committing."
+    exit 1
+fi
