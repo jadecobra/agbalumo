@@ -51,7 +51,7 @@ ENV DATABASE_URL=/data/agbalumo.db
 
 # Copy litestream config and entrypoint
 COPY etc/litestream.yml /etc/litestream.yml
-COPY entrypoint.sh /app/entrypoint.sh
+COPY scripts/entrypoint.sh /app/entrypoint.sh
 
 # Use non-root user
 USER appuser
