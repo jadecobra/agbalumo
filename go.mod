@@ -3,6 +3,7 @@ module github.com/jadecobra/agbalumo
 go 1.25.6
 
 require (
+	github.com/gen2brain/webp v0.5.5
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/sessions v1.4.0
 	github.com/joho/godotenv v1.5.1
@@ -10,6 +11,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.34
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.11.1
+	golang.org/x/image v0.36.0
 	golang.org/x/oauth2 v0.34.0
 	golang.org/x/time v0.14.0
 	modernc.org/sqlite v1.44.3
@@ -19,6 +21,7 @@ require (
 	cloud.google.com/go/compute/metadata v0.9.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/ebitengine/purego v0.8.3 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
@@ -31,6 +34,7 @@ require (
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/objx v0.5.3 // indirect
+	github.com/tetratelabs/wazero v1.9.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	golang.org/x/crypto v0.48.0 // indirect

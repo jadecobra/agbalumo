@@ -17,7 +17,7 @@ func TestEditListingModal_ImageRemovalUI(t *testing.T) {
 	listing := domain.Listing{
 		ID:       "test-ui-listing",
 		Title:    "Test UI",
-		ImageURL: "/static/uploads/test.jpg",
+		ImageURL: "/static/uploads/test.webp",
 	}
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)

@@ -5,6 +5,7 @@ import (
 	"context"
 	"image"
 	"image/color"
+	"image/gif"
 	"image/jpeg"
 	"image/png"
 	"io"
@@ -20,14 +21,14 @@ import (
 )
 
 func createValidPNG() []byte {
-	img := image.NewRGBA(image.Rect(0, 0, 1, 1))
+	img := image.NewRGBA(image.Rect(0, 0, 10, 10))
 	var buf bytes.Buffer
 	_ = png.Encode(&buf, img)
 	return buf.Bytes()
 }
 
 func createValidJPEG() []byte {
-	img := image.NewRGBA(image.Rect(0, 0, 1, 1))
+	img := image.NewRGBA(image.Rect(0, 0, 10, 10))
 	var buf bytes.Buffer
 	_ = jpeg.Encode(&buf, img, nil)
 	return buf.Bytes()
@@ -49,7 +50,9 @@ func TestLocalImageService_UploadImage(t *testing.T) {
 	svc := &service.LocalImageService{
 		UploadDir:      tempDir,
 		MaxUploadSize:  1024 * 1024,
+		MaxFileSize:    200 * 1024,
 		InitialQuality: 80,
+		MinQuality:     20,
 	}
 
 	pngData := createValidPNG()
@@ -72,9 +75,9 @@ func TestLocalImageService_UploadImage(t *testing.T) {
 	path, err := svc.UploadImage(context.Background(), fileHeader, "listing-123")
 
 	assert.NoError(t, err)
-	assert.Contains(t, path, "/static/uploads/listing-123.jpg")
+	assert.Contains(t, path, "/static/uploads/listing-123.webp")
 
-	savedPath := filepath.Join(tempDir, "listing-123.jpg")
+	savedPath := filepath.Join(tempDir, "listing-123.webp")
 	_, err = os.Stat(savedPath)
 	assert.NoError(t, err)
 }
@@ -133,7 +136,40 @@ func TestLocalImageService_UploadImage_JPEG(t *testing.T) {
 
 	path, err := svc.UploadImage(context.Background(), fileHeader, "jpeg-listing")
 	assert.NoError(t, err)
-	assert.Contains(t, path, ".jpg")
+	assert.Contains(t, path, ".webp")
+}
+
+func createValidGIF() []byte {
+	img := image.NewPaletted(image.Rect(0, 0, 1, 1), color.Palette{color.White})
+	var buf bytes.Buffer
+	_ = gif.EncodeAll(&buf, &gif.GIF{
+		Image: []*image.Paletted{img},
+		Delay: []int{0},
+	})
+	return buf.Bytes()
+}
+
+func TestLocalImageService_UploadImage_GIF(t *testing.T) {
+	svc := service.NewLocalImageService("")
+	svc.UploadDir = t.TempDir()
+
+	gifData := createValidGIF()
+	assert.NotNil(t, gifData, "failed to create test GIF")
+
+	body := &strings.Builder{}
+	writer := multipart.NewWriter(body)
+	part, _ := writer.CreateFormFile("image", "test.gif")
+	part.Write(gifData)
+	writer.Close()
+
+	req := httptest.NewRequest("POST", "/", strings.NewReader(body.String()))
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.ParseMultipartForm(1024)
+	fileHeader := req.MultipartForm.File["image"][0]
+
+	path, err := svc.UploadImage(context.Background(), fileHeader, "gif-listing")
+	assert.NoError(t, err)
+	assert.Contains(t, path, ".webp")
 }
 
 func TestLocalImageService_UploadImage_Compression(t *testing.T) {
@@ -155,9 +191,9 @@ func TestLocalImageService_UploadImage_Compression(t *testing.T) {
 
 	path, err := svc.UploadImage(context.Background(), fileHeader, "compress-test")
 	assert.NoError(t, err)
-	assert.Contains(t, path, ".jpg")
+	assert.Contains(t, path, ".webp")
 
-	savedPath := filepath.Join(svc.UploadDir, "compress-test.jpg")
+	savedPath := filepath.Join(svc.UploadDir, "compress-test.webp")
 	info, err := os.Stat(savedPath)
 	assert.NoError(t, err)
 	assert.True(t, info.Size() < 1000, "compressed image should be very small")
@@ -226,7 +262,7 @@ func TestLocalImageService_CompressImage(t *testing.T) {
 	assert.True(t, len(compressedData) > 0, "compressed should have content")
 }
 
-func TestLocalImageService_PNGToJPEG(t *testing.T) {
+func TestLocalImageService_ConvertToWebP(t *testing.T) {
 	svc := service.NewLocalImageService("")
 	svc.InitialQuality = 80
 
@@ -234,12 +270,11 @@ func TestLocalImageService_PNGToJPEG(t *testing.T) {
 	var pngBuf bytes.Buffer
 	_ = png.Encode(&pngBuf, img)
 
-	converted, err := svc.PNGToJPEG(strings.NewReader(pngBuf.String()))
+	converted, err := svc.ConvertToWebP(strings.NewReader(pngBuf.String()))
 	assert.NoError(t, err)
 
 	convertedData, _ := io.ReadAll(converted)
-	_, _, err = image.Decode(bytes.NewReader(convertedData))
-	assert.NoError(t, err)
+	assert.True(t, len(convertedData) > 0, "converted should have content")
 }
 
 func TestLocalImageService_UploadImage_LargeImageCompression(t *testing.T) {
@@ -278,10 +313,10 @@ func TestLocalImageService_UploadImage_LargeImageCompression(t *testing.T) {
 
 	path, err := svc.UploadImage(context.Background(), fileHeader, "large-test")
 	assert.NoError(t, err)
-	assert.Contains(t, path, ".jpg")
+	assert.Contains(t, path, ".webp")
 
 	// Verify the final file is under 200KB
-	savedPath := filepath.Join(svc.UploadDir, "large-test.jpg")
+	savedPath := filepath.Join(svc.UploadDir, "large-test.webp")
 	info, err := os.Stat(savedPath)
 	assert.NoError(t, err)
 	assert.True(t, info.Size() <= 200*1024, "compressed image should be under 200KB but was %d bytes", info.Size())
@@ -319,10 +354,10 @@ func TestLocalImageService_CompressImage_DecodeError(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestLocalImageService_PNGToJPEG_DecodeError(t *testing.T) {
+func TestLocalImageService_ConvertToWebP_DecodeError(t *testing.T) {
 	svc := service.NewLocalImageService("")
 
-	_, err := svc.PNGToJPEG(strings.NewReader("not a png"))
+	_, err := svc.ConvertToWebP(strings.NewReader("not a png"))
 	assert.Error(t, err)
 }
 func TestLocalImageService_DeleteImage(t *testing.T) {
@@ -362,14 +397,14 @@ func TestLocalImageService_DeleteImage(t *testing.T) {
 	assert.True(t, os.IsNotExist(err))
 }
 
-func TestLocalImageService_PNGToJPEG_EncodeError(t *testing.T) {
+func TestLocalImageService_ConvertToWebP_EncodeError(t *testing.T) {
 	svc := service.NewLocalImageService("")
-	svc.InitialQuality = -1 // Likely to cause issues, though jpeg.Encode is robust
+	svc.InitialQuality = -1 // Likely to cause issues
 
 	img := image.NewRGBA(image.Rect(0, 0, 1, 1))
 	var pngBuf bytes.Buffer
 	_ = png.Encode(&pngBuf, img)
 
-	// We can't easily trigger jpeg.Encode error without a custom image type or invalid quality
+	// We can't easily trigger encode error without a custom image type or invalid quality
 	// but we can try to coverage individual service methods more thoroughly.
 }

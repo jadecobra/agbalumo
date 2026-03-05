@@ -26,7 +26,7 @@ func TestListingHandler_HandleImageUpload_CacheBusting(t *testing.T) {
 
 	// Mock successful upload returning a clean URL
 	mockImageService.On("UploadImage", testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).
-		Return("/static/uploads/test.jpg", nil)
+		Return("/static/uploads/test.webp", nil)
 
 	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
 
@@ -60,7 +60,7 @@ func TestListingHandler_HandleImageUpload_CacheBusting(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Assert cache-busting parameter exists
-	assert.Contains(t, savedListing.ImageURL, "/static/uploads/test.jpg?t=")
+	assert.Contains(t, savedListing.ImageURL, "/static/uploads/test.webp?t=")
 
 	mockRepo.AssertExpectations(t)
 	mockImageService.AssertExpectations(t)

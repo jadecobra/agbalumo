@@ -22,7 +22,7 @@ func TestHandleUpdate_ImageRemoval(t *testing.T) {
 		ID:       "listing-123",
 		OwnerID:  "user1",
 		Title:    "Old Title",
-		ImageURL: "/static/uploads/listing-123.jpg",
+		ImageURL: "/static/uploads/listing-123.webp",
 	}
 
 	mockRepo := &mock.MockListingRepository{}

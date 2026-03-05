@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"context"
 	"image"
-	"image/jpeg"
-	"image/png"
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
 	"io"
 	"math"
 	"mime/multipart"
@@ -14,7 +15,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gen2brain/webp"
 	"github.com/labstack/echo/v4"
+	_ "golang.org/x/image/webp"
 )
 
 // ImageService defines the interface for handling image uploads
@@ -91,14 +94,14 @@ func (s *LocalImageService) UploadImage(ctx context.Context, file *multipart.Fil
 		return "", err
 	}
 
-	// 4. Compress and save as JPEG with iterative compression to meet size target
-	filename := listingID + ".jpg"
+	// 4. Compress and save as WebP with iterative compression to meet size target
+	filename := listingID + ".webp"
 	dstPath := filepath.Join(s.UploadDir, filename)
 
 	// First attempt: encode with initial quality
 	var buf bytes.Buffer
 	quality := s.InitialQuality
-	err = jpeg.Encode(&buf, img, &jpeg.Options{Quality: quality})
+	err = webp.Encode(&buf, img, webp.Options{Quality: quality})
 	if err != nil {
 		return "", err
 	}
@@ -110,7 +113,7 @@ func (s *LocalImageService) UploadImage(ctx context.Context, file *multipart.Fil
 		if quality < s.MinQuality {
 			quality = s.MinQuality
 		}
-		err = jpeg.Encode(&buf, img, &jpeg.Options{Quality: quality})
+		err = webp.Encode(&buf, img, webp.Options{Quality: quality})
 		if err != nil {
 			return "", err
 		}
@@ -146,7 +149,7 @@ func (s *LocalImageService) UploadImage(ctx context.Context, file *multipart.Fil
 
 			// Re-encode with minimum quality
 			buf.Reset()
-			err = jpeg.Encode(&buf, img, &jpeg.Options{Quality: s.MinQuality})
+			err = webp.Encode(&buf, img, webp.Options{Quality: s.MinQuality})
 			if err != nil {
 				return "", err
 			}
@@ -193,7 +196,7 @@ func (s *LocalImageService) DeleteImage(ctx context.Context, imageURL string) er
 	return os.Remove(dstPath)
 }
 
-// CompressImage compresses an image buffer and returns compressed bytes
+// CompressImage compresses an image buffer and returns compressed WebP bytes
 func (s *LocalImageService) CompressImage(src io.Reader) (io.Reader, error) {
 	img, _, err := image.Decode(src)
 	if err != nil {
@@ -201,7 +204,7 @@ func (s *LocalImageService) CompressImage(src io.Reader) (io.Reader, error) {
 	}
 
 	var buf bytes.Buffer
-	err = jpeg.Encode(&buf, img, &jpeg.Options{Quality: s.InitialQuality})
+	err = webp.Encode(&buf, img, webp.Options{Quality: s.InitialQuality})
 	if err != nil {
 		return nil, err
 	}
@@ -209,15 +212,15 @@ func (s *LocalImageService) CompressImage(src io.Reader) (io.Reader, error) {
 	return &buf, nil
 }
 
-// PNGToJPEG converts a PNG image to JPEG
-func (s *LocalImageService) PNGToJPEG(src io.Reader) (io.Reader, error) {
-	img, err := png.Decode(src)
+// ConvertToWebP converts any image to WebP format
+func (s *LocalImageService) ConvertToWebP(src io.Reader) (io.Reader, error) {
+	img, _, err := image.Decode(src)
 	if err != nil {
 		return nil, err
 	}
 
 	var buf bytes.Buffer
-	err = jpeg.Encode(&buf, img, &jpeg.Options{Quality: s.InitialQuality})
+	err = webp.Encode(&buf, img, webp.Options{Quality: s.InitialQuality})
 	if err != nil {
 		return nil, err
 	}

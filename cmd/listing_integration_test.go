@@ -32,7 +32,7 @@ func TestListingCLI_ImageFlags(t *testing.T) {
 	flagDescription = "Test Desc"
 	flagEmail = "test@test.com"
 	flagAddress = "123 Test St"
-	flagImageURL = "/static/uploads/test.jpg"
+	flagImageURL = "/static/uploads/test.webp"
 	flagOwnerID = "user-123"
 
 	// Simulate 'create'
@@ -55,7 +55,7 @@ func TestListingCLI_ImageFlags(t *testing.T) {
 	// 2. Verify it exists with the image
 	found, err := repo.FindByID(context.Background(), listingID)
 	assert.NoError(t, err)
-	assert.Equal(t, "/static/uploads/test.jpg", found.ImageURL)
+	assert.Equal(t, "/static/uploads/test.webp", found.ImageURL)
 
 	// 3. Update the listing to remove the image via CLI logic
 	flagRemoveImage = true
