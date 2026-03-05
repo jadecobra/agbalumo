@@ -284,6 +284,13 @@ func (r *SQLiteRepository) migrate() error {
 	_, _ = r.db.ExecContext(context.Background(), `CREATE INDEX IF NOT EXISTS idx_claim_requests_user_listing ON claim_requests(user_id, listing_id);`)
 	_, _ = r.db.ExecContext(context.Background(), `CREATE INDEX IF NOT EXISTS idx_claim_requests_status ON claim_requests(status);`)
 
+	// One-time migration to fix older categories that defaulted to active=0
+	_, err := r.db.ExecContext(context.Background(), "ALTER TABLE categories ADD COLUMN active_fixed BOOLEAN DEFAULT 0;")
+	if err == nil {
+		// If the column was just added successfully, it means we haven't run this fix yet.
+		_, _ = r.db.ExecContext(context.Background(), "UPDATE categories SET active = 1, active_fixed = 1;")
+	}
+
 	return nil
 }
 
