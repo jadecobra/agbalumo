@@ -1,5 +1,35 @@
 {{ template "base.html" . }}
 
+{{ define "title" }}All Listings - agbalumo Admin{{ end }}
+
+{{ define "header_classes" }}absolute top-0 w-full z-40 bg-transparent border-none text-white transition-all
+duration-300{{ end }}
+
+{{ define "header_content" }}
+<div class="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between gap-4 md:gap-8 w-full pt-4">
+    <!-- Desktop & Mobile Logo -->
+    <a href="/" class="flex flex-col shrink-0 items-center justify-center gap-0 group">
+        <img src="/static/images/logo.png" alt="agbalumo Logo"
+            class="h-10 md:h-14 object-contain group-hover:scale-105 transition-transform">
+    </a>
+
+    <!-- Action Buttons -->
+    <div class="flex items-center gap-4">
+        <button data-auth-action="modal" data-modal-id="create-listing-modal"
+            data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
+            class="text-[10px] md:text-xs font-bold uppercase tracking-widest text-white hover:text-earth-ochre transition-colors">
+            Post
+        </button>
+        <div class="w-px h-4 bg-white/30"></div>
+        <button data-auth-action="modal" data-modal-id="create-request-modal"
+            data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
+            class="text-[10px] md:text-xs font-bold uppercase tracking-widest text-white hover:text-earth-ochre transition-colors">
+            Ask
+        </button>
+    </div>
+</div>
+{{ end }}
+
 {{ define "content" }}
 <div class="bg-earth-dark flex-1 text-earth-sand w-full pb-20 pt-32 md:pt-40">
     <div class="container mx-auto px-4 max-w-6xl" data-purpose="app-content">
