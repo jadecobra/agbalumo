@@ -239,11 +239,11 @@ duration-300{{ end }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     {{ if eq .Role "Admin" }}
-                                    {{ template "status_badge_sharp" dict "Label" "Admin" "ColorClasses" `bg-purple-600
-                                    text-white` }}
+                                    {{ template "status_badge_sharp" dict "Label" "Admin" "ColorClasses"
+                                    "bg-purple-500/20 text-purple-400" }}
                                     {{ else }}
-                                    {{ template "status_badge_sharp" dict "Label" .Role "ColorClasses" `bg-white/10
-                                    text-white/70` }}
+                                    {{ template "status_badge_sharp" dict "Label" .Role "ColorClasses"
+                                    "bg-earth-ochre/20 text-earth-ochre-light" }}
                                     {{ end }}
                                 </td>
                                 <td
@@ -385,7 +385,7 @@ duration-300{{ end }}
                             <td class="px-4 py-3 text-xs font-bold text-white uppercase tracking-wide">{{ .Name }}</td>
                             <td class="px-4 py-3">
                                 {{ if .IsSystem }}
-                                {{ template "status_badge_sharp" dict "Label" "system" "ColorClasses" "bg-purple-600/20 text-purple-400" }}
+                                {{ template "status_badge_sharp" dict "Label" "system" "ColorClasses" "bg-purple-500/20 text-purple-400" }}
                                 {{ else }}
                                 {{ template "status_badge_sharp" dict "Label" "custom" "ColorClasses" "bg-green-500/20 text-green-400" }}
                                 {{ end }}

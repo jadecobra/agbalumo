@@ -40,7 +40,7 @@ func TestEditListingModal_ImageRemovalUI(t *testing.T) {
 
 	// 2. Verify "Remove" button (close icon) is present and calls clearEditImage
 	assert.Contains(t, body, `hx-on:click="clearEditImage('test-ui-listing')"`)
-	assert.Contains(t, body, `class="absolute -top-2 -right-2 bg-red-500 text-white p-1 hover:bg-red-600 shadow-md"`)
+	assert.Contains(t, body, `class="absolute -top-2 -right-2 bg-earth-ochre text-earth-dark p-1 hover:bg-earth-ochre-light shadow-lg"`)
 
 	// 3. Verify the existing image div has the correct ID
 	assert.Contains(t, body, `id="edit-existing-image-test-ui-listing"`)

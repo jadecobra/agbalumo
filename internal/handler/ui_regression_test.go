@@ -1024,8 +1024,8 @@ func TestEditListingModalTheme(t *testing.T) {
 		t.Error("Edit Listing modal missing expected dark theme wrapper classes")
 	}
 
-	if !strings.Contains(content, `bg-transparent border-0 border-b border-white/20`) {
-		t.Error("Edit Listing modal inputs missing transparent bottom border styling")
+	if !strings.Contains(content, `bg-earth-sand/10 border border-white/20 p-1`) {
+		t.Error("Edit Listing modal inputs missing new sharp border wrapper styling")
 	}
 }
 
