@@ -1244,8 +1244,8 @@ func TestAdminListingsTheme(t *testing.T) {
 
 	content := string(templateContent)
 
-	if !strings.Contains(content, `bg-earth-dark min-h-screen`) {
-		t.Error("Admin listings missing expected base dark theme wrapper classes")
+	if !strings.Contains(content, `bg-earth-dark flex-1`) {
+		t.Error("Admin listings missing expected base dark theme wrapper classes (bg-earth-dark flex-1)")
 	}
 
 	if !strings.Contains(content, `divide-white/10`) {
@@ -1458,5 +1458,36 @@ func TestModalNoOrphanIconOnlyCloseButton(t *testing.T) {
 				t.Errorf("%s: found icon-only close button with data-modal-action=\"close\" — replace with CLOSE text label for mobile accessibility", file)
 			}
 		})
+	}
+}
+
+func TestAdminListingsUIElements(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	templatePath := filepath.Join(projectRoot, "ui", "templates", "admin_listings.html")
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		t.Fatalf("Failed to read admin_listings.html: %v", err)
+	}
+
+	content := string(templateContent)
+
+	// 1. Container should match admin_dashboard.html
+	if !strings.Contains(content, "pt-32") || !strings.Contains(content, "max-w-6xl") || !strings.Contains(content, "bg-earth-dark") {
+		t.Error("Regression: admin_listings.html missing standard admin container classes (pt-32, max-w-6xl, bg-earth-dark)")
+	}
+
+	// 2. Headings should use admin_dashboard.html style
+	if !strings.Contains(content, "text-[10px]") || !strings.Contains(content, "uppercase") || !strings.Contains(content, "tracking-[0.3em]") {
+		t.Error("Regression: admin_listings.html typography missing premium admin styling (text-[10px] uppercase tracking-[0.3em])")
+	}
+
+	// 3. Table headers should use bg-white/5 and text-white/50
+	if !strings.Contains(content, "bg-white/5") || !strings.Contains(content, "text-white/50") {
+		t.Error("Regression: admin_listings.html table headers missing premium dark styling (bg-white/5, text-white/50)")
 	}
 }
