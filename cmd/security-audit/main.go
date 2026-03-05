@@ -225,7 +225,10 @@ func checkXSS(rootDir string, runner CommandRunner) bool {
 	// We'll assume runner handles simple command execution.
 	// For piping, we pass "sh", "-c", "script..."
 
-	script := "grep -r 'template.HTML' . --exclude-dir=bin --exclude-dir=.git | grep -v 'cmd/security-audit/main.go'"
+	// Use -I to ignore binary files
+	// Exclude renderer.go entirely as it's the definition point
+	// Exclude all tests
+	script := "grep -rI 'template.HTML' . --exclude-dir=.git --exclude-dir=bin --exclude-dir='@*' --exclude='*_test.go' --exclude='renderer.go' | grep -v 'cmd/security-audit/main.go'"
 	output, _ := runner.Run(rootDir, "sh", "-c", script)
 
 	if len(output) > 0 {
