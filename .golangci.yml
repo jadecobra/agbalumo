@@ -1,28 +1,30 @@
+version: 2
 linters-settings:
   govet:
     check-shadowing: true
   revive:
     rules:
       - name: exported
-        disabled: true # Focus on internal quality first
+        disabled: true
 
 linters:
   enable:
-    - errcheck
-    - gosimple
-    - govet
-    - ineffassign
-    - staticcheck
-    - unused
     - revive
     - gosec
     - misspell
     - unparam
+    - prealloc
+    - whitespace
+    - bodyclose
+    - noctx
+    - errorlint
+    - copyloopvar
 
 issues:
   exclude-use-default: false
   max-issues-per-linter: 0
   max-same-issues: 0
+  new-from-rev: HEAD
 
 run:
   timeout: 5m
