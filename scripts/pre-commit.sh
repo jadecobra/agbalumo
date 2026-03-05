@@ -59,9 +59,15 @@ echo "✅ Coverage is acceptable: $COVERAGE%"
 # which is executed as part of the pre-commit hook via setup-hooks.sh
 
 
+echo "5. Running API Drift Check..."
+bash scripts/api-drift-check.sh
+
+echo "6. Running CLI Drift Check..."
+bash scripts/cli-drift-check.sh
+
 echo "Quality Check Passed! 🚀"
 
-echo "5. Running Performance Audit..."
+echo "7. Running Performance Audit..."
 # Exit 2 = critical failures (block commit). Exit 1 = warnings only (allow through).
 # We use `|| true` to prevent set -e from aborting on exit code 1 (warnings).
 sh scripts/performance-audit.sh || PERF_EXIT=$?

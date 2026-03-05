@@ -26,6 +26,7 @@ The API uses session-based authentication with cookies.
 | GET | `/auth/logout` | Clear session |
 | GET | `/auth/google/login` | Initiate Google OAuth |
 | GET | `/auth/google/callback` | Handle OAuth callback |
+| GET | `/healthz` | Health check (returns 200 OK) |
 
 ## Public Endpoints
 
@@ -71,6 +72,15 @@ Requires authentication (session cookie).
 | GET | `/feedback/modal` | Feedback form modal |
 | POST | `/feedback` | Submit feedback |
 
+### Request Body: Feedback
+
+```json
+{
+  "type": "Bug|Feature|Question|Other",
+  "content": "string (required)"
+}
+```
+
 ### Request Body: Create/Update Listing
 
 ```json
@@ -110,13 +120,14 @@ Requires admin role and session authentication.
 | POST | `/admin/login` | Login action |
 | GET | `/admin/users` | List users |
 | GET | `/admin/listings` | List all listings |
-| POST | `/admin/listings/:id/approve` | Approve listing |
-| POST | `/admin/listings/:id/reject` | Reject listing |
+| POST | `/admin/claims/:id/approve` | Approve claim request |
+| POST | `/admin/claims/:id/reject` | Reject claim request |
 | POST | `/admin/listings/:id/featured` | Toggle featured (`featured=true/false`) |
-| POST | `/admin/listings/bulk` | Bulk action |
+| POST | `/admin/listings/bulk` | Bulk action (approve|reject|delete) |
 | GET | `/admin/listings/delete-confirm` | Delete confirmation (query param `id`) |
-| POST | `/admin/listings/delete` | Delete listing (`admin_code` required) |
+| POST | `/admin/listings/delete` | Delete listings (`admin_code` required) |
 | POST | `/admin/upload` | Bulk CSV upload (`csv_file`) |
+| POST | `/admin/categories` | Add custom category |
 
 ### Admin Listing Filters (GET `/admin/listings`)
 

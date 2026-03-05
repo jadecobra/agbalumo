@@ -290,17 +290,10 @@ paths:
         content:
           application/x-www-form-urlencoded:
             schema:
-              type: object
-              properties:
-                listing_id:
-                  type: string
-                message:
-                  type: string
-                rating:
-                  type: integer
+              $ref: '#/components/schemas/Feedback'
       responses:
-        '302':
-          description: Redirect to listing
+        '200':
+          description: Success message HTML
         '400':
           description: Validation error
         '401':
@@ -317,6 +310,16 @@ paths:
       responses:
         '200':
           description: HTML modal
+
+  /healthz:
+    get:
+      summary: Health check
+      description: Returns 200 OK if server is running
+      tags:
+        - Public
+      responses:
+        '200':
+          description: OK
 
   # Authentication Routes
   /auth/dev:
@@ -450,10 +453,10 @@ paths:
         '200':
           description: Listings list HTML
 
-  /admin/listings/{id}/approve:
+  /admin/claims/{id}/approve:
     post:
-      summary: Approve listing
-      description: Approve a pending listing
+      summary: Approve claim request
+      description: Approve a pending claim request and transfer ownership
       tags:
         - Admin
       security:
@@ -465,15 +468,15 @@ paths:
           schema:
             type: string
       responses:
-        '302':
-          description: Redirect to listings
+        '200':
+          description: Success
         '404':
-          description: Listing not found
+          description: Claim request not found
 
-  /admin/listings/{id}/reject:
+  /admin/claims/{id}/reject:
     post:
-      summary: Reject listing
-      description: Reject a listing
+      summary: Reject claim request
+      description: Reject a claim request
       tags:
         - Admin
       security:
@@ -485,10 +488,10 @@ paths:
           schema:
             type: string
       responses:
-        '302':
-          description: Redirect to listings
+        '200':
+          description: Success
         '404':
-          description: Listing not found
+          description: Claim request not found
 
   /admin/listings/{id}/featured:
     post:
@@ -622,6 +625,32 @@ paths:
       responses:
         '302':
           description: Redirect to listings
+
+  /admin/categories:
+    post:
+      summary: Add custom category
+      description: Create a new custom category
+      tags:
+        - Admin
+      security:
+        - CookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                claimable:
+                  type: string
+                  enum: ["true", "false"]
+      responses:
+        '302':
+          description: Redirect to dashboard
 
 components:
   securitySchemes:
@@ -822,12 +851,13 @@ components:
 
     Feedback:
       type: object
+      required:
+        - content
       properties:
-        listing_id:
+        type:
           type: string
-        message:
+          enum: [Bug, Feature, Question, Other]
+          example: "Bug"
+        content:
           type: string
-        rating:
-          type: integer
-          minimum: 1
-          maximum: 5
+          example: "Great app!"

@@ -24,8 +24,6 @@ agbalumo listing create -t "Business Title" -d "Description" -c "City" [flags]
 
 **Flags:**
 
-| Flag | Short | Default | Description |
-|------|-------|---------|-------------|
 | `--title` | `-t` | (required) | Listing title |
 | `--type` | `-y` | Business | Listing type (Business, Service, Product, Food, Event, Job, Request) |
 | `--origin` | `-o` | Nigeria | Owner origin/country |
@@ -36,7 +34,16 @@ agbalumo listing create -t "Business Title" -d "Description" -c "City" [flags]
 | `--phone` | `-p` | "" | Contact phone |
 | `--whatsapp` | `-w` | "" | WhatsApp number |
 | `--website` | `-s` | "" | Website URL |
+| `--image-url` | `-i` | "" | Image URL |
 | `--owner-id` | | "" | Owner user ID |
+| `--deadline` | | "" | Deadline (YYYY-MM-DD) |
+| `--event-start` | | "" | Event start (YYYY-MM-DDTHH:MM) |
+| `--event-end` | | "" | Event end (YYYY-MM-DDTHH:MM) |
+| `--skills` | | "" | Required skills |
+| `--job-start` | | "" | Job start date (YYYY-MM-DDTHH:MM) |
+| `--apply-url` | | "" | Job application URL |
+| `--company` | | "" | Company name |
+| `--pay-range` | | "" | Pay range |
 
 **Example:**
 
@@ -96,8 +103,6 @@ agbalumo listing update [id] [flags]
 
 **Flags:**
 
-| Flag | Short | Default | Description |
-|------|-------|---------|-------------|
 | `--title` | `-t` | "" | New title |
 | `--description` | `-d` | "" | New description |
 | `--city` | `-c` | "" | New city |
@@ -106,6 +111,16 @@ agbalumo listing update [id] [flags]
 | `--phone` | `-p` | "" | New phone |
 | `--whatsapp` | `-w` | "" | New WhatsApp |
 | `--website` | `-s` | "" | New website |
+| `--image-url` | `-i` | "" | New image URL |
+| `--remove-image` | | false | Remove image |
+| `--deadline` | | "" | New deadline (YYYY-MM-DD) |
+| `--event-start` | | "" | New event start |
+| `--event-end` | | "" | New event end |
+| `--skills` | | "" | New skills |
+| `--job-start` | | "" | New job start |
+| `--apply-url` | | "" | New apply URL |
+| `--company` | | "" | New company |
+| `--pay-range` | | "" | New pay range |
 
 **Example:**
 
@@ -188,24 +203,23 @@ agbalumo admin featured cli-1234567890
 # Output: Listing unfeatured: cli-1234567890
 ```
 
-##### pending
+##### pending-claims
 
-List all pending listings awaiting approval.
+List all pending claim requests.
 
 ```bash
-agbalumo admin pending
+agbalumo admin pending-claims
 ```
 
 **Example:**
 
 ```bash
-agbalumo admin pending
+agbalumo admin pending-claims
 # Output:
-# Found 5 pending listings:
+# Found 2 pending claims:
 #
-# [abc12345] New Restaurant - Business (Lagos) [Pending]
-# [def67890] Service Company - Service (Accra) [Pending]
-# ...
+# [claim-123] User 'john@example.com' claiming 'Lagos Restaurant'
+# [claim-456] User 'jane@example.com' claiming 'Accra Market'
 ```
 
 ##### users
@@ -261,22 +275,51 @@ agbalumo seed custom.db
 
 ---
 
+### category
+
+Manage listing categories.
+
+#### Subcommands
+
+##### add
+
+Add a new category.
+
+```bash
+agbalumo category add [name] [flags]
+```
+
+**Flags:**
+
+| Flag | Short | Default | Description |
+|------|-------|---------|-------------|
+| `--claimable` | `-c` | false | Is this category claimable? |
+
+**Example:**
+
+```bash
+agbalumo category add "Hotels" --claimable
+```
+
+##### list
+
+List all categories.
+
+```bash
+agbalumo category list
+```
+
+---
+
 ### serve
 
 Start the agbalumo web server.
 
 ```bash
-agbalumo serve [flags]
+agbalumo serve
 ```
 
-**Flags:**
-
-| Flag | Default | Description |
-|------|---------|-------------|
-| `--env` | development | Environment (development, production) |
-| `--port` | 8080 | Server port |
-| `--cert` | certs/cert.pem | TLS certificate file |
-| `--key` | certs/key.pem | TLS key file |
+**Note:** Configuration is primarily handled via environment variables (see below).
 
 **Example:**
 
@@ -326,8 +369,8 @@ agbalumo listing delete <id>
 # Admin: Approve listing
 agbalumo admin approve <id>
 
-# Admin: List pending
-agbalumo admin pending
+# Admin: List pending claims
+agbalumo admin pending-claims
 
 # Admin: List users
 agbalumo admin users
