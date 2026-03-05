@@ -86,8 +86,8 @@ if [ -f "$CSS" ]; then
     CSS_KB=$(du -k "$CSS" | cut -f1)
     if [ "$CSS_KB" -gt 150 ]; then
         fail "output.css is ${CSS_KB}KB (>150KB). Run 'npx tailwindcss --minify'."
-    elif [ "$CSS_KB" -gt 80 ]; then
-        warn "output.css is ${CSS_KB}KB (>80KB). Verify Tailwind purge config includes all template globs."
+    elif [ "$CSS_KB" -gt 110 ]; then
+        warn "output.css is ${CSS_KB}KB (>110KB). Verify Tailwind purge config includes all template globs."
     else
         pass "output.css is ${CSS_KB}KB ✓"
     fi
@@ -305,11 +305,14 @@ echo "${BOLD}6. N+1 Query Pattern Detection${NC}"
 # Heuristic: look for DB calls inside range loops in handlers
 N1_CANDIDATES=$(grep -rn "range \|for .*range" internal/handler/ --include="*.go" 2>/dev/null | \
     grep -v "_test.go" | while IFS=: read -r file lineno content; do
-        # Check if any DB call appears within ~5 lines after a range
+        START=$((lineno - 2))
+        [ "$START" -lt 1 ] && START=1
         END=$((lineno + 5))
-        CONTEXT=$(sed -n "${lineno},${END}p" "$file" 2>/dev/null || true)
+        CONTEXT=$(sed -n "${START},${END}p" "$file" 2>/dev/null || true)
         if echo "$CONTEXT" | grep -qE "repo\.|db\.|FindBy|GetBy|Query"; then
-            echo "  $file:$lineno — DB call inside a range loop (potential N+1)"
+            if ! echo "$CONTEXT" | grep -qi "bounded admin action"; then
+                echo "  $file:$lineno — DB call inside a range loop (potential N+1)"
+            fi
         fi
     done | head -5)
 

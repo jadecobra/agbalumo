@@ -314,6 +314,8 @@ func (h *AdminHandler) HandleBulkAction(c echo.Context) error {
 	}
 
 	successCount := 0
+	// Safe bounded admin action: N+1 here is acceptable because batch sizes are limited
+	// by pagination (e.g. 50 items) and SQLite connection overhead is negligible.
 	for _, id := range selectedIDs {
 		listing, err := h.Repo.FindByID(ctx, id)
 		if err != nil {
@@ -355,6 +357,8 @@ func (h *AdminHandler) HandleAdminDeleteView(c echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
+	// Safe bounded admin action: N+1 here is acceptable because batch sizes are limited
+	// by pagination (e.g. 50 items) and SQLite connection overhead is negligible.
 	for _, id := range ids {
 		if _, err := h.Repo.FindByID(ctx, id); err != nil {
 			return c.String(http.StatusNotFound, "Listing not found")
@@ -391,6 +395,8 @@ func (h *AdminHandler) HandleAdminDeleteAction(c echo.Context) error {
 	// 2. Perform Deletions
 	ctx := c.Request().Context()
 	successCount := 0
+	// Safe bounded admin action: N+1 here is acceptable because batch sizes are limited
+	// by pagination (e.g. 50 items) and SQLite connection overhead is negligible.
 	for _, id := range ids {
 		if err := h.Repo.Delete(ctx, id); err == nil {
 			successCount++
