@@ -61,6 +61,7 @@ jobs:
 
       - name: Run Tests with Coverage
         run: |
+          mkdir -p @tester
           go test -race -coverprofile=coverage.out ./...
           go tool cover -func=coverage.out
 
