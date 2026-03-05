@@ -14,12 +14,18 @@ import (
 var categoryCmd = &cobra.Command{
 	Use:   "category",
 	Short: "Manage categories",
+	Long: `The category command provides subcommands to add and list categories 
+used to organize listings in the agbalumo directory.`,
 }
 
 var categoryAddCmd = &cobra.Command{
 	Use:   "add [name]",
 	Short: "Add a new category",
-	Args:  cobra.ExactArgs(1),
+	Long: `Add a new category to the agbalumo system. Categories are used to 
+properly classify and filter listings.`,
+	Example: `  # Add a new claimable category
+  agbalumo category add "Professional Services" --claimable`,
+	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		repo := initRepo()
 

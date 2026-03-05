@@ -19,6 +19,9 @@ var (
 var adminCmd = &cobra.Command{
 	Use:   "admin",
 	Short: "Admin operations",
+	Long: `The admin command provides administrative subcommands for managing 
+the agbalumo platform, including approving listings, managing users, 
+and viewing claim requests.`,
 }
 
 var adminApproveCmd = &cobra.Command{

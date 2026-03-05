@@ -41,11 +41,22 @@ var (
 var listingCmd = &cobra.Command{
 	Use:   "listing",
 	Short: "Manage listings",
+	Long: `The listing command provides subcommands to create, list, retrieve, update, and delete 
+listings in the agbalumo directory. Listings represent businesses, services, 
+products, jobs, events, or requests within the community.`,
 }
 
 var listingCreateCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a new listing",
+	Long: `Create a new listing in the agbalumo directory. Mandatory fields include 
+the title. Other fields like type, description, and contact information 
+can be specified via flags.`,
+	Example: `  # Create a basic business listing
+  agbalumo listing create --title "Lagos Chop House" --type Service
+
+  # Create a job listing with a deadline
+  agbalumo listing create --title "Backend Developer" --type Job --deadline 2026-12-31`,
 	Run: func(cmd *cobra.Command, args []string) {
 		repo := initRepo()
 
@@ -114,6 +125,13 @@ var listingCreateCmd = &cobra.Command{
 var listingListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all listings",
+	Long: `List all existing listings in the agbalumo directory. This command 
+supports filtering and can output the results in a machine-readable JSON format.`,
+	Example: `  # List all listings
+  agbalumo listing list
+
+  # List all listings in JSON format
+  agbalumo listing list --json`,
 	Run: func(cmd *cobra.Command, args []string) {
 		repo := initRepo()
 
