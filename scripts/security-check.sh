@@ -6,10 +6,10 @@
 set -e
 
 # Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+RED=$(printf '\033[0;31m')
+GREEN=$(printf '\033[0;32m')
+YELLOW=$(printf '\033[1;33m')
+NC=$(printf '\033[0m') # No Color
 
 # Robust PATH discovery for macOS and Linux
 for dir in /usr/local/bin /opt/homebrew/bin /usr/bin /bin; do
