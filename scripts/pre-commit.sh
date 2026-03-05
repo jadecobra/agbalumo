@@ -32,12 +32,12 @@ go vet ./...
 
 echo "4. Running Tests with Race Detection & Coverage..."
 # Run tests on all packages
-go test -race -coverprofile=coverage.out ./...
-go tool cover -func=coverage.out
+go test -race -coverprofile=@tester/coverage.out ./...
+go tool cover -func=@tester/coverage.out
 
 # Enforce minimum coverage
 # Using grep -oE to extract the first decimal number for better robustness
-COVERAGE=$(go tool cover -func=coverage.out | grep total | grep -oE "[0-9]+(\.[0-9]+)?" | head -1)
+COVERAGE=$(go tool cover -func=@tester/coverage.out | grep total | grep -oE "[0-9]+(\.[0-9]+)?" | head -1)
 THRESHOLD=90.0
 
 if [ -z "$COVERAGE" ]; then

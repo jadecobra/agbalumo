@@ -12,11 +12,11 @@ import (
 
 func TestHealthzEndpoint(t *testing.T) {
 	os.Setenv("AGBALUMO_ENV", "test")
-	os.Setenv("DATABASE_URL", "test_healthz.db")
+	os.Setenv("DATABASE_URL", "@tester/test_healthz.db")
 	defer func() {
 		os.Unsetenv("AGBALUMO_ENV")
 		os.Unsetenv("DATABASE_URL")
-		os.Remove("test_healthz.db")
+		os.Remove("@tester/test_healthz.db")
 	}()
 
 	e, err := SetupServer()
@@ -46,10 +46,10 @@ func TestSetupServer(t *testing.T) {
 	// If agbalumo.db exists, it works.
 	// If not, it creates it.
 	// Best to use a temp db file.
-	os.Setenv("DATABASE_URL", "test_server.db")
+	os.Setenv("DATABASE_URL", "@tester/test_server.db")
 	defer func() {
 		os.Unsetenv("DATABASE_URL")
-		os.Remove("test_server.db")
+		os.Remove("@tester/test_server.db")
 	}()
 
 	e, err := SetupServer()
@@ -73,12 +73,12 @@ func TestServeCmd_Run(t *testing.T) {
 
 	os.Setenv("AGBALUMO_ENV", "test")
 	os.Setenv("AGBALUMO_DRY_RUN", "true")
-	os.Setenv("DATABASE_URL", "test_serve_cmd.db") // Diff DB
+	os.Setenv("DATABASE_URL", "@tester/test_serve_cmd.db") // Diff DB
 	defer func() {
 		os.Unsetenv("AGBALUMO_ENV")
 		os.Unsetenv("AGBALUMO_DRY_RUN")
 		os.Unsetenv("DATABASE_URL")
-		os.Remove("test_serve_cmd.db")
+		os.Remove("@tester/test_serve_cmd.db")
 	}()
 
 	// Execute Run
@@ -90,14 +90,14 @@ func TestSetupServerProduction(t *testing.T) {
 	// Test SetupServer with production environment (JSON logging)
 	os.Setenv("AGBALUMO_ENV", "production")
 	os.Setenv("SESSION_SECRET", "production-secret-key")
-	os.Setenv("DATABASE_URL", "test_server_prod.db")
+	os.Setenv("DATABASE_URL", "@tester/test_server_prod.db")
 	os.Setenv("ADMIN_CODE", "test-admin-code")
 	defer func() {
 		os.Unsetenv("AGBALUMO_ENV")
 		os.Unsetenv("SESSION_SECRET")
 		os.Unsetenv("DATABASE_URL")
 		os.Unsetenv("ADMIN_CODE")
-		os.Remove("test_server_prod.db")
+		os.Remove("@tester/test_server_prod.db")
 	}()
 
 	e, err := SetupServer()
@@ -109,14 +109,14 @@ func TestSetupBackgroundServicesProduction(t *testing.T) {
 	// Test setupBackgroundServices in production (should skip seeding)
 	os.Setenv("AGBALUMO_ENV", "production")
 	os.Setenv("SESSION_SECRET", "test-secret-key")
-	os.Setenv("DATABASE_URL", "test_bg_prod.db")
+	os.Setenv("DATABASE_URL", "@tester/test_bg_prod.db")
 	os.Setenv("ADMIN_CODE", "test-admin-code")
 	defer func() {
 		os.Unsetenv("AGBALUMO_ENV")
 		os.Unsetenv("SESSION_SECRET")
 		os.Unsetenv("DATABASE_URL")
 		os.Unsetenv("ADMIN_CODE")
-		os.Remove("test_bg_prod.db")
+		os.Remove("@tester/test_bg_prod.db")
 	}()
 
 	e, err := SetupServer()

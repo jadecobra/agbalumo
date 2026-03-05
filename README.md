@@ -36,8 +36,8 @@ Reference the `scripts/` directory for standard operations:
 - `scripts/pre-commit.sh`: Runs tests, coverage checks, and linting.
 
 ### Database
-- Uses SQLite with `agbalumo.db`.
-- Database URL defaults to `agbalumo.db` in `env`.
+- Uses SQLite with `@data/agbalumo.db`.
+- Database URL defaults to `@data/agbalumo.db` in `env`.
 
 ## Running the Project
 1. Ensure `.env` is set up.

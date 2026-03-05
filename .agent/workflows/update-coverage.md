@@ -8,7 +8,7 @@ Follow these steps to update the test coverage threshold for the project.
 
 1. Find the current total test coverage percentage by executing the following command:
 ```sh
-export PATH=/opt/homebrew/bin:/usr/local/go/bin:$PATH && go test -race -coverprofile=coverage.out ./... && go tool cover -func=coverage.out | grep -v "mock" | grep total | awk '{print substr($3, 1, length($3)-1)}'
+export PATH=/opt/homebrew/bin:/usr/local/go/bin:$PATH && go test -race -coverprofile=@tester/coverage.out ./... && go tool cover -func=@tester/coverage.out | grep -v "mock" | grep total | awk '{print substr($3, 1, length($3)-1)}'
 ```
 *(Extract the coverage percentage from the output).*
 
