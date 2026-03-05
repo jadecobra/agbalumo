@@ -23,6 +23,11 @@ echo "${BLUE}Running 10x Engineer Quality Checks...${NC}"
 # 1. Get staged files for efficient checking
 STAGED_GO_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep '\.go$' || true)
 MOD_FILES_CHANGED=$(git diff --cached --name-only --diff-filter=ACMR | grep -E 'go\.mod$|go\.sum$' || true)
+STAGED_CMD_DOCS=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '^cmd/|^docs/api\.md$|^docs/openapi\.yaml$' || true)
+STAGED_CLI_DOCS=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '^cmd/cli/|^docs/cli\.md$' || true)
+STAGED_PERF_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '^ui/|^internal/handler/|^internal/repository/|^scripts/' || true)
+STAGED_SEC_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.html$|\.go$|\.js$' || true)
+STAGED_ALL=$(git diff --cached --name-only || true)
 
 # Create a temporary directory for parallel task outputs
 LOG_DIR=$(mktemp -d)
@@ -83,24 +88,49 @@ else
 fi
 
 # 3. API & CLI Drift Checks
-run_task "api_drift" "API Drift" bash scripts/api-drift-check.sh &
-run_task "cli_drift" "CLI Drift" bash scripts/cli-drift-check.sh &
+if [ -n "$STAGED_CMD_DOCS" ]; then
+    run_task "api_drift" "API Drift" bash scripts/api-drift-check.sh &
+else
+    echo "  ${YELLOW}skipping API Drift (no relevant changes)${NC}"
+fi
+
+if [ -n "$STAGED_CLI_DOCS" ]; then
+    run_task "cli_drift" "CLI Drift" bash scripts/cli-drift-check.sh &
+else
+    echo "  ${YELLOW}skipping CLI Drift (no relevant changes)${NC}"
+fi
 
 # 4. Performance Audit
-run_task "perf" "Performance Audit" sh scripts/performance-audit.sh &
+if [ -n "$STAGED_PERF_FILES" ]; then
+    run_task "perf" "Performance Audit" sh scripts/performance-audit.sh &
+else
+    echo "  ${YELLOW}skipping Performance Audit (no relevant changes)${NC}"
+fi
 
 # 5. Tests & Coverage
-check_tests() {
-    go test -race -coverprofile=@tester/coverage.out ./... > /dev/null
-    COVERAGE=$(go tool cover -func=@tester/coverage.out | grep total | grep -oE "[0-9]+(\.[0-9]+)?" | head -1)
-    THRESHOLD=90.0
-    if [ "$(echo "$COVERAGE < $THRESHOLD" | bc -l)" -eq 1 ]; then
-        echo "Coverage is below threshold: $COVERAGE% < $THRESHOLD%"
-        return 2
-    fi
-    echo "Coverage: $COVERAGE%"
-}
-run_task "test" "Tests & Coverage" check_tests &
+if [ -n "$STAGED_GO_FILES" ]; then
+    check_tests() {
+        # Removing -race locally to improve test speed in pre-commit
+        go test -coverprofile=@tester/coverage.out ./... > /dev/null
+        COVERAGE=$(go tool cover -func=@tester/coverage.out | grep total | grep -oE "[0-9]+(\.[0-9]+)?" | head -1)
+        THRESHOLD=90.0
+        if [ "$(echo "$COVERAGE < $THRESHOLD" | bc -l)" -eq 1 ]; then
+            echo "Coverage is below threshold: $COVERAGE% < $THRESHOLD%"
+            return 2
+        fi
+        echo "Coverage: $COVERAGE%"
+    }
+    run_task "test" "Tests & Coverage" check_tests &
+else
+    echo "  ${YELLOW}skipping Tests & Coverage (no staged Go files)${NC}"
+fi
+
+# 6. Security Check
+if [ -n "$STAGED_ALL" ]; then
+    run_task "security" "Security Check" sh scripts/security-check.sh &
+else
+    echo "  ${YELLOW}skipping Security Check (no staged files)${NC}"
+fi
 
 # Wait for all background tasks
 FAILURES=0

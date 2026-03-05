@@ -9,8 +9,8 @@ on:
       - main
 
 jobs:
-  quality:
-    name: Quality & Lint
+  quality_lint:
+    name: Lint Check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -27,6 +27,19 @@ jobs:
         with:
           version: latest
           args: --timeout=5m --config=.github/workflows/golangci.yml
+
+  quality_sec:
+    name: Vulnerability Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache: true
 
       - name: Vulnerability Check (Govulncheck)
         uses: golang/govulncheck-action@v1
@@ -82,13 +95,13 @@ jobs:
         run: |
           nohup ./server serve > server.log 2>&1 &
           echo "Waiting for server to start..."
-          for i in {1..10}; do
+          for i in {1..20}; do
             if curl -s http://localhost:8080 > /dev/null; then
               echo "Server is up!"
               break
             fi
             echo "Waiting..."
-            sleep 1
+            sleep 0.5
           done
           if ! curl -s http://localhost:8080 > /dev/null; then
             echo "Server failed to start:"
@@ -101,7 +114,7 @@ jobs:
 
   docker:
     name: Docker Build & Scan
-    needs: [quality, test, security]
+    needs: [quality_lint, quality_sec, test, security]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
