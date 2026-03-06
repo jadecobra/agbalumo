@@ -29,7 +29,7 @@ jobs:
       - name: Linter (GolangCI-Lint)
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.64.5
+          version: v2.10.1
           args: --timeout=5m --config=scripts/.golangci.yml
 
   quality_sec:
