@@ -9,6 +9,22 @@ for dir in /usr/local/bin /opt/homebrew/bin /usr/bin /bin; do
     esac
 done
 
+# Verify golangci-lint config is valid (runs always, even with no staged files)
+if command -v golangci-lint >/dev/null 2>&1; then
+    CONFIG_FILE="scripts/.golangci.yml"
+    if [ -f "$CONFIG_FILE" ]; then
+        echo "Verifying golangci-lint config..."
+        if ! golangci-lint config verify --config="$CONFIG_FILE" >/dev/null 2>&1; then
+            echo "Error: golangci-lint config is invalid"
+            golangci-lint config verify --config="$CONFIG_FILE" || true
+            exit 1
+        fi
+        echo "✅ golangci-lint config is valid"
+    fi
+fi
+
+START_TIME=$(date +%s)
+
 START_TIME=$(date +%s)
 
 # Colors
