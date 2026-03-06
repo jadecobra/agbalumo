@@ -25,7 +25,7 @@ func TestGenerateID(t *testing.T) {
 
 func TestGetDatabaseURL(t *testing.T) {
 	t.Run("default", func(t *testing.T) {
-		os.Unsetenv("DATABASE_URL")
+		_ = os.Unsetenv("DATABASE_URL")
 		url := getDatabaseURL()
 		if url != "@data/agbalumo.db" {
 			t.Errorf("getDatabaseURL() = %v, want @data/agbalumo.db", url)
@@ -33,8 +33,8 @@ func TestGetDatabaseURL(t *testing.T) {
 	})
 
 	t.Run("from env", func(t *testing.T) {
-		os.Setenv("DATABASE_URL", "custom.db")
-		defer os.Unsetenv("DATABASE_URL")
+		_ = os.Setenv("DATABASE_URL", "custom.db")
+		defer func() { _ = os.Unsetenv("DATABASE_URL") }()
 		url := getDatabaseURL()
 		if url != "custom.db" {
 			t.Errorf("getDatabaseURL() = %v, want custom.db", url)

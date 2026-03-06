@@ -12,9 +12,9 @@ import (
 
 func TestCLIJSONOutput(t *testing.T) {
 	// Setup: Ensure we use a test database
-	os.Setenv("DATABASE_URL", "@tester/cli_test.db")
-	defer os.Unsetenv("DATABASE_URL")
-	defer os.Remove("@tester/cli_test.db")
+	_ = os.Setenv("DATABASE_URL", "@tester/cli_test.db")
+	defer func() { _ = os.Unsetenv("DATABASE_URL") }()
+	defer func() { _ = os.Remove("@tester/cli_test.db") }()
 
 	// 1. Test listing list --json (empty)
 	t.Run("listing list --json empty", func(t *testing.T) {

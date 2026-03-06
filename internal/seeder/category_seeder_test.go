@@ -92,8 +92,8 @@ func TestEnsureCategoriesSeeded_Idempotent(t *testing.T) {
 	}
 
 	// Run twice
-	seeder.EnsureCategoriesSeeded(ctx, repo, configPath)
-	seeder.EnsureCategoriesSeeded(ctx, repo, configPath)
+	_ = seeder.EnsureCategoriesSeeded(ctx, repo, configPath)
+	_ = seeder.EnsureCategoriesSeeded(ctx, repo, configPath)
 
 	cats, err := repo.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: false})
 	if err != nil {

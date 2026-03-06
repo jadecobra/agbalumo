@@ -1,0 +1,8 @@
+../cmd/security-audit/main.go:1: : # github.com/jadecobra/agbalumo/cmd/security-audit [github.com/jadecobra/agbalumo/cmd/security-audit.test]
+cmd/security-audit/audit_test.go:61:23: server.Close() (no value) used as value
+cmd/security-audit/audit_test.go:240:21: server.Close() (no value) used as value
+cmd/security-audit/audit_test.go:319:23: httpServer.Close() (no value) used as value
+cmd/security-audit/audit_test.go:348:21: server.Close() (no value) used as value (typecheck)
+package main
+1 issues:
+* typecheck: 1

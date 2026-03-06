@@ -256,12 +256,12 @@ func TestTemplateRenderer_EdgeCases(t *testing.T) {
 	buf := new(bytes.Buffer)
 
 	// executing bad_dict should fail
-	if err := renderer.Render(buf, "bad_dict.html", nil, c); err == nil {
+	if err2 := renderer.Render(buf, "bad_dict.html", nil, c); err2 == nil {
 		t.Error("Expected error for odd number of dict args, got nil")
 	}
 
 	// executing bad_key should fail
-	if err := renderer.Render(buf, "bad_key.html", nil, c); err == nil {
+	if err3 := renderer.Render(buf, "bad_key.html", nil, c); err3 == nil {
 		t.Error("Expected error for non-string dict key, got nil")
 	}
 
@@ -271,33 +271,23 @@ func TestTemplateRenderer_EdgeCases(t *testing.T) {
 	partialContent := `{{define "mypartial"}}Partial Content{{end}}`
 
 	// Write files
-	os.WriteFile(filepath.Join(tempDir, "base.html"), []byte(baseContent), 0644)
-	os.WriteFile(filepath.Join(tempDir, "partials/frag.html"), []byte(partialContent), 0644) // Need subfolder for "partials" regex?
-	// The code checks strings.Contains(file, "partials").
-	// So we need a filename or path with "partials".
+	_ = os.WriteFile(filepath.Join(tempDir, "base.html"), []byte(baseContent), 0644)
 
 	partDir := filepath.Join(tempDir, "partials")
-	os.Mkdir(partDir, 0755)
-	os.WriteFile(filepath.Join(partDir, "frag.html"), []byte(partialContent), 0644)
+	_ = os.Mkdir(partDir, 0755)
+	_ = os.WriteFile(filepath.Join(partDir, "frag.html"), []byte(partialContent), 0644)
 
 	// We also need a "page" to exist for the fallback loop to find a template set
-	os.WriteFile(filepath.Join(tempDir, "index.html"), []byte(`{{define "content"}}Index{{end}}`), 0644)
+	_ = os.WriteFile(filepath.Join(tempDir, "index.html"), []byte(`{{define "content"}}Index{{end}}`), 0644)
 
 	// Re-init renderer with new files
-	// Note: NewTemplateRenderer takes patterns.
 	renderer, err = NewTemplateRenderer(filepath.Join(tempDir, "*.html"), filepath.Join(partDir, "*.html"))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// Try rendering "mypartial" directly. It's not a file in the map (index.html, base.html are keys probably?)
-	// base.html is in layoutFiles. index.html is in pageFiles.
-	// partials/frag.html is in partialFiles.
-	// templates map keys are base filenames of pageFiles. So "index.html".
-	// "mypartial" is NOT a key. This triggers the fallback.
-
-	if err := renderer.Render(buf, "mypartial", nil, c); err != nil {
-		t.Errorf("Expected partial render fallback to succeed, got: %v", err)
+	if err4 := renderer.Render(buf, "mypartial", nil, c); err4 != nil {
+		t.Errorf("Expected partial render fallback to succeed, got: %v", err4)
 	} else if !bytes.Contains(buf.Bytes(), []byte("Partial Content")) {
 		t.Errorf("Expected 'Partial Content', got %s", buf.String())
 	}
@@ -312,7 +302,7 @@ func TestTemplateRenderer_EdgeCases(t *testing.T) {
 
 	// 4. Test Parse Error (Bad Syntax)
 	badSyntaxDir := t.TempDir()
-	os.WriteFile(filepath.Join(badSyntaxDir, "bad.html"), []byte(`{{ .Open `), 0644)
+	_ = os.WriteFile(filepath.Join(badSyntaxDir, "bad.html"), []byte(`{{ .Open `), 0644)
 	_, err = NewTemplateRenderer(filepath.Join(badSyntaxDir, "*.html"))
 	if err == nil {
 		t.Error("Expected error for bad syntax, got nil")

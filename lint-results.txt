@@ -1,0 +1,858 @@
+../cmd/cli_json_test.go:15:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("DATABASE_URL", "@tester/cli_test.db")
+	         ^
+../cmd/cli_json_test.go:16:19: Error return value of `os.Unsetenv` is not checked (errcheck)
+	defer os.Unsetenv("DATABASE_URL")
+	                 ^
+../cmd/cli_json_test.go:17:17: Error return value of `os.Remove` is not checked (errcheck)
+	defer os.Remove("@tester/cli_test.db")
+	               ^
+../cmd/listing.go:346:35: Error return value of `listingCreateCmd.MarkFlagRequired` is not checked (errcheck)
+	listingCreateCmd.MarkFlagRequired("title")
+	                                 ^
+../cmd/listing_integration_test.go:15:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("DATABASE_URL", tempDB)
+	         ^
+../cmd/listing_integration_test.go:17:14: Error return value of `os.Unsetenv` is not checked (errcheck)
+		os.Unsetenv("DATABASE_URL")
+		           ^
+../cmd/listing_integration_test.go:18:12: Error return value of `os.Remove` is not checked (errcheck)
+		os.Remove(tempDB)
+		         ^
+../cmd/listing_integration_test.go:19:12: Error return value of `os.Remove` is not checked (errcheck)
+		os.Remove(tempDB + "-shm")
+		         ^
+../cmd/listing_integration_test.go:20:12: Error return value of `os.Remove` is not checked (errcheck)
+		os.Remove(tempDB + "-wal")
+		         ^
+../cmd/listing_test.go:28:14: Error return value of `os.Unsetenv` is not checked (errcheck)
+		os.Unsetenv("DATABASE_URL")
+		           ^
+../cmd/listing_test.go:36:12: Error return value of `os.Setenv` is not checked (errcheck)
+		os.Setenv("DATABASE_URL", "custom.db")
+		         ^
+../cmd/listing_test.go:37:20: Error return value of `os.Unsetenv` is not checked (errcheck)
+		defer os.Unsetenv("DATABASE_URL")
+		                 ^
+../cmd/security-audit/main.go:149:23: Error return value of `resp.Body.Close` is not checked (errcheck)
+	defer resp.Body.Close()
+	                     ^
+../cmd/serve.go:56:16: Error return value of `godotenv.Load` is not checked (errcheck)
+		godotenv.Load(".env")
+		             ^
+../cmd/server_test.go:14:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("AGBALUMO_ENV", "test")
+	         ^
+../cmd/server_test.go:15:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("DATABASE_URL", "@tester/test_healthz.db")
+	         ^
+../cmd/server_test.go:17:14: Error return value of `os.Unsetenv` is not checked (errcheck)
+		os.Unsetenv("AGBALUMO_ENV")
+		           ^
+../cmd/server_test.go:18:14: Error return value of `os.Unsetenv` is not checked (errcheck)
+		os.Unsetenv("DATABASE_URL")
+		           ^
+../cmd/server_test.go:19:12: Error return value of `os.Remove` is not checked (errcheck)
+		os.Remove("@tester/test_healthz.db")
+		         ^
+../cmd/server_test.go:41:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("AGBALUMO_ENV", "test")
+	         ^
+../cmd/server_test.go:42:19: Error return value of `os.Unsetenv` is not checked (errcheck)
+	defer os.Unsetenv("AGBALUMO_ENV")
+	                 ^
+../cmd/server_test.go:49:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("DATABASE_URL", "@tester/test_server.db")
+	         ^
+../cmd/server_test.go:51:14: Error return value of `os.Unsetenv` is not checked (errcheck)
+		os.Unsetenv("DATABASE_URL")
+		           ^
+../cmd/server_test.go:52:12: Error return value of `os.Remove` is not checked (errcheck)
+		os.Remove("@tester/test_server.db")
+		         ^
+../cmd/server_test.go:74:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("AGBALUMO_ENV", "test")
+	         ^
+../cmd/server_test.go:75:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("AGBALUMO_DRY_RUN", "true")
+	         ^
+../cmd/server_test.go:76:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("DATABASE_URL", "@tester/test_serve_cmd.db") // Diff DB
+	         ^
+../cmd/server_test.go:78:14: Error return value of `os.Unsetenv` is not checked (errcheck)
+		os.Unsetenv("AGBALUMO_ENV")
+		           ^
+../cmd/server_test.go:79:14: Error return value of `os.Unsetenv` is not checked (errcheck)
+		os.Unsetenv("AGBALUMO_DRY_RUN")
+		           ^
+../cmd/server_test.go:80:14: Error return value of `os.Unsetenv` is not checked (errcheck)
+		os.Unsetenv("DATABASE_URL")
+		           ^
+../cmd/server_test.go:81:12: Error return value of `os.Remove` is not checked (errcheck)
+		os.Remove("@tester/test_serve_cmd.db")
+		         ^
+../cmd/server_test.go:91:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("AGBALUMO_ENV", "production")
+	         ^
+../cmd/server_test.go:92:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("SESSION_SECRET", "production-secret-key")
+	         ^
+../cmd/server_test.go:93:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("DATABASE_URL", "@tester/test_server_prod.db")
+	         ^
+../cmd/server_test.go:94:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("ADMIN_CODE", "test-admin-code")
+	         ^
+../cmd/server_test.go:96:14: Error return value of `os.Unsetenv` is not checked (errcheck)
+		os.Unsetenv("AGBALUMO_ENV")
+		           ^
+../cmd/server_test.go:97:14: Error return value of `os.Unsetenv` is not checked (errcheck)
+		os.Unsetenv("SESSION_SECRET")
+		           ^
+../cmd/server_test.go:98:14: Error return value of `os.Unsetenv` is not checked (errcheck)
+		os.Unsetenv("DATABASE_URL")
+		           ^
+../cmd/server_test.go:99:14: Error return value of `os.Unsetenv` is not checked (errcheck)
+		os.Unsetenv("ADMIN_CODE")
+		           ^
+../cmd/server_test.go:100:12: Error return value of `os.Remove` is not checked (errcheck)
+		os.Remove("@tester/test_server_prod.db")
+		         ^
+../cmd/server_test.go:110:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("AGBALUMO_ENV", "production")
+	         ^
+../cmd/server_test.go:111:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("SESSION_SECRET", "test-secret-key")
+	         ^
+../cmd/server_test.go:112:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("DATABASE_URL", "@tester/test_bg_prod.db")
+	         ^
+../cmd/server_test.go:113:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("ADMIN_CODE", "test-admin-code")
+	         ^
+../cmd/server_test.go:115:14: Error return value of `os.Unsetenv` is not checked (errcheck)
+		os.Unsetenv("AGBALUMO_ENV")
+		           ^
+../cmd/server_test.go:116:14: Error return value of `os.Unsetenv` is not checked (errcheck)
+		os.Unsetenv("SESSION_SECRET")
+		           ^
+../cmd/server_test.go:117:14: Error return value of `os.Unsetenv` is not checked (errcheck)
+		os.Unsetenv("DATABASE_URL")
+		           ^
+../cmd/server_test.go:118:14: Error return value of `os.Unsetenv` is not checked (errcheck)
+		os.Unsetenv("ADMIN_CODE")
+		           ^
+../cmd/server_test.go:119:12: Error return value of `os.Remove` is not checked (errcheck)
+		os.Remove("@tester/test_bg_prod.db")
+		         ^
+../cmd/server_ui_test.go:21:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("AGBALUMO_ENV", "development")
+	         ^
+../cmd/server_ui_test.go:23:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("RATE_LIMIT_RATE", "10000")
+	         ^
+../cmd/server_ui_test.go:24:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("RATE_LIMIT_BURST", "20000")
+	         ^
+../cmd/server_ui_test.go:25:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("DATABASE_URL", "file:test_ui.db?mode=memory&cache=shared")
+	         ^
+../cmd/server_ui_test.go:30:10: Error return value of `os.Chdir` is not checked (errcheck)
+	os.Chdir("..")
+	        ^
+../internal/config/config_test.go:15:14: Error return value of `os.Unsetenv` is not checked (errcheck)
+		os.Unsetenv(k)
+		           ^
+../internal/config/config_test.go:30:12: Error return value of `os.Setenv` is not checked (errcheck)
+		os.Setenv("AGBALUMO_ENV", "production")
+		         ^
+../internal/config/config_test.go:31:12: Error return value of `os.Setenv` is not checked (errcheck)
+		os.Setenv("DATABASE_URL", "prod.db")
+		         ^
+../internal/config/config_test.go:32:12: Error return value of `os.Setenv` is not checked (errcheck)
+		os.Setenv("SESSION_SECRET", "super-secret")
+		         ^
+../internal/config/config_test.go:33:12: Error return value of `os.Setenv` is not checked (errcheck)
+		os.Setenv("ADMIN_CODE", "admin123")
+		         ^
+../internal/config/config_test.go:34:12: Error return value of `os.Setenv` is not checked (errcheck)
+		os.Setenv("DEV_AUTH_EMAIL", "test@example.com")
+		         ^
+../internal/config/config_test.go:35:12: Error return value of `os.Setenv` is not checked (errcheck)
+		os.Setenv("RATE_LIMIT_RATE", "50")
+		         ^
+../internal/config/config_test.go:36:12: Error return value of `os.Setenv` is not checked (errcheck)
+		os.Setenv("RATE_LIMIT_BURST", "100")
+		         ^
+../internal/config/config_test.go:39:16: Error return value of `os.Unsetenv` is not checked (errcheck)
+				os.Unsetenv(k)
+				           ^
+../internal/config/config_test.go:54:12: Error return value of `os.Setenv` is not checked (errcheck)
+		os.Setenv("RATE_LIMIT_RATE", "abc")
+		         ^
+../internal/config/config_test.go:55:20: Error return value of `os.Unsetenv` is not checked (errcheck)
+		defer os.Unsetenv("RATE_LIMIT_RATE")
+		                 ^
+../internal/handler/admin.go:130:13: Error return value of `sess.Save` is not checked (errcheck)
+			sess.Save(c.Request(), c.Response())
+			         ^
+../internal/handler/admin.go:199:12: Error return value of `sess.Save` is not checked (errcheck)
+		sess.Save(c.Request(), c.Response())
+		         ^
+../internal/handler/admin.go:302:13: Error return value of `sess.Save` is not checked (errcheck)
+			sess.Save(c.Request(), c.Response())
+			         ^
+../internal/handler/admin.go:343:12: Error return value of `sess.Save` is not checked (errcheck)
+		sess.Save(c.Request(), c.Response())
+		         ^
+../internal/handler/admin.go:352:23: Error return value of `(*net/http.Request).ParseForm` is not checked (errcheck)
+	c.Request().ParseForm()
+	                     ^
+../internal/handler/admin.go:379:23: Error return value of `(*net/http.Request).ParseForm` is not checked (errcheck)
+	c.Request().ParseForm()
+	                     ^
+../internal/handler/admin.go:412:12: Error return value of `sess.Save` is not checked (errcheck)
+		sess.Save(c.Request(), c.Response())
+		         ^
+../internal/handler/admin.go:424:13: Error return value of `sess.Save` is not checked (errcheck)
+			sess.Save(c.Request(), c.Response())
+			         ^
+../internal/handler/admin.go:439:17: Error return value of `src.Close` is not checked (errcheck)
+	defer src.Close()
+	               ^
+../internal/handler/admin.go:459:12: Error return value of `sess.Save` is not checked (errcheck)
+		sess.Save(c.Request(), c.Response())
+		         ^
+../internal/handler/admin_test.go:451:12: Error return value of `part.Write` is not checked (errcheck)
+	part.Write([]byte(csvContent))
+	          ^
+../internal/handler/admin_test.go:452:14: Error return value of `writer.Close` is not checked (errcheck)
+	writer.Close()
+	            ^
+../internal/handler/admin_test.go:483:14: Error return value of `writer.Close` is not checked (errcheck)
+	writer.Close()
+	            ^
+../internal/handler/admin_test.go:517:12: Error return value of `part.Write` is not checked (errcheck)
+	part.Write([]byte(csvContent))
+	          ^
+../internal/handler/admin_test.go:518:14: Error return value of `writer.Close` is not checked (errcheck)
+	writer.Close()
+	            ^
+../internal/handler/admin_test.go:551:12: Error return value of `part.Write` is not checked (errcheck)
+	part.Write([]byte(csvContent))
+	          ^
+../internal/handler/admin_test.go:552:14: Error return value of `writer.Close` is not checked (errcheck)
+	writer.Close()
+	            ^
+../internal/handler/auth.go:92:23: Error return value of `resp.Body.Close` is not checked (errcheck)
+	defer resp.Body.Close()
+	                     ^
+../internal/handler/auth.go:240:12: Error return value of `sess.Save` is not checked (errcheck)
+		sess.Save(c.Request(), c.Response())
+		         ^
+../internal/handler/auth_internal_test.go:18:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("BASE_URL", "http://192.168.1.5:8080")
+	         ^
+../internal/handler/auth_internal_test.go:19:19: Error return value of `os.Unsetenv` is not checked (errcheck)
+	defer os.Unsetenv("BASE_URL")
+	                 ^
+../internal/handler/auth_internal_test.go:20:13: Error return value of `os.Unsetenv` is not checked (errcheck)
+	os.Unsetenv("GOOGLE_REDIRECT_URL")
+	           ^
+../internal/handler/auth_internal_test.go:29:13: Error return value of `os.Unsetenv` is not checked (errcheck)
+	os.Unsetenv("BASE_URL")
+	           ^
+../internal/handler/auth_internal_test.go:30:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("GOOGLE_REDIRECT_URL", "https://custom.example.com/callback")
+	         ^
+../internal/handler/auth_internal_test.go:31:19: Error return value of `os.Unsetenv` is not checked (errcheck)
+	defer os.Unsetenv("GOOGLE_REDIRECT_URL")
+	                 ^
+../internal/handler/auth_internal_test.go:40:13: Error return value of `os.Unsetenv` is not checked (errcheck)
+	os.Unsetenv("BASE_URL")
+	           ^
+../internal/handler/auth_internal_test.go:41:13: Error return value of `os.Unsetenv` is not checked (errcheck)
+	os.Unsetenv("GOOGLE_REDIRECT_URL")
+	           ^
+../internal/handler/auth_internal_test.go:42:13: Error return value of `os.Unsetenv` is not checked (errcheck)
+	os.Unsetenv("AGBALUMO_ENV")
+	           ^
+../internal/handler/auth_internal_test.go:51:13: Error return value of `os.Unsetenv` is not checked (errcheck)
+	os.Unsetenv("BASE_URL")
+	           ^
+../internal/handler/auth_internal_test.go:52:13: Error return value of `os.Unsetenv` is not checked (errcheck)
+	os.Unsetenv("GOOGLE_REDIRECT_URL")
+	           ^
+../internal/handler/auth_internal_test.go:53:13: Error return value of `os.Unsetenv` is not checked (errcheck)
+	os.Unsetenv("AGBALUMO_ENV")
+	           ^
+../internal/handler/auth_internal_test.go:62:13: Error return value of `os.Unsetenv` is not checked (errcheck)
+	os.Unsetenv("BASE_URL")
+	           ^
+../internal/handler/auth_internal_test.go:63:13: Error return value of `os.Unsetenv` is not checked (errcheck)
+	os.Unsetenv("GOOGLE_REDIRECT_URL")
+	           ^
+../internal/handler/auth_internal_test.go:64:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("AGBALUMO_ENV", "production")
+	         ^
+../internal/handler/auth_internal_test.go:65:19: Error return value of `os.Unsetenv` is not checked (errcheck)
+	defer os.Unsetenv("AGBALUMO_ENV")
+	                 ^
+../internal/handler/auth_internal_test.go:76:13: Error return value of `os.Unsetenv` is not checked (errcheck)
+	os.Unsetenv("BASE_URL")
+	           ^
+../internal/handler/auth_internal_test.go:77:13: Error return value of `os.Unsetenv` is not checked (errcheck)
+	os.Unsetenv("GOOGLE_REDIRECT_URL")
+	           ^
+../internal/handler/auth_internal_test.go:78:13: Error return value of `os.Unsetenv` is not checked (errcheck)
+	os.Unsetenv("AGBALUMO_ENV")
+	           ^
+../internal/handler/auth_internal_test.go:101:28: Error return value of `(*encoding/json.Encoder).Encode` is not checked (errcheck)
+		json.NewEncoder(w).Encode(expected)
+		                         ^
+../internal/handler/auth_internal_test.go:124:13: Error return value of `fmt.Fprint` is not checked (errcheck)
+		fmt.Fprint(w, "server error")
+		          ^
+../internal/handler/auth_internal_test.go:144:13: Error return value of `fmt.Fprint` is not checked (errcheck)
+		fmt.Fprint(w, "not valid json{{{")
+		          ^
+../internal/handler/auth_test.go:216:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("AGBALUMO_ENV", "development")
+	         ^
+../internal/handler/auth_test.go:217:19: Error return value of `os.Unsetenv` is not checked (errcheck)
+	defer os.Unsetenv("AGBALUMO_ENV")
+	                 ^
+../internal/handler/auth_test.go:329:13: Error return value of `os.Unsetenv` is not checked (errcheck)
+	os.Unsetenv("AGBALUMO_ENV")
+	           ^
+../internal/handler/auth_test.go:330:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("GO_ENV", "development")
+	         ^
+../internal/handler/auth_test.go:331:19: Error return value of `os.Unsetenv` is not checked (errcheck)
+	defer os.Unsetenv("GO_ENV")
+	                 ^
+../internal/handler/auth_test.go:357:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("AGBALUMO_ENV", "development")
+	         ^
+../internal/handler/auth_test.go:358:19: Error return value of `os.Unsetenv` is not checked (errcheck)
+	defer os.Unsetenv("AGBALUMO_ENV")
+	                 ^
+../internal/handler/auth_test.go:383:11: Error return value of `os.Setenv` is not checked (errcheck)
+	os.Setenv("AGBALUMO_ENV", "development")
+	         ^
+../internal/handler/auth_test.go:384:19: Error return value of `os.Unsetenv` is not checked (errcheck)
+	defer os.Unsetenv("AGBALUMO_ENV")
+	                 ^
+../internal/handler/cache_busting_test.go:42:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("title", "Cache Busting Test")
+	                 ^
+../internal/handler/cache_busting_test.go:43:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("type", "Business")
+	                 ^
+../internal/handler/cache_busting_test.go:44:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("owner_origin", "Nigeria")
+	                 ^
+../internal/handler/cache_busting_test.go:45:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("description", "Desc")
+	                 ^
+../internal/handler/cache_busting_test.go:46:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("contact_email", "test@test.com")
+	                 ^
+../internal/handler/cache_busting_test.go:47:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("address", "123 Test St")
+	                 ^
+../internal/handler/cache_busting_test.go:49:12: Error return value of `part.Write` is not checked (errcheck)
+	part.Write([]byte("fake image content"))
+	          ^
+../internal/handler/cache_busting_test.go:50:14: Error return value of `writer.Close` is not checked (errcheck)
+	writer.Close()
+	            ^
+../internal/handler/integration_ds_test.go:102:18: Error return value of `h.HandleCreate` is not checked (errcheck)
+			h.HandleCreate(c)
+			              ^
+../internal/handler/listing_test.go:38:27: Error return value of `(*html/template.Template).Parse` is not checked (errcheck)
+	t.New("index.html").Parse(`Index: {{len .Listings}} Listings`)
+	                         ^
+../internal/handler/listing_test.go:39:29: Error return value of `(*html/template.Template).Parse` is not checked (errcheck)
+	t.New("listing_list").Parse(`{{range .Listings}}{{.Title}}{{end}}`)
+	                           ^
+../internal/handler/listing_test.go:40:29: Error return value of `(*html/template.Template).Parse` is not checked (errcheck)
+	t.New("modal_detail").Parse(`{{.Listing.Title}} - {{.Listing.Description}}`)
+	                           ^
+../internal/handler/listing_test.go:41:29: Error return value of `(*html/template.Template).Parse` is not checked (errcheck)
+	t.New("listing_card").Parse(`{{.Title}}`)
+	                           ^
+../internal/handler/listing_test.go:42:33: Error return value of `(*html/template.Template).Parse` is not checked (errcheck)
+	t.New("admin_login.html").Parse(`Login Form: {{if .Error}}{{.Error}}{{end}}`)
+	                               ^
+../internal/handler/listing_test.go:43:37: Error return value of `(*html/template.Template).Parse` is not checked (errcheck)
+	t.New("admin_dashboard.html").Parse(`Dashboard: {{len .PendingListings}} items`)
+	                                   ^
+../internal/handler/listing_test.go:44:40: Error return value of `(*html/template.Template).Parse` is not checked (errcheck)
+	t.New("modal_edit_listing.html").Parse(`Edit: {{.Title}}`)
+	                                      ^
+../internal/handler/listing_test.go:45:36: Error return value of `(*html/template.Template).Parse` is not checked (errcheck)
+	t.New("modal_feedback.html").Parse(`Feedback Modal`)
+	                                  ^
+../internal/handler/listing_test.go:46:30: Error return value of `(*html/template.Template).Parse` is not checked (errcheck)
+	t.New("modal_profile").Parse(`Profile: {{.User.Name}}, Listings: {{len .Listings}}`)
+	                            ^
+../internal/handler/listing_test.go:47:29: Error return value of `(*html/template.Template).Parse` is not checked (errcheck)
+	t.New("profile.html").Parse(`Profile Page: {{.User.Name}}, Listings: {{len .Listings}}, Email: {{.User.Email}}`)
+	                           ^
+../internal/handler/listing_test.go:48:27: Error return value of `(*html/template.Template).Parse` is not checked (errcheck)
+	t.New("error.html").Parse(`Error Page: {{if .Message}}{{.Message}}{{end}}`)
+	                         ^
+../internal/handler/listing_test.go:85:32: Error return value of `(*html/template.Template).Parse` is not checked (errcheck)
+	t_temp.New("index.html").Parse(`Total: {{.TotalCount}}, Food: {{index .Counts "Food"}}, Business: {{index .Counts "Business"}}`)
+	                              ^
+../internal/handler/listing_test.go:433:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("title", "Image Listing")
+	                 ^
+../internal/handler/listing_test.go:434:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("type", "Business")
+	                 ^
+../internal/handler/listing_test.go:435:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("owner_origin", "Ghana")
+	                 ^
+../internal/handler/listing_test.go:436:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("description", "Desc")
+	                 ^
+../internal/handler/listing_test.go:437:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("contact_email", "img@example.com")
+	                 ^
+../internal/handler/listing_test.go:438:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("address", "123 Image St")
+	                 ^
+../internal/handler/listing_test.go:446:12: Error return value of `png.Encode` is not checked (errcheck)
+	png.Encode(&imgBuf, img)
+	          ^
+../internal/handler/listing_test.go:447:12: Error return value of `part.Write` is not checked (errcheck)
+	part.Write(imgBuf.Bytes())
+	          ^
+../internal/handler/listing_test.go:448:14: Error return value of `writer.Close` is not checked (errcheck)
+	writer.Close()
+	            ^
+../internal/handler/listing_test.go:455:20: Error return value of `os.RemoveAll` is not checked (errcheck)
+	defer os.RemoveAll("ui")
+	                  ^
+../internal/handler/listing_test.go:544:35: Error return value of `(*html/template.Template).Parse` is not checked (errcheck)
+	t_temp.New("modal_profile").Parse(`Profile: {{.User.Name}}, Listings: {{len .Listings}}`)
+	                                 ^
+../internal/handler/listing_test.go:545:34: Error return value of `(*html/template.Template).Parse` is not checked (errcheck)
+	t_temp.New("profile.html").Parse(`Profile: {{.User.Name}}, Listings: {{len .Listings}}`)
+	                                ^
+../internal/handler/listing_test.go:585:32: Error return value of `(*html/template.Template).Parse` is not checked (errcheck)
+	t_temp.New("about.html").Parse(`About Page: {{.User}}`)
+	                              ^
+../internal/handler/listing_test.go:750:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("title", "Image Listing")
+	                 ^
+../internal/handler/listing_test.go:751:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("type", "Business")
+	                 ^
+../internal/handler/listing_test.go:754:12: Error return value of `part.Write` is not checked (errcheck)
+	part.Write([]byte("fake image content"))
+	          ^
+../internal/handler/listing_test.go:755:14: Error return value of `writer.Close` is not checked (errcheck)
+	writer.Close()
+	            ^
+../internal/handler/listing_upload_test.go:44:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("title", "Valid Title")
+	                 ^
+../internal/handler/listing_upload_test.go:45:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("owner_origin", "Nigeria")
+	                 ^
+../internal/handler/listing_upload_test.go:46:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("type", "Business")
+	                 ^
+../internal/handler/listing_upload_test.go:47:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("description", "Valid Description")
+	                 ^
+../internal/handler/listing_upload_test.go:48:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("city", "Lagos")
+	                 ^
+../internal/handler/listing_upload_test.go:49:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("address", "123 St")
+	                 ^
+../internal/handler/listing_upload_test.go:50:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("contact_email", "test@test.com")
+	                 ^
+../internal/handler/listing_upload_test.go:51:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("created_at", time.Now().Format(time.RFC3339))
+	                 ^
+../internal/handler/listing_upload_test.go:53:14: Error return value of `writer.Close` is not checked (errcheck)
+	writer.Close()
+	            ^
+../internal/handler/listing_upload_test.go:93:12: Error return value of `png.Encode` is not checked (errcheck)
+	png.Encode(&imgBuf, img)
+	          ^
+../internal/handler/listing_upload_test.go:94:12: Error return value of `part.Write` is not checked (errcheck)
+	part.Write(imgBuf.Bytes())
+	          ^
+../internal/handler/listing_upload_test.go:97:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("title", "Valid Title")
+	                 ^
+../internal/handler/listing_upload_test.go:98:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("owner_origin", "Nigeria")
+	                 ^
+../internal/handler/listing_upload_test.go:99:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("type", "Business")
+	                 ^
+../internal/handler/listing_upload_test.go:100:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("description", "Valid Description")
+	                 ^
+../internal/handler/listing_upload_test.go:101:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("city", "Lagos")
+	                 ^
+../internal/handler/listing_upload_test.go:102:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("address", "123 St")
+	                 ^
+../internal/handler/listing_upload_test.go:103:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("contact_email", "test@test.com")
+	                 ^
+../internal/handler/listing_upload_test.go:105:14: Error return value of `writer.Close` is not checked (errcheck)
+	writer.Close()
+	            ^
+../internal/handler/listing_upload_test.go:114:16: Error return value of `h.HandleCreate` is not checked (errcheck)
+	h.HandleCreate(c)
+	              ^
+../internal/handler/ui_regression_test.go:927:15: Error return value of `filepath.Walk` is not checked (errcheck)
+	filepath.Walk(filepath.Join(projectRoot, "ui", "templates"), func(path string, info os.FileInfo, err error) error {
+	             ^
+../internal/middleware/ratelimit_test.go:107:4: Error return value is not checked (errcheck)
+		h(c)
+		 ^
+../internal/middleware/ratelimit_test.go:123:5: Error return value is not checked (errcheck)
+			h(c)
+			 ^
+../internal/repository/sqlite/feedback.go:28:18: Error return value of `rows.Close` is not checked (errcheck)
+	defer rows.Close()
+	                ^
+../internal/repository/sqlite/feedback_test.go:23:17: Error return value of `os.Remove` is not checked (errcheck)
+	defer os.Remove(dbPath)
+	               ^
+../internal/repository/sqlite/feedback_test.go:35:16: Error return value of `db.Close` is not checked (errcheck)
+	defer db.Close()
+	              ^
+../internal/repository/sqlite/feedback_test.go:110:17: Error return value of `os.Remove` is not checked (errcheck)
+	defer os.Remove(dbPath)
+	               ^
+../internal/repository/sqlite/sqlite.go:378:18: Error return value of `rows.Close` is not checked (errcheck)
+	defer rows.Close()
+	                ^
+../internal/repository/sqlite/sqlite.go:416:18: Error return value of `rows.Close` is not checked (errcheck)
+	defer rows.Close()
+	                ^
+../internal/repository/sqlite/sqlite.go:502:18: Error return value of `rows.Close` is not checked (errcheck)
+	defer rows.Close()
+	                ^
+../internal/repository/sqlite/sqlite.go:545:18: Error return value of `rows.Close` is not checked (errcheck)
+	defer rows.Close()
+	                ^
+../internal/repository/sqlite/sqlite.go:565:18: Error return value of `rows.Close` is not checked (errcheck)
+	defer rows.Close()
+	                ^
+../internal/repository/sqlite/sqlite.go:643:18: Error return value of `rows.Close` is not checked (errcheck)
+	defer rows.Close()
+	                ^
+../internal/repository/sqlite/sqlite.go:670:18: Error return value of `rows.Close` is not checked (errcheck)
+	defer rows.Close()
+	                ^
+../internal/repository/sqlite/sqlite.go:697:18: Error return value of `rows.Close` is not checked (errcheck)
+	defer rows.Close()
+	                ^
+../internal/repository/sqlite/sqlite.go:717:18: Error return value of `rows.Close` is not checked (errcheck)
+	defer rows.Close()
+	                ^
+../internal/repository/sqlite/sqlite.go:796:18: Error return value of `rows.Close` is not checked (errcheck)
+	defer rows.Close()
+	                ^
+../internal/repository/sqlite/sqlite.go:897:18: Error return value of `rows.Close` is not checked (errcheck)
+	defer rows.Close()
+	                ^
+../internal/repository/sqlite/sqlite.go:917:19: Error return value of `tx.Rollback` is not checked (errcheck)
+	defer tx.Rollback()
+	                 ^
+../internal/repository/sqlite/sqlite_category_test.go:195:10: Error return value of `db.Close` is not checked (errcheck)
+	db.Close()
+	        ^
+../internal/repository/sqlite/sqlite_category_test.go:219:19: Error return value of `repo.SaveCategory` is not checked (errcheck)
+	repo.SaveCategory(ctx, domain.CategoryData{ID: "bus", Name: "Business", Active: true})
+	                 ^
+../internal/repository/sqlite/sqlite_test.go:35:16: Error return value of `db.Close` is not checked (errcheck)
+	defer db.Close()
+	              ^
+../internal/repository/sqlite/sqlite_test.go:99:11: Error return value of `repo.Save` is not checked (errcheck)
+	repo.Save(ctx, domain.Listing{ID: "1", Title: "Jollof Rice", Type: "Business", Status: domain.ListingStatusApproved, IsActive: true, CreatedAt: time.Now()})
+	         ^
+../internal/repository/sqlite/sqlite_test.go:100:11: Error return value of `repo.Save` is not checked (errcheck)
+	repo.Save(ctx, domain.Listing{ID: "2", Title: "Hair Braiding", Type: "Service", Status: domain.ListingStatusPending, IsActive: true, CreatedAt: time.Now()})
+	         ^
+../internal/repository/sqlite/sqlite_test.go:101:11: Error return value of `repo.Save` is not checked (errcheck)
+	repo.Save(ctx, domain.Listing{ID: "3", Title: "Deleted Item", Type: "Product", Status: domain.ListingStatusRejected, IsActive: false, CreatedAt: time.Now()})
+	         ^
+../internal/repository/sqlite/sqlite_test.go:433:11: Error return value of `repo.Save` is not checked (errcheck)
+	repo.Save(ctx, domain.Listing{ID: "l1", Title: "Unclaimed Business", Type: domain.Business, IsActive: true, CreatedAt: time.Now()})
+	         ^
+../internal/repository/sqlite/sqlite_test.go:451:23: Error return value of `repo.SaveClaimRequest` is not checked (errcheck)
+	repo.SaveClaimRequest(ctx, domain.ClaimRequest{
+	                     ^
+../internal/repository/sqlite/sqlite_test.go:476:11: Error return value of `repo.Save` is not checked (errcheck)
+	repo.Save(ctx, domain.Listing{ID: "l1", Title: "Biz", Type: domain.Business, IsActive: true, CreatedAt: time.Now()})
+	         ^
+../internal/repository/sqlite/sqlite_test.go:477:15: Error return value of `repo.SaveUser` is not checked (errcheck)
+	repo.SaveUser(ctx, domain.User{ID: "u1", GoogleID: "g1", Email: "u1@x.com", CreatedAt: time.Now()})
+	             ^
+../internal/repository/sqlite/sqlite_test.go:480:23: Error return value of `repo.SaveClaimRequest` is not checked (errcheck)
+	repo.SaveClaimRequest(ctx, domain.ClaimRequest{
+	                     ^
+../internal/repository/sqlite/sqlite_test.go:504:23: Error return value of `repo.SaveClaimRequest` is not checked (errcheck)
+	repo.SaveClaimRequest(ctx, domain.ClaimRequest{
+	                     ^
+../internal/repository/sqlite/sqlite_test.go:539:15: Error return value of `repo.SaveUser` is not checked (errcheck)
+	repo.SaveUser(ctx, domain.User{ID: "u1", GoogleID: "g1", Email: "e1", CreatedAt: time.Now()})
+	             ^
+../internal/repository/sqlite/sqlite_test.go:540:15: Error return value of `repo.SaveUser` is not checked (errcheck)
+	repo.SaveUser(ctx, domain.User{ID: "u2", GoogleID: "g2", Email: "e2", CreatedAt: time.Now()})
+	             ^
+../internal/repository/sqlite/sqlite_test.go:595:14: Error return value of `os.WriteFile` is not checked (errcheck)
+	os.WriteFile(filePath, []byte("content"), 0644)
+	            ^
+../internal/repository/sqlite/sqlite_test.go:617:11: Error return value of `repo.Save` is not checked (errcheck)
+	repo.Save(ctx, domain.Listing{ID: "g1", Title: "L1", Type: domain.Business, IsActive: true, CreatedAt: now.Add(-24 * time.Hour)})
+	         ^
+../internal/repository/sqlite/sqlite_test.go:619:11: Error return value of `repo.Save` is not checked (errcheck)
+	repo.Save(ctx, domain.Listing{ID: "g2", Title: "L2", Type: domain.Business, IsActive: true, CreatedAt: now})
+	         ^
+../internal/repository/sqlite/sqlite_test.go:620:11: Error return value of `repo.Save` is not checked (errcheck)
+	repo.Save(ctx, domain.Listing{ID: "g3", Title: "L3", Type: domain.Business, IsActive: true, CreatedAt: now})
+	         ^
+../internal/repository/sqlite/sqlite_test.go:622:11: Error return value of `repo.Save` is not checked (errcheck)
+	repo.Save(ctx, domain.Listing{ID: "g4", Title: "Old", Type: domain.Business, IsActive: true, CreatedAt: now.Add(-31 * 24 * time.Hour)})
+	         ^
+../internal/repository/sqlite/sqlite_test.go:667:15: Error return value of `repo.SaveUser` is not checked (errcheck)
+	repo.SaveUser(ctx, domain.User{ID: "u1", GoogleID: "g1", Email: "e1", CreatedAt: now.Add(-24 * time.Hour)})
+	             ^
+../internal/repository/sqlite/sqlite_test.go:668:15: Error return value of `repo.SaveUser` is not checked (errcheck)
+	repo.SaveUser(ctx, domain.User{ID: "u2", GoogleID: "g2", Email: "e2", CreatedAt: now})
+	             ^
+../internal/repository/sqlite/sqlite_test.go:693:15: Error return value of `repo.SaveUser` is not checked (errcheck)
+	repo.SaveUser(ctx, domain.User{ID: "u1", GoogleID: "g1", Email: "e1", CreatedAt: time.Now()})
+	             ^
+../internal/repository/sqlite/sqlite_test.go:694:15: Error return value of `repo.SaveUser` is not checked (errcheck)
+	repo.SaveUser(ctx, domain.User{ID: "u2", GoogleID: "g2", Email: "e2", CreatedAt: time.Now().Add(time.Hour)})
+	             ^
+../internal/repository/sqlite/sqlite_test.go:719:10: Error return value of `db.Close` is not checked (errcheck)
+	db.Close()
+	        ^
+../internal/repository/sqlite/sqlite_test.go:774:11: Error return value of `repo.Save` is not checked (errcheck)
+	repo.Save(ctx, domain.Listing{ID: "1", Title: "Unique Title", Type: domain.Business, IsActive: true, CreatedAt: time.Now()})
+	         ^
+../internal/repository/sqlite/sqlite_test.go:775:11: Error return value of `repo.Save` is not checked (errcheck)
+	repo.Save(ctx, domain.Listing{ID: "2", Title: "Duplicate Title", Type: domain.Service, IsActive: true, CreatedAt: time.Now()})
+	         ^
+../internal/repository/sqlite/sqlite_test.go:776:11: Error return value of `repo.Save` is not checked (errcheck)
+	repo.Save(ctx, domain.Listing{ID: "3", Title: "Duplicate Title", Type: domain.Product, IsActive: true, CreatedAt: time.Now()})
+	         ^
+../internal/repository/sqlite/user_test.go:19:17: Error return value of `os.Remove` is not checked (errcheck)
+	defer os.Remove(tmpFile.Name())
+	               ^
+../internal/repository/sqlite/user_test.go:78:17: Error return value of `os.Remove` is not checked (errcheck)
+	defer os.Remove(tmpFile.Name())
+	               ^
+../internal/seeder/category_seeder_test.go:95:31: Error return value of `seeder.EnsureCategoriesSeeded` is not checked (errcheck)
+	seeder.EnsureCategoriesSeeded(ctx, repo, configPath)
+	                             ^
+../internal/seeder/category_seeder_test.go:96:31: Error return value of `seeder.EnsureCategoriesSeeded` is not checked (errcheck)
+	seeder.EnsureCategoriesSeeded(ctx, repo, configPath)
+	                             ^
+../internal/service/image.go:66:17: Error return value of `src.Close` is not checked (errcheck)
+	defer src.Close()
+	               ^
+../internal/service/image.go:164:17: Error return value of `dst.Close` is not checked (errcheck)
+	defer dst.Close()
+	               ^
+../internal/service/image_test.go:67:14: Error return value of `writer.Close` is not checked (errcheck)
+	writer.Close()
+	            ^
+../internal/service/image_test.go:99:21: Error return value of `tmpfile.WriteString` is not checked (errcheck)
+	tmpfile.WriteString("This is a text file")
+	                   ^
+../internal/service/image_test.go:100:15: Error return value of `tmpfile.Close` is not checked (errcheck)
+	tmpfile.Close()
+	             ^
+../internal/service/image_test.go:101:17: Error return value of `os.Remove` is not checked (errcheck)
+	defer os.Remove(tmpfile.Name())
+	               ^
+../internal/service/image_test.go:106:12: Error return value of `part.Write` is not checked (errcheck)
+	part.Write([]byte("This is a text file"))
+	          ^
+../internal/service/image_test.go:107:14: Error return value of `writer.Close` is not checked (errcheck)
+	writer.Close()
+	            ^
+../internal/service/image_test.go:111:24: Error return value of `req.ParseMultipartForm` is not checked (errcheck)
+	req.ParseMultipartForm(1024)
+	                      ^
+../internal/service/image_test.go:129:12: Error return value of `part.Write` is not checked (errcheck)
+	part.Write(jpegData)
+	          ^
+../internal/service/image_test.go:130:14: Error return value of `writer.Close` is not checked (errcheck)
+	writer.Close()
+	            ^
+../internal/service/image_test.go:134:24: Error return value of `req.ParseMultipartForm` is not checked (errcheck)
+	req.ParseMultipartForm(1024)
+	                      ^
+../internal/service/image_test.go:162:12: Error return value of `part.Write` is not checked (errcheck)
+	part.Write(gifData)
+	          ^
+../internal/service/image_test.go:163:14: Error return value of `writer.Close` is not checked (errcheck)
+	writer.Close()
+	            ^
+../internal/service/image_test.go:167:24: Error return value of `req.ParseMultipartForm` is not checked (errcheck)
+	req.ParseMultipartForm(1024)
+	                      ^
+../internal/service/image_test.go:184:12: Error return value of `part.Write` is not checked (errcheck)
+	part.Write(pngData)
+	          ^
+../internal/service/image_test.go:185:14: Error return value of `writer.Close` is not checked (errcheck)
+	writer.Close()
+	            ^
+../internal/service/image_test.go:189:24: Error return value of `req.ParseMultipartForm` is not checked (errcheck)
+	req.ParseMultipartForm(1024)
+	                      ^
+../internal/service/image_test.go:214:13: Error return value of `part.Write` is not checked (errcheck)
+		part.Write(pngData)
+		          ^
+../internal/service/image_test.go:215:15: Error return value of `writer.Close` is not checked (errcheck)
+		writer.Close()
+		            ^
+../internal/service/image_test.go:219:25: Error return value of `req.ParseMultipartForm` is not checked (errcheck)
+		req.ParseMultipartForm(1024)
+		                      ^
+../internal/service/image_test.go:237:13: Error return value of `part.Write` is not checked (errcheck)
+		part.Write(pngData)
+		          ^
+../internal/service/image_test.go:238:15: Error return value of `writer.Close` is not checked (errcheck)
+		writer.Close()
+		            ^
+../internal/service/image_test.go:242:25: Error return value of `req.ParseMultipartForm` is not checked (errcheck)
+		req.ParseMultipartForm(1024)
+		                      ^
+../internal/service/image_test.go:306:12: Error return value of `part.Write` is not checked (errcheck)
+	part.Write(imgBuf.Bytes())
+	          ^
+../internal/service/image_test.go:307:14: Error return value of `writer.Close` is not checked (errcheck)
+	writer.Close()
+	            ^
+../internal/service/image_test.go:311:24: Error return value of `req.ParseMultipartForm` is not checked (errcheck)
+	req.ParseMultipartForm(1024 * 1024)
+	                      ^
+../internal/service/image_test.go:337:12: Error return value of `part.Write` is not checked (errcheck)
+	part.Write([]byte("not an image"))
+	          ^
+../internal/service/image_test.go:338:14: Error return value of `writer.Close` is not checked (errcheck)
+	writer.Close()
+	            ^
+../internal/service/image_test.go:342:24: Error return value of `req.ParseMultipartForm` is not checked (errcheck)
+	req.ParseMultipartForm(1024)
+	                      ^
+../internal/ui/renderer_test.go:274:14: Error return value of `os.WriteFile` is not checked (errcheck)
+	os.WriteFile(filepath.Join(tempDir, "base.html"), []byte(baseContent), 0644)
+	            ^
+../internal/ui/renderer_test.go:275:14: Error return value of `os.WriteFile` is not checked (errcheck)
+	os.WriteFile(filepath.Join(tempDir, "partials/frag.html"), []byte(partialContent), 0644) // Need subfolder for "partials" regex?
+	            ^
+../internal/ui/renderer_test.go:280:10: Error return value of `os.Mkdir` is not checked (errcheck)
+	os.Mkdir(partDir, 0755)
+	        ^
+../internal/ui/renderer_test.go:281:14: Error return value of `os.WriteFile` is not checked (errcheck)
+	os.WriteFile(filepath.Join(partDir, "frag.html"), []byte(partialContent), 0644)
+	            ^
+../internal/ui/renderer_test.go:284:14: Error return value of `os.WriteFile` is not checked (errcheck)
+	os.WriteFile(filepath.Join(tempDir, "index.html"), []byte(`{{define "content"}}Index{{end}}`), 0644)
+	            ^
+../internal/ui/renderer_test.go:315:14: Error return value of `os.WriteFile` is not checked (errcheck)
+	os.WriteFile(filepath.Join(badSyntaxDir, "bad.html"), []byte(`{{ .Open `), 0644)
+	            ^
+../internal/handler/listing.go:390:5: shadow: declaration of "err" shadows declaration at line 377 (govet)
+	if err := h.bindAndMapListing(c, &listing); err != nil {
+	   ^
+../internal/handler/listing.go:405:6: shadow: declaration of "err" shadows declaration at line 377 (govet)
+		if err := h.ImageService.DeleteImage(ctx, originalImageURL); err != nil {
+		   ^
+../internal/handler/listing_upload_test.go:39:8: shadow: declaration of "err" shadows declaration at line 35 (govet)
+	if _, err := part.Write([]byte("<?php echo 'malicious code'; ?>")); err != nil {
+	      ^
+../internal/handler/ui_regression_test.go:63:7: shadow: declaration of "err" shadows declaration at line 34 (govet)
+			b, err := json.Marshal(v)
+			   ^
+../internal/repository/sqlite/feedback_test.go:138:6: shadow: declaration of "err" shadows declaration at line 105 (govet)
+		if err := repo.SaveFeedback(ctx, f); err != nil {
+		   ^
+../internal/repository/sqlite/sqlite_category_test.go:172:5: shadow: declaration of "err" shadows declaration at line 155 (govet)
+	if err := repo.UpsertCoreCategory(ctx, core); err != nil {
+	   ^
+../internal/repository/sqlite/sqlite_test.go:81:5: shadow: declaration of "err" shadows declaration at line 71 (govet)
+	if err := repo.Save(ctx, l); err != nil {
+	   ^
+../internal/repository/sqlite/user_test.go:38:5: shadow: declaration of "err" shadows declaration at line 15 (govet)
+	if err := repo.SaveUser(ctx, user); err != nil {
+	   ^
+../internal/repository/sqlite/user_test.go:62:5: shadow: declaration of "err" shadows declaration at line 15 (govet)
+	if err := repo.SaveUser(ctx, user); err != nil {
+	   ^
+../internal/service/image.go:93:5: shadow: declaration of "err" shadows declaration at line 62 (govet)
+	if err := os.MkdirAll(s.UploadDir, 0755); err != nil {
+	   ^
+../internal/ui/renderer_test.go:259:5: shadow: declaration of "err" shadows declaration at line 249 (govet)
+	if err := renderer.Render(buf, "bad_dict.html", nil, c); err == nil {
+	   ^
+../internal/ui/renderer_test.go:264:5: shadow: declaration of "err" shadows declaration at line 249 (govet)
+	if err := renderer.Render(buf, "bad_key.html", nil, c); err == nil {
+	   ^
+../internal/ui/renderer_test.go:299:5: shadow: declaration of "err" shadows declaration at line 249 (govet)
+	if err := renderer.Render(buf, "mypartial", nil, c); err != nil {
+	   ^
+../cmd/server_ui_test.go:345:2: ineffectual assignment to idx (ineffassign)
+	idx = strings.Index(body, "<th>")
+	^
+../internal/handler/listing_upload_test.go:62:2: ineffectual assignment to err (ineffassign)
+	err = h.HandleCreate(c)
+	^
+../cmd/security-audit/main.go:137:4: S1017: should replace this if statement with an unconditional strings.Replace (staticcheck)
+			if strings.Contains(httpTarget, ":8443") {
+			^
+../cmd/server.go:40:8: SA1019: middleware.Logger is deprecated: please use middleware.RequestLogger or middleware.RequestLoggerWithConfig instead. (staticcheck)
+	e.Use(middleware.Logger())
+	      ^
+../cmd/server_ui_test.go:322:2: SA9003: empty branch (staticcheck)
+	if idx != -1 {
+	^
+../internal/handler/admin.go:325:3: QF1003: could use tagged switch on action (staticcheck)
+		if action == "approve" {
+		^
+../internal/handler/listing_test.go:261:4: SA9003: empty branch (staticcheck)
+			if err != nil {
+			^
+../internal/handler/listing_test.go:329:4: SA9003: empty branch (staticcheck)
+			if err := h.HandleEdit(c); err != nil {
+			^
+../internal/repository/sqlite/sqlite.go:358:3: QF1003: could use tagged switch on sortField (staticcheck)
+		if sortField == "title" {
+		^
+../internal/service/csv.go:145:14: SA1019: strings.Title has been deprecated since Go 1.18 and an alternative has been available since Go 1.0: The rule Title uses for word boundaries does not handle Unicode punctuation properly. Use golang.org/x/text/cases instead. (staticcheck)
+	titleCas := strings.Title(strings.ToLower(typeStr))
+	            ^
+../cmd/admin.go:15:2: var flagStatus is unused (unused)
+	flagStatus string
+	^
+../cmd/admin.go:16:2: var flagAction is unused (unused)
+	flagAction string
+	^
+284 issues:
+* errcheck: 259
+* govet: 13
+* ineffassign: 2
+* staticcheck: 8
+* unused: 2

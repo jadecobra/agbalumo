@@ -20,7 +20,7 @@ func TestSaveFeedback(t *testing.T) {
 		t.Fatal(err)
 	}
 	dbPath := tmpFile.Name()
-	defer os.Remove(dbPath)
+	defer func() { _ = os.Remove(dbPath) }()
 
 	repo, err := sqlite.NewSQLiteRepository(dbPath)
 	if err != nil {
@@ -32,7 +32,7 @@ func TestSaveFeedback(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	t.Run("Successfully save feedback", func(t *testing.T) {
 		ctx := context.Background()
@@ -107,7 +107,7 @@ func TestGetAllFeedback(t *testing.T) {
 		t.Fatal(err)
 	}
 	dbPath := tmpFile.Name()
-	defer os.Remove(dbPath)
+	defer func() { _ = os.Remove(dbPath) }()
 
 	repo, err := sqlite.NewSQLiteRepository(dbPath)
 	if err != nil {
@@ -135,7 +135,8 @@ func TestGetAllFeedback(t *testing.T) {
 	}
 
 	for _, f := range feedbacks {
-		if err := repo.SaveFeedback(ctx, f); err != nil {
+		err = repo.SaveFeedback(ctx, f)
+		if err != nil {
 			t.Fatalf("Failed to save feedback: %v", err)
 		}
 	}

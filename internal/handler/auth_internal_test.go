@@ -15,9 +15,9 @@ import (
 // --- RealGoogleProvider.getRedirectURL Tests ---
 
 func TestRealGoogleProvider_getRedirectURL_BaseURL(t *testing.T) {
-	os.Setenv("BASE_URL", "http://192.168.1.5:8080")
-	defer os.Unsetenv("BASE_URL")
-	os.Unsetenv("GOOGLE_REDIRECT_URL")
+	_ = os.Setenv("BASE_URL", "http://192.168.1.5:8080")
+	defer func() { _ = os.Unsetenv("BASE_URL") }()
+	_ = os.Unsetenv("GOOGLE_REDIRECT_URL")
 
 	p := NewRealGoogleProvider()
 	got := p.getRedirectURL("localhost:8080")
@@ -26,9 +26,9 @@ func TestRealGoogleProvider_getRedirectURL_BaseURL(t *testing.T) {
 }
 
 func TestRealGoogleProvider_getRedirectURL_GoogleRedirectURL(t *testing.T) {
-	os.Unsetenv("BASE_URL")
-	os.Setenv("GOOGLE_REDIRECT_URL", "https://custom.example.com/callback")
-	defer os.Unsetenv("GOOGLE_REDIRECT_URL")
+	_ = os.Unsetenv("BASE_URL")
+	_ = os.Setenv("GOOGLE_REDIRECT_URL", "https://custom.example.com/callback")
+	defer func() { _ = os.Unsetenv("GOOGLE_REDIRECT_URL") }()
 
 	p := NewRealGoogleProvider()
 	got := p.getRedirectURL("localhost:8080")
@@ -37,9 +37,9 @@ func TestRealGoogleProvider_getRedirectURL_GoogleRedirectURL(t *testing.T) {
 }
 
 func TestRealGoogleProvider_getRedirectURL_DynamicHTTPS(t *testing.T) {
-	os.Unsetenv("BASE_URL")
-	os.Unsetenv("GOOGLE_REDIRECT_URL")
-	os.Unsetenv("AGBALUMO_ENV")
+	_ = os.Unsetenv("BASE_URL")
+	_ = os.Unsetenv("GOOGLE_REDIRECT_URL")
+	_ = os.Unsetenv("AGBALUMO_ENV")
 
 	p := NewRealGoogleProvider()
 	got := p.getRedirectURL("localhost:8443")
@@ -48,9 +48,9 @@ func TestRealGoogleProvider_getRedirectURL_DynamicHTTPS(t *testing.T) {
 }
 
 func TestRealGoogleProvider_getRedirectURL_DynamicHTTP(t *testing.T) {
-	os.Unsetenv("BASE_URL")
-	os.Unsetenv("GOOGLE_REDIRECT_URL")
-	os.Unsetenv("AGBALUMO_ENV")
+	_ = os.Unsetenv("BASE_URL")
+	_ = os.Unsetenv("GOOGLE_REDIRECT_URL")
+	_ = os.Unsetenv("AGBALUMO_ENV")
 
 	p := NewRealGoogleProvider()
 	got := p.getRedirectURL("localhost:8080")
@@ -59,10 +59,10 @@ func TestRealGoogleProvider_getRedirectURL_DynamicHTTP(t *testing.T) {
 }
 
 func TestRealGoogleProvider_getRedirectURL_Production(t *testing.T) {
-	os.Unsetenv("BASE_URL")
-	os.Unsetenv("GOOGLE_REDIRECT_URL")
-	os.Setenv("AGBALUMO_ENV", "production")
-	defer os.Unsetenv("AGBALUMO_ENV")
+	_ = os.Unsetenv("BASE_URL")
+	_ = os.Unsetenv("GOOGLE_REDIRECT_URL")
+	_ = os.Setenv("AGBALUMO_ENV", "production")
+	defer func() { _ = os.Unsetenv("AGBALUMO_ENV") }()
 
 	p := NewRealGoogleProvider()
 	got := p.getRedirectURL("agbalumo.fly.dev")
@@ -73,9 +73,9 @@ func TestRealGoogleProvider_getRedirectURL_Production(t *testing.T) {
 // --- RealGoogleProvider.GetAuthCodeURL Test ---
 
 func TestRealGoogleProvider_GetAuthCodeURL(t *testing.T) {
-	os.Unsetenv("BASE_URL")
-	os.Unsetenv("GOOGLE_REDIRECT_URL")
-	os.Unsetenv("AGBALUMO_ENV")
+	_ = os.Unsetenv("BASE_URL")
+	_ = os.Unsetenv("GOOGLE_REDIRECT_URL")
+	_ = os.Unsetenv("AGBALUMO_ENV")
 
 	p := NewRealGoogleProvider()
 	url := p.GetAuthCodeURL("test-state", "localhost:8080")
@@ -98,7 +98,7 @@ func TestRealGoogleProvider_GetUserInfo_Success(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Contains(t, r.URL.String(), "access_token=test-token")
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(expected)
+		_ = json.NewEncoder(w).Encode(expected)
 	}))
 	defer server.Close()
 
@@ -121,7 +121,7 @@ func TestRealGoogleProvider_GetUserInfo_Success(t *testing.T) {
 func TestRealGoogleProvider_GetUserInfo_BadStatus(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "server error")
+		_, _ = fmt.Fprint(w, "server error")
 	}))
 	defer server.Close()
 
@@ -141,7 +141,7 @@ func TestRealGoogleProvider_GetUserInfo_BadStatus(t *testing.T) {
 func TestRealGoogleProvider_GetUserInfo_BadJSON(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(w, "not valid json{{{")
+		_, _ = fmt.Fprint(w, "not valid json{{{")
 	}))
 	defer server.Close()
 

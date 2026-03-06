@@ -134,9 +134,7 @@ func checkHeaders(target string, client *http.Client) (bool, bool) {
 		// Try HTTP fallback if HTTPS fails
 		if strings.HasPrefix(target, "https") {
 			httpTarget := strings.Replace(target, "https", "http", 1)
-			if strings.Contains(httpTarget, ":8443") {
-				httpTarget = strings.Replace(httpTarget, ":8443", ":8080", 1)
-			}
+			httpTarget = strings.Replace(httpTarget, ":8443", ":8080", 1)
 			fmt.Printf("[!] Falling back to (%s)... ", httpTarget)
 			resp, err = client.Get(httpTarget)
 		}
@@ -146,7 +144,7 @@ func checkHeaders(target string, client *http.Client) (bool, bool) {
 		fmt.Printf("⚠️  Could not connect to server: %v\n", err)
 		return false, true // Return skipped=true when server unreachable
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	passed := true
 

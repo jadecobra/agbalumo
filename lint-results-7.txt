@@ -1,0 +1,60 @@
+../internal/handler/admin.go:1: : # github.com/jadecobra/agbalumo/internal/handler [github.com/jadecobra/agbalumo/internal/handler.test]
+internal/handler/admin.go:130:7: syntax error: unexpected : at end of statement
+internal/handler/admin.go:199:6: syntax error: unexpected : at end of statement
+internal/handler/admin.go:302:7: syntax error: unexpected : at end of statement
+internal/handler/admin.go:325:6: syntax error: unexpected : at end of statement
+internal/handler/admin.go:326:1: syntax error: unexpected literal 326, expected case or default or }
+internal/handler/admin.go:327:4: syntax error: unexpected : at end of statement
+internal/handler/admin.go:328:4: syntax error: unexpected : at end of statement
+internal/handler/admin.go:329:4: syntax error: unexpected : at end of statement
+internal/handler/admin.go:330:4: syntax error: unexpected : at end of statement
+internal/handler/admin.go:331:4: syntax error: unexpected : at end of statement
+internal/handler/admin.go:331:4: too many errors (typecheck)
+package handler
+../internal/handler/admin.go:130:7: illegal label declaration (typecheck)
+			130: 			_ = sess.Save(c.Request(), c.Response())
+			   ^
+../internal/handler/admin.go:168:44: missing ',' in argument list (typecheck)
+func (h *AdminHandler) HandleAddCategory(c echo.Context) error {
+                                           ^
+../internal/handler/admin.go:172:2: missing ',' in argument list (typecheck)
+	if name == "" {
+	^
+../internal/handler/admin.go:173:3: expected operand, found 'return' (typecheck)
+		return c.Redirect(http.StatusFound, "/admin")
+		^
+../internal/handler/admin.go:174:2: expected operand, found '}' (typecheck)
+	}
+	^
+../internal/handler/admin.go:191:2: missing ',' in argument list (typecheck)
+	if err != nil {
+	^
+../internal/handler/admin.go:192:63: missing ',' before newline in composite literal (typecheck)
+		c.Logger().Errorf("failed to save custom category: %v", err)
+		                                                            ^
+../internal/handler/admin.go:193:3: missing ',' before newline in argument list (typecheck)
+	}
+	 ^
+../internal/handler/admin.go:196:7: missing ',' in argument list (typecheck)
+	sess := customMiddleware.GetSession(c)
+	     ^
+../internal/handler/admin.go:197:2: expected operand, found 'if' (typecheck)
+	if sess != nil {
+	^
+../internal/handler/admin.go:198:59: missing ',' before newline in composite literal (typecheck)
+		sess.AddFlash("Category added successfully!", "message")
+		                                                        ^
+../internal/handler/auth.go:240:6: illegal label declaration (typecheck)
+		240: 		_ = sess.Save(c.Request(), c.Response())
+		   ^
+../internal/handler/auth.go:242:3: expected '}', found 'EOF' (typecheck)
+}
+ ^
+../internal/handler/listing.go:390:5: illegal label declaration (typecheck)
+	390: 	err = h.bindAndMapListing(c, &listing)
+	   ^
+../internal/handler/listing.go:406:6: illegal label declaration (typecheck)
+		405: 		err = h.ImageService.DeleteImage(ctx, originalImageURL)
+		   ^
+16 issues:
+* typecheck: 16

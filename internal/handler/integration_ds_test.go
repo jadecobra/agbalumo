@@ -99,7 +99,7 @@ func TestIntegration_DataValidation(t *testing.T) {
 			c := e.NewContext(req, rec)
 			c.Set("User", domain.User{ID: "test-user-id", Email: "bad@test.com"})
 
-			h.HandleCreate(c)
+			_ = h.HandleCreate(c)
 
 			if rec.Code != http.StatusBadRequest {
 				t.Errorf("Expected 400 Bad Request, got %d", rec.Code)

@@ -1,0 +1,129 @@
+../internal/repository/sqlite/feedback_test.go:1: : # github.com/jadecobra/agbalumo/internal/repository/sqlite_test [github.com/jadecobra/agbalumo/internal/repository/sqlite.test]
+internal/repository/sqlite/feedback_test.go:23:38: syntax error: unexpected } in argument list; possibly missing comma or )
+internal/repository/sqlite/feedback_test.go:110:38: syntax error: unexpected } in argument list; possibly missing comma or )
+internal/repository/sqlite/feedback_test.go:138:6: syntax error: unexpected : at end of statement
+internal/repository/sqlite/feedback_test.go:139:4: syntax error: unexpected : at end of statement
+internal/repository/sqlite/feedback_test.go:140:4: syntax error: unexpected : at end of statement
+internal/repository/sqlite/feedback_test.go:141:4: syntax error: unexpected : at end of statement
+internal/repository/sqlite/sqlite_category_test.go:172:5: syntax error: unexpected : at end of statement
+internal/repository/sqlite/sqlite_category_test.go:173:4: syntax error: unexpected : at end of statement
+internal/repository/sqlite/sqlite_category_test.go:174:4: syntax error: unexpected : at end of statement
+internal/repository/sqlite/sqlite_category_test.go:175:4: syntax error: unexpected : at end of statement
+internal/repository/sqlite/sqlite_category_test.go:175:4: too many errors (typecheck)
+package sqlite_test
+../internal/repository/sqlite/feedback_test.go:23:38: missing ',' in argument list (typecheck)
+	defer func() { _ = os.Remove(dbPath }()
+	                                    ^
+../internal/repository/sqlite/feedback_test.go:26:2: expected ')', found 'if' (typecheck)
+	if err != nil {
+	^
+../internal/repository/sqlite/feedback_test.go:32:2: missing ',' in argument list (typecheck)
+	if err != nil {
+	^
+../internal/repository/sqlite/feedback_test.go:33:15: missing ',' before newline in composite literal (typecheck)
+		t.Fatal(err)
+		            ^
+../internal/repository/sqlite/feedback_test.go:34:3: missing ',' before newline in argument list (typecheck)
+	}
+	 ^
+../internal/repository/sqlite/feedback_test.go:35:2: expected operand, found 'defer' (typecheck)
+	defer func() { _ = db.Close() }()
+	^
+../internal/repository/sqlite/feedback_test.go:75:4: missing ',' before newline in argument list (typecheck)
+	})
+	  ^
+../internal/repository/sqlite/feedback_test.go:100:4: missing ',' before newline in argument list (typecheck)
+	})
+	  ^
+../internal/repository/sqlite/feedback_test.go:101:1: expected operand, found '}' (typecheck)
+}
+^
+../internal/repository/sqlite/feedback_test.go:106:2: missing ',' in argument list (typecheck)
+	if err != nil {
+	^
+../internal/repository/sqlite/feedback_test.go:107:15: missing ',' before newline in composite literal (typecheck)
+		t.Fatal(err)
+		            ^
+../internal/repository/sqlite/sqlite_category_test.go:172:5: illegal label declaration (typecheck)
+	172: 	err = repo.UpsertCoreCategory(ctx, core)
+	   ^
+../internal/repository/sqlite/sqlite_category_test.go:174:4: illegal label declaration (typecheck)
+174: 		t.Fatalf("UpsertCoreCategory update failed: %v", err)
+   ^
+../internal/repository/sqlite/sqlite_category_test.go:190:6: expected '(', found TestCategoryErrors (typecheck)
+func TestCategoryErrors(t *testing.T) {
+     ^
+../internal/repository/sqlite/sqlite_category_test.go:196:5: illegal label declaration (typecheck)
+	195: 	_ = db.Close()
+	   ^
+../internal/repository/sqlite/sqlite_category_test.go:206:5: illegal label declaration (typecheck)
+	205: 	_, err = repo.GetCategories(ctx, domain.CategoryFilter{})
+	   ^
+../internal/repository/sqlite/sqlite_test.go:81:4: illegal label declaration (typecheck)
+	81: 	err = repo.Save(ctx, l)
+	  ^
+../internal/repository/sqlite/sqlite_test.go:83:3: illegal label declaration (typecheck)
+83: 		t.Fatalf("Failed to update: %v", err)
+  ^
+../internal/repository/sqlite/sqlite_test.go:95:6: expected '(', found TestFindAll_Filtering (typecheck)
+func TestFindAll_Filtering(t *testing.T) {
+     ^
+../internal/repository/sqlite/sqlite_test.go:100:4: illegal label declaration (typecheck)
+	99: 	_ = repo.Save(ctx, domain.Listing{ID: "1", Title: "Jollof Rice", Type: "Business", Status: domain.ListingStatusApproved, IsActive: true, CreatedAt: time.Now()})
+	  ^
+../internal/repository/sqlite/sqlite_test.go:188:6: expected '(', found TestGetCounts (typecheck)
+func TestGetCounts(t *testing.T) {
+     ^
+../internal/repository/sqlite/sqlite_test.go:222:6: expected '(', found TestDelete (typecheck)
+func TestDelete(t *testing.T) {
+     ^
+../internal/repository/sqlite/sqlite_test.go:255:6: expected '(', found TestExpireListings (typecheck)
+func TestExpireListings(t *testing.T) {
+     ^
+../internal/repository/sqlite/sqlite_test.go:353:6: expected '(', found TestHoursOfOperationPersistence (typecheck)
+func TestHoursOfOperationPersistence(t *testing.T) {
+     ^
+../internal/repository/sqlite/sqlite_test.go:383:6: expected '(', found TestFindAllByOwner (typecheck)
+func TestFindAllByOwner(t *testing.T) {
+     ^
+../internal/repository/sqlite/sqlite_test.go:429:6: expected '(', found TestGetPendingClaimRequests (typecheck)
+func TestGetPendingClaimRequests(t *testing.T) {
+     ^
+../internal/repository/sqlite/sqlite_test.go:434:5: illegal label declaration (typecheck)
+	433: 	_ = repo.Save(ctx, domain.Listing{ID: "l1", Title: "Unclaimed Business", Type: domain.Business, IsActive: true, CreatedAt: time.Now()})
+	   ^
+../internal/repository/sqlite/user_test.go:19:45: expected operand, found '}' (typecheck)
+	defer func() { _ = os.Remove(tmpFile.Name( }())
+	                                           ^
+../internal/repository/sqlite/user_test.go:22:2: missing ',' in argument list (typecheck)
+	if err != nil {
+	^
+../internal/repository/sqlite/user_test.go:23:15: missing ',' before newline in composite literal (typecheck)
+		t.Fatal(err)
+		            ^
+../internal/repository/sqlite/user_test.go:24:3: missing ',' before newline in argument list (typecheck)
+	}
+	 ^
+../internal/repository/sqlite/user_test.go:26:6: missing ',' in argument list (typecheck)
+	ctx := context.Background()
+	    ^
+../internal/repository/sqlite/user_test.go:29:7: missing ',' in argument list (typecheck)
+	user := domain.User{
+	     ^
+../internal/repository/sqlite/user_test.go:36:3: missing ',' before newline in argument list (typecheck)
+	}
+	 ^
+../internal/repository/sqlite/user_test.go:38:2: expected operand, found 'if' (typecheck)
+	if err := repo.SaveUser(ctx, user); err != nil {
+	^
+../internal/repository/sqlite/user_test.go:39:39: missing ',' before newline in composite literal (typecheck)
+		t.Fatalf("SaveUser failed: %v", err)
+		                                    ^
+../internal/repository/sqlite/user_test.go:40:3: missing ',' before newline in argument list (typecheck)
+	}
+	 ^
+../internal/repository/sqlite/user_test.go:43:13: missing ',' in argument list (typecheck)
+	found, err := repo.FindUserByID(ctx, "user-1")
+	           ^
+39 issues:
+* typecheck: 39

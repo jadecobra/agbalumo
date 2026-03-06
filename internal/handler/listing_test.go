@@ -35,17 +35,17 @@ func (t *TestRenderer) Render(w io.Writer, name string, data interface{}, c echo
 
 func NewMainTemplate() *template.Template {
 	t := template.New("base")
-	t.New("index.html").Parse(`Index: {{len .Listings}} Listings`)
-	t.New("listing_list").Parse(`{{range .Listings}}{{.Title}}{{end}}`)
-	t.New("modal_detail").Parse(`{{.Listing.Title}} - {{.Listing.Description}}`)
-	t.New("listing_card").Parse(`{{.Title}}`)
-	t.New("admin_login.html").Parse(`Login Form: {{if .Error}}{{.Error}}{{end}}`)
-	t.New("admin_dashboard.html").Parse(`Dashboard: {{len .PendingListings}} items`)
-	t.New("modal_edit_listing.html").Parse(`Edit: {{.Title}}`)
-	t.New("modal_feedback.html").Parse(`Feedback Modal`)
-	t.New("modal_profile").Parse(`Profile: {{.User.Name}}, Listings: {{len .Listings}}`)
-	t.New("profile.html").Parse(`Profile Page: {{.User.Name}}, Listings: {{len .Listings}}, Email: {{.User.Email}}`)
-	t.New("error.html").Parse(`Error Page: {{if .Message}}{{.Message}}{{end}}`)
+	template.Must(t.New("index.html").Parse(`Index: {{len .Listings}} Listings`))
+	template.Must(t.New("listing_list").Parse(`{{range .Listings}}{{.Title}}{{end}}`))
+	template.Must(t.New("modal_detail").Parse(`{{.Listing.Title}} - {{.Listing.Description}}`))
+	template.Must(t.New("listing_card").Parse(`{{.Title}}`))
+	template.Must(t.New("admin_login.html").Parse(`Login Form: {{if .Error}}{{.Error}}{{end}}`))
+	template.Must(t.New("admin_dashboard.html").Parse(`Dashboard: {{len .PendingListings}} items`))
+	template.Must(t.New("modal_edit_listing.html").Parse(`Edit: {{.Title}}`))
+	template.Must(t.New("modal_feedback.html").Parse(`Feedback Modal`))
+	template.Must(t.New("modal_profile").Parse(`Profile: {{.User.Name}}, Listings: {{len .Listings}}`))
+	template.Must(t.New("profile.html").Parse(`Profile Page: {{.User.Name}}, Listings: {{len .Listings}}, Email: {{.User.Email}}`))
+	template.Must(t.New("error.html").Parse(`Error Page: {{if .Message}}{{.Message}}{{end}}`))
 	return t
 }
 
@@ -65,7 +65,7 @@ func TestHandleHome(t *testing.T) {
 	mockRepo.On("GetLocations", context.Background()).Return([]string{}, nil)
 	mockRepo.On("GetFeaturedListings", context.Background()).Return([]domain.Listing{}, nil)
 
-	h := handler.NewListingHandler(mockRepo, nil)
+	h := handler.NewListingHandler(mockRepo, nil, "")
 
 	if err := h.HandleHome(c); err != nil {
 		t.Fatalf("HandleHome failed: %v", err)
@@ -82,7 +82,7 @@ func TestHandleHome(t *testing.T) {
 func TestHandleHome_Counts(t *testing.T) {
 	e := echo.New()
 	t_temp := template.New("base")
-	t_temp.New("index.html").Parse(`Total: {{.TotalCount}}, Food: {{index .Counts "Food"}}, Business: {{index .Counts "Business"}}`)
+	template.Must(t_temp.New("index.html").Parse(`Total: {{.TotalCount}}, Food: {{index .Counts "Food"}}, Business: {{index .Counts "Business"}}`))
 	e.Renderer = &TestRenderer{templates: t_temp}
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
@@ -97,7 +97,7 @@ func TestHandleHome_Counts(t *testing.T) {
 	mockRepo.On("GetLocations", context.Background()).Return([]string{}, nil)
 	mockRepo.On("GetFeaturedListings", context.Background()).Return([]domain.Listing{}, nil)
 
-	h := handler.NewListingHandler(mockRepo, nil)
+	h := handler.NewListingHandler(mockRepo, nil, "")
 
 	if err := h.HandleHome(c); err != nil {
 		t.Fatalf("HandleHome failed: %v", err)
@@ -122,7 +122,7 @@ func TestHandleFragment(t *testing.T) {
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindAll", context.Background(), "Business", "jollof", "", "", false, 20, 0).Return([]domain.Listing{{Title: "Jollof Place"}}, nil)
 
-	h := handler.NewListingHandler(mockRepo, nil)
+	h := handler.NewListingHandler(mockRepo, nil, "")
 
 	if err := h.HandleFragment(c); err != nil {
 		t.Fatalf("HandleFragment failed: %v", err)
@@ -149,7 +149,7 @@ func TestHandleHome_Error(t *testing.T) {
 	mockRepo.On("GetLocations", context.Background()).Return([]string{}, nil).Maybe()
 	mockRepo.On("GetFeaturedListings", context.Background()).Return([]domain.Listing{}, nil).Maybe()
 
-	h := handler.NewListingHandler(mockRepo, nil)
+	h := handler.NewListingHandler(mockRepo, nil, "")
 
 	_ = h.HandleHome(c)
 
@@ -175,7 +175,7 @@ func TestHandleDetail(t *testing.T) {
 	mockRepo.On("FindByID", context.Background(), "1").Return(domain.Listing{Title: "Found It", Description: "Details here", Type: domain.Business}, nil)
 	mockRepo.On("GetCategory", context.Background(), string(domain.Business)).Return(domain.CategoryData{ID: string(domain.Business), Claimable: true}, nil).Maybe()
 
-	h := handler.NewListingHandler(mockRepo, nil)
+	h := handler.NewListingHandler(mockRepo, nil, "")
 
 	if err := h.HandleDetail(c); err != nil {
 		t.Fatalf("HandleDetail failed: %v", err)
@@ -254,13 +254,10 @@ func TestHandleCreate(t *testing.T) {
 			tt.setupMock(mockRepo)
 			mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
 
-			h := handler.NewListingHandler(mockRepo, nil)
+			h := handler.NewListingHandler(mockRepo, nil, "")
 			c.Set("User", domain.User{ID: "test-user-id", Email: "test@example.com"})
 
-			err := h.HandleCreate(c)
-			if err != nil {
-				// handled
-			}
+			_ = h.HandleCreate(c)
 
 			if rec.Code != tt.expectedStatus {
 				t.Errorf("Expected status %d, got %d", tt.expectedStatus, rec.Code)
@@ -324,11 +321,9 @@ func TestHandleEdit(t *testing.T) {
 
 			mockRepo := &mock.MockListingRepository{}
 			tt.setupMock(mockRepo)
-			h := handler.NewListingHandler(mockRepo, nil)
+			h := handler.NewListingHandler(mockRepo, nil, "")
 
-			if err := h.HandleEdit(c); err != nil {
-				// handled
-			}
+			_ = h.HandleEdit(c)
 
 			if rec.Code != tt.expectedStatus {
 				t.Errorf("Expected status %d, got %d", tt.expectedStatus, rec.Code)
@@ -413,7 +408,7 @@ func TestHandleUpdate(t *testing.T) {
 			tt.setupMock(mockRepo)
 			mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
 
-			h := handler.NewListingHandler(mockRepo, nil)
+			h := handler.NewListingHandler(mockRepo, nil, "")
 			_ = h.HandleUpdate(c)
 
 			if rec.Code != tt.expectedStatus {
@@ -430,12 +425,12 @@ func TestHandleCreate_WithImage(t *testing.T) {
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
-	writer.WriteField("title", "Image Listing")
-	writer.WriteField("type", "Business")
-	writer.WriteField("owner_origin", "Ghana")
-	writer.WriteField("description", "Desc")
-	writer.WriteField("contact_email", "img@example.com")
-	writer.WriteField("address", "123 Image St")
+	_ = writer.WriteField("title", "Image Listing")
+	_ = writer.WriteField("type", "Business")
+	_ = writer.WriteField("owner_origin", "Ghana")
+	_ = writer.WriteField("description", "Desc")
+	_ = writer.WriteField("contact_email", "img@example.com")
+	_ = writer.WriteField("address", "123 Image St")
 
 	part, err := writer.CreateFormFile("image", "test.png")
 	if err != nil {
@@ -443,16 +438,16 @@ func TestHandleCreate_WithImage(t *testing.T) {
 	}
 	img := image.NewRGBA(image.Rect(0, 0, 1, 1))
 	var imgBuf bytes.Buffer
-	png.Encode(&imgBuf, img)
-	part.Write(imgBuf.Bytes())
-	writer.Close()
+	_ = png.Encode(&imgBuf, img)
+	_, _ = part.Write(imgBuf.Bytes())
+	_ = writer.Close()
 
 	req := httptest.NewRequest(http.MethodPost, "/listings", body)
 	req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	defer os.RemoveAll("ui")
+	defer func() { _ = os.RemoveAll("ui") }()
 
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
@@ -460,7 +455,7 @@ func TestHandleCreate_WithImage(t *testing.T) {
 		return l.ImageURL != "" && strings.HasPrefix(l.ImageURL, "/static/uploads/")
 	})).Return(nil)
 
-	h := handler.NewListingHandler(mockRepo, nil)
+	h := handler.NewListingHandler(mockRepo, nil, "")
 	c.Set("User", domain.User{ID: "test-user-id", Email: "test@example.com"})
 
 	if err := h.HandleCreate(c); err != nil {
@@ -527,7 +522,7 @@ func TestHandleDelete(t *testing.T) {
 			mockRepo := &mock.MockListingRepository{}
 			tt.setupMock(mockRepo)
 
-			h := handler.NewListingHandler(mockRepo, nil)
+			h := handler.NewListingHandler(mockRepo, nil, "")
 			_ = h.HandleDelete(c)
 
 			if rec.Code != tt.expectedStatus {
@@ -541,8 +536,8 @@ func TestHandleDelete(t *testing.T) {
 func TestHandleProfile(t *testing.T) {
 	e := echo.New()
 	t_temp := template.New("base")
-	t_temp.New("modal_profile").Parse(`Profile: {{.User.Name}}, Listings: {{len .Listings}}`)
-	t_temp.New("profile.html").Parse(`Profile: {{.User.Name}}, Listings: {{len .Listings}}`)
+	template.Must(t_temp.New("modal_profile").Parse(`Profile: {{.User.Name}}, Listings: {{len .Listings}}`))
+	template.Must(t_temp.New("profile.html").Parse(`Profile: {{.User.Name}}, Listings: {{len .Listings}}`))
 	e.Renderer = &TestRenderer{templates: t_temp}
 
 	req := httptest.NewRequest(http.MethodGet, "/profile", nil)
@@ -557,7 +552,7 @@ func TestHandleProfile(t *testing.T) {
 		{Title: "L1"}, {Title: "L2"},
 	}, nil)
 
-	h := handler.NewListingHandler(mockRepo, nil)
+	h := handler.NewListingHandler(mockRepo, nil, "")
 
 	if err := h.HandleProfile(c); err != nil {
 		t.Fatalf("HandleProfile failed: %v", err)
@@ -579,10 +574,10 @@ func TestHandleAbout(t *testing.T) {
 	c := e.NewContext(req, rec)
 
 	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewListingHandler(mockRepo, nil)
+	h := handler.NewListingHandler(mockRepo, nil, "")
 
 	t_temp := template.New("base")
-	t_temp.New("about.html").Parse(`About Page: {{.User}}`)
+	template.Must(t_temp.New("about.html").Parse(`About Page: {{.User}}`))
 	e.Renderer = &TestRenderer{templates: t_temp}
 
 	err := h.HandleAbout(c)
@@ -660,7 +655,7 @@ func TestHandleClaim(t *testing.T) {
 			mockRepo := &mock.MockListingRepository{}
 			tt.setupMock(mockRepo)
 
-			h := handler.NewListingHandler(mockRepo, nil)
+			h := handler.NewListingHandler(mockRepo, nil, "")
 			_ = h.HandleClaim(c)
 
 			if rec.Code != tt.expectedStatus {
@@ -709,7 +704,7 @@ func TestHandleCreate_InvalidDates(t *testing.T) {
 			c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
 
 			mockRepo := &mock.MockListingRepository{}
-			h := handler.NewListingHandler(mockRepo, nil)
+			h := handler.NewListingHandler(mockRepo, nil, "")
 			c.Set("User", domain.User{ID: "u1"})
 
 			err := h.HandleCreate(c)
@@ -747,12 +742,12 @@ func TestHandleCreate_ImageUploadError(t *testing.T) {
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
-	writer.WriteField("title", "Image Listing")
-	writer.WriteField("type", "Business")
+	_ = writer.WriteField("title", "Image Listing")
+	_ = writer.WriteField("type", "Business")
 
 	part, _ := writer.CreateFormFile("image", "test.png")
-	part.Write([]byte("fake image content"))
-	writer.Close()
+	_, _ = part.Write([]byte("fake image content"))
+	_ = writer.Close()
 
 	req := httptest.NewRequest(http.MethodPost, "/listings", body)
 	req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
@@ -765,14 +760,13 @@ func TestHandleCreate_ImageUploadError(t *testing.T) {
 	mockImageService := &MockImageService{}
 	mockImageService.On("UploadImage", testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).Return("", errors.New("upload failed"))
 
-	h := handler.NewListingHandler(mockRepo, mockImageService)
+	h := handler.NewListingHandler(mockRepo, mockImageService, "")
 	c.Set("User", domain.User{ID: "u1"})
 
 	err := h.HandleCreate(c)
 
 	if err != nil {
 		he, ok := err.(*echo.HTTPError)
-		// handler.RespondError wraps errors, and might return HTTPError with 500
 		if ok {
 			if he.Code != http.StatusInternalServerError {
 				t.Errorf("Expected status 500, got %d", he.Code)
@@ -802,8 +796,6 @@ func (m *MockImageService) DeleteImage(ctx context.Context, imageURL string) err
 	return args.Error(0)
 }
 
-// --- Profile Edge Case Tests ---
-
 func TestHandleProfile_NoUser(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
@@ -814,7 +806,7 @@ func TestHandleProfile_NoUser(t *testing.T) {
 	// No user set
 
 	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewListingHandler(mockRepo, nil)
+	h := handler.NewListingHandler(mockRepo, nil, "")
 
 	if err := h.HandleProfile(c); err != nil {
 		t.Fatalf("HandleProfile failed: %v", err)
@@ -842,15 +834,13 @@ func TestHandleProfile_RepoError(t *testing.T) {
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindAllByOwner", testifyMock.Anything, "u1", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, errors.New("db error"))
 
-	h := handler.NewListingHandler(mockRepo, nil)
+	h := handler.NewListingHandler(mockRepo, nil, "")
 
 	_ = h.HandleProfile(c)
 	if rec.Code != http.StatusInternalServerError {
 		t.Errorf("Expected status 500, got %d", rec.Code)
 	}
 }
-
-// --- Fragment Edge Case Tests ---
 
 func TestHandleFragment_WithHTMXHeader(t *testing.T) {
 	e := echo.New()
@@ -863,7 +853,7 @@ func TestHandleFragment_WithHTMXHeader(t *testing.T) {
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindAll", testifyMock.Anything, "Food", "", "", "", false, 20, 0).Return([]domain.Listing{{Title: "Jollof Rice"}}, nil)
 
-	h := handler.NewListingHandler(mockRepo, nil)
+	h := handler.NewListingHandler(mockRepo, nil, "")
 
 	if err := h.HandleFragment(c); err != nil {
 		t.Fatalf("HandleFragment failed: %v", err)
@@ -887,7 +877,7 @@ func TestHandleFragment_Error(t *testing.T) {
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindAll", testifyMock.Anything, "", "", "", "", false, 20, 0).Return([]domain.Listing{}, errors.New("db error"))
 
-	h := handler.NewListingHandler(mockRepo, nil)
+	h := handler.NewListingHandler(mockRepo, nil, "")
 
 	if err := h.HandleFragment(c); err != nil {
 		t.Fatalf("HandleFragment returned error: %v", err)
@@ -897,8 +887,6 @@ func TestHandleFragment_Error(t *testing.T) {
 		t.Errorf("Expected status 500, got %d", rec.Code)
 	}
 }
-
-// --- Home Graceful Fallback Tests ---
 
 func TestHandleHome_CountsError_Fallback(t *testing.T) {
 	e := echo.New()
@@ -913,7 +901,7 @@ func TestHandleHome_CountsError_Fallback(t *testing.T) {
 	mockRepo.On("GetLocations", testifyMock.Anything).Return([]string{}, nil)
 	mockRepo.On("GetFeaturedListings", testifyMock.Anything).Return([]domain.Listing{}, nil)
 
-	h := handler.NewListingHandler(mockRepo, nil)
+	h := handler.NewListingHandler(mockRepo, nil, "")
 
 	if err := h.HandleHome(c); err != nil {
 		t.Fatalf("HandleHome should not fail on counts error: %v", err)
@@ -938,7 +926,7 @@ func TestHandleHome_FeaturedError_Fallback(t *testing.T) {
 	mockRepo.On("GetLocations", testifyMock.Anything).Return([]string{}, errors.New("locations query failed"))
 	mockRepo.On("GetFeaturedListings", testifyMock.Anything).Return([]domain.Listing{}, errors.New("featured query failed"))
 
-	h := handler.NewListingHandler(mockRepo, nil)
+	h := handler.NewListingHandler(mockRepo, nil, "")
 
 	if err := h.HandleHome(c); err != nil {
 		t.Fatalf("HandleHome should not fail on featured error: %v", err)
@@ -949,8 +937,6 @@ func TestHandleHome_FeaturedError_Fallback(t *testing.T) {
 	}
 }
 
-// --- Update Edge Case Tests ---
-
 func TestHandleUpdate_NoUser(t *testing.T) {
 	c, rec := setupTestContext(http.MethodPost, "/listings/1", strings.NewReader(""))
 	c.SetPath("/listings/:id")
@@ -959,7 +945,7 @@ func TestHandleUpdate_NoUser(t *testing.T) {
 	// No user set
 
 	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewListingHandler(mockRepo, nil)
+	h := handler.NewListingHandler(mockRepo, nil, "")
 
 	_ = h.HandleUpdate(c)
 
@@ -978,7 +964,7 @@ func TestHandleUpdate_NotFound(t *testing.T) {
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{}, errors.New("not found"))
 
-	h := handler.NewListingHandler(mockRepo, nil)
+	h := handler.NewListingHandler(mockRepo, nil, "")
 
 	_ = h.HandleUpdate(c)
 
@@ -1011,7 +997,7 @@ func TestHandleDelete_ErrorPaths(t *testing.T) {
 		mockRepo := &mock.MockListingRepository{}
 		mockRepo.On("FindByID", testifyMock.Anything, "999").Return(domain.Listing{}, errors.New("not found"))
 
-		h := handler.NewListingHandler(mockRepo, nil)
+		h := handler.NewListingHandler(mockRepo, nil, "")
 		_ = h.HandleDelete(c)
 
 		assert.Equal(t, http.StatusNotFound, rec.Code)
@@ -1024,10 +1010,9 @@ func TestHandleCreate_DuplicateTitle(t *testing.T) {
 	c.Set("User", domain.User{ID: "u1"})
 
 	mockRepo := &mock.MockListingRepository{}
-	// Return existing listing with same title
 	mockRepo.On("FindByTitle", testifyMock.Anything, "Duplicate").Return([]domain.Listing{{ID: "existing"}}, nil)
 
-	h := handler.NewListingHandler(mockRepo, nil)
+	h := handler.NewListingHandler(mockRepo, nil, "")
 	_ = h.HandleCreate(c)
 
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
@@ -1045,7 +1030,7 @@ func TestHandleCreate_DefaultDeadline(t *testing.T) {
 		return l.Type == domain.Request && !l.Deadline.IsZero()
 	})).Return(nil)
 
-	h := handler.NewListingHandler(mockRepo, nil)
+	h := handler.NewListingHandler(mockRepo, nil, "")
 	_ = h.HandleCreate(c)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
@@ -1062,10 +1047,9 @@ func TestHandleUpdate_DuplicateTitleMismatch(t *testing.T) {
 
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "u1", Title: "Old Title"}, nil)
-	// Title "Other Title" belongs to listing "2"
 	mockRepo.On("FindByTitle", testifyMock.Anything, "Other Title").Return([]domain.Listing{{ID: "2", Title: "Other Title"}}, nil)
 
-	h := handler.NewListingHandler(mockRepo, nil)
+	h := handler.NewListingHandler(mockRepo, nil, "")
 	_ = h.HandleUpdate(c)
 
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
@@ -1083,7 +1067,7 @@ func TestHandleUpdate_UnauthorizedOtherOwner(t *testing.T) {
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "u1"}, nil)
 
-	h := handler.NewListingHandler(mockRepo, nil)
+	h := handler.NewListingHandler(mockRepo, nil, "")
 	_ = h.HandleUpdate(c)
 
 	assert.Equal(t, http.StatusForbidden, rec.Code)
@@ -1108,7 +1092,7 @@ func TestHandleUpdate_RemoveImage(t *testing.T) {
 	mockImageSvc.On("UploadImage", testifyMock.Anything, testifyMock.Anything, "1").Return("", nil)
 	mockImageSvc.On("DeleteImage", testifyMock.Anything, "/uploads/img.jpg").Return(nil)
 
-	h := handler.NewListingHandler(mockRepo, mockImageSvc)
+	h := handler.NewListingHandler(mockRepo, mockImageSvc, "")
 	_ = h.HandleUpdate(c)
 
 	assert.Equal(t, http.StatusOK, rec.Code)

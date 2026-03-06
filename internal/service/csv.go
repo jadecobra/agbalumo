@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"unicode"
 	"time"
 
 	"github.com/google/uuid"
@@ -142,7 +143,11 @@ func parseCategory(typeStr string) domain.Category {
 		return cat
 	}
 
-	titleCas := strings.Title(strings.ToLower(typeStr))
+	r := []rune(strings.ToLower(typeStr))
+	if len(r) > 0 {
+		r[0] = unicode.ToUpper(r[0])
+	}
+	titleCas := string(r)
 	cat = domain.Category(titleCas)
 	switch cat {
 	case domain.Business, domain.Service, domain.Product, domain.Event, domain.Job, domain.Request, domain.Food:

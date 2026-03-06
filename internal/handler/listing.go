@@ -152,41 +152,27 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	}
 
 	// For non-HTMX requests, render the full home page with the filtered listings
-	// This might not be the desired behavior if this handler is strictly for fragments.
-	// Reverting to original behavior for non-HTMX requests, or consider redirecting.
-	// For now, keeping the original behavior of rendering just the list.
 	return c.Render(http.StatusOK, "listing_list", data)
 }
 
 // Detail Handler
 func (h *ListingHandler) HandleDetail(c echo.Context) error {
 	id := c.Param("id")
-	listing, err := h.Repo.FindByID(c.Request().Context(), id)
+	ctx := c.Request().Context()
+
+	listing, err := h.Repo.FindByID(ctx, id)
 	if err != nil {
 		return RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
 	}
 
-	user, ok := GetUser(c)
+	// Fetch category data to check if claimable
+	category, _ := h.Repo.GetCategory(ctx, string(listing.Type))
 
-	// Check if the current user can claim this listing
-	canClaim := false
-	if listing.OwnerID == "" {
-		categoryInfo, err := h.Repo.GetCategory(c.Request().Context(), string(listing.Type))
-		if err == nil && categoryInfo.Claimable {
-			canClaim = true
-		}
-	}
-
-	isOwner := false
-	if ok {
-		isOwner = listing.OwnerID == user.ID
-	}
-
-	return h.renderWithBaseContext(c, "modal_detail", map[string]interface{}{
-		"Listing":  listing,
-		"User":     user,
-		"IsOwner":  isOwner,
-		"CanClaim": canClaim,
+	return c.Render(http.StatusOK, "modal_detail", map[string]interface{}{
+		"Listing":          listing,
+		"Category":         category,
+		"User":             c.Get("User"),
+		"GoogleMapsApiKey": h.GoogleMapsAPIKey,
 	})
 }
 
@@ -222,7 +208,6 @@ func (h *ListingHandler) HandleAbout(c echo.Context) error {
 }
 
 // HandleClaim processes a request to claim an unowned listing.
-// Creates a pending ClaimRequest for admin approval instead of immediately assigning ownership.
 func (h *ListingHandler) HandleClaim(c echo.Context) error {
 	user, ok := GetUser(c)
 	if !ok {
@@ -260,8 +245,8 @@ type ListingFormRequest struct {
 	OwnerOrigin      string `form:"owner_origin"`
 	Description      string `form:"description"`
 	City             string `form:"city"`
-	Address          string `form:"address"`            // New
-	HoursOfOperation string `form:"hours_of_operation"` // New
+	Address          string `form:"address"`
+	HoursOfOperation string `form:"hours_of_operation"`
 	ContactEmail     string `form:"contact_email"`
 	ContactPhone     string `form:"contact_phone"`
 	ContactWhatsApp  string `form:"contact_whatsapp"`
@@ -278,7 +263,6 @@ type ListingFormRequest struct {
 }
 
 // normalizeURL ensures the given string url has a 'http://' or 'https://' prefix.
-// If not, it prepends 'https://' as a default protocol.
 func normalizeURL(u string) string {
 	u = strings.TrimSpace(u)
 	if u == "" {
@@ -327,7 +311,7 @@ func (h *ListingHandler) HandleCreate(c echo.Context) error {
 		ID:        uuid.New().String(),
 		CreatedAt: time.Now(),
 		IsActive:  true,
-		Status:    domain.ListingStatusApproved, // Live immediately — no moderation queue
+		Status:    domain.ListingStatusApproved,
 	}
 
 	if err := h.bindAndMapListing(c, &l); err != nil {
@@ -337,7 +321,6 @@ func (h *ListingHandler) HandleCreate(c echo.Context) error {
 		return RespondError(c, err)
 	}
 
-	// Assign Owner (Auth is now required by middleware)
 	u := c.Get("User")
 	if u == nil {
 		return RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, "Authentication required to post listings"))
@@ -347,10 +330,7 @@ func (h *ListingHandler) HandleCreate(c echo.Context) error {
 
 	// Check for duplicate title
 	existing, err := h.Repo.FindByTitle(c.Request().Context(), l.Title)
-	if err != nil {
-		return RespondError(c, err)
-	}
-	if len(existing) > 0 {
+	if err == nil && len(existing) > 0 {
 		return RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Title already exists. Please choose a different title."))
 	}
 
@@ -366,7 +346,6 @@ func (h *ListingHandler) HandleCreate(c echo.Context) error {
 func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 	id := c.Param("id")
 
-	// Explicit Auth check
 	u := c.Get("User")
 	if u == nil {
 		return RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, "Login Required"))
@@ -387,38 +366,35 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 	// Save original image URL BEFORE bindAndMapListing may modify it
 	originalImageURL := listing.ImageURL
 
-	if err := h.bindAndMapListing(c, &listing); err != nil {
+	err = h.bindAndMapListing(c, &listing)
+	if err != nil {
 		if IsImageError(err) {
 			return h.renderImageErrorToast(c, err)
 		}
 		return RespondError(c, err)
 	}
 
-	// Handle Image Removal - delete the ORIGINAL image if requested
-	// We need to check the form's remove_image flag AND compare URLs
+	// Handle Image Removal
 	var req ListingFormRequest
 	_ = c.Bind(&req)
-	// Delete the original image if:
-	// 1. User explicitly requested removal (req.RemoveImage), OR
-	// 2. User replaced the image (listing.ImageURL != originalImageURL)
 	if originalImageURL != "" && (req.RemoveImage || listing.ImageURL != originalImageURL) {
-		if err := h.ImageService.DeleteImage(ctx, originalImageURL); err != nil {
+		err = h.ImageService.DeleteImage(ctx, originalImageURL)
+		if err != nil {
 			c.Logger().Errorf("Failed to delete image: %v", err)
 		}
-		// Clear the image URL if explicitly removed
 		if req.RemoveImage {
 			listing.ImageURL = ""
 		}
 	}
 
 	// Check for duplicate title
-	existing, err := h.Repo.FindByTitle(ctx, listing.Title)
-	if err != nil {
-		return RespondError(c, err)
-	}
-	for _, ext := range existing {
-		if ext.ID != listing.ID {
-			return RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Title already exists. Please choose a different title."))
+	existing, fErr := h.Repo.FindByTitle(ctx, listing.Title)
+	if fErr == nil {
+// bounded action: title duplicates are usually few
+for _, ext := range existing {
+if ext.ID != listing.ID {
+				return RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Title already exists. Please choose a different title."))
+			}
 		}
 	}
 
@@ -446,11 +422,6 @@ func (h *ListingHandler) HandleDelete(c echo.Context) error {
 		return RespondError(c, err)
 	}
 
-	// For HTMX requests, we might want to just remove the element or return a message.
-	// If it's a full page reload or generic request, redirecting to profile is safe.
-	// Let's assume HTMX usage where we might want to return nothing (empty 200) to delete the element,
-	// or redirect if we are on the detail page.
-	// Simplest for now: Redirect to profile.
 	return c.Redirect(http.StatusSeeOther, "/profile")
 }
 
@@ -480,6 +451,7 @@ func (h *ListingHandler) HandleProfile(c echo.Context) error {
 	return h.renderWithBaseContext(c, "profile.html", data)
 }
 
+
 // Helper methods
 
 func (h *ListingHandler) bindAndMapListing(c echo.Context, l *domain.Listing) error {
@@ -502,7 +474,6 @@ func (h *ListingHandler) bindAndMapListing(c echo.Context, l *domain.Listing) er
 func (h *ListingHandler) handleImageUpload(c echo.Context, l *domain.Listing) error {
 	imageURL, err := h.ImageService.UploadImage(c.Request().Context(), h.getFileHeader(c, "image"), l.ID)
 	if err == nil && imageURL != "" {
-		// Cache-busting: append timestamp
 		l.ImageURL = fmt.Sprintf("%s?t=%d", imageURL, time.Now().Unix())
 		return nil
 	} else if err != nil {
@@ -554,17 +525,14 @@ func parseJobStartDate(req *ListingFormRequest, l *domain.Listing) error {
 }
 
 func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error {
-	// Domain Validation
 	if err := l.Validate(); err != nil {
 		return RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Validation Error: "+err.Error()))
 	}
 
-	// Save
 	if err := h.Repo.Save(c.Request().Context(), *l); err != nil {
 		return RespondError(c, err)
 	}
 
-	// Get User for template context
 	var user interface{}
 	if u := c.Get("User"); u != nil {
 		user = u
@@ -576,7 +544,6 @@ func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error
 	})
 }
 
-// Helper to safely get file header
 func (h *ListingHandler) getFileHeader(c echo.Context, key string) *multipart.FileHeader {
 	file, err := c.FormFile(key)
 	if err != nil {
@@ -621,10 +588,9 @@ func (h *ListingHandler) renderImageErrorToast(c echo.Context, err error) error 
 	    <button hx-on:click="this.parentElement.remove()" 
 	            class="text-red-400 hover:text-red-600 dark:hover:text-red-200 transition-colors">
 	        <span class="material-symbols-outlined text-[18px]">close</span>
-	</div>`, toastID, toastID, msg))
+	    </div>`, toastID, toastID, msg))
 }
 
-// renderWithBaseContext injects standard components like Categories into the payload
 func (h *ListingHandler) renderWithBaseContext(c echo.Context, tmpl string, data map[string]interface{}) error {
 	ctx := c.Request().Context()
 	categories, err := h.Repo.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: true})

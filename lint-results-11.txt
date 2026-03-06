@@ -1,0 +1,7 @@
+../main.go:6:2: could not import github.com/jadecobra/agbalumo/cmd (cmd/server.go:13:2: could not import github.com/jadecobra/agbalumo/internal/handler (-: # github.com/jadecobra/agbalumo/internal/handler
+internal/handler/listing.go:453:26: method ListingHandler.HandleAbout already declared at internal/handler/listing.go:204:26
+internal/handler/listing.go:459:26: method ListingHandler.HandleClaim already declared at internal/handler/listing.go:211:26)) (typecheck)
+	"github.com/jadecobra/agbalumo/cmd"
+	^
+1 issues:
+* typecheck: 1

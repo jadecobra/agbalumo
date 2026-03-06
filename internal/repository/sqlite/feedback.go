@@ -25,7 +25,7 @@ func (r *SQLiteRepository) GetAllFeedback(ctx context.Context) ([]domain.Feedbac
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var feedbacks []domain.Feedback
 	for rows.Next() {

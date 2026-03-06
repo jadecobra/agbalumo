@@ -1,0 +1,62 @@
+../internal/middleware/auth.go:1: : # github.com/jadecobra/agbalumo/internal/middleware [github.com/jadecobra/agbalumo/internal/middleware.test]
+internal/middleware/ratelimit_test.go:31:22: syntax error: unexpected = in argument list; possibly missing comma or )
+internal/middleware/ratelimit_test.go:32:22: syntax error: unexpected = in argument list; possibly missing comma or )
+internal/middleware/ratelimit_test.go:87:10: syntax error: unexpected = at end of statement (typecheck)
+package middleware
+../internal/middleware/ratelimit_test.go:31:22: expected '==', found '=' (typecheck)
+	assert.NoError(t, _ = h(c))
+	                    ^
+../internal/middleware/ratelimit_test.go:32:22: expected '==', found '=' (typecheck)
+	assert.NoError(t, _ = h(c))
+	                    ^
+../internal/middleware/ratelimit_test.go:87:10: expected '==', found '=' (typecheck)
+			_ = _ = h(c)
+			      ^
+../internal/ui/renderer.go:1: : # github.com/jadecobra/agbalumo/internal/ui [github.com/jadecobra/agbalumo/internal/ui.test]
+internal/ui/renderer_test.go:22:14: syntax error: unexpected =, expected {
+internal/ui/renderer_test.go:58:14: syntax error: unexpected =, expected {
+internal/ui/renderer_test.go:97:14: syntax error: unexpected =, expected {
+internal/ui/renderer_test.go:147:14: syntax error: unexpected =, expected {
+internal/ui/renderer_test.go:238:14: syntax error: unexpected =, expected {
+internal/ui/renderer_test.go:244:14: syntax error: unexpected =, expected {
+internal/ui/renderer_test.go:259:5: syntax error: unexpected : at end of statement
+internal/ui/renderer_test.go:260:6: syntax error: unexpected : at end of statement
+internal/ui/renderer_test.go:261:5: syntax error: unexpected : at end of statement
+internal/ui/renderer_test.go:264:5: syntax error: unexpected : at end of statement
+internal/ui/renderer_test.go:264:5: too many errors (typecheck)
+package ui
+../internal/ui/renderer_test.go:22:14: expected '==', found '=' (typecheck)
+	if err := _ = os.WriteFile(tmplPath, []byte(`{{define "test"}}Hello Test{{end}}`), 0644); err != nil {
+	            ^
+../internal/ui/renderer_test.go:58:14: expected '==', found '=' (typecheck)
+	if err := _ = os.WriteFile(tmplPath, []byte(tmplContent), 0644); err != nil {
+	            ^
+../internal/ui/renderer_test.go:97:14: expected '==', found '=' (typecheck)
+	if err := _ = os.WriteFile(tmplPath, []byte(tmplContent), 0644); err != nil {
+	            ^
+../internal/ui/renderer_test.go:147:14: expected '==', found '=' (typecheck)
+	if err := _ = os.WriteFile(tmplPath, []byte(tmplContent), 0644); err != nil {
+	            ^
+../internal/ui/renderer_test.go:238:14: expected '==', found '=' (typecheck)
+	if err := _ = os.WriteFile(badDictPath, []byte(badDictTmpl), 0644); err != nil {
+	            ^
+../internal/ui/renderer_test.go:244:14: expected '==', found '=' (typecheck)
+	if err := _ = os.WriteFile(badKeyPath, []byte(badKeyTmpl), 0644); err != nil {
+	            ^
+../internal/ui/renderer_test.go:259:5: illegal label declaration (typecheck)
+	259: 	if err2 := renderer.Render(buf, "bad_dict.html", nil, c); err2 == nil {
+	   ^
+../internal/ui/renderer_test.go:260:6: illegal label declaration (typecheck)
+		260: 		t.Error("Expected error for odd number of dict args, got nil")
+		   ^
+../internal/ui/renderer_test.go:265:6: illegal label declaration (typecheck)
+		265: 		t.Error("Expected error for non-string dict key, got nil")
+		   ^
+../internal/ui/renderer_test.go:289:5: illegal label declaration (typecheck)
+	289: 	if err4 := renderer.Render(buf, "mypartial", nil, c); err4 != nil {
+	   ^
+../internal/ui/renderer_test.go:305:8: expected '==', found '=' (typecheck)
+	_ = _ = os.WriteFile(filepath.Join(badSyntaxDir, "bad.html"), []byte(`{{ .Open `), 0644)
+	      ^
+16 issues:
+* typecheck: 16

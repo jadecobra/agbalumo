@@ -11,12 +11,12 @@ import (
 )
 
 func TestHealthzEndpoint(t *testing.T) {
-	os.Setenv("AGBALUMO_ENV", "test")
-	os.Setenv("DATABASE_URL", "@tester/test_healthz.db")
+	_ = os.Setenv("AGBALUMO_ENV", "test")
+	_ = os.Setenv("DATABASE_URL", "@tester/test_healthz.db")
 	defer func() {
-		os.Unsetenv("AGBALUMO_ENV")
-		os.Unsetenv("DATABASE_URL")
-		os.Remove("@tester/test_healthz.db")
+		_ = os.Unsetenv("AGBALUMO_ENV")
+		_ = os.Unsetenv("DATABASE_URL")
+		_ = os.Remove("@tester/test_healthz.db")
 	}()
 
 	e, err := SetupServer()
@@ -38,18 +38,18 @@ func TestSetupServer(t *testing.T) {
 	// go test ./cmd runs from project root, so template paths are already correct
 
 	// Setup Env
-	os.Setenv("AGBALUMO_ENV", "test")
-	defer os.Unsetenv("AGBALUMO_ENV")
+	_ = os.Setenv("AGBALUMO_ENV", "test")
+	defer func() { _ = os.Unsetenv("AGBALUMO_ENV") }()
 
 	// We need a dummy DB or allow it to fail?
 	// SetupServer connects to DB.
 	// If agbalumo.db exists, it works.
 	// If not, it creates it.
 	// Best to use a temp db file.
-	os.Setenv("DATABASE_URL", "@tester/test_server.db")
+	_ = os.Setenv("DATABASE_URL", "@tester/test_server.db")
 	defer func() {
-		os.Unsetenv("DATABASE_URL")
-		os.Remove("@tester/test_server.db")
+		_ = os.Unsetenv("DATABASE_URL")
+		_ = os.Remove("@tester/test_server.db")
 	}()
 
 	e, err := SetupServer()
@@ -71,14 +71,14 @@ func TestSetupServer(t *testing.T) {
 func TestServeCmd_Run(t *testing.T) {
 	// go test ./cmd runs from project root, so template paths are already correct
 
-	os.Setenv("AGBALUMO_ENV", "test")
-	os.Setenv("AGBALUMO_DRY_RUN", "true")
-	os.Setenv("DATABASE_URL", "@tester/test_serve_cmd.db") // Diff DB
+	_ = os.Setenv("AGBALUMO_ENV", "test")
+	_ = os.Setenv("AGBALUMO_DRY_RUN", "true")
+	_ = os.Setenv("DATABASE_URL", "@tester/test_serve_cmd.db") // Diff DB
 	defer func() {
-		os.Unsetenv("AGBALUMO_ENV")
-		os.Unsetenv("AGBALUMO_DRY_RUN")
-		os.Unsetenv("DATABASE_URL")
-		os.Remove("@tester/test_serve_cmd.db")
+		_ = os.Unsetenv("AGBALUMO_ENV")
+		_ = os.Unsetenv("AGBALUMO_DRY_RUN")
+		_ = os.Unsetenv("DATABASE_URL")
+		_ = os.Remove("@tester/test_serve_cmd.db")
 	}()
 
 	// Execute Run
@@ -88,16 +88,16 @@ func TestServeCmd_Run(t *testing.T) {
 
 func TestSetupServerProduction(t *testing.T) {
 	// Test SetupServer with production environment (JSON logging)
-	os.Setenv("AGBALUMO_ENV", "production")
-	os.Setenv("SESSION_SECRET", "production-secret-key")
-	os.Setenv("DATABASE_URL", "@tester/test_server_prod.db")
-	os.Setenv("ADMIN_CODE", "test-admin-code")
+	_ = os.Setenv("AGBALUMO_ENV", "production")
+	_ = os.Setenv("SESSION_SECRET", "production-secret-key")
+	_ = os.Setenv("DATABASE_URL", "@tester/test_server_prod.db")
+	_ = os.Setenv("ADMIN_CODE", "test-admin-code")
 	defer func() {
-		os.Unsetenv("AGBALUMO_ENV")
-		os.Unsetenv("SESSION_SECRET")
-		os.Unsetenv("DATABASE_URL")
-		os.Unsetenv("ADMIN_CODE")
-		os.Remove("@tester/test_server_prod.db")
+		_ = os.Unsetenv("AGBALUMO_ENV")
+		_ = os.Unsetenv("SESSION_SECRET")
+		_ = os.Unsetenv("DATABASE_URL")
+		_ = os.Unsetenv("ADMIN_CODE")
+		_ = os.Remove("@tester/test_server_prod.db")
 	}()
 
 	e, err := SetupServer()
@@ -107,16 +107,16 @@ func TestSetupServerProduction(t *testing.T) {
 
 func TestSetupBackgroundServicesProduction(t *testing.T) {
 	// Test setupBackgroundServices in production (should skip seeding)
-	os.Setenv("AGBALUMO_ENV", "production")
-	os.Setenv("SESSION_SECRET", "test-secret-key")
-	os.Setenv("DATABASE_URL", "@tester/test_bg_prod.db")
-	os.Setenv("ADMIN_CODE", "test-admin-code")
+	_ = os.Setenv("AGBALUMO_ENV", "production")
+	_ = os.Setenv("SESSION_SECRET", "test-secret-key")
+	_ = os.Setenv("DATABASE_URL", "@tester/test_bg_prod.db")
+	_ = os.Setenv("ADMIN_CODE", "test-admin-code")
 	defer func() {
-		os.Unsetenv("AGBALUMO_ENV")
-		os.Unsetenv("SESSION_SECRET")
-		os.Unsetenv("DATABASE_URL")
-		os.Unsetenv("ADMIN_CODE")
-		os.Remove("@tester/test_bg_prod.db")
+		_ = os.Unsetenv("AGBALUMO_ENV")
+		_ = os.Unsetenv("SESSION_SECRET")
+		_ = os.Unsetenv("DATABASE_URL")
+		_ = os.Unsetenv("ADMIN_CODE")
+		_ = os.Remove("@tester/test_bg_prod.db")
 	}()
 
 	e, err := SetupServer()

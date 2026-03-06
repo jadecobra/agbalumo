@@ -1,0 +1,14 @@
+../internal/repository/sqlite/feedback_test.go:1: : # github.com/jadecobra/agbalumo/internal/repository/sqlite_test [github.com/jadecobra/agbalumo/internal/repository/sqlite.test]
+internal/repository/sqlite/user_test.go:38:4: syntax error: unexpected : at end of statement
+internal/repository/sqlite/user_test.go:39:3: syntax error: unexpected : at end of statement
+internal/repository/sqlite/user_test.go:63:4: syntax error: unexpected : at end of statement
+internal/repository/sqlite/user_test.go:64:3: syntax error: unexpected : at end of statement (typecheck)
+package sqlite_test
+../internal/repository/sqlite/user_test.go:38:4: illegal label declaration (typecheck)
+	38: 	err = repo.SaveUser(ctx, user)
+	  ^
+../internal/repository/sqlite/user_test.go:63:4: illegal label declaration (typecheck)
+	62: 	err = repo.SaveUser(ctx, user)
+	  ^
+3 issues:
+* typecheck: 3

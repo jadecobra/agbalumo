@@ -63,7 +63,7 @@ func (s *LocalImageService) UploadImage(ctx context.Context, file *multipart.Fil
 	if err != nil {
 		return "", err
 	}
-	defer src.Close()
+	defer func() { _ = src.Close() }()
 
 	// 1. Validate File Content (Magic Bytes) - accept all image types
 	buff := make([]byte, 512)
@@ -90,9 +90,10 @@ func (s *LocalImageService) UploadImage(ctx context.Context, file *multipart.Fil
 	}
 
 	// 3. Ensure directory exists
-	if err := os.MkdirAll(s.UploadDir, 0755); err != nil {
-		return "", err
-	}
+err = os.MkdirAll(s.UploadDir, 0755)
+if err != nil {
+return "", err
+}
 
 	// 4. Compress and save as WebP with iterative compression to meet size target
 	filename := listingID + ".webp"
@@ -161,7 +162,7 @@ func (s *LocalImageService) UploadImage(ctx context.Context, file *multipart.Fil
 	if err != nil {
 		return "", err
 	}
-	defer dst.Close()
+	defer func() { _ = dst.Close() }()
 
 	_, err = buf.WriteTo(dst)
 	if err != nil {

@@ -56,7 +56,11 @@ func scanListing(s Scanner) (domain.Listing, error) {
 
 func scanUser(s Scanner) (domain.User, error) {
 	var u domain.User
-	err := s.Scan(&u.ID, &u.GoogleID, &u.Email, &u.Name, &u.AvatarURL, &u.Role, &u.CreatedAt)
+	var createdAt time.Time
+	err := s.Scan(&u.ID, &u.GoogleID, &u.Email, &u.Name, &u.AvatarURL, &u.Role, &createdAt)
+	if err == nil {
+		u.CreatedAt = createdAt
+	}
 	return u, err
 }
 
@@ -70,8 +74,6 @@ func NewSQLiteRepositoryFromDB(db *sql.DB) *SQLiteRepository {
 }
 
 func NewSQLiteRepository(dbPath string) (*SQLiteRepository, error) {
-	// Add query parameters for modernc/sqlite if needed, but explicit PRAGMA execution is safer
-	// to ensure settings are applied.
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		return nil, err
@@ -81,29 +83,19 @@ func NewSQLiteRepository(dbPath string) (*SQLiteRepository, error) {
 		return nil, err
 	}
 
-	// Performance & Concurrency Tuning (Critical for 100k users / Production)
-	// WAL Mode: Allows concurrent readers and one writer.
 	if _, err := db.Exec("PRAGMA journal_mode=WAL;"); err != nil {
 		return nil, err
 	}
-	// Busy Timeout: Wait 5000ms before failing with "database is locked"
 	if _, err := db.Exec("PRAGMA busy_timeout=5000;"); err != nil {
 		return nil, err
 	}
-	// Synchronous NORMAL: Faster than FULL, still safe for WAL mode (unless OS crashes)
 	if _, err := db.Exec("PRAGMA synchronous=NORMAL;"); err != nil {
 		return nil, err
 	}
-	// Foreign Keys: Ensure they are enforced (good practice)
 	if _, err := db.Exec("PRAGMA foreign_keys=ON;"); err != nil {
 		return nil, err
 	}
 
-	// Connection Pool Tuning for SQLite
-	// SQLite serializes writes regardless of connection count.
-	// MaxOpenConns=1 prevents goroutine-level write contention at the pool layer.
-	// MaxIdleConns=10 keeps connections warm for concurrent WAL reads.
-	// ConnMaxLifetime=0 means connections are reused indefinitely (correct for SQLite).
 	db.SetMaxOpenConns(1)
 	db.SetMaxIdleConns(10)
 	db.SetConnMaxLifetime(0)
@@ -117,7 +109,6 @@ func NewSQLiteRepository(dbPath string) (*SQLiteRepository, error) {
 }
 
 func (r *SQLiteRepository) migrate() error {
-	// Create Listings Table
 	createListingsTable := `
 	CREATE TABLE IF NOT EXISTS listings (
 		id TEXT PRIMARY KEY,
@@ -148,7 +139,6 @@ func (r *SQLiteRepository) migrate() error {
 		return err
 	}
 
-	// Create Users Table
 	createUsersTable := `
     CREATE TABLE IF NOT EXISTS users (
         id TEXT PRIMARY KEY,
@@ -163,7 +153,6 @@ func (r *SQLiteRepository) migrate() error {
 		return err
 	}
 
-	// Create Feedback Table
 	createFeedbackTable := `
 	CREATE TABLE IF NOT EXISTS feedback (
 		id TEXT PRIMARY KEY,
@@ -177,41 +166,30 @@ func (r *SQLiteRepository) migrate() error {
 		return err
 	}
 
-	// Migration: Add address column if missing (simple check)
-	// We ignore error if column exists (naive but works for dev SQLite)
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN address TEXT;")
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN city TEXT;")
-	// Add Hours of Operation
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN hours_of_operation TEXT DEFAULT '';")
 
-	// Add Event Columns
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN event_start DATETIME;")
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN event_end DATETIME;")
 
-	// Add Job Columns
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN skills TEXT DEFAULT '';")
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN job_start_date DATETIME;")
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN job_apply_url TEXT DEFAULT '';")
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN company TEXT DEFAULT '';")
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN pay_range TEXT DEFAULT '';")
 
-	// Add Status Column
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN status TEXT DEFAULT 'Approved';")
 
-	// Add Role Column to Users
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'User';")
 
-	// Add Featured Column
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN featured BOOLEAN DEFAULT 0;")
 
-	// Ensure google_id is unique for ON CONFLICT clause
 	_, _ = r.db.ExecContext(context.Background(), "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id);")
 
-	// P1: Add Indexes for Scalability
 	_, _ = r.db.ExecContext(context.Background(), "CREATE INDEX IF NOT EXISTS idx_listings_owner_id ON listings(owner_id);")
 	_, _ = r.db.ExecContext(context.Background(), "CREATE INDEX IF NOT EXISTS idx_listings_active_status_type ON listings(is_active, status, type);")
 
-	// P2.1: FTS5 with trigram tokenizer for substring search
 	_, _ = r.db.ExecContext(context.Background(), `
 		CREATE VIRTUAL TABLE IF NOT EXISTS listings_fts USING fts5(
 			title, description, city,
@@ -221,7 +199,6 @@ func (r *SQLiteRepository) migrate() error {
 		);
 	`)
 
-	// Triggers to keep FTS5 in sync
 	_, _ = r.db.ExecContext(context.Background(), `
 		CREATE TRIGGER IF NOT EXISTS listings_ai AFTER INSERT ON listings BEGIN
 			INSERT INTO listings_fts(rowid, title, description, city)
@@ -243,10 +220,8 @@ func (r *SQLiteRepository) migrate() error {
 		END;
 	`)
 
-	// Rebuild FTS index to pick up any existing data
 	_, _ = r.db.ExecContext(context.Background(), "INSERT INTO listings_fts(listings_fts) VALUES('rebuild');")
 
-	// Create Categories Table
 	createCategoriesTable := `
 	CREATE TABLE IF NOT EXISTS categories (
 		id TEXT PRIMARY KEY,
@@ -263,7 +238,6 @@ func (r *SQLiteRepository) migrate() error {
 		return err
 	}
 
-	// Create Claim Requests Table
 	createClaimRequestsTable := `
 	CREATE TABLE IF NOT EXISTS claim_requests (
 		id TEXT PRIMARY KEY,
@@ -280,14 +254,11 @@ func (r *SQLiteRepository) migrate() error {
 		return err
 	}
 
-	// Index for fast lookup by user/listing pair
 	_, _ = r.db.ExecContext(context.Background(), `CREATE INDEX IF NOT EXISTS idx_claim_requests_user_listing ON claim_requests(user_id, listing_id);`)
 	_, _ = r.db.ExecContext(context.Background(), `CREATE INDEX IF NOT EXISTS idx_claim_requests_status ON claim_requests(status);`)
 
-	// One-time migration to fix older categories that defaulted to active=0
 	_, err := r.db.ExecContext(context.Background(), "ALTER TABLE categories ADD COLUMN active_fixed BOOLEAN DEFAULT 0;")
 	if err == nil {
-		// If the column was just added successfully, it means we haven't run this fix yet.
 		_, _ = r.db.ExecContext(context.Background(), "UPDATE categories SET active = 1, active_fixed = 1;")
 	}
 
@@ -355,9 +326,10 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 	orderClause := "created_at DESC"
 	if sortField != "" {
 		field := "created_at"
-		if sortField == "title" {
+		switch sortField {
+		case "title":
 			field = "title"
-		} else if sortField == "status" {
+		case "status":
 			field = "status"
 		}
 
@@ -375,7 +347,7 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var listings []domain.Listing
 	for rows.Next() {
@@ -413,7 +385,7 @@ func (r *SQLiteRepository) FindByTitle(ctx context.Context, title string) ([]dom
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var listings []domain.Listing
 	for rows.Next() {
@@ -428,7 +400,6 @@ func (r *SQLiteRepository) FindByTitle(ctx context.Context, title string) ([]dom
 
 // SaveUser inserts or updates a user.
 func (r *SQLiteRepository) SaveUser(ctx context.Context, u domain.User) error {
-	// 1. Try Update by ID (Primary Key) to avoid unique constraint ambiguity
 	updateQuery := `UPDATE users SET google_id=?, email=?, name=?, avatar_url=?, role=? WHERE id=?`
 	res, err := r.db.ExecContext(ctx, updateQuery,
 		u.GoogleID, u.Email, u.Name, u.AvatarURL, u.Role, u.ID,
@@ -442,13 +413,10 @@ func (r *SQLiteRepository) SaveUser(ctx context.Context, u domain.User) error {
 		return err
 	}
 
-	// 2. If updated, we are done
 	if rows > 0 {
 		return nil
 	}
 
-	// 3. If no rows updated (New User), Insert
-	// We keep ON CONFLICT for race condition handling on creation
 	insertQuery := `
 	INSERT INTO users (id, google_id, email, name, avatar_url, role, created_at)
 	VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -499,7 +467,7 @@ func (r *SQLiteRepository) FindAllByOwner(ctx context.Context, ownerID string, l
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var listings []domain.Listing
 	for rows.Next() {
@@ -542,7 +510,7 @@ func (r *SQLiteRepository) GetCounts(ctx context.Context) (map[domain.Category]i
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	counts := make(map[domain.Category]int)
 	for rows.Next() {
@@ -562,7 +530,7 @@ func (r *SQLiteRepository) GetLocations(ctx context.Context) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var locations []string
 	for rows.Next() {
@@ -576,12 +544,10 @@ func (r *SQLiteRepository) GetLocations(ctx context.Context) ([]string, error) {
 }
 
 func (r *SQLiteRepository) ExpireListings(ctx context.Context) (int64, error) {
-	// Use Go's time to ensure driver handles serialization correctly and we control the timezone (UTC)
 	now := time.Now().UTC()
 	var totalAffected int64
 	batchSize := 100
 
-	// Expire Requests past deadline AND Events past end time
 	query := `
 		UPDATE listings 
 		SET is_active = false 
@@ -598,8 +564,6 @@ func (r *SQLiteRepository) ExpireListings(ctx context.Context) (int64, error) {
 			LIMIT ?
 		)
 	`
-	// Added Job expiration rule for consistency
-	// Passed 'now' 3 times for the 3 placeholders, plus batchSize
 
 	for {
 		result, err := r.db.ExecContext(ctx, query, now, now, now.AddDate(0, 0, -90), batchSize)
@@ -613,12 +577,10 @@ func (r *SQLiteRepository) ExpireListings(ctx context.Context) (int64, error) {
 		}
 
 		totalAffected += affected
-
 		if affected < int64(batchSize) {
 			break
 		}
 
-		// Brief sleep to allow other connections to access the database
 		time.Sleep(10 * time.Millisecond)
 	}
 
@@ -640,7 +602,7 @@ func (r *SQLiteRepository) GetAllUsers(ctx context.Context, limit int, offset in
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var users []domain.User
 	for rows.Next() {
@@ -667,7 +629,7 @@ func (r *SQLiteRepository) GetFeaturedListings(ctx context.Context) ([]domain.Li
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var listings []domain.Listing
 	for rows.Next() {
@@ -687,14 +649,13 @@ func (r *SQLiteRepository) SetFeatured(ctx context.Context, id string, featured 
 	return err
 }
 
-// GetFeedbackCounts... (existing)
 func (r *SQLiteRepository) GetFeedbackCounts(ctx context.Context) (map[domain.FeedbackType]int, error) {
 	query := `SELECT type, COUNT(*) FROM feedback GROUP BY type`
 	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	counts := make(map[domain.FeedbackType]int)
 	for rows.Next() {
@@ -708,13 +669,12 @@ func (r *SQLiteRepository) GetFeedbackCounts(ctx context.Context) (map[domain.Fe
 	return counts, rows.Err()
 }
 
-// queryDailyMetrics runs a date-grouped COUNT query and returns daily metrics.
 func (r *SQLiteRepository) queryDailyMetrics(ctx context.Context, query string) ([]domain.DailyMetric, error) {
 	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	metrics := []domain.DailyMetric{}
 	for rows.Next() {
@@ -752,8 +712,6 @@ func (r *SQLiteRepository) GetUserGrowth(ctx context.Context) ([]domain.DailyMet
 		ORDER BY day ASC
 	`)
 }
-
-// --- Categories ---
 
 // SaveCategory inserts or updates a category.
 func (r *SQLiteRepository) SaveCategory(ctx context.Context, c domain.CategoryData) error {
@@ -793,7 +751,7 @@ func (r *SQLiteRepository) GetCategories(ctx context.Context, filter domain.Cate
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var categories []domain.CategoryData
 	for rows.Next() {
@@ -815,14 +773,7 @@ func (r *SQLiteRepository) GetCategories(ctx context.Context, filter domain.Cate
 }
 
 // EnsureCoreCategories seeds the categories table with core types that must exist.
-// This handles the JSON to DB sync process.
-// Note: It avoids setting 'active' to false if an admin has manually toggled it.
-// It will only upsert foundational settings.
 func (r *SQLiteRepository) UpsertCoreCategory(ctx context.Context, c domain.CategoryData) error {
-	// Let's do a smart upsert that doesn't blindly override 'active' if it already exists,
-	// allowing admins to disable core categories if they choose to (though the system
-	// flag is retained to indicate they shouldn't delete it).
-	// But it will override name, claimable, requires_special_validation over time as upgrades happen.
 	query := `
 	INSERT INTO categories (id, name, claimable, is_system, active, requires_special_validation, created_at, updated_at)
 	VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -866,8 +817,6 @@ func (r *SQLiteRepository) GetCategory(ctx context.Context, name string) (domain
 	return c, nil
 }
 
-// --- ClaimRequest Store ---
-
 // SaveClaimRequest inserts or updates a claim request.
 func (r *SQLiteRepository) SaveClaimRequest(ctx context.Context, req domain.ClaimRequest) error {
 	query := `
@@ -894,7 +843,7 @@ func (r *SQLiteRepository) GetPendingClaimRequests(ctx context.Context) ([]domai
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var results []domain.ClaimRequest
 	for rows.Next() {
@@ -908,21 +857,18 @@ func (r *SQLiteRepository) GetPendingClaimRequests(ctx context.Context) ([]domai
 }
 
 // UpdateClaimRequestStatus updates a claim request's status.
-// If approved, also sets the listing's owner_id to the claiming user.
 func (r *SQLiteRepository) UpdateClaimRequestStatus(ctx context.Context, id string, status domain.ClaimStatus) error {
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
-	// Update the claim request status
 	_, err = tx.ExecContext(ctx, `UPDATE claim_requests SET status = ? WHERE id = ?`, status, id)
 	if err != nil {
 		return err
 	}
 
-	// If approved, transfer ownership of the listing
 	if status == domain.ClaimStatusApproved {
 		_, err = tx.ExecContext(ctx, `
 			UPDATE listings SET owner_id = (

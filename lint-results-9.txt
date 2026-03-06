@@ -1,0 +1,15 @@
+../internal/handler/admin.go:1: : # github.com/jadecobra/agbalumo/internal/handler [github.com/jadecobra/agbalumo/internal/handler.test]
+internal/handler/listing.go:460:26: method ListingHandler.HandleAbout already declared at internal/handler/listing.go:207:26
+internal/handler/listing.go:466:26: method ListingHandler.HandleClaim already declared at internal/handler/listing.go:215:26
+internal/handler/admin_test.go:451:6: assignment mismatch: 1 variable but part.Write returns 2 values
+internal/handler/admin_test.go:517:6: assignment mismatch: 1 variable but part.Write returns 2 values
+internal/handler/admin_test.go:551:6: assignment mismatch: 1 variable but part.Write returns 2 values
+internal/handler/auth_internal_test.go:101:22: json.NewEncoder(w)._ undefined (type *json.Encoder has no field or method _)
+internal/handler/auth_internal_test.go:101:26: undefined: Encode
+internal/handler/auth_internal_test.go:103:21: server.Close() (no value) used as value
+internal/handler/auth_internal_test.go:124:7: assignment mismatch: 1 variable but fmt.Fprint returns 2 values
+internal/handler/auth_internal_test.go:126:21: server.Close() (no value) used as value
+internal/handler/auth_internal_test.go:126:21: too many errors (typecheck)
+package handler
+1 issues:
+* typecheck: 1

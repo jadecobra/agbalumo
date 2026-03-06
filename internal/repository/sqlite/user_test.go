@@ -16,7 +16,7 @@ func TestUserOperations(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Remove(tmpFile.Name())
+	defer func() { _ = os.Remove(tmpFile.Name()) }()
 
 	repo, err := sqlite.NewSQLiteRepository(tmpFile.Name())
 	if err != nil {
@@ -35,7 +35,8 @@ func TestUserOperations(t *testing.T) {
 		CreatedAt: time.Now(),
 	}
 
-	if err := repo.SaveUser(ctx, user); err != nil {
+err = repo.SaveUser(ctx, user)
+if err != nil {
 		t.Fatalf("SaveUser failed: %v", err)
 	}
 
@@ -59,7 +60,8 @@ func TestUserOperations(t *testing.T) {
 
 	// Update User
 	user.Name = "Updated Name"
-	if err := repo.SaveUser(ctx, user); err != nil {
+err = repo.SaveUser(ctx, user)
+if err != nil {
 		t.Fatalf("SaveUser (update) failed: %v", err)
 	}
 
@@ -75,7 +77,7 @@ func TestUserOperations(t *testing.T) {
 func TestFindUser_NotFound(t *testing.T) {
 	// Setup
 	tmpFile, _ := os.CreateTemp("", "test_nf.db")
-	defer os.Remove(tmpFile.Name())
+	defer func() { _ = os.Remove(tmpFile.Name()) }()
 	repo, _ := sqlite.NewSQLiteRepository(tmpFile.Name())
 	ctx := context.Background()
 

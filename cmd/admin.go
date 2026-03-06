@@ -11,10 +11,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	flagStatus string
-	flagAction string
-)
 
 var adminCmd = &cobra.Command{
 	Use:   "admin",

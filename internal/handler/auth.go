@@ -89,7 +89,7 @@ func (p *RealGoogleProvider) GetUserInfo(ctx context.Context, token *oauth2.Toke
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("failed to fetch user info: %s", resp.Status)
@@ -237,7 +237,7 @@ func (h *AuthHandler) Logout(c echo.Context) error {
 	sess := customMiddleware.GetSession(c)
 	if sess != nil {
 		sess.Options.MaxAge = -1
-		sess.Save(c.Request(), c.Response())
+		_ = sess.Save(c.Request(), c.Response())
 	}
 	return c.Redirect(http.StatusTemporaryRedirect, "/")
 }

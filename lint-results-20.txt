@@ -1,0 +1,82 @@
+../cmd/listing_integration_test.go:18:12: Error return value of `os.Remove` is not checked (errcheck)
+		os.Remove(tempDB)
+		         ^
+../cmd/listing_integration_test.go:19:12: Error return value of `os.Remove` is not checked (errcheck)
+		os.Remove(tempDB + "-shm")
+		         ^
+../cmd/listing_integration_test.go:20:12: Error return value of `os.Remove` is not checked (errcheck)
+		os.Remove(tempDB + "-wal")
+		         ^
+../cmd/server_test.go:19:12: Error return value of `os.Remove` is not checked (errcheck)
+		os.Remove("@tester/test_healthz.db")
+		         ^
+../cmd/server_test.go:52:12: Error return value of `os.Remove` is not checked (errcheck)
+		os.Remove("@tester/test_server.db")
+		         ^
+../cmd/server_test.go:81:12: Error return value of `os.Remove` is not checked (errcheck)
+		os.Remove("@tester/test_serve_cmd.db")
+		         ^
+../cmd/server_test.go:100:12: Error return value of `os.Remove` is not checked (errcheck)
+		os.Remove("@tester/test_server_prod.db")
+		         ^
+../cmd/server_test.go:119:12: Error return value of `os.Remove` is not checked (errcheck)
+		os.Remove("@tester/test_bg_prod.db")
+		         ^
+../cmd/server_ui_test.go:30:10: Error return value of `os.Chdir` is not checked (errcheck)
+	os.Chdir("..")
+	        ^
+../internal/handler/cache_busting_test.go:42:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("title", "Cache Busting Test")
+	                 ^
+../internal/handler/cache_busting_test.go:43:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("type", "Business")
+	                 ^
+../internal/handler/cache_busting_test.go:44:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("owner_origin", "Nigeria")
+	                 ^
+../internal/handler/cache_busting_test.go:45:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("description", "Desc")
+	                 ^
+../internal/handler/cache_busting_test.go:46:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("contact_email", "test@test.com")
+	                 ^
+../internal/handler/cache_busting_test.go:47:19: Error return value of `writer.WriteField` is not checked (errcheck)
+	writer.WriteField("address", "123 Test St")
+	                 ^
+../internal/handler/cache_busting_test.go:49:12: Error return value of `part.Write` is not checked (errcheck)
+	part.Write([]byte("fake image content"))
+	          ^
+../internal/handler/cache_busting_test.go:50:14: Error return value of `writer.Close` is not checked (errcheck)
+	writer.Close()
+	            ^
+../internal/handler/integration_ds_test.go:102:18: Error return value of `h.HandleCreate` is not checked (errcheck)
+			h.HandleCreate(c)
+			              ^
+../internal/middleware/ratelimit_test.go:107:4: Error return value is not checked (errcheck)
+		h(c)
+		 ^
+../internal/middleware/ratelimit_test.go:123:5: Error return value is not checked (errcheck)
+			h(c)
+			 ^
+../internal/seeder/category_seeder_test.go:95:31: Error return value of `seeder.EnsureCategoriesSeeded` is not checked (errcheck)
+	seeder.EnsureCategoriesSeeded(ctx, repo, configPath)
+	                             ^
+../internal/seeder/category_seeder_test.go:96:31: Error return value of `seeder.EnsureCategoriesSeeded` is not checked (errcheck)
+	seeder.EnsureCategoriesSeeded(ctx, repo, configPath)
+	                             ^
+../internal/ui/renderer_test.go:259:5: shadow: declaration of "err" shadows declaration at line 249 (govet)
+	if err := renderer.Render(buf, "bad_dict.html", nil, c); err == nil {
+	   ^
+../internal/ui/renderer_test.go:264:5: shadow: declaration of "err" shadows declaration at line 249 (govet)
+	if err := renderer.Render(buf, "bad_key.html", nil, c); err == nil {
+	   ^
+../internal/ui/renderer_test.go:289:5: shadow: declaration of "err" shadows declaration at line 249 (govet)
+	if err := renderer.Render(buf, "mypartial", nil, c); err != nil {
+	   ^
+../cmd/server_ui_test.go:320:2: SA4006: this value of body is never used (staticcheck)
+	body = rec.Body.String()
+	^
+26 issues:
+* errcheck: 22
+* govet: 3
+* staticcheck: 1

@@ -53,7 +53,7 @@ var serveCmd = &cobra.Command{
 	Short: "Start the agbalumo web server",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Load .env file
-		godotenv.Load(".env")
+_ = godotenv.Load(".env")
 		if err := godotenv.Load("../scripts/agbalumo/.env"); err != nil {
 			slog.Warn("Could not load ../scripts/agbalumo/.env", "error", err)
 		}

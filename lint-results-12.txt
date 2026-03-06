@@ -1,0 +1,38 @@
+../internal/service/image_test.go:1: : # github.com/jadecobra/agbalumo/internal/service_test [github.com/jadecobra/agbalumo/internal/service.test]
+internal/service/image_test.go:101:45: syntax error: unexpected }, expected expression (typecheck)
+package service_test
+../internal/service/image_test.go:101:45: expected operand, found '}' (typecheck)
+	defer func() { _ = os.Remove(tmpfile.Name( }())
+	                                           ^
+../internal/service/image_test.go:144:2: missing ',' in argument list (typecheck)
+	var buf bytes.Buffer
+	^
+../internal/service/image_test.go:149:2: missing ',' in argument list (typecheck)
+	return buf.Bytes()
+	^
+../internal/service/image_test.go:150:1: expected operand, found '}' (typecheck)
+}
+^
+../internal/service/image_test.go:255:2: missing ',' in argument list (typecheck)
+	var originalBuf bytes.Buffer
+	^
+../internal/service/image_test.go:270:2: missing ',' in argument list (typecheck)
+	var pngBuf bytes.Buffer
+	^
+../internal/service/image_test.go:292:2: missing ',' in argument list (typecheck)
+	for y := 0; y < 100; y++ {
+	^
+../internal/service/image_test.go:293:3: missing ',' in argument list (typecheck)
+		for x := 0; x < 100; x++ {
+		^
+../internal/service/image_test.go:298:2: missing ',' in argument list (typecheck)
+	var imgBuf bytes.Buffer
+	^
+../internal/service/image_test.go:405:2: missing ',' in argument list (typecheck)
+	var pngBuf bytes.Buffer
+	^
+../internal/service/image_test.go:410:3: missing ',' in argument list (typecheck)
+}
+ ^
+12 issues:
+* typecheck: 12

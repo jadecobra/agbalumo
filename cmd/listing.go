@@ -343,7 +343,7 @@ func init() {
 	listingUpdateCmd.Flags().StringVar(&flagCompany, "company", "", "New company")
 	listingUpdateCmd.Flags().StringVar(&flagPayRange, "pay-range", "", "New pay range")
 
-	listingCreateCmd.MarkFlagRequired("title")
+_ = listingCreateCmd.MarkFlagRequired("title")
 }
 
 func initRepo() *sqlite.SQLiteRepository {

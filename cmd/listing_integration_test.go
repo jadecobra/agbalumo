@@ -12,12 +12,12 @@ import (
 func TestListingCLI_ImageFlags(t *testing.T) {
 	// Use a temporary database for integration tests
 	tempDB := "test_cli_images.db"
-	os.Setenv("DATABASE_URL", tempDB)
+	_ = os.Setenv("DATABASE_URL", tempDB)
 	defer func() {
-		os.Unsetenv("DATABASE_URL")
-		os.Remove(tempDB)
-		os.Remove(tempDB + "-shm")
-		os.Remove(tempDB + "-wal")
+		_ = os.Unsetenv("DATABASE_URL")
+		_ = os.Remove(tempDB)
+		_ = os.Remove(tempDB + "-shm")
+		_ = os.Remove(tempDB + "-wal")
 	}()
 
 	repo := initRepo()

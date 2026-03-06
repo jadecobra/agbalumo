@@ -12,7 +12,7 @@ func TestLoadConfig(t *testing.T) {
 	// Clean env before testing
 	keys := []string{"AGBALUMO_ENV", "DATABASE_URL", "SESSION_SECRET", "ADMIN_CODE", "DEV_AUTH_EMAIL", "RATE_LIMIT_RATE", "RATE_LIMIT_BURST"}
 	for _, k := range keys {
-		os.Unsetenv(k)
+		_ = os.Unsetenv(k)
 	}
 
 	t.Run("defaults", func(t *testing.T) {
@@ -27,16 +27,16 @@ func TestLoadConfig(t *testing.T) {
 	})
 
 	t.Run("overrides", func(t *testing.T) {
-		os.Setenv("AGBALUMO_ENV", "production")
-		os.Setenv("DATABASE_URL", "prod.db")
-		os.Setenv("SESSION_SECRET", "super-secret")
-		os.Setenv("ADMIN_CODE", "admin123")
-		os.Setenv("DEV_AUTH_EMAIL", "test@example.com")
-		os.Setenv("RATE_LIMIT_RATE", "50")
-		os.Setenv("RATE_LIMIT_BURST", "100")
+		_ = os.Setenv("AGBALUMO_ENV", "production")
+		_ = os.Setenv("DATABASE_URL", "prod.db")
+		_ = os.Setenv("SESSION_SECRET", "super-secret")
+		_ = os.Setenv("ADMIN_CODE", "admin123")
+		_ = os.Setenv("DEV_AUTH_EMAIL", "test@example.com")
+		_ = os.Setenv("RATE_LIMIT_RATE", "50")
+		_ = os.Setenv("RATE_LIMIT_BURST", "100")
 		defer func() {
 			for _, k := range keys {
-				os.Unsetenv(k)
+				_ = os.Unsetenv(k)
 			}
 		}()
 
@@ -51,8 +51,8 @@ func TestLoadConfig(t *testing.T) {
 	})
 
 	t.Run("invalid int fallback", func(t *testing.T) {
-		os.Setenv("RATE_LIMIT_RATE", "abc")
-		defer os.Unsetenv("RATE_LIMIT_RATE")
+		_ = os.Setenv("RATE_LIMIT_RATE", "abc")
+		defer func() { _ = os.Unsetenv("RATE_LIMIT_RATE") }()
 
 		cfg := config.LoadConfig()
 		require.Equal(t, 20, cfg.RateLimitRate) // Default fallback

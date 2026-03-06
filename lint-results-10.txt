@@ -1,0 +1,51 @@
+../cmd/cli_json_test.go:17:53: missing ',' in argument list (typecheck)
+	defer func() { _ = os.Remove("@tester/cli_test.db" }()
+	                                                   ^
+../cmd/cli_json_test.go:25:3: expected ')', found 'if' (typecheck)
+		if err := rootCmd.Execute(); err != nil {
+		^
+../cmd/cli_json_test.go:31:3: missing ',' in argument list (typecheck)
+		if !strings.Contains(output, "[]") {
+		^
+../cmd/cli_json_test.go:32:63: missing ',' before newline in argument list (typecheck)
+			t.Errorf("Expected output to contain '[]', got %q", output)
+			                                                           ^
+../cmd/cli_json_test.go:33:3: expected operand, found '}' (typecheck)
+		}
+		^
+../cmd/cli_json_test.go:42:3: missing ',' in argument list (typecheck)
+		if err := rootCmd.Execute(); err != nil {
+		^
+../cmd/cli_json_test.go:43:39: missing ',' before newline in composite literal (typecheck)
+			t.Fatalf("Execute failed: %v", err)
+			                                   ^
+../cmd/cli_json_test.go:44:4: missing ',' before newline in argument list (typecheck)
+		}
+		 ^
+../cmd/cli_json_test.go:46:10: missing ',' in argument list (typecheck)
+		output := buf.String()
+		       ^
+../cmd/cli_json_test.go:48:9: missing ',' in argument list (typecheck)
+		start := strings.IndexAny(output, "[{")
+		      ^
+../cmd/cli_json_test.go:49:3: expected operand, found 'if' (typecheck)
+		if start == -1 {
+		^
+../cmd/listing.go:346:5: illegal label declaration (typecheck)
+	346: 	_ = listingCreateCmd.MarkFlagRequired("title")
+	   ^
+../cmd/serve.go:56:5: illegal label declaration (typecheck)
+		56: 		_ = godotenv.Load(".env")
+		  ^
+../cmd/server.go:40:4: illegal label declaration (typecheck)
+	40: 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{}))
+	  ^
+../internal/handler/admin.go:1: : # github.com/jadecobra/agbalumo/internal/handler [github.com/jadecobra/agbalumo/internal/handler.test]
+internal/handler/listing.go:453:26: method ListingHandler.HandleAbout already declared at internal/handler/listing.go:204:26
+internal/handler/listing.go:459:26: method ListingHandler.HandleClaim already declared at internal/handler/listing.go:211:26
+internal/handler/admin_test.go:451:12: assignment mismatch: 3 variables but part.Write returns 2 values
+internal/handler/admin_test.go:517:12: assignment mismatch: 3 variables but part.Write returns 2 values
+internal/handler/admin_test.go:551:12: assignment mismatch: 3 variables but part.Write returns 2 values (typecheck)
+package handler
+15 issues:
+* typecheck: 15

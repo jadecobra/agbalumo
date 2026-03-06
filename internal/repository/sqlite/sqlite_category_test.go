@@ -169,7 +169,8 @@ func TestUpsertCoreCategory(t *testing.T) {
 	// Upsert again with updated name - should NOT override active
 	core.Name = "Job Posting"
 	core.Active = false // admin disabled it
-	if err := repo.UpsertCoreCategory(ctx, core); err != nil {
+	err = repo.UpsertCoreCategory(ctx, core)
+	if err != nil {
 		t.Fatalf("UpsertCoreCategory update failed: %v", err)
 	}
 
@@ -192,7 +193,7 @@ func TestCategoryErrors(t *testing.T) {
 		t.Fatalf("Failed to open db: %v", err)
 	}
 	repo := sqlite.NewSQLiteRepositoryFromDB(db)
-	db.Close()
+	_ = db.Close()
 	ctx := context.Background()
 
 	checkError := func(name string, err error) {
@@ -216,7 +217,7 @@ func TestGetLocations(t *testing.T) {
 	ctx := context.Background()
 
 	// Seed listings with cities
-	repo.SaveCategory(ctx, domain.CategoryData{ID: "bus", Name: "Business", Active: true})
+	_ = repo.SaveCategory(ctx, domain.CategoryData{ID: "bus", Name: "Business", Active: true})
 	listings := []domain.Listing{
 		{ID: "1", Title: "Place A", City: "Houston", Type: "Business", IsActive: true},
 		{ID: "2", Title: "Place B", City: "Dallas", Type: "Business", IsActive: true},

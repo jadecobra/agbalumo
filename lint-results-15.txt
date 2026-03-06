@@ -1,0 +1,13 @@
+../internal/handler/admin_ui_test.go:1: : # github.com/jadecobra/agbalumo/internal/handler_test [github.com/jadecobra/agbalumo/internal/handler.test]
+internal/handler/listing_test.go:516:50: not enough arguments in call to setupTestContext
+	have (string, string)
+	want (string, string, io.Reader)
+internal/handler/ui_regression_test.go:107:25: undefined: ctx
+internal/handler/ui_regression_test.go:111:27: undefined: ctx
+internal/handler/ui_regression_test.go:112:30: undefined: ctx
+internal/handler/ui_regression_test.go:113:37: undefined: ctx
+internal/handler/ui_regression_test.go:121:2: undefined: assert
+internal/handler/ui_regression_test.go:122:2: undefined: assert (typecheck)
+package handler_test
+1 issues:
+* typecheck: 1

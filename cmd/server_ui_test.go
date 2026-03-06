@@ -18,16 +18,16 @@ import (
 var e *echo.Echo
 
 func TestMain(m *testing.M) {
-	os.Setenv("AGBALUMO_ENV", "development")
+	_ = os.Setenv("AGBALUMO_ENV", "development")
 	// Keep ENV=test for test compatibility but set high rate limits to avoid 429 in tests
-	os.Setenv("RATE_LIMIT_RATE", "10000")
-	os.Setenv("RATE_LIMIT_BURST", "20000")
-	os.Setenv("DATABASE_URL", "file:test_ui.db?mode=memory&cache=shared")
+	_ = os.Setenv("RATE_LIMIT_RATE", "10000")
+	_ = os.Setenv("RATE_LIMIT_BURST", "20000")
+	_ = os.Setenv("DATABASE_URL", "file:test_ui.db?mode=memory&cache=shared")
 	// SetupServer handles seeding as long as ENV != "production"
 	var err error
 
 	// We need to change to the project root directory so template paths work
-	os.Chdir("..")
+	_ = os.Chdir("..")
 
 	e, err = cmd.SetupServer()
 	if err != nil {
@@ -317,12 +317,6 @@ func TestAdminRoutes(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 
 	// Ensure we have a valid CSRF token in dashboard to use for POST requests
-	body = rec.Body.String()
-	idx = strings.Index(body, "_csrf")
-	if idx != -1 {
-		// just re-parse it loosely or we can just keep the old one, since the session hasn't regenerated CSRF.
-		// Wait, the CSRF middleware usually keeps the same token for the cookie session.
-	}
 
 	// 4. User Management
 	req = httptest.NewRequest(http.MethodGet, "/admin/users", nil)
@@ -342,7 +336,6 @@ func TestAdminRoutes(t *testing.T) {
 	// Extracting an ID from /admin/listings might work, but it might be empty if not seeded yet.
 	// Oh wait, seeder runs! We can just grab the first listing from /admin/listings.
 	body = rec.Body.String()
-	idx = strings.Index(body, "<th>")
 	// If it has listings, let's find `hx-post="/admin/listings/`
 	idx = strings.Index(body, "hx-post=\"/admin/listings/")
 	if idx != -1 {

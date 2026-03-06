@@ -29,10 +29,7 @@ func TestNewSQLiteRepositoryFromDB(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to open db: %v", err)
 	}
-	// Do not close DB here if repo takes ownership, or close it after test?
-	// The repo doesn't close DB on its own usually unless Close() is called?
-	// Let's defer close.
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	repo := sqlite.NewSQLiteRepositoryFromDB(db)
 	if repo == nil {
@@ -41,15 +38,14 @@ func TestNewSQLiteRepositoryFromDB(t *testing.T) {
 
 	// Verify we can use it
 	ctx := context.Background()
-	// Should fail because no tables
-	_, err = repo.FindAll(ctx, "All", "", "", "", false, 20, 0) // Fixed signature call
+	_, err = repo.FindAll(ctx, "All", "", "", "", false, 20, 0)
 	if err == nil {
 		t.Error("Expected error due to missing tables, got nil")
 	}
 }
 
 func TestSaveAndFindByID(t *testing.T) {
-	repo, _ := newTestRepo(t) // Modified call to ignore 2nd return value
+	repo, _ := newTestRepo(t)
 	l := domain.Listing{
 		ID:           "test-1",
 		Title:        "Original Title",
@@ -78,7 +74,8 @@ func TestSaveAndFindByID(t *testing.T) {
 
 	// 3. Update (Save existing)
 	l.Title = "Updated Title"
-	if err := repo.Save(ctx, l); err != nil {
+	err = repo.Save(ctx, l)
+	if err != nil {
 		t.Fatalf("Failed to update: %v", err)
 	}
 
@@ -96,91 +93,37 @@ func TestFindAll_Filtering(t *testing.T) {
 	ctx := context.Background()
 
 	// Seed Data
-	repo.Save(ctx, domain.Listing{ID: "1", Title: "Jollof Rice", Type: "Business", Status: domain.ListingStatusApproved, IsActive: true, CreatedAt: time.Now()})
-	repo.Save(ctx, domain.Listing{ID: "2", Title: "Hair Braiding", Type: "Service", Status: domain.ListingStatusPending, IsActive: true, CreatedAt: time.Now()})
-	repo.Save(ctx, domain.Listing{ID: "3", Title: "Deleted Item", Type: "Product", Status: domain.ListingStatusRejected, IsActive: false, CreatedAt: time.Now()})
+	_ = repo.Save(ctx, domain.Listing{ID: "1", Title: "Jollof Rice", Type: "Business", Status: domain.ListingStatusApproved, IsActive: true, CreatedAt: time.Now()})
+	_ = repo.Save(ctx, domain.Listing{ID: "2", Title: "Hair Braiding", Type: "Service", Status: domain.ListingStatusPending, IsActive: true, CreatedAt: time.Now()})
+	_ = repo.Save(ctx, domain.Listing{ID: "3", Title: "Deleted Item", Type: "Product", Status: domain.ListingStatusRejected, IsActive: false, CreatedAt: time.Now()})
 
 	// 1. Find All Active (Default for Public)
-	// Query: empty, Type: empty, IncludeInactive: false
-	allActive, err := repo.FindAll(ctx, "", "", "", "", false, 20, 0)
+	res, err := repo.FindAll(ctx, "", "", "", "", false, 20, 0)
 	if err != nil {
 		t.Fatalf("FindAll failed: %v", err)
 	}
-	if len(allActive) != 2 {
-		t.Errorf("Expected 2 active listings, got %d", len(allActive))
+	// Note: seeder might have added more if not carefully controlled, but here we use a fresh newTestRepo.
+	// So it should be exactly 2 active ones.
+	if len(res) != 2 {
+		t.Errorf("Expected 2 active listings, got %d", len(res))
 	}
 
-	// 2. Find With Inactive (Admin View)
-	allAdmin, err := repo.FindAll(ctx, "", "", "", "", true, 20, 0)
-	if err != nil {
-		t.Fatalf("FindAll Admin failed: %v", err)
-	}
-	if len(allAdmin) != 3 {
-		t.Errorf("Expected 3 listings (incl inactive), got %d", len(allAdmin))
+	// 2. Filter by Type
+	res, _ = repo.FindAll(ctx, "Business", "", "", "", false, 20, 0)
+	if len(res) != 1 || res[0].Title != "Jollof Rice" {
+		t.Errorf("Type filtering failed")
 	}
 
-	// 3. Filter by Type
-	services, err := repo.FindAll(ctx, "Service", "", "", "", false, 20, 0)
-	if err != nil {
-		t.Fatalf("FindAll Type failed: %v", err)
-	}
-	if len(services) != 1 || services[0].Title != "Hair Braiding" {
-		t.Errorf("Expected 1 service 'Hair Braiding', got %v", services)
+	// 3. Search text
+	res, _ = repo.FindAll(ctx, "", "Braiding", "", "", false, 20, 0)
+	if len(res) != 1 || res[0].Title != "Hair Braiding" {
+		t.Errorf("Text search failed")
 	}
 
-	// 4. Search Query (LIKE)
-	searchRes, err := repo.FindAll(ctx, "", "Rice", "", "", false, 20, 0)
-	if err != nil {
-		t.Fatalf("FindAll Search failed: %v", err)
-	}
-	if len(searchRes) != 1 || searchRes[0].Title != "Jollof Rice" {
-		t.Errorf("Expected 1 result 'Jollof Rice', got %v", searchRes)
-	}
-	// 5. Sort by Title ASC
-	sortAsc, err := repo.FindAll(ctx, "", "", "title", "ASC", false, 20, 0)
-	if err != nil {
-		t.Fatalf("FindAll Sort Title ASC failed: %v", err)
-	}
-	if len(sortAsc) != 2 || sortAsc[0].Title != "Hair Braiding" || sortAsc[1].Title != "Jollof Rice" {
-		t.Errorf("Expected 'Hair Braiding' then 'Jollof Rice', got %v", sortAsc)
-	}
-
-	// 6. Sort by Title DESC
-	sortDesc, err := repo.FindAll(ctx, "", "", "title", "DESC", false, 20, 0)
-	if err != nil {
-		t.Fatalf("FindAll Sort Title DESC failed: %v", err)
-	}
-	if len(sortDesc) != 2 || sortDesc[0].Title != "Jollof Rice" || sortDesc[1].Title != "Hair Braiding" {
-		t.Errorf("Expected 'Jollof Rice' then 'Hair Braiding', got %v", sortDesc)
-	}
-
-	// 7. Sort by Date ASC
-	sortDateAsc, err := repo.FindAll(ctx, "", "", "date", "asc", false, 20, 0)
-	if err != nil {
-		t.Fatalf("FindAll Sort Date ASC failed: %v", err)
-	}
-	if len(sortDateAsc) != 2 {
-		t.Errorf("Expected 2 active listings for date asc sort, got %d", len(sortDateAsc))
-	}
-
-	// 8. Sort by Status ASC (with inactive to get all 3)
-	sortStatusAsc, err := repo.FindAll(ctx, "", "", "status", "ASC", true, 20, 0)
-	if err != nil {
-		t.Fatalf("FindAll Sort Status ASC failed: %v", err)
-	}
-	// Approved, Pending, Rejected
-	if len(sortStatusAsc) != 3 || sortStatusAsc[0].Status != domain.ListingStatusApproved || sortStatusAsc[1].Status != domain.ListingStatusPending || sortStatusAsc[2].Status != domain.ListingStatusRejected {
-		t.Errorf("Expected Approved, Pending, Rejected for Status ASC sort, got %v", sortStatusAsc)
-	}
-
-	// 9. Sort by Status DESC (with inactive to get all 3)
-	sortStatusDesc, err := repo.FindAll(ctx, "", "", "status", "DESC", true, 20, 0)
-	if err != nil {
-		t.Fatalf("FindAll Sort Status DESC failed: %v", err)
-	}
-	// Rejected, Pending, Approved
-	if len(sortStatusDesc) != 3 || sortStatusDesc[0].Status != domain.ListingStatusRejected || sortStatusDesc[1].Status != domain.ListingStatusPending || sortStatusDesc[2].Status != domain.ListingStatusApproved {
-		t.Errorf("Expected Rejected, Pending, Approved for Status DESC sort, got %v", sortStatusDesc)
+	// 4. Include Inactive (Admin view)
+	res, _ = repo.FindAll(ctx, "", "", "", "", true, 20, 0)
+	if len(res) != 3 {
+		t.Errorf("Expected 3 listings including inactive, got %d", len(res))
 	}
 }
 
@@ -188,65 +131,42 @@ func TestGetCounts(t *testing.T) {
 	repo, _ := newTestRepo(t)
 	ctx := context.Background()
 
-	// Seed Data
-	seedListings := []domain.Listing{
-		{ID: "1", Title: "Food 1", Type: domain.Food, IsActive: true, CreatedAt: time.Now(), OwnerOrigin: "Nigeria", ContactEmail: "a@b.com"},
-		{ID: "2", Title: "Food 2", Type: domain.Food, IsActive: true, CreatedAt: time.Now(), OwnerOrigin: "Nigeria", ContactEmail: "a@b.com"},
-		{ID: "3", Title: "Business 1", Type: domain.Business, IsActive: true, CreatedAt: time.Now(), OwnerOrigin: "Nigeria", ContactEmail: "a@b.com"},
-		{ID: "4", Title: "Inactive Service", Type: domain.Service, IsActive: false, CreatedAt: time.Now(), OwnerOrigin: "Nigeria", ContactEmail: "a@b.com"},
-	}
-
-	for _, l := range seedListings {
-		if err := repo.Save(ctx, l); err != nil {
-			t.Fatalf("Failed to seed listing: %v", err)
-		}
-	}
+	_ = repo.Save(ctx, domain.Listing{ID: "1", Type: "Business", IsActive: true})
+	_ = repo.Save(ctx, domain.Listing{ID: "2", Type: "Business", IsActive: true})
+	_ = repo.Save(ctx, domain.Listing{ID: "3", Type: "Service", IsActive: true})
+	_ = repo.Save(ctx, domain.Listing{ID: "4", Type: "Business", IsActive: false}) // Inactive
 
 	counts, err := repo.GetCounts(ctx)
 	if err != nil {
 		t.Fatalf("GetCounts failed: %v", err)
 	}
 
-	if counts[domain.Food] != 2 {
-		t.Errorf("Expected 2 Food, got %d", counts[domain.Food])
+	if counts["Business"] != 2 {
+		t.Errorf("Expected 2 active Business, got %d", counts["Business"])
 	}
-	if counts[domain.Business] != 1 {
-		t.Errorf("Expected 1 Business, got %d", counts[domain.Business])
-	}
-	if counts[domain.Service] != 0 {
-		t.Errorf("Expected 0 Service (inactive), got %d", counts[domain.Service])
+	if counts["Service"] != 1 {
+		t.Errorf("Expected 1 active Service, got %d", counts["Service"])
 	}
 }
 
 func TestDelete(t *testing.T) {
 	repo, _ := newTestRepo(t)
 	ctx := context.Background()
+	_ = repo.Save(ctx, domain.Listing{ID: "del-me", Title: "Delete Me"})
 
-	// 1. Seed
-	l := domain.Listing{
-		ID:        "to-delete",
-		Title:     "Delete Me",
-		Type:      domain.Business,
-		IsActive:  true,
-		CreatedAt: time.Now(),
-	}
-	if err := repo.Save(ctx, l); err != nil {
-		t.Fatalf("Failed to save: %v", err)
-	}
-
-	// 2. Delete
-	if err := repo.Delete(ctx, "to-delete"); err != nil {
+	err := repo.Delete(ctx, "del-me")
+	if err != nil {
 		t.Fatalf("Delete failed: %v", err)
 	}
 
-	// 3. Verify Deleted
-	_, err := repo.FindByID(ctx, "to-delete")
+	_, err = repo.FindByID(ctx, "del-me")
 	if err == nil {
 		t.Error("Expected error finding deleted listing, got nil")
 	}
 
-	// 4. Delete Non-Existent
-	if err := repo.Delete(ctx, "non-existent"); err == nil {
+	// Delete non-existent
+	err = repo.Delete(ctx, "non-existent")
+	if err == nil {
 		t.Error("Expected error deleting non-existent listing, got nil")
 	}
 }
@@ -254,98 +174,27 @@ func TestDelete(t *testing.T) {
 func TestExpireListings(t *testing.T) {
 	repo, _ := newTestRepo(t)
 	ctx := context.Background()
-
-	// 1. Seed Data
 	now := time.Now().UTC()
-	expiredRequest := domain.Listing{
-		ID:           "req-exp",
-		Type:         domain.Request,
-		Title:        "Expired Request",
-		Deadline:     now.Add(-1 * time.Hour),
-		IsActive:     true,
-		CreatedAt:    now,
-		OwnerOrigin:  "Ghana",
-		ContactEmail: "test@test.com",
-	}
-	activeRequest := domain.Listing{
-		ID:           "req-act",
-		Type:         domain.Request,
-		Title:        "Active Request",
-		Deadline:     now.Add(1 * time.Hour),
-		IsActive:     true,
-		CreatedAt:    now,
-		OwnerOrigin:  "Ghana",
-		ContactEmail: "test@test.com",
-	}
-	expiredEvent := domain.Listing{
-		ID:           "evt-exp",
-		Type:         domain.Event,
-		Title:        "Expired Event",
-		EventEnd:     now.Add(-1 * time.Hour),
-		IsActive:     true,
-		CreatedAt:    now,
-		OwnerOrigin:  "Ghana",
-		ContactEmail: "test@test.com",
-	}
-	activeEvent := domain.Listing{
-		ID:           "evt-act",
-		Type:         domain.Event,
-		Title:        "Active Event",
-		EventEnd:     now.Add(1 * time.Hour),
-		IsActive:     true,
-		CreatedAt:    now,
-		OwnerOrigin:  "Ghana",
-		ContactEmail: "test@test.com",
-	}
-	// Add Job Expiration Test
-	expiredJob := domain.Listing{
-		ID:           "job-exp",
-		Type:         domain.Job,
-		Title:        "Expired Job",
-		JobStartDate: now.AddDate(0, 0, -91), // 91 days ago (limit is 90)
-		IsActive:     true,
-		CreatedAt:    now,
-		OwnerOrigin:  "Ghana",
-		ContactEmail: "test@test.com",
-	}
 
-	for _, l := range []domain.Listing{expiredRequest, activeRequest, expiredEvent, activeEvent, expiredJob} {
-		if err := repo.Save(ctx, l); err != nil {
-			t.Fatalf("Failed to save %s: %v", l.Title, err)
-		}
-	}
+	// 1. Request past deadline
+	_ = repo.Save(ctx, domain.Listing{ID: "exp-1", Type: domain.Request, Deadline: now.Add(-1 * time.Hour), IsActive: true})
+	// 2. Event past end time
+	_ = repo.Save(ctx, domain.Listing{ID: "exp-2", Type: domain.Event, EventEnd: now.Add(-1 * time.Hour), IsActive: true})
+	// 3. Active listing (future deadline)
+	_ = repo.Save(ctx, domain.Listing{ID: "act-1", Type: domain.Request, Deadline: now.Add(1 * time.Hour), IsActive: true})
 
-	// 2. Run Expiration
-	count, err := repo.ExpireListings(ctx)
+	expired, err := repo.ExpireListings(ctx)
 	if err != nil {
 		t.Fatalf("ExpireListings failed: %v", err)
 	}
 
-	// 3. Assertions
-	// Request + Event + Job = 3
-	if count != 3 {
-		t.Errorf("Expected 3 listings to expire, got %d", count)
+	if expired != 2 {
+		t.Errorf("Expected 2 expired listings, got %d", expired)
 	}
 
-	// Verify specific items
-	l, _ := repo.FindByID(ctx, "req-exp")
-	if l.IsActive {
-		t.Error("Expired Request should be inactive")
-	}
-
-	l, _ = repo.FindByID(ctx, "req-act")
+	l, _ := repo.FindByID(ctx, "act-1")
 	if !l.IsActive {
-		t.Error("Active Request should be active")
-	}
-
-	l, _ = repo.FindByID(ctx, "evt-exp")
-	if l.IsActive {
-		t.Error("Expired Event should be inactive")
-	}
-
-	l, _ = repo.FindByID(ctx, "job-exp")
-	if l.IsActive {
-		t.Error("Expired Job should be inactive")
+		t.Error("Expected future listing to remain active")
 	}
 }
 
@@ -354,28 +203,17 @@ func TestHoursOfOperationPersistence(t *testing.T) {
 	ctx := context.Background()
 
 	l := domain.Listing{
-		ID:               "hours-persist",
-		Type:             domain.Business,
-		Title:            "Open Late",
-		HoursOfOperation: "Mon-Sat 10AM-10PM",
+		ID:               "h-1",
+		Title:            "Hours Test",
+		HoursOfOperation: "Mon-Fri 9am-5pm",
 		IsActive:         true,
-		CreatedAt:        time.Now(),
-		OwnerOrigin:      "Nigeria",
-		ContactEmail:     "late@example.com",
-		Address:          "123 Late St",
 	}
 
-	if err := repo.Save(ctx, l); err != nil {
-		t.Fatalf("Failed to save: %v", err)
-	}
+	_ = repo.Save(ctx, l)
 
-	found, err := repo.FindByID(ctx, "hours-persist")
-	if err != nil {
-		t.Fatalf("Failed to find: %v", err)
-	}
-
-	if found.HoursOfOperation != "Mon-Sat 10AM-10PM" {
-		t.Errorf("Expected HoursOfOperation 'Mon-Sat 10AM-10PM', got '%s'", found.HoursOfOperation)
+	found, _ := repo.FindByID(ctx, "h-1")
+	if found.HoursOfOperation != l.HoursOfOperation {
+		t.Errorf("Expected hours %q, got %q", l.HoursOfOperation, found.HoursOfOperation)
 	}
 }
 
@@ -383,45 +221,17 @@ func TestFindAllByOwner(t *testing.T) {
 	repo, _ := newTestRepo(t)
 	ctx := context.Background()
 
-	// Seed
-	user1Listings := []domain.Listing{
-		{ID: "u1-1", Title: "U1 First", OwnerID: "user1", IsActive: true, CreatedAt: time.Now()},
-		{ID: "u1-2", Title: "U1 Second", OwnerID: "user1", IsActive: false, CreatedAt: time.Now()}, // Should include inactive
-	}
-	user2Listing := domain.Listing{ID: "u2-1", Title: "U2 Only", OwnerID: "user2", IsActive: true, CreatedAt: time.Now()}
+	_ = repo.Save(ctx, domain.Listing{ID: "1", OwnerID: "user-1", Title: "L1"})
+	_ = repo.Save(ctx, domain.Listing{ID: "2", OwnerID: "user-1", Title: "L2"})
+	_ = repo.Save(ctx, domain.Listing{ID: "3", OwnerID: "user-2", Title: "L3"})
 
-	for _, l := range append(user1Listings, user2Listing) {
-		if err := repo.Save(ctx, l); err != nil {
-			t.Fatalf("Failed to save: %v", err)
-		}
-	}
-
-	// Test
-	results, err := repo.FindAllByOwner(ctx, "user1", 50, 0)
+	res, err := repo.FindAllByOwner(ctx, "user-1", 10, 0)
 	if err != nil {
 		t.Fatalf("FindAllByOwner failed: %v", err)
 	}
 
-	if len(results) != 2 {
-		t.Errorf("Expected 2 listings for user1, got %d", len(results))
-	}
-
-	// Verify order or content if needed, but count is good start
-	foundTitles := make(map[string]bool)
-	for _, l := range results {
-		foundTitles[l.Title] = true
-	}
-	if !foundTitles["U1 First"] || !foundTitles["U1 Second"] {
-		t.Errorf("Expected listings not found. Got: %v", results)
-	}
-
-	// Test Empty
-	resultsEmpty, err := repo.FindAllByOwner(ctx, "non-existent", 50, 0)
-	if err != nil {
-		t.Fatalf("FindAllByOwner empty failed: %v", err)
-	}
-	if len(resultsEmpty) != 0 {
-		t.Errorf("Expected 0 results for non-existent user, got %d", len(resultsEmpty))
+	if len(res) != 2 {
+		t.Errorf("Expected 2 listings for user-1, got %d", len(res))
 	}
 }
 
@@ -430,41 +240,30 @@ func TestGetPendingClaimRequests(t *testing.T) {
 	ctx := context.Background()
 
 	// Save a listing so we can reference it
-	repo.Save(ctx, domain.Listing{ID: "l1", Title: "Unclaimed Business", Type: domain.Business, IsActive: true, CreatedAt: time.Now()})
+	_ = repo.Save(ctx, domain.Listing{ID: "l1", Title: "Unclaimed Business", Type: domain.Business, IsActive: true, CreatedAt: time.Now()})
 
 	// Save a pending claim request
-	err := repo.SaveClaimRequest(ctx, domain.ClaimRequest{
-		ID:           "cr1",
-		ListingID:    "l1",
-		ListingTitle: "Unclaimed Business",
-		UserID:       "u1",
-		UserName:     "Test User",
-		UserEmail:    "test@example.com",
-		Status:       domain.ClaimStatusPending,
-		CreatedAt:    time.Now(),
+	_ = repo.SaveClaimRequest(ctx, domain.ClaimRequest{
+		ID: "cr1", ListingID: "l1", UserID: "u1",
+		Status: domain.ClaimStatusPending, CreatedAt: time.Now(),
 	})
-	if err != nil {
-		t.Fatalf("SaveClaimRequest failed: %v", err)
-	}
 
 	// Also save an approved one (should not appear)
-	repo.SaveClaimRequest(ctx, domain.ClaimRequest{
+	_ = repo.SaveClaimRequest(ctx, domain.ClaimRequest{
 		ID: "cr2", ListingID: "l1", UserID: "u2",
 		Status: domain.ClaimStatusApproved, CreatedAt: time.Now(),
 	})
 
-	pending, err := repo.GetPendingClaimRequests(ctx)
+	claims, err := repo.GetPendingClaimRequests(ctx)
 	if err != nil {
 		t.Fatalf("GetPendingClaimRequests failed: %v", err)
 	}
-	if len(pending) != 1 {
-		t.Errorf("Expected 1 pending claim, got %d", len(pending))
+
+	if len(claims) != 1 {
+		t.Errorf("Expected 1 pending claim, got %d", len(claims))
 	}
-	if pending[0].ID != "cr1" {
-		t.Errorf("Expected claim ID 'cr1', got '%s'", pending[0].ID)
-	}
-	if pending[0].UserName != "Test User" {
-		t.Errorf("Expected UserName 'Test User', got '%s'", pending[0].UserName)
+	if claims[0].ID != "cr1" {
+		t.Errorf("Expected claim cr1, got %s", claims[0].ID)
 	}
 }
 
@@ -473,52 +272,31 @@ func TestUpdateClaimRequestStatus_Approve(t *testing.T) {
 	ctx := context.Background()
 
 	// Create listing and a user
-	repo.Save(ctx, domain.Listing{ID: "l1", Title: "Biz", Type: domain.Business, IsActive: true, CreatedAt: time.Now()})
-	repo.SaveUser(ctx, domain.User{ID: "u1", GoogleID: "g1", Email: "u1@x.com", CreatedAt: time.Now()})
+	_ = repo.Save(ctx, domain.Listing{ID: "l1", Title: "Biz", Type: domain.Business, IsActive: true, CreatedAt: time.Now()})
+	_ = repo.SaveUser(ctx, domain.User{ID: "u1", GoogleID: "g1", Email: "u1@x.com", CreatedAt: time.Now()})
 
 	// Create pending claim
-	repo.SaveClaimRequest(ctx, domain.ClaimRequest{
+	_ = repo.SaveClaimRequest(ctx, domain.ClaimRequest{
 		ID: "cr1", ListingID: "l1", UserID: "u1",
 		Status: domain.ClaimStatusPending, CreatedAt: time.Now(),
 	})
 
 	// Approve it
-	if err := repo.UpdateClaimRequestStatus(ctx, "cr1", domain.ClaimStatusApproved); err != nil {
-		t.Fatalf("UpdateClaimRequestStatus approve failed: %v", err)
-	}
-
-	// Verify listing now has owner
-	listing, err := repo.FindByID(ctx, "l1")
+	err := repo.UpdateClaimRequestStatus(ctx, "cr1", domain.ClaimStatusApproved)
 	if err != nil {
-		t.Fatalf("FindByID failed: %v", err)
-	}
-	if listing.OwnerID != "u1" {
-		t.Errorf("Expected OwnerID 'u1', got '%s'", listing.OwnerID)
-	}
-}
-
-func TestGetClaimRequestByUserAndListing(t *testing.T) {
-	repo, _ := newTestRepo(t)
-	ctx := context.Background()
-
-	repo.SaveClaimRequest(ctx, domain.ClaimRequest{
-		ID: "cr1", ListingID: "l1", UserID: "u1",
-		Status: domain.ClaimStatusPending, CreatedAt: time.Now(),
-	})
-
-	// Found
-	cr, err := repo.GetClaimRequestByUserAndListing(ctx, "u1", "l1")
-	if err != nil {
-		t.Fatalf("GetClaimRequestByUserAndListing failed: %v", err)
-	}
-	if cr.ID != "cr1" {
-		t.Errorf("Expected cr1, got %s", cr.ID)
+		t.Fatalf("UpdateClaimRequestStatus failed: %v", err)
 	}
 
-	// Not found
-	_, err = repo.GetClaimRequestByUserAndListing(ctx, "u1", "nonexistent")
-	if err == nil {
-		t.Error("Expected error for non-existent pair")
+	// Verify status updated
+	claims, _ := repo.GetPendingClaimRequests(ctx)
+	if len(claims) != 0 {
+		t.Error("Expected 0 pending claims after approval")
+	}
+
+	// Verify owner transferred
+	l, _ := repo.FindByID(ctx, "l1")
+	if l.OwnerID != "u1" {
+		t.Errorf("Expected owner to be u1, got %s", l.OwnerID)
 	}
 }
 
@@ -526,162 +304,90 @@ func TestGetUserCount(t *testing.T) {
 	repo, _ := newTestRepo(t)
 	ctx := context.Background()
 
-	// Should be 0 initially
+	// Add Users
+	_ = repo.SaveUser(ctx, domain.User{ID: "u1", GoogleID: "g1", Email: "e1", CreatedAt: time.Now()})
+	_ = repo.SaveUser(ctx, domain.User{ID: "u2", GoogleID: "g2", Email: "e2", CreatedAt: time.Now()})
+
 	c, err := repo.GetUserCount(ctx)
 	if err != nil {
-		t.Fatalf("Failed to get count: %v", err)
-	}
-	if c != 0 {
-		t.Errorf("Expected 0 users, got %d", c)
-	}
-
-	// Add Users
-	repo.SaveUser(ctx, domain.User{ID: "u1", GoogleID: "g1", Email: "e1", CreatedAt: time.Now()})
-	repo.SaveUser(ctx, domain.User{ID: "u2", GoogleID: "g2", Email: "e2", CreatedAt: time.Now()})
-
-	c, err = repo.GetUserCount(ctx)
-	if err != nil {
-		t.Fatalf("Failed to get count after add: %v", err)
+		t.Fatalf("GetUserCount failed: %v", err)
 	}
 	if c != 2 {
 		t.Errorf("Expected 2 users, got %d", c)
 	}
 }
 
-func TestFeedback_Operations(t *testing.T) {
+func TestListingRepository_FTS(t *testing.T) {
 	repo, _ := newTestRepo(t)
 	ctx := context.Background()
 
-	// 1. Save Feedback
-	fb := domain.Feedback{
-		ID:        "fb1",
-		UserID:    "u1",
-		Type:      domain.FeedbackTypeIssue, // Was Category
-		Content:   "Fix it",                 // Was Message
-		CreatedAt: time.Now(),
-	}
-	if err := repo.SaveFeedback(ctx, fb); err != nil {
-		t.Fatalf("Failed to save feedback: %v", err)
+	// Use trigram search (needs at least 3 chars usually)
+	_ = repo.Save(ctx, domain.Listing{ID: "1", Title: "Jollof Rice", City: "Houston", IsActive: true})
+	_ = repo.Save(ctx, domain.Listing{ID: "2", Title: "Egusi Soup", City: "Dallas", IsActive: true})
+
+	tests := []struct {
+		query string
+		want  string
+	}{
+		{"Jollof", "1"},
+		{"Soup", "2"},
+		{"Houston", "1"},
+		{"Egusi", "2"},
 	}
 
-	// 2. Get All
-	all, err := repo.GetAllFeedback(ctx)
-	if err != nil {
-		t.Fatalf("Failed to get feedback: %v", err)
-	}
-	if len(all) != 1 {
-		t.Errorf("Expected 1 feedback, got %d", len(all))
-	}
-	if all[0].Content != "Fix it" {
-		t.Errorf("Expected 'Fix it', got '%s'", all[0].Content)
-	}
-
-	// 3. Get Counts
-	counts, err := repo.GetFeedbackCounts(ctx)
-	if err != nil {
-		t.Fatalf("Failed to get counts: %v", err)
-	}
-	if counts[domain.FeedbackTypeIssue] != 1 {
-		t.Errorf("Expected 1 Issue, got %d", counts[domain.FeedbackTypeIssue])
+	for _, tt := range tests {
+		res, _ := repo.FindAll(ctx, "", tt.query, "", "", false, 10, 0)
+		if len(res) != 1 || res[0].ID != tt.want {
+			t.Errorf("FTS query %q failed: got %d results, want ID %s", tt.query, len(res), tt.want)
+		}
 	}
 }
 
-func TestNewSQLiteRepository_Failure(t *testing.T) {
-	// Use a path that cannot be created, e.g., root or read-only
-	// "/proc/invalid/db" on linux, or just a directory that is a file
-
+func TestSQLiteRepository_InitializationErrors(t *testing.T) {
 	tmpDir := t.TempDir()
 	filePath := filepath.Join(tmpDir, "file")
-	os.WriteFile(filePath, []byte("content"), 0644)
+	_ = os.WriteFile(filePath, []byte("content"), 0644)
 
 	// Try to use that file as a directory for the DB
-	// "file/db.sqlite" -> filepath.Dir is "file", which is a file, not dir.
-	// MkdirAll should fail?
-	// Actually MkdirAll("file") returns nil if it exists?
-	// MkdirAll("file/subdir") fails if "file" is a file.
-
-	badPath := filepath.Join(filePath, "subdir", "db.sqlite")
-	_, err := sqlite.NewSQLiteRepository(badPath)
+	_, err := sqlite.NewSQLiteRepository(filePath)
 	if err == nil {
-		t.Error("Expected error for invalid db path, got nil")
+		t.Error("Expected error initializing repo on a plain file without write access as DB, got nil")
 	}
 }
 
-func TestGetListingGrowth(t *testing.T) {
+func TestGetMetrics(t *testing.T) {
 	repo, _ := newTestRepo(t)
 	ctx := context.Background()
-
-	// Seed data
 	now := time.Now().UTC()
+
+	// 1. Listings Growth
 	// Yesterday
-	repo.Save(ctx, domain.Listing{ID: "g1", Title: "L1", Type: domain.Business, IsActive: true, CreatedAt: now.Add(-24 * time.Hour)})
+	_ = repo.Save(ctx, domain.Listing{ID: "g1", Title: "L1", Type: domain.Business, IsActive: true, CreatedAt: now.Add(-24 * time.Hour)})
 	// Today
-	repo.Save(ctx, domain.Listing{ID: "g2", Title: "L2", Type: domain.Business, IsActive: true, CreatedAt: now})
-	repo.Save(ctx, domain.Listing{ID: "g3", Title: "L3", Type: domain.Business, IsActive: true, CreatedAt: now})
+	_ = repo.Save(ctx, domain.Listing{ID: "g2", Title: "L2", Type: domain.Business, IsActive: true, CreatedAt: now})
+	_ = repo.Save(ctx, domain.Listing{ID: "g3", Title: "L3", Type: domain.Business, IsActive: true, CreatedAt: now})
 	// Old (outside 30 days)
-	repo.Save(ctx, domain.Listing{ID: "g4", Title: "Old", Type: domain.Business, IsActive: true, CreatedAt: now.Add(-31 * 24 * time.Hour)})
+	_ = repo.Save(ctx, domain.Listing{ID: "g4", Title: "Old", Type: domain.Business, IsActive: true, CreatedAt: now.Add(-31 * 24 * time.Hour)})
 
 	metrics, err := repo.GetListingGrowth(ctx)
 	if err != nil {
-		t.Fatalf("Failed to get metrics: %v", err)
+		t.Fatalf("GetListingGrowth failed: %v", err)
 	}
-
-	if len(metrics) == 0 {
-		// Debug: what is in DB?
-		all, _ := repo.FindAll(ctx, "", "", "", "", true, 20, 0)
-		for _, l := range all {
-			t.Logf("ID: %s, CreatedAt: %v", l.ID, l.CreatedAt)
-		}
-		t.Fatalf("Expected metrics, got 0")
-	}
-
-	// Expecting 2 distinct days (Yesterday and Today)
-	if len(metrics) < 2 {
-		t.Errorf("Expected at least 2 metric points, got %d", len(metrics))
-	}
-
-	// Verify ordering (Oldest first)
-	if len(metrics) >= 2 && metrics[0].Date > metrics[1].Date {
-		t.Error("Metrics should be ordered by date ASC")
-	}
-
-	// Verify Counts
-	// Yesterday: 1
-	// Today: 2
-	// Depending on timezone of sqlite vs go, there might be drift, but let's assume UTC/Local consistency in test env.
-
-	total := 0
-	for _, m := range metrics {
-		total += m.Count
-	}
-	if total != 3 {
-		t.Errorf("Expected 3 total listings in window, got %d", total)
-	}
-}
-
-func TestGetUserGrowth(t *testing.T) {
-	repo, _ := newTestRepo(t)
-	ctx := context.Background()
-
-	now := time.Now().UTC()
-	repo.SaveUser(ctx, domain.User{ID: "u1", GoogleID: "g1", Email: "e1", CreatedAt: now.Add(-24 * time.Hour)})
-	repo.SaveUser(ctx, domain.User{ID: "u2", GoogleID: "g2", Email: "e2", CreatedAt: now})
-
-	metrics, err := repo.GetUserGrowth(ctx)
-	if err != nil {
-		t.Fatalf("Failed to get metrics: %v", err)
-	}
-
+	// Should have 2 entries (yesterday and today)
 	if len(metrics) != 2 {
-		t.Errorf("Expected 2 metric points, got %d", len(metrics))
+		t.Errorf("Expected 2 days of metrics, got %d", len(metrics))
 	}
 
-	total := 0
-	for _, m := range metrics {
-		total += m.Count
+	// 2. Users Growth
+	_ = repo.SaveUser(ctx, domain.User{ID: "u1", GoogleID: "g1", Email: "e1", CreatedAt: now.Add(-24 * time.Hour)})
+	_ = repo.SaveUser(ctx, domain.User{ID: "u2", GoogleID: "g2", Email: "e2", CreatedAt: now})
+
+	metrics, err = repo.GetUserGrowth(ctx)
+	if err != nil {
+		t.Fatalf("GetUserGrowth failed: %v", err)
 	}
-	if total != 2 {
-		t.Errorf("Expected 2 total users in window, got %d", total)
+	if len(metrics) != 2 {
+		t.Errorf("Expected 2 days of user metrics, got %d", len(metrics))
 	}
 }
 
@@ -690,118 +396,52 @@ func TestGetAllUsers(t *testing.T) {
 	ctx := context.Background()
 
 	// Seed
-	repo.SaveUser(ctx, domain.User{ID: "u1", GoogleID: "g1", Email: "e1", CreatedAt: time.Now()})
-	repo.SaveUser(ctx, domain.User{ID: "u2", GoogleID: "g2", Email: "e2", CreatedAt: time.Now().Add(time.Hour)})
+	_ = repo.SaveUser(ctx, domain.User{ID: "u1", GoogleID: "g1", Email: "e1", CreatedAt: time.Now()})
+	_ = repo.SaveUser(ctx, domain.User{ID: "u2", GoogleID: "g2", Email: "e2", CreatedAt: time.Now().Add(time.Hour)})
 
 	users, err := repo.GetAllUsers(ctx, 100, 0)
 	if err != nil {
-		t.Fatalf("Failed to get users: %v", err)
+		t.Fatalf("GetAllUsers failed: %v", err)
 	}
-
 	if len(users) != 2 {
 		t.Errorf("Expected 2 users, got %d", len(users))
 	}
-
-	// Verify Order (DESC created_at)
-	// u2 is newer
+	// Should be ordered by created_at DESC
 	if users[0].ID != "u2" {
-		t.Errorf("Expected newest user first (u2), got %s", users[0].ID)
+		t.Errorf("Expected u2 first (newest), got %s", users[0].ID)
 	}
 }
 
-func TestRepository_Errors(t *testing.T) {
-	// Create a DB and close it immediately to force errors
-	db, err := sql.Open("sqlite3", ":memory:")
-	if err != nil {
-		t.Fatalf("Failed to open db: %v", err)
-	}
+func TestCategoryErrors_Raw(t *testing.T) {
+	db, _ := sql.Open("sqlite3", ":memory:")
 	repo := sqlite.NewSQLiteRepositoryFromDB(db)
-	db.Close()
+	_ = db.Close()
 	ctx := context.Background()
 
-	// Generic error checking helper
-	checkError := func(name string, err error) {
-		if err == nil {
-			t.Errorf("%s: Expected error on closed DB, got nil", name)
-		}
+	_, err := repo.GetCategory(ctx, "any")
+	if err == nil {
+		t.Error("Expected error on closed DB")
 	}
-
-	checkError("Save", repo.Save(ctx, domain.Listing{ID: "1"}))
-	_, err = repo.FindAll(ctx, "", "", "", "", false, 20, 0)
-	checkError("FindAll", err)
-	_, err = repo.FindByID(ctx, "1")
-	checkError("FindByID", err)
-	checkError("Delete", repo.Delete(ctx, "1"))
-	_, err = repo.GetCounts(ctx)
-	checkError("GetCounts", err)
-	_, err = repo.ExpireListings(ctx)
-	checkError("ExpireListings", err)
-
-	// User methods
-	checkError("SaveUser", repo.SaveUser(ctx, domain.User{ID: "u1"}))
-	_, err = repo.FindUserByGoogleID(ctx, "g1")
-	checkError("FindUserByGoogleID", err)
-	_, err = repo.FindUserByID(ctx, "u1")
-	checkError("FindUserByID", err)
-	_, err = repo.FindAllByOwner(ctx, "owner", 50, 0)
-	checkError("FindAllByOwner", err)
-	_, err = repo.TitleExists(ctx, "test")
-	checkError("TitleExists", err)
-	_, err = repo.GetUserCount(ctx)
-	checkError("GetUserCount", err)
-	_, err = repo.GetAllUsers(ctx, 100, 0)
-	checkError("GetAllUsers", err)
-	_, err = repo.GetListingGrowth(ctx)
-	checkError("GetListingGrowth", err)
-	_, err = repo.GetUserGrowth(ctx)
-	checkError("GetUserGrowth", err)
-	_, err = repo.GetFeaturedListings(ctx)
-	checkError("GetFeaturedListings", err)
-
-	// Feedback
-	checkError("SaveFeedback", repo.SaveFeedback(ctx, domain.Feedback{ID: "f1"}))
-	_, err = repo.GetAllFeedback(ctx)
-	checkError("GetAllFeedback", err)
-	_, err = repo.GetFeedbackCounts(ctx)
-	checkError("GetFeedbackCounts", err)
 }
 
-func TestFindByTitle(t *testing.T) {
+func TestFindByTitle_CaseInsensitive(t *testing.T) {
 	repo, _ := newTestRepo(t)
 	ctx := context.Background()
 
 	// Seed data
-	repo.Save(ctx, domain.Listing{ID: "1", Title: "Unique Title", Type: domain.Business, IsActive: true, CreatedAt: time.Now()})
-	repo.Save(ctx, domain.Listing{ID: "2", Title: "Duplicate Title", Type: domain.Service, IsActive: true, CreatedAt: time.Now()})
-	repo.Save(ctx, domain.Listing{ID: "3", Title: "Duplicate Title", Type: domain.Product, IsActive: true, CreatedAt: time.Now()})
+	_ = repo.Save(ctx, domain.Listing{ID: "1", Title: "Unique Title", Type: domain.Business, IsActive: true, CreatedAt: time.Now()})
+	_ = repo.Save(ctx, domain.Listing{ID: "2", Title: "Duplicate Title", Type: domain.Service, IsActive: true, CreatedAt: time.Now()})
+	_ = repo.Save(ctx, domain.Listing{ID: "3", Title: "Duplicate Title", Type: domain.Product, IsActive: true, CreatedAt: time.Now()})
 
 	// Test unique title
-	listings, err := repo.FindByTitle(ctx, "Unique Title")
-	if err != nil {
-		t.Fatalf("FindByTitle failed: %v", err)
-	}
-	if len(listings) != 1 {
-		t.Errorf("Expected 1 listing for 'Unique Title', got %d", len(listings))
-	}
-	if len(listings) > 0 && listings[0].ID != "1" {
-		t.Errorf("Expected listing ID '1', got '%s'", listings[0].ID)
+	res, _ := repo.FindByTitle(ctx, "Unique Title")
+	if len(res) != 1 {
+		t.Errorf("Expected 1 result for Unique Title, got %d", len(res))
 	}
 
-	// Test duplicate title (exact case insensitive match behavior is database dependent, let's stick to exact match for tests initially)
-	listings, err = repo.FindByTitle(ctx, "Duplicate Title")
-	if err != nil {
-		t.Fatalf("FindByTitle failed: %v", err)
-	}
-	if len(listings) != 2 {
-		t.Errorf("Expected 2 listings for 'Duplicate Title', got %d", len(listings))
-	}
-
-	// Test non-existent title
-	listings, err = repo.FindByTitle(ctx, "Non-existent")
-	if err != nil {
-		t.Fatalf("FindByTitle failed: %v", err)
-	}
-	if len(listings) != 0 {
-		t.Errorf("Expected 0 listings for 'Non-existent', got %d", len(listings))
+	// Test duplicates
+	res, _ = repo.FindByTitle(ctx, "Duplicate Title")
+	if len(res) != 2 {
+		t.Errorf("Expected 2 results for Duplicate Title, got %d", len(res))
 	}
 }

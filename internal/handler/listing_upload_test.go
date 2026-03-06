@@ -23,9 +23,8 @@ func TestListingHandler_Upload_Malicious(t *testing.T) {
 	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 
 	mockRepo := &mock.MockListingRepository{}
-	// Neither FindByTitle nor Save are called because upload fails early with 400
 
-	h := handler.NewListingHandler(mockRepo, nil)
+	h := handler.NewListingHandler(mockRepo, nil, "")
 
 	// Create a malicious file (text file disguised as jpg)
 	body := new(bytes.Buffer)
@@ -36,21 +35,21 @@ func TestListingHandler_Upload_Malicious(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := part.Write([]byte("<?php echo 'malicious code'; ?>")); err != nil {
-		t.Fatal(err)
+	if _, err2 := part.Write([]byte("<?php echo 'malicious code'; ?>")); err2 != nil {
+		t.Fatal(err2)
 	}
 
 	// Add Fields
-	writer.WriteField("title", "Valid Title")
-	writer.WriteField("owner_origin", "Nigeria")
-	writer.WriteField("type", "Business")
-	writer.WriteField("description", "Valid Description")
-	writer.WriteField("city", "Lagos")
-	writer.WriteField("address", "123 St")
-	writer.WriteField("contact_email", "test@test.com")
-	writer.WriteField("created_at", time.Now().Format(time.RFC3339))
+	_ = writer.WriteField("title", "Valid Title")
+	_ = writer.WriteField("owner_origin", "Nigeria")
+	_ = writer.WriteField("type", "Business")
+	_ = writer.WriteField("description", "Valid Description")
+	_ = writer.WriteField("city", "Lagos")
+	_ = writer.WriteField("address", "123 St")
+	_ = writer.WriteField("contact_email", "test@test.com")
+	_ = writer.WriteField("created_at", time.Now().Format(time.RFC3339))
 
-	writer.Close()
+	_ = writer.Close()
 
 	req := httptest.NewRequest(http.MethodPost, "/listings", body)
 	req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
@@ -59,13 +58,10 @@ func TestListingHandler_Upload_Malicious(t *testing.T) {
 	c.Set("User", domain.User{ID: "user1", Email: "test@user.com"})
 
 	// Execute
-	err = h.HandleCreate(c)
+	_ = h.HandleCreate(c)
 
 	// Assert
 	if rec.Code != http.StatusBadRequest {
-		// If code is not 400, it means it succeeded (created).
-		// If file was ignored, it created a listing without image (200 OK).
-		// This confirms file was ignored.
 		t.Errorf("Expected 400 Bad Request. Got %d. This implies file was ignored or accepted.", rec.Code)
 	}
 	mockRepo.AssertExpectations(t)
@@ -81,7 +77,7 @@ func TestListingHandler_Upload_Valid(t *testing.T) {
 	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
 	mockRepo.On("Save", testifyMock.Anything, testifyMock.Anything).Return(nil)
 
-	h := handler.NewListingHandler(mockRepo, nil)
+	h := handler.NewListingHandler(mockRepo, nil, "")
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
@@ -90,19 +86,19 @@ func TestListingHandler_Upload_Valid(t *testing.T) {
 	part, _ := writer.CreateFormFile("image", "valid.png")
 	img := image.NewRGBA(image.Rect(0, 0, 1, 1))
 	var imgBuf bytes.Buffer
-	png.Encode(&imgBuf, img)
-	part.Write(imgBuf.Bytes())
+	_ = png.Encode(&imgBuf, img)
+	_, _ = part.Write(imgBuf.Bytes())
 
 	// Add Fields
-	writer.WriteField("title", "Valid Title")
-	writer.WriteField("owner_origin", "Nigeria")
-	writer.WriteField("type", "Business")
-	writer.WriteField("description", "Valid Description")
-	writer.WriteField("city", "Lagos")
-	writer.WriteField("address", "123 St")
-	writer.WriteField("contact_email", "test@test.com")
+	_ = writer.WriteField("title", "Valid Title")
+	_ = writer.WriteField("owner_origin", "Nigeria")
+	_ = writer.WriteField("type", "Business")
+	_ = writer.WriteField("description", "Valid Description")
+	_ = writer.WriteField("city", "Lagos")
+	_ = writer.WriteField("address", "123 St")
+	_ = writer.WriteField("contact_email", "test@test.com")
 
-	writer.Close()
+	_ = writer.Close()
 
 	req := httptest.NewRequest(http.MethodPost, "/listings", body)
 	req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
@@ -111,7 +107,7 @@ func TestListingHandler_Upload_Valid(t *testing.T) {
 	c.Set("User", domain.User{ID: "user1", Email: "test@user.com"})
 
 	// Execute
-	h.HandleCreate(c)
+	_ = h.HandleCreate(c)
 
 	// Assert
 	if rec.Code != http.StatusOK && rec.Code != http.StatusCreated && rec.Code != http.StatusFound {

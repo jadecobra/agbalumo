@@ -127,7 +127,7 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 	if sess != nil {
 		if flashes := sess.Flashes("message"); len(flashes) > 0 {
 			flashMsg = flashes[0]
-			sess.Save(c.Request(), c.Response())
+			_ = sess.Save(c.Request(), c.Response())
 		}
 	}
 
@@ -196,7 +196,7 @@ func (h *AdminHandler) HandleAddCategory(c echo.Context) error {
 	sess := customMiddleware.GetSession(c)
 	if sess != nil {
 		sess.AddFlash("Category added successfully!", "message")
-		sess.Save(c.Request(), c.Response())
+		_ = sess.Save(c.Request(), c.Response())
 	}
 
 	return c.Redirect(http.StatusFound, "/admin")
@@ -299,7 +299,7 @@ func (h *AdminHandler) HandleBulkAction(c echo.Context) error {
 		sess := customMiddleware.GetSession(c)
 		if sess != nil {
 			sess.AddFlash("No listings selected", "message")
-			sess.Save(c.Request(), c.Response())
+			_ = sess.Save(c.Request(), c.Response())
 		}
 		return c.Redirect(http.StatusFound, "/admin/listings")
 	}
@@ -322,13 +322,14 @@ func (h *AdminHandler) HandleBulkAction(c echo.Context) error {
 			continue // Skip if not found
 		}
 
-		if action == "approve" {
+		switch action {
+		case "approve":
 			listing.Status = domain.ListingStatusApproved
 			listing.IsActive = true
-		} else if action == "reject" {
+		case "reject":
 			listing.Status = domain.ListingStatusRejected
 			listing.IsActive = false
-		} else {
+		default:
 			continue // Unknown action
 		}
 
@@ -340,7 +341,7 @@ func (h *AdminHandler) HandleBulkAction(c echo.Context) error {
 	sess := customMiddleware.GetSession(c)
 	if sess != nil {
 		sess.AddFlash(fmt.Sprintf("Successfully processed %d listings", successCount), "message")
-		sess.Save(c.Request(), c.Response())
+		_ = sess.Save(c.Request(), c.Response())
 	}
 
 	return c.Redirect(http.StatusFound, "/admin/listings")
@@ -349,7 +350,7 @@ func (h *AdminHandler) HandleBulkAction(c echo.Context) error {
 // HandleAdminDeleteView renders the double-confirmation page for deleting listings.
 func (h *AdminHandler) HandleAdminDeleteView(c echo.Context) error {
 	// Parse IDs from query parameters (can be multiple)
-	c.Request().ParseForm()
+	_ = c.Request().ParseForm()
 	ids := c.Request().Form["id"]
 
 	if len(ids) == 0 {
@@ -376,7 +377,7 @@ func (h *AdminHandler) HandleAdminDeleteAction(c echo.Context) error {
 	adminCode := c.FormValue("admin_code")
 
 	// Parse IDs (can be multiple)
-	c.Request().ParseForm()
+	_ = c.Request().ParseForm()
 	ids := c.Request().PostForm["id"]
 
 	if len(ids) == 0 {
@@ -409,7 +410,7 @@ func (h *AdminHandler) HandleAdminDeleteAction(c echo.Context) error {
 	sess := customMiddleware.GetSession(c)
 	if sess != nil {
 		sess.AddFlash(fmt.Sprintf("Successfully deleted %d listings", successCount), "message")
-		sess.Save(c.Request(), c.Response())
+		_ = sess.Save(c.Request(), c.Response())
 	}
 
 	return c.Redirect(http.StatusFound, "/admin/listings")
@@ -421,7 +422,7 @@ func (h *AdminHandler) HandleBulkUpload(c echo.Context) error {
 		sess := customMiddleware.GetSession(c)
 		if sess != nil {
 			sess.AddFlash(msg, "message")
-			sess.Save(c.Request(), c.Response())
+			_ = sess.Save(c.Request(), c.Response())
 		}
 		return c.Redirect(http.StatusFound, "/admin")
 	}
@@ -436,7 +437,7 @@ func (h *AdminHandler) HandleBulkUpload(c echo.Context) error {
 	if err != nil {
 		return handleError("Failed to open file: " + err.Error())
 	}
-	defer src.Close()
+	defer func() { _ = src.Close() }()
 
 	// 2. Parse and Import
 	result, err := h.CSVService.ParseAndImport(c.Request().Context(), src, h.Repo)
@@ -456,7 +457,7 @@ func (h *AdminHandler) HandleBulkUpload(c echo.Context) error {
 			}
 		}
 		sess.AddFlash(msg, "message")
-		sess.Save(c.Request(), c.Response())
+		_ = sess.Save(c.Request(), c.Response())
 	}
 
 	return c.Redirect(http.StatusFound, "/admin")

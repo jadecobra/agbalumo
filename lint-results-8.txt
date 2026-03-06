@@ -1,0 +1,15 @@
+../internal/handler/admin.go:1: : # github.com/jadecobra/agbalumo/internal/handler [github.com/jadecobra/agbalumo/internal/handler.test]
+internal/handler/listing.go:18:26: undefined: domain.ImageService
+internal/handler/listing.go:23:60: undefined: domain.ImageService
+internal/handler/listing.go:86:2: declared and not used: location
+internal/handler/listing.go:114:24: h.Repo.GetCategory undefined (type domain.ListingStore has no field or method GetCategory)
+internal/handler/listing.go:209:10: undefined: ListingFormRequest
+internal/handler/listing.go:307:26: h.Repo.GetCategory undefined (type domain.ListingStore has no field or method GetCategory)
+internal/handler/listing.go:312:18: h.Repo.GetClaimRequestByUserAndListing undefined (type domain.ListingStore has no field or method GetClaimRequestByUserAndListing)
+internal/handler/listing.go:328:19: h.Repo.SaveClaimRequest undefined (type domain.ListingStore has no field or method SaveClaimRequest)
+internal/handler/listing.go:340:10: undefined: ListingFormRequest
+internal/handler/listing.go:436:28: h.Repo.GetCategories undefined (type domain.ListingStore has no field or method GetCategories)
+internal/handler/listing.go:436:28: too many errors (typecheck)
+package handler
+1 issues:
+* typecheck: 1

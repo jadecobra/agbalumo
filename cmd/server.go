@@ -37,7 +37,17 @@ func SetupServer() (*echo.Echo, error) {
 	slog.SetDefault(logger)
 
 	e := echo.New()
-	e.Use(middleware.Logger())
+e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+LogStatus: true,
+LogURI:    true,
+LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
+slog.Info("request",
+"status", v.Status,
+"URI", v.URI,
+)
+return nil
+},
+}))
 
 	setupMiddleware(e, cfg)
 

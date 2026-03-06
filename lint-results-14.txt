@@ -1,0 +1,15 @@
+../internal/handler/admin.go:1: : # github.com/jadecobra/agbalumo/internal/handler [github.com/jadecobra/agbalumo/internal/handler.test]
+internal/handler/admin_test.go:423:62: undefined: strings
+internal/handler/admin_test.go:491:79: undefined: strings
+internal/handler/admin_test.go:511:79: undefined: strings
+internal/handler/admin_test.go:531:79: undefined: strings
+internal/handler/admin_test.go:539:72: undefined: errors
+internal/handler/admin_test.go:551:79: undefined: strings
+internal/handler/admin_test.go:573:76: undefined: strings
+internal/handler/admin_test.go:605:109: undefined: errors
+internal/handler/admin_test.go:624:106: undefined: errors
+internal/handler/admin_test.go:639:78: undefined: errors
+internal/handler/admin_test.go:639:78: too many errors (typecheck)
+package handler
+1 issues:
+* typecheck: 1

@@ -213,8 +213,8 @@ func TestAuthHandler_DevLogin_Success(t *testing.T) {
 	h := handler.NewAuthHandler(mockRepo, nil, config.LoadConfig())
 
 	// Environment Development
-	os.Setenv("AGBALUMO_ENV", "development")
-	defer os.Unsetenv("AGBALUMO_ENV")
+	_ = os.Setenv("AGBALUMO_ENV", "development")
+	defer func() { _ = os.Unsetenv("AGBALUMO_ENV") }()
 
 	// Mock findOrCreateUser logic by mocking FindUserByGoogleID
 	// It will try to find "dev-test@dev.com"
@@ -326,9 +326,9 @@ func TestAuthHandler_DevLogin_GOENVFallback(t *testing.T) {
 	h := handler.NewAuthHandler(mockRepo, nil, config.LoadConfig())
 
 	// Only set GO_ENV, NOT AGBALUMO_ENV
-	os.Unsetenv("AGBALUMO_ENV")
-	os.Setenv("GO_ENV", "development")
-	defer os.Unsetenv("GO_ENV")
+	_ = os.Unsetenv("AGBALUMO_ENV")
+	_ = os.Setenv("GO_ENV", "development")
+	defer func() { _ = os.Unsetenv("GO_ENV") }()
 
 	mockRepo.On("FindUserByGoogleID", testifyMock.Anything, "dev-go@env.com").Return(domain.User{}, assert.AnError)
 	mockRepo.On("SaveUser", testifyMock.Anything, testifyMock.AnythingOfType("domain.User")).Return(nil)
@@ -354,8 +354,8 @@ func TestAuthHandler_DevLogin_DefaultEmail(t *testing.T) {
 	mockRepo := &mock.MockListingRepository{}
 	h := handler.NewAuthHandler(mockRepo, nil, config.LoadConfig())
 
-	os.Setenv("AGBALUMO_ENV", "development")
-	defer os.Unsetenv("AGBALUMO_ENV")
+	_ = os.Setenv("AGBALUMO_ENV", "development")
+	defer func() { _ = os.Unsetenv("AGBALUMO_ENV") }()
 
 	// Default email is "dev@agbalumo.com", so googleID is "dev-dev@agbalumo.com"
 	mockRepo.On("FindUserByGoogleID", testifyMock.Anything, "dev-dev@agbalumo.com").Return(domain.User{}, assert.AnError)
@@ -380,8 +380,8 @@ func TestAuthHandler_DevLogin_FindOrCreateError(t *testing.T) {
 	mockRepo := &mock.MockListingRepository{}
 	h := handler.NewAuthHandler(mockRepo, nil, config.LoadConfig())
 
-	os.Setenv("AGBALUMO_ENV", "development")
-	defer os.Unsetenv("AGBALUMO_ENV")
+	_ = os.Setenv("AGBALUMO_ENV", "development")
+	defer func() { _ = os.Unsetenv("AGBALUMO_ENV") }()
 
 	// findOrCreateUser: user not found, then save fails
 	mockRepo.On("FindUserByGoogleID", testifyMock.Anything, "dev-err@test.com").Return(domain.User{}, assert.AnError)
