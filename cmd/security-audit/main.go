@@ -67,7 +67,10 @@ func runAudit(config AuditConfig) error {
 	}
 
 	// 2. Check Live Headers
-	if passed := checkHeaders(config.TargetURL, config.HTTPClient); passed {
+	headerPassed, headerSkipped := checkHeaders(config.TargetURL, config.HTTPClient)
+	if headerSkipped {
+		total-- // Server not running, skip this check
+	} else if headerPassed {
 		score++
 	}
 
@@ -84,7 +87,10 @@ func runAudit(config AuditConfig) error {
 	}
 
 	// 4. Vulnerability Check
-	if passed := checkVuln(config.RootDir, config.Runner, exec.LookPath); passed {
+	vulnPassed, vulnAvailable := checkVuln(config.RootDir, config.Runner, exec.LookPath)
+	if !vulnAvailable {
+		total-- // govulncheck not installed, don't count this check
+	} else if vulnPassed {
 		score++
 	}
 
@@ -94,6 +100,12 @@ func runAudit(config AuditConfig) error {
 	}
 
 	fmt.Println("--------------------------------")
+	// Prevent division by zero if all checks are skipped
+	if total <= 0 {
+		fmt.Println("⚠️  No security checks could be performed")
+		fmt.Printf("🔒 Security Score: 0/100\n")
+		return fmt.Errorf("no security checks could be performed")
+	}
 	finalScore := (float64(score) / float64(total)) * 100
 	fmt.Printf("🔒 Security Score: %.0f/100\n", finalScore)
 
@@ -114,7 +126,8 @@ func checkGoVet(rootDir string, runner CommandRunner) bool {
 	return true
 }
 
-func checkHeaders(target string, client *http.Client) bool {
+func checkHeaders(target string, client *http.Client) (bool, bool) {
+	// Returns (passed, skipped) - skipped is true if server couldn't be reached
 	resp, err := client.Get(target)
 	if err != nil {
 		fmt.Printf("⚠️  Could not connect to server (%s): %v\n", target, err)
@@ -131,7 +144,7 @@ func checkHeaders(target string, client *http.Client) bool {
 
 	if err != nil {
 		fmt.Printf("⚠️  Could not connect to server: %v\n", err)
-		return false
+		return false, true // Return skipped=true when server unreachable
 	}
 	defer resp.Body.Close()
 
@@ -167,7 +180,7 @@ func checkHeaders(target string, client *http.Client) bool {
 		passed = false
 	}
 
-	return passed
+	return passed, false // skipped=false since we got a response
 }
 
 func checkFlyConfig(content string, missing bool) bool {
@@ -194,13 +207,14 @@ func checkFlyConfig(content string, missing bool) bool {
 	return true
 }
 
-func checkVuln(rootDir string, runner CommandRunner, lookup func(string) (string, error)) bool {
+func checkVuln(rootDir string, runner CommandRunner, lookup func(string) (string, error)) (bool, bool) {
+	// Returns (passed, available) - available is false if govulncheck is not installed
 	fmt.Print("[?] Running 'govulncheck'... ")
 
 	// Check if installed
 	if _, err := lookup("govulncheck"); err != nil {
-		fmt.Println("⚠️  govulncheck not installed")
-		return true
+		fmt.Println("⚠️  govulncheck not installed - skipping check")
+		return false, false // passed=false, available=false
 	}
 
 	output, err := runner.Run(rootDir, "govulncheck", "./...")
@@ -208,14 +222,14 @@ func checkVuln(rootDir string, runner CommandRunner, lookup func(string) (string
 	if err != nil {
 		if strings.Contains(output, "No vulnerabilities found") {
 			fmt.Println("✅ Passed")
-			return true
+			return true, true
 		}
 		fmt.Println("⚠️  Possible Vulnerabilities:")
 		fmt.Println(output)
-		return false
+		return false, true
 	}
 	fmt.Println("✅ Passed")
-	return true
+	return true, true
 }
 
 func checkXSS(rootDir string, runner CommandRunner) bool {

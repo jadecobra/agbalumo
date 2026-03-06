@@ -8,6 +8,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   quality_lint:
     name: Lint Check
@@ -19,7 +23,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25'
+          go-version: '1.25.6'
           cache: true
 
       - name: Linter (GolangCI-Lint)
@@ -39,7 +43,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25'
+          go-version: '1.25.6'
           cache: true
 
       - name: Vulnerability Check (Govulncheck)
@@ -57,7 +61,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25'
+          go-version: '1.25.6'
           cache: true
 
       - name: Run Tests with Coverage
@@ -68,10 +72,10 @@ jobs:
 
       - name: Enforce Coverage Threshold (90.0%)
         run: |
-          COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print substr($3, 1, length($3)-1)}')
+          COVERAGE=$(go tool cover -func=coverage.out | awk '/^total:/ {print substr($3, 1, length($3)-1)}')
           THRESHOLD=90.0
           echo "Coverage: $COVERAGE%"
-          if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
+          if awk "BEGIN {exit !($COVERAGE < $THRESHOLD)}"; then
             echo "❌ Coverage is below $THRESHOLD%"
             exit 1
           fi
@@ -87,26 +91,41 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25'
+          go-version: '1.25.6'
           cache: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build CSS
+        run: |
+          npm ci
+          npm run build:css
+
+      - name: Install govulncheck
+        run: go install golang.org/x/vuln/cmd/govulncheck@latest
 
       - name: Build Server
         run: go build -o server .
 
       - name: Start Server (Background)
         run: |
-          mkdir -p @data
+          mkdir -p @data certs
+          openssl req -x509 -newkey rsa:4096 -keyout certs/key.pem -out certs/cert.pem -days 365 -nodes -subj "/CN=localhost"
+          export AGBALUMO_ENV=development
           nohup ./server serve > server.log 2>&1 &
           echo "Waiting for server to start..."
           for i in {1..20}; do
-            if curl -s http://localhost:8080 > /dev/null; then
+            if curl -k -s https://localhost:8443 > /dev/null; then
               echo "Server is up!"
               break
             fi
             echo "Waiting..."
             sleep 0.5
           done
-          if ! curl -s http://localhost:8080 > /dev/null; then
+          if ! curl -k -s https://localhost:8443 > /dev/null; then
             echo "Server failed to start:"
             cat server.log
             exit 1
@@ -122,6 +141,16 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build CSS
+        run: |
+          npm ci
+          npm run build:css
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -142,7 +171,6 @@ jobs:
           image: agbalumo:${{ github.sha }}
           ignore-unchanged: true
           only-severities: critical,high
-        continue-on-error: true
 
   deploy:
     name: Deploy to Fly.io
@@ -155,7 +183,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Flyctl
-        uses: superfly/flyctl-actions/setup-flyctl@master
+        uses: superfly/flyctl-actions/setup-flyctl@v1
 
       - name: Deploy
         run: flyctl deploy --remote-only

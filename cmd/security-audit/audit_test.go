@@ -13,7 +13,7 @@ func TestCheckHeaders(t *testing.T) {
 	tests := []struct {
 		name           string
 		headers        map[string]string
-		expectedResult bool
+		expectedPassed bool
 	}{
 		{
 			name: "All Headers Present",
@@ -22,7 +22,7 @@ func TestCheckHeaders(t *testing.T) {
 				"Content-Security-Policy":   "default-src 'self'",
 				"X-Frame-Options":           "DENY",
 			},
-			expectedResult: true,
+			expectedPassed: true,
 		},
 		{
 			name: "Missing HSTS",
@@ -30,7 +30,7 @@ func TestCheckHeaders(t *testing.T) {
 				"Content-Security-Policy": "default-src 'self'",
 				"X-Frame-Options":         "DENY",
 			},
-			expectedResult: false,
+			expectedPassed: false,
 		},
 		{
 			name: "Missing CSP",
@@ -38,7 +38,7 @@ func TestCheckHeaders(t *testing.T) {
 				"Strict-Transport-Security": "max-age=63072000",
 				"X-Frame-Options":           "DENY",
 			},
-			expectedResult: false,
+			expectedPassed: false,
 		},
 		{
 			name: "Missing XFO",
@@ -46,7 +46,7 @@ func TestCheckHeaders(t *testing.T) {
 				"Strict-Transport-Security": "max-age=63072000",
 				"Content-Security-Policy":   "default-src 'self'",
 			},
-			expectedResult: false,
+			expectedPassed: false,
 		},
 	}
 
@@ -60,9 +60,12 @@ func TestCheckHeaders(t *testing.T) {
 			}))
 			defer server.Close()
 
-			result := checkHeaders(server.URL, server.Client())
-			if result != tt.expectedResult {
-				t.Errorf("expected %v, got %v", tt.expectedResult, result)
+			passed, skipped := checkHeaders(server.URL, server.Client())
+			if passed != tt.expectedPassed {
+				t.Errorf("expected passed=%v, got %v", tt.expectedPassed, passed)
+			}
+			if skipped {
+				t.Errorf("expected skipped=false, got true")
 			}
 		})
 	}
@@ -155,24 +158,33 @@ func TestCheckGoVet(t *testing.T) {
 
 func TestCheckVuln(t *testing.T) {
 	tests := []struct {
-		name       string
-		mockOutput string
-		mockErr    error
-		expected   bool
+		name              string
+		mockOutput        string
+		mockErr           error
+		expectedPassed    bool
+		expectedAvailable bool
 	}{
-		{"Pass_NoErr", "", nil, true},
-		{"Pass_WithErr_ButSafeMsg", "No vulnerabilities found", fmt.Errorf("err"), true},
-		{"Fail_WithVuln", "Vulnerability found", fmt.Errorf("err"), false},
+		{"Pass_NoErr", "", nil, true, true},
+		{"Pass_WithErr_ButSafeMsg", "No vulnerabilities found", fmt.Errorf("err"), true, true},
+		{"Fail_WithVuln", "Vulnerability found", fmt.Errorf("err"), false, true},
+		{"NotInstalled", "", nil, false, false},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			runner := &MockRunner{Output: tt.mockOutput, Err: tt.mockErr}
 			mockLookup := func(name string) (string, error) {
+				if tt.name == "NotInstalled" {
+					return "", fmt.Errorf("not found")
+				}
 				return "/usr/bin/" + name, nil
 			}
-			if got := checkVuln(".", runner, mockLookup); got != tt.expected {
-				t.Errorf("expected %v, got %v", tt.expected, got)
+			passed, available := checkVuln(".", runner, mockLookup)
+			if passed != tt.expectedPassed {
+				t.Errorf("expected passed=%v, got %v", tt.expectedPassed, passed)
+			}
+			if available != tt.expectedAvailable {
+				t.Errorf("expected available=%v, got %v", tt.expectedAvailable, available)
 			}
 		})
 	}
@@ -315,11 +327,12 @@ func TestCheckHeadersHTTPFallback(t *testing.T) {
 
 			// Create client that will fail HTTPS but succeed on HTTP fallback
 			// We need to simulate the fallback behavior
-			result := checkHeaders(target, httpServer.Client())
+			passed, skipped := checkHeaders(target, httpServer.Client())
 			// Note: This test might not perfectly simulate the fallback since
 			// the test server IS responding. But we can test with a non-responsive target
 			// to force the fallback path
-			_ = result
+			_ = passed
+			_ = skipped
 		})
 	}
 }
@@ -335,8 +348,11 @@ func TestCheckHeadersConnectionFailure(t *testing.T) {
 	defer server.Close()
 
 	// Use invalid URL to force connection failure
-	result := checkHeaders("https://invalid.localhost.nowhere:9999", server.Client())
-	if result != false {
-		t.Errorf("Expected false for connection failure, got %v", result)
+	passed, skipped := checkHeaders("https://invalid.localhost.nowhere:9999", server.Client())
+	if passed != false {
+		t.Errorf("Expected passed=false for connection failure, got %v", passed)
+	}
+	if !skipped {
+		t.Errorf("Expected skipped=true for connection failure, got %v", skipped)
 	}
 }
