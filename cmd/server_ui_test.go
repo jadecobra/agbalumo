@@ -22,7 +22,7 @@ func TestMain(m *testing.M) {
 	// Keep ENV=test for test compatibility but set high rate limits to avoid 429 in tests
 	os.Setenv("RATE_LIMIT_RATE", "10000")
 	os.Setenv("RATE_LIMIT_BURST", "20000")
-	os.Setenv("DB_URL", "file:test_ui.db?mode=memory&cache=shared")
+	os.Setenv("DATABASE_URL", "file:test_ui.db?mode=memory&cache=shared")
 	// SetupServer handles seeding as long as ENV != "production"
 	var err error
 
