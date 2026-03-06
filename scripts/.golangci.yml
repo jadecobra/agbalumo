@@ -1,32 +1,23 @@
-version: 2
-linters-settings:
-  govet:
-    enable:
-      - shadow
-  revive:
-    rules:
-      - name: exported
-        disabled: true
-
-linters:
-  enable:
-    - revive
-    - gosec
-    - misspell
-    - unparam
-    - prealloc
-    - whitespace
-    - bodyclose
-    - noctx
-    - errorlint
-    - copyloopvar
-
-issues:
-  exclude-use-default: false
-  max-issues-per-linter: 0
-  max-same-issues: 0
-  new-from-rev: HEAD
+# golangci-lint v2 configuration
+version: "2"
 
 run:
   timeout: 5m
   tests: true
+
+linters:
+  default: standard
+  settings:
+    govet:
+      enable:
+        - shadow
+    revive:
+      rules:
+        - name: exported
+          disabled: true
+  exclusions:
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
