@@ -23,15 +23,14 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25.6'
+          go-version: '1.25.7'
           cache: true
 
       - name: Linter (GolangCI-Lint)
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v2.0.0
+          version: v1.64.5
           args: --timeout=5m --config=scripts/.golangci.yml
-          install-mode: goinstall
 
   quality_sec:
     name: Vulnerability Check
@@ -43,7 +42,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25.6'
+          go-version: '1.25.7'
           cache: true
 
       - name: Vulnerability Check (Govulncheck)
@@ -61,7 +60,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25.6'
+          go-version: '1.25.7'
           cache: true
 
       - name: Run Tests with Coverage
@@ -91,7 +90,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25.6'
+          go-version: '1.25.7'
           cache: true
 
       - name: Setup Node

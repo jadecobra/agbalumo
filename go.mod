@@ -1,6 +1,6 @@
 module github.com/jadecobra/agbalumo
 
-go 1.25.6
+go 1.25.7
 
 require (
 	github.com/gen2brain/webp v0.5.5
