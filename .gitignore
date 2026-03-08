@@ -32,3 +32,8 @@ ARCHITECTURE_CRITIQUE.md
 @tester/
 @data/
 @tasks/
+tasks/
+tester/
+data/
+.sisyphus/
+logs/
