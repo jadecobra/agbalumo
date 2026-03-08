@@ -122,6 +122,6 @@ The application has matured significantly. The foundational architecture is clea
 - [x] **Agent.2** Workflow State Machine — Implement `.agent/state.json` and `scripts/agent-exec.sh workflow` to track feature progress, active phases (Red/Green/Refactor), and "Gate" verification status.
 - [x] **Agent.3** Automated Gate Verification — Implement `scripts/agent-gate.sh <gate_id>` to programmatically verify criteria (e.g., `gate verify red-test` ensures the test fails as expected).
 - [ ] **Agent.4** Brand "Juice" Generation — Implement `scripts/generate-juice.sh` to parse `.agent/rules/brand.toon` and generate CSS tokens (`brand-tokens.css`) and Go constants for technical brand enforcement.
-- [ ] **Agent.5** Automated Drift Check — Integrate persona/coding-standard sync check into `scripts/pre-commit.sh` to enforce the "Double-Commit" rule for `agent.yaml`.
+- [x] **Agent.5** Automated Drift Check — Integrate persona/coding-standard sync check into `scripts/pre-commit.sh` to enforce the "Double-Commit" rule for `agent.yaml`.
 - [ ] **Agent.6** Loop-Optimized Task Template — Create `.agent/task-template.md` optimized for long-running agentic sessions with explicit browser recording slots.
 

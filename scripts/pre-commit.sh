@@ -71,6 +71,7 @@ STAGED_CMD_DOCS=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '^c
 STAGED_CLI_DOCS=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '^cmd/cli/|^docs/cli\.md$' || true)
 STAGED_PERF_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '^ui/|^internal/handler/|^internal/repository/|^scripts/' || true)
 STAGED_SEC_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.html$|\.go$|\.js$' || true)
+STAGED_AGENT_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.agents/agent\.yaml$|docs/CODING_STANDARDS\.md$' || true)
 STAGED_ALL=$(git diff --cached --name-only || true)
 
 # Create a temporary directory for parallel task outputs
@@ -147,6 +148,13 @@ if [ -n "$STAGED_CLI_DOCS" ]; then
     run_task "cli_drift" "CLI Drift" bash scripts/cli-drift-check.sh &
 else
     echo "  ${YELLOW}skipping CLI Drift (no relevant changes)${NC}"
+fi
+
+# 3.1 Agent Drift Check
+if [ -n "$STAGED_AGENT_FILES" ]; then
+    run_task "agent_drift" "Agent Drift" bash scripts/agent-drift-check.sh &
+else
+    echo "  ${YELLOW}skipping Agent Drift (no relevant changes)${NC}"
 fi
 
 # 4. Performance Audit
