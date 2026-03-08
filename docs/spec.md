@@ -119,9 +119,14 @@ agbalumo uses a "Juicy Fruit" design aesthetic, inspired by Yoruba roots and com
   - Interaction: High-visibility 3px orange focus rings for keyboard users.
   - ARIA: Placeholders and images include roles and descriptive labels.
 
-### 8. Codebase Critique & Improvements (Self-Correction)
+### 8. Security & 10x Auditing
 
-* **Visual Hierarchy:** Unified CTA colors (`btn-leaf`) and mobile heading scaling (H2 > H3) successfully resolved the "chaotic layout" issues.
-* **Accessibility First:** The project now adheres to WCAG AA contrast and semantic landmark standards. The "10x" engineer protocol was applied to ensure the UI is robust for all users.
-* **Performance:** CSS build steps are integrated via `npm build:css`. Future work includes image optimization (WebP) and further HTMX lazy-loading.
-* **Critique (agbalumo Spirit):** The UI now feels "Sweet like agbalumo." It is warm, accessible, and premium. The addition of dual "POST | ASK" buttons in the header ensures users can easily offer listings or request help on any device.
+agbalumo maintains a "Zero Trust" security posture by enforcing automated vulnerability scans (`govulncheck`) and custom security audits (`cmd/security-audit`) in the CI/CD pipeline. The project targets the latest secure Go versions (currently `1.25.8`) to mitigate standard library risks.
+
+### 9. Codebase Critique & Improvements (Self-Correction)
+
+*   **Go Version Upgrade:** Upgraded to `1.25.8` to resolve vulnerabilities (GO-2026-4603, GO-2026-4602, GO-2026-4601).
+*   **Visual Hierarchy:** Unified CTA colors (`btn-leaf`) and mobile heading scaling successfully resolved layout issues.
+*   **Accessibility First:** Adheres to WCAG AA contrast and semantic landmark standards.
+*   **Performance:** Images are optimized to WebP with iterative compression to meet a <200KB target.
+*   **Critique:** The UI now feels "Sweet like agbalumo." It is warm, accessible, and premium.
