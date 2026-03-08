@@ -72,6 +72,7 @@ STAGED_CLI_DOCS=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '^c
 STAGED_PERF_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '^ui/|^internal/handler/|^internal/repository/|^scripts/' || true)
 STAGED_SEC_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.html$|\.go$|\.js$' || true)
 STAGED_AGENT_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.agents/agent\.yaml$|docs/CODING_STANDARDS\.md$' || true)
+STAGED_BRAND_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.agent/rules/brand\.toon$' || true)
 STAGED_ALL=$(git diff --cached --name-only || true)
 
 # Create a temporary directory for parallel task outputs
@@ -162,6 +163,13 @@ if [ -n "$STAGED_PERF_FILES" ]; then
     run_task "perf" "Performance Audit" sh scripts/performance-audit.sh &
 else
     echo "  ${YELLOW}skipping Performance Audit (no relevant changes)${NC}"
+fi
+
+# 4.1 Brand Juice Generation
+if [ -n "$STAGED_BRAND_FILES" ]; then
+    run_task "brand" "Brand Juice" bash scripts/generate-juice.sh &
+else
+    echo "  ${YELLOW}skipping Brand Juice (no relevant changes)${NC}"
 fi
 
 # 5. Tests & Coverage

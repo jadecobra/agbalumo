@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 @import "tailwindcss";
+@import "./brand-tokens.css";
 @config "../../../tailwind.config.js";
 
 @tailwind base;
@@ -29,31 +30,31 @@
 
 /* ── agbalumo Brand Design Tokens ── */
 :root {
-  /* Colors — TOON */
-  --color-primary: #FF8A00;
-  --color-primary-variant: #F57C00;
-  --color-secondary: #689F38;
-  --color-surface: #FFF8F0;
-  --color-background: #FFFBF5;
+  /* Colors — Mapped from Generated Tokens */
+  --color-primary: var(--brand-color-primary);
+  --color-primary-variant: var(--brand-color-earth-ochre);
+  --color-secondary: var(--brand-color-secondary);
+  --color-surface: var(--brand-color-earth-sand);
+  --color-background: var(--brand-color-earth-cream);
   --color-on-primary: #FFFFFF;
-  --color-on-surface: #3E2723;
+  --color-on-surface: var(--brand-color-earth-dark);
   --color-accent-star: #C2185B;
 
-  /* Radius */
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
+  /* Radius — Mapped from Generated Tokens */
+  --radius-sm: var(--brand-radius-sm);
+  --radius-md: var(--brand-radius-md);
+  --radius-lg: var(--brand-radius-lg);
 
-  /* Spacing */
-  --space-xs: 8px;
-  --space-sm: 16px;
-  --space-md: 24px;
-  --space-lg: 48px;
-  --space-xl: 80px;
+  /* Spacing — Mapped from Generated Tokens */
+  --space-xs: var(--brand-space-xs);
+  --space-sm: var(--brand-space-sm);
+  --space-md: var(--brand-space-md);
+  --space-lg: var(--brand-space-lg);
+  --space-xl: var(--brand-space-xl);
 
-  /* Motion */
-  --duration-short: 200ms;
-  --duration-medium: 300ms;
+  /* Motion — Mapped from Generated Tokens */
+  --duration-short: var(--brand-motion-duration-short);
+  --duration-medium: var(--brand-motion-duration-medium);
   --ease-juicy: cubic-bezier(0.4, 0, 0.2, 1);
 }
 

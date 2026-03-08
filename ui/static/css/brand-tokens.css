@@ -1,0 +1,21 @@
+/* ── Generated Brand Tokens (DO NOT EDIT) ── */
+:root {
+  --brand-color-primary: #FF8A00;
+  --brand-color-earth-dark: #1A120E;
+  --brand-color-earth-clay: #A0522D;
+  --brand-color-earth-ochre: #CC7722;
+  --brand-color-earth-sand: #F4EBD0;
+  --brand-color-earth-cream: #FAF8F1;
+  --brand-color-secondary: #005D3A;
+  --brand-color-accent: #F58608;
+  --brand-radius-sm: 0px;
+  --brand-radius-md: 0px;
+  --brand-radius-lg: 0px;
+  --brand-space-xs: 8px;
+  --brand-space-sm: 16px;
+  --brand-space-md: 24px;
+  --brand-space-lg: 48px;
+  --brand-space-xl: 80px;
+  --brand-motion-duration-short: 200ms ease-out;
+  --brand-motion-duration-medium: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
