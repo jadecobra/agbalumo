@@ -3,6 +3,7 @@ package sqlite_test
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -443,5 +444,111 @@ func TestFindByTitle_CaseInsensitive(t *testing.T) {
 	res, _ = repo.FindByTitle(ctx, "Duplicate Title")
 	if len(res) != 2 {
 		t.Errorf("Expected 2 results for Duplicate Title, got %d", len(res))
+	}
+}
+
+func TestTitleExists(t *testing.T) {
+	repo, _ := newTestRepo(t)
+	ctx := context.Background()
+
+	title := "Unique Listing"
+	_ = repo.Save(ctx, domain.Listing{ID: "1", Title: title, IsActive: true})
+
+	exists, err := repo.TitleExists(ctx, title)
+	if err != nil {
+		t.Fatalf("TitleExists failed: %v", err)
+	}
+	if !exists {
+		t.Error("Expected title to exist")
+	}
+
+	exists, err = repo.TitleExists(ctx, "Non-existent Title")
+	if err != nil {
+		t.Fatalf("TitleExists failed: %v", err)
+	}
+	if exists {
+		t.Error("Expected title to not exist")
+	}
+}
+
+func TestGetClaimRequestByUserAndListing(t *testing.T) {
+	repo, _ := newTestRepo(t)
+	ctx := context.Background()
+
+	userID := "u1"
+	listingID := "l1"
+
+	// 1. Not found
+	_, err := repo.GetClaimRequestByUserAndListing(ctx, userID, listingID)
+	if err == nil {
+		t.Error("Expected error when claim request not found, got nil")
+	}
+
+	// 2. Found
+	req := domain.ClaimRequest{
+		ID:        "cr1",
+		UserID:    userID,
+		ListingID: listingID,
+		Status:    domain.ClaimStatusPending,
+		CreatedAt: time.Now(),
+	}
+	_ = repo.SaveClaimRequest(ctx, req)
+
+	found, err := repo.GetClaimRequestByUserAndListing(ctx, userID, listingID)
+	if err != nil {
+		t.Fatalf("GetClaimRequestByUserAndListing failed: %v", err)
+	}
+	if found.ID != req.ID {
+		t.Errorf("Expected ID %s, got %s", req.ID, found.ID)
+	}
+}
+
+func BenchmarkSQLiteRepository_FindAll(b *testing.B) {
+	tmpDir := b.TempDir()
+	dbPath := filepath.Join(tmpDir, "bench.db")
+	repo, _ := sqlite.NewSQLiteRepository(dbPath + "?_time_format=sqlite")
+	ctx := context.Background()
+
+	// Seed 100 listings
+	for i := 0; i < 100; i++ {
+		_ = repo.Save(ctx, domain.Listing{
+			ID:          fmt.Sprintf("l%d", i),
+			Title:       fmt.Sprintf("Listing %d", i),
+			Type:        domain.Business,
+			OwnerOrigin: "Nigeria",
+			Address:     "123 St",
+			Description: "Desc",
+			IsActive:    true,
+		})
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, _ = repo.FindAll(ctx, "", "", "", "", true, 50, 0)
+	}
+}
+
+func BenchmarkSQLiteRepository_FindByTitle(b *testing.B) {
+	tmpDir := b.TempDir()
+	dbPath := filepath.Join(tmpDir, "bench_title.db")
+	repo, _ := sqlite.NewSQLiteRepository(dbPath + "?_time_format=sqlite")
+	ctx := context.Background()
+
+	// Seed 100 listings
+	for i := 0; i < 100; i++ {
+		_ = repo.Save(ctx, domain.Listing{
+			ID:          fmt.Sprintf("l%d", i),
+			Title:       fmt.Sprintf("Listing %d", i),
+			Type:        domain.Business,
+			OwnerOrigin: "Nigeria",
+			Address:     "123 St",
+			Description: "Desc",
+			IsActive:    true,
+		})
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, _ = repo.FindByTitle(ctx, "Listing 50")
 	}
 }

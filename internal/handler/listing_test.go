@@ -1161,3 +1161,31 @@ func TestToListing_NormalizeURL(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkHandleHome(b *testing.B) {
+	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	// Mock data for 20 listings
+	listings := make([]domain.Listing, 20)
+	for i := 0; i < 20; i++ {
+		listings[i] = domain.Listing{Title: fmt.Sprintf("Listing %d", i)}
+	}
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindAll", testifyMock.Anything, "", "", "", "", false, 20, 0).Return(listings, nil)
+	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{}, nil)
+	mockRepo.On("GetLocations", testifyMock.Anything).Return([]string{}, nil)
+	mockRepo.On("GetFeaturedListings", testifyMock.Anything).Return([]domain.Listing{}, nil)
+
+	h := handler.NewListingHandler(mockRepo, nil, "")
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		rec.Body.Reset()
+		_ = h.HandleHome(c)
+	}
+}

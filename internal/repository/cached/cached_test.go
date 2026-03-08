@@ -12,8 +12,10 @@ import (
 // stubListingStore is a minimal stub satisfying domain.ListingStore for testing.
 type stubListingStore struct {
 	domain.ListingRepository
-	getCountsCalls int
-	getCountsFunc  func() (map[domain.Category]int, error)
+	getCountsCalls    int
+	getCountsFunc     func() (map[domain.Category]int, error)
+	getLocationsCalls int
+	getLocationsFunc  func() ([]string, error)
 }
 
 func (s *stubListingStore) GetCounts(ctx context.Context) (map[domain.Category]int, error) {
@@ -25,6 +27,10 @@ func (s *stubListingStore) GetCounts(ctx context.Context) (map[domain.Category]i
 }
 
 func (s *stubListingStore) GetLocations(ctx context.Context) ([]string, error) {
+	s.getLocationsCalls++
+	if s.getLocationsFunc != nil {
+		return s.getLocationsFunc()
+	}
 	return []string{"Lagos", "London"}, nil
 }
 
@@ -114,5 +120,91 @@ func TestCachedGetCounts_ReturnsCopy(t *testing.T) {
 	counts2, _ := cache.GetCounts(context.Background())
 	if counts2[domain.Business] != 5 {
 		t.Errorf("cache was mutated by caller: expected Business=5, got %d", counts2[domain.Business])
+	}
+}
+
+func TestCachedGetLocations_CacheMiss(t *testing.T) {
+	stub := &stubListingStore{}
+	cache := NewCachedListingStore(stub, 60*time.Second)
+
+	locs, err := cache.GetLocations(context.Background())
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if stub.getLocationsCalls != 1 {
+		t.Errorf("expected 1 call to underlying store, got %d", stub.getLocationsCalls)
+	}
+	if len(locs) != 2 || locs[0] != "Lagos" || locs[1] != "London" {
+		t.Errorf("unexpected locations: %v", locs)
+	}
+}
+
+func TestCachedGetLocations_CacheHit(t *testing.T) {
+	stub := &stubListingStore{}
+	cache := NewCachedListingStore(stub, 60*time.Second)
+
+	// First call — cache miss
+	_, _ = cache.GetLocations(context.Background())
+	// Second call — cache hit
+	locs, err := cache.GetLocations(context.Background())
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if stub.getLocationsCalls != 1 {
+		t.Errorf("expected 1 call to underlying store (cached), got %d", stub.getLocationsCalls)
+	}
+	if len(locs) != 2 || locs[0] != "Lagos" || locs[1] != "London" {
+		t.Errorf("unexpected locations: %v", locs)
+	}
+}
+
+func TestCachedGetLocations_CacheExpired(t *testing.T) {
+	stub := &stubListingStore{}
+	cache := NewCachedListingStore(stub, 1*time.Millisecond)
+
+	// First call — cache miss
+	_, _ = cache.GetLocations(context.Background())
+	// Wait for TTL to expire
+	time.Sleep(5 * time.Millisecond)
+	// Second call — cache expired, should fetch again
+	_, err := cache.GetLocations(context.Background())
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if stub.getLocationsCalls != 2 {
+		t.Errorf("expected 2 calls to underlying store (expired), got %d", stub.getLocationsCalls)
+	}
+}
+
+func TestCachedGetLocations_ErrorPassthrough(t *testing.T) {
+	expectedErr := errors.New("db connection lost")
+	stub := &stubListingStore{
+		getLocationsFunc: func() ([]string, error) {
+			return nil, expectedErr
+		},
+	}
+	cache := NewCachedListingStore(stub, 60*time.Second)
+
+	_, err := cache.GetLocations(context.Background())
+	if !errors.Is(err, expectedErr) {
+		t.Errorf("expected error %v, got %v", expectedErr, err)
+	}
+}
+
+func TestCachedGetLocations_ReturnsCopy(t *testing.T) {
+	stub := &stubListingStore{}
+	cache := NewCachedListingStore(stub, 60*time.Second)
+
+	locs1, _ := cache.GetLocations(context.Background())
+	// Mutate the returned slice
+	locs1[0] = "MUTATED"
+
+	// Get again — should still be the original value
+	locs2, _ := cache.GetLocations(context.Background())
+	if locs2[0] != "Lagos" {
+		t.Errorf("cache was mutated by caller: expected Lagos, got %s", locs2[0])
 	}
 }

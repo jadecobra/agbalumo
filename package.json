@@ -20,9 +20,12 @@
   },
   "homepage": "https://github.com/jadecobra/agbalumo#readme",
   "devDependencies": {
-    "@tailwindcss/cli": "^4.1.18",
+    "@tailwindcss/cli": "^4.2.1",
     "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/forms": "^0.5.11",
-    "tailwindcss": "^4.1.18"
+    "tailwindcss": "^4.2.1"
+  },
+  "dependencies": {
+    "@opencode-ai/sdk": "^1.2.20"
   }
 }

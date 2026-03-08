@@ -172,3 +172,36 @@ SaveErrorBiz,Business,Desc,test@test.com
 		repo.AssertExpectations(t)
 	})
 }
+
+func FuzzParseAndImport(f *testing.F) {
+	svc := NewCSVService()
+	ctx := context.Background()
+
+	// Seed some inputs
+	f.Add("title,type,description,origin,email\nTest Biz,Business,Description,Nigeria,test@test.com")
+	f.Add("title,type,description\nTest Biz,Business,Description")
+	f.Add("invalid csv data")
+	f.Add("")
+
+	f.Fuzz(func(t *testing.T, data string) {
+		repo := &mock.MockListingRepository{}
+		repo.On("FindByTitle", ctx, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
+		repo.On("Save", ctx, testifyMock.Anything).Return(nil).Maybe()
+
+		_, _ = svc.ParseAndImport(ctx, strings.NewReader(data), repo)
+	})
+}
+
+func FuzzParseCategory(f *testing.F) {
+	f.Add("Business")
+	f.Add("food")
+	f.Add("Random")
+	f.Add("")
+	f.Add("🌟")
+	f.Fuzz(func(t *testing.T, typeStr string) {
+		cat := parseCategory(typeStr)
+		if cat == "" {
+			t.Error("category should never be empty")
+		}
+	})
+}
