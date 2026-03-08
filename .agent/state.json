@@ -1,0 +1,14 @@
+{
+  "feature": "none",
+  "persona": "none",
+  "phase": "IDLE",
+  "gates": {
+    "red-test": "PENDING",
+    "api-spec": "PENDING",
+    "implementation": "PENDING",
+    "lint": "PENDING",
+    "coverage": "PENDING",
+    "browser-verification": "PENDING"
+  },
+  "updated_at": "2026-03-08T18:42:36Z"
+}
