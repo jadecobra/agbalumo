@@ -16,6 +16,7 @@ function show_usage() {
     echo "  $0 workflow set-persona <persona_name>"
     echo "  $0 workflow set-phase <IDLE|RED|GREEN|REFACTOR>"
     echo "  $0 workflow gate <gate_id> <PENDING|PASS|FAIL>"
+    echo "  $0 workflow verify <gate_id>"
     echo "  $0 workflow status"
     echo ""
     echo "Available personas:"
@@ -62,6 +63,11 @@ function handle_workflow() {
             jq --arg g "$gate" --arg s "$status" --arg t "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
                 '.gates[$g] = $s | .updated_at = $t' "$STATE_FILE" > "$STATE_FILE.tmp" && mv "$STATE_FILE.tmp" "$STATE_FILE"
             echo "Gate '$gate' set to: $status"
+            ;;
+        verify)
+            local gate=$1
+            if [ -z "$gate" ]; then echo "Usage: workflow verify <gate_id>"; exit 1; fi
+            bash scripts/agent-gate.sh "$gate"
             ;;
         status)
             jq . "$STATE_FILE"
