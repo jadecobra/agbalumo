@@ -57,8 +57,8 @@ run_task() {
     local start=$(date +%s)
     local log_file="$LOG_DIR/$task_id.log"
     if [ "$task_id" = "lint" ]; then
-        mkdir -p @@tester
-        log_file="@@tester/lint-results.txt"
+        mkdir -p @tester
+        log_file="@tester/lint-results.txt"
     fi
 
     if "$@" > "$log_file" 2>&1; then
