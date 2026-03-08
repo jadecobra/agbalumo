@@ -1,8 +1,0 @@
-../main.go:6:2: could not import github.com/jadecobra/agbalumo/cmd (-: # github.com/jadecobra/agbalumo/cmd
-cmd/server.go:40:3: syntax error: unexpected : at end of statement
-cmd/server.go:48:3: syntax error: unexpected : at end of statement
-cmd/server.go:49:3: syntax error: unexpected : at end of statement) (typecheck)
-	"github.com/jadecobra/agbalumo/cmd"
-	^
-1 issues:
-* typecheck: 1
