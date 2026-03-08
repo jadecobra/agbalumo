@@ -197,6 +197,20 @@ else
     echo "  ${YELLOW}skipping Security Check (no staged files)${NC}"
 fi
 
+# 7. Check for ignored files being staged (Add/Modify only)
+if [ -n "$STAGED_ALL" ]; then
+    STAGED_NEW_OR_MOD=$(git diff --cached --name-only --diff-filter=ACMR || true)
+    if [ -n "$STAGED_NEW_OR_MOD" ]; then
+        IGNORED_STAGED=$(git check-ignore --stdin <<< "$STAGED_NEW_OR_MOD" || true)
+        if [ -n "$IGNORED_STAGED" ]; then
+            echo "  ${RED}❌ Error: The following ignored files are staged for commit:${NC}"
+            echo "$IGNORED_STAGED" | sed 's/^/    /'
+            echo "  ${YELLOW}Please unstage them with 'git restore --staged <file>' and run 'git rm --cached' if they should not be tracked.${NC}"
+            exit 1
+        fi
+    fi
+fi
+
 # Wait for all background tasks
 FAILURES=0
 for job in $(jobs -p); do

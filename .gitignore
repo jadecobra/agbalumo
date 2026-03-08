@@ -29,6 +29,7 @@ coverage.html
 ARCHITECTURE_CRITIQUE.md
 *.bak
 @logs/
+pnpm-lock.yaml
 @tester/
 @data/
 @tasks/
