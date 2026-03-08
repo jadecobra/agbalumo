@@ -55,8 +55,13 @@ run_task() {
     local task_name=$2
     shift 2
     local start=$(date +%s)
-    echo "  [ ] Running $task_name..."
-    if "$@" > "$LOG_DIR/$task_id.log" 2>&1; then
+    local log_file="$LOG_DIR/$task_id.log"
+    if [ "$task_id" = "lint" ]; then
+        mkdir -p @@tester
+        log_file="@@tester/lint-results.txt"
+    fi
+
+    if "$@" > "$log_file" 2>&1; then
         local end=$(date +%s)
         echo "  ${GREEN}✅ $task_name passed ($((end - start))s)${NC}"
         return 0
