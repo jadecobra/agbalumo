@@ -52,6 +52,7 @@ COPY --from=builder --chown=appuser:appuser /app/server .
 # Copy UI assets (Templates & Static)
 # Copy from local context, NOT builder, to allow fast UI updates
 COPY --chown=appuser:appuser ui ui
+COPY --chown=appuser:appuser config config
 
 # Expose port
 EXPOSE 8080
