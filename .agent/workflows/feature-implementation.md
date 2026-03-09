@@ -21,7 +21,9 @@ Before writing any implementation code, prove the feature doesn't exist and defi
   // turbo
   go test -v -run TestNewFeatureName ./internal/package_name/...
   ```
-- **Gate**: The test MUST **FAIL** (e.g., 404 Not Found, or missing struct field). It proves the implementation is not in the API yet.
+- **Gate: `red-test`**
+  - **PASS**: Terminal output contains `--- FAIL: TestNewFeatureName` and exit code is non-zero (specifically failing because the feature is missing).
+  - **FAIL**: Test passes or fails for unrelated reasons (e.g. syntax error in test).
 
 ### 1b. Update API Specifications (Source of Truth)
 - *Role*: Lead Architect
@@ -31,7 +33,9 @@ Before writing any implementation code, prove the feature doesn't exist and defi
   ```bash
   swagger-cli validate docs/openapi.yaml
   ```
-- **Gate**: Specification accurately describes the goal.
+- **Gate: `api-spec`**
+  - **PASS**: Files `docs/api.md` and `docs/openapi.yaml` reflect the new feature's contract.
+  - **FAIL**: Documentation is missing or inconsistent with the implementation plan.
 
 ---
 
@@ -48,7 +52,9 @@ Write the minimum code necessary to satisfy the API spec and pass the test.
   // turbo
   go test -v -run TestNewFeatureName ./internal/package_name/...
   ```
-- **Gate**: Test MUST **PASS**. The implementation completely meets the specification in `@[docs/api.md]` and `@[docs/openapi.yaml]`.
+- **Gate: `implementation`**
+  - **PASS**: Terminal output contains `--- PASS: TestNewFeatureName` and exit code is 0.
+  - **FAIL**: Test fails or times out.
 
 ### 2b. Refactor & Regression
 - *Run full regression*:
@@ -63,7 +69,13 @@ Write the minimum code necessary to satisfy the API spec and pass the test.
   ```bash
   ./scripts/pre-commit.sh
   ```
-- **Gate**: Script MUST exit 0 (Coverage >= threshold in `@[.agent/coverage-threshold]`, no lint errors).
+- **Gate: `lint`**
+  - **PASS**: Output contains `✅ GolangCI-Lint passed` and exit code is 0.
+  - **FAIL**: Lint errors found or config invalid.
+
+- **Gate: `coverage`**
+  - **PASS**: Output contains `Coverage: [X]%` where `X >= threshold` (default 90.0%).
+  - **FAIL**: Coverage is below the required threshold in `@[.agent/coverage-threshold]`.
 
 ---
 
@@ -80,7 +92,9 @@ Validate that the application can be used from the command line/terminal as an a
   // turbo
   go test -v ./cmd/...
   ```
-- **Gate**: The feature can be successfully invoked and verified via CLI for user/admin personas.
+- **Gate: `implementation` (CLI)**
+  - **PASS**: CLI command returns expected success output or `go test ./cmd/...` passes.
+  - **FAIL**: CLI returns error or unexpected data.
 
 ---
 
@@ -111,10 +125,9 @@ Ensure the implemented feature is fully functional and pixel-perfect in the UI.
     4. Perform basic accessibility check (tab order, visual focus)."
   RecordingName: "verify_feature_name_ui"
   ```
-- **Gate**:
-  - Feature exists and data renders correctly.
-  - Visual quality is premium (brand colors, layout).
-  - No JavaScript or CSP errors in the console.
+- **Gate: `browser-verification`**
+  - **PASS**: Browser subagent report confirms feature works as intended; visual audit passes; zero console errors.
+  - **FAIL**: Interactions fail, data missing, or visual breakage detected.
 
 ---
 
@@ -129,17 +142,18 @@ After every 3-step verification is complete, reset the application state by runn
 
 A feature is **DONE** when ALL boxes are checked:
 
-- [ ] Unit test was written FIRST and **failed** (Red), verifying implementation is not in the API
-- [ ] Requirements defined cleanly in `@[docs/api.md]` and `@[docs/openapi.yaml]` as the source of truth
-- [ ] Minimal code implemented, edge cases (400, 401, 403) covered, and tests **passed** (Green), verifying it meets specification
-- [ ] Tested with `agbalumo` CLI as user/admin to verify it works from the command line
-- [ ] Programmatic UI tests as user/admin verify it can be used from the UI
-- [ ] `go test -race ./...` passes (no regressions)
-- [ ] `./scripts/pre-commit.sh` exits 0 (strict coverage maintained)
-- [ ] `./scripts/verify_restart.sh` executed successfully (server running)
-- [ ] Browser subagent as user/admin verified the feature works from the UI natively
-- [ ] Recording artifact saved with descriptive name
-- [ ] `task.md` updated with completed status
-- [ ] `spec.md` reviewed and updated if needed
-- [ ] `@[.agent/workflows/restart-server.md]` was run after verification
-- [ ] Commit with short, imperative message
+- [ ] **Gate: `red-test`** - Unit test was written FIRST and **failed** (Red).
+- [ ] **Gate: `api-spec`** - Requirements defined in `@[docs/api.md]` and `@[docs/openapi.yaml]`.
+- [ ] **Gate: `implementation`** - Logic implemented and tests **passed** (Green).
+- [ ] **Gate: `implementation` (CLI)** - Verified via `agbalumo` CLI as user/admin.
+- [ ] Programmatic UI tests as user/admin verify it can be used from the UI.
+- [ ] `go test -race ./...` passes (no regressions).
+- [ ] **Gate: `lint`** - `./scripts/pre-commit.sh` linting passed.
+- [ ] **Gate: `coverage`** - `./scripts/pre-commit.sh` coverage threshold met.
+- [ ] `./scripts/verify_restart.sh` executed successfully (server running).
+- [ ] **Gate: `browser-verification`** - Browser subagent verified feature natives UI.
+- [ ] Recording artifact saved with descriptive name.
+- [ ] `task.md` updated with completed status.
+- [ ] `spec.md` reviewed and updated if needed.
+- [ ] `@[.agent/workflows/restart-server.md]` was run after verification.
+- [ ] Commit with short, imperative message.
