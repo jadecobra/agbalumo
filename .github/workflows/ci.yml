@@ -163,13 +163,15 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Docker Scout Scan
-        uses: docker/scout-action@v1
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@v0.29.0
         with:
-          command: cves
-          image: agbalumo:${{ github.sha }}
-          ignore-unchanged: true
-          only-severities: critical,high
+          image-ref: 'agbalumo:${{ github.sha }}'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
 
   deploy:
     name: Deploy to Fly.io

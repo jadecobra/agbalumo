@@ -121,7 +121,7 @@ agbalumo uses a "Juicy Fruit" design aesthetic, inspired by Yoruba roots and com
 
 ### 8. Security & 10x Auditing
 
-agbalumo maintains a "Zero Trust" security posture by enforcing automated vulnerability scans (`govulncheck`) and custom security audits (`cmd/security-audit`) in the CI/CD pipeline. The project targets the latest secure Go versions (currently `1.25.8`) to mitigate standard library risks.
+agbalumo maintains a "Zero Trust" security posture by enforcing automated vulnerability scans (`govulncheck`), container security scans (`aquasecurity/trivy-action`), and custom security audits (`cmd/security-audit`) in the CI/CD pipeline. The project targets the latest secure Go versions (currently `1.25.8`) to mitigate standard library risks.
 
 ### 9. Codebase Critique & Improvements (Self-Correction)
 

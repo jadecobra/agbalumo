@@ -211,6 +211,9 @@ if [ -n "$STAGED_ALL" ]; then
     fi
 fi
 
+# 8. CI Workflow Toolset Verification
+run_task "ci_tools" "CI Toolset" bash scripts/verify-ci-tools.sh &
+
 # Wait for all background tasks
 FAILURES=0
 for job in $(jobs -p); do
