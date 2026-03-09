@@ -343,7 +343,7 @@ func init() {
 	listingUpdateCmd.Flags().StringVar(&flagCompany, "company", "", "New company")
 	listingUpdateCmd.Flags().StringVar(&flagPayRange, "pay-range", "", "New pay range")
 
-_ = listingCreateCmd.MarkFlagRequired("title")
+	_ = listingCreateCmd.MarkFlagRequired("title")
 }
 
 func initRepo() *sqlite.SQLiteRepository {
@@ -360,7 +360,7 @@ func getDatabaseURL() string {
 	if dbURL := os.Getenv("DATABASE_URL"); dbURL != "" {
 		return dbURL
 	}
-	return "@data/agbalumo.db"
+	return ".tester/data/agbalumo.db"
 }
 
 func generateID() string {

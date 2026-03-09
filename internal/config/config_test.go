@@ -18,7 +18,7 @@ func TestLoadConfig(t *testing.T) {
 	t.Run("defaults", func(t *testing.T) {
 		cfg := config.LoadConfig()
 		require.Equal(t, "development", cfg.Env)
-		require.Equal(t, "@data/agbalumo.db", cfg.DatabaseURL)
+		require.Equal(t, ".tester/data/agbalumo.db", cfg.DatabaseURL)
 		require.Equal(t, "dev-secret-key", cfg.SessionSecret)
 		require.Equal(t, "agbalumo2024", cfg.AdminCode)
 		require.Equal(t, "dev@agbalumo.com", cfg.DevAuthEmail)

@@ -8,5 +8,5 @@ services:
     environment:
       - PORT=8080
     volumes:
-      - ./@data/agbalumo.db:/app/agbalumo.db
+      - ./.tester/data/agbalumo.db:/app/agbalumo.db
     restart: unless-stopped

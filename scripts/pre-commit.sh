@@ -86,8 +86,8 @@ run_task() {
     local start=$(date +%s)
     local log_file="$LOG_DIR/$task_id.log"
     if [ "$task_id" = "lint" ]; then
-        mkdir -p @tester
-        log_file="@tester/lint-results.txt"
+        mkdir -p .tester/coverage
+        log_file=".tester/coverage/lint-results.txt"
     fi
 
     if "$@" > "$log_file" 2>&1; then
@@ -175,9 +175,11 @@ fi
 # 5. Tests & Coverage
 if [ -n "$STAGED_GO_FILES" ]; then
     check_tests() {
+        mkdir -p .tester/coverage
+        log_file=".tester/coverage/lint-results.txt"
         # Removing -race locally to improve test speed in pre-commit
-        go test -coverprofile=@tester/coverage.out ./... > /dev/null
-        COVERAGE=$(go tool cover -func=@tester/coverage.out | grep total | grep -oE "[0-9]+(\.[0-9]+)?" | head -1)
+        go test -coverprofile=.tester/coverage/coverage.out ./... > /dev/null
+        COVERAGE=$(go tool cover -func=.tester/coverage/coverage.out | grep total | grep -oE "[0-9]+(\.[0-9]+)?" | head -1)
         THRESHOLD=90.0
         if [ "$(echo "$COVERAGE < $THRESHOLD" | bc -l)" -eq 1 ]; then
             echo "Coverage is below threshold: $COVERAGE% < $THRESHOLD%"

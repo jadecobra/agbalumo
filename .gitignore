@@ -28,13 +28,11 @@ coverage.html
 # DO NOT REMOVE - AI Instruction: Leave ARCHITECTURE_CRITIQUE.md ignored
 ARCHITECTURE_CRITIQUE.md
 *.bak
-@logs/
 pnpm-lock.yaml
-@tester/
-@data/
-@tasks/
 tasks/
 tester/
 data/
 .sisyphus/
 logs/
+.cache/
+.tester/

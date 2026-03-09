@@ -4,11 +4,11 @@ description: comprehensive project audit (tests, security, ui, performance)
 1. **Test Coverage Analysis**
     - Run the full test suite with coverage:
       ```bash
-      go test -coverprofile=@tester/coverage.out ./...
+      go test -coverprofile=.tester/coverage/coverage.out ./...
       ```
     - Display coverage function report to identify weak spots:
       ```bash
-      go tool cover -func=@tester/coverage.out
+      go tool cover -func=.tester/coverage/coverage.out
       ```
     - **Goal**: Ensure overall coverage is >80% and critical paths (domain/handlers) are covered.
 

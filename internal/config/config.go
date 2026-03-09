@@ -31,7 +31,7 @@ func LoadConfig() *Config {
 
 	return &Config{
 		Env:              env,
-		DatabaseURL:      getEnv("DATABASE_URL", "@data/agbalumo.db"),
+		DatabaseURL:      getEnv("DATABASE_URL", ".tester/data/agbalumo.db"),
 		SessionSecret:    getEnv("SESSION_SECRET", "dev-secret-key"),
 		AdminCode:        getAdminCode(env),
 		DevAuthEmail:     getEnv("DEV_AUTH_EMAIL", "dev@agbalumo.com"),

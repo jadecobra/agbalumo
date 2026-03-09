@@ -94,14 +94,14 @@ case "$GATE_ID" in
         ;;
     coverage)
         echo "Verifying test coverage..."
-        mkdir -p @tester
-        go test -coverprofile=@tester/coverage.out ./... > /dev/null
-        if [ ! -f "@tester/coverage.out" ]; then
+        mkdir -p .tester/coverage
+        go test -coverprofile=.tester/coverage/coverage.out ./... > /dev/null
+        if [ ! -f ".tester/coverage/coverage.out" ]; then
             echo "❌ Gate FAIL: coverage profile not generated."
             update_gate "FAIL"
             exit 1
         fi
-        COVERAGE=$(go tool cover -func=@tester/coverage.out | grep total | grep -oE "[0-9]+(\.[0-9]+)?" | head -1)
+        COVERAGE=$(go tool cover -func=.tester/coverage/coverage.out | grep total | grep -oE "[0-9]+(\.[0-9]+)?" | head -1)
         THRESHOLD=$(grep -oE "THRESHOLD=[0-9]+(\.[0-9]+)?" scripts/pre-commit.sh | cut -d= -f2 || echo "90.0")
         
         if [ "$(echo "$COVERAGE < $THRESHOLD" | bc -l)" -eq 1 ]; then

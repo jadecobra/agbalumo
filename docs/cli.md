@@ -355,7 +355,7 @@ agbalumo serve --env production --port 443 --cert /path/to/cert.pem --key /path/
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `DATABASE_URL` | @data/agbalumo.db | SQLite database path |
+| `DATABASE_URL` | .tester/data/agbalumo.db | SQLite database path |
 | `SESSION_SECRET` | dev-secret-key | Session encryption secret |
 | `ADMIN_CODE` | (generated) | Admin access code |
 | `UPLOAD_DIR` | ./uploads | Image upload directory |
