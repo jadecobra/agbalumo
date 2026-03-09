@@ -14,6 +14,7 @@ open https://localhost:8443
 
 ## Documentation
 
+- **[Development Guide](docs/DEVELOPMENT.md)** - Build, test, quality control, and agentic workflows
 - **[CLI Commands](docs/cli.md)** - Command-line interface for managing listings and admin operations
 - **[HTTP API Reference](docs/api.md)** - REST API endpoints and authentication
 - **[OpenAPI Specification](docs/openapi.yaml)** - Full API schema (OpenAPI 3.0.3)
