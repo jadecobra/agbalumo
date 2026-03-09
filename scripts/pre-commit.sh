@@ -35,6 +35,12 @@ BLUE=$(printf '\033[1;34m')
 BOLD=$(printf '\033[1m')
 NC=$(printf '\033[0m')
 
+# Documentation Links
+DOC_WORKFLOW=".agent/workflows/feature-implementation.md"
+DOC_STANDARDS="docs/CODING_STANDARDS.md"
+DOC_API="docs/api.md"
+DOC_CLI="docs/cli.md"
+
 echo "${BLUE}Running 10x Engineer Quality Checks...${NC}"
 
 # 0. Workflow State Check
@@ -50,6 +56,7 @@ if [ -f "$STATE_FILE" ]; then
         LINT_GATE=$(jq -r '.gates.lint' "$STATE_FILE")
         if [ "$LINT_GATE" != "PASS" ]; then
             echo "  ${RED}❌ Workflow Error: 'lint' gate must be PASS before committing.${NC}"
+            echo "  ${YELLOW}See: $DOC_WORKFLOW${NC}"
             exit 1
         fi
         
@@ -57,6 +64,7 @@ if [ -f "$STATE_FILE" ]; then
             RED_GATE=$(jq -r '.gates["red-test"]' "$STATE_FILE")
             if [ "$RED_GATE" != "PASS" ]; then
                  echo "  ${RED}❌ Workflow Error: 'red-test' gate must be PASS for $PHASE phase.${NC}"
+                 echo "  ${YELLOW}See: $DOC_WORKFLOW${NC}"
                  exit 1
             fi
         fi
@@ -114,6 +122,7 @@ if [ -n "$STAGED_GO_FILES" ]; then
             UNFORMATTED=$(gofmt -l $STAGED_GO_FILES)
             if [ -n "$UNFORMATTED" ]; then
                 echo "Go Code is not formatted. Run 'gofmt -w $STAGED_GO_FILES'"
+                echo "See: $DOC_STANDARDS (Section 3)"
                 return 1
             fi
         }
@@ -130,6 +139,7 @@ if [ -n "$MOD_FILES_CHANGED" ]; then
         go mod tidy
         if ! git diff --exit-code --quiet go.mod go.sum; then
             echo "go.mod/go.sum are not tidy. Run 'go mod tidy' and commit changes."
+            echo "See: $DOC_STANDARDS"
             return 1
         fi
     }
@@ -140,7 +150,8 @@ fi
 
 # 3. API & CLI Drift Checks
 if [ -n "$STAGED_CMD_DOCS" ]; then
-    run_task "api_drift" "API Drift" bash scripts/api-drift-check.sh &
+    run_task "api_drift" "API Drift" bash scripts/api-drift-check.sh
+    # If it fails, instructions are in api-drift-check.sh and docs/api.md
 else
     echo "  ${YELLOW}skipping API Drift (no relevant changes)${NC}"
 fi
@@ -187,6 +198,7 @@ if [ -n "$STAGED_GO_FILES" ]; then
         fi
         if [ "$(echo "$COVERAGE < $THRESHOLD" | bc -l)" -eq 1 ]; then
             echo "Coverage is below threshold: $COVERAGE% < $THRESHOLD%"
+            echo "See: $DOC_WORKFLOW (Gate: coverage)"
             return 2
         fi
         echo "Coverage: $COVERAGE%"
@@ -212,6 +224,7 @@ if [ -n "$STAGED_ALL" ]; then
             echo "  ${RED}❌ Error: The following ignored files are staged for commit:${NC}"
             echo "$IGNORED_STAGED" | sed 's/^/    /'
             echo "  ${YELLOW}Please unstage them with 'git restore --staged <file>' and run 'git rm --cached' if they should not be tracked.${NC}"
+            echo "  ${YELLOW}See: $DOC_STANDARDS${NC}"
             exit 1
         fi
     fi
@@ -239,5 +252,8 @@ if [ $FAILURES -eq 0 ]; then
 else
     echo ""
     echo "${RED}${BOLD}Quality Check Failed! (failures in $FAILURES tasks). Fix issues before committing.${NC}"
+    echo "${BLUE}Refer to the following for standards and workflows:${NC}"
+    echo "  - ${BLUE}$DOC_STANDARDS${NC}"
+    echo "  - ${BLUE}$DOC_WORKFLOW${NC}"
     exit 1
 fi
