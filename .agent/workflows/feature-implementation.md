@@ -63,7 +63,7 @@ Write the minimum code necessary to satisfy the API spec and pass the test.
   ```bash
   ./scripts/pre-commit.sh
   ```
-- **Gate**: Script MUST exit 0 (Coverage >= 82.5%, no lint errors).
+- **Gate**: Script MUST exit 0 (Coverage >= threshold in `@[.agent/coverage-threshold]`, no lint errors).
 
 ---
 

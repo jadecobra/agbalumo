@@ -180,7 +180,11 @@ if [ -n "$STAGED_GO_FILES" ]; then
         # Removing -race locally to improve test speed in pre-commit
         go test -coverprofile=.tester/coverage/coverage.out ./... > /dev/null
         COVERAGE=$(go tool cover -func=.tester/coverage/coverage.out | grep total | grep -oE "[0-9]+(\.[0-9]+)?" | head -1)
+        THRESHOLD_FILE=".agent/coverage-threshold"
         THRESHOLD=90.0
+        if [ -f "$THRESHOLD_FILE" ]; then
+            THRESHOLD=$(cat "$THRESHOLD_FILE")
+        fi
         if [ "$(echo "$COVERAGE < $THRESHOLD" | bc -l)" -eq 1 ]; then
             echo "Coverage is below threshold: $COVERAGE% < $THRESHOLD%"
             return 2

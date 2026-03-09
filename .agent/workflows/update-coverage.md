@@ -13,7 +13,7 @@ export PATH=/opt/homebrew/bin:/usr/local/go/bin:$PATH && go test -race -coverpro
 *(Extract the coverage percentage from the output).*
 
 // turbo
-2. Update the file `scripts/pre-commit.sh` with the new coverage percentage. You need to modify both the `THRESHOLD=` variable and the `# Enforce minimum coverage` comment.
+2. Update the file `.agent/coverage-threshold` with the new coverage percentage.
 
 // turbo
 3. Run the pre-commit script to verify the threshold is correctly set and all tests pass:
@@ -24,5 +24,5 @@ export PATH=/opt/homebrew/bin:/usr/local/go/bin:$PATH && ./scripts/pre-commit.sh
 // turbo
 4. Commit the change using:
 ```sh
-git add scripts/pre-commit.sh && git commit -m "build: update test coverage threshold to <NEW_PERCENTAGE>%"
+git add .agent/coverage-threshold scripts/pre-commit.sh && git commit -m "build: update test coverage threshold to <NEW_PERCENTAGE>%"
 ```
