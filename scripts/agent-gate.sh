@@ -38,12 +38,64 @@ echo "Verifying gate: $GATE_ID for feature: $FEATURE ($PHASE)"
 update_gate() {
     local status=$1
     ./scripts/agent-exec.sh workflow gate "$GATE_ID" "$status" || true
+    
+    # Auto-transition logic
+    STATE=$(jq -r . "$STATE_FILE")
+    PHASE=$(echo "$STATE" | jq -r .phase)
+    RED_TEST=$(echo "$STATE" | jq -r '.gates["red-test"]')
+    API_SPEC=$(echo "$STATE" | jq -r '.gates["api-spec"]')
+    IMPL=$(echo "$STATE" | jq -r '.gates["implementation"]')
+    
+    if [ "$PHASE" == "RED" ]; then
+        if [ "$RED_TEST" == "PASS" ] && [ "$API_SPEC" == "PASS" ]; then
+            echo "✨ All RED gates passed. Transitioning to GREEN phase."
+            ./scripts/agent-exec.sh workflow set-phase GREEN
+        fi
+    elif [ "$PHASE" == "GREEN" ]; then
+        if [ "$IMPL" == "PASS" ]; then
+            echo "✨ Implementation passed. Transitioning to REFACTOR phase."
+            ./scripts/agent-exec.sh workflow set-phase REFACTOR
+        fi
+    fi
+    
+    echo "--- Current Workflow Status ---"
+    ./scripts/agent-exec.sh workflow status | jq -r '"Feature: \(.feature) (\(.phase))\nGates: \(.gates)"'
 }
+
+# Dependency Checks
+check_deps() {
+    local gate=$1
+    case "$gate" in
+        implementation)
+            RED_TEST=$(jq -r '.gates["red-test"]' "$STATE_FILE")
+            API_SPEC=$(jq -r '.gates["api-spec"]' "$STATE_FILE")
+            if [ "$RED_TEST" != "PASS" ] || [ "$API_SPEC" != "PASS" ]; then
+                echo "❌ Error: 'implementation' requires 'red-test' and 'api-spec' to be PASS."
+                exit 1
+            fi
+            ;;
+        lint|coverage)
+            IMPL=$(jq -r '.gates["implementation"]' "$STATE_FILE")
+            if [ "$IMPL" != "PASS" ]; then
+                echo "❌ Error: '$gate' requires 'implementation' to be PASS."
+                exit 1
+            fi
+            ;;
+        browser-verification)
+            IMPL=$(jq -r '.gates["implementation"]' "$STATE_FILE")
+            if [ "$IMPL" != "PASS" ]; then
+                echo "❌ Error: 'browser-verification' requires 'implementation' to be PASS."
+                exit 1
+            fi
+            ;;
+    esac
+}
+
+check_deps "$GATE_ID"
 
 case "$GATE_ID" in
     red-test)
-        # Phase check: red-test is only valid when phase is RED (or GREEN/REFACTOR if we want to ensure it STILL fails without implementation, but RED is the standard entry)
-        # Expected: go test fails.
+        # Phase check: red-test is only valid when phase is RED
         echo "Running tests expecting failure..."
         if go test ./... > /dev/null 2>&1; then
             echo "❌ Gate FAIL: red-test passed but was expected to fail."
@@ -102,7 +154,12 @@ case "$GATE_ID" in
             exit 1
         fi
         COVERAGE=$(go tool cover -func=.tester/coverage/coverage.out | grep total | grep -oE "[0-9]+(\.[0-9]+)?" | head -1)
-        THRESHOLD=$(grep -oE "THRESHOLD=[0-9]+(\.[0-9]+)?" scripts/pre-commit.sh | cut -d= -f2 || echo "90.0")
+        
+        THRESHOLD_FILE=".agent/coverage-threshold"
+        THRESHOLD=90.0
+        if [ -f "$THRESHOLD_FILE" ]; then
+            THRESHOLD=$(cat "$THRESHOLD_FILE")
+        fi
         
         if [ "$(echo "$COVERAGE < $THRESHOLD" | bc -l)" -eq 1 ]; then
             echo "❌ Gate FAIL: Coverage $COVERAGE% is below threshold $THRESHOLD%."
@@ -115,8 +172,6 @@ case "$GATE_ID" in
         ;;
     browser-verification)
         echo "⚠️  browser-verification requires manual confirmation or browser subagent."
-        # For the sake of "Automated", we check if a 'browser_verification_done' file exists or similar.
-        # For now, we'll just require it to be set manually via agent-exec.sh, but we can verify it's PASS.
         STATUS=$(jq -r ".gates[\"$GATE_ID\"]" "$STATE_FILE")
         if [ "$STATUS" == "PASS" ]; then
              echo "✅ Gate PASS: browser-verification already marked as PASS."
@@ -130,3 +185,4 @@ case "$GATE_ID" in
         exit 1
         ;;
 esac
+
