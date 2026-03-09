@@ -7,4 +7,5 @@
 - make sure to update spec.md after changes and tests pass, critique codebase in relation to goal in spec.md
 - NEVER lower test coverage threshold to allow a commit, if coverage is low, write more tests
 - NEVER commit `ARCHITECTURE_CRITIQUE.md` or remove it from `.gitignore`. It is meant to remain a local, untracked file.
+- **Run CI locally before pushing** using `scripts/ci-local.sh`. For example: `scripts/ci-local.sh -j quality_lint`
 - NEVER remove files from .gitignore without explicit approval from user

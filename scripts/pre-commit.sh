@@ -214,6 +214,9 @@ fi
 # 8. CI Workflow Toolset Verification
 run_task "ci_tools" "CI Toolset" bash scripts/verify-ci-tools.sh &
 
+# 9. Local CI Verification
+run_task "ci_local" "Local CI (act)" bash scripts/ci-local.sh --list &
+
 # Wait for all background tasks
 FAILURES=0
 for job in $(jobs -p); do
