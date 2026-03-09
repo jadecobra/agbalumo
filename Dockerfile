@@ -40,13 +40,18 @@ WORKDIR /app
 RUN apk --no-cache upgrade && \
     apk --no-cache add ca-certificates tzdata wget bash
 
+# Create appuser and setup directories
+RUN adduser -D -u 1000 appuser && \
+    mkdir -p /data && \
+    chown appuser:appuser /data /app
+
 # Copy binaries from builders
-COPY --from=litestream-builder /go/bin/litestream /usr/local/bin/litestream
-COPY --from=builder /app/server .
+COPY --from=litestream-builder --chown=appuser:appuser /go/bin/litestream /usr/local/bin/litestream
+COPY --from=builder --chown=appuser:appuser /app/server .
 
 # Copy UI assets (Templates & Static)
 # Copy from local context, NOT builder, to allow fast UI updates
-COPY ui ui
+COPY --chown=appuser:appuser ui ui
 
 # Expose port
 EXPOSE 8080
@@ -56,8 +61,11 @@ ENV PORT=8080
 ENV DATABASE_URL=/data/agbalumo.db
 
 # Copy litestream config and entrypoint
-COPY etc/litestream.yml /etc/litestream.yml
-COPY scripts/entrypoint.sh /app/entrypoint.sh
+COPY --chown=appuser:appuser etc/litestream.yml /etc/litestream.yml
+COPY --chown=appuser:appuser scripts/entrypoint.sh /app/entrypoint.sh
+
+# Ensure entrypoint is executable
+RUN chmod +x /app/entrypoint.sh
 
 # Use non-root user
 USER appuser
