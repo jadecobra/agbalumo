@@ -157,6 +157,43 @@ fi
 echo "${GREEN}✅ PASS: No obvious hardcoded secrets (general patterns)${NC}"
 
 # ============================================
+# CHECK 8: Container Scan (if Docker modified)
+# ============================================
+echo ""
+echo "8. Checking for container vulnerabilities..."
+
+# Only run if Dockerfile or scripts are modified, or if forced
+if git diff --cached --name-only | grep -qE "Dockerfile|scripts/|go.mod|go.sum"; then
+    if command -v docker >/dev/null 2>&1; then
+        echo "${YELLOW}Building and scanning container image...${NC}"
+        # We reuse the repro script's logic but more integrated
+        IMAGE_NAME="agbalumo-security-check"
+        if docker build -q -t "$IMAGE_NAME" . >/dev/null 2>&1; then
+            if docker run --rm \
+                -v /var/run/docker.sock:/var/run/docker.sock \
+                -v "$(pwd)/.cache/trivy:/root/.cache/" \
+                aquasec/trivy:latest \
+                image \
+                --exit-code 1 \
+                --severity CRITICAL,HIGH \
+                --ignore-unfixed \
+                "$IMAGE_NAME" >/dev/null 2>&1; then
+                echo "${GREEN}✅ PASS: No critical/high vulnerabilities in container${NC}"
+            else
+                echo "${RED}❌ FAIL: Container vulnerabilities detected! Run scripts/repro_ci_failure.sh for details.${NC}"
+                FAILED=1
+            fi
+        else
+            echo "${YELLOW}⚠️  WARNING: Container build failed during security check, skipping scan${NC}"
+        fi
+    else
+        echo "${YELLOW}⚠️  WARNING: Docker not found, skipping container scan${NC}"
+    fi
+else
+    echo "   Skipping container scan (no relevant changes detected)"
+fi
+
+# ============================================
 # FINAL RESULT
 # ============================================
 echo ""

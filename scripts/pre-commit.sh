@@ -97,7 +97,7 @@ run_task() {
     else
         local end=$(date +%s)
         echo "  ${RED}❌ $task_name failed ($((end - start))s)${NC}"
-        cat "$LOG_DIR/$task_id.log"
+        cat "$log_file"
         return 1
     fi
 }

@@ -1,41 +1,47 @@
-# Build Stage
+# Build Stage for Litestream
+FROM golang:1.25.8-bookworm AS litestream-builder
+RUN apt-get update && apt-get install -y git
+WORKDIR /src
+RUN git clone https://github.com/benbjohnson/litestream.git . && \
+    git checkout v0.3.13 && \
+    go get golang.org/x/crypto@latest && \
+    go get google.golang.org/grpc@v1.57.1 && \
+    go get golang.org/x/net@v0.23.0 && \
+    go get golang.org/x/oauth2@v0.27.0 && \
+    go mod tidy && \
+    CGO_ENABLED=1 go install -ldflags '-extldflags "-static"' ./cmd/litestream
+
+# Build Stage for App
 FROM golang:1.25.8-alpine AS builder
 
 WORKDIR /app
 
-# Install build dependencies (if needed, but modernc sqlite is pure go mostly)
-# apk add --no-cache git 
+# Install build dependencies
+RUN apk add --no-cache git
 
 COPY go.mod go.sum ./
 RUN --mount=type=cache,target=/go/pkg/mod go mod download
 
 # Copy only necessary Go source code
-# This prevents cache invalidation when non-Go files (like UI, docs) change
 COPY cmd cmd
 COPY internal internal
 COPY main.go .
 
 # Build the application
-# CGO_ENABLED=0 since modernc.org/sqlite is pure Go (mostly) and for static binary
 RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
     CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o server main.go
 
 # Runtime Stage
-FROM alpine:latest
+FROM alpine:3.21
 
 WORKDIR /app
 
-# Install CA certificates for external API calls
-RUN apk --no-cache add ca-certificates tzdata wget bash
+# Install CA certificates and upgrade all packages to get latest security fixes
+RUN apk --no-cache upgrade && \
+    apk --no-cache add ca-certificates tzdata wget bash
 
-# Download Litestream
-ADD https://github.com/benbjohnson/litestream/releases/download/v0.3.13/litestream-v0.3.13-linux-amd64.tar.gz /tmp/litestream.tar.gz
-RUN tar -C /usr/local/bin -xzf /tmp/litestream.tar.gz && rm /tmp/litestream.tar.gz
-
-# Create a non-root user
-RUN adduser -D -g '' appuser
-
-# Copy binary from builder
+# Copy binaries from builders
+COPY --from=litestream-builder /go/bin/litestream /usr/local/bin/litestream
 COPY --from=builder /app/server .
 
 # Copy UI assets (Templates & Static)

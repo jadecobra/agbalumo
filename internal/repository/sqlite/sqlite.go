@@ -781,6 +781,7 @@ func (r *SQLiteRepository) UpsertCoreCategory(ctx context.Context, c domain.Cate
 		name = excluded.name,
 		claimable = excluded.claimable,
 		is_system = excluded.is_system,
+		active = excluded.active,
 		requires_special_validation = excluded.requires_special_validation,
 		updated_at = excluded.updated_at;
 	`

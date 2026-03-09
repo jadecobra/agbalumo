@@ -14,12 +14,12 @@ if ! command -v act &> /dev/null; then
 fi
 
 # Detect Apple M-series (arm64) and apply architecture flag
-ARCH_FLAG=""
+ARCH_FLAG=()
 if [[ $(uname -m) == "arm64" ]]; then
     echo "Detected Apple M-series chip. Using --container-architecture linux/amd64"
-    ARCH_FLAG="--container-architecture linux/amd64"
+    ARCH_FLAG=("--container-architecture" "linux/amd64")
 fi
 
 # Run act with provided arguments
 echo "🚀 Running local CI with act..."
-act $ARCH_FLAG "$@"
+act "${ARCH_FLAG[@]}" "$@"

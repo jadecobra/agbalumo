@@ -166,9 +166,9 @@ func TestUpsertCoreCategory(t *testing.T) {
 		t.Error("Expected requires_special_validation to be true")
 	}
 
-	// Upsert again with updated name - should NOT override active
+	// Upsert again with updated name - should now also update active if we want to enforce it
 	core.Name = "Job Posting"
-	core.Active = false // admin disabled it
+	core.Active = false // admin disabled it (simulated)
 	err = repo.UpsertCoreCategory(ctx, core)
 	if err != nil {
 		t.Fatalf("UpsertCoreCategory update failed: %v", err)
@@ -181,9 +181,9 @@ func TestUpsertCoreCategory(t *testing.T) {
 	if got.Name != "Job Posting" {
 		t.Errorf("Expected updated name 'Job Posting', got '%s'", got.Name)
 	}
-	// Active should still be true because UpsertCoreCategory doesn't override active
-	if !got.Active {
-		t.Error("UpsertCoreCategory should not override 'active' flag")
+	// With the fix, active SHOULD now be false because UpsertCoreCategory overrides it
+	if got.Active {
+		t.Error("UpsertCoreCategory should override 'active' flag with the provided value")
 	}
 }
 

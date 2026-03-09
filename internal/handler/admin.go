@@ -168,9 +168,24 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 func (h *AdminHandler) HandleAddCategory(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	name := c.FormValue("name")
+	name := strings.TrimSpace(c.FormValue("name"))
 	if name == "" {
 		return c.Redirect(http.StatusFound, "/admin")
+	}
+
+	// Case-insensitive check for existing category
+	existing, err := h.Repo.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: false})
+	if err == nil {
+		for _, cat := range existing {
+			if strings.EqualFold(cat.Name, name) {
+				sess := customMiddleware.GetSession(c)
+				if sess != nil {
+					sess.AddFlash(fmt.Sprintf("Category '%s' already exists!", cat.Name), "message")
+					_ = sess.Save(c.Request(), c.Response())
+				}
+				return c.Redirect(http.StatusFound, "/admin")
+			}
+		}
 	}
 
 	claimableStr := c.FormValue("claimable")
@@ -178,7 +193,7 @@ func (h *AdminHandler) HandleAddCategory(c echo.Context) error {
 
 	now := time.Now()
 	cat := domain.CategoryData{
-		ID:        strings.ToLower(strings.ReplaceAll(strings.TrimSpace(name), " ", "-")),
+		ID:        strings.ToLower(strings.ReplaceAll(name, " ", "-")),
 		Name:      name,
 		Claimable: claimable,
 		IsSystem:  false,
@@ -187,12 +202,12 @@ func (h *AdminHandler) HandleAddCategory(c echo.Context) error {
 		UpdatedAt: now,
 	}
 
-	err := h.Repo.SaveCategory(ctx, cat)
+	err = h.Repo.SaveCategory(ctx, cat)
 	if err != nil {
 		c.Logger().Errorf("failed to save custom category: %v", err)
 	}
 
-	// Add success flash message (optional but good practice)
+	// Add success flash message
 	sess := customMiddleware.GetSession(c)
 	if sess != nil {
 		sess.AddFlash("Category added successfully!", "message")
