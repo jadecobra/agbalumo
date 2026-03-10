@@ -10,8 +10,12 @@ done
 
 
 # 1. Run Quality Checks (Tests + Coverage)
-echo "🔍 Running Quality Checks..."
-./scripts/pre-commit.sh
+if [ "$SKIP_PRE_COMMIT" != "true" ]; then
+    echo "🔍 Running Quality Checks..."
+    ./scripts/pre-commit.sh
+else
+    echo "🔍 Skipping pre-commit checks (called from pre-commit.sh)..."
+fi
 
 # 2. Build Assets & Server
 echo "🎨 Building CSS..."

@@ -237,6 +237,9 @@ run_task "ci_tools" "CI Toolset" bash scripts/verify-ci-tools.sh &
 # 9. Local CI Verification
 run_task "ci_local" "Local CI (act)" bash scripts/ci-local.sh --list &
 
+# 10. Restart Verification
+SKIP_PRE_COMMIT=true run_task "restart" "Verify Restart" bash scripts/verify_restart.sh &
+
 # Wait for all background tasks
 FAILURES=0
 for job in $(jobs -p); do
