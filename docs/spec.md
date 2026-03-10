@@ -127,6 +127,7 @@ agbalumo maintains a "Zero Trust" security posture by enforcing automated vulner
 
 *   **Go Version Upgrade:** Upgraded to `1.25.8` to resolve vulnerabilities (GO-2026-4603, GO-2026-4602, GO-2026-4601).
 *   **Visual Hierarchy:** Unified CTA colors (`btn-leaf`) and mobile heading scaling successfully resolved layout issues.
+*   **Total Listings Growth Metric:** Added a dynamic "listings and growing" display to the homepage hero section to showcase platform traction.
 *   **Accessibility First:** Adheres to WCAG AA contrast and semantic landmark standards.
 *   **Performance:** Images are optimized to WebP with iterative compression to meet a <200KB target.
 *   **Critique:** The UI now feels "Sweet like agbalumo." It is warm, accessible, and premium.
