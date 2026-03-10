@@ -1,12 +1,9 @@
 #!/bin/bash
 set -e
 
-# Colors for output
-RED=$(printf '\033[0;31m')
-GREEN=$(printf '\033[0;32m')
-YELLOW=$(printf '\033[1;33m')
-BLUE=$(printf '\033[1;34m')
-NC=$(printf '\033[0m')
+# Robust PATH discovery
+source "$(dirname "$0")/utils.sh"
+setup_path
 
 printf "${BLUE}Running Agent Drift Check (10x Standard)...${NC}\n"
 
@@ -28,8 +25,20 @@ fi
 # Extract agent names from YAML
 YAMl_AGENTS=$(grep "  - name: " "$AGENT_YAML" | awk '{print $NF}' | sort)
 
+# Guard: fail if YAML parse returned empty
+if [ -z "$YAMl_AGENTS" ]; then
+    printf "${RED}❌ Could not parse agent names from ${YELLOW}$AGENT_YAML${NC}. Check format.\n"
+    exit 1
+fi
+
 # Extract agent names from Markdown (Section 5)
 MD_AGENTS=$(sed -n '/## 5. Agent Protocol/,/## 6/p' "$CODING_STANDARDS" | grep -E '^\*   \*\*[^:]+\*\*:' | sed -E 's/\*   \*\*([^:*]+)\*\*:.*/\1/' | sort)
+
+# Guard: fail if Markdown parse returned empty
+if [ -z "$MD_AGENTS" ]; then
+    printf "${RED}❌ Could not parse agent names from ${YELLOW}$CODING_STANDARDS${NC} (Section 5). Check format.\n"
+    exit 1
+fi
 
 if [ "$YAMl_AGENTS" != "$MD_AGENTS" ]; then
     printf "${RED}❌ Agent Drift Detected!${NC}\n"

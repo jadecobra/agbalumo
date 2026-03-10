@@ -5,6 +5,7 @@
 ## 1. The Golden Rule: Verified TDD
 *   **Protocol**: Write the test FIRST. Watch it fail (Red). Write the Code. Watch it pass (Green). Refactor.
 *   **Mandatory Check**: You must run `./scripts/verify_restart.sh` before submitting any PR or artifact. This script runs tests, checks coverage, and restarts the server.
+*   **Coverage Threshold**: Enforced value lives in `.agent/coverage-threshold`. NEVER lower this value without explicit approval.
 *   **No "flaky" tests**: Tests must be deterministic. Use `go test -count=1` to bypass cache if needed.
 *   **Write small, single-purpose functions by default (SRP, clean code)**
 

@@ -11,6 +11,7 @@ DOC_STANDARDS="docs/CODING_STANDARDS.md"
 DOC_API="docs/api.md"
 DOC_CLI="docs/cli.md"
 
+START_TIME=$(date +%s)
 echo "${BLUE}Running 10x Engineer Quality Checks...${NC}"
 
 # 0. Workflow State Check
@@ -99,7 +100,7 @@ fi
 
 # 3. API & CLI Drift Checks
 if [ -n "$STAGED_CMD_DOCS" ]; then
-    run_task "api_drift" "API Drift" "$LOG_DIR" bash scripts/api-drift-check.sh
+    run_task "api_drift" "API Drift" "$LOG_DIR" bash scripts/api-drift-check.sh &
     # If it fails, instructions are in api-drift-check.sh and docs/api.md
 else
     echo "  ${YELLOW}skipping API Drift (no relevant changes)${NC}"

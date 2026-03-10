@@ -1,8 +1,9 @@
-- **For every feature/change, follow the `/feature-implementation` workflow** (`.agent/workflows/feature-implementation.md`). A feature is NOT done until all verification layers pass.
-- Write small, single-purpose functions by default (SRP, clean code)
-- Use TDD principles for all development. Write tests first, then implement the minimal code to pass the tests. Refactor after passing the tests.
-- keep commit message short and concise, imperative mood - for example "add user authentication" not "added user authentication"
-- restart server after changes pass verification tests
-- always use browser subagent to verify changes after tests pass
-- make sure to update spec.md after changes and tests pass, critique codebase in relation to goal in spec.md
-- NEVER lower test coverage threshold to allow a commit, if coverage is low, write more tests
+# Claude Instructions
+
+All core rules are in `AGENTS.md`. Follow them exactly.
+
+## Claude-Specific Overrides
+- Follow the `/feature-implementation` workflow (`.agent/workflows/feature-implementation.md`) for all features.
+- Use `browser_subagent` to verify UI changes after tests pass.
+- Update `docs/spec.md` after changes and tests pass.
+- NEVER lower the coverage threshold in `.agent/coverage-threshold`.

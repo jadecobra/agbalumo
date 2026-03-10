@@ -4,13 +4,9 @@
 
 set -e
 
-# Robust PATH discovery for macOS and Linux
-for dir in /usr/local/bin /opt/homebrew/bin /usr/bin /bin; do
-    case ":$PATH:" in
-        *":$dir:"*) ;;
-        *) export PATH="$PATH:$dir" ;;
-    esac
-done
+# Robust PATH discovery
+source "$(dirname "$0")/utils.sh"
+setup_path
 
 GATE_ID=$1
 STATE_FILE=".agent/state.json"

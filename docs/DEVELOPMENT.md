@@ -31,7 +31,7 @@ go tool cover -func=coverage.out
 ```
 
 ### Coverage Threshold
-A minimum of **90.0% test coverage** is required. This is enforced by `scripts/pre-commit.sh`.
+A minimum test coverage threshold is required, enforced from `.agent/coverage-threshold`. This is checked by `scripts/pre-commit.sh`.
 
 ---
 

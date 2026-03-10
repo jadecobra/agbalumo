@@ -52,6 +52,6 @@ Use `github.com/stretchr/testify/mock`. Place mocks in `internal/mock/`.
 
 ### Coverage & Rules
 - **TDD:** Write tests first. A feature isn't done until tests pass.
-- **Coverage:** NEVER lower the 90.0% coverage threshold. Write more tests instead.
+- **Coverage:** Threshold is enforced from `.agent/coverage-threshold`. NEVER lower this value — write more tests instead.
 - **Functions:** Keep functions small and single-purpose (SRP).
 - **Comments:** Code should be self-documenting; avoid unnecessary comments.

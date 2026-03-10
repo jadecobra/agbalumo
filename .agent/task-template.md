@@ -16,7 +16,7 @@
 | **G.1: Red Test** | Prove feature absence (Fail) | [ ] | `scripts/agent-gate.sh red-test` |
 | **G.2: API Spec** | Defined in `docs/api.md` | [ ] | Manual Review |
 | **G.3: Implementation** | Unit tests pass (Green) | [ ] | `scripts/agent-gate.sh implementation` |
-| **G.4: Lint/Coverage** | No regressions, >82.5% | [ ] | `scripts/pre-commit.sh` |
+| **G.4: Lint/Coverage** | No regressions, ≥ threshold in `.agent/coverage-threshold` | [ ] | `scripts/pre-commit.sh` |
 | **G.5: Browser** | UI/UX Native verification | [ ] | `browser_subagent` |
 
 ## Technical Brand Enforcement

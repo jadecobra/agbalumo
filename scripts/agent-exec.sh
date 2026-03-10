@@ -1,3 +1,4 @@
+#!/bin/bash
 # agent-exec.sh: Multi-agent persona execution helper and workflow manager for agbalumo.
 # Usage: 
 #   ./scripts/agent-exec.sh role <persona_name>
