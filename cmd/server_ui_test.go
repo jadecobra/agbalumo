@@ -390,3 +390,21 @@ func TestAdminRoutes(t *testing.T) {
 	e.ServeHTTP(rec, req)
 	assert.Equal(t, http.StatusFound, rec.Code)
 }
+
+func TestMobileFilterScroll(t *testing.T) {
+	// This test simulates the mobile filter panel visibility and scrollability attributes
+	// Since we are using standard Go http tests, we'll verify the presence of the fixed positioning
+	// and scrollable classes that we added for mobile.
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	body := rec.Body.String()
+
+	// Verify the presence of the mobile-specific fixed classes and scrollable max-height
+	assert.Contains(t, body, "fixed md:absolute")
+	assert.Contains(t, body, "inset-x-4 md:inset-x-auto")
+	assert.Contains(t, body, "max-h-[70vh] md:max-h-80")
+	assert.Contains(t, body, "id=\"filter-dropdown-panel\"")
+}

@@ -576,18 +576,33 @@ function setupFilterToggle() {
                 const isWillBeOpen = panel.classList.contains('hidden');
                 panel.classList.toggle('hidden');
                 updateButtonStates(isWillBeOpen);
+
+                // Mobile Scroll Lock
+                if (window.innerWidth < 768) {
+                    if (isWillBeOpen) {
+                        document.body.style.overflow = 'hidden';
+                    } else {
+                        document.body.style.overflow = '';
+                    }
+                }
             }
             return;
         }
 
+        const htmxTriggerBtn = e.target.closest('[data-filter-type]');
         const searchBtn = e.target.closest('.search-btn');
-        if (searchBtn) {
+        if (searchBtn || htmxTriggerBtn) {
             const panel = document.getElementById('filter-dropdown-panel');
             if (panel && !panel.classList.contains('hidden')) {
                 panel.classList.add('hidden');
+                if (window.innerWidth < 768) {
+                    document.body.style.overflow = '';
+                }
             }
-            updateButtonStates(false);
-            return;
+            if (searchBtn) {
+                updateButtonStates(false);
+                return;
+            }
         }
 
         // Filter chip click handler
