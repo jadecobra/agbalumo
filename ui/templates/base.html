@@ -23,7 +23,7 @@
         rel="stylesheet" />
     <link href="/static/css/output.css" rel="stylesheet" />
     <script src="/static/js/htmx.min.js" defer></script>
-    <script src="/static/js/app.js?v=4" defer></script>
+    <script src="/static/js/app.js?v=5" defer></script>
     <script src="/static/js/toasts.js" defer></script>
     <script src="/static/js/modals.js" defer></script>
     {{ block "extra_scripts" . }}{{ end }}
@@ -56,6 +56,10 @@
         #mobile-bottom-nav.nav-hidden {
             transform: translateY(100%);
         }
+
+        .nav-hidden-js {
+            display: none !important;
+        }
     </style>
 </head>
 
@@ -72,7 +76,7 @@
         <!-- Main Content Area -->
         <main id="main-content" class="flex-1 flex flex-col min-h-screen no-scrollbar relative w-full pb-20 md:pb-0">
             <!-- Unified Top Header (Glassmorphic) -->
-            <header class="{{ block " header_classes" . }}sticky top-0 z-40 w-full backdrop-blur-md bg-earth-dark
+            <header class="{{ block " header_classes" . }}sticky top-0 z-[110] w-full backdrop-blur-md bg-earth-dark
                 border-b border-earth-clay/20 transition-all duration-300{{ end }}">
                 {{ block "header_content" . }}
                 <!-- Mobile Full Width Logo -->

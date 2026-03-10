@@ -103,10 +103,14 @@ duration-300{{ end }}
                     </button>
                 </div>
 
-                <!-- Filter Dropdowns Panel -->
-                <div class="fixed md:absolute inset-x-4 md:inset-x-auto md:right-0 top-20 md:top-full mt-2 md:w-56 bg-earth-sand shadow-2xl border-[3px] border-earth-ochre text-earth-dark hidden z-[60] overflow-hidden"
+                <!-- Filter Dropdowns Panel (Bottom Sheet on Mobile, Dropdown on Desktop) -->
+                <div class="fixed md:absolute bottom-0 md:bottom-auto left-0 right-0 md:left-auto md:right-0 md:top-full top-auto md:mt-2 md:w-56 bg-earth-sand shadow-2xl border-t-[3px] md:border-[3px] border-earth-ochre text-earth-dark hidden z-[70] overflow-hidden rounded-t-3xl md:rounded-none"
                     id="filter-dropdown-panel">
-                    <div class="flex flex-col w-full max-h-[70vh] md:max-h-80 overflow-y-auto">
+                    <!-- Bottom Sheet Handle (Mobile Only) -->
+                    <div class="md:hidden w-full flex justify-center py-4 border-b border-earth-dark/5">
+                        <div class="w-12 h-1.5 bg-earth-dark/20 rounded-full"></div>
+                    </div>
+                    <div class="flex flex-col w-full max-h-[70vh] md:max-h-80 overflow-y-auto pb-safe">
                         <!-- Category Group -->
                         <div class="px-5 py-2 bg-earth-dark/10 border-b border-earth-dark/10">
                             <span

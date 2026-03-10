@@ -130,4 +130,5 @@ agbalumo maintains a "Zero Trust" security posture by enforcing automated vulner
 *   **Total Listings Growth Metric:** Added a dynamic "listings and growing" display to the homepage hero section to showcase platform traction.
 *   **Accessibility First:** Adheres to WCAG AA contrast and semantic landmark standards.
 *   **Performance:** Images are optimized to WebP with iterative compression to meet a <200KB target.
+*   **Mobile Experience (Bottom Sheet):** Implemented a standard Bottom Sheet pattern for filters on mobile (iPhone 8), resolving issues with floating modals and navigation bar overlap.
 *   **Critique:** The UI now feels "Sweet like agbalumo." It is warm, accessible, and premium.

@@ -577,11 +577,32 @@ function setupFilterToggle() {
                 panel.classList.toggle('hidden');
                 updateButtonStates(isWillBeOpen);
 
-                // Mobile Scroll Lock
+                // Mobile Bottom Sheet & Scroll Lock
                 if (window.innerWidth < 768) {
+                    const bottomNav = document.getElementById('mobile-bottom-nav');
+                    let overlay = document.getElementById('mobile-filter-overlay');
+                    if (!overlay) {
+                        overlay = document.createElement('div');
+                        overlay.id = 'mobile-filter-overlay';
+                        // z-[105] is between header (110) and body (0)
+                        overlay.className = 'fixed inset-0 bg-earth-dark/70 z-[105] hidden transition-opacity duration-300 backdrop-blur-[2px]';
+                        document.body.appendChild(overlay);
+                        overlay.onclick = () => {
+                            if (panel) panel.classList.add('hidden');
+                            overlay.classList.add('hidden');
+                            if (bottomNav) bottomNav.classList.remove('nav-hidden-js');
+                            document.body.style.overflow = '';
+                            updateButtonStates(false);
+                        };
+                    }
+
                     if (isWillBeOpen) {
+                        overlay.classList.remove('hidden');
+                        if (bottomNav) bottomNav.classList.add('nav-hidden-js');
                         document.body.style.overflow = 'hidden';
                     } else {
+                        overlay.classList.add('hidden');
+                        if (bottomNav) bottomNav.classList.remove('nav-hidden-js');
                         document.body.style.overflow = '';
                     }
                 }
@@ -593,8 +614,12 @@ function setupFilterToggle() {
         const searchBtn = e.target.closest('.search-btn');
         if (searchBtn || htmxTriggerBtn) {
             const panel = document.getElementById('filter-dropdown-panel');
+            const overlay = document.getElementById('mobile-filter-overlay');
+            const bottomNav = document.getElementById('mobile-bottom-nav');
             if (panel && !panel.classList.contains('hidden')) {
                 panel.classList.add('hidden');
+                if (overlay) overlay.classList.add('hidden');
+                if (bottomNav) bottomNav.classList.remove('nav-hidden-js');
                 if (window.innerWidth < 768) {
                     document.body.style.overflow = '';
                 }

@@ -391,10 +391,9 @@ func TestAdminRoutes(t *testing.T) {
 	assert.Equal(t, http.StatusFound, rec.Code)
 }
 
-func TestMobileFilterScroll(t *testing.T) {
-	// This test simulates the mobile filter panel visibility and scrollability attributes
-	// Since we are using standard Go http tests, we'll verify the presence of the fixed positioning
-	// and scrollable classes that we added for mobile.
+func TestMobileFilterBottomSheet(t *testing.T) {
+	// RED TEST: This test currently fails because the panel is "floating" (inset-x-4)
+	// rather than being a bottom sheet (bottom-0 left-0 right-0).
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
 	e.ServeHTTP(rec, req)
@@ -402,9 +401,12 @@ func TestMobileFilterScroll(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 	body := rec.Body.String()
 
-	// Verify the presence of the mobile-specific fixed classes and scrollable max-height
+	// Expected Bottom Sheet behavior for mobile
 	assert.Contains(t, body, "fixed md:absolute")
-	assert.Contains(t, body, "inset-x-4 md:inset-x-auto")
-	assert.Contains(t, body, "max-h-[70vh] md:max-h-80")
-	assert.Contains(t, body, "id=\"filter-dropdown-panel\"")
+	assert.Contains(t, body, "bottom-0 md:bottom-auto")
+	assert.Contains(t, body, "left-0 right-0")
+	assert.NotContains(t, body, "inset-x-4")
+	assert.Contains(t, body, "z-[70]") // Check for at least z-70 context
+	assert.Contains(t, body, "rounded-t-3xl")
+	assert.Contains(t, body, "bg-earth-dark/20 rounded-full")
 }
