@@ -158,20 +158,72 @@ func TestHandleUpdate(t *testing.T) {
 }
 
 func TestHandleDelete(t *testing.T) {
-	c, rec := setupTestContext(http.MethodDelete, "/listings/1", nil)
-	c.SetPath("/listings/:id")
-	c.SetParamNames("id")
-	c.SetParamValues("1")
-	c.Set("User", domain.User{ID: "owner-1"})
+	tests := []struct {
+		name       string
+		user       interface{}
+		setupMock  func(*mock.MockListingRepository)
+		expectCode int
+	}{
+		{
+			name: "Success",
+			user: domain.User{ID: "owner-1"},
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "owner-1"}, nil)
+				m.On("Delete", testifyMock.Anything, "1").Return(nil)
+			},
+			expectCode: http.StatusSeeOther,
+		},
+		{
+			name:       "NoUser_Unauthorized",
+			user:       nil,
+			setupMock:  func(m *mock.MockListingRepository) {},
+			expectCode: http.StatusUnauthorized,
+		},
+		{
+			name: "NotFound",
+			user: domain.User{ID: "owner-1"},
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{}, errors.New("not found"))
+			},
+			expectCode: http.StatusNotFound,
+		},
+		{
+			name: "Forbidden_NotOwner",
+			user: domain.User{ID: "other-user"},
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "owner-1"}, nil)
+			},
+			expectCode: http.StatusForbidden,
+		},
+		{
+			name: "DeleteError",
+			user: domain.User{ID: "owner-1"},
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "owner-1"}, nil)
+				m.On("Delete", testifyMock.Anything, "1").Return(errors.New("db error"))
+			},
+			expectCode: http.StatusInternalServerError,
+		},
+	}
 
-	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "owner-1"}, nil)
-	mockRepo.On("Delete", testifyMock.Anything, "1").Return(nil)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c, rec := setupTestContext(http.MethodDelete, "/listings/1", nil)
+			c.SetPath("/listings/:id")
+			c.SetParamNames("id")
+			c.SetParamValues("1")
+			if tt.user != nil {
+				c.Set("User", tt.user)
+			}
 
-	h := handler.NewListingHandler(mockRepo, nil, "")
-	_ = h.HandleDelete(c)
+			mockRepo := &mock.MockListingRepository{}
+			tt.setupMock(mockRepo)
+			h := handler.NewListingHandler(mockRepo, nil, "")
+			_ = h.HandleDelete(c)
 
-	assert.Equal(t, http.StatusSeeOther, rec.Code)
+			assert.Equal(t, tt.expectCode, rec.Code)
+		})
+	}
 }
 
 func TestHandleClaim(t *testing.T) {
@@ -191,4 +243,73 @@ func TestHandleClaim(t *testing.T) {
 	_ = h.HandleClaim(c)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
+}
+
+func TestHandleUpdate_NotFound(t *testing.T) {
+	c, rec := setupTestContext(http.MethodPost, "/listings/1", strings.NewReader(""))
+	c.SetPath("/listings/:id")
+	c.SetParamNames("id")
+	c.SetParamValues("1")
+	c.Set("User", domain.User{ID: "user1"})
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{}, errors.New("not found"))
+
+	h := handler.NewListingHandler(mockRepo, nil, "")
+	_ = h.HandleUpdate(c)
+	assert.Equal(t, http.StatusNotFound, rec.Code)
+}
+
+func TestHandleUpdate_NoUser(t *testing.T) {
+	c, rec := setupTestContext(http.MethodPost, "/listings/1", strings.NewReader(""))
+	c.SetPath("/listings/:id")
+	c.SetParamNames("id")
+	c.SetParamValues("1")
+
+	mockRepo := &mock.MockListingRepository{}
+	h := handler.NewListingHandler(mockRepo, nil, "")
+	_ = h.HandleUpdate(c)
+	assert.Equal(t, http.StatusUnauthorized, rec.Code)
+}
+
+func TestHandleUpdate_DuplicateTitle(t *testing.T) {
+	body := "title=Taken+Title&type=Business&owner_origin=Ghana&description=Desc&contact_email=t@e.com&address=123+St"
+	c, rec := setupTestContext(http.MethodPost, "/listings/1", strings.NewReader(body))
+	c.SetPath("/listings/:id")
+	c.SetParamNames("id")
+	c.SetParamValues("1")
+	c.Set("User", domain.User{ID: "user1"})
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindByID", testifyMock.Anything, "1").Return(domain.Listing{ID: "1", OwnerID: "user1", Title: "Old"}, nil)
+	mockRepo.On("FindByTitle", testifyMock.Anything, "Taken Title").Return([]domain.Listing{{ID: "2", Title: "Taken Title"}}, nil)
+	mockRepo.On("GetCategories", testifyMock.Anything, testifyMock.Anything).Return([]domain.CategoryData{}, nil).Maybe()
+
+	h := handler.NewListingHandler(mockRepo, nil, "")
+	_ = h.HandleUpdate(c)
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
+}
+
+func TestHandleCreate_NoUser(t *testing.T) {
+	body := "title=Test&type=Business&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St"
+	c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(body))
+
+	mockRepo := &mock.MockListingRepository{}
+	h := handler.NewListingHandler(mockRepo, nil, "")
+	_ = h.HandleCreate(c)
+	assert.Equal(t, http.StatusUnauthorized, rec.Code)
+}
+
+func TestHandleCreate_DuplicateTitle(t *testing.T) {
+	body := "title=Existing&type=Business&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St"
+	c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(body))
+	c.Set("User", domain.User{ID: "user1"})
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("FindByTitle", testifyMock.Anything, "Existing").Return([]domain.Listing{{ID: "x", Title: "Existing"}}, nil)
+	mockRepo.On("GetCategories", testifyMock.Anything, testifyMock.Anything).Return([]domain.CategoryData{}, nil).Maybe()
+
+	h := handler.NewListingHandler(mockRepo, nil, "")
+	_ = h.HandleCreate(c)
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
 }

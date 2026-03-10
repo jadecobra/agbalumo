@@ -35,3 +35,77 @@ func TestAdminHandler_HandleAddCategory_Success(t *testing.T) {
 	assert.Equal(t, http.StatusFound, rec.Code)
 	assert.Equal(t, "/admin", rec.Header().Get("Location"))
 }
+
+func TestAdminHandler_HandleAddCategory_EmptyName_Redirects(t *testing.T) {
+	formData := url.Values{}
+	formData.Set("name", "  ")
+	c, rec := setupAdminTestContext(http.MethodPost, "/admin/categories/add", strings.NewReader(formData.Encode()))
+	c.Set("User", domain.User{ID: "admin1", Role: domain.UserRoleAdmin})
+
+	mockRepo := &mock.MockListingRepository{}
+	h := handler.NewAdminHandler(mockRepo, nil, config.LoadConfig())
+	_ = h.HandleAddCategory(c)
+
+	assert.Equal(t, http.StatusFound, rec.Code)
+	assert.Equal(t, "/admin", rec.Header().Get("Location"))
+}
+
+func TestAdminHandler_HandleAddCategory_DuplicateName_Redirects(t *testing.T) {
+	formData := url.Values{}
+	formData.Set("name", "Music")
+	c, rec := setupAdminTestContext(http.MethodPost, "/admin/categories/add", strings.NewReader(formData.Encode()))
+	c.Set("User", domain.User{ID: "admin1", Role: domain.UserRoleAdmin})
+	store := middleware.NewTestSessionStore()
+	session, _ := store.Get(c.Request(), "auth_session")
+	c.Set("session", session)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("GetCategories", testifyMock.Anything, testifyMock.Anything).
+		Return([]domain.CategoryData{{Name: "Music", ID: "music"}}, nil)
+
+	h := handler.NewAdminHandler(mockRepo, nil, config.LoadConfig())
+	_ = h.HandleAddCategory(c)
+
+	assert.Equal(t, http.StatusFound, rec.Code)
+	assert.Equal(t, "/admin", rec.Header().Get("Location"))
+}
+
+func TestAdminHandler_HandleAddCategory_Claimable(t *testing.T) {
+	formData := url.Values{}
+	formData.Set("name", "Services")
+	formData.Set("claimable", "true")
+	c, rec := setupAdminTestContext(http.MethodPost, "/admin/categories/add", strings.NewReader(formData.Encode()))
+	c.Set("User", domain.User{ID: "admin1", Role: domain.UserRoleAdmin})
+	store := middleware.NewTestSessionStore()
+	session, _ := store.Get(c.Request(), "auth_session")
+	c.Set("session", session)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("SaveCategory", testifyMock.Anything, testifyMock.MatchedBy(func(c domain.CategoryData) bool {
+		return c.Claimable == true && c.Name == "Services"
+	})).Return(nil)
+
+	h := handler.NewAdminHandler(mockRepo, nil, config.LoadConfig())
+	_ = h.HandleAddCategory(c)
+
+	assert.Equal(t, http.StatusFound, rec.Code)
+}
+
+func TestAdminHandler_HandleAddCategory_SaveError(t *testing.T) {
+	formData := url.Values{}
+	formData.Set("name", "NewCat")
+	c, rec := setupAdminTestContext(http.MethodPost, "/admin/categories/add", strings.NewReader(formData.Encode()))
+	c.Set("User", domain.User{ID: "admin1", Role: domain.UserRoleAdmin})
+	store := middleware.NewTestSessionStore()
+	session, _ := store.Get(c.Request(), "auth_session")
+	c.Set("session", session)
+
+	mockRepo := &mock.MockListingRepository{}
+	mockRepo.On("SaveCategory", testifyMock.Anything, testifyMock.Anything).Return(assert.AnError)
+
+	h := handler.NewAdminHandler(mockRepo, nil, config.LoadConfig())
+	_ = h.HandleAddCategory(c)
+
+	// Still redirects despite save error (error is logged, not returned)
+	assert.Equal(t, http.StatusFound, rec.Code)
+}

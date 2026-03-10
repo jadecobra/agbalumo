@@ -32,6 +32,23 @@ func TestHandleApproveClaim(t *testing.T) {
 	}
 }
 
+func TestHandleApproveClaim_Error(t *testing.T) {
+	e := echo.New()
+	mockRepo := &mock.MockListingRepository{}
+	h := handler.NewAdminHandler(mockRepo, nil, &config.Config{})
+
+	mockRepo.On("UpdateClaimRequestStatus", testifyMock.Anything, "bad", domain.ClaimStatusApproved).Return(assert.AnError)
+
+	req := httptest.NewRequest(http.MethodPost, "/admin/claims/bad/approve", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues("bad")
+
+	_ = h.HandleApproveClaim(c)
+	assert.Equal(t, http.StatusNotFound, rec.Code)
+}
+
 func TestHandleRejectClaim(t *testing.T) {
 	e := echo.New()
 	mockRepo := &mock.MockListingRepository{}
@@ -48,4 +65,21 @@ func TestHandleRejectClaim(t *testing.T) {
 	if assert.NoError(t, h.HandleRejectClaim(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 	}
+}
+
+func TestHandleRejectClaim_Error(t *testing.T) {
+	e := echo.New()
+	mockRepo := &mock.MockListingRepository{}
+	h := handler.NewAdminHandler(mockRepo, nil, &config.Config{})
+
+	mockRepo.On("UpdateClaimRequestStatus", testifyMock.Anything, "bad", domain.ClaimStatusRejected).Return(assert.AnError)
+
+	req := httptest.NewRequest(http.MethodPost, "/admin/claims/bad/reject", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues("bad")
+
+	_ = h.HandleRejectClaim(c)
+	assert.Equal(t, http.StatusNotFound, rec.Code)
 }

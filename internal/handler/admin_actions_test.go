@@ -29,19 +29,63 @@ func TestAdminHandler_HandleAllListings(t *testing.T) {
 }
 
 func TestAdminHandler_HandleToggleFeatured(t *testing.T) {
-	formData := url.Values{}
-	formData.Set("featured", "true")
-	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings/123/featured", strings.NewReader(formData.Encode()))
-	c.SetParamNames("id")
-	c.SetParamValues("123")
-	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
+	tests := []struct {
+		name       string
+		id         string
+		featured   string
+		setupMock  func(*mock.MockListingRepository)
+		expectCode int
+	}{
+		{
+			name:     "Success",
+			id:       "123",
+			featured: "true",
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("SetFeatured", testifyMock.Anything, "123", true).Return(nil)
+			},
+			expectCode: http.StatusOK,
+		},
+		{
+			name:       "MissingID",
+			id:         "",
+			featured:   "true",
+			setupMock:  func(m *mock.MockListingRepository) {},
+			expectCode: http.StatusBadRequest,
+		},
+		{
+			name:     "RepoError",
+			id:       "123",
+			featured: "true",
+			setupMock: func(m *mock.MockListingRepository) {
+				m.On("SetFeatured", testifyMock.Anything, "123", true).Return(assert.AnError)
+			},
+			expectCode: http.StatusInternalServerError,
+		},
+	}
 
-	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("SetFeatured", testifyMock.Anything, "123", true).Return(nil)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			formData := url.Values{}
+			formData.Set("featured", tt.featured)
+			urlPath := "/admin/listings/" + tt.id + "/featured"
+			if tt.id == "" {
+				urlPath = "/admin/listings/featured" // Simulate routing without ID
+			}
+			c, rec := setupAdminTestContext(http.MethodPost, urlPath, strings.NewReader(formData.Encode()))
+			if tt.id != "" {
+				c.SetParamNames("id")
+				c.SetParamValues(tt.id)
+			}
+			c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
-	h := handler.NewAdminHandler(mockRepo, nil, config.LoadConfig())
-	_ = h.HandleToggleFeatured(c)
-	assert.Equal(t, http.StatusOK, rec.Code)
+			mockRepo := &mock.MockListingRepository{}
+			tt.setupMock(mockRepo)
+
+			h := handler.NewAdminHandler(mockRepo, nil, config.LoadConfig())
+			_ = h.HandleToggleFeatured(c)
+			assert.Equal(t, tt.expectCode, rec.Code)
+		})
+	}
 }
 
 func TestAdminHandler_HandleApproveClaim(t *testing.T) {
