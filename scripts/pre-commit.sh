@@ -187,16 +187,17 @@ fi
 if [ -n "$STAGED_GO_FILES" ]; then
     check_tests() {
         mkdir -p .tester/coverage
-        log_file=".tester/coverage/lint-results.txt"
-        # Removing -race locally to improve test speed in pre-commit
-        go test -coverprofile=.tester/coverage/coverage.out ./... > /dev/null
-        COVERAGE=$(go tool cover -func=.tester/coverage/coverage.out | grep total | grep -oE "[0-9]+(\.[0-9]+)?" | head -1)
+        # Re-enabling -race to match CI and catch concurrency issues/coverage drift
+        # Running with -count=1 to bypass cache and ensure fresh coverage
+        go test -race -count=1 -coverprofile=.tester/coverage/coverage.out ./... > /dev/null
+        # Use standardized coverage extraction (same as CI)
+        COVERAGE=$(go tool cover -func=.tester/coverage/coverage.out | awk '/^total:/ {print substr($3, 1, length($3)-1)}')
         THRESHOLD_FILE=".agent/coverage-threshold"
         THRESHOLD=90.0
         if [ -f "$THRESHOLD_FILE" ]; then
             THRESHOLD=$(cat "$THRESHOLD_FILE")
         fi
-        if [ "$(echo "$COVERAGE < $THRESHOLD" | bc -l)" -eq 1 ]; then
+        if awk "BEGIN {exit !($COVERAGE < $THRESHOLD)}"; then
             echo "Coverage is below threshold: $COVERAGE% < $THRESHOLD%"
             echo "See: $DOC_WORKFLOW (Gate: coverage)"
             return 2

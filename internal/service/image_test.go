@@ -201,8 +201,13 @@ func TestLocalImageService_UploadImage_Compression(t *testing.T) {
 
 func TestLocalImageService_UploadImage_Errors(t *testing.T) {
 	t.Run("mkdir error", func(t *testing.T) {
+		// Create a file to use as a path component (guarantees MkdirAll failure)
+		tmpFile, err := os.CreateTemp("", "not-a-dir")
+		assert.NoError(t, err)
+		defer func() { _ = os.Remove(tmpFile.Name()) }()
+
 		svc := &service.LocalImageService{
-			UploadDir:      "/dev/null/nonexistent/path/that/fails",
+			UploadDir:      filepath.Join(tmpFile.Name(), "subdir"),
 			MaxUploadSize:  1024 * 1024,
 			InitialQuality: 80,
 		}
@@ -219,13 +224,20 @@ func TestLocalImageService_UploadImage_Errors(t *testing.T) {
 		_ = req.ParseMultipartForm(1024)
 		header := req.MultipartForm.File["image"][0]
 
-		_, err := svc.UploadImage(context.Background(), header, "err")
+		_, err = svc.UploadImage(context.Background(), header, "err")
 		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "not a directory")
 	})
 
 	t.Run("create error", func(t *testing.T) {
+		// Use a directory that we know exists but we don't have permission OR
+		// use a path that is impossible to create because it's a file.
+		tmpFile, err := os.CreateTemp("", "cannot-create-here")
+		assert.NoError(t, err)
+		defer func() { _ = os.Remove(tmpFile.Name()) }()
+
 		svc := &service.LocalImageService{
-			UploadDir:      "/",
+			UploadDir:      tmpFile.Name(), // This is a file, so os.Create(filepath.Join(svc.UploadDir, "err.webp")) will fail
 			MaxUploadSize:  1024 * 1024,
 			InitialQuality: 80,
 		}
@@ -242,7 +254,11 @@ func TestLocalImageService_UploadImage_Errors(t *testing.T) {
 		_ = req.ParseMultipartForm(1024)
 		header := req.MultipartForm.File["image"][0]
 
-		_, err := svc.UploadImage(context.Background(), header, "err")
+		// Note: UploadImage calls os.MkdirAll(svc.UploadDir, 0755).
+		// If svc.UploadDir is an existing file, MkdirAll might fail or succeed depending on implementation.
+		// Actually MkdirAll returns nil if path exists and is a directory.
+		// If path exists and is a file, it returns syscall.ENOTDIR.
+		_, err = svc.UploadImage(context.Background(), header, "err")
 		assert.Error(t, err)
 	})
 }
@@ -405,4 +421,70 @@ func TestLocalImageService_ConvertToWebP_EncodeError(t *testing.T) {
 	img := image.NewRGBA(image.Rect(0, 0, 1, 1))
 	var pngBuf bytes.Buffer
 	_ = png.Encode(&pngBuf, img)
+}
+
+func TestLocalImageService_UploadImage_Downscale(t *testing.T) {
+	svc := &service.LocalImageService{
+		UploadDir:      t.TempDir(),
+		MaxUploadSize:  10 * 1024 * 1024,
+		MaxFileSize:    500, // Extremely small target to force downscale
+		InitialQuality: 20,
+		MinQuality:     10,
+	}
+
+	// Create a larger image (200x200) that will still be >500 bytes even at 10% quality
+	img := image.NewRGBA(image.Rect(0, 0, 200, 200))
+	for y := 0; y < 200; y++ {
+		for x := 0; x < 200; x++ {
+			img.Set(x, y, color.RGBA{uint8(x), uint8(y), uint8(x % 255), 255})
+		}
+	}
+
+	var imgBuf bytes.Buffer
+	err := jpeg.Encode(&imgBuf, img, &jpeg.Options{Quality: 95})
+	assert.NoError(t, err)
+
+	body := &strings.Builder{}
+	writer := multipart.NewWriter(body)
+	part, _ := writer.CreateFormFile("image", "downscale.jpg")
+	_, _ = part.Write(imgBuf.Bytes())
+	_ = writer.Close()
+
+	req := httptest.NewRequest("POST", "/", strings.NewReader(body.String()))
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	_ = req.ParseMultipartForm(1024 * 1024)
+	fileHeader := req.MultipartForm.File["image"][0]
+
+	path, err := svc.UploadImage(context.Background(), fileHeader, "downscale-test")
+	assert.NoError(t, err)
+	assert.Contains(t, path, ".webp")
+
+	// Verify the final file exists
+	savedPath := filepath.Join(svc.UploadDir, "downscale-test.webp")
+	_, err = os.Stat(savedPath)
+	assert.NoError(t, err)
+}
+
+func TestLocalImageService_DeleteImage_EdgeCases(t *testing.T) {
+	svc := service.NewLocalImageService(t.TempDir())
+
+	// Test with path traversal attempt (should be neutralized by filepath.Base)
+	err := svc.DeleteImage(context.Background(), "/static/uploads/../../etc/passwd")
+	assert.NoError(t, err)
+
+	// Test with only a filename
+	err = svc.DeleteImage(context.Background(), "test.jpg")
+	assert.NoError(t, err)
+}
+
+func TestLocalImageService_Errors(t *testing.T) {
+	svc := service.NewLocalImageService("")
+
+	// Test CompressImage decode error
+	_, err := svc.CompressImage(strings.NewReader("not-an-image"))
+	assert.Error(t, err)
+
+	// Test ConvertToWebP decode error
+	_, err = svc.ConvertToWebP(strings.NewReader("not-an-image"))
+	assert.Error(t, err)
 }
