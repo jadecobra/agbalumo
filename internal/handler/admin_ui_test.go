@@ -1,12 +1,8 @@
 package handler_test
 
 import (
-	"encoding/json"
-	"html/template"
 	"net/http"
 	"net/http/httptest"
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -18,69 +14,9 @@ import (
 	testifyMock "github.com/stretchr/testify/mock"
 )
 
-func NewAdminTemplate(t *testing.T) *template.Template {
-	wd, _ := os.Getwd()
-	projectRoot := filepath.Join(wd, "..", "..")
-
-	funcMap := template.FuncMap{
-		"mod":   func(i, j int) int { return i % j },
-		"add":   func(i, j int) int { return i + j },
-		"sub":   func(i, j int) int { return i - j },
-		"split": strings.Split,
-		"dict": func(values ...interface{}) (map[string]interface{}, error) {
-			if len(values)%2 != 0 {
-				return nil, nil // simplified
-			}
-			dict := make(map[string]interface{}, len(values)/2)
-			for i := 0; i < len(values); i += 2 {
-				key, ok := values[i].(string)
-				if !ok {
-					return nil, nil // simplified
-				}
-				dict[key] = values[i+1]
-			}
-			return dict, nil
-		},
-		"toJson": func(v interface{}) (template.JS, error) {
-			b, err := json.Marshal(v)
-			if err != nil {
-				return "", err
-			}
-			return template.JS(b), nil
-		},
-		"isNew": func(createdAt time.Time) bool {
-			if createdAt.IsZero() {
-				return false
-			}
-			return time.Since(createdAt) < 7*24*time.Hour
-		},
-		"safeHTML": func(s string) template.HTML {
-			return template.HTML(s)
-		},
-	}
-
-	tmpl := template.New("base.html").Funcs(funcMap)
-	tmpl, err := tmpl.ParseFiles(
-		filepath.Join(projectRoot, "ui", "templates", "base.html"),
-		filepath.Join(projectRoot, "ui", "templates", "admin_dashboard.html"),
-	)
-	if err != nil {
-		t.Fatalf("Failed to parse main templates: %v", err)
-	}
-	_, err = tmpl.ParseGlob(filepath.Join(projectRoot, "ui", "templates", "partials", "*.html"))
-	if err != nil {
-		t.Fatalf("Failed to parse partial templates: %v", err)
-	}
-	_, err = tmpl.ParseGlob(filepath.Join(projectRoot, "ui", "templates", "components", "*.html"))
-	if err != nil {
-		t.Fatalf("Failed to parse component templates: %v", err)
-	}
-	return tmpl
-}
-
 func TestAdminDashboardFooterPosition(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &RealTemplateRenderer{templates: NewAdminTemplate(t)}
+	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplateForPage(t, "admin_dashboard.html")}
 
 	// Create a mock repo with some feedback
 	mockRepo := &mock.MockListingRepository{}
@@ -148,7 +84,7 @@ func TestAdminDashboardFooterPosition(t *testing.T) {
 
 func TestMetricCardsHaveModalTriggers(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &RealTemplateRenderer{templates: NewAdminTemplate(t)}
+	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplateForPage(t, "admin_dashboard.html")}
 
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("GetPendingClaimRequests", testifyMock.Anything).Return([]domain.ClaimRequest{}, nil)
@@ -195,7 +131,7 @@ func TestMetricCardsHaveModalTriggers(t *testing.T) {
 
 func TestCategoryModalExists(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &RealTemplateRenderer{templates: NewAdminTemplate(t)}
+	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplateForPage(t, "admin_dashboard.html")}
 
 	mockRepo := &mock.MockListingRepository{}
 	mockRepo.On("GetPendingClaimRequests", testifyMock.Anything).Return([]domain.ClaimRequest{}, nil)

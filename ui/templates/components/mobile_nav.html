@@ -1,0 +1,39 @@
+{{ define "mobile_nav" }}
+<nav id="mobile-bottom-nav"
+    class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm bg-earth-dark/95 backdrop-blur-xl border border-earth-ochre  shadow-2xl pb-safe z-50 transition-all duration-300">
+    <div class="flex justify-around items-center h-16 px-4">
+        <a href="/" aria-label="Home"
+            class="flex flex-col items-center justify-center flex-1 h-full text-earth-ochre hover:text-earth-ochre-light transition-colors">
+            <span class="material-symbols-outlined filled" style="font-variation-settings: 'FILL' 1;">home</span>
+        </a>
+        <a href="/" aria-label="Explore"
+            class="flex flex-col items-center justify-center flex-1 h-full text-white/50 hover:text-white transition-colors">
+            <span class="material-symbols-outlined">explore</span>
+        </a>
+
+        <!-- Centered Action Button (Post) -->
+        <button data-auth-action="modal" data-modal-id="create-listing-modal"
+            data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}" aria-label="Create Listing"
+            class="flex flex-col items-center justify-center flex-1 h-full text-white/50 hover:text-white transition-colors">
+            <span class="material-symbols-outlined text-[28px]">add_circle</span>
+        </button>
+
+        <button aria-label="Saved"
+            class="flex flex-col items-center justify-center flex-1 h-full text-white/50 hover:text-white transition-colors">
+            <span class="material-symbols-outlined">favorite</span>
+        </button>
+
+        {{ if .User }}
+        <button hx-get="/profile" hx-target="body" hx-swap="beforeend" aria-label="Profile"
+            class="flex flex-col items-center justify-center flex-1 h-full text-white/50 hover:text-white transition-colors">
+            <img src="{{ .User.AvatarURL }}" alt="{{ .User.Name }}" class="w-6 h-6  border border-white/20">
+        </button>
+        {{ else }}
+        <a href="/auth/google/login" aria-label="Sign in"
+            class="flex flex-col items-center justify-center flex-1 h-full text-white/50 hover:text-white transition-colors">
+            <span class="material-symbols-outlined">person</span>
+        </a>
+        {{ end }}
+    </div>
+</nav>
+{{ end }}

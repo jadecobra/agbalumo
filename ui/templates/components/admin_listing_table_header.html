@@ -1,0 +1,56 @@
+{{ define "admin_listing_table_header" }}
+<thead class="bg-white/5">
+    <tr>
+        <th scope="col" class="px-6 py-4 text-left w-10">
+            <input type="checkbox" id="selectAll"
+                class="border-white/10 text-earth-ochre shadow-sm focus:border-earth-ochre focus:ring focus:ring-earth-ochre focus:ring-opacity-50 bg-white/5">
+        </th>
+        <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+            <!-- prettier-ignore -->
+            <a href="/admin/listings?page={{.Page}}{{if .Category}}&category={{.Category}}{{end}}&sort=date{{if eq .SortOrder `ASC`}}&order=desc{{else}}&order=asc{{end}}"
+                class="group inline-flex items-center hover:text-earth-ochre transition-colors">
+                Date
+                <span
+                    class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `date`}}text-earth-ochre{{else}}text-white/30 opacity-0 group-hover:opacity-100{{end}}">
+                    {{if and (eq .SortField `date`) (eq .SortOrder
+                    `ASC`)}}arrow_upward{{else}}arrow_downward{{end}}
+                </span>
+            </a>
+        </th>
+        <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+            <!-- prettier-ignore -->
+            <a href="/admin/listings?page={{.Page}}{{if .Category}}&category={{.Category}}{{end}}&sort=title{{if eq .SortOrder `DESC`}}&order=asc{{else}}&order=desc{{end}}"
+                class="group inline-flex items-center hover:text-earth-ochre transition-colors">
+                Title
+                <span
+                    class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `title`}}text-earth-ochre{{else}}text-white/30 opacity-0 group-hover:opacity-100{{end}}">
+                    {{if and (eq .SortField `title`) (eq .SortOrder
+                    `DESC`)}}arrow_downward{{else}}arrow_upward{{end}}
+                </span>
+            </a>
+        </th>
+        <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+            Type
+        </th>
+        <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+            <!-- prettier-ignore -->
+            <a href="/admin/listings?page={{.Page}}{{if .Category}}&category={{.Category}}{{end}}&sort=status{{if eq .SortOrder `ASC`}}&order=desc{{else}}&order=asc{{end}}"
+                class="group inline-flex items-center hover:text-earth-ochre transition-colors">
+                Status
+                <span
+                    class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `status`}}text-earth-ochre{{else}}text-white/30 opacity-0 group-hover:opacity-100{{end}}">
+                    {{if and (eq .SortField `status`) (eq .SortOrder
+                    `ASC`)}}arrow_upward{{else}}arrow_downward{{end}}
+                </span>
+            </a>
+        </th>
+        <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+            Owner
+        </th>
+        <th class="px-6 py-4 text-center text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+            Featured</th>
+        <th class="px-6 py-4 text-right text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+            Actions</th>
+    </tr>
+</thead>
+{{ end }}

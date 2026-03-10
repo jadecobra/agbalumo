@@ -1,0 +1,40 @@
+{{ define "listing_form_image_fields" }}
+<div class="flex flex-col gap-1.5">
+    <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Photo
+        (Optional)</label>
+
+    {{ if .IDPrefix }}
+    <input type="hidden" name="remove_image" id="{{ .IDPrefix }}remove-image-{{ .ListingID }}" value="false">
+    {{ end }}
+
+    <!-- New Image Preview -->
+    <div id="{{ if .IDPrefix }}{{ .IDPrefix }}image-preview-container-{{ .ListingID }}{{ else }}image-preview-container{{ end }}"
+        class="hidden relative mb-2">
+        <img id="{{ if .IDPrefix }}{{ .IDPrefix }}image-preview-{{ .ListingID }}{{ else }}image-preview{{ end }}"
+            class="h-24 w-24 object-cover border border-white/20" alt="Preview">
+        <button type="button" {{ if .IDPrefix }}hx-on:click="removeEditImagePreview('{{ .ListingID }}')" {{ else
+            }}id="remove-image-btn" {{ end }}
+            class="absolute -top-2 -right-2 bg-earth-ochre text-earth-dark p-1 hover:bg-earth-ochre-light shadow-lg">
+            <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+    </div>
+
+    <!-- Existing Image (Edit Mode) -->
+    {{ if and .IDPrefix .ImageURL }}
+    <div id="{{ .IDPrefix }}existing-image-{{ .ListingID }}" class="mb-2 relative inline-block">
+        <img src="{{ .ImageURL }}" class="h-24 w-24 object-cover border border-white/20">
+        <button type="button" hx-on:click="clearEditImage('{{ .ListingID }}')"
+            class="absolute -top-2 -right-2 bg-earth-ochre text-earth-dark p-1 hover:bg-earth-ochre-light shadow-lg">
+            <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+    </div>
+    {{ end }}
+
+    <!-- File Input -->
+    <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
+        <input name="image" type="file" accept="image/*"
+            id="{{ if .IDPrefix }}{{ .IDPrefix }}image-input-{{ .ListingID }}{{ else }}image-input{{ end }}"
+            class="w-full text-white font-light text-sm file:mr-3 file:py-3 file:px-6 file: file:border-0 file:text-[10px] file:uppercase file:tracking-widest file:font-bold file:bg-white/10 file:text-white hover:file:bg-white/20 transition-all cursor-pointer bg-transparent py-1 pl-1 outline-none">
+    </div>
+</div>
+{{ end }}

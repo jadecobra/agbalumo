@@ -1,11 +1,4 @@
-{{ template "base.html" . }}
-
-{{ define "title" }}agbalumo: find what you want{{ end }}
-
-{{ define "header_classes" }}absolute top-0 w-full z-40 bg-transparent border-none text-white transition-all
-duration-300{{ end }}
-
-{{ define "header_content" }}
+{{ define "admin_header_content" }}
 <div class="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between gap-4 md:gap-8 w-full pt-4">
     <!-- Desktop & Mobile Logo -->
     <a href="/" class="flex flex-col shrink-0 items-center justify-center gap-0 group">
@@ -27,17 +20,5 @@ duration-300{{ end }}
             Ask
         </button>
     </div>
-</div>
-{{ end }}
-
-{{ define "filters" }}{{ end }}
-
-{{ define "content" }}
-<div class="w-full bg-earth-dark text-earth-sand pb-24 md:pb-8">
-
-    {{ template "home_hero_search" . }}
-
-    {{ template "home_listings_section" . }}
-
 </div>
 {{ end }}

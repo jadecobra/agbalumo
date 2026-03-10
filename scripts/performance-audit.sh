@@ -16,22 +16,9 @@
 
 set -e
 
-# Robust PATH discovery for macOS and Linux
-for dir in /usr/local/bin /opt/homebrew/bin /usr/bin /bin; do
-    case ":$PATH:" in
-        *":$dir:"*) ;;
-        *) export PATH="$PATH:$dir" ;;
-    esac
-done
-
-# Colors
-RED=$(printf '\033[0;31m')
-GREEN=$(printf '\033[0;32m')
-YELLOW=$(printf '\033[1;33m')
-BLUE=$(printf '\033[1;34m')
-CYAN=$(printf '\033[0;36m')
-BOLD=$(printf '\033[1m')
-NC=$(printf '\033[0m')
+# Robust PATH discovery
+source "$(dirname "$0")/utils.sh"
+setup_path
 
 WARNINGS=0
 FAILURES=0
@@ -41,6 +28,8 @@ if [ "${1:-}" = "--live" ]; then
     LIVE_MODE=1
 fi
 
+# Messaging functions (pass, warn, fail, info) are now in utils.sh
+# Overriding them slightly to track WARNINGS/FAILURES
 pass() { echo "${GREEN}  ✅ PASS:${NC} $1"; }
 warn() { echo "${YELLOW}  ⚠️  WARN:${NC} $1"; WARNINGS=$((WARNINGS + 1)); }
 fail() { echo "${RED}  ❌ FAIL:${NC} $1"; FAILURES=$((FAILURES + 1)); }
@@ -284,14 +273,14 @@ else
 fi
 
 # CSS preload for critical stylesheet
-if grep -q 'rel="preload".*output.css\|output.css.*rel="preload"' "$BASE_HTML" 2>/dev/null; then
+if grep -rq 'rel="preload".*output.css\|output.css.*rel="preload"' ui/templates/ 2>/dev/null; then
     pass 'Critical CSS preloaded with <link rel="preload"> ✓'
 else
     warn 'output.css not preloaded. Add <link rel="preload" href="/static/css/output.css" as="style"> in <head>.'
 fi
 
 # Font preconnect
-if grep -q 'rel="preconnect".*fonts.googleapis.com\|fonts.googleapis.com.*rel="preconnect"' "$BASE_HTML" 2>/dev/null; then
+if grep -rq 'rel="preconnect".*fonts.googleapis.com\|fonts.googleapis.com.*rel="preconnect"' ui/templates/ 2>/dev/null; then
     pass "Google Fonts preconnect hint present ✓"
 else
     warn "No preconnect for fonts.googleapis.com. Adds ~100ms latency on first font request."

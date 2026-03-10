@@ -1,0 +1,19 @@
+{{ define "admin_listing_bulk_actions" }}
+<div class="mb-6 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+        <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50" id="selectionCount">0
+            selected</span>
+        <select name="action"
+            class="block text-[10px] uppercase tracking-widest font-bold bg-white/5 border-white/10 text-white focus:outline-none focus:border-earth-ochre px-4 py-2 transition-colors disabled:opacity-50"
+            disabled id="bulkActionSelect">
+            <option value="" class="bg-earth-dark">Bulk Actions...</option>
+            <option value="approve" class="bg-earth-dark">Approve Selected</option>
+            <option value="reject" class="bg-earth-dark">Reject Selected</option>
+            <option value="delete" class="bg-earth-dark">Delete Selected</option>
+        </select>
+        <button type="submit"
+            class="bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark text-[10px] font-bold uppercase tracking-widest py-2 px-6 transition-all disabled:opacity-30 disabled:grayscale"
+            disabled id="bulkActionButton">Apply</button>
+    </div>
+</div>
+{{ end }}

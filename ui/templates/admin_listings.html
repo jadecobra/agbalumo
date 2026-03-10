@@ -6,28 +6,7 @@
 duration-300{{ end }}
 
 {{ define "header_content" }}
-<div class="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between gap-4 md:gap-8 w-full pt-4">
-    <!-- Desktop & Mobile Logo -->
-    <a href="/" class="flex flex-col shrink-0 items-center justify-center gap-0 group">
-        <img src="/static/images/logo.png" alt="agbalumo Logo"
-            class="h-10 md:h-14 object-contain group-hover:scale-105 transition-transform">
-    </a>
-
-    <!-- Action Buttons -->
-    <div class="flex items-center gap-4">
-        <button data-auth-action="modal" data-modal-id="create-listing-modal"
-            data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
-            class="text-[10px] md:text-xs font-bold uppercase tracking-widest text-white hover:text-earth-ochre transition-colors">
-            Post
-        </button>
-        <div class="w-px h-4 bg-white/30"></div>
-        <button data-auth-action="modal" data-modal-id="create-request-modal"
-            data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
-            class="text-[10px] md:text-xs font-bold uppercase tracking-widest text-white hover:text-earth-ochre transition-colors">
-            Ask
-        </button>
-    </div>
-</div>
+{{ template "admin_header_content" . }}
 {{ end }}
 
 {{ define "content" }}
@@ -43,177 +22,23 @@ duration-300{{ end }}
         </div>
 
         <!-- Category Filters -->
-        <div
-            class="bg-earth-sand shadow-soft py-4 px-6 mb-8 border-l-[6px] border-earth-ochre flex flex-wrap gap-2 items-center">
-            <a href="/admin/listings"
-                class="px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] transition-all border {{ if not .Category }}bg-earth-ochre text-earth-dark border-earth-ochre shadow-sm{{ else }}bg-earth-dark/5 text-earth-dark/70 border-earth-dark/10 hover:border-earth-ochre hover:text-earth-ochre{{ end }}">All
-                ({{.TotalCount}})</a>
-            {{ range .Categories }}
-            <a href="/admin/listings?category={{ .Name }}"
-                class="px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] transition-all border {{ if eq $.Category .Name }}bg-earth-ochre text-earth-dark border-earth-ochre shadow-sm{{ else }}bg-earth-dark/5 text-earth-dark/70 border-earth-dark/10 hover:border-earth-ochre hover:text-earth-ochre{{ end }}">{{
-                .Name }}
-                ({{index $.Counts .Name}})</a>
-            {{ end }}
-        </div>
+        {{ template "admin_listing_filters" . }}
 
         <!-- Bulk Actions Form -->
         <form id="bulkActionForm" method="POST" action="/admin/listings/bulk">
             <input type="hidden" name="_csrf" value="{{ $.CSRF }}">
-            <div class="mb-6 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50" id="selectionCount">0
-                        selected</span>
-                    <select name="action"
-                        class="block text-[10px] uppercase tracking-widest font-bold bg-white/5 border-white/10 text-white focus:outline-none focus:border-earth-ochre px-4 py-2 transition-colors disabled:opacity-50"
-                        disabled id="bulkActionSelect">
-                        <option value="" class="bg-earth-dark">Bulk Actions...</option>
-                        <option value="approve" class="bg-earth-dark">Approve Selected</option>
-                        <option value="reject" class="bg-earth-dark">Reject Selected</option>
-                        <option value="delete" class="bg-earth-dark">Delete Selected</option>
-                    </select>
-                    <button type="submit"
-                        class="bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark text-[10px] font-bold uppercase tracking-widest py-2 px-6 transition-all disabled:opacity-30 disabled:grayscale"
-                        disabled id="bulkActionButton">Apply</button>
-                </div>
-            </div>
+
+            {{ template "admin_listing_bulk_actions" . }}
 
             <!-- Listings Table -->
             <div class="bg-white/5 border border-white/10 overflow-hidden">
                 <div class="overflow-x-auto no-scrollbar">
                     <table class="min-w-full divide-y divide-white/10">
-                        <thead class="bg-white/5">
-                            <tr>
-                                <th scope="col" class="px-6 py-4 text-left w-10">
-                                    <input type="checkbox" id="selectAll"
-                                        class="border-white/10 text-earth-ochre shadow-sm focus:border-earth-ochre focus:ring focus:ring-earth-ochre focus:ring-opacity-50 bg-white/5">
-                                </th>
-                                <th
-                                    class="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
-                                    <!-- prettier-ignore -->
-                                    <a href="/admin/listings?page={{.Page}}{{if .Category}}&category={{.Category}}{{end}}&sort=date{{if eq .SortOrder `ASC`}}&order=desc{{else}}&order=asc{{end}}"
-                                        class="group inline-flex items-center hover:text-earth-ochre transition-colors">
-                                        Date
-                                        <span
-                                            class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `date`}}text-earth-ochre{{else}}text-white/30 opacity-0 group-hover:opacity-100{{end}}">
-                                            {{if and (eq .SortField `date`) (eq .SortOrder
-                                            `ASC`)}}arrow_upward{{else}}arrow_downward{{end}}
-                                        </span>
-                                    </a>
-                                </th>
-                                <th
-                                    class="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
-                                    <!-- prettier-ignore -->
-                                    <a href="/admin/listings?page={{.Page}}{{if .Category}}&category={{.Category}}{{end}}&sort=title{{if eq .SortOrder `DESC`}}&order=asc{{else}}&order=desc{{end}}"
-                                        class="group inline-flex items-center hover:text-earth-ochre transition-colors">
-                                        Title
-                                        <span
-                                            class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `title`}}text-earth-ochre{{else}}text-white/30 opacity-0 group-hover:opacity-100{{end}}">
-                                            {{if and (eq .SortField `title`) (eq .SortOrder
-                                            `DESC`)}}arrow_downward{{else}}arrow_upward{{end}}
-                                        </span>
-                                    </a>
-                                </th>
-                                <th
-                                    class="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
-                                    Type
-                                </th>
-                                <th
-                                    class="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
-                                    <!-- prettier-ignore -->
-                                    <a href="/admin/listings?page={{.Page}}{{if .Category}}&category={{.Category}}{{end}}&sort=status{{if eq .SortOrder `ASC`}}&order=desc{{else}}&order=asc{{end}}"
-                                        class="group inline-flex items-center hover:text-earth-ochre transition-colors">
-                                        Status
-                                        <span
-                                            class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `status`}}text-earth-ochre{{else}}text-white/30 opacity-0 group-hover:opacity-100{{end}}">
-                                            {{if and (eq .SortField `status`) (eq .SortOrder
-                                            `ASC`)}}arrow_upward{{else}}arrow_downward{{end}}
-                                        </span>
-                                    </a>
-                                </th>
-                                <th
-                                    class="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
-                                    Owner
-                                </th>
-                                <th
-                                    class="px-6 py-4 text-center text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
-                                    Featured</th>
-                                <th
-                                    class="px-6 py-4 text-right text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
-                                    Actions</th>
-                            </tr>
-                        </thead>
+                        {{ template "admin_listing_table_header" . }}
                         <tbody class="divide-y divide-white/5">
                             {{ if .Listings }}
                             {{ range .Listings }}
-                            <tr class="{{ if not .IsActive }}bg-white/5{{ end }} hover:bg-white/5 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <input type="checkbox" name="selectedListings" value="{{ .ID }}"
-                                        class="row-checkbox border-white/10 text-earth-ochre shadow-sm focus:border-earth-ochre focus:ring focus:ring-earth-ochre focus:ring-opacity-50 bg-white/5">
-                                </td>
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-white/50 tracking-[0.1em]">
-                                    {{ .CreatedAt.Format "Jan 02, 2006" }}
-                                </td>
-                                <td class="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider">
-                                    <a href="/listings/{{ .ID }}" target="_blank"
-                                        class="hover:text-earth-ochre transition-colors underline decoration-white/20 underline-offset-4">{{
-                                        .Title
-                                        }}</a>
-                                </td>
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-white/60 uppercase tracking-[0.2em]">
-                                    {{ .Type }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-[10px] uppercase font-bold">
-                                    {{ if eq .Status "Approved" }}
-                                    {{ template "status_badge_sharp" dict "Label" "Approved" "ColorClasses"
-                                    `bg-green-500/20 text-green-400` }}
-                                    {{ else if eq .Status "Rejected" }}
-                                    {{ template "status_badge_sharp" dict "Label" "Rejected" "ColorClasses"
-                                    `bg-red-500/20 text-red-500` }}
-                                    {{ else if eq .Status "Pending" }}
-                                    {{ template "status_badge_sharp" dict "Label" "Pending" "ColorClasses"
-                                    `bg-earth-ochre/20 text-earth-ochre-light` }}
-                                    {{ else }}
-                                    {{ template "status_badge_sharp" dict "Label" .Status "ColorClasses" `bg-white/10
-                                    text-white/60` }}
-                                    {{ end }}
-
-                                    {{ if not .IsActive }}
-                                    <span
-                                        class="ml-2 px-2 py-0.5 inline-flex font-bold bg-white/10 text-white/60 uppercase tracking-wider text-[10px]">Inactive</span>
-                                    {{ end }}
-                                </td>
-                                <td
-                                    class="px-6 py-4 text-[10px] font-bold text-white/50 truncate max-w-[150px] uppercase tracking-[0.1em]">
-                                    {{ if .OwnerID }}{{ .OwnerID }}{{ else }}<span
-                                        class="italic text-white/30 tracking-[0.2em]">UNOWNED</span>{{
-                                    end
-                                    }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center">
-                                    <button hx-post="/admin/listings/{{ .ID }}/featured"
-                                        hx-vals='{"featured": "{{ if not .Featured }}true{{ else }}false{{ end }}"}'
-                                        hx-target="closest tr" hx-swap="outerHTML"
-                                        class="px-3 py-1 text-[10px] font-bold uppercase tracking-widest transition-all {{ if .Featured }}bg-earth-ochre text-earth-dark{{ else }}bg-white/5 text-white/70 hover:bg-white/20{{ end }}"
-                                        title="{{ if .Featured }}Unfeature{{ else }}Feature{{ end }}">
-                                        {{ if .Featured }}Featured{{ else }}Feature{{ end }}
-                                    </button>
-                                </td>
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-right space-x-2 flex justify-end items-center h-full pt-6 border-0 align-middle">
-                                    <a href="#" hx-get="/listings/{{ .ID }}/edit" hx-target="body" hx-swap="beforeend"
-                                        class="w-8 h-8 inline-flex items-center justify-center border border-white/10 text-white/50 hover:text-earth-ochre hover:border-earth-ochre transition-all"
-                                        title="Edit Listing">
-                                        <span class="material-symbols-outlined text-[16px]">edit</span>
-                                    </a>
-                                    <a href="/admin/listings/delete-confirm?id={{ .ID }}"
-                                        class="w-8 h-8 inline-flex items-center justify-center border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white transition-all"
-                                        title="Delete Listing">
-                                        <span class="material-symbols-outlined text-[16px]">delete</span>
-                                    </a>
-                                </td>
-                            </tr>
+                            {{ template "admin_listing_table_row" . }}
                             {{ end }}
                             {{ else }}
                             <tr>
@@ -229,34 +54,10 @@ duration-300{{ end }}
                             {{ end }}
                         </tbody>
                     </table>
-                </div> <!-- Pagination Controls -->
-                <div class="flex justify-between items-center px-8 py-6 border-t border-white/10 bg-black/10">
-                    {{ if gt .Page 1 }}
-                    <a href="/admin/listings?page={{ sub .Page 1 }}{{ if .Category }}&category={{ .Category }}{{ end }}"
-                        class="px-6 py-2 border border-white/20 text-[10px] font-bold uppercase tracking-[0.2em] text-white hover:border-earth-ochre hover:text-earth-ochre transition-colors">
-                        Previous
-                    </a>
-                    {{ else }}
-                    <div
-                        class="px-6 py-2 border border-white/5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 cursor-not-allowed">
-                        Previous
-                    </div>
-                    {{ end }}
-
-                    <div class="text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">Page {{ .Page }}</div>
-
-                    {{ if .HasNextPage }}
-                    <a href="/admin/listings?page={{ add .Page 1 }}{{ if .Category }}&category={{ .Category }}{{ end }}"
-                        class="px-6 py-2 border border-white/20 text-[10px] font-bold uppercase tracking-[0.2em] text-white hover:border-earth-ochre hover:text-earth-ochre transition-colors">
-                        Next
-                    </a>
-                    {{ else }}
-                    <div
-                        class="px-6 py-2 border border-white/5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 cursor-not-allowed">
-                        Next
-                    </div>
-                    {{ end }}
                 </div>
+                <!-- Pagination Controls -->
+                {{ template "admin_pagination" dict "Page" .Page "HasNextPage" .HasNextPage "BaseURL" "/admin/listings"
+                "Category" .Category }}
             </div>
         </form>
     </div>

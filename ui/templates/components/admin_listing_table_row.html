@@ -1,0 +1,67 @@
+{{ define "admin_listing_table_row" }}
+<tr class="{{ if not .IsActive }}bg-white/5{{ end }} hover:bg-white/5 transition-colors">
+    <td class="px-6 py-4 whitespace-nowrap">
+        <input type="checkbox" name="selectedListings" value="{{ .ID }}"
+            class="row-checkbox border-white/10 text-earth-ochre shadow-sm focus:border-earth-ochre focus:ring focus:ring-earth-ochre focus:ring-opacity-50 bg-white/5">
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-white/50 tracking-[0.1em]">
+        {{ .CreatedAt.Format "Jan 02, 2006" }}
+    </td>
+    <td class="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider">
+        <a href="/listings/{{ .ID }}" target="_blank"
+            class="hover:text-earth-ochre transition-colors underline decoration-white/20 underline-offset-4">{{
+            .Title
+            }}</a>
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-white/60 uppercase tracking-[0.2em]">
+        {{ .Type }}
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap text-[10px] uppercase font-bold">
+        {{ if eq .Status "Approved" }}
+        {{ template "status_badge_sharp" dict "Label" "Approved" "ColorClasses"
+        `bg-green-500/20 text-green-400` }}
+        {{ else if eq .Status "Rejected" }}
+        {{ template "status_badge_sharp" dict "Label" "Rejected" "ColorClasses"
+        `bg-red-500/20 text-red-500` }}
+        {{ else if eq .Status "Pending" }}
+        {{ template "status_badge_sharp" dict "Label" "Pending" "ColorClasses"
+        `bg-earth-ochre/20 text-earth-ochre-light` }}
+        {{ else }}
+        {{ template "status_badge_sharp" dict "Label" .Status "ColorClasses" `bg-white/10
+        text-white/60` }}
+        {{ end }}
+
+        {{ if not .IsActive }}
+        <span
+            class="ml-2 px-2 py-0.5 inline-flex font-bold bg-white/10 text-white/60 uppercase tracking-wider text-[10px]">Inactive</span>
+        {{ end }}
+    </td>
+    <td class="px-6 py-4 text-[10px] font-bold text-white/50 truncate max-w-[150px] uppercase tracking-[0.1em]">
+        {{ if .OwnerID }}{{ .OwnerID }}{{ else }}<span class="italic text-white/30 tracking-[0.2em]">UNOWNED</span>{{
+        end
+        }}
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap text-center">
+        <button hx-post="/admin/listings/{{ .ID }}/featured"
+            hx-vals='{"featured": "{{ if not .Featured }}true{{ else }}false{{ end }}"}' hx-target="closest tr"
+            hx-swap="outerHTML"
+            class="px-3 py-1 text-[10px] font-bold uppercase tracking-widest transition-all {{ if .Featured }}bg-earth-ochre text-earth-dark{{ else }}bg-white/5 text-white/70 hover:bg-white/20{{ end }}"
+            title="{{ if .Featured }}Unfeature{{ else }}Feature{{ end }}">
+            {{ if .Featured }}Featured{{ else }}Feature{{ end }}
+        </button>
+    </td>
+    <td
+        class="px-6 py-4 whitespace-nowrap text-right space-x-2 flex justify-end items-center h-full pt-6 border-0 align-middle">
+        <a href="#" hx-get="/listings/{{ .ID }}/edit" hx-target="body" hx-swap="beforeend"
+            class="w-8 h-8 inline-flex items-center justify-center border border-white/10 text-white/50 hover:text-earth-ochre hover:border-earth-ochre transition-all"
+            title="Edit Listing">
+            <span class="material-symbols-outlined text-[16px]">edit</span>
+        </a>
+        <a href="/admin/listings/delete-confirm?id={{ .ID }}"
+            class="w-8 h-8 inline-flex items-center justify-center border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white transition-all"
+            title="Delete Listing">
+            <span class="material-symbols-outlined text-[16px]">delete</span>
+        </a>
+    </td>
+</tr>
+{{ end }}

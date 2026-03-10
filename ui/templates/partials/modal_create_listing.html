@@ -14,286 +14,35 @@
             enctype="multipart/form-data" class="flex flex-col gap-5" autocomplete="off" data-modal-action-submit-close>
             <input type="hidden" name="_csrf" value="{{ .CSRF }}">
 
-            <!-- Type -->
-            <div class="flex flex-col gap-1.5">
-                <label
-                    class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Type</label>
-                <div class="bg-earth-sand/10 border border-white/20 p-1 relative flex items-center">
-                    <select name="type"
-                        class="w-full bg-transparent border-none px-4 py-3 h-12 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50 appearance-none">
-                        {{ range .Categories }}
-                        <option value="{{ .Name }}" class="bg-earth-dark text-white">{{ .Name }}</option>
-                        {{ end }}
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white/50">
-                        <span class="material-symbols-outlined text-[20px]">expand_more</span>
-                    </div>
-                </div>
-            </div>
+            <!-- Type & Origin -->
+            {{ template "listing_form_type_origin" dict "Categories" .Categories "SelectedType" "" "SelectedOrigin"
+            "Nigeria" }}
 
             <!-- Title -->
-            <div class="flex flex-col gap-1.5">
-                <label
-                    class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Title</label>
-                <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
-                    <input required name="title" type="text" placeholder="e.g., Mama's Kitchen"
-                        class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
-                </div>
-            </div>
-
-            <!-- Origin -->
-            <div class="flex flex-col gap-1.5">
-                <label
-                    class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Origin</label>
-                <div class="bg-earth-sand/10 border border-white/20 p-1 relative flex items-center">
-                    <select name="owner_origin"
-                        class="w-full bg-transparent border-none px-4 py-3 h-12 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50 appearance-none">
-                        <option value="" disabled class="bg-earth-dark text-white">Select Country</option>
-                        <optgroup label="West Africa" class="bg-earth-dark text-white font-bold">
-                            <option value="Benin" class="bg-earth-dark text-white font-normal">Benin 🇧🇯</option>
-                            <option value="Burkina Faso" class="bg-earth-dark text-white font-normal">Burkina Faso 🇧🇫
-                            </option>
-                            <option value="Cabo Verde" class="bg-earth-dark text-white font-normal">Cabo Verde 🇨🇻
-                            </option>
-                            <option value="Cote d'Ivoire" class="bg-earth-dark text-white font-normal">Côte d'Ivoire
-                                🇨🇮</option>
-                            <option value="Gambia" class="bg-earth-dark text-white font-normal">Gambia 🇬🇲</option>
-                            <option value="Ghana" class="bg-earth-dark text-white font-normal">Ghana 🇬🇭</option>
-                            <option value="Guinea" class="bg-earth-dark text-white font-normal">Guinea 🇬🇳</option>
-                            <option value="Guinea-Bissau" class="bg-earth-dark text-white font-normal">Guinea-Bissau
-                                🇬🇼</option>
-                            <option value="Liberia" class="bg-earth-dark text-white font-normal">Liberia 🇱🇷</option>
-                            <option value="Mali" class="bg-earth-dark text-white font-normal">Mali 🇲🇱</option>
-                            <option value="Mauritania" class="bg-earth-dark text-white font-normal">Mauritania 🇲🇷
-                            </option>
-                            <option value="Niger" class="bg-earth-dark text-white font-normal">Niger 🇳🇪</option>
-                            <option value="Nigeria" selected class="bg-earth-dark text-white font-normal">Nigeria 🇳🇬
-                            </option>
-                            <option value="Senegal" class="bg-earth-dark text-white font-normal">Senegal 🇸🇳</option>
-                            <option value="Sierra Leone" class="bg-earth-dark text-white font-normal">Sierra Leone 🇸🇱
-                            </option>
-                            <option value="Togo" class="bg-earth-dark text-white font-normal">Togo 🇹🇬</option>
-                        </optgroup>
-                        <optgroup label="North Africa" class="bg-earth-dark text-white font-bold">
-                            <option value="Algeria" class="bg-earth-dark text-white font-normal">Algeria 🇩🇿</option>
-                            <option value="Egypt" class="bg-earth-dark text-white font-normal">Egypt 🇪🇬</option>
-                            <option value="Libya" class="bg-earth-dark text-white font-normal">Libya 🇱🇾</option>
-                            <option value="Morocco" class="bg-earth-dark text-white font-normal">Morocco 🇲🇦</option>
-                            <option value="Sudan" class="bg-earth-dark text-white font-normal">Sudan 🇸🇩</option>
-                            <option value="Tunisia" class="bg-earth-dark text-white font-normal">Tunisia 🇹🇳</option>
-                            <option value="Western Sahara" class="bg-earth-dark text-white font-normal">Western Sahara
-                            </option>
-                        </optgroup>
-                        <optgroup label="East Africa" class="bg-earth-dark text-white font-bold">
-                            <option value="Burundi" class="bg-earth-dark text-white font-normal">Burundi 🇧🇮</option>
-                            <option value="Comoros" class="bg-earth-dark text-white font-normal">Comoros 🇰🇲</option>
-                            <option value="Djibouti" class="bg-earth-dark text-white font-normal">Djibouti 🇩🇯</option>
-                            <option value="Eritrea" class="bg-earth-dark text-white font-normal">Eritrea 🇪🇷</option>
-                            <option value="Ethiopia" class="bg-earth-dark text-white font-normal">Ethiopia 🇪🇹</option>
-                            <option value="Kenya" class="bg-earth-dark text-white font-normal">Kenya 🇰🇪</option>
-                            <option value="Madagascar" class="bg-earth-dark text-white font-normal">Madagascar 🇲🇬
-                            </option>
-                            <option value="Malawi" class="bg-earth-dark text-white font-normal">Malawi 🇲🇼</option>
-                            <option value="Mauritius" class="bg-earth-dark text-white font-normal">Mauritius 🇲🇺
-                            </option>
-                            <option value="Mozambique" class="bg-earth-dark text-white font-normal">Mozambique 🇲🇿
-                            </option>
-                            <option value="Rwanda" class="bg-earth-dark text-white font-normal">Rwanda 🇷🇼</option>
-                            <option value="Seychelles" class="bg-earth-dark text-white font-normal">Seychelles 🇸🇨
-                            </option>
-                            <option value="Somalia" class="bg-earth-dark text-white font-normal">Somalia 🇸🇴</option>
-                            <option value="South Sudan" class="bg-earth-dark text-white font-normal">South Sudan 🇸🇸
-                            </option>
-                            <option value="Tanzania" class="bg-earth-dark text-white font-normal">Tanzania 🇹🇿</option>
-                            <option value="Uganda" class="bg-earth-dark text-white font-normal">Uganda 🇺🇬</option>
-                            <option value="Zambia" class="bg-earth-dark text-white font-normal">Zambia 🇿🇲</option>
-                            <option value="Zimbabwe" class="bg-earth-dark text-white font-normal">Zimbabwe 🇿🇼</option>
-                        </optgroup>
-                        <optgroup label="Central Africa" class="bg-earth-dark text-white font-bold">
-                            <option value="Angola" class="bg-earth-dark text-white font-normal">Angola 🇦🇴</option>
-                            <option value="Cameroon" class="bg-earth-dark text-white font-normal">Cameroon 🇨🇲</option>
-                            <option value="Central African Republic" class="bg-earth-dark text-white font-normal">
-                                Central African Republic 🇨🇫</option>
-                            <option value="Chad" class="bg-earth-dark text-white font-normal">Chad 🇹🇩</option>
-                            <option value="Congo" class="bg-earth-dark text-white font-normal">Congo 🇨🇬</option>
-                            <option value="Democratic Republic of the Congo"
-                                class="bg-earth-dark text-white font-normal">DRC 🇨🇩</option>
-                            <option value="Equatorial Guinea" class="bg-earth-dark text-white font-normal">Equatorial
-                                Guinea 🇬🇶</option>
-                            <option value="Gabon" class="bg-earth-dark text-white font-normal">Gabon 🇬🇦</option>
-                            <option value="Sao Tome and Principe" class="bg-earth-dark text-white font-normal">São Tomé
-                                and Príncipe 🇸🇹</option>
-                        </optgroup>
-                        <optgroup label="Southern Africa" class="bg-earth-dark text-white font-bold">
-                            <option value="Botswana" class="bg-earth-dark text-white font-normal">Botswana 🇧🇼</option>
-                            <option value="Eswatini" class="bg-earth-dark text-white font-normal">Eswatini 🇸🇿</option>
-                            <option value="Lesotho" class="bg-earth-dark text-white font-normal">Lesotho 🇱🇸</option>
-                            <option value="Namibia" class="bg-earth-dark text-white font-normal">Namibia 🇳🇦</option>
-                            <option value="South Africa" class="bg-earth-dark text-white font-normal">South Africa 🇿🇦
-                            </option>
-                        </optgroup>
-                        <option value="Other" class="bg-earth-dark text-white font-normal">Other 🌍</option>
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white/50">
-                        <span class="material-symbols-outlined text-[20px]">expand_more</span>
-                    </div>
-                </div>
-            </div>
+            {{ template "listing_form_title" dict "Value" "" }}
 
             <!-- Image Upload -->
-            <div id="image-upload-section" class="flex flex-col gap-1.5">
-                <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Photo
-                    (Optional)</label>
-                <div id="image-preview-container" class="hidden relative mb-2">
-                    <img id="image-preview" class="h-24 w-24 object-cover  border border-white/20" alt="Preview">
-                    <button type="button" id="remove-image-btn"
-                        class="absolute -top-2 -right-2 bg-earth-ochre text-earth-dark p-1 hover:bg-earth-ochre-light shadow-lg">
-                        <span class="material-symbols-outlined text-[16px]">close</span>
-                    </button>
-                </div>
-                <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
-                    <input name="image" type="file" accept="image/*" id="image-input"
-                        class="w-full text-white font-light text-sm file:mr-3 file:py-3 file:px-6 file: file:border-0 file:text-[10px] file:uppercase file:tracking-widest file:font-bold file:bg-white/10 file:text-white hover:file:bg-white/20 transition-all cursor-pointer bg-transparent py-1 pl-1 outline-none">
-                </div>
-            </div>
+            {{ template "listing_form_image_fields" dict "ListingID" "" "IDPrefix" "" "ImageURL" "" }}
 
             <!-- Location Section -->
-            <div class="grid grid-cols-1 gap-4">
-                <div class="flex flex-col gap-1.5">
-                    <label id="location-label"
-                        class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Address
-                        (Validated)</label>
-                    <div
-                        class="bg-earth-sand/10 border border-white/20 p-1 flex flex-col relative w-full overflow-hidden">
-                        <input id="create-address-input" name="address" type="text"
-                            placeholder="Start typing address..."
-                            class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50 truncate"
-                            data-google-maps-key="{{ if .GoogleMapsApiKey }}{{ .GoogleMapsApiKey }}{{ end }}">
-                    </div>
-                    <input type="hidden" id="create-city-input" name="city">
-                </div>
-            </div>
-
-            <!-- Hours of Operation (Optional) -->
-            <div id="hours-section" class="flex flex-col gap-1.5 hidden">
-                <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Hours
-                    of Operation</label>
-                <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
-                    <input name="hours_of_operation" type="text" placeholder="e.g. Mon-Fri 9am-6pm"
-                        class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
-                </div>
-            </div>
+            <!-- Location & Hours -->
+            {{ template "listing_form_location" dict "ListingID" "" "IDPrefix" "create-" "Address" "" "City" "" "Hours"
+            "" "GoogleMapsApiKey" .GoogleMapsApiKey }}
 
             <!-- Description -->
-            <div class="flex flex-col gap-1.5">
-                <label id="description-label"
-                    class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Description</label>
-                <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
-                    <textarea required name="description" rows="3" placeholder="Tell us about your listing..."
-                        class="w-full bg-transparent border-none px-4 py-3 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50 resize-none"></textarea>
-                </div>
-            </div>
+            {{ template "listing_form_description" dict "Value" "" }}
 
             <!-- Event Dates (Hidden by default) -->
-            <div id="event-dates-section" class="grid grid-cols-2 gap-4 hidden">
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Event
-                        Start</label>
-                    <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
-                        <input name="event_start" type="datetime-local"
-                            class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-sm md:text-base outline-none transition-all placeholder:text-white/50 color-scheme-dark">
-                    </div>
-                </div>
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Event
-                        End</label>
-                    <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
-                        <input name="event_end" type="datetime-local"
-                            class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-sm md:text-base outline-none transition-all placeholder:text-white/50 color-scheme-dark">
-                    </div>
-                </div>
-            </div>
+            {{ template "listing_form_event_fields" dict "Listing" nil "IDPrefix" "" "Visible" false }}
 
             <!-- Job Fields (Hidden by default) -->
-            <div id="job-fields-section" class="flex flex-col gap-4 hidden">
-                <div class="flex flex-col gap-1.5">
-                    <label
-                        class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Company
-                        Name</label>
-                    <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
-                        <input name="company" type="text" placeholder="e.g. Acme Inc."
-                            class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
-                    </div>
-                </div>
-                <div class="flex flex-col gap-1.5">
-                    <label
-                        class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Compensation</label>
-                    <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
-                        <input name="pay_range" type="text" placeholder="e.g. $80k - $120k / Competitive"
-                            class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
-                    </div>
-                </div>
-                <div class="flex flex-col gap-1.5">
-                    <label
-                        class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Skills
-                        Required</label>
-                    <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
-                        <textarea name="skills" rows="2" placeholder="e.g. Golang, SQL, Docker..."
-                            class="w-full bg-transparent border-none px-4 py-3 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50 resize-none"></textarea>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="flex flex-col gap-1.5">
-                        <label
-                            class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Start
-                            Date</label>
-                        <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
-                            <input name="job_start_date" type="datetime-local"
-                                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-sm md:text-base outline-none transition-all placeholder:text-white/50 color-scheme-dark">
-                        </div>
-                    </div>
-                    <div class="flex flex-col gap-1.5">
-                        <label
-                            class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Apply
-                            URL</label>
-                        <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
-                            <input name="job_apply_url" type="text" inputmode="url" placeholder="https://..."
-                                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {{ template "listing_form_job_fields" dict "Listing" nil "IDPrefix" "" "Visible" false }}
 
             <!-- Contact Section -->
-            <div class="flex flex-col gap-5">
-                <div class="flex flex-col gap-1.5">
-                    <label
-                        class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Email</label>
-                    <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
-                        <input name="contact_email" type="email" placeholder="Email"
-                            value="{{ if .User }}{{ .User.Email }}{{ end }}"
-                            class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
-                    </div>
-                </div>
-                <div class="flex flex-col gap-1.5">
-                    <label
-                        class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Phone/WhatsApp</label>
-                    <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
-                        <input name="contact_phone" type="tel" placeholder="+1..."
-                            class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
-                    </div>
-                </div>
-            </div>
+            {{ template "listing_form_contact_fields" dict "Listing" nil "User" .User "SplitWhatsApp" false }}
 
             <!-- Website (Optional) -->
-            <div class="flex flex-col gap-1.5">
-                <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Website
-                    (Optional)</label>
-                <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
-                    <input name="website_url" type="text" inputmode="url" placeholder="https://..."
-                        class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
-                </div>
-            </div>
+            {{ template "listing_form_website" dict "Value" "" }}
 
             <!-- Submit Button (Matches "Search" button aesthetic) -->
             <button type="submit" id="create-listing-submit"

@@ -1,0 +1,21 @@
+{{ define "listing_form_event_fields" }}
+<div id="{{ .IDPrefix }}event-dates-section" class="grid grid-cols-2 gap-4 {{ if not .Visible }}hidden{{ end }}">
+    <div class="flex flex-col gap-1.5">
+        <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Event
+            Start</label>
+        <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
+            <input name="event_start" type="datetime-local"
+                value='{{ if and .Listing (not .Listing.EventStart.IsZero) }}{{ .Listing.EventStart.Format "2006-01-02T15:04" }}{{ end }}'
+                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-sm md:text-base outline-none transition-all placeholder:text-white/50 color-scheme-dark">
+        </div>
+    </div>
+    <div class="flex flex-col gap-1.5">
+        <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Event End</label>
+        <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
+            <input name="event_end" type="datetime-local"
+                value='{{ if and .Listing (not .Listing.EventEnd.IsZero) }}{{ .Listing.EventEnd.Format "2006-01-02T15:04" }}{{ end }}'
+                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-sm md:text-base outline-none transition-all placeholder:text-white/50 color-scheme-dark">
+        </div>
+    </div>
+</div>
+{{ end }}

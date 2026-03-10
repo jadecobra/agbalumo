@@ -1,0 +1,58 @@
+{{ define "head_meta" }}
+<meta charset="utf-8" />
+<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<meta name="csrf-token" content="{{.CSRF}}">
+<!-- P2.2: Preload critical CSS -->
+<link rel="preload" href="/static/css/output.css" as="style" />
+<!-- Preconnect to Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect" />
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+<!-- P2.2: Preload primary font stylesheets -->
+<link rel="preload"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"
+    as="style" />
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"
+    rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+<link href="/static/css/output.css?v=2" rel="stylesheet" />
+<script src="/static/js/htmx.min.js" defer></script>
+<script src="/static/js/app.js?v=5" defer></script>
+<script src="/static/js/toasts.js" defer></script>
+<script src="/static/js/modals.js" defer></script>
+<style>
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    body {
+        min-height: 100dvh;
+    }
+
+    /* Safe area padding for notched devices */
+    @supports (padding-bottom: env(safe-area-inset-bottom)) {
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+    }
+
+    /* Hide bottom nav by default, shown via JS */
+    #mobile-bottom-nav {
+        transform: translateY(0);
+    }
+
+    #mobile-bottom-nav.nav-hidden {
+        transform: translateY(100%);
+    }
+
+    .nav-hidden-js {
+        display: none !important;
+    }
+</style>
+{{ end }}

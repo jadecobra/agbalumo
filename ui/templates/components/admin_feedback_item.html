@@ -1,0 +1,41 @@
+{{ define "admin_feedback_item" }}
+<article
+    class="flex items-center justify-between p-6 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer group">
+    <div class="flex items-start space-x-6 min-w-0">
+        <div class="w-14 h-14 bg-white/5 flex items-center justify-center shrink-0 border border-white/10">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="text-white/40 group-hover:text-earth-ochre transition-colors">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+        </div>
+        <div class="flex-1 min-w-0 py-1">
+            <div class="flex items-center gap-4 mb-2">
+                <h3 class="text-white font-bold text-sm tracking-wide truncate max-w-[200px] sm:max-w-xs uppercase">
+                    {{ .Content | html }}</h3>
+                {{ if eq .Type "Issue" }}
+                {{ template "status_badge_sharp" dict "Label" "issue" "ColorClasses" `bg-red-600 text-white`
+                }}
+                {{ else if eq .Type "Feature" }}
+                {{ template "status_badge_sharp" dict "Label" "feature" "ColorClasses" `bg-blue-600
+                text-white` }}
+                {{ else }}
+                {{ template "status_badge_sharp" dict "Label" .Type "ColorClasses" `bg-white/10
+                text-white/70` }}
+                {{ end }}
+            </div>
+            <p class="font-bold text-[10px] uppercase tracking-[0.2em] text-white/50">
+                {{ .CreatedAt.Format "Jan 02, 2006 15:04" }} &bull; {{ if .UserID }}{{ .UserID }}{{ else
+                }}Anonymous{{ end }}
+            </p>
+        </div>
+    </div>
+    <div class="flex gap-2">
+        <button
+            class="w-10 h-10 flex items-center justify-center text-white/30 hover:text-earth-ochre transition-colors"
+            title="View Details">
+            <span class="material-symbols-outlined text-[20px]">expand_circle_right</span>
+        </button>
+    </div>
+</article>
+{{ end }}

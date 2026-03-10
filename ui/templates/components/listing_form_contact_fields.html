@@ -1,0 +1,37 @@
+{{ define "listing_form_contact_fields" }}
+<div class="flex flex-col gap-5">
+    <!-- Email -->
+    <div class="flex flex-col gap-1.5">
+        <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Email</label>
+        <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
+            <input name="contact_email" type="email" placeholder="Email"
+                value="{{ if .Listing }}{{ .Listing.ContactEmail }}{{ else if .User }}{{ .User.Email }}{{ end }}"
+                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
+        </div>
+    </div>
+
+    <!-- Phone -->
+    <div class="flex flex-col gap-1.5">
+        <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">
+            {{ if .SplitWhatsApp }}Phone{{ else }}Phone/WhatsApp{{ end }}
+        </label>
+        <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
+            <input name="contact_phone" type="tel" placeholder="+1..."
+                value="{{ if .Listing }}{{ .Listing.ContactPhone }}{{ end }}"
+                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
+        </div>
+    </div>
+
+    <!-- Optional WhatsApp -->
+    {{ if .SplitWhatsApp }}
+    <div class="flex flex-col gap-1.5">
+        <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">WhatsApp</label>
+        <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
+            <input name="contact_whatsapp" type="tel" placeholder="+1..."
+                value="{{ if .Listing }}{{ .Listing.ContactWhatsApp }}{{ end }}"
+                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
+        </div>
+    </div>
+    {{ end }}
+</div>
+{{ end }}

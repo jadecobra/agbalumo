@@ -36,7 +36,7 @@ func TestEditListingModal_ImageRemovalUI(t *testing.T) {
 	body := rec.Body.String()
 
 	// 1. Verify hidden remove_image input is present with correct ID
-	assert.Contains(t, body, `input type="hidden" name="remove_image" id="remove-image-test-ui-listing" value="false"`)
+	assert.Contains(t, body, `input type="hidden" name="remove_image" id="edit-remove-image-test-ui-listing" value="false"`)
 
 	// 2. Verify "Remove" button (close icon) is present and calls clearEditImage
 	assert.Contains(t, body, `hx-on:click="clearEditImage('test-ui-listing')"`)
