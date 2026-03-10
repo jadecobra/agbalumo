@@ -61,8 +61,7 @@
                     class="text-sm md:text-xl font-bold text-text-main dark:text-white leading-tight flex items-center gap-2">
                     {{ .Listing.Title }}
                     {{ if .Listing.Featured }}
-                    <img src="/static/images/logo.png" alt="Featured" class="w-4 h-4 md:w-5 md:h-5 object-contain"
-                        title="Featured Listing">
+                    <span class="text-xs md:text-sm" title="Featured Listing">🍊</span>
                     {{ end }}
                     <span class="ml-1 opacity-80">{{ if eq .Listing.OwnerOrigin "Nigeria" }}🇳🇬{{ else if eq
                         .Listing.OwnerOrigin "Ghana" }}🇬🇭{{ end }}</span>
