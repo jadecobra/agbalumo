@@ -10,6 +10,8 @@ import (
 	"strings"
 	"testing"
 
+	"io"
+
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
@@ -18,7 +20,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	testifyMock "github.com/stretchr/testify/mock"
-	"io"
 )
 
 func TestAdminHandler_HandleBulkUpload(t *testing.T) {

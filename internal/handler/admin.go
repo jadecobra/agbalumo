@@ -3,7 +3,6 @@ package handler
 import (
 	"fmt"
 	"net/http"
-	"net/url"
 	"strings"
 	"time"
 
@@ -11,17 +10,16 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
-	"github.com/jadecobra/agbalumo/internal/service"
 	"github.com/labstack/echo/v4"
 )
 
 type AdminHandler struct {
 	Repo       domain.ListingRepository
-	CSVService *service.CSVService
+	CSVService domain.CSVService
 	Cfg        *config.Config
 }
 
-func NewAdminHandler(repo domain.ListingRepository, csvService *service.CSVService, cfg *config.Config) *AdminHandler {
+func NewAdminHandler(repo domain.ListingRepository, csvService domain.CSVService, cfg *config.Config) *AdminHandler {
 	return &AdminHandler{Repo: repo, CSVService: csvService, Cfg: cfg}
 }
 
@@ -231,269 +229,5 @@ func (h *AdminHandler) HandleUsers(c echo.Context) error {
 		"Users":      users,
 		"User":       c.Get("User"),
 		"Pagination": p,
-	})
-}
-
-// HandleAllListings renders the list of all listings for admins, with category filtering.
-func (h *AdminHandler) HandleAllListings(c echo.Context) error {
-	ctx := c.Request().Context()
-
-	pagination := GetPagination(c, 50)
-
-	category := c.QueryParam("category")
-	sortField := c.QueryParam("sort")
-	sortOrder := strings.ToUpper(c.QueryParam("order"))
-
-	// Fetch all listings with the given category filter, including inactive ones.
-	listings, err := h.Repo.FindAll(ctx, category, "", sortField, sortOrder, true, pagination.Limit, pagination.Offset)
-	if err != nil {
-		return RespondError(c, err)
-	}
-
-	hasNextPage := len(listings) == pagination.Limit
-
-	counts, err := h.Repo.GetCounts(ctx)
-	if err != nil {
-		c.Logger().Errorf("failed to get listing counts: %v", err)
-		counts = make(map[domain.Category]int)
-	}
-
-	categories, err := h.Repo.GetCategories(ctx, domain.CategoryFilter{})
-	if err != nil {
-		c.Logger().Errorf("failed to get categories: %v", err)
-		categories = []domain.CategoryData{}
-	}
-
-	strCounts, totalCount := ConvertCounts(counts)
-
-	return c.Render(http.StatusOK, "admin_listings.html", map[string]interface{}{
-		"Listings":    listings,
-		"Page":        pagination.Page,
-		"HasNextPage": hasNextPage,
-		"Category":    category,
-		"SortField":   sortField,
-		"SortOrder":   sortOrder,
-		"Counts":      strCounts,
-		"Categories":  categories,
-		"TotalCount":  totalCount,
-		"User":        c.Get("User"),
-	})
-}
-
-// HandleApproveClaim approves a user's claim request and transfers listing ownership.
-func (h *AdminHandler) HandleApproveClaim(c echo.Context) error {
-	id := c.Param("id")
-	ctx := c.Request().Context()
-
-	if err := h.Repo.UpdateClaimRequestStatus(ctx, id, domain.ClaimStatusApproved); err != nil {
-		return c.String(http.StatusNotFound, "Claim request not found")
-	}
-
-	return c.NoContent(http.StatusOK)
-}
-
-// HandleRejectClaim rejects a user's claim request.
-func (h *AdminHandler) HandleRejectClaim(c echo.Context) error {
-	id := c.Param("id")
-	ctx := c.Request().Context()
-
-	if err := h.Repo.UpdateClaimRequestStatus(ctx, id, domain.ClaimStatusRejected); err != nil {
-		return c.String(http.StatusNotFound, "Claim request not found")
-	}
-
-	return c.NoContent(http.StatusOK)
-}
-
-// HandleBulkAction processes bulk approvals, rejections, and deletions.
-func (h *AdminHandler) HandleBulkAction(c echo.Context) error {
-	action := c.FormValue("action")
-	selectedIDs := c.Request().PostForm["selectedListings"]
-	ctx := c.Request().Context()
-
-	if len(selectedIDs) == 0 {
-		sess := customMiddleware.GetSession(c)
-		if sess != nil {
-			sess.AddFlash("No listings selected", "message")
-			_ = sess.Save(c.Request(), c.Response())
-		}
-		return c.Redirect(http.StatusFound, "/admin/listings")
-	}
-
-	if action == "delete" {
-		// Pass IDs as query parameters to the confirmation page
-		query := url.Values{}
-		for _, id := range selectedIDs {
-			query.Add("id", id)
-		}
-		return c.Redirect(http.StatusFound, "/admin/listings/delete-confirm?"+query.Encode())
-	}
-
-	successCount := 0
-	// Safe bounded admin action: N+1 here is acceptable because batch sizes are limited
-	// by pagination (e.g. 50 items) and SQLite connection overhead is negligible.
-	for _, id := range selectedIDs {
-		listing, err := h.Repo.FindByID(ctx, id)
-		if err != nil {
-			continue // Skip if not found
-		}
-
-		switch action {
-		case "approve":
-			listing.Status = domain.ListingStatusApproved
-			listing.IsActive = true
-		case "reject":
-			listing.Status = domain.ListingStatusRejected
-			listing.IsActive = false
-		default:
-			continue // Unknown action
-		}
-
-		if err := h.Repo.Save(ctx, listing); err == nil {
-			successCount++
-		}
-	}
-
-	sess := customMiddleware.GetSession(c)
-	if sess != nil {
-		sess.AddFlash(fmt.Sprintf("Successfully processed %d listings", successCount), "message")
-		_ = sess.Save(c.Request(), c.Response())
-	}
-
-	return c.Redirect(http.StatusFound, "/admin/listings")
-}
-
-// HandleAdminDeleteView renders the double-confirmation page for deleting listings.
-func (h *AdminHandler) HandleAdminDeleteView(c echo.Context) error {
-	// Parse IDs from query parameters (can be multiple)
-	_ = c.Request().ParseForm()
-	ids := c.Request().Form["id"]
-
-	if len(ids) == 0 {
-		return c.Redirect(http.StatusFound, "/admin/listings")
-	}
-
-	ctx := c.Request().Context()
-	// Safe bounded admin action: N+1 here is acceptable because batch sizes are limited
-	// by pagination (e.g. 50 items) and SQLite connection overhead is negligible.
-	for _, id := range ids {
-		if _, err := h.Repo.FindByID(ctx, id); err != nil {
-			return c.String(http.StatusNotFound, "Listing not found")
-		}
-	}
-
-	return c.Render(http.StatusOK, "admin_delete_confirm.html", map[string]interface{}{
-		"IDs":  ids,
-		"User": c.Get("User"),
-	})
-}
-
-// HandleAdminDeleteAction processes explicit admin deletions after password confirmation.
-func (h *AdminHandler) HandleAdminDeleteAction(c echo.Context) error {
-	adminCode := c.FormValue("admin_code")
-
-	// Parse IDs (can be multiple)
-	_ = c.Request().ParseForm()
-	ids := c.Request().PostForm["id"]
-
-	if len(ids) == 0 {
-		return c.Redirect(http.StatusFound, "/admin/listings")
-	}
-
-	// 1. Password (Admin Code) Verification
-	if adminCode != h.Cfg.AdminCode {
-		return c.Render(http.StatusOK, "admin_delete_confirm.html", map[string]interface{}{
-			"IDs":   ids,
-			"Error": "Invalid Admin Code. Deletion aborted.",
-			"User":  c.Get("User"),
-		})
-	}
-
-	// 2. Perform Deletions
-	ctx := c.Request().Context()
-	successCount := 0
-	// Safe bounded admin action: N+1 here is acceptable because batch sizes are limited
-	// by pagination (e.g. 50 items) and SQLite connection overhead is negligible.
-	for _, id := range ids {
-		if err := h.Repo.Delete(ctx, id); err == nil {
-			successCount++
-		} else {
-			c.Logger().Errorf("Failed to delete listing %s: %v", id, err)
-		}
-	}
-
-	// 3. Feedback
-	sess := customMiddleware.GetSession(c)
-	if sess != nil {
-		sess.AddFlash(fmt.Sprintf("Successfully deleted %d listings", successCount), "message")
-		_ = sess.Save(c.Request(), c.Response())
-	}
-
-	return c.Redirect(http.StatusFound, "/admin/listings")
-}
-
-// HandleBulkUpload processes a CSV file upload.
-func (h *AdminHandler) HandleBulkUpload(c echo.Context) error {
-	handleError := func(msg string) error {
-		sess := customMiddleware.GetSession(c)
-		if sess != nil {
-			sess.AddFlash(msg, "message")
-			_ = sess.Save(c.Request(), c.Response())
-		}
-		return c.Redirect(http.StatusFound, "/admin")
-	}
-
-	// 1. Get File
-	file, err := c.FormFile("csv_file")
-	if err != nil {
-		return handleError("Please select a valid CSV file")
-	}
-
-	src, err := file.Open()
-	if err != nil {
-		return handleError("Failed to open file: " + err.Error())
-	}
-	defer func() { _ = src.Close() }()
-
-	// 2. Parse and Import
-	result, err := h.CSVService.ParseAndImport(c.Request().Context(), src, h.Repo)
-	if err != nil {
-		return handleError("Failed to process CSV: " + err.Error())
-	}
-
-	// 3. Render Result / Redirect
-	sess := customMiddleware.GetSession(c)
-	if sess != nil {
-		msg := fmt.Sprintf("Processed %d items. Success: %d, Failed: %d", result.TotalProcessed, result.SuccessCount, result.FailureCount)
-		if len(result.Errors) > 0 {
-			if len(result.Errors) > 3 {
-				msg += fmt.Sprintf(". Errors: %v ...", result.Errors[:3])
-			} else {
-				msg += fmt.Sprintf(". Errors: %v", result.Errors)
-			}
-		}
-		sess.AddFlash(msg, "message")
-		_ = sess.Save(c.Request(), c.Response())
-	}
-
-	return c.Redirect(http.StatusFound, "/admin")
-}
-
-// HandleToggleFeatured toggles the featured status of a listing.
-func (h *AdminHandler) HandleToggleFeatured(c echo.Context) error {
-	id := c.Param("id")
-	if id == "" {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Listing ID is required"})
-	}
-
-	featured := c.FormValue("featured") == "true"
-	ctx := c.Request().Context()
-
-	if err := h.Repo.SetFeatured(ctx, id, featured); err != nil {
-		return RespondError(c, err)
-	}
-
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"id":       id,
-		"featured": featured,
 	})
 }

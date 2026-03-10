@@ -1,0 +1,89 @@
+{{ define "admin_modal_users" }}
+<div id="usersModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+    aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-earth-dark/90 transition-opacity backdrop-blur-sm" aria-hidden="true"
+            data-action="close-modal" data-target="usersModal"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div
+            class="inline-block align-bottom bg-earth-dark border border-white/10 text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl w-full p-8 relative">
+
+            <button data-action="close-modal" data-target="usersModal"
+                class="absolute top-6 right-6 text-white/30 hover:text-white transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+
+            <h2 class="text-3xl font-serif text-white mb-8 uppercase tracking-tight">Recent Users</h2>
+
+            <div class="bg-white/5 border border-white/10 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-white/10">
+                        <thead class="bg-white/5">
+                            <tr>
+                                <th
+                                    class="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+                                    User</th>
+                                <th
+                                    class="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+                                    Role</th>
+                                <th
+                                    class="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+                                    Joined</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            {{ range .Users }}
+                            <tr class="hover:bg-white/5 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="h-8 w-8 shrink-0">
+                                            <img class="h-8 w-8 object-cover border border-white/10"
+                                                src="{{ if .AvatarURL }}{{ .AvatarURL }}{{ else }}/static/images/default-avatar.png{{ end }}"
+                                                alt="{{ .Name }}">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-xs font-bold text-white uppercase tracking-wide">{{ .Name
+                                                }}</div>
+                                            <div class="text-[10px] text-white/40 uppercase tracking-widest">{{ .Email
+                                                }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    {{ if eq .Role "Admin" }}
+                                    {{ template "status_badge_sharp" dict "Label" "Admin" "ColorClasses"
+                                    "bg-purple-500/20 text-purple-400" }}
+                                    {{ else }}
+                                    {{ template "status_badge_sharp" dict "Label" .Role "ColorClasses"
+                                    "bg-earth-ochre/20 text-earth-ochre-light" }}
+                                    {{ end }}
+                                </td>
+                                <td
+                                    class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                                    {{ .CreatedAt.Format "Jan 02, 2006" }}
+                                </td>
+                            </tr>
+                            {{ end }}
+                        </tbody>
+                    </table>
+                </div>
+                {{ if not .Users }}
+                <div class="p-12 text-center text-white/30 border-t border-white/5">
+                    <p class="uppercase tracking-[0.3em] text-[10px] font-bold">No users found</p>
+                </div>
+                {{ end }}
+            </div>
+
+            <div class="mt-8 flex justify-between items-center">
+                <a href="/admin/users"
+                    class="text-[10px] font-bold text-earth-ochre hover:text-earth-ochre-light uppercase tracking-widest transition-colors flex items-center gap-2">
+                    View All Users <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </a>
+                {{ template "button_sharp" dict "Label" "Close" "DataAction" "close-modal" "DataTarget" "usersModal"
+                "Classes" `bg-white/10 hover:bg-white/20 text-white px-8 py-3 font-bold uppercase text-xs
+                tracking-widest transition-all` }}
+            </div>
+        </div>
+    </div>
+</div>
+{{ end }}

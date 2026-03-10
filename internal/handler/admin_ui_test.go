@@ -71,6 +71,10 @@ func NewAdminTemplate(t *testing.T) *template.Template {
 	if err != nil {
 		t.Fatalf("Failed to parse partial templates: %v", err)
 	}
+	_, err = tmpl.ParseGlob(filepath.Join(projectRoot, "ui", "templates", "components", "*.html"))
+	if err != nil {
+		t.Fatalf("Failed to parse component templates: %v", err)
+	}
 	return tmpl
 }
 

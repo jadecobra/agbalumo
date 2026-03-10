@@ -19,7 +19,7 @@ func TestServerE2E(t *testing.T) {
 	// Setup temporary environment
 	tmpDir := t.TempDir()
 	dbPath := filepath.Join(tmpDir, "e2e.db")
-	
+
 	// Set required env vars for SetupServer
 	_ = os.Setenv("DATABASE_URL", dbPath)
 	_ = os.Setenv("ENV", "test")

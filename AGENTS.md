@@ -43,88 +43,12 @@ npm run build:css
 
 ---
 
-## Code Style Guidelines
-
-### Imports (Group Order)
-1. Standard library (blank line)
-2. Third-party packages (blank line)
-3. Local packages
-
-```go
-import (
-    "context"
-    "net/http"
-
-    "github.com/labstack/echo/v4"
-
-    "github.com/jadecobra/agbalumo/internal/domain"
-)
-```
-
-### Naming Conventions
-- **Packages**: lowercase single word (`domain`, `handler`, `service`)
-- **Types**: PascalCase (`ListingHandler`, `UserStore`)
-- **Interfaces**: `XxxStore`, `XxxService` (`ListingStore`)
-- **Errors**: `ErrSomething` as package-level vars (`ErrInvalidDeadline`)
-
-### Structs & Types
-- Use struct tags: `json`, `form` for API binding
-- Constructor pattern: `NewXxx()` functions
-
-```go
-type ListingHandler struct {
-    Repo         domain.ListingStore
-    ImageService service.ImageService
-}
-
-func NewListingHandler(repo domain.ListingStore, is service.ImageService) *ListingHandler {
-    return &ListingHandler{Repo: repo, ImageService: is}
-}
-```
-
-### Error Handling
-- Use `RespondError(c, err)` for HTTP handlers - logs internally, renders friendly error page
-- Wrap with `echo.NewHTTPError` for specific codes:
-
-```go
-return RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
-return RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Validation Error: "+err.Error()))
-```
-
-### Handlers
-- Return `error` from all handlers
-- Use `c.Render()` for page templates, `c.JSON()` for API responses
-- Get user from context: `c.Get("User")`
-
----
-
-## Testing Conventions
-
-### Test Structure
-```go
-func TestFeatureName(t *testing.T) {
-    tests := []struct {
-        name      string
-        input     string
-        expectErr bool
-    }{
-        {name: "valid case", input: "value", expectErr: false},
-        {name: "invalid case", input: "", expectErr: true},
-    }
-    for _, tt := range tests {
-        t.Run(tt.name, func(t *testing.T) {
-            // test logic
-        })
-    }
-}
-```
-
-### Mocks
-Use `github.com/stretchr/testify/mock`. Mocks go in `internal/mock/`.
-
-```go
-mockRepo.On("FindByID", ctx, "123").Return(domain.Listing{}, errors.New("not found"))
-```
+## Specialized Workflows
+See `.agent/workflows/` for deep-dive guidelines:
+- `/coding-standards`: Code Style Guidelines, Naming, Error Handling, Testing Structure
+- `/feature-implementation`: Feature Development Workflow
+- `/audit`: Performance, Auth, Security gates
+- `/restart-server`: Commands to rebuild CSS and binary
 
 ---
 
@@ -145,23 +69,3 @@ ui/
   templates/   HTML templates (Go templates)
   static/      CSS, JS, images
 ```
-
----
-
-## Feature Development Workflow
-
-**Follow the verification workflow** (`.agent/workflows/feature-implementation.md`):
-- All changes must strictly follow this workflow.
-- Refer strictly to `.agent/workflows/feature-implementation.md` for specific layers and gates.
-
----
-
-## Key Rules
-
-- **TDD**: Write tests first. A feature isn't done until tests pass.
-- **Coverage**: NEVER lower the 90.0% threshold - write more tests instead
-- **Commits**: Short, imperative mood ("add user auth" not "added user auth")
-- **Functions**: Small, single-purpose (SRP)
-- **NO comments**: Code should be self-documenting
-- **NO committing**: `ARCHITECTURE_CRITIQUE.md` (it's in `.gitignore`)
-- **Always restart**: Run server restart workflow after changes pass verification

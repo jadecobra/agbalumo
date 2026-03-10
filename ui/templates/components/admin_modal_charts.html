@@ -1,0 +1,40 @@
+{{ define "admin_modal_charts" }}
+<div id="chartsModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+    aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-earth-dark/90 transition-opacity backdrop-blur-sm" aria-hidden="true"
+            data-action="close-modal" data-target="chartsModal"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div
+            class="inline-block align-bottom bg-earth-dark border border-white/10 text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl w-full p-8 relative">
+
+            <button data-action="close-modal" data-target="chartsModal"
+                class="absolute top-6 right-6 text-white/30 hover:text-white transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+
+            <h2 class="text-3xl font-serif text-white mb-8 uppercase tracking-tight">Growth Charts</h2>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white/5 p-6 border border-white/5">
+                    <h3 class="text-[10px] font-bold text-earth-ochre mb-6 uppercase tracking-[0.2em]">New Listings
+                        (Last 30 Days)</h3>
+                    <canvas id="listingChart" data-chart-data="{{ .ListingGrowth | toJson }}"></canvas>
+                </div>
+                <div class="bg-white/5 p-6 border border-white/5">
+                    <h3 class="text-[10px] font-bold text-earth-ochre mb-6 uppercase tracking-[0.2em]">New Users
+                        (Last
+                        30 Days)</h3>
+                    <canvas id="userChart" data-chart-data="{{ .UserGrowth | toJson }}"></canvas>
+                </div>
+            </div>
+
+            <div class="mt-12 flex justify-end">
+                {{ template "button_sharp" dict "Label" "Close" "DataAction" "close-modal" "DataTarget" "chartsModal"
+                "Classes" `bg-white/10 hover:bg-white/20 text-white px-8 py-3 font-bold uppercase text-xs
+                tracking-widest transition-all` }}
+            </div>
+        </div>
+    </div>
+</div>
+{{ end }}

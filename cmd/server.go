@@ -37,17 +37,17 @@ func SetupServer() (*echo.Echo, error) {
 	slog.SetDefault(logger)
 
 	e := echo.New()
-e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
-LogStatus: true,
-LogURI:    true,
-LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
-slog.Info("request",
-"status", v.Status,
-"URI", v.URI,
-)
-return nil
-},
-}))
+	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+		LogStatus: true,
+		LogURI:    true,
+		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
+			slog.Info("request",
+				"status", v.Status,
+				"URI", v.URI,
+			)
+			return nil
+		},
+	}))
 
 	setupMiddleware(e, cfg)
 
@@ -124,6 +124,7 @@ func initRenderer() (*ui.TemplateRenderer, error) {
 	return ui.NewTemplateRenderer(
 		"ui/templates/*.html",
 		"ui/templates/partials/*.html",
+		"ui/templates/components/*.html",
 		"ui/templates/listings/*.html",
 		"ui/templates/about.html",
 	)
@@ -248,4 +249,5 @@ func setupBackgroundServices(cfg *config.Config, repo *sqlite.SQLiteRepository) 
 	bgService := service.NewBackgroundService(repo)
 	go bgService.StartTicker(ctx)
 }
+
 // dummy change

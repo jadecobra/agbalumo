@@ -1,11 +1,12 @@
-- **For every feature/change, follow the `/feature-implementation` workflow** (`.agent/workflows/feature-implementation.md`). A feature is NOT done until all verification layers pass.
-- Write small, single-purpose functions by default (SRP, clean code)
-- Use TDD principles for all development. Write tests first, then implement the minimal code to pass the tests. Refactor after passing the tests.
-- keep commit message short and concise, imperative mood - for example "add user authentication" not "added user authentication"
-- restart server after changes pass verification tests
-- always use browser subagent to verify changes after tests pass
-- make sure to update spec.md after changes and tests pass, critique codebase in relation to goal in spec.md
-- NEVER lower test coverage threshold to allow a commit, if coverage is low, write more tests
-- NEVER commit `ARCHITECTURE_CRITIQUE.md` or remove it from `.gitignore`. It is meant to remain a local, untracked file.
-- **Run CI locally before pushing** using `scripts/ci-local.sh`. For example: `scripts/ci-local.sh -j quality_lint`
-- NEVER remove files from .gitignore without explicit approval from user
+## AGENT WORKFLOWS
+For detailed rules and development process, run or refer to these workflows:
+- `/feature-implementation`: Building out new features with strict TDD.
+- `/coding-standards`: specific edge cases regarding Go style, testing patterns, and file structure.
+- `/audit`: Performance, Auth, and Security gates.
+- `/restart-server`: Commands to rebuild CSS and binary.
+
+## Git Rules
+- keep commit message short and concise, imperative mood.
+- NEVER commit `ARCHITECTURE_CRITIQUE.md` or remove it from `.gitignore`.
+- Run CI locally before pushing using `scripts/ci-local.sh`.
+- NEVER remove files from `.gitignore` without explicit approval.

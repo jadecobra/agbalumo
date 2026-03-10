@@ -14,9 +14,9 @@ func TestStaticCacheHeaders(t *testing.T) {
 	mw := staticCacheHeaders()
 
 	tests := []struct {
-		name           string
-		path           string
-		wantCache      bool
+		name      string
+		path      string
+		wantCache bool
 	}{
 		{"CSS file", "/static/css/style.css", true},
 		{"JS file", "/static/js/app.js", true},

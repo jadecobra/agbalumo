@@ -35,8 +35,8 @@ func TestUserOperations(t *testing.T) {
 		CreatedAt: time.Now(),
 	}
 
-err = repo.SaveUser(ctx, user)
-if err != nil {
+	err = repo.SaveUser(ctx, user)
+	if err != nil {
 		t.Fatalf("SaveUser failed: %v", err)
 	}
 
@@ -60,8 +60,8 @@ if err != nil {
 
 	// Update User
 	user.Name = "Updated Name"
-err = repo.SaveUser(ctx, user)
-if err != nil {
+	err = repo.SaveUser(ctx, user)
+	if err != nil {
 		t.Fatalf("SaveUser (update) failed: %v", err)
 	}
 

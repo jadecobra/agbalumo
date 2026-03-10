@@ -20,12 +20,6 @@ import (
 	_ "golang.org/x/image/webp"
 )
 
-// ImageService defines the interface for handling image uploads
-type ImageService interface {
-	UploadImage(ctx context.Context, file *multipart.FileHeader, listingID string) (string, error)
-	DeleteImage(ctx context.Context, imageURL string) error
-}
-
 // LocalImageService handles saving images to the local filesystem
 type LocalImageService struct {
 	UploadDir      string
@@ -90,10 +84,10 @@ func (s *LocalImageService) UploadImage(ctx context.Context, file *multipart.Fil
 	}
 
 	// 3. Ensure directory exists
-err = os.MkdirAll(s.UploadDir, 0755)
-if err != nil {
-return "", err
-}
+	err = os.MkdirAll(s.UploadDir, 0755)
+	if err != nil {
+		return "", err
+	}
 
 	// 4. Compress and save as WebP with iterative compression to meet size target
 	filename := listingID + ".webp"

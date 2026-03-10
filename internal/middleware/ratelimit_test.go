@@ -116,7 +116,7 @@ func TestRateLimiter_Cleanup(t *testing.T) {
 		Rate:  10,
 		Burst: 20,
 	})
-	// Mock time or wait for entries to expire is hard, 
+	// Mock time or wait for entries to expire is hard,
 	// but we can verify the map grows and then we manually trigger cleanup if exposed.
 	// Current implementation doesn't expose cleanup, but uses a background goroutine or similar?
 	// Actually, let's just verify basic functionality.

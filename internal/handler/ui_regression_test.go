@@ -41,6 +41,8 @@ func NewRealTemplate(t *testing.T) *template.Template {
 	templatePattern := filepath.Join(projectRoot, "ui", "templates", "*.html")
 	partialPattern := filepath.Join(projectRoot, "ui", "templates", "partials", "*.html")
 
+	componentPattern := filepath.Join(projectRoot, "ui", "templates", "components", "*.html")
+
 	funcMap := template.FuncMap{
 		"mod":   func(i, j int) int { return i % j },
 		"add":   func(i, j int) int { return i + j },
@@ -85,6 +87,10 @@ func NewRealTemplate(t *testing.T) *template.Template {
 	_, err = tmpl.ParseGlob(partialPattern)
 	if err != nil {
 		t.Fatalf("Failed to parse partial templates: %v", err)
+	}
+	_, err = tmpl.ParseGlob(componentPattern)
+	if err != nil {
+		t.Fatalf("Failed to parse component templates: %v", err)
 	}
 
 	// Re-parse index.html last to ensure its "content" block takes precedence
@@ -415,6 +421,13 @@ func TestAdminDashboardTheme(t *testing.T) {
 
 	content := string(templateContent)
 
+	componentsDir := filepath.Join(projectRoot, "ui", "templates", "components")
+	files, _ := os.ReadDir(componentsDir)
+	for _, f := range files {
+		compContent, _ := os.ReadFile(filepath.Join(componentsDir, f.Name()))
+		content += string(compContent)
+	}
+
 	if !strings.Contains(content, `bg-earth-sand`) {
 		t.Error("Admin dashboard metrics card missing semantic sand styling bg-earth-sand")
 	}
@@ -608,17 +621,20 @@ func TestAdminDashboardModalCloseButtons(t *testing.T) {
 	}
 	projectRoot := filepath.Join(wd, "..", "..")
 
-	path := filepath.Join(projectRoot, "ui", "templates", "admin_dashboard.html")
-	content, err := os.ReadFile(path)
+	componentsDir := filepath.Join(projectRoot, "ui", "templates", "components")
+	files, err := os.ReadDir(componentsDir)
 	if err != nil {
-		t.Fatalf("Failed to read admin_dashboard.html: %v", err)
+		t.Fatalf("Failed to read components dir: %v", err)
 	}
-	body := string(content)
 
-	// Count occurrences of Close label via button_sharp template calls
-	closeCount := strings.Count(body, `"Label" "Close"`)
+	closeCount := 0
+	for _, f := range files {
+		content, _ := os.ReadFile(filepath.Join(componentsDir, f.Name()))
+		closeCount += strings.Count(string(content), `"Label" "Close"`)
+	}
+
 	if closeCount < 4 {
-		t.Errorf("admin_dashboard.html should have at least 4 CLOSE bottom buttons (one per modal), found %d", closeCount)
+		t.Errorf("admin components should have at least 4 CLOSE bottom buttons (one per modal), found %d", closeCount)
 	}
 }
 

@@ -50,7 +50,7 @@ func categorizeTemplateFiles(files []string) (layouts, partials, pages []string)
 		baseName := filepath.Base(file)
 		if baseName == "base.html" {
 			layouts = append(layouts, file)
-		} else if strings.Contains(file, "partials") {
+		} else if strings.Contains(file, "partials") || strings.Contains(file, "components") {
 			partials = append(partials, file)
 		} else {
 			pages = append(pages, file)
