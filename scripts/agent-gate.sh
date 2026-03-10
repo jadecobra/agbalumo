@@ -159,6 +159,8 @@ case "$GATE_ID" in
         
         if [ "$(echo "$COVERAGE < $THRESHOLD" | bc -l)" -eq 1 ]; then
             echo "❌ Gate FAIL: Coverage $COVERAGE% is below threshold $THRESHOLD%."
+            echo "Top 5 lowest coverage files:"
+            go tool cover -func=.tester/coverage/coverage.out | grep -v "100.0%" | sort -k 3 -n | head -5 | sed 's/^/  /'
             update_gate "FAIL"
             exit 1
         else

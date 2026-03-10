@@ -127,8 +127,10 @@ if [ -n "$STAGED_GO_FILES" ]; then
             THRESHOLD=$(cat "$THRESHOLD_FILE")
         fi
         if awk "BEGIN {exit !($COVERAGE < $THRESHOLD)}"; then
-            echo "Coverage is below threshold: $COVERAGE% < $THRESHOLD%"
-            echo "See: $DOC_WORKFLOW (Gate: coverage)"
+            echo "  ${RED}❌ Error: Coverage is below threshold: $COVERAGE% < $THRESHOLD%${NC}"
+            echo "  ${YELLOW}Top 5 lowest coverage files:${NC}"
+            go tool cover -func=.tester/coverage/coverage.out | grep -v "100.0%" | sort -k 3 -n | head -5 | sed 's/^/    /'
+            echo "  ${BLUE}See: $DOC_WORKFLOW (Gate: coverage)${NC}"
             return 2
         fi
         echo "Coverage: $COVERAGE%"
