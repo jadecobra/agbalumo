@@ -53,3 +53,64 @@ run_task() {
         return 1
     fi
 }
+
+# Gate Enforcement
+# Usage: check_workflow_gates <state_file>
+# Returns 0 if all phase-required gates are PASS, 1 otherwise.
+# Skips check entirely when feature is "none" or "null".
+check_workflow_gates() {
+    local state_file=$1
+
+    if [ ! -f "$state_file" ]; then
+        return 0
+    fi
+
+    local feature
+    feature=$(jq -r .feature "$state_file")
+    if [ "$feature" = "none" ] || [ "$feature" = "null" ] || [ -z "$feature" ]; then
+        return 0
+    fi
+
+    local phase
+    phase=$(jq -r .phase "$state_file")
+
+    local required_gates=""
+    case "$phase" in
+        RED)
+            required_gates="red-test"
+            ;;
+        GREEN)
+            required_gates="red-test api-spec implementation"
+            ;;
+        REFACTOR)
+            required_gates="red-test api-spec implementation lint coverage"
+            ;;
+        IDLE)
+            required_gates="red-test api-spec implementation lint coverage browser-verification"
+            ;;
+        *)
+            return 0
+            ;;
+    esac
+
+    local failures=0
+    local failed_gates=""
+    for gate in $required_gates; do
+        local status
+        status=$(jq -r ".gates[\"$gate\"]" "$state_file")
+        if [ "$status" != "PASS" ]; then
+            failures=$((failures + 1))
+            failed_gates="$failed_gates $gate($status)"
+        fi
+    done
+
+    if [ "$failures" -gt 0 ]; then
+        echo "  ${RED}❌ Workflow gate enforcement failed for '$feature' ($phase):${NC}"
+        echo "  ${RED}   Required gates not PASS:${failed_gates}${NC}"
+        echo "  ${YELLOW}   See: .agent/workflows/feature-implementation.md${NC}"
+        return 1
+    fi
+
+    echo "  ${GREEN}✅ Workflow gates verified ($phase: $(echo $required_gates | wc -w | tr -d ' ') gates)${NC}"
+    return 0
+}

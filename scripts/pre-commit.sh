@@ -14,32 +14,11 @@ DOC_CLI="docs/cli.md"
 START_TIME=$(date +%s)
 echo "${BLUE}Running 10x Engineer Quality Checks...${NC}"
 
-# 0. Workflow State Check
+# 0. Workflow Gate Enforcement (phase-aware)
 STATE_FILE=".agent/state.json"
 if [ -f "$STATE_FILE" ]; then
-    FEATURE=$(jq -r .feature "$STATE_FILE")
-    if [ "$FEATURE" != "none" ] && [ "$FEATURE" != "null" ]; then
-        PHASE=$(jq -r .phase "$STATE_FILE")
-        echo "${BLUE}  Workflow detected: $FEATURE ($PHASE)${NC}"
-        
-        # Check mandatory gates for any committed work
-        # For now, we enforce that 'lint' and 'red-test' (if RED+) must be PASS
-        LINT_GATE=$(jq -r '.gates.lint' "$STATE_FILE")
-        if [ "$LINT_GATE" != "PASS" ]; then
-            echo "  ${RED}❌ Workflow Error: 'lint' gate must be PASS before committing.${NC}"
-            echo "  ${YELLOW}See: $DOC_WORKFLOW${NC}"
-            exit 1
-        fi
-        
-        if [ "$PHASE" != "IDLE" ] && [ "$PHASE" != "RED" ]; then
-            RED_GATE=$(jq -r '.gates["red-test"]' "$STATE_FILE")
-            if [ "$RED_GATE" != "PASS" ]; then
-                 echo "  ${RED}❌ Workflow Error: 'red-test' gate must be PASS for $PHASE phase.${NC}"
-                 echo "  ${YELLOW}See: $DOC_WORKFLOW${NC}"
-                 exit 1
-            fi
-        fi
-        echo "  ${GREEN}✅ Workflow gates verified${NC}"
+    if ! check_workflow_gates "$STATE_FILE"; then
+        exit 1
     fi
 fi
 
