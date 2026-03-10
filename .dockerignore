@@ -23,9 +23,9 @@ Thumbs.db
 .git
 
 # Data (Don't copy local DB to image, let it be created or mounted)
-@data/agbalumo.db
-@data/agbalumo.db-journal
-@data/agbalumo.db-wal
+.tester/data/agbalumo.db
+.tester/data/agbalumo.db-journal
+.tester/data/agbalumo.db-wal
 .env*
 *.local
 

@@ -1,8 +1,8 @@
 bin/
 tmp/
 lint-results*.txt
-@data/agbalumo.db
-@data/agbalumo.db-*
+.tester/data/agbalumo.db
+.tester/data/agbalumo.db-*
 test_*.db
 test_*.db-*
 *.db-shm

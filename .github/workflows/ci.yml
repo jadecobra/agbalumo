@@ -65,7 +65,7 @@ jobs:
 
       - name: Run Tests with Coverage
         run: |
-          mkdir -p @tester @data
+          mkdir -p .tester/data
           go test -race -coverprofile=coverage.out ./...
           go tool cover -func=coverage.out
 
@@ -111,7 +111,7 @@ jobs:
 
       - name: Start Server (Background)
         run: |
-          mkdir -p @data certs
+          mkdir -p .tester/data certs
           openssl req -x509 -newkey rsa:4096 -keyout certs/key.pem -out certs/cert.pem -days 365 -nodes -subj "/CN=localhost"
           export AGBALUMO_ENV=development
           nohup ./server serve > server.log 2>&1 &
