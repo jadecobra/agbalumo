@@ -94,6 +94,12 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		featured = []domain.Listing{} // Graceful fallback
 	}
 
+	// Prioritize featured listings on the first page
+	finalListings := listings
+	if page == 1 {
+		finalListings = h.mergeFeatured(featured, listings, limit)
+	}
+
 	strCounts := make(map[string]int)
 	totalCount := 0
 	for cat, count := range counts {
@@ -109,7 +115,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	}
 
 	return h.renderWithBaseContext(c, "index.html", map[string]interface{}{
-		"Listings":         listings,
+		"Listings":         finalListings,
 		"Page":             page,
 		"HasNextPage":      hasNextPage,
 		"FeaturedListings": featured,
@@ -139,8 +145,17 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	}
 	hasNextPage := len(listings) == limit
 
+	// For the first page of the main feed (no filters/search), include featured listings
+	finalListings := listings
+	if page == 1 && filterType == "" && queryText == "" {
+		featured, err := h.Repo.GetFeaturedListings(c.Request().Context())
+		if err == nil {
+			finalListings = h.mergeFeatured(featured, listings, limit)
+		}
+	}
+
 	data := map[string]interface{}{
-		"Listings":    listings,
+		"Listings":    finalListings,
 		"Page":        page,
 		"HasNextPage": hasNextPage,
 		"User":        c.Get("User"),
@@ -390,9 +405,9 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 	// Check for duplicate title
 	existing, fErr := h.Repo.FindByTitle(ctx, listing.Title)
 	if fErr == nil {
-// bounded action: title duplicates are usually few
-for _, ext := range existing {
-if ext.ID != listing.ID {
+		// bounded action: title duplicates are usually few
+		for _, ext := range existing {
+			if ext.ID != listing.ID {
 				return RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Title already exists. Please choose a different title."))
 			}
 		}
@@ -450,7 +465,6 @@ func (h *ListingHandler) HandleProfile(c echo.Context) error {
 
 	return h.renderWithBaseContext(c, "profile.html", data)
 }
-
 
 // Helper methods
 
@@ -601,4 +615,25 @@ func (h *ListingHandler) renderWithBaseContext(c echo.Context, tmpl string, data
 
 	data["Categories"] = categories
 	return c.Render(http.StatusOK, tmpl, data)
+}
+
+// mergeFeatured prepends featured listings to the list and removes duplicates, keeping total at limit.
+func (h *ListingHandler) mergeFeatured(featured, listings []domain.Listing, limit int) []domain.Listing {
+	featuredMap := make(map[string]bool)
+	for _, f := range featured {
+		featuredMap[f.ID] = true
+	}
+
+	var filtered []domain.Listing
+	for _, l := range listings {
+		if !featuredMap[l.ID] {
+			filtered = append(filtered, l)
+		}
+	}
+
+	merged := append(featured, filtered...)
+	if len(merged) > limit {
+		merged = merged[:limit]
+	}
+	return merged
 }

@@ -36,3 +36,5 @@ data/
 logs/
 .cache/
 .tester/
+cmd/agbalumo.db
+cmd/agbalumo.db-shm
