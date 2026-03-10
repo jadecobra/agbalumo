@@ -406,7 +406,8 @@ func TestMobileFilterBottomSheet(t *testing.T) {
 	assert.Contains(t, body, "bottom-0 md:bottom-auto")
 	assert.Contains(t, body, "left-0 right-0")
 	assert.NotContains(t, body, "inset-x-4")
-	assert.Contains(t, body, "z-[70]") // Check for at least z-70 context
+	assert.Contains(t, body, "z-[120]")      // Higher z-index to clear overlay
+	assert.Contains(t, body, "max-h-[55vh]") // Reduced height for usability
 	assert.Contains(t, body, "rounded-t-3xl")
 	assert.Contains(t, body, "bg-earth-dark/20 rounded-full")
 }
