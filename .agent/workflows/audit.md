@@ -13,6 +13,9 @@ description: comprehensive project audit (tests, security, ui, performance)
     - **Goal**: Ensure overall coverage is >80% and critical paths (domain/handlers) are covered.
 
 2. **Security Audit**
+
+    > **Persona: Security** — Audit for OWASP Top 10 vulnerabilities. Enforce input validation and secure headers at the boundary. Audit all dependencies. Assume all input is malicious until proven otherwise.
+
     - **Custom Security Tool**:
       ```bash
       go run cmd/security-audit/main.go
@@ -30,6 +33,9 @@ description: comprehensive project audit (tests, security, ui, performance)
       - **Goal**: Identify and remediate Critical/High vulnerabilities.
 
 3. **UI & UX Review**
+
+    > **Persona: UI/UX** — Ensure premium feel: perfect alignment, consistent spacing, modern typography. Maintain agbalumo brand (Orange `#FF5E0E`, Green `#2D5A27`). Verify micro-interactions and smooth transitions. Target FCP < 1.0s.
+
     - Start the server if not running:
       ```bash
       go run cmd/server/main.go

@@ -8,12 +8,25 @@ description: Workflow for implementing new features with strict TDD, API-first d
 
 ---
 
+## 0. Initialize Workflow State
+
+Before any code is written, initialize the state machine to track gate progress.
+
+// turbo
+1. Run `./scripts/agent-exec.sh workflow init <feature-name>`
+// turbo
+2. Run `./scripts/agent-exec.sh workflow set-phase RED`
+
+---
+
 ## 1. API Specification & Red Test (Design First)
 
 Before writing any implementation code, prove the feature doesn't exist and define its contract.
 
 ### 1a. Write Failing Unit Test (RED)
-- *Role*: SDET Agent
+
+> **Persona: SDET** — Write table-driven tests in `*_test.go` files only. Never write production code. Focus on functional and integration coverage. Cover West African country/domain inputs where relevant. Tests must fail for the right reason before any implementation.
+
 - *File*: Create or update the relevant `*_test.go` file.
 - Write a test expecting the new feature to work (e.g. hitting the hypothetical endpoint).
 - *Run*:
@@ -26,7 +39,9 @@ Before writing any implementation code, prove the feature doesn't exist and defi
   - **FAIL**: Test passes or fails for unrelated reasons (e.g. syntax error in test).
 
 ### 1b. Update API Specifications (Source of Truth)
-- *Role*: Lead Architect
+
+> **Persona: Lead Architect** — Enforce Go best practices and clean directory structure. Coordinate TDD loop across agents. Reject non-minimal or non-modular changes. Verify spec consistency between docs and implementation.
+
 - *Files*: Update `@[docs/api.md]` and `@[docs/openapi.yaml]` to map out the exact request/response/path for the feature. This acts as the absolute source of truth.
 - Include appropriate validation rules and security requirements.
 - *Lint Spec* (Optional but recommended):
@@ -44,7 +59,9 @@ Before writing any implementation code, prove the feature doesn't exist and defi
 Write the minimum code necessary to satisfy the API spec and pass the test.
 
 ### 2a. Implement Logic (GREEN)
-- *Role*: Backend Agent
+
+> **Persona: Backend** — Write only the minimal code to pass existing tests. Validate all inputs (trust nothing). Use Echo framework. Maintain minimal external dependencies. Run benchmarks for critical logic (`go test -bench=.`, target < 1000ns/op).
+
 - Write the logic in `handler/`, `service/`, etc.
 - Also ensure tests cover `400 Bad Request` schema validations and `401/403` auth checks defined in the spec.
 - *Run*:
@@ -74,8 +91,8 @@ Write the minimum code necessary to satisfy the API spec and pass the test.
   - **FAIL**: Lint errors found or config invalid.
 
 - **Gate: `coverage`**
-  - **PASS**: Output contains `Coverage: [X]%` where `X >= threshold` (default 90.0%).
-  - **FAIL**: Coverage is below the required threshold in `@[.agent/coverage-threshold]`.
+  - **PASS**: Output contains `Coverage: [X]%` where `X >= threshold` from `@[.agent/coverage-threshold]`.
+  - **FAIL**: Coverage is below the required threshold.
 
 ---
 
@@ -84,7 +101,9 @@ Write the minimum code necessary to satisfy the API spec and pass the test.
 Validate that the application can be used from the command line/terminal as an admin or user.
 
 ### 3a. CLI Test
-- *Role*: SDET Agent
+
+> **Persona: SDET** — Write table-driven tests. Cover end-to-end CLI workflows. Validate both success and error paths. Never write production code in this step.
+
 - Test with the `agbalumo` CLI.
 - Ensure the newly implemented feature can be invoked from the command line and works end-to-end as intended.
 - *Run*:
@@ -110,12 +129,16 @@ Ensure the implemented feature is fully functional and pixel-perfect in the UI.
 - **Gate**: Server MUST compile successfully and remain running on expected ports.
 
 ### 4b. Programmatic UI Test
-- *Role*: SDET / UI Engineer
+
+> **Persona: SDET + UI/UX** — Write integration/UI tests simulating browser interactions. Verify HTMX renders, form posts, and admin workflows. Ensure pixel-perfect alignment, consistent spacing, and brand adherence (Orange `#FF5E0E`, Green `#2D5A27`).
+
 - Add or update integration/UI tests (e.g. HTMX renders, form posts) calling the handlers to simulate browser interactions programmatically.
 - **Gate**: Programmatic UI tests pass and accurately reflect user/admin workflows.
 
 ### 4c. Browser Subagent Verification
-- *Role*: QA / UI Engineer
+
+> **Persona: UI/UX + QA** — Verify premium feel: micro-interactions, smooth transitions, responsive layout. Ensure FCP < 1.0s. Capture browser recordings to verify responsiveness. Check agbalumo brand consistency.
+
 - Use the `browser_subagent` tool with a detailed task:
   ```
   Task: "Navigate to https://localhost:8443. Check [FEATURE].
@@ -131,9 +154,15 @@ Ensure the implemented feature is fully functional and pixel-perfect in the UI.
 
 ---
 
-## 5. Final Reset
+## 6. Final Reset
 
-After every 3-step verification is complete, reset the application state by running the restart server workflow:
+After all verification is complete, reset the workflow state and restart the server:
+// turbo
+1. Run `./scripts/agent-exec.sh workflow set-phase IDLE`
+// turbo
+2. Run `./scripts/agent-exec.sh workflow init none`
+
+Then restart the server:
 @[.agent/workflows/restart-server.md]
 
 ---
