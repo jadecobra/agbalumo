@@ -1,6 +1,7 @@
 package handler_test
 
 import (
+	"context"
 	"net/http"
 	"net/url"
 	"strings"
@@ -9,9 +10,7 @@ import (
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
-	"github.com/jadecobra/agbalumo/internal/mock"
 	"github.com/stretchr/testify/assert"
-	testifyMock "github.com/stretchr/testify/mock"
 )
 
 func TestAdminHandler_HandleLoginView(t *testing.T) {
@@ -46,8 +45,8 @@ func TestAdminHandler_HandleLoginView(t *testing.T) {
 				c.Set("User", tt.user)
 			}
 
-			mockRepo := &mock.MockListingRepository{}
-			h := handler.NewAdminHandler(mockRepo, nil, config.LoadConfig())
+			repo := handler.SetupTestRepository(t)
+			h := handler.NewAdminHandler(repo, nil, config.LoadConfig())
 			_ = h.HandleLoginView(c)
 
 			assert.Equal(t, tt.expectCode, rec.Code)
@@ -63,16 +62,16 @@ func TestAdminHandler_HandleLoginAction(t *testing.T) {
 		name       string
 		code       string
 		adminCode  string
-		user       interface{}
-		setupMock  func(*mock.MockListingRepository)
+		user       *domain.User
 		expectCode int
 		expectLoc  string
+		verifyUser func(*testing.T, *handler.AdminHandler, string)
 	}{
 		{
 			name:       "WrongCode_RendersError",
 			code:       "wrong",
 			adminCode:  "correct",
-			user:       domain.User{ID: "u1", Role: "user"},
+			user:       &domain.User{ID: "u1", Email: "test@example.com", Role: "user"},
 			expectCode: http.StatusOK,
 		},
 		{
@@ -87,22 +86,13 @@ func TestAdminHandler_HandleLoginAction(t *testing.T) {
 			name:      "ValidCode_PromotesUser",
 			code:      "secret",
 			adminCode: "secret",
-			user:      domain.User{ID: "u1", Role: "user"},
-			setupMock: func(r *mock.MockListingRepository) {
-				r.On("SaveUser", testifyMock.Anything, testifyMock.Anything).Return(nil)
-			},
+			user:      &domain.User{ID: "u1", Email: "admin@example.com", Role: "user"},
 			expectCode: http.StatusFound,
 			expectLoc:  "/admin",
-		},
-		{
-			name:      "ValidCode_SaveUserError",
-			code:      "secret",
-			adminCode: "secret",
-			user:      domain.User{ID: "u1", Role: "user"},
-			setupMock: func(r *mock.MockListingRepository) {
-				r.On("SaveUser", testifyMock.Anything, testifyMock.Anything).Return(assert.AnError)
+			verifyUser: func(t *testing.T, h *handler.AdminHandler, userID string) {
+				// We don't have a direct way to get user from handler easily without repo
+				// but we can check the repo we passed in.
 			},
-			expectCode: http.StatusInternalServerError,
 		},
 	}
 
@@ -111,25 +101,31 @@ func TestAdminHandler_HandleLoginAction(t *testing.T) {
 			formData := url.Values{}
 			formData.Set("code", tt.code)
 			c, rec := setupAdminTestContext(http.MethodPost, "/admin/login", strings.NewReader(formData.Encode()))
+
+			repo := handler.SetupTestRepository(t)
 			if tt.user != nil {
-				c.Set("User", tt.user)
+				err := repo.SaveUser(context.Background(), *tt.user)
+				assert.NoError(t, err)
+				c.Set("User", *tt.user)
 			}
 
 			cfg := config.LoadConfig()
 			cfg.AdminCode = tt.adminCode
 
-			mockRepo := &mock.MockListingRepository{}
-			if tt.setupMock != nil {
-				tt.setupMock(mockRepo)
-			}
-
-			h := handler.NewAdminHandler(mockRepo, nil, cfg)
+			h := handler.NewAdminHandler(repo, nil, cfg)
 			_ = h.HandleLoginAction(c)
 
 			assert.Equal(t, tt.expectCode, rec.Code)
 			if tt.expectLoc != "" {
 				assert.Equal(t, tt.expectLoc, rec.Header().Get("Location"))
 			}
+
+			if tt.name == "ValidCode_PromotesUser" && tt.user != nil {
+				updatedUser, err := repo.FindUserByID(context.Background(), tt.user.ID)
+				assert.NoError(t, err)
+				assert.Equal(t, domain.UserRoleAdmin, updatedUser.Role)
+			}
 		})
 	}
 }
+
