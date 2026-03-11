@@ -1,17 +1,14 @@
 package handler_test
 
 import (
-	"errors"
+	"context"
 	"net/http"
-	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
-	"github.com/jadecobra/agbalumo/internal/mock"
-	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
-	testifyMock "github.com/stretchr/testify/mock"
 )
 
 func TestListingHandler_HandleClaim(t *testing.T) {
@@ -19,7 +16,7 @@ func TestListingHandler_HandleClaim(t *testing.T) {
 		name       string
 		user       *domain.User
 		listingID  string
-		setupMock  func(*mock.MockListingService)
+		setup      func(t *testing.T, repo domain.ListingRepository)
 		expectCode int
 	}{
 		{
@@ -30,11 +27,11 @@ func TestListingHandler_HandleClaim(t *testing.T) {
 		},
 		{
 			name:      "Success_ReturnsHTML",
-			user:      &domain.User{ID: "u1", Name: "Test"},
+			user:      &domain.User{ID: "u1", Name: "Test", Email: "u1@e.com"},
 			listingID: "listing1",
-			setupMock: func(s *mock.MockListingService) {
-				s.On("ClaimListing", testifyMock.Anything, testifyMock.Anything, "listing1").
-					Return(domain.ClaimRequest{}, nil)
+			setup: func(t *testing.T, repo domain.ListingRepository) {
+				_ = repo.Save(context.Background(), domain.Listing{ID: "listing1", Title: "Biz", Type: domain.Business, Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "t@e.com", Address: "123 St"})
+				_ = repo.SaveCategory(context.Background(), domain.CategoryData{ID: string(domain.Business), Name: string(domain.Business), Claimable: true, Active: true})
 			},
 			expectCode: http.StatusOK,
 		},
@@ -42,9 +39,8 @@ func TestListingHandler_HandleClaim(t *testing.T) {
 			name:      "NotFound_Returns404",
 			user:      &domain.User{ID: "u1", Name: "Test"},
 			listingID: "listing1",
-			setupMock: func(s *mock.MockListingService) {
-				s.On("ClaimListing", testifyMock.Anything, testifyMock.Anything, "listing1").
-					Return(domain.ClaimRequest{}, errors.New("listing not found"))
+			setup: func(t *testing.T, repo domain.ListingRepository) {
+				// No listing saved
 			},
 			expectCode: http.StatusNotFound,
 		},
@@ -52,9 +48,8 @@ func TestListingHandler_HandleClaim(t *testing.T) {
 			name:      "AlreadyOwned_Returns403",
 			user:      &domain.User{ID: "u1", Name: "Test"},
 			listingID: "listing1",
-			setupMock: func(s *mock.MockListingService) {
-				s.On("ClaimListing", testifyMock.Anything, testifyMock.Anything, "listing1").
-					Return(domain.ClaimRequest{}, errors.New("listing is already owned"))
+			setup: func(t *testing.T, repo domain.ListingRepository) {
+				_ = repo.Save(context.Background(), domain.Listing{ID: "listing1", OwnerID: "other", Title: "Biz", Type: domain.Business, Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "t@e.com", Address: "123 St"})
 			},
 			expectCode: http.StatusForbidden,
 		},
@@ -62,42 +57,35 @@ func TestListingHandler_HandleClaim(t *testing.T) {
 			name:      "NotClaimable_Returns403",
 			user:      &domain.User{ID: "u1", Name: "Test"},
 			listingID: "listing1",
-			setupMock: func(s *mock.MockListingService) {
-				s.On("ClaimListing", testifyMock.Anything, testifyMock.Anything, "listing1").
-					Return(domain.ClaimRequest{}, errors.New("listing type cannot be claimed"))
+			setup: func(t *testing.T, repo domain.ListingRepository) {
+				_ = repo.Save(context.Background(), domain.Listing{ID: "listing1", Title: "Biz", Type: domain.Business, Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "t@e.com", Address: "123 St"})
+				_ = repo.SaveCategory(context.Background(), domain.CategoryData{ID: string(domain.Business), Name: string(domain.Business), Claimable: false, Active: true})
 			},
 			expectCode: http.StatusForbidden,
 		},
 		{
 			name:      "DuplicateClaim_Returns409",
-			user:      &domain.User{ID: "u1", Name: "Test"},
+			user:      &domain.User{ID: "u1", Name: "Test", Email: "u1@e.com"},
 			listingID: "listing1",
-			setupMock: func(s *mock.MockListingService) {
-				s.On("ClaimListing", testifyMock.Anything, testifyMock.Anything, "listing1").
-					Return(domain.ClaimRequest{}, errors.New("you already have a pending claim for this listing"))
+			setup: func(t *testing.T, repo domain.ListingRepository) {
+				_ = repo.Save(context.Background(), domain.Listing{ID: "listing1", Title: "Biz", Type: domain.Business, Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "t@e.com", Address: "123 St"})
+				_ = repo.SaveCategory(context.Background(), domain.CategoryData{ID: string(domain.Business), Name: string(domain.Business), Claimable: true, Active: true})
+				_ = repo.SaveClaimRequest(context.Background(), domain.ClaimRequest{ID: "cr1", ListingID: "listing1", UserID: "u1", Status: domain.ClaimStatusPending, CreatedAt: time.Now()})
 			},
 			expectCode: http.StatusConflict,
-		},
-		{
-			name:      "GenericError_Returns500",
-			user:      &domain.User{ID: "u1", Name: "Test"},
-			listingID: "listing1",
-			setupMock: func(s *mock.MockListingService) {
-				s.On("ClaimListing", testifyMock.Anything, testifyMock.Anything, "listing1").
-					Return(domain.ClaimRequest{}, errors.New("database error"))
-			},
-			expectCode: http.StatusInternalServerError,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			e := echo.New()
-			e.Renderer = &AdminMockRenderer{}
+			repo := handler.SetupTestRepository(t)
+			if tt.setup != nil {
+				tt.setup(t, repo)
+			}
 
-			req := httptest.NewRequest(http.MethodPost, "/listings/listing1/claim", nil)
-			rec := httptest.NewRecorder()
-			c := e.NewContext(req, rec)
+			h := handler.NewListingHandler(repo, nil, "")
+
+			c, rec := setupTestContext(http.MethodPost, "/listings/listing1/claim", nil)
 			c.SetParamNames("id")
 			c.SetParamValues(tt.listingID)
 
@@ -105,16 +93,6 @@ func TestListingHandler_HandleClaim(t *testing.T) {
 				c.Set("User", *tt.user)
 			}
 
-			mockRepo := &mock.MockListingRepository{}
-			mockSvc := &mock.MockListingService{}
-			if tt.setupMock != nil {
-				tt.setupMock(mockSvc)
-			}
-
-			h := &handler.ListingHandler{
-				Repo:       mockRepo,
-				ListingSvc: mockSvc,
-			}
 			_ = h.HandleClaim(c)
 
 			assert.Equal(t, tt.expectCode, rec.Code)

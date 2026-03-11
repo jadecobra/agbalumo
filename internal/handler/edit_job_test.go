@@ -1,23 +1,20 @@
 package handler_test
 
 import (
+	"context"
 	"net/http"
-	"net/http/httptest"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
-	"github.com/jadecobra/agbalumo/internal/mock"
-	"github.com/labstack/echo/v4"
-	testifyMock "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestHandleUpdate_JobSuccess(t *testing.T) {
 	// Setup
-	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	repo := handler.SetupTestRepository(t)
 
 	// Existing Job Listing
 	existingListing := domain.Listing{
@@ -35,38 +32,18 @@ func TestHandleUpdate_JobSuccess(t *testing.T) {
 		OwnerOrigin:  "Nigeria",
 		CreatedAt:    time.Now(),
 		IsActive:     true,
+		ContactEmail: "old@example.com",
 	}
+	_ = repo.Save(context.Background(), existingListing)
 
 	jobStart := time.Now().Add(48 * time.Hour).Format("2006-01-02T15:04")
 
-	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("FindByID", testifyMock.Anything, "job-1").Return(existingListing, nil)
-	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
-	mockRepo.On("Save", testifyMock.Anything, testifyMock.MatchedBy(func(l domain.Listing) bool {
-		if l.Title != "Senior Go Dev Updated" {
-			return false
-		}
-		if l.Company != "Updated Corp" {
-			return false
-		}
-		if l.Skills != "Go, Rust" {
-			return false
-		}
-		if l.PayRange != "200k" {
-			return false
-		}
-		return true
-	})).Return(nil)
-
-	h := handler.NewListingHandler(mockRepo, nil)
+	h := handler.NewListingHandler(repo, nil)
 
 	formData := "title=Senior+Go+Dev+Updated&type=Job&owner_origin=Nigeria&description=Updated+Desc&contact_email=job@example.com&city=Lagos" +
 		"&company=Updated+Corp&skills=Go,+Rust&pay_range=200k&job_apply_url=https://updated.com&job_start_date=" + jobStart
 
-	req := httptest.NewRequest(http.MethodPost, "/listings/job-1", strings.NewReader(formData))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+	c, rec := setupTestContext(http.MethodPost, "/listings/job-1", strings.NewReader(formData))
 	c.SetPath("/listings/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("job-1")
@@ -75,13 +52,13 @@ func TestHandleUpdate_JobSuccess(t *testing.T) {
 	// Execute
 	err := h.HandleUpdate(c)
 
-	if err != nil {
-		t.Fatalf("HandleUpdate failed: %v", err)
-	}
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
 
-	if rec.Code != http.StatusOK {
-		t.Errorf("Expected status 200, got %d", rec.Code)
-		t.Logf("Response Body: %s", rec.Body.String())
-	}
-	mockRepo.AssertExpectations(t)
+	// Verify DB state
+	updated, _ := repo.FindByID(context.Background(), "job-1")
+	assert.Equal(t, "Senior Go Dev Updated", updated.Title)
+	assert.Equal(t, "Updated Corp", updated.Company)
+	assert.Equal(t, "Go, Rust", updated.Skills)
+	assert.Equal(t, "200k", updated.PayRange)
 }

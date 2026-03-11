@@ -2,29 +2,23 @@ package handler_test
 
 import (
 	"bytes"
+	"context"
 	"image"
 	"image/png"
 	"mime/multipart"
 	"net/http"
-	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
-	"github.com/jadecobra/agbalumo/internal/mock"
 	"github.com/labstack/echo/v4"
-	testifyMock "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestListingHandler_Upload_Malicious(t *testing.T) {
 	// Setup
-	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
-
-	mockRepo := &mock.MockListingRepository{}
-
-	h := handler.NewListingHandler(mockRepo, nil, "")
+	repo := handler.SetupTestRepository(t)
+	h := handler.NewListingHandler(repo, nil, "")
 
 	// Create a malicious file (text file disguised as jpg)
 	body := new(bytes.Buffer)
@@ -47,37 +41,24 @@ func TestListingHandler_Upload_Malicious(t *testing.T) {
 	_ = writer.WriteField("city", "Lagos")
 	_ = writer.WriteField("address", "123 St")
 	_ = writer.WriteField("contact_email", "test@test.com")
-	_ = writer.WriteField("created_at", time.Now().Format(time.RFC3339))
 
 	_ = writer.Close()
 
-	req := httptest.NewRequest(http.MethodPost, "/listings", body)
-	req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+	c, rec := setupTestContext(http.MethodPost, "/listings", body)
+	c.Request().Header.Set(echo.HeaderContentType, writer.FormDataContentType())
 	c.Set("User", domain.User{ID: "user1", Email: "test@user.com"})
 
 	// Execute
 	_ = h.HandleCreate(c)
 
 	// Assert
-	if rec.Code != http.StatusBadRequest {
-		t.Errorf("Expected 400 Bad Request. Got %d. This implies file was ignored or accepted.", rec.Code)
-	}
-	mockRepo.AssertExpectations(t)
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
 }
 
 func TestListingHandler_Upload_Valid(t *testing.T) {
 	// Setup
-	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
-
-	mockRepo := &mock.MockListingRepository{}
-	// Save SHOULD be called
-	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
-	mockRepo.On("Save", testifyMock.Anything, testifyMock.Anything).Return(nil)
-
-	h := handler.NewListingHandler(mockRepo, nil, "")
+	repo := handler.SetupTestRepository(t)
+	h := handler.NewListingHandler(repo, nil, t.TempDir())
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
@@ -100,18 +81,18 @@ func TestListingHandler_Upload_Valid(t *testing.T) {
 
 	_ = writer.Close()
 
-	req := httptest.NewRequest(http.MethodPost, "/listings", body)
-	req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+	c, rec := setupTestContext(http.MethodPost, "/listings", body)
+	c.Request().Header.Set(echo.HeaderContentType, writer.FormDataContentType())
 	c.Set("User", domain.User{ID: "user1", Email: "test@user.com"})
 
 	// Execute
 	_ = h.HandleCreate(c)
 
 	// Assert
-	if rec.Code != http.StatusOK && rec.Code != http.StatusCreated && rec.Code != http.StatusFound {
-		t.Errorf("Expected 200/201/302 for valid file, got %d. Body: %s", rec.Code, rec.Body.String())
-	}
-	mockRepo.AssertExpectations(t)
+	assert.Contains(t, []int{http.StatusOK, http.StatusCreated, http.StatusFound}, rec.Code)
+
+	// Verify DB
+	listings, _ := repo.FindByTitle(context.Background(), "Valid Title")
+	assert.Len(t, listings, 1)
+	assert.NotEmpty(t, listings[0].ImageURL)
 }
