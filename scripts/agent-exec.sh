@@ -1,27 +1,19 @@
 #!/bin/bash
-# agent-exec.sh: Multi-agent persona execution helper and workflow manager for agbalumo.
+# agent-exec.sh: workflow manager for agbalumo.
 # Usage: 
-#   ./scripts/agent-exec.sh role <persona_name>
 #   ./scripts/agent-exec.sh workflow <subcommand> [args]
 
 set -e
 
-PERSONA_DIR=".agent/personas"
-GLOBAL_RULES="$PERSONA_DIR/Global.md"
 STATE_FILE=".agent/state.json"
 
 function show_usage() {
     echo "Usage:"
-    echo "  $0 role <persona_name>"
-    echo "  $0 workflow init <feature_name>"
-    echo "  $0 workflow set-persona <persona_name>"
+    echo "  $0 workflow init <feature_name> [workflow_type]"
     echo "  $0 workflow set-phase <IDLE|RED|GREEN|REFACTOR>"
     echo "  $0 workflow gate <gate_id> <PENDING|PASS|FAIL>"
     echo "  $0 workflow verify <gate_id>"
     echo "  $0 workflow status"
-    echo ""
-    echo "Available personas:"
-    ls "$PERSONA_DIR" | grep -v "Global.md" | sed 's/\.md//'
     exit 1
 }
 
@@ -41,16 +33,9 @@ function handle_workflow() {
             if [[ ! "$workflow_type" =~ ^(feature|bugfix|refactor)$ ]]; then echo "Error: invalid workflow type '$workflow_type'"; exit 1; fi
             
             jq -n --arg f "$feature" --arg wt "$workflow_type" --arg t "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
-                '{feature: $f, workflow_type: $wt, persona: "none", phase: "IDLE", gates: { "red-test": "PENDING", "api-spec": "PENDING", "implementation": "PENDING", "lint": "PENDING", "coverage": "PENDING", "browser-verification": "PENDING"}, updated_at: $t}' \
+                '{feature: $f, workflow_type: $wt, phase: "IDLE", gates: { "red-test": "PENDING", "api-spec": "PENDING", "implementation": "PENDING", "lint": "PENDING", "coverage": "PENDING", "browser-verification": "PENDING"}, updated_at: $t}' \
                 > "$STATE_FILE"
             echo "Workflow initialized for $workflow_type: $feature"
-            ;;
-        set-persona)
-            local persona=$1
-            if [ -z "$persona" ]; then echo "Error: persona name required"; exit 1; fi
-            jq --arg p "$persona" --arg t "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
-                '.persona = $p | .updated_at = $t' "$STATE_FILE" > "$STATE_FILE.tmp" && mv "$STATE_FILE.tmp" "$STATE_FILE"
-            echo "Persona set to: $persona"
             ;;
         set-phase)
             local phase=$1
@@ -82,23 +67,9 @@ function handle_workflow() {
     esac
 }
 
-if [ "$1" == "role" ]; then
-    if [ -z "$2" ]; then show_usage; fi
-    ROLE=$2
-    PERSONA_FILE="$PERSONA_DIR/$ROLE.md"
-
-    if [ ! -f "$PERSONA_FILE" ]; then
-        echo "Error: Persona '$ROLE' not found at $PERSONA_FILE"
-        show_usage
-    fi
-
-    echo "<activated_persona name=\"$ROLE\">"
-    cat "$GLOBAL_RULES"
-    echo ""
-    cat "$PERSONA_FILE"
-    echo "</activated_persona>"
-elif [ "$1" == "workflow" ]; then
+if [ "$1" == "workflow" ]; then
     handle_workflow "$2" "$3" "$4"
 else
     show_usage
 fi
+

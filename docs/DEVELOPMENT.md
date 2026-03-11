@@ -66,11 +66,10 @@ We maintain a "Performance-First" culture. Run the automated audit to check asse
 
 Agbalumo uses an active operational framework for agentic coding.
 
-### Personas & Exec
-Manage personas and workflow states using `agent-exec.sh`:
+### Workflow State Machine
+Manage workflow states using `agent-exec.sh`:
 ```bash
-./scripts/agent-exec.sh role <persona_name>
-./scripts/agent-exec.sh workflow
+./scripts/agent-exec.sh workflow status
 ```
 
 ### Workflow Gates

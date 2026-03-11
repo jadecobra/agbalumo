@@ -1,7 +1,6 @@
 {
   "feature": "none",
   "workflow_type": "feature",
-  "persona": "none",
   "phase": "IDLE",
   "gates": {
     "red-test": "PENDING",
