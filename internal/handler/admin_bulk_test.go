@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"bytes"
+	"context"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -13,16 +14,15 @@ import (
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/jadecobra/agbalumo/internal/middleware"
-	"github.com/jadecobra/agbalumo/internal/mock"
 	"github.com/jadecobra/agbalumo/internal/service"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
-	testifyMock "github.com/stretchr/testify/mock"
 )
 
 func TestAdminHandler_HandleBulkUpload(t *testing.T) {
 	e := echo.New()
-	csvContent := "title,type,description,origin,email\nTest Biz,Business,Description,Nigeria,test@test.com"
+	// CSV headers: title,type,description,origin,email,phone,whatsapp
+	csvContent := "title,type,description,origin,email,phone,whatsapp\nTest Biz,Business,Description,Nigeria,test@test.com,,"
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
@@ -38,16 +38,18 @@ func TestAdminHandler_HandleBulkUpload(t *testing.T) {
 	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
 	c.Set("User", adminUser)
 
-	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
-	mockRepo.On("Save", testifyMock.Anything, testifyMock.Anything).Return(nil)
-
-	h := handler.NewAdminHandler(mockRepo, service.NewCSVService(), config.LoadConfig())
+	repo := handler.SetupTestRepository(t)
+	h := handler.NewAdminHandler(repo, service.NewCSVService(), config.LoadConfig())
 	err := h.HandleBulkUpload(c)
 
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusFound, rec.Code)
 	assert.Equal(t, "/admin", rec.Header().Get("Location"))
+
+	// Verify listing was saved
+	listings, _ := repo.FindByTitle(context.Background(), "Test Biz")
+	assert.Len(t, listings, 1)
+	assert.Equal(t, "Test Biz", listings[0].Title)
 }
 
 func TestAdminHandler_HandleBulkUpload_NoFile(t *testing.T) {
@@ -66,7 +68,8 @@ func TestAdminHandler_HandleBulkUpload_NoFile(t *testing.T) {
 
 func TestAdminHandler_HandleBulkUpload_ParseError(t *testing.T) {
 	e := echo.New()
-	csvContent := "invalid,csv,content\nmissing,columns"
+	// Missing required "description"
+	csvContent := "title,type,origin,email\nTest Biz,Business,Nigeria,test@test.com"
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
@@ -86,24 +89,20 @@ func TestAdminHandler_HandleBulkUpload_ParseError(t *testing.T) {
 	session, _ := store.Get(c.Request(), "auth_session")
 	c.Set("session", session)
 
-	mockRepo := &mock.MockListingRepository{}
-
-	// Create a mock for CSV service that returns an error
-	// To keep it simple, let's use the real service but pass a repo that fails to save
-	// This exercises the parse/import error logic
-	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, assert.AnError)
-	mockRepo.On("Save", testifyMock.Anything, testifyMock.Anything).Return(assert.AnError)
-
-	h := handler.NewAdminHandler(mockRepo, service.NewCSVService(), config.LoadConfig())
+	repo := handler.SetupTestRepository(t)
+	h := handler.NewAdminHandler(repo, service.NewCSVService(), config.LoadConfig())
 	_ = h.HandleBulkUpload(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)
+	// Verify no listing was saved
+	listings, _ := repo.FindAll(context.Background(), "", "", "", "", true, 10, 0)
+	assert.Empty(t, listings)
 }
 
 func TestHandleBulkAction_NoSelection(t *testing.T) {
 	e := echo.New()
-	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewAdminHandler(mockRepo, nil, &config.Config{})
+	repo := handler.SetupTestRepository(t)
+	h := handler.NewAdminHandler(repo, nil, &config.Config{})
 
 	req := httptest.NewRequest(http.MethodPost, "/admin/listings/bulk", nil)
 	rec := httptest.NewRecorder()
@@ -117,13 +116,10 @@ func TestHandleBulkAction_NoSelection(t *testing.T) {
 
 func TestHandleBulkAction_Approve(t *testing.T) {
 	e := echo.New()
-	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewAdminHandler(mockRepo, nil, &config.Config{})
+	repo := handler.SetupTestRepository(t)
+	h := handler.NewAdminHandler(repo, nil, &config.Config{})
 
-	mockRepo.On("FindByID", testifyMock.Anything, "l1").Return(domain.Listing{ID: "l1", Status: domain.ListingStatusPending}, nil)
-	mockRepo.On("Save", testifyMock.Anything, testifyMock.MatchedBy(func(l domain.Listing) bool {
-		return l.ID == "l1" && l.Status == domain.ListingStatusApproved
-	})).Return(nil)
+	_ = repo.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Status: domain.ListingStatusPending})
 
 	form := url.Values{}
 	form.Add("action", "approve")
@@ -135,18 +131,17 @@ func TestHandleBulkAction_Approve(t *testing.T) {
 
 	if assert.NoError(t, h.HandleBulkAction(c)) {
 		assert.Equal(t, http.StatusFound, rec.Code)
+		l, _ := repo.FindByID(context.Background(), "l1")
+		assert.Equal(t, domain.ListingStatusApproved, l.Status)
 	}
 }
 
 func TestHandleBulkAction_Reject(t *testing.T) {
 	e := echo.New()
-	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewAdminHandler(mockRepo, nil, &config.Config{})
+	repo := handler.SetupTestRepository(t)
+	h := handler.NewAdminHandler(repo, nil, &config.Config{})
 
-	mockRepo.On("FindByID", testifyMock.Anything, "l1").Return(domain.Listing{ID: "l1", Status: domain.ListingStatusPending}, nil)
-	mockRepo.On("Save", testifyMock.Anything, testifyMock.MatchedBy(func(l domain.Listing) bool {
-		return l.ID == "l1" && l.Status == domain.ListingStatusRejected
-	})).Return(nil)
+	_ = repo.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Status: domain.ListingStatusPending})
 
 	form := url.Values{}
 	form.Add("action", "reject")
@@ -158,13 +153,15 @@ func TestHandleBulkAction_Reject(t *testing.T) {
 
 	if assert.NoError(t, h.HandleBulkAction(c)) {
 		assert.Equal(t, http.StatusFound, rec.Code)
+		l, _ := repo.FindByID(context.Background(), "l1")
+		assert.Equal(t, domain.ListingStatusRejected, l.Status)
 	}
 }
 
 func TestHandleBulkAction_Delete(t *testing.T) {
 	e := echo.New()
-	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewAdminHandler(mockRepo, nil, &config.Config{})
+	repo := handler.SetupTestRepository(t)
+	h := handler.NewAdminHandler(repo, nil, &config.Config{})
 
 	form := url.Values{}
 	form.Add("action", "delete")
@@ -179,3 +176,4 @@ func TestHandleBulkAction_Delete(t *testing.T) {
 		assert.Contains(t, rec.Header().Get("Location"), "/admin/listings/delete-confirm?id=l1")
 	}
 }
+
