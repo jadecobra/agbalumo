@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -133,4 +134,20 @@ func TestRateLimiter_Cleanup(t *testing.T) {
 		c := e.NewContext(req, rec)
 		_ = h(c)
 	}
+
+	// Artificially age the visitor
+	rl.mu.Lock()
+	if v, ok := rl.visitors["1.2.3.4"]; ok {
+		v.lastSeen = time.Now().Add(-4 * time.Minute)
+	}
+	rl.mu.Unlock()
+
+	// Call purge manually
+	rl.purge()
+
+	// Verify visitor was removed
+	rl.mu.Lock()
+	_, exists := rl.visitors["1.2.3.4"]
+	rl.mu.Unlock()
+	assert.False(t, exists)
 }

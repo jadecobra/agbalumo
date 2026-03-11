@@ -55,9 +55,17 @@ func (r *SQLiteRepository) UpdateClaimRequestStatus(ctx context.Context, id stri
 	}
 	defer func() { _ = tx.Rollback() }()
 
-	_, err = tx.ExecContext(ctx, `UPDATE claim_requests SET status = ? WHERE id = ?`, status, id)
+	res, err := tx.ExecContext(ctx, `UPDATE claim_requests SET status = ? WHERE id = ?`, status, id)
 	if err != nil {
 		return err
+	}
+
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return errors.New("claim request not found")
 	}
 
 	if status == domain.ClaimStatusApproved {

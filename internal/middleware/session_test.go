@@ -58,3 +58,10 @@ func TestGetSession_Fallback(t *testing.T) {
 		t.Error("Expected nil session when not in context")
 	}
 }
+
+func TestNewTestSessionStore(t *testing.T) {
+	store := middleware.NewTestSessionStore()
+	if store == nil {
+		t.Error("Expected non-nil store")
+	}
+}

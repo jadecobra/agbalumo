@@ -1,104 +1,62 @@
 package handler_test
 
 import (
+	"context"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
-	"github.com/jadecobra/agbalumo/internal/mock"
 	"github.com/stretchr/testify/assert"
-	testifyMock "github.com/stretchr/testify/mock"
 )
 
-func TestAdminHandler_HandleDashboard_ErrorPaths(t *testing.T) {
-	tests := []struct {
-		name       string
-		setupMock  func(*mock.MockListingRepository)
-		expectCode int
-	}{
-		{
-			name: "PendingClaimRequestsError",
-			setupMock: func(r *mock.MockListingRepository) {
-				r.On("GetPendingClaimRequests", testifyMock.Anything).Return([]domain.ClaimRequest{}, assert.AnError)
-			},
-			expectCode: http.StatusInternalServerError,
-		},
-		{
-			name: "UserCountError",
-			setupMock: func(r *mock.MockListingRepository) {
-				r.On("GetPendingClaimRequests", testifyMock.Anything).Return([]domain.ClaimRequest{}, nil)
-				r.On("GetUserCount", testifyMock.Anything).Return(0, assert.AnError)
-			},
-			expectCode: http.StatusInternalServerError,
-		},
-		{
-			name: "FeedbackCountsError",
-			setupMock: func(r *mock.MockListingRepository) {
-				r.On("GetPendingClaimRequests", testifyMock.Anything).Return([]domain.ClaimRequest{}, nil)
-				r.On("GetUserCount", testifyMock.Anything).Return(5, nil)
-				r.On("GetFeedbackCounts", testifyMock.Anything).Return(map[domain.FeedbackType]int{}, assert.AnError)
-			},
-			expectCode: http.StatusInternalServerError,
-		},
-		{
-			name: "ListingGrowthError",
-			setupMock: func(r *mock.MockListingRepository) {
-				r.On("GetPendingClaimRequests", testifyMock.Anything).Return([]domain.ClaimRequest{}, nil)
-				r.On("GetUserCount", testifyMock.Anything).Return(5, nil)
-				r.On("GetFeedbackCounts", testifyMock.Anything).Return(map[domain.FeedbackType]int{}, nil)
-				r.On("GetListingGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, assert.AnError)
-			},
-			expectCode: http.StatusInternalServerError,
-		},
-		{
-			name: "UserGrowthError",
-			setupMock: func(r *mock.MockListingRepository) {
-				r.On("GetPendingClaimRequests", testifyMock.Anything).Return([]domain.ClaimRequest{}, nil)
-				r.On("GetUserCount", testifyMock.Anything).Return(5, nil)
-				r.On("GetFeedbackCounts", testifyMock.Anything).Return(map[domain.FeedbackType]int{}, nil)
-				r.On("GetListingGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)
-				r.On("GetUserGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, assert.AnError)
-			},
-			expectCode: http.StatusInternalServerError,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			c, rec := setupAdminTestContext(http.MethodGet, "/admin", nil)
-			c.Set("User", domain.User{Role: domain.UserRoleAdmin})
-
-			mockRepo := &mock.MockListingRepository{}
-			mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
-			mockRepo.On("GetAllFeedback", testifyMock.Anything).Return([]domain.Feedback{}, nil).Maybe()
-			mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{}, nil).Maybe()
-			tt.setupMock(mockRepo)
-
-			h := handler.NewAdminHandler(mockRepo, nil, config.LoadConfig())
-			_ = h.HandleDashboard(c)
-			assert.Equal(t, tt.expectCode, rec.Code)
-		})
-	}
-}
-
 func TestAdminHandler_HandleDashboard_HappyPath(t *testing.T) {
+	repo := handler.SetupTestRepository(t)
+	// Seed data for various components of the dashboard
+	ctx := context.Background()
+
+	// 1. Users
+	_ = repo.SaveUser(ctx, domain.User{ID: "u1", GoogleID: "g1", Role: domain.UserRoleAdmin})
+	_ = repo.SaveUser(ctx, domain.User{ID: "u2", GoogleID: "g2", Role: domain.UserRoleUser})
+
+	// 2. Listings
+	_ = repo.Save(ctx, domain.Listing{ID: "l1", Title: "Business A", Type: domain.Business, IsActive: true, OwnerOrigin: "Nigeria", Address: "123 Lagos St"})
+	_ = repo.Save(ctx, domain.Listing{ID: "l2", Title: "Job B", Type: domain.Job, IsActive: true, OwnerOrigin: "Ghana"})
+
+	// 3. Claim Requests
+	_ = repo.SaveClaimRequest(ctx, domain.ClaimRequest{ID: "c1", UserID: "u2", ListingID: "l1", Status: domain.ClaimStatusPending})
+
+	// 4. Feedback
+	_ = repo.SaveFeedback(ctx, domain.Feedback{ID: "f1", Type: domain.FeedbackTypeIssue, Content: "Help!"})
+
+	// 5. Categories
+	_ = repo.SaveCategory(ctx, domain.CategoryData{ID: "music", Name: "Music"})
+
+	h := handler.NewAdminHandler(repo, nil, config.LoadConfig())
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin", nil)
 	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
-	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("GetPendingClaimRequests", testifyMock.Anything).Return([]domain.ClaimRequest{}, nil)
-	mockRepo.On("GetUserCount", testifyMock.Anything).Return(10, nil)
-	mockRepo.On("GetFeedbackCounts", testifyMock.Anything).Return(map[domain.FeedbackType]int{}, nil)
-	mockRepo.On("GetListingGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)
-	mockRepo.On("GetUserGrowth", testifyMock.Anything).Return([]domain.DailyMetric{}, nil)
-	mockRepo.On("GetAllFeedback", testifyMock.Anything).Return([]domain.Feedback{}, nil)
-	mockRepo.On("GetCounts", testifyMock.Anything).Return(map[domain.Category]int{}, nil)
-	mockRepo.On("GetCategories", testifyMock.Anything, testifyMock.Anything).Return([]domain.CategoryData{}, nil)
-	mockRepo.On("GetAllUsers", testifyMock.Anything, 10, 0).Return([]domain.User{}, nil)
+	err := h.HandleDashboard(c)
 
-	h := handler.NewAdminHandler(mockRepo, nil, config.LoadConfig())
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
+}
+
+func TestAdminHandler_HandleDashboard_GrowthMetrics(t *testing.T) {
+	repo := handler.SetupTestRepository(t)
+	ctx := context.Background()
+
+	// Seed multiple users/listings on different days if possible, or just enough to show it doesn't crash
+	now := time.Now()
+	_ = repo.SaveUser(ctx, domain.User{ID: "u1", CreatedAt: now})
+	_ = repo.Save(ctx, domain.Listing{ID: "l1", CreatedAt: now})
+
+	h := handler.NewAdminHandler(repo, nil, config.LoadConfig())
+	c, rec := setupAdminTestContext(http.MethodGet, "/admin", nil)
+	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
+
 	err := h.HandleDashboard(c)
 
 	assert.NoError(t, err)

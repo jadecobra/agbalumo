@@ -1,6 +1,7 @@
 package handler_test
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -20,28 +21,33 @@ import (
 func TestAdminHandler_HandleAdminDeleteAction_Success(t *testing.T) {
 	cfg := config.LoadConfig()
 	cfg.AdminCode = "secret"
+	repo := handler.SetupTestRepository(t)
+
+	// Seed data
+	_ = repo.Save(context.Background(), domain.Listing{ID: "l1", Title: "To Delete", OwnerOrigin: "Nigeria", Type: "business"})
 
 	formData := url.Values{}
 	formData.Set("admin_code", "secret")
 	formData.Add("id", "l1")
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings/delete", strings.NewReader(formData.Encode()))
 
-	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("Delete", testifyMock.Anything, "l1").Return(nil)
-
-	h := handler.NewAdminHandler(mockRepo, nil, cfg)
+	h := handler.NewAdminHandler(repo, nil, cfg)
 	store := middleware.NewTestSessionStore()
 	session, _ := store.Get(c.Request(), "auth_session")
 	c.Set("session", session)
 
 	_ = h.HandleAdminDeleteAction(c)
 	assert.Equal(t, http.StatusFound, rec.Code)
+
+	// Verify deletion
+	_, err := repo.FindByID(context.Background(), "l1")
+	assert.Error(t, err) // Should not be found
 }
 
 func TestHandleAdminDeleteView(t *testing.T) {
-	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewAdminHandler(mockRepo, nil, &config.Config{})
-	mockRepo.On("FindByID", testifyMock.Anything, "listing1").Return(domain.Listing{ID: "listing1", Title: "To Delete"}, nil)
+	repo := handler.SetupTestRepository(t)
+	_ = repo.Save(context.Background(), domain.Listing{ID: "listing1", Title: "To Delete", OwnerOrigin: "Nigeria", Type: "business"})
+	h := handler.NewAdminHandler(repo, nil, &config.Config{})
 
 	req := httptest.NewRequest(http.MethodGet, "/admin/listings/delete?id=listing1", nil)
 	rec := httptest.NewRecorder()
@@ -55,8 +61,8 @@ func TestHandleAdminDeleteView(t *testing.T) {
 }
 
 func TestHandleAdminDeleteView_NoIDs_Redirects(t *testing.T) {
-	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewAdminHandler(mockRepo, nil, &config.Config{})
+	repo := handler.SetupTestRepository(t)
+	h := handler.NewAdminHandler(repo, nil, &config.Config{})
 
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin/listings/delete", nil)
 
@@ -87,9 +93,8 @@ func TestHandleAdminDeleteAction_NoIDs_Redirects(t *testing.T) {
 
 	cfg := config.LoadConfig()
 	cfg.AdminCode = "secret"
-
-	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewAdminHandler(mockRepo, nil, cfg)
+	repo := handler.SetupTestRepository(t)
+	h := handler.NewAdminHandler(repo, nil, cfg)
 
 	_ = h.HandleAdminDeleteAction(c)
 	assert.Equal(t, http.StatusFound, rec.Code)
@@ -105,8 +110,11 @@ func TestHandleAdminDeleteAction_WrongCode_RendersConfirmWithError(t *testing.T)
 	cfg := config.LoadConfig()
 	cfg.AdminCode = "correct"
 
-	mockRepo := &mock.MockListingRepository{}
-	h := handler.NewAdminHandler(mockRepo, nil, cfg)
+	repo := handler.SetupTestRepository(t)
+	// Seed so it doesn't fail on something else
+	_ = repo.Save(context.Background(), domain.Listing{ID: "l1", Title: "To Delete", OwnerOrigin: "Nigeria", Type: "business"})
+
+	h := handler.NewAdminHandler(repo, nil, cfg)
 
 	_ = h.HandleAdminDeleteAction(c)
 	assert.Equal(t, http.StatusOK, rec.Code)
