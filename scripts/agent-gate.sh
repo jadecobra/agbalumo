@@ -92,14 +92,48 @@ check_deps "$GATE_ID"
 case "$GATE_ID" in
     red-test)
         # Phase check: red-test is only valid when phase is RED
+        PATTERN=$2
         echo "Running tests expecting failure..."
-        if go test ./... > /dev/null 2>&1; then
-            echo "❌ Gate FAIL: red-test passed but was expected to fail."
+        
+        # 1. Verify code compiles first. go test -run=^$ compiles but runs no tests.
+        if ! go test -run=^$ ./... > .tester/red-test-compile.log 2>&1; then
+            fail "Code does not compile. Fixed syntax/imports before running red-test."
+            cat .tester/red-test-compile.log
             update_gate "FAIL"
             exit 1
+        fi
+
+        # 2. Run tests and capture output. Use -v to ensure FAIL markers and patterns are visible.
+        TEST_OUTPUT=$(go test -v ./... 2>&1 || true)
+        
+        # 3. Check for FAIL marker (actual test failure, not just non-zero exit)
+        if echo "$TEST_OUTPUT" | grep -q -e "--- FAIL:"; then
+            if [ -n "$PATTERN" ]; then
+                if echo "$TEST_OUTPUT" | grep -q "$PATTERN"; then
+                    pass "Gate PASS: red-test failed with expected pattern '$PATTERN'."
+                    update_gate "PASS"
+                else
+                    fail "Gate FAIL: red-test failed but pattern '$PATTERN' not found in output."
+                    echo "--- TEST OUTPUT ---"
+                    echo "$TEST_OUTPUT" | tail -n 20
+                    update_gate "FAIL"
+                    exit 1
+                fi
+            else
+                pass "Gate PASS: red-test failed as expected."
+                update_gate "PASS"
+            fi
         else
-            echo "✅ Gate PASS: red-test failed as expected."
-            update_gate "PASS"
+            # If we reach here, either it passed or it failed for an unknown reason (not grep-able failure)
+            if echo "$TEST_OUTPUT" | grep -q "PASS$"; then
+                fail "Gate FAIL: red-test passed but was expected to fail."
+            else
+                fail "Gate FAIL: tests failed but could not find '--- FAIL:' marker. Check for panics or setup issues."
+                echo "--- TEST OUTPUT ---"
+                echo "$TEST_OUTPUT" | tail -n 20
+            fi
+            update_gate "FAIL"
+            exit 1
         fi
         ;;
     api-spec)
