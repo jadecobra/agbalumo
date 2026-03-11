@@ -23,13 +23,14 @@ fi
 
 FEATURE=$(jq -r .feature "$STATE_FILE")
 PHASE=$(jq -r .phase "$STATE_FILE")
+WORKFLOW_TYPE=$(jq -r '.workflow_type // "feature"' "$STATE_FILE")
 
 if [ "$FEATURE" == "null" ] || [ "$FEATURE" == "" ]; then
     echo "Error: No active feature found in $STATE_FILE"
     exit 1
 fi
 
-echo "Verifying gate: $GATE_ID for feature: $FEATURE ($PHASE)"
+echo "Verifying gate: $GATE_ID for feature: $FEATURE ($PHASE) [$WORKFLOW_TYPE]"
 
 update_gate() {
     local status=$1
@@ -55,7 +56,7 @@ update_gate() {
     fi
     
     echo "--- Current Workflow Status ---"
-    ./scripts/agent-exec.sh workflow status | jq -r '"Feature: \(.feature) (\(.phase))\nGates: \(.gates)"'
+    ./scripts/agent-exec.sh workflow status | jq -r '"Feature: \(.feature) [\(.workflow_type)] (\(.phase))\nGates: \(.gates)"'
 }
 
 # Dependency Checks
@@ -137,12 +138,20 @@ case "$GATE_ID" in
         fi
         ;;
     api-spec)
-        echo "Running API drift check..."
-        if bash scripts/api-drift-check.sh; then
-            echo "✅ Gate PASS: api-spec drift check passed."
+        echo "Running API and CLI drift checks..."
+        FAILED=0
+        if ! bash scripts/api-drift-check.sh; then FAILED=1; fi
+        if ! bash scripts/cli-drift-check.sh; then FAILED=1; fi
+
+        if [ $FAILED -eq 0 ]; then
+            echo "✅ Gate PASS: drift checks passed."
             update_gate "PASS"
         else
-            echo "❌ Gate FAIL: api-spec drift check failed."
+            if [[ "$WORKFLOW_TYPE" =~ ^(refactor|bugfix)$ ]]; then
+                echo "⚠️  Gate FAIL: drift checks failed. For '$WORKFLOW_TYPE' workflow, these are mandatory passive validations."
+                echo "Please ensure you haven't accidentally broken existing API or CLI contracts."
+            fi
+            echo "❌ Gate FAIL: contract drift detected."
             update_gate "FAIL"
             exit 1
         fi

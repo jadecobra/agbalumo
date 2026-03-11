@@ -36,11 +36,14 @@ function handle_workflow() {
     case "$cmd" in
         init)
             local feature=$1
+            local workflow_type=${2:-feature}
             if [ -z "$feature" ]; then echo "Error: feature name required"; exit 1; fi
-            jq -n --arg f "$feature" --arg t "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
-                '{feature: $f, persona: "none", phase: "IDLE", gates: { "red-test": "PENDING", "api-spec": "PENDING", "implementation": "PENDING", "lint": "PENDING", "coverage": "PENDING", "browser-verification": "PENDING"}, updated_at: $t}' \
+            if [[ ! "$workflow_type" =~ ^(feature|bugfix|refactor)$ ]]; then echo "Error: invalid workflow type '$workflow_type'"; exit 1; fi
+            
+            jq -n --arg f "$feature" --arg wt "$workflow_type" --arg t "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+                '{feature: $f, workflow_type: $wt, persona: "none", phase: "IDLE", gates: { "red-test": "PENDING", "api-spec": "PENDING", "implementation": "PENDING", "lint": "PENDING", "coverage": "PENDING", "browser-verification": "PENDING"}, updated_at: $t}' \
                 > "$STATE_FILE"
-            echo "Workflow initialized for feature: $feature"
+            echo "Workflow initialized for $workflow_type: $feature"
             ;;
         set-persona)
             local persona=$1

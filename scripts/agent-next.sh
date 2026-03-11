@@ -20,13 +20,14 @@ fi
 
 FEATURE=$(jq -r .feature "$STATE_FILE")
 PHASE=$(jq -r .phase "$STATE_FILE")
+WORKFLOW_TYPE=$(jq -r '.workflow_type // "feature"' "$STATE_FILE")
 
 if [ "$FEATURE" == "null" ] || [ "$FEATURE" == "none" ] || [ -z "$FEATURE" ]; then
     echo "No active feature. Use './scripts/agent-exec.sh workflow init <feature>' to start."
     exit 0
 fi
 
-info "Current Feature: $FEATURE ($PHASE)"
+info "Current Feature: $FEATURE [$WORKFLOW_TYPE] ($PHASE)"
 
 case "$PHASE" in
     IDLE)

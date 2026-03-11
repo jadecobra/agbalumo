@@ -1,5 +1,6 @@
 {
   "feature": "none",
+  "workflow_type": "feature",
   "persona": "none",
   "phase": "IDLE",
   "gates": {
@@ -10,5 +11,5 @@
     "coverage": "PENDING",
     "browser-verification": "PENDING"
   },
-  "updated_at": "2026-03-11T01:49:54Z"
+  "updated_at": "2026-03-11T02:32:45Z"
 }

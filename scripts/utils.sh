@@ -72,7 +72,9 @@ check_workflow_gates() {
     fi
 
     local phase
+    local workflow_type
     phase=$(jq -r .phase "$state_file")
+    workflow_type=$(jq -r '.workflow_type // "feature"' "$state_file")
 
     local required_gates=""
     case "$phase" in
@@ -105,9 +107,14 @@ check_workflow_gates() {
     done
 
     if [ "$failures" -gt 0 ]; then
-        echo "  ${RED}❌ Workflow gate enforcement failed for '$feature' ($phase):${NC}"
+        echo "  ${RED}❌ Workflow gate enforcement failed for '$feature' [$workflow_type] ($phase):${NC}"
         echo "  ${RED}   Required gates not PASS:${failed_gates}${NC}"
-        echo "  ${YELLOW}   See: .agent/workflows/feature-implementation.md${NC}"
+        
+        local doc_link=".agent/workflows/feature-implementation.md"
+        if [ "$workflow_type" = "bugfix" ]; then doc_link=".agent/workflows/bugfix.md"; fi
+        if [ "$workflow_type" = "refactor" ]; then doc_link=".agent/workflows/refactor.md"; fi
+
+        echo "  ${YELLOW}   See: $doc_link${NC}"
         return 1
     fi
 
