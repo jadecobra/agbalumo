@@ -552,3 +552,79 @@ func BenchmarkSQLiteRepository_FindByTitle(b *testing.B) {
 		_, _ = repo.FindByTitle(ctx, "Listing 50")
 	}
 }
+
+func TestMigrationBackfillCity(t *testing.T) {
+	// 1. Create a raw DB and insert a row with NULL/empty city
+	tmpDir := t.TempDir()
+	dbPath := filepath.Join(tmpDir, "backfill.db")
+	db, err := sql.Open("sqlite3", dbPath)
+	if err != nil {
+		t.Fatalf("Failed to open raw db: %v", err)
+	}
+
+	_, err = db.Exec(`CREATE TABLE listings (
+		id TEXT PRIMARY KEY,
+		owner_id TEXT,
+		title TEXT,
+		description TEXT,
+		type TEXT,
+		owner_origin TEXT,
+		city TEXT,
+		address TEXT,
+		hours_of_operation TEXT DEFAULT '',
+		is_active BOOLEAN,
+		created_at DATETIME,
+		image_url TEXT,
+		contact_email TEXT,
+		contact_phone TEXT,
+		contact_whatsapp TEXT,
+		website_url TEXT,
+		deadline DATETIME,
+		skills TEXT,
+		job_start_date DATETIME,
+		job_apply_url TEXT,
+		company TEXT,
+		pay_range TEXT,
+		status TEXT DEFAULT 'Approved',
+		featured BOOLEAN DEFAULT 0
+	);`)
+	if err != nil {
+		t.Fatalf("Failed to create table: %v", err)
+	}
+
+	_, err = db.Exec(`INSERT INTO listings (id, owner_id, owner_origin, type, title, description, city, address, is_active, status, contact_email, contact_phone, contact_whatsapp, website_url, image_url, created_at) 
+		VALUES ('1', 'owner1', 'Nigeria', 'Business', 'Empty City', 'Desc', '', '123 St', 1, 'Approved', '', '', '', '', '', CURRENT_TIMESTAMP);`)
+	if err != nil {
+		t.Fatalf("Failed to insert empty city: %v", err)
+	}
+	_, err = db.Exec(`INSERT INTO listings (id, owner_id, owner_origin, type, title, description, city, address, is_active, status, contact_email, contact_phone, contact_whatsapp, website_url, image_url, created_at) 
+		VALUES ('2', 'owner1', 'Nigeria', 'Business', 'NULL City', 'Desc', NULL, '123 St', 1, 'Approved', '', '', '', '', '', CURRENT_TIMESTAMP);`)
+	if err != nil {
+		t.Fatalf("Failed to insert NULL city: %v", err)
+	}
+	_ = db.Close()
+
+	// 2. Initialize repository (triggers migration)
+	repo, err := sqlite.NewSQLiteRepository(dbPath + "?_time_format=sqlite")
+	if err != nil {
+		t.Fatalf("Failed to init repo: %v", err)
+	}
+
+	// 3. Verify backfill
+	ctx := context.Background()
+	l1, err1 := repo.FindByID(ctx, "1")
+	if err1 != nil {
+		t.Fatalf("L1: FindByID failed: %v", err1)
+	}
+	if l1.City != "Unknown" {
+		t.Errorf("Expected city 'Unknown' for ID 1, got %q", l1.City)
+	}
+
+	l2, err2 := repo.FindByID(ctx, "2")
+	if err2 != nil {
+		t.Fatalf("L2: FindByID failed: %v", err2)
+	}
+	if l2.City != "Unknown" {
+		t.Errorf("Expected city 'Unknown' for ID 2, got %q", l2.City)
+	}
+}

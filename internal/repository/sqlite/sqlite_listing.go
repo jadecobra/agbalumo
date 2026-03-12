@@ -10,9 +10,10 @@ import (
 )
 
 const listingSelections = `
-	id, owner_id, owner_origin, type, title, description,
-	city, COALESCE(address, ''), hours_of_operation, contact_email, contact_phone, contact_whatsapp,
-	website_url, image_url, created_at, deadline, is_active,
+	id, COALESCE(owner_id, ''), owner_origin, type, title, description,
+	COALESCE(city, 'Unknown'), COALESCE(address, ''), COALESCE(hours_of_operation, ''), 
+	COALESCE(contact_email, ''), COALESCE(contact_phone, ''), COALESCE(contact_whatsapp, ''),
+	COALESCE(website_url, ''), COALESCE(image_url, ''), created_at, deadline, is_active,
 	event_start, event_end,
 	COALESCE(skills, ''), job_start_date, COALESCE(job_apply_url, ''),
 	COALESCE(company, ''), COALESCE(pay_range, ''), COALESCE(status, 'Approved'), featured

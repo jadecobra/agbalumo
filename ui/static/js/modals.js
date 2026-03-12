@@ -45,7 +45,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const listingId = modal.id.replace('edit-listing-modal-', '');
         if (listingId) {
             initEditTypeToggle(listingId);
-            initEditMaps(listingId);
             initEditImagePreview(listingId);
         }
     });
@@ -65,7 +64,6 @@ document.addEventListener('htmx:afterSettle', function (event) {
         if (listingId) {
             editModal.showModal();
             initEditTypeToggle(listingId);
-            initEditMaps(listingId);
             initEditImagePreview(listingId);
         }
     }
@@ -324,38 +322,4 @@ function initEditTypeToggle(listingId) {
     }
 }
 
-// Google Maps autocomplete for edit listing
-function initEditMaps(listingId) {
-    var input = document.getElementById('edit-address-input-' + listingId);
-    if (!input) return;
-
-    if (typeof google === 'undefined' || !google.maps || !google.maps.places) return;
-
-    var options = {
-        fields: ["address_components", "geometry", "formatted_address"],
-        types: ["address"],
-    };
-    var autocomplete = new google.maps.places.Autocomplete(input, options);
-    autocomplete.addListener("place_changed", function() {
-        var place = autocomplete.getPlace();
-        if (!place || !place.address_components) return;
-
-        var city = "";
-        for (var i = 0; i < place.address_components.length; i++) {
-            var component = place.address_components[i];
-            var types = component.types;
-            if (types.includes("locality")) {
-                city = component.long_name;
-                break;
-            } else if (types.includes("sublocality_level_1") || types.includes("sublocality")) {
-                city = component.long_name;
-            } else if (!city && (types.includes("postal_town") || types.includes("administrative_area_level_2") || types.includes("neighborhood"))) {
-                city = component.long_name;
-            }
-        }
-        var cityInput = document.getElementById('edit-city-input-' + listingId);
-        if (cityInput) {
-            cityInput.value = city || "Unknown";
-        }
-    });
-}
+// Google Maps initialization is now handled globally in app.js

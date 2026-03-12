@@ -64,9 +64,6 @@ func (r *SQLiteRepository) migrate() error {
 		description TEXT,
 		type TEXT,
 		owner_origin TEXT,
-
-		city TEXT,
-		address TEXT,
 		is_active BOOLEAN,
 		created_at DATETIME,
 		image_url TEXT,
@@ -116,6 +113,7 @@ func (r *SQLiteRepository) migrate() error {
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN address TEXT;")
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN city TEXT;")
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN hours_of_operation TEXT DEFAULT '';")
+	_, _ = r.db.ExecContext(context.Background(), "UPDATE listings SET city = 'Unknown' WHERE city IS NULL OR city = '';")
 
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN event_start DATETIME;")
 	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN event_end DATETIME;")
