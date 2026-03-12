@@ -13,5 +13,6 @@
         View All Listings
     </a>
 </div>
+{{ template "pagination_controls" dict "Page" .Page "HasNextPage" .HasNextPage "Type" .Type "Query" .Query "OOB" true }}
 {{ end }}
 {{ end }}

@@ -1,0 +1,31 @@
+{{ define "pagination_controls" }}
+<div class="flex justify-between items-center mt-16 pt-8 border-t border-earth-sand/10 px-4 w-full"
+    id="pagination-controls"
+    {{ if .OOB }}hx-swap-oob="true"{{ end }}>
+    
+    {{ if gt .Page 1 }}
+    <button hx-get="/listings/fragment?page={{ sub .Page 1 }}{{ if .Type }}&type={{ .Type }}{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}" 
+        hx-target="#listings-container"
+        hx-indicator="#listings-loading"
+        class="text-earth-clay hover:text-earth-ochre font-bold uppercase tracking-widest text-[10px] md:text-xs flex items-center gap-2 transition-colors">
+        <span class="material-symbols-outlined text-[16px]">arrow_circle_left</span> Previous
+    </button>
+    {{ else }}
+    <div></div>
+    {{ end }}
+
+    <div class="text-[10px] md:text-xs text-white/50 font-bold uppercase tracking-widest hidden sm:block">
+        PAGE {{ .Page }}</div>
+
+    {{ if .HasNextPage }}
+    <button hx-get="/listings/fragment?page={{ add .Page 1 }}{{ if .Type }}&type={{ .Type }}{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}" 
+        hx-target="#listings-container"
+        hx-indicator="#listings-loading"
+        class="text-earth-clay hover:text-earth-ochre font-bold uppercase tracking-widest text-[10px] md:text-xs flex items-center gap-2 transition-colors">
+        Next <span class="material-symbols-outlined text-[16px]">expand_circle_right</span>
+    </button>
+    {{ else }}
+    <div></div>
+    {{ end }}
+</div>
+{{ end }}

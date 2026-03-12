@@ -64,7 +64,8 @@ func NewMainTemplate() *template.Template {
 	return template.Must(template.New("listing").Funcs(funcMap).Parse(`
 		{{define "index.html"}}{{.TotalCount}} {{range .Listings}}{{.Title}}{{end}}{{end}}
 		{{define "modal_detail"}}{{.Listing.Title}}{{end}}
-		{{define "listing_list"}}{{range .Listings}}{{.Title}}{{end}}{{end}}
+		{{define "listing_list"}}{{range .Listings}}{{.Title}}{{end}}{{template "pagination_controls" dict "OOB" true}}{{end}}
+		{{define "pagination_controls"}}{{if .OOB}}hx-swap-oob="true" id="pagination-controls"{{end}}{{end}}
 		{{define "listing_card"}}{{.Listing.Title}}{{end}}
 		{{define "modal_edit_listing"}}{{.Listing.Title}}{{end}}
 		{{define "modal_profile"}}{{.User.Name}}{{end}}

@@ -38,7 +38,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	if page < 1 {
 		page = 1
 	}
-	limit := 20
+	limit := 30
 	offset := (page - 1) * limit
 
 	// P1.3: Run all three queries in parallel
@@ -132,7 +132,7 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	if page < 1 {
 		page = 1
 	}
-	limit := 20
+	limit := 30
 	offset := (page - 1) * limit
 
 	listings, err := h.Repo.FindAll(c.Request().Context(), filterType, queryText, "", "", false, limit, offset)
