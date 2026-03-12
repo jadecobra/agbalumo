@@ -48,13 +48,15 @@
                 <button hx-get="/feedback/modal" hx-target="body" hx-swap="beforeend"
                     hx-on:click="closeModal('profile-modal')"
                     class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white/5 border border-white/10 text-earth-cream font-bold text-sm hover:bg-white/10 transition-all">
-                    <span class="material-symbols-outlined text-[18px]">feedback</span>
-                    Feedback
+                    <span
+                        class="uppercase tracking-[0.3em] text-[10px] md:text-xs font-bold text-earth-ochre drop-shadow-sm">Feedback</span>
                 </button>
                 <a href="/auth/logout"
                     class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white/5 border border-red-500/40 text-red-400 font-bold text-sm hover:bg-red-900/20 transition-all">
-                    <span class="material-symbols-outlined text-[18px]">logout</span>
-                    Sign Out
+                    <span
+                        class="uppercase tracking-[0.3em] text-[10px] md:text-xs font-bold text-earth-ochre drop-shadow-sm">
+                        Sign Out
+                    </span>
                 </a>
             </div>
         </div>
