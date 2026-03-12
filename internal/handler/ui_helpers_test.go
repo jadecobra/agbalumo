@@ -76,10 +76,11 @@ func NewRealTemplateForPage(t *testing.T, pageName string) *template.Template {
 		},
 	}
 
-	// We only parse base.html and the specific page to avoid "content" block conflicts
+	// We parse base.html, error.html and the specific page
 	tmpl := template.New("base").Funcs(funcMap)
 	tmpl, err = tmpl.ParseFiles(
 		filepath.Join(projectRoot, "ui", "templates", "base.html"),
+		filepath.Join(projectRoot, "ui", "templates", "error.html"),
 		filepath.Join(projectRoot, "ui", "templates", pageName),
 	)
 	if err != nil {

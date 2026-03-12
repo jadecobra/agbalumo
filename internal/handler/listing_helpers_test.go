@@ -73,6 +73,7 @@ func NewMainTemplate() *template.Template {
 		{{define "error.html"}}Error Page: {{.Message}}{{end}}
 		{{define "admin_listings.html"}}{{range .Listings}}{{.Title}}{{end}}{{end}}
 		{{define "admin_dashboard.html"}}Admin Dashboard{{end}}
+		{{define "modal_feedback.html"}}Feedback Modal{{end}}
 	`))
 }
 

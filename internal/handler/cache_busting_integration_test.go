@@ -9,7 +9,6 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
-	"github.com/jadecobra/agbalumo/internal/mock"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	testifyMock "github.com/stretchr/testify/mock"
@@ -19,22 +18,14 @@ func TestListingHandler_HandleImageUpload_CacheBusting(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 
-	mockRepo := &mock.MockListingRepository{}
-	mockImageService := &mock.MockImageService{}
+	repo := handler.SetupTestRepository(t)
+	mockImageService := &MockImageService{}
 
-	h := handler.NewListingHandler(mockRepo, mockImageService)
+	h := handler.NewListingHandler(repo, mockImageService)
 
 	// Mock successful upload returning a clean URL
 	mockImageService.On("UploadImage", testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).
 		Return("/static/uploads/test.webp", nil)
-
-	mockRepo.On("FindByTitle", testifyMock.Anything, testifyMock.Anything).Return([]domain.Listing{}, nil).Maybe()
-
-	var savedListing domain.Listing
-	mockRepo.On("Save", testifyMock.Anything, testifyMock.MatchedBy(func(l domain.Listing) bool {
-		savedListing = l
-		return true
-	})).Return(nil)
 
 	// Multipart form request with image
 	body := new(bytes.Buffer)
@@ -42,7 +33,7 @@ func TestListingHandler_HandleImageUpload_CacheBusting(t *testing.T) {
 	_ = writer.WriteField("title", "Cache Busting Test")
 	_ = writer.WriteField("type", "Business")
 	_ = writer.WriteField("owner_origin", "Nigeria")
-	_ = writer.WriteField("description", "Desc")
+	_ = writer.WriteField("description", "This is a long enough description for validation purposes.")
 	_ = writer.WriteField("contact_email", "test@test.com")
 	_ = writer.WriteField("address", "123 Test St")
 	part, _ := writer.CreateFormFile("image", "test.jpg")
@@ -59,9 +50,10 @@ func TestListingHandler_HandleImageUpload_CacheBusting(t *testing.T) {
 	err := h.HandleCreate(c)
 	assert.NoError(t, err)
 
-	// Assert cache-busting parameter exists
-	assert.Contains(t, savedListing.ImageURL, "/static/uploads/test.webp?t=")
+	// Fetch from DB to check ImageURL
+	all, _ := repo.FindAll(c.Request().Context(), "", "", "", "", false, 10, 0)
+	assert.Equal(t, 1, len(all))
+	assert.Contains(t, all[0].ImageURL, "/static/uploads/test.webp?t=")
 
-	mockRepo.AssertExpectations(t)
 	mockImageService.AssertExpectations(t)
 }

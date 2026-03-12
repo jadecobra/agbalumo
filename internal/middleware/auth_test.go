@@ -1,17 +1,18 @@
 package middleware_test
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/gorilla/sessions"
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/jadecobra/agbalumo/internal/middleware"
-	"github.com/jadecobra/agbalumo/internal/mock"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
-	testifyMock "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAuthMiddleware_RequireAuth_Redirect(t *testing.T) {
@@ -24,8 +25,8 @@ func TestAuthMiddleware_RequireAuth_Redirect(t *testing.T) {
 	sess, _ := store.Get(req, "session-name")
 	c.Set("session", sess)
 
-	mockRepo := &mock.MockListingRepository{}
-	authMw := middleware.NewAuthMiddleware(mockRepo)
+	repo := handler.SetupTestRepository(t)
+	authMw := middleware.NewAuthMiddleware(repo)
 
 	handlerFunc := authMw.RequireAuth(func(c echo.Context) error {
 		return c.String(http.StatusOK, "Success")
@@ -49,8 +50,8 @@ func TestAuthMiddleware_RequireAuth_Success(t *testing.T) {
 	sess.Values["user_id"] = "user-123"
 	c.Set("session", sess)
 
-	mockRepo := &mock.MockListingRepository{}
-	authMw := middleware.NewAuthMiddleware(mockRepo)
+	repo := handler.SetupTestRepository(t)
+	authMw := middleware.NewAuthMiddleware(repo)
 
 	handlerFunc := authMw.RequireAuth(func(c echo.Context) error {
 		return c.String(http.StatusOK, "Success")
@@ -74,11 +75,12 @@ func TestAuthMiddleware_OptionalAuth_Success(t *testing.T) {
 	sess.Values["user_id"] = "user-123"
 	c.Set("session", sess)
 
-	mockRepo := &mock.MockListingRepository{}
-	user := domain.User{ID: "user-123"}
-	mockRepo.On("FindUserByID", testifyMock.Anything, "user-123").Return(user, nil)
+	repo := handler.SetupTestRepository(t)
+	user := domain.User{ID: "user-123", GoogleID: "google-123", Name: "Test User", Email: "test@test.com"}
+	err := repo.SaveUser(context.Background(), user)
+	require.NoError(t, err)
 
-	authMw := middleware.NewAuthMiddleware(mockRepo)
+	authMw := middleware.NewAuthMiddleware(repo)
 
 	handlerFunc := authMw.OptionalAuth(func(c echo.Context) error {
 		u := c.Get("User")
@@ -88,7 +90,7 @@ func TestAuthMiddleware_OptionalAuth_Success(t *testing.T) {
 		return c.String(http.StatusOK, "Has User")
 	})
 
-	err := handlerFunc(c)
+	err = handlerFunc(c)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "Has User", rec.Body.String())
@@ -100,8 +102,8 @@ func TestAuthMiddleware_OptionalAuth_NoSession(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	mockRepo := &mock.MockListingRepository{}
-	authMw := middleware.NewAuthMiddleware(mockRepo)
+	repo := handler.SetupTestRepository(t)
+	authMw := middleware.NewAuthMiddleware(repo)
 
 	handlerFunc := authMw.OptionalAuth(func(c echo.Context) error {
 		u := c.Get("User")

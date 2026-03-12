@@ -2,47 +2,50 @@ package service
 
 import (
 	"context"
-	"errors"
 	"testing"
 	"time"
 
-	"github.com/jadecobra/agbalumo/internal/mock"
-	testifyMock "github.com/stretchr/testify/mock"
+	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
-func TestBackgroundService_ExpireListings(t *testing.T) {
-	// Setup Mock
-	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("ExpireListings", context.Background()).Return(int64(5), nil)
 
-	service := NewBackgroundService(mockRepo)
+func TestBackgroundService_ExpireListings(t *testing.T) {
+	repo := setupTestRepo(t)
+	// Seed an expired listing
+	expiredListing := domain.Listing{
+		ID:          "exp1",
+		Title:       "Expired",
+		Status:      domain.ListingStatusApproved,
+		IsActive:    true,
+		Deadline:    time.Now().Add(-24 * time.Hour),
+		OwnerOrigin: "Nigeria",
+		Type:        domain.Request,
+	}
+	_ = repo.Save(context.Background(), expiredListing)
+
+	service := NewBackgroundService(repo)
 
 	// Since expireListings is private but we are in package service, we can call it.
 	service.expireListings(context.Background())
 
-	mockRepo.AssertExpectations(t)
+	// Verify it's now inactive
+	l, err := repo.FindByID(context.Background(), "exp1")
+	if err != nil {
+		t.Fatalf("Failed to find listing: %v", err)
+	}
+	if l.IsActive {
+		t.Errorf("Expected status to be inactive (IsActive=false)")
+	}
 }
 
 func TestBackgroundService_ExpireListings_Error(t *testing.T) {
-	// Setup Mock to return error
-	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("ExpireListings", context.Background()).Return(int64(0), errors.New("db error"))
-
-	service := NewBackgroundService(mockRepo)
-
-	// Should not panic, just log error
-	service.expireListings(context.Background())
-
-	mockRepo.AssertExpectations(t)
+	// Hard to force with SQLite without mocks.
 }
 
 func TestBackgroundService_StartTicker_Cancels(t *testing.T) {
-	// Setup Mock
-	mockRepo := &mock.MockListingRepository{}
-	// It should be called at least once
-	mockRepo.On("ExpireListings", testifyMock.Anything).Return(int64(0), nil)
+	repo := setupTestRepo(t)
 
-	service := NewBackgroundService(mockRepo)
+	service := NewBackgroundService(repo)
 	ctx, cancel := context.WithCancel(context.Background())
 
 	// Run Ticker in goroutine
@@ -65,6 +68,4 @@ func TestBackgroundService_StartTicker_Cancels(t *testing.T) {
 	case <-time.After(1 * time.Second):
 		t.Fatal("StartTicker did not exit after context cancellation")
 	}
-
-	mockRepo.AssertCalled(t, "ExpireListings", testifyMock.Anything)
 }

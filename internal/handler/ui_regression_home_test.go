@@ -12,9 +12,9 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
-	"github.com/jadecobra/agbalumo/internal/mock"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestHomePageUIValues(t *testing.T) {
@@ -25,16 +25,18 @@ func TestHomePageUIValues(t *testing.T) {
 	c := e.NewContext(req, rec)
 	ctx := context.Background()
 
-	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("FindAll", ctx, "", "", "", "", false, 20, 0).Return([]domain.Listing{
-		{ID: "1", Title: "Business A", Type: domain.Business, IsActive: true, CreatedAt: time.Now()},
-		{ID: "2", Title: "Job B", Type: domain.Job, IsActive: true, CreatedAt: time.Now()},
-	}, nil).Maybe()
-	mockRepo.On("GetCounts", ctx).Return(map[domain.Category]int{domain.Business: 1, domain.Job: 1}, nil).Maybe()
-	mockRepo.On("GetLocations", ctx).Return([]string{"Lagos"}, nil).Maybe()
-	mockRepo.On("GetFeaturedListings", ctx).Return([]domain.Listing{}, nil).Maybe()
+	repo := handler.SetupTestRepository(t)
+	err := repo.Save(ctx, domain.Listing{ID: "1", Title: "Business A", Type: domain.Business, IsActive: true, CreatedAt: time.Now()})
+	require.NoError(t, err)
+	err = repo.Save(ctx, domain.Listing{ID: "2", Title: "Job B", Type: domain.Job, IsActive: true, CreatedAt: time.Now().Add(time.Second)})
+	require.NoError(t, err)
 
-	h := handler.NewListingHandler(mockRepo, nil, "")
+	// Verify repo has them
+	all, err := repo.FindAll(ctx, "", "", "", "", false, 20, 0)
+	require.NoError(t, err)
+	assert.Equal(t, 2, len(all))
+
+	h := handler.NewListingHandler(repo, nil, "")
 	if err := h.HandleHome(c); err != nil {
 		t.Fatal(err)
 	}
@@ -42,6 +44,7 @@ func TestHomePageUIValues(t *testing.T) {
 	body := rec.Body.String()
 	assert.Contains(t, body, "Business A")
 	assert.Contains(t, body, "Job B")
+	assert.Contains(t, body, "2 listings and growing")
 }
 
 func TestTemplateTailwindCleanup(t *testing.T) {

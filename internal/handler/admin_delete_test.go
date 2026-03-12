@@ -12,10 +12,8 @@ import (
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/jadecobra/agbalumo/internal/middleware"
-	"github.com/jadecobra/agbalumo/internal/mock"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
-	testifyMock "github.com/stretchr/testify/mock"
 )
 
 func TestAdminHandler_HandleAdminDeleteAction_Success(t *testing.T) {
@@ -72,9 +70,9 @@ func TestHandleAdminDeleteView_NoIDs_Redirects(t *testing.T) {
 }
 
 func TestHandleAdminDeleteView_FindByIDError_Returns404(t *testing.T) {
-	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("FindByID", testifyMock.Anything, "bad-id").Return(domain.Listing{}, assert.AnError)
-	h := handler.NewAdminHandler(mockRepo, nil, &config.Config{})
+	repo := handler.SetupTestRepository(t)
+	// No data seeded, so "bad-id" will not be found
+	h := handler.NewAdminHandler(repo, nil, &config.Config{})
 
 	req := httptest.NewRequest(http.MethodGet, "/admin/listings/delete?id=bad-id", nil)
 	rec := httptest.NewRecorder()
@@ -120,25 +118,35 @@ func TestHandleAdminDeleteAction_WrongCode_RendersConfirmWithError(t *testing.T)
 	assert.Equal(t, http.StatusOK, rec.Code)
 }
 
-func TestHandleAdminDeleteAction_DeleteError_Logs(t *testing.T) {
+func TestHandleAdminDeleteAction_PartialSuccess(t *testing.T) {
 	cfg := config.LoadConfig()
 	cfg.AdminCode = "secret"
+
+	repo := handler.SetupTestRepository(t)
+	// Seed only l1
+	_ = repo.Save(context.Background(), domain.Listing{ID: "l1", Title: "To Delete", OwnerOrigin: "Nigeria", Type: "business"})
 
 	formData := url.Values{}
 	formData.Set("admin_code", "secret")
 	formData.Add("id", "l1")
-	formData.Add("id", "l2")
+	formData.Add("id", "l2") // Does not exist
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings/delete", strings.NewReader(formData.Encode()))
 
-	mockRepo := &mock.MockListingRepository{}
-	mockRepo.On("Delete", testifyMock.Anything, "l1").Return(nil)
-	mockRepo.On("Delete", testifyMock.Anything, "l2").Return(assert.AnError)
-
-	h := handler.NewAdminHandler(mockRepo, nil, cfg)
+	h := handler.NewAdminHandler(repo, nil, cfg)
 	store := middleware.NewTestSessionStore()
 	session, _ := store.Get(c.Request(), "auth_session")
 	c.Set("session", session)
 
 	_ = h.HandleAdminDeleteAction(c)
 	assert.Equal(t, http.StatusFound, rec.Code)
+
+	// Verify l1 deleted
+	_, err := repo.FindByID(context.Background(), "l1")
+	assert.Error(t, err)
+
+	// Verify flash message
+	sess := middleware.GetSession(c)
+	flashes := sess.Flashes("message")
+	assert.Len(t, flashes, 1)
+	assert.Contains(t, flashes[0], "Successfully deleted 1 listings")
 }
