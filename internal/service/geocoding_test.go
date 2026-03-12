@@ -132,6 +132,29 @@ func TestGoogleGeocodingService_GetCity(t *testing.T) {
 			responseBody:   "invalid",
 			expectedError:  true,
 		},
+		{
+			name:           "OK Status Empty Results",
+			address:        "Any",
+			apiKey:         "valid-key",
+			responseStatus: http.StatusOK,
+			responseBody:   `{"status": "OK", "results": []}`,
+			expectedCity:   "",
+		},
+		{
+			name:           "No City Components",
+			address:        "Any",
+			apiKey:         "valid-key",
+			responseStatus: http.StatusOK,
+			responseBody: `{
+				"status": "OK",
+				"results": [{
+					"address_components": [
+						{"long_name": "USA", "types": ["country"]}
+					]
+				}]
+			}`,
+			expectedCity: "",
+		},
 	}
 
 	for _, tt := range tests {

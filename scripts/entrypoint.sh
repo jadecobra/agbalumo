@@ -16,6 +16,12 @@ else
     echo "[entrypoint] Existing database found at /data/agbalumo.db. Skipping restore."
 fi
 
+# --- Run City Backfill ---
+# This ensures that any listings with missing cities (from bulk uploads or legacy data)
+# are geocoded before the server starts.
+echo "[entrypoint] Running city backfill..."
+./server listing backfill-cities || echo "[entrypoint] Backfill failed or skipped."
+
 # --- Start the app under Litestream replication ---
 # Litestream acts as a supervisor: it starts the app process and continuously
 # replicates WAL changes to Cloudflare R2. If the app crashes, Litestream exits too.

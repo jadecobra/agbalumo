@@ -13,7 +13,9 @@ import (
 	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
-type CSVService struct{}
+type CSVService struct {
+	Geocoding domain.GeocodingService
+}
 
 func NewCSVService() *CSVService {
 	return &CSVService{}
@@ -255,6 +257,19 @@ func (s *CSVService) parseRow(record []string, headerMap map[string]int) (*domai
 		return nil, fmt.Errorf("at least one contact method (email, phone, or whatsapp) is required")
 	}
 
+	address := get("address")
+	city := get("city")
+
+	// If city is missing but address exists, try to geocode if service is available
+	if city == "" && address != "" && s.Geocoding != nil {
+		// Note: Using background context here as parseRow doesn't take context
+		// This is a trade-off for the current structure.
+		// A better refactor would pass ctx to parseRow, but let's stick to minimal changes.
+		if foundCity, err := s.Geocoding.GetCity(context.Background(), address); err == nil && foundCity != "" {
+			city = foundCity
+		}
+	}
+
 	return &domain.Listing{
 		ID:               uuid.New().String(),
 		Title:            title,
@@ -265,7 +280,8 @@ func (s *CSVService) parseRow(record []string, headerMap map[string]int) (*domai
 		WebsiteURL:       get("website"),
 		ContactPhone:     phone,
 		ContactWhatsApp:  whatsapp,
-		Address:          get("address"),
+		Address:          address,
+		City:             city,
 		HoursOfOperation: get("hours"),
 		CreatedAt:        time.Now(),
 	}, nil

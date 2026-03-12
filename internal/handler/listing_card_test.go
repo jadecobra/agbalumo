@@ -24,6 +24,9 @@ func TestListingCardRendering(t *testing.T) {
 		"isNew": func(createdAt time.Time) bool {
 			return false
 		},
+		"displayCity": func(city, address string) string {
+			return city
+		},
 	})
 
 	_, err := tmpl.ParseFiles("../../ui/templates/partials/listing_card.html")

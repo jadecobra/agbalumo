@@ -102,6 +102,22 @@ func buildGlobalFuncMap() template.FuncMap {
 		"safeHTML": func(s string) template.HTML {
 			return template.HTML(s)
 		},
+		"displayCity": func(city, address string) string {
+			if city != "" {
+				return city
+			}
+			if address == "" {
+				return ""
+			}
+			// Fallback: extract city from address (e.g., "123 Main St, City, ST 12345")
+			parts := strings.Split(address, ",")
+			if len(parts) >= 2 {
+				// Most common format is [Street], [City], [State Zip]
+				// We take the second part if available
+				return strings.TrimSpace(parts[1])
+			}
+			return strings.TrimSpace(parts[0])
+		},
 	}
 }
 

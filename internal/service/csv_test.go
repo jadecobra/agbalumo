@@ -119,9 +119,45 @@ Random Type,Random,Desc,a@b.com
 		}
 	})
 
-	t.Run("Save Error", func(t *testing.T) {
-		// Hard to force without mock or constraint violation.
+	t.Run("Geocoding Fallback", func(t *testing.T) {
+		csvContent := `title,type,description,email,address
+Geo Hub,Business,Test Geocode,test@geo.com,"1600 Amphitheatre Parkway, Mountain View, CA"
+`
+		repo := setupTestRepo(t)
+		mockGeo := &mockGeocodingService{
+			GetCityFunc: func(ctx context.Context, addr string) (string, error) {
+				if strings.Contains(addr, "Mountain View") {
+					return "Mountain View", nil
+				}
+				return "", nil
+			},
+		}
+		svcWithGeo := NewCSVService()
+		svcWithGeo.Geocoding = mockGeo
+
+		result, err := svcWithGeo.ParseAndImport(ctx, strings.NewReader(csvContent), repo)
+		if err != nil {
+			t.Fatalf("Unexpected error: %v", err)
+		}
+
+		if result.SuccessCount != 1 {
+			t.Fatalf("Expected 1 success, got %d. Errors: %v", result.SuccessCount, result.Errors)
+		}
+
+		// Verify city was populated
+		listings, _ := repo.FindByTitle(ctx, "Geo Hub")
+		if listings[0].City != "Mountain View" {
+			t.Errorf("Expected city 'Mountain View', got %q", listings[0].City)
+		}
 	})
+}
+
+type mockGeocodingService struct {
+	GetCityFunc func(ctx context.Context, address string) (string, error)
+}
+
+func (m *mockGeocodingService) GetCity(ctx context.Context, address string) (string, error) {
+	return m.GetCityFunc(ctx, address)
 }
 
 func FuzzParseAndImport(f *testing.F) {

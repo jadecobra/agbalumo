@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -166,6 +167,49 @@ func TestTemplateRenderer_Render_ToJson(t *testing.T) {
 			t.Errorf("Expected JSON output with name/test, got %s", buf.String())
 		}
 	})
+}
+
+func TestTemplateRenderer_Render_DisplayCity(t *testing.T) {
+	tempDir := t.TempDir()
+	tmplContent := `{{ displayCity .City .Address }}`
+	tmplPath := filepath.Join(tempDir, "displaycity.html")
+	if err := os.WriteFile(tmplPath, []byte(tmplContent), 0644); err != nil {
+		t.Fatalf("Failed to write func template: %v", err)
+	}
+
+	renderer, err := NewTemplateRenderer(filepath.Join(tempDir, "*.html"))
+	if err != nil {
+		t.Fatalf("Failed to create renderer: %v", err)
+	}
+
+	e := echo.New()
+	c := e.NewContext(nil, nil)
+
+	tests := []struct {
+		name     string
+		city     string
+		address  string
+		expected string
+	}{
+		{"with city", "Dallas", "123 Main St", "Dallas"},
+		{"empty city standard address", "", "10051 Whitehurst Dr, Dallas, TX 75243", "Dallas"},
+		{"empty city city only", "", "Houston", "Houston"},
+		{"empty city and address", "", "", ""},
+		{"empty city complex address", "", "10828C Beechnut St, Houston, TX 77072", "Houston"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			buf := new(bytes.Buffer)
+			data := map[string]interface{}{"City": tt.city, "Address": tt.address}
+			if err := renderer.Render(buf, "displaycity.html", data, c); err != nil {
+				t.Fatalf("Render failed: %v", err)
+			}
+			if strings.TrimSpace(buf.String()) != tt.expected {
+				t.Errorf("Expected %q, got %q", tt.expected, buf.String())
+			}
+		})
+	}
 }
 
 func contains(s, substr string) bool {
