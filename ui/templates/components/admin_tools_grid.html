@@ -3,7 +3,7 @@
     <h2 class="text-[10px] font-bold text-earth-ochre mb-6 uppercase tracking-[0.3em] opacity-90">Admin Tools
     </h2>
     <div class="bg-earth-sand py-2 shadow-2xl border-l-[6px] border-earth-ochre" data-purpose="admin-tools-banner">
-        <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-earth-dark/10">
+        <div class="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-earth-dark/10">
 
             {{ template "admin_tool_btn_sharp" dict "Target" "chartsModal" "Label" "View Charts" "IconBgClass"
             "bg-earth-ochre/10" "IconColorClass" "text-earth-ochre" "Icon" `<span
@@ -12,6 +12,10 @@
             {{ template "admin_tool_btn_sharp" dict "Target" "uploadModal" "Label" "Upload CSV" "IconBgClass"
             "bg-blue-500/10" "IconColorClass" "text-blue-500" "Icon" `<span
                 class="material-symbols-outlined">upload_file</span>` }}
+
+            {{ template "admin_tool_link_sharp" dict "Link" "/admin/listings/export" "Label" "Download CSV" "IconBgClass"
+            "bg-earth-dark/10" "IconColorClass" "text-earth-dark" "Icon" `<span
+                class="material-symbols-outlined">download</span>` }}
 
             {{ template "admin_tool_btn_sharp" dict "Target" "categoryModal" "Label" "Categories"
             "IconBgClass" "bg-green-500/10" "IconColorClass" "text-green-500" "Icon" `<span

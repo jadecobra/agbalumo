@@ -153,3 +153,45 @@ func FuzzParseCategory(f *testing.F) {
 		}
 	})
 }
+
+func TestGenerateCSV(t *testing.T) {
+	svc := NewCSVService()
+	ctx := context.Background()
+
+	listings := []domain.Listing{
+		{
+			ID:           "test-1",
+			Title:        "Listing 1",
+			Type:         domain.Business,
+			Description:  "Desc 1",
+			City:         "Lagos",
+			ContactEmail: "l1@example.com",
+		},
+		{
+			ID:           "test-2",
+			Title:        "Listing 2",
+			Type:         domain.Job,
+			Description:  "Desc 2",
+			Company:      "Tech Co",
+			ContactEmail: "l2@example.com",
+		},
+	}
+
+	reader, err := svc.GenerateCSV(ctx, listings)
+	if err != nil {
+		t.Fatalf("GenerateCSV failed: %v", err)
+	}
+
+	// Read and verify
+	importSvc := NewCSVService()
+	// Since GenerateCSV is a stream, we can read it all
+	// We'll verify it by counting lines or checking content
+	importResult, err := importSvc.ParseAndImport(ctx, reader, setupTestRepo(t))
+	if err != nil {
+		t.Fatalf("Failed to parse generated CSV: %v", err)
+	}
+
+	if importResult.SuccessCount != len(listings) {
+		t.Errorf("Expected %d successful imports, got %d. Errors: %v", len(listings), importResult.SuccessCount, importResult.Errors)
+	}
+}

@@ -127,6 +127,7 @@ Requires admin role and session authentication.
 | GET | `/admin/listings/delete-confirm` | Delete confirmation (query param `id`) |
 | POST | `/admin/listings/delete` | Delete listings (`admin_code` required) |
 | POST | `/admin/upload` | Bulk CSV upload (`csv_file`) |
+| GET | `/admin/listings/export` | Export all listings to CSV |
 | POST | `/admin/categories` | Add custom category |
 
 ### Admin Listing Filters (GET `/admin/listings`)

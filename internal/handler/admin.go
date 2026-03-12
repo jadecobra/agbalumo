@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -230,4 +231,28 @@ func (h *AdminHandler) HandleUsers(c echo.Context) error {
 		"User":       c.Get("User"),
 		"Pagination": p,
 	})
+}
+
+// HandleExportListings generates and serves a CSV of all listings.
+func (h *AdminHandler) HandleExportListings(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	// Fetch all listings. Using a large limit for export.
+	// In a very large system, we might want to stream this from the DB directly.
+	listings, _, err := h.Repo.FindAll(ctx, "", "", "created_at", "desc", true, 10000, 0)
+	if err != nil {
+		return RespondError(c, err)
+	}
+
+	reader, err := h.CSVService.GenerateCSV(ctx, listings)
+	if err != nil {
+		return RespondError(c, err)
+	}
+
+	c.Response().Header().Set(echo.HeaderContentType, "text/csv")
+	c.Response().Header().Set(echo.HeaderContentDisposition, `attachment; filename="listings.csv"`)
+	c.Response().WriteHeader(http.StatusOK)
+
+	_, err = io.Copy(c.Response().Writer, reader)
+	return err
 }

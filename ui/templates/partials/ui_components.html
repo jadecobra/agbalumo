@@ -8,6 +8,18 @@
 </button>
 {{ end }}
 
+{{ define "admin_tool_link_sharp" }}
+<a href="{{ .Link }}"
+    class="flex-1 flex flex-col items-center py-6 px-4 cursor-pointer hover:bg-earth-ochre/10 transition-colors group">
+    <div class="flex items-center gap-4">
+        <div class="w-12 h-12 {{ .IconBgClass }} flex items-center justify-center {{ .IconColorClass }}">
+            {{ .Icon | safeHTML }}
+        </div>
+        <span class="font-bold uppercase tracking-widest text-xs text-earth-dark">{{ .Label }}</span>
+    </div>
+</a>
+{{ end }}
+
 {{ define "metric_stat_sharp" }}{{ if .Link }}<a href="{{ .Link }}"
     class="text-center flex-1 flex flex-col items-center py-6 px-4 cursor-pointer hover:bg-earth-ochre/10 transition-colors group"
     title="Click to see more"><span

@@ -13,7 +13,8 @@ type BulkUploadResult struct {
 	Errors         []string `json:"errors"`
 }
 
-// CSVService defines the contract for processing bulk CSV uploads
+// CSVService defines the contract for processing bulk CSV uploads and exports
 type CSVService interface {
 	ParseAndImport(ctx context.Context, r io.Reader, repo ListingStore) (*BulkUploadResult, error)
+	GenerateCSV(ctx context.Context, listings []Listing) (io.Reader, error)
 }

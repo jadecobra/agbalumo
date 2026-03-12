@@ -626,6 +626,25 @@ paths:
         '302':
           description: Redirect to listings
 
+  /admin/listings/export:
+    get:
+      summary: Export all listings to CSV
+      description: Download a CSV file containing all directory listings and requests
+      tags:
+        - Admin
+      security:
+        - CookieAuth: []
+      responses:
+        '200':
+          description: CSV file download
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '302':
+          description: Redirect to login
+
   /admin/categories:
     post:
       summary: Add custom category

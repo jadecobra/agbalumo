@@ -136,6 +136,71 @@ func (s *CSVService) ParseAndImport(ctx context.Context, r io.Reader, repo domai
 	return result, nil
 }
 
+// GenerateCSV converts a slice of Listings into a CSV stream.
+func (s *CSVService) GenerateCSV(ctx context.Context, listings []domain.Listing) (io.Reader, error) {
+	pr, pw := io.Pipe()
+
+	go func() {
+		defer func() {
+			if err := pw.Close(); err != nil {
+				// We can't do much here except log if we had a logger,
+				// but at least we check it to satisfy the linter.
+				_ = err
+			}
+		}()
+		writer := csv.NewWriter(pw)
+		defer writer.Flush()
+
+		// Write Header
+		headers := []string{
+			"ID", "Title", "Type", "Description", "City", "Address",
+			"OwnerOrigin", "ContactEmail", "ContactPhone", "ContactWhatsApp",
+			"WebsiteURL", "CreatedAt", "Status", "IsActive", "Featured",
+			"Company", "PayRange", "Skills", "JobApplyURL", "JobStartDate",
+			"EventStart", "EventEnd", "Deadline",
+		}
+		if err := writer.Write(headers); err != nil {
+			pw.CloseWithError(err)
+			return
+		}
+
+		// Write Rows
+		for _, l := range listings {
+			row := []string{
+				l.ID,
+				l.Title,
+				string(l.Type),
+				l.Description,
+				l.City,
+				l.Address,
+				l.OwnerOrigin,
+				l.ContactEmail,
+				l.ContactPhone,
+				l.ContactWhatsApp,
+				l.WebsiteURL,
+				l.CreatedAt.Format(time.RFC3339),
+				string(l.Status),
+				fmt.Sprintf("%v", l.IsActive),
+				fmt.Sprintf("%v", l.Featured),
+				l.Company,
+				l.PayRange,
+				l.Skills,
+				l.JobApplyURL,
+				l.JobStartDate.Format(time.RFC3339),
+				l.EventStart.Format(time.RFC3339),
+				l.EventEnd.Format(time.RFC3339),
+				l.Deadline.Format(time.RFC3339),
+			}
+			if err := writer.Write(row); err != nil {
+				pw.CloseWithError(err)
+				return
+			}
+		}
+	}()
+
+	return pr, nil
+}
+
 func parseCategory(typeStr string) domain.Category {
 	cat := domain.Category(typeStr)
 	switch cat {

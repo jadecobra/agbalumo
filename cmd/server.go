@@ -210,6 +210,7 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 	adminGroup.POST("/listings/delete", adminHandler.HandleAdminDeleteAction)
 	adminGroup.POST("/listings/:id/featured", adminHandler.HandleToggleFeatured)
 	adminGroup.POST("/upload", adminHandler.HandleBulkUpload)
+	adminGroup.GET("/listings/export", adminHandler.HandleExportListings)
 	adminGroup.POST("/categories", adminHandler.HandleAddCategory)
 }
 

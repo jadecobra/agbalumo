@@ -120,6 +120,10 @@ func (m *MockCSVService) ParseAndImport(ctx context.Context, r io.Reader, repo d
 	return m.Result, m.Err
 }
 
+func (m *MockCSVService) GenerateCSV(ctx context.Context, listings []domain.Listing) (io.Reader, error) {
+	return nil, m.Err
+}
+
 func TestAdminHandler_HandleBulkUpload_ResultFormatting(t *testing.T) {
 	// This test exercises the formatting logic in HandleBulkUpload
 	mockCSV := &MockCSVService{
