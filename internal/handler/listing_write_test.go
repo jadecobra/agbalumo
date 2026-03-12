@@ -21,7 +21,7 @@ func TestHandleCreate(t *testing.T) {
 	}{
 		{
 			name: "Success",
-			body: "title=Test+Title&type=Business&owner_origin=Nigeria&description=Cool&contact_email=test@example.com&hours_of_operation=Mon-Fri+9-5&address=123+Street",
+			body: "title=Test+Title&type=Business&owner_origin=Nigeria&description=Cool&contact_email=test@example.com&hours_of_operation=Mon-Fri+9-5&city=Lagos&address=123+Street",
 			setup: func(t *testing.T, repo domain.ListingRepository) {
 				// No extra setup needed
 			},
@@ -36,13 +36,13 @@ func TestHandleCreate(t *testing.T) {
 		},
 		{
 			name:           "RequestWithoutDeadline",
-			body:           "title=Req&type=Request&owner_origin=Nigeria&description=Cool&contact_email=test@example.com&address=123+St",
+			body:           "title=Req&type=Request&owner_origin=Nigeria&description=Cool&contact_email=test@example.com&city=Lagos&address=123+St",
 			setup:          func(t *testing.T, repo domain.ListingRepository) {},
 			expectedStatus: http.StatusOK,
 		},
 		{
 			name:           "BusinessWithNoPrefixURL",
-			body:           "title=Biz&type=Business&owner_origin=Nigeria&description=Cool&contact_email=test@example.com&address=123+Street&website_url=example.com",
+			body:           "title=Biz&type=Business&owner_origin=Nigeria&description=Cool&contact_email=test@example.com&city=Lagos&address=123+Street&website_url=example.com",
 			setup:          func(t *testing.T, repo domain.ListingRepository) {},
 			expectedStatus: http.StatusOK,
 		},
@@ -78,7 +78,7 @@ func TestHandleEdit(t *testing.T) {
 			name: "Success",
 			user: domain.User{ID: "owner-1"},
 			setup: func(t *testing.T, repo domain.ListingRepository) {
-				_ = repo.Save(context.Background(), domain.Listing{ID: "1", OwnerID: "owner-1", Title: "Title", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, Address: "123 St"})
+				_ = repo.Save(context.Background(), domain.Listing{ID: "1", OwnerID: "owner-1", Title: "Title", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "123 St"})
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -86,7 +86,7 @@ func TestHandleEdit(t *testing.T) {
 			name: "Forbidden",
 			user: domain.User{ID: "other-user", Role: domain.UserRoleUser},
 			setup: func(t *testing.T, repo domain.ListingRepository) {
-				_ = repo.Save(context.Background(), domain.Listing{ID: "1", OwnerID: "owner-1", Title: "Title", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, Address: "123 St"})
+				_ = repo.Save(context.Background(), domain.Listing{ID: "1", OwnerID: "owner-1", Title: "Title", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "123 St"})
 			},
 			expectedStatus: http.StatusForbidden,
 		},
@@ -122,9 +122,9 @@ func TestHandleUpdate(t *testing.T) {
 		{
 			name: "Success",
 			user: domain.User{ID: "user1", Email: "owner@example.com"},
-			body: "title=Updated+Title&type=Business&owner_origin=Ghana&description=Updated&contact_email=new@example.com&address=123+St",
+			body: "title=Updated+Title&type=Business&owner_origin=Ghana&description=Updated&contact_email=new@example.com&city=Accra&address=123+St",
 			setup: func(t *testing.T, repo domain.ListingRepository) {
-				_ = repo.Save(context.Background(), domain.Listing{ID: "1", OwnerID: "user1", Title: "Old Title", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, Address: "123 St"})
+				_ = repo.Save(context.Background(), domain.Listing{ID: "1", OwnerID: "user1", Title: "Old Title", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "123 St"})
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -133,7 +133,7 @@ func TestHandleUpdate(t *testing.T) {
 			user: domain.User{ID: "user2", Email: "hacker@example.com", Role: domain.UserRoleUser},
 			body: "",
 			setup: func(t *testing.T, repo domain.ListingRepository) {
-				_ = repo.Save(context.Background(), domain.Listing{ID: "1", OwnerID: "user1", Title: "Old Title", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, Address: "123 St"})
+				_ = repo.Save(context.Background(), domain.Listing{ID: "1", OwnerID: "user1", Title: "Old Title", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "123 St"})
 			},
 			expectedStatus: http.StatusForbidden,
 		},
@@ -169,7 +169,7 @@ func TestHandleDelete(t *testing.T) {
 			name: "Success",
 			user: domain.User{ID: "owner-1"},
 			setup: func(t *testing.T, repo domain.ListingRepository) {
-				_ = repo.Save(context.Background(), domain.Listing{ID: "1", OwnerID: "owner-1", Title: "Title", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, Address: "123 St"})
+				_ = repo.Save(context.Background(), domain.Listing{ID: "1", OwnerID: "owner-1", Title: "Title", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "123 St"})
 			},
 			expectCode: http.StatusSeeOther,
 		},
@@ -190,7 +190,7 @@ func TestHandleDelete(t *testing.T) {
 			name: "Forbidden_NotOwner",
 			user: domain.User{ID: "other-user"},
 			setup: func(t *testing.T, repo domain.ListingRepository) {
-				_ = repo.Save(context.Background(), domain.Listing{ID: "1", OwnerID: "owner-1", Title: "Title", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, Address: "123 St"})
+				_ = repo.Save(context.Background(), domain.Listing{ID: "1", OwnerID: "owner-1", Title: "Title", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "123 St"})
 			},
 			expectCode: http.StatusForbidden,
 		},
@@ -198,12 +198,7 @@ func TestHandleDelete(t *testing.T) {
 			name: "DeleteError",
 			user: domain.User{ID: "owner-1"},
 			setup: func(t *testing.T, repo domain.ListingRepository) {
-				// We can't easily trigger a DB error with real SQLite without some trickery, 
-				// but we can try to delete something that doesn't exist, which returns nil in our repo usually unless it's a constraint error.
-				// Wait, the handler returns 500 if repo.Delete returns an error.
-				// Let's skip the DeleteError case for now or find a way to make it fail.
-				// Actually, I'll keep it as a placeholder or remove it if I can't trigger it easily.
-				// I'll skip it for now.
+				// We can't trigger a DB error easily with real SQLite without some trickery
 			},
 			expectCode: http.StatusInternalServerError,
 		},
@@ -235,7 +230,7 @@ func TestHandleDelete(t *testing.T) {
 
 func TestHandleClaim(t *testing.T) {
 	repo := handler.SetupTestRepository(t)
-	_ = repo.Save(context.Background(), domain.Listing{ID: "1", Title: "Biz", Type: domain.Business, Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Address: "123 St"})
+	_ = repo.Save(context.Background(), domain.Listing{ID: "1", Title: "Biz", Type: domain.Business, Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", City: "Lagos", Address: "123 St"})
 	_ = repo.SaveCategory(context.Background(), domain.CategoryData{ID: string(domain.Business), Name: string(domain.Business), Claimable: true, Active: true})
 
 	c, rec := setupTestContext(http.MethodPost, "/listings/1/claim", nil)
@@ -277,10 +272,10 @@ func TestHandleUpdate_NoUser(t *testing.T) {
 
 func TestHandleUpdate_DuplicateTitle(t *testing.T) {
 	repo := handler.SetupTestRepository(t)
-	_ = repo.Save(context.Background(), domain.Listing{ID: "1", OwnerID: "user1", Title: "Old", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, Address: "123 St"})
-	_ = repo.Save(context.Background(), domain.Listing{ID: "2", OwnerID: "user2", Title: "Taken Title", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, Address: "456 St"})
+	_ = repo.Save(context.Background(), domain.Listing{ID: "1", OwnerID: "user1", Title: "Old", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "123 St"})
+	_ = repo.Save(context.Background(), domain.Listing{ID: "2", OwnerID: "user2", Title: "Taken Title", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "456 St"})
 
-	body := "title=Taken+Title&type=Business&owner_origin=Ghana&description=Desc&contact_email=t@e.com&address=123+St"
+	body := "title=Taken+Title&type=Business&owner_origin=Ghana&description=Desc&contact_email=t@e.com&city=Kumasi&address=123+St"
 	c, rec := setupTestContext(http.MethodPost, "/listings/1", strings.NewReader(body))
 	c.SetPath("/listings/:id")
 	c.SetParamNames("id")
@@ -294,7 +289,7 @@ func TestHandleUpdate_DuplicateTitle(t *testing.T) {
 
 func TestHandleCreate_NoUser(t *testing.T) {
 	repo := handler.SetupTestRepository(t)
-	body := "title=Test&type=Business&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St"
+	body := "title=Test&type=Business&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&city=Lagos&address=123+St"
 	c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(body))
 
 	h := handler.NewListingHandler(repo, nil, "")
@@ -304,9 +299,9 @@ func TestHandleCreate_NoUser(t *testing.T) {
 
 func TestHandleCreate_DuplicateTitle(t *testing.T) {
 	repo := handler.SetupTestRepository(t)
-	_ = repo.Save(context.Background(), domain.Listing{ID: "x", Title: "Existing", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, Address: "123 St"})
+	_ = repo.Save(context.Background(), domain.Listing{ID: "x", Title: "Existing", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "123 St"})
 
-	body := "title=Existing&type=Business&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St"
+	body := "title=Existing&type=Business&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&city=Lagos&address=123+St"
 	c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(body))
 	c.Set("User", domain.User{ID: "user1"})
 

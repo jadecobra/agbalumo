@@ -36,6 +36,7 @@ func TestListingHandler_HandleImageUpload_CacheBusting(t *testing.T) {
 	_ = writer.WriteField("description", "This is a long enough description for validation purposes.")
 	_ = writer.WriteField("contact_email", "test@test.com")
 	_ = writer.WriteField("address", "123 Test St")
+	_ = writer.WriteField("city", "Lagos")
 	part, _ := writer.CreateFormFile("image", "test.jpg")
 	_, _ = part.Write([]byte("fake image content"))
 	_ = writer.Close()

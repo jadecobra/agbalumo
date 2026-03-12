@@ -19,8 +19,8 @@ func TestIntegration_DataValidation(t *testing.T) {
 
 	// 1. Positive Test Case: Known Good Data (Subset of seed data)
 	goodData := []string{
-		"title=Good+Biz&type=Business&owner_origin=Nigeria&description=Valid+description+long+enough&contact_email=good@test.com&address=123+Main+St",
-		"title=Good+Req&type=Request&owner_origin=Ghana&description=Valid+description+long+enough&contact_whatsapp=+123456&deadline_date=" + time.Now().Add(24*time.Hour).Format("2006-01-02"),
+		"title=Good+Biz&type=Business&owner_origin=Nigeria&description=Valid+description+long+enough&contact_email=good@test.com&city=Lagos&address=123+Main+St",
+		"title=Good+Req&type=Request&owner_origin=Ghana&description=Valid+description+long+enough&contact_whatsapp=+123456&city=Accra&deadline_date=" + time.Now().Add(24*time.Hour).Format("2006-01-02"),
 	}
 
 	for _, bodyStr := range goodData {
@@ -49,27 +49,27 @@ func TestIntegration_DataValidation(t *testing.T) {
 	}{
 		{
 			name:      "Missing Origin",
-			body:      "title=Bad+Biz&type=Business&description=No+Origin&contact_email=a@b.com",
+			body:      "title=Bad+Biz&type=Business&description=No+Origin&contact_email=a@b.com&city=Lagos",
 			wantError: "owner origin is required",
 		},
 		{
 			name:      "Invalid Origin",
-			body:      "title=Bad+Biz&type=Business&owner_origin=Mars&description=Alien&contact_email=a@b.com",
+			body:      "title=Bad+Biz&type=Business&owner_origin=Mars&description=Alien&contact_email=a@b.com&city=Lagos",
 			wantError: "owner origin must be an African country",
 		},
 		{
 			name:      "Missing Contact",
-			body:      "title=Bad+Service&type=Service&owner_origin=Nigeria&description=Ghost",
+			body:      "title=Bad+Service&type=Service&owner_origin=Nigeria&description=Ghost&city=Lagos",
 			wantError: "at least one contact method is required",
 		},
 		{
 			name:      "Request Deadline in Past",
-			body:      "title=Bad+Req&type=Request&owner_origin=Ghana&description=Late&contact_email=a@b.com&deadline_date=" + time.Now().Add(-48*time.Hour).Format("2006-01-02"),
+			body:      "title=Bad+Req&type=Request&owner_origin=Ghana&description=Late&contact_email=a@b.com&city=Accra&deadline_date=" + time.Now().Add(-48*time.Hour).Format("2006-01-02"),
 			wantError: "deadline cannot be in the past",
 		},
 		{
 			name:      "Request Deadline Too Far (>90 days)",
-			body:      "title=Bad+Req&type=Request&owner_origin=Ghana&description=Future&contact_email=a@b.com&deadline_date=" + time.Now().Add(100*24*time.Hour).Format("2006-01-02"),
+			body:      "title=Bad+Req&type=Request&owner_origin=Ghana&description=Future&contact_email=a@b.com&city=Accra&deadline_date=" + time.Now().Add(100*24*time.Hour).Format("2006-01-02"),
 			wantError: "request deadline cannot exceed 90 days",
 		},
 	}

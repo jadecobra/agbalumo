@@ -183,7 +183,7 @@ func TestUserRoutes(t *testing.T) {
 	}
 
 	title := fmt.Sprintf("My Test Listing %d", time.Now().UnixNano())
-	form := strings.NewReader("title=" + title + "&type=Service&owner_origin=Nigeria&description=Testing&contact_email=dev@test.com&_csrf=" + csrfToken)
+	form := strings.NewReader("title=" + title + "&type=Service&owner_origin=Nigeria&description=Testing&contact_email=dev@test.com&city=Lagos&_csrf=" + csrfToken)
 	req = httptest.NewRequest(http.MethodPost, "/listings", form)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("Cookie", cookie+"; "+csrfCookie)
@@ -210,7 +210,7 @@ func TestUserRoutes(t *testing.T) {
 			assert.Equal(t, http.StatusOK, rec.Code)
 
 			// Update
-			form = strings.NewReader("title=" + title + "+Updated&type=Service&owner_origin=Nigeria&description=Testing&contact_email=dev@test.com&_csrf=" + csrfToken)
+			form = strings.NewReader("title=" + title + "+Updated&type=Service&owner_origin=Nigeria&description=Testing&contact_email=dev@test.com&city=Lagos&_csrf=" + csrfToken)
 			req = httptest.NewRequest(http.MethodPost, "/listings/"+listingID, form)
 			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 			req.Header.Set("Cookie", cookie+"; "+csrfCookie)

@@ -51,6 +51,7 @@ func TestValidateDeadline(t *testing.T) {
 				Title:        "Test Title",
 				ContactEmail: "test@example.com",
 				Address:      "123 Valid St", // Satisfy address requirement for Business/Food
+				City:         "Lagos",
 				CreatedAt:    now,
 				Deadline:     tt.deadline,
 				IsActive:     true,
@@ -71,6 +72,7 @@ func TestContactRequirement(t *testing.T) {
 		OwnerOrigin: "Ghana",
 		Type:        Business,
 		Title:       "Jollof Place",
+		City:        "Accra",
 		CreatedAt:   time.Now(),
 		IsActive:    true,
 		Address:     "123 St",
@@ -143,6 +145,7 @@ func TestOriginValidation(t *testing.T) {
 				Type:         Product,
 				Title:        "Shea Butter",
 				ContactEmail: "shea@example.com",
+				City:         "Dakar",
 				OwnerOrigin:  tt.origin,
 				CreatedAt:    time.Now(),
 			}
@@ -181,6 +184,7 @@ func BenchmarkValidate(b *testing.B) {
 		OwnerOrigin:  "Nigeria",
 		Type:         Business,
 		Title:        "Benchmark Business",
+		City:         "Abuja",
 		ContactEmail: "bench@example.com",
 		CreatedAt:    time.Now(),
 		IsActive:     true,
@@ -240,6 +244,7 @@ func TestAddressValidation(t *testing.T) {
 				Title:        "Test Biz",
 				ContactEmail: "test@example.com",
 				Address:      tt.address,
+				City:         "Kumasi",
 				CreatedAt:    time.Now(),
 				IsActive:     true,
 			}
@@ -301,6 +306,7 @@ func TestHoursOfOperationRestriction(t *testing.T) {
 				EventStart:       time.Now().Add(24 * time.Hour), // for Event
 				EventEnd:         time.Now().Add(25 * time.Hour), // for Event
 				Address:          "123 St",                       // for Business/Food
+				City:             "Lome",
 				HoursOfOperation: tt.hours,
 				CreatedAt:        time.Now(),
 			}
@@ -337,6 +343,7 @@ func TestListing_Validate_Length(t *testing.T) {
 				Title:        longString(101),
 				Description:  "Valid",
 				Address:      "Valid",
+				City:         "Lagos",
 				ContactEmail: "test@test.com",
 			},
 			wantErr: true,
@@ -350,6 +357,7 @@ func TestListing_Validate_Length(t *testing.T) {
 				Title:        "Valid",
 				Description:  longString(2001),
 				Address:      "Valid",
+				City:         "Lagos",
 				ContactEmail: "test@test.com",
 			},
 			wantErr: true,
@@ -381,6 +389,7 @@ func TestListing_Validate_Length(t *testing.T) {
 				Title:        "Valid",
 				Description:  "Valid",
 				Address:      longString(201),
+				City:         "Lagos",
 				ContactEmail: "test@test.com",
 			},
 			wantErr: true,
@@ -397,6 +406,98 @@ func TestListing_Validate_Length(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestCityRequirement(t *testing.T) {
+	tests := []struct {
+		name    string
+		lType   Category
+		city    string
+		address string
+		wantErr bool
+	}{
+		{
+			name:    "Business requires city",
+			lType:   Business,
+			city:    "",
+			address: "123 St",
+			wantErr: true,
+		},
+		{
+			name:    "Food requires city",
+			lType:   Food,
+			city:    "",
+			address: "123 St",
+			wantErr: true,
+		},
+		{
+			name:    "Event requires city",
+			lType:   Event,
+			city:    "",
+			address: "123 St",
+			wantErr: true,
+		},
+		{
+			name:    "Valid Business with city",
+			lType:   Business,
+			city:    "Lagos",
+			address: "123 St",
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := Listing{
+				ID:           "test-city",
+				OwnerOrigin:  "Nigeria",
+				Type:         tt.lType,
+				Title:        "Test",
+				ContactEmail: "test@example.com",
+				Address:      tt.address,
+				City:         tt.city,
+				CreatedAt:    time.Now(),
+				IsActive:     true,
+				// Additional fields for Event
+				EventStart: time.Now().Add(24 * time.Hour),
+				EventEnd:   time.Now().Add(25 * time.Hour),
+			}
+			err := l.Validate()
+			if tt.wantErr {
+				assert.Error(t, err, "Expected error for type %s with empty city", tt.lType)
+			} else {
+				assert.NoError(t, err, "Expected no error for type %s with city", tt.lType)
+			}
+		})
+	}
+}
+
+func TestValidate_Request_NoCreatedAt(t *testing.T) {
+	l := Listing{
+		Type:         Request,
+		Title:        "Help",
+		ContactEmail: "test@test.com",
+		City:         "Lagos",
+		Deadline:     time.Now().Add(24 * time.Hour),
+		OwnerOrigin:  "Nigeria",
+	}
+	// CreatedAt is zero
+	err := l.Validate()
+	assert.NoError(t, err)
+}
+
+func TestValidate_Food_Success(t *testing.T) {
+	l := Listing{
+		Type:         Food,
+		Title:        "Jollof",
+		ContactEmail: "j@test.com",
+		City:         "Accra",
+		Address:      "Street 1",
+		OwnerOrigin:  "Ghana",
+		CreatedAt:    time.Now(),
+	}
+	err := l.Validate()
+	assert.NoError(t, err)
 }
 
 func FuzzListing_Validate(f *testing.F) {

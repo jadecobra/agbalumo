@@ -240,32 +240,25 @@ window.initGoogleMaps = function () {
     const autocomplete = new google.maps.places.Autocomplete(input, options);
     autocomplete.addListener("place_changed", () => {
         const place = autocomplete.getPlace();
+        if (!place || !place.address_components) return;
+
         let city = "";
-        // Find city/locality
-        if (place.address_components) {
-            for (const component of place.address_components) {
-                const types = component.types;
-                if (types.includes("locality")) {
-                    city = component.long_name;
-                    break;
-                }
-                if (types.includes("postal_town")) {
-                    city = component.long_name;
-                }
-                if (!city && types.includes("administrative_area_level_2")) {
-                    city = component.long_name;
-                }
+        // Find city/locality with improved fallback logic
+        for (const component of place.address_components) {
+            const types = component.types;
+            if (types.includes("locality")) {
+                city = component.long_name;
+                break;
+            } else if (types.includes("sublocality_level_1") || types.includes("sublocality")) {
+                city = component.long_name;
+            } else if (!city && (types.includes("postal_town") || types.includes("administrative_area_level_2") || types.includes("neighborhood"))) {
+                city = component.long_name;
             }
         }
 
         const cityInput = document.getElementById('create-city-input');
         if (cityInput) {
-            if (city) {
-                cityInput.value = city;
-            } else {
-                // Fallback
-                cityInput.value = "Unknown";
-            }
+            cityInput.value = city || "Unknown";
         }
 
         if (place.formatted_address) {

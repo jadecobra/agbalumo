@@ -84,7 +84,7 @@ func TestJobListingStrictValidation(t *testing.T) {
 				l.City = ""
 				l.Address = ""
 			},
-			wantErr: "location (city) is required", // Expecting this to fail initially
+			wantErr: "city is required",
 		},
 		{
 			name: "Missing Apply URL",

@@ -29,6 +29,7 @@ func TestHandleCreate_WithImage(t *testing.T) {
 	_ = writer.WriteField("description", "Desc")
 	_ = writer.WriteField("contact_email", "img@example.com")
 	_ = writer.WriteField("address", "123 Image St")
+	_ = writer.WriteField("city", "Accra")
 
 	part, _ := writer.CreateFormFile("image", "test.png")
 	img := image.NewRGBA(image.Rect(0, 0, 1, 1))
@@ -61,7 +62,7 @@ func TestHandleCreate_InvalidDates(t *testing.T) {
 	}{
 		{
 			name:           "Invalid Deadline",
-			body:           "title=T&type=Request&deadline_date=invalid",
+			body:           "title=T&type=Request&city=Lagos&deadline_date=invalid",
 			expectedStatus: http.StatusBadRequest,
 		},
 	}

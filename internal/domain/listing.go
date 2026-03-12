@@ -147,6 +147,10 @@ func (l *Listing) Validate() error {
 		return ErrMissingContact
 	}
 
+	if l.City == "" {
+		return errors.New("city is required")
+	}
+
 	if l.Type == Request {
 		if err := l.validateRequest(); err != nil {
 			return err

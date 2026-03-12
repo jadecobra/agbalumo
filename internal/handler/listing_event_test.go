@@ -24,6 +24,7 @@ func TestHandleCreate_EventParsing(t *testing.T) {
 	form.Set("type", "Event")
 	form.Set("owner_origin", "Nigeria")
 	form.Set("contact_email", "test@example.com")
+	form.Set("city", "Lagos")
 	form.Set("event_start", "2026-12-25T10:00") // standard datetime-local format
 	form.Set("event_end", "2026-12-25T14:00")
 

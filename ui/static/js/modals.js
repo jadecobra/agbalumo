@@ -336,8 +336,10 @@ function initEditMaps(listingId) {
         types: ["address"],
     };
     var autocomplete = new google.maps.places.Autocomplete(input, options);
-    autocomplete.addEventListener("place_changed", function() {
+    autocomplete.addListener("place_changed", function() {
         var place = autocomplete.getPlace();
+        if (!place || !place.address_components) return;
+
         var city = "";
         for (var i = 0; i < place.address_components.length; i++) {
             var component = place.address_components[i];
@@ -345,11 +347,9 @@ function initEditMaps(listingId) {
             if (types.includes("locality")) {
                 city = component.long_name;
                 break;
-            }
-            if (types.includes("postal_town")) {
+            } else if (types.includes("sublocality_level_1") || types.includes("sublocality")) {
                 city = component.long_name;
-            }
-            if (!city && types.includes("administrative_area_level_2")) {
+            } else if (!city && (types.includes("postal_town") || types.includes("administrative_area_level_2") || types.includes("neighborhood"))) {
                 city = component.long_name;
             }
         }

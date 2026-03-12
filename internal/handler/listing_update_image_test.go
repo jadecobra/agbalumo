@@ -26,6 +26,7 @@ func TestHandleUpdate_ImageRemoval(t *testing.T) {
 		OwnerOrigin:  "Nigeria",
 		ContactEmail: "owner@example.com",
 		Type:         domain.Business,
+		City:         "Lagos",
 		Address:      "123 Street",
 	}
 	_ = repo.Save(context.Background(), existingListing)
@@ -39,7 +40,7 @@ func TestHandleUpdate_ImageRemoval(t *testing.T) {
 	h := handler.NewListingHandler(repo, mockImageService)
 
 	// Body with remove_image=true and required fields
-	body := "title=New+Title&remove_image=true&owner_origin=Nigeria&description=Cool&contact_email=test@test.com&address=123+Street&type=Business"
+	body := "title=New+Title&remove_image=true&owner_origin=Nigeria&description=Cool&contact_email=test@test.com&city=Lagos&address=123+Street&type=Business"
 	c, rec := setupTestContext(http.MethodPut, "/listings/listing-123", strings.NewReader(body))
 	c.SetPath("/listings/:id")
 	c.SetParamNames("id")

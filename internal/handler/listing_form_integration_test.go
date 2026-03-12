@@ -20,7 +20,7 @@ func TestListingHandler_FormParsing(t *testing.T) {
 	}{
 		{
 			name: "Success_EventWithDates",
-			body: "title=Event+Test&type=Event&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St&event_start=2027-12-01T10:00&event_end=2027-12-01T12:00",
+			body: "title=Event+Test&type=Event&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St&city=Lagos&event_start=2027-12-01T10:00&event_end=2027-12-01T12:00",
 			setup: func(t *testing.T, repo domain.ListingRepository) {},
 			expectedStatus: http.StatusOK,
 			verify: func(t *testing.T, repo domain.ListingRepository) {
@@ -49,7 +49,7 @@ func TestListingHandler_FormParsing(t *testing.T) {
 		},
 		{
 			name: "Success_RequestWithDeadline",
-			body: "title=Request+Test&type=Request&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St&deadline_date=2026-04-30",
+			body: "title=Request+Test&type=Request&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St&city=Lagos&deadline_date=2026-04-30",
 			setup: func(t *testing.T, repo domain.ListingRepository) {},
 			expectedStatus: http.StatusOK,
 			verify: func(t *testing.T, repo domain.ListingRepository) {
@@ -63,7 +63,7 @@ func TestListingHandler_FormParsing(t *testing.T) {
 		},
 		{
 			name: "Failure_InvalidEventDate",
-			body: "title=Bad+Event&type=Event&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St&event_start=invalid",
+			body: "title=Bad+Event&type=Event&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St&city=Lagos&event_start=invalid",
 			setup: func(t *testing.T, repo domain.ListingRepository) {},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -110,7 +110,7 @@ func TestListingHandler_URLNormalization(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			body := "title=URL+Test+" + tt.name + "&type=Business&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St&website_url=" + tt.url
+			body := "title=URL+Test+" + tt.name + "&type=Business&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St&city=Lagos&website_url=" + tt.url
 			c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(body))
 			c.Set("User", domain.User{ID: "user-1"})
 
