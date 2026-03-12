@@ -11,7 +11,7 @@ import (
 
 const listingSelections = `
 	id, COALESCE(owner_id, ''), owner_origin, type, title, description,
-	COALESCE(city, 'Unknown'), COALESCE(address, ''), COALESCE(hours_of_operation, ''), 
+	COALESCE(city, ''), COALESCE(address, ''), COALESCE(hours_of_operation, ''), 
 	COALESCE(contact_email, ''), COALESCE(contact_phone, ''), COALESCE(contact_whatsapp, ''),
 	COALESCE(website_url, ''), COALESCE(image_url, ''), created_at, deadline, is_active,
 	event_start, event_end,

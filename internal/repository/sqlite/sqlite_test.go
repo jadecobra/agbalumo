@@ -616,15 +616,15 @@ func TestMigrationBackfillCity(t *testing.T) {
 	if err1 != nil {
 		t.Fatalf("L1: FindByID failed: %v", err1)
 	}
-	if l1.City != "Unknown" {
-		t.Errorf("Expected city 'Unknown' for ID 1, got %q", l1.City)
+	if l1.City != "" {
+		t.Errorf("Expected city '' for ID 1, got %q", l1.City)
 	}
 
 	l2, err2 := repo.FindByID(ctx, "2")
 	if err2 != nil {
 		t.Fatalf("L2: FindByID failed: %v", err2)
 	}
-	if l2.City != "Unknown" {
-		t.Errorf("Expected city 'Unknown' for ID 2, got %q", l2.City)
+	if l2.City != "" {
+		t.Errorf("Expected city '' for ID 2, got %q", l2.City)
 	}
 }
