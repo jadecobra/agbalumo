@@ -204,10 +204,40 @@ else
     warn "No explicit index on listings(owner_id). FindAllByOwner may be slow for large tables."
 fi
 
-# ─── CHECK 4: In-Memory Cache Layer ───────────────────────────────────────────
+# ─── CHECK 4: Search Smoke Benchmarks ─────────────────────────────────────────
 
 echo ""
-echo "${BOLD}4. In-Memory Cache Layer${NC}"
+echo "${BOLD}4. Search Smoke Benchmarks (Repository Layer)${NC}"
+
+# Run a quick smoke benchmark with 500 records
+# We use benchtime=100ms for speed in the pre-commit gate
+BENCH_OUT=$(BENCH_LISTINGS=500 go test -v -bench=BenchmarkSearchPerformance/FindAll_Default_Page1 -benchtime=100ms ./internal/repository/sqlite/search_performance_test.go 2>/dev/null || echo "error")
+
+if [ "$BENCH_OUT" = "error" ]; then
+    warn "Could not run search smoke benchmarks (ensure Go is installed and test file exists)"
+else
+    # Extract ns/op from the benchmark line
+    NS_OP=$(echo "$BENCH_OUT" | grep "FindAll_Default_Page1" | awk '{print $3}')
+    if [ -n "$NS_OP" ]; then
+        # Convert ns to ms (one millionth)
+        MS_OP=$(awk "BEGIN { printf \"%.2f\", $NS_OP / 1000000 }")
+        
+        # Threshold: Default page 1 search should be < 10ms for 500 records on any modern dev machine
+        THRESHOLD=10.0
+        if awk "BEGIN {exit !($MS_OP > $THRESHOLD)}"; then
+            fail "Search smoke benchmark: ${MS_OP}ms/op (>${THRESHOLD}ms target) with 500 records."
+        else
+            pass "Search smoke benchmark: ${MS_OP}ms/op ✓"
+        fi
+    else
+        warn "Could not parse benchmark output."
+    fi
+fi
+
+# ─── CHECK 5: In-Memory Cache Layer ───────────────────────────────────────────
+
+echo ""
+echo "${BOLD}5. In-Memory Cache Layer${NC}"
 
 CACHED_FILE="internal/repository/cached/cached.go"
 
@@ -236,10 +266,10 @@ else
     warn "No cached store found at $CACHED_FILE. Hot-path queries (GetCounts, GetLocations) will always hit SQLite."
 fi
 
-# ─── CHECK 5: Accessibility (Performance Impact via Core Web Vitals) ──────────
+# ─── CHECK 6: Accessibility (Performance Impact via Core Web Vitals) ──────────
 
 echo ""
-echo "${BOLD}5. Accessibility & CLS/INP Checks${NC}"
+echo "${BOLD}6. Accessibility & CLS/INP Checks${NC}"
 
 BASE_HTML="ui/templates/base.html"
 
@@ -286,10 +316,10 @@ else
     warn "No preconnect for fonts.googleapis.com. Adds ~100ms latency on first font request."
 fi
 
-# ─── CHECK 6: N+1 Query Pattern Detection ────────────────────────────────────
+# ─── CHECK 7: N+1 Query Pattern Detection ────────────────────────────────────
 
 echo ""
-echo "${BOLD}6. N+1 Query Pattern Detection${NC}"
+echo "${BOLD}7. N+1 Query Pattern Detection${NC}"
 
 # Heuristic: look for DB calls inside range loops in handlers
 N1_CANDIDATES=$(grep -rn "range \|for .*range" internal/handler/ --include="*.go" 2>/dev/null | \
@@ -312,11 +342,11 @@ else
     pass "No obvious N+1 patterns found in handlers ✓"
 fi
 
-# ─── CHECK 7: Live Response Time (optional) ───────────────────────────────────
+# ─── CHECK 8: Live Response Time (optional) ───────────────────────────────────
 
 if [ "$LIVE_MODE" -eq 1 ]; then
     echo ""
-    echo "${BOLD}7. Live Response Time Checks${NC}"
+    echo "${BOLD}8. Live Response Time Checks${NC}"
 
     BASE_URL="${BASE_URL:-https://localhost:8443}"
 

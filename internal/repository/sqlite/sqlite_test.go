@@ -98,15 +98,13 @@ func TestFindAll_Filtering(t *testing.T) {
 	_ = repo.Save(ctx, domain.Listing{ID: "2", Title: "Hair Braiding", Type: "Service", Status: domain.ListingStatusPending, IsActive: true, CreatedAt: time.Now()})
 	_ = repo.Save(ctx, domain.Listing{ID: "3", Title: "Deleted Item", Type: "Product", Status: domain.ListingStatusRejected, IsActive: false, CreatedAt: time.Now()})
 
-	// 1. Find All Active (Default for Public)
+	// 1. Find All Active (Default for Public) - should only return Approved
 	res, _, err := repo.FindAll(ctx, "", "", "", "", false, 20, 0)
 	if err != nil {
 		t.Fatalf("FindAll failed: %v", err)
 	}
-	// Note: seeder might have added more if not carefully controlled, but here we use a fresh newTestRepo.
-	// So it should be exactly 2 active ones.
-	if len(res) != 2 {
-		t.Errorf("Expected 2 active listings, got %d", len(res))
+	if len(res) != 1 {
+		t.Errorf("Expected 1 approved listing, got %d", len(res))
 	}
 
 	// 2. Filter by Type
@@ -115,10 +113,16 @@ func TestFindAll_Filtering(t *testing.T) {
 		t.Errorf("Type filtering failed")
 	}
 
-	// 3. Search text
+	// 3. Search text (public) - should NOT find Pending "Braiding"
 	res, _, _ = repo.FindAll(ctx, "", "Braiding", "", "", false, 20, 0)
-	if len(res) != 1 || res[0].Title != "Hair Braiding" {
-		t.Errorf("Text search failed")
+	if len(res) != 0 {
+		t.Errorf("Expected 0 results for public search of pending listing, got %d", len(res))
+	}
+	
+	// 3b. Search text (admin) - should find Pending "Braiding"
+	res, _, _ = repo.FindAll(ctx, "", "Braiding", "", "", true, 20, 0)
+	if len(res) != 1 {
+		t.Errorf("Expected 1 result for admin search of pending listing, got %d", len(res))
 	}
 
 	// 4. Include Inactive (Admin view)

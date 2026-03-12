@@ -82,10 +82,15 @@ func (r *SQLiteRepository) Save(ctx context.Context, l domain.Listing) error {
 		featured = excluded.featured;
 	`
 
+	status := string(l.Status)
+	if status == "" {
+		status = string(domain.ListingStatusApproved)
+	}
+
 	_, err := r.db.ExecContext(ctx, query,
 		l.ID, l.OwnerID, l.Title, l.Description, l.Type, l.OwnerOrigin, l.City, l.Address, l.HoursOfOperation, l.IsActive, l.CreatedAt,
 		l.ImageURL, l.ContactEmail, l.ContactPhone, l.ContactWhatsApp, l.WebsiteURL, l.Deadline, l.EventStart, l.EventEnd,
-		l.Skills, l.JobStartDate, l.JobApplyURL, l.Company, l.PayRange, l.Status, l.Featured,
+		l.Skills, l.JobStartDate, l.JobApplyURL, l.Company, l.PayRange, status, l.Featured,
 	)
 	return err
 }
@@ -95,7 +100,7 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 	var args []interface{}
 
 	if !includeInactive {
-		whereClause += ` AND is_active = true`
+		whereClause += ` AND is_active = true AND status = 'Approved'`
 	}
 
 	if filterType != "" {
@@ -133,7 +138,9 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 		orderClause = field + " " + order
 	}
 
-	query := `SELECT ` + listingSelections + ` FROM listings` + whereClause + ` ORDER BY ` + orderClause + ` LIMIT ? OFFSET ?`
+	query := `SELECT ` + listingSelections + ` FROM listings 
+	          WHERE rowid IN (SELECT rowid FROM listings` + whereClause + ` ORDER BY ` + orderClause + ` LIMIT ? OFFSET ?)
+	          ORDER BY ` + orderClause
 	args = append(args, limit, offset)
 
 	rows, err := r.db.QueryContext(ctx, query, args...)
@@ -246,7 +253,7 @@ func (r *SQLiteRepository) Delete(ctx context.Context, id string) error {
 }
 
 func (r *SQLiteRepository) GetCounts(ctx context.Context) (map[domain.Category]int, error) {
-	query := `SELECT type, COUNT(*) FROM listings WHERE is_active = true GROUP BY type`
+	query := `SELECT type, COUNT(*) FROM listings WHERE is_active = true AND status = 'Approved' GROUP BY type`
 	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
@@ -266,7 +273,7 @@ func (r *SQLiteRepository) GetCounts(ctx context.Context) (map[domain.Category]i
 }
 
 func (r *SQLiteRepository) GetLocations(ctx context.Context) ([]string, error) {
-	query := `SELECT DISTINCT city FROM listings WHERE is_active = true AND city != '' ORDER BY city ASC`
+	query := `SELECT DISTINCT city FROM listings WHERE is_active = true AND status = 'Approved' AND city != '' ORDER BY city ASC`
 	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err

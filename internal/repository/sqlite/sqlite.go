@@ -134,7 +134,7 @@ func (r *SQLiteRepository) migrate() error {
 	_, _ = r.db.ExecContext(context.Background(), "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id);")
 
 	_, _ = r.db.ExecContext(context.Background(), "CREATE INDEX IF NOT EXISTS idx_listings_owner_id ON listings(owner_id);")
-	_, _ = r.db.ExecContext(context.Background(), "CREATE INDEX IF NOT EXISTS idx_listings_active_status_type ON listings(is_active, status, type);")
+	_, _ = r.db.ExecContext(context.Background(), "CREATE INDEX IF NOT EXISTS idx_listings_filter_sort ON listings(is_active, status, type, created_at DESC);")
 
 	_, _ = r.db.ExecContext(context.Background(), `
 		CREATE VIRTUAL TABLE IF NOT EXISTS listings_fts USING fts5(
