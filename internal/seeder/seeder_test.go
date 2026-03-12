@@ -17,7 +17,7 @@ func TestSeedAll(t *testing.T) {
 	seeder.SeedAll(context.Background(), repo)
 
 	// Verify some listings were saved
-	listings, err := repo.FindAll(context.Background(), "", "", "", "", true, 100, 0)
+	listings, _, err := repo.FindAll(context.Background(), "", "", "", "", true, 100, 0)
 	require.NoError(t, err)
 	assert.Greater(t, len(listings), 0, "Expected listings to be seeded")
 }
@@ -28,7 +28,7 @@ func TestEnsureSeeded_Empty(t *testing.T) {
 	seeder.EnsureSeeded(context.Background(), repo)
 
 	// Verify listings were saved
-	listings, err := repo.FindAll(context.Background(), "", "", "", "", true, 1, 0)
+	listings, _, err := repo.FindAll(context.Background(), "", "", "", "", true, 1, 0)
 	require.NoError(t, err)
 	assert.Equal(t, 1, len(listings))
 }
@@ -42,7 +42,7 @@ func TestEnsureSeeded_NotEmpty(t *testing.T) {
 	seeder.EnsureSeeded(context.Background(), repo)
 
 	// Verify NO additional listings were saved (still just 1)
-	listings, err := repo.FindAll(context.Background(), "", "", "", "", true, 100, 0)
+	listings, _, err := repo.FindAll(context.Background(), "", "", "", "", true, 100, 0)
 	require.NoError(t, err)
 	assert.Equal(t, 1, len(listings))
 }

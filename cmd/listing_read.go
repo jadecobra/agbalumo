@@ -22,7 +22,7 @@ supports filtering and can output the results in a machine-readable JSON format.
 	Run: func(cmd *cobra.Command, args []string) {
 		repo := initRepo()
 
-		listings, err := repo.FindAll(context.Background(), "", "", "", "", false, 100, 0)
+		listings, _, err := repo.FindAll(context.Background(), "", "", "", "", false, 100, 0)
 		if err != nil {
 			slog.Error("Failed to list listings", "error", err)
 			os.Exit(1)

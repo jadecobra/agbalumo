@@ -21,8 +21,8 @@ func (m *MockListingRepository) Save(ctx context.Context, listing domain.Listing
 	return m.ErrorOn["Save"]
 }
 
-func (m *MockListingRepository) FindAll(ctx context.Context, filterType string, queryText string, sortField string, sortOrder string, includeInactive bool, limit int, offset int) ([]domain.Listing, error) {
-	return nil, m.ErrorOn["FindAll"]
+func (m *MockListingRepository) FindAll(ctx context.Context, filterType string, queryText string, sortField string, sortOrder string, includeInactive bool, limit int, offset int) ([]domain.Listing, int, error) {
+	return nil, 0, m.ErrorOn["FindAll"]
 }
 
 func (m *MockListingRepository) FindByID(ctx context.Context, id string) (domain.Listing, error) {
@@ -37,8 +37,8 @@ func (m *MockListingRepository) TitleExists(ctx context.Context, title string) (
 	return false, m.ErrorOn["TitleExists"]
 }
 
-func (m *MockListingRepository) FindAllByOwner(ctx context.Context, ownerID string, limit int, offset int) ([]domain.Listing, error) {
-	return nil, m.ErrorOn["FindAllByOwner"]
+func (m *MockListingRepository) FindAllByOwner(ctx context.Context, ownerID string, limit int, offset int) ([]domain.Listing, int, error) {
+	return nil, 0, m.ErrorOn["FindAllByOwner"]
 }
 
 func (m *MockListingRepository) Delete(ctx context.Context, id string) error {

@@ -15,7 +15,7 @@ func (h *ListingHandler) HandleProfile(c echo.Context) error {
 	u := user.(domain.User)
 
 	p := GetPagination(c, 50)
-	listings, err := h.Repo.FindAllByOwner(c.Request().Context(), u.ID, p.Limit, p.Offset)
+	listings, _, err := h.Repo.FindAllByOwner(c.Request().Context(), u.ID, p.Limit, p.Offset)
 	if err != nil {
 		return RespondError(c, err)
 	}

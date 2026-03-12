@@ -32,7 +32,7 @@ func TestHomePageUIValues(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify repo has them
-	all, err := repo.FindAll(ctx, "", "", "", "", false, 20, 0)
+	all, _, err := repo.FindAll(ctx, "", "", "", "", false, 20, 0)
 	require.NoError(t, err)
 	assert.Equal(t, 2, len(all))
 

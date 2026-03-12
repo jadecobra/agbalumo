@@ -3,7 +3,6 @@ package handler
 import (
 	"mime/multipart"
 	"net/http"
-	"strconv"
 	"sync"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
@@ -33,13 +32,10 @@ func NewListingHandler(repo domain.ListingRepository, imageService domain.ImageS
 // Home Handler
 func (h *ListingHandler) HandleHome(c echo.Context) error {
 	ctx := c.Request().Context()
-
-	page, _ := strconv.Atoi(c.QueryParam("page"))
-	if page < 1 {
-		page = 1
-	}
 	limit := 30
-	offset := (page - 1) * limit
+	p := GetPagination(c, limit)
+	page := p.Page
+	offset := p.Offset
 
 	// P1.3: Run all three queries in parallel
 	var (
@@ -57,9 +53,10 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	)
 
 	wg.Add(4)
+	var totalCount int
 	go func() {
 		defer wg.Done()
-		listings, listingsErr = h.Repo.FindAll(ctx, "", "", "", "", false, limit, offset)
+		listings, totalCount, listingsErr = h.Repo.FindAll(ctx, "", "", "", "", false, limit, offset)
 	}()
 	go func() {
 		defer wg.Done()
@@ -78,7 +75,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	if listingsErr != nil {
 		return RespondError(c, listingsErr)
 	}
-	hasNextPage := len(listings) == limit
+	hasNextPage := offset+len(listings) < totalCount
 
 	if countsErr != nil {
 		c.Logger().Errorf("failed to get listing counts: %v", countsErr)
@@ -97,10 +94,10 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	}
 
 	strCounts := make(map[string]int)
-	totalCount := 0
+	categoryTotal := 0
 	for cat, count := range counts {
 		strCounts[string(cat)] = count
-		totalCount += count
+		categoryTotal += count
 	}
 
 	user := c.Get("User")
@@ -112,12 +109,13 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 
 	return h.renderWithBaseContext(c, "index.html", map[string]interface{}{
 		"Listings":         finalListings,
-		"Page":             page,
-		"HasNextPage":      hasNextPage,
+		"Pagination":       Pagination{Page: page, TotalPages: (totalCount + limit - 1) / limit, HasNextPage: hasNextPage, TotalCount: totalCount},
 		"FeaturedListings": featured,
 		"Counts":           strCounts,
 		"Locations":        locations,
 		"TotalCount":       totalCount,
+		"Category":         "",
+		"QueryText":        "",
 		"User":             user,
 		"GoogleMapsApiKey": h.GoogleMapsAPIKey,
 	})
@@ -128,18 +126,16 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	filterType := c.QueryParam("type")
 	queryText := c.QueryParam("q")
 
-	page, _ := strconv.Atoi(c.QueryParam("page"))
-	if page < 1 {
-		page = 1
-	}
-	limit := 30
-	offset := (page - 1) * limit
+	p := GetPagination(c, 30)
+	page := p.Page
+	limit := p.Limit
+	offset := p.Offset
 
-	listings, err := h.Repo.FindAll(c.Request().Context(), filterType, queryText, "", "", false, limit, offset)
+	listings, totalCount, err := h.Repo.FindAll(c.Request().Context(), filterType, queryText, "", "", false, limit, offset)
 	if err != nil {
 		return RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, err.Error()))
 	}
-	hasNextPage := len(listings) == limit
+	hasNextPage := offset+len(listings) < totalCount
 
 	// For the first page of the main feed (no filters/search), include featured listings
 	finalListings := listings
@@ -151,10 +147,11 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	}
 
 	data := map[string]interface{}{
-		"Listings":    finalListings,
-		"Page":        page,
-		"HasNextPage": hasNextPage,
-		"User":        c.Get("User"),
+		"Listings":   finalListings,
+		"Pagination": Pagination{Page: page, TotalPages: (totalCount + limit - 1) / limit, HasNextPage: hasNextPage, TotalCount: totalCount},
+		"Category":   filterType,
+		"QueryText":  queryText,
+		"User":       c.Get("User"),
 	}
 
 	// If HTMX request, render only the listing list partial

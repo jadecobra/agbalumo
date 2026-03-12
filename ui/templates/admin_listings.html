@@ -56,8 +56,7 @@ duration-300{{ end }}
                     </table>
                 </div>
                 <!-- Pagination Controls -->
-                {{ template "admin_pagination" dict "Page" .Page "HasNextPage" .HasNextPage "BaseURL" "/admin/listings"
-                "Category" .Category }}
+                {{ template "pagination.html" . }}
             </div>
         </form>
     </div>

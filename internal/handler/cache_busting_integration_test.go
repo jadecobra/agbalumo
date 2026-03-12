@@ -52,7 +52,7 @@ func TestListingHandler_HandleImageUpload_CacheBusting(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Fetch from DB to check ImageURL
-	all, _ := repo.FindAll(c.Request().Context(), "", "", "", "", false, 10, 0)
+	all, _, _ := repo.FindAll(c.Request().Context(), "", "", "", "", false, 10, 0)
 	assert.Equal(t, 1, len(all))
 	assert.Contains(t, all[0].ImageURL, "/static/uploads/test.webp?t=")
 

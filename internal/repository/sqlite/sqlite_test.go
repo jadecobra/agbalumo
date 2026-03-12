@@ -39,7 +39,7 @@ func TestNewSQLiteRepositoryFromDB(t *testing.T) {
 
 	// Verify we can use it
 	ctx := context.Background()
-	_, err = repo.FindAll(ctx, "All", "", "", "", false, 20, 0)
+	_, _, err = repo.FindAll(ctx, "All", "", "", "", false, 20, 0)
 	if err == nil {
 		t.Error("Expected error due to missing tables, got nil")
 	}
@@ -99,7 +99,7 @@ func TestFindAll_Filtering(t *testing.T) {
 	_ = repo.Save(ctx, domain.Listing{ID: "3", Title: "Deleted Item", Type: "Product", Status: domain.ListingStatusRejected, IsActive: false, CreatedAt: time.Now()})
 
 	// 1. Find All Active (Default for Public)
-	res, err := repo.FindAll(ctx, "", "", "", "", false, 20, 0)
+	res, _, err := repo.FindAll(ctx, "", "", "", "", false, 20, 0)
 	if err != nil {
 		t.Fatalf("FindAll failed: %v", err)
 	}
@@ -110,19 +110,19 @@ func TestFindAll_Filtering(t *testing.T) {
 	}
 
 	// 2. Filter by Type
-	res, _ = repo.FindAll(ctx, "Business", "", "", "", false, 20, 0)
+	res, _, _ = repo.FindAll(ctx, "Business", "", "", "", false, 20, 0)
 	if len(res) != 1 || res[0].Title != "Jollof Rice" {
 		t.Errorf("Type filtering failed")
 	}
 
 	// 3. Search text
-	res, _ = repo.FindAll(ctx, "", "Braiding", "", "", false, 20, 0)
+	res, _, _ = repo.FindAll(ctx, "", "Braiding", "", "", false, 20, 0)
 	if len(res) != 1 || res[0].Title != "Hair Braiding" {
 		t.Errorf("Text search failed")
 	}
 
 	// 4. Include Inactive (Admin view)
-	res, _ = repo.FindAll(ctx, "", "", "", "", true, 20, 0)
+	res, _, _ = repo.FindAll(ctx, "", "", "", "", true, 20, 0)
 	if len(res) != 3 {
 		t.Errorf("Expected 3 listings including inactive, got %d", len(res))
 	}
@@ -226,7 +226,7 @@ func TestFindAllByOwner(t *testing.T) {
 	_ = repo.Save(ctx, domain.Listing{ID: "2", OwnerID: "user-1", Title: "L2"})
 	_ = repo.Save(ctx, domain.Listing{ID: "3", OwnerID: "user-2", Title: "L3"})
 
-	res, err := repo.FindAllByOwner(ctx, "user-1", 10, 0)
+	res, _, err := repo.FindAllByOwner(ctx, "user-1", 10, 0)
 	if err != nil {
 		t.Fatalf("FindAllByOwner failed: %v", err)
 	}
@@ -337,7 +337,7 @@ func TestListingRepository_FTS(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		res, _ := repo.FindAll(ctx, "", tt.query, "", "", false, 10, 0)
+		res, _, _ := repo.FindAll(ctx, "", tt.query, "", "", false, 10, 0)
 		if len(res) != 1 || res[0].ID != tt.want {
 			t.Errorf("FTS query %q failed: got %d results, want ID %s", tt.query, len(res), tt.want)
 		}
@@ -524,7 +524,7 @@ func BenchmarkSQLiteRepository_FindAll(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, _ = repo.FindAll(ctx, "", "", "", "", true, 50, 0)
+		_, _, _ = repo.FindAll(ctx, "", "", "", "", true, 50, 0)
 	}
 }
 

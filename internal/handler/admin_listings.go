@@ -19,12 +19,12 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 	sortOrder := strings.ToUpper(c.QueryParam("order"))
 
 	// Fetch all listings with the given category filter, including inactive ones.
-	listings, err := h.Repo.FindAll(ctx, category, "", sortField, sortOrder, true, pagination.Limit, pagination.Offset)
+	listings, totalCountRows, err := h.Repo.FindAll(ctx, category, "", sortField, sortOrder, true, pagination.Limit, pagination.Offset)
 	if err != nil {
 		return RespondError(c, err)
 	}
 
-	hasNextPage := len(listings) == pagination.Limit
+	hasNextPage := pagination.Offset+len(listings) < totalCountRows
 
 	counts, err := h.Repo.GetCounts(ctx)
 	if err != nil {
@@ -38,18 +38,17 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 		categories = []domain.CategoryData{}
 	}
 
-	strCounts, totalCount := ConvertCounts(counts)
+	strCounts, _ := ConvertCounts(counts)
 
 	return c.Render(http.StatusOK, "admin_listings.html", map[string]interface{}{
 		"Listings":    listings,
-		"Page":        pagination.Page,
-		"HasNextPage": hasNextPage,
+		"Pagination":  Pagination{Page: pagination.Page, TotalPages: (totalCountRows + pagination.Limit - 1) / pagination.Limit, HasNextPage: hasNextPage, TotalCount: totalCountRows},
 		"Category":    category,
 		"SortField":   sortField,
 		"SortOrder":   sortOrder,
 		"Counts":      strCounts,
 		"Categories":  categories,
-		"TotalCount":  totalCount,
+		"TotalCount":  totalCountRows, // Use totalCountRows from FindAll for consistent count
 		"User":        c.Get("User"),
 	})
 }
