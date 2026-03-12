@@ -16,7 +16,7 @@ import (
 
 func TestHandleCreate_EventParsing(t *testing.T) {
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewListingHandler(repo, nil)
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
 
 	// Create form data
 	form := url.Values{}

@@ -50,6 +50,7 @@ func init() {
 	listingCmd.AddCommand(listingGetCmd)
 	listingCmd.AddCommand(listingUpdateCmd)
 	listingCmd.AddCommand(listingDeleteCmd)
+	listingCmd.AddCommand(listingBackfillCitiesCmd)
 
 	rootCmd.AddCommand(listingCmd)
 

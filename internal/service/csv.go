@@ -154,7 +154,7 @@ func (s *CSVService) GenerateCSV(ctx context.Context, listings []domain.Listing)
 		// Write Header
 		headers := []string{
 			"ID", "Title", "Type", "Description", "City", "Address",
-			"OwnerOrigin", "ContactEmail", "ContactPhone", "ContactWhatsApp",
+			"Origin", "Email", "Phone", "WhatsApp",
 			"WebsiteURL", "CreatedAt", "Status", "IsActive", "Featured",
 			"Company", "PayRange", "Skills", "JobApplyURL", "JobStartDate",
 			"EventStart", "EventEnd", "Deadline",

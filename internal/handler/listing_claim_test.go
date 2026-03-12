@@ -83,7 +83,7 @@ func TestListingHandler_HandleClaim(t *testing.T) {
 				tt.setup(t, repo)
 			}
 
-			h := handler.NewListingHandler(repo, nil, "")
+			h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
 
 			c, rec := setupTestContext(http.MethodPost, "/listings/listing1/claim", nil)
 			c.SetParamNames("id")

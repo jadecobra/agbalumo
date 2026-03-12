@@ -33,7 +33,7 @@ func TestHandleHome(t *testing.T) {
 	})
 	_ = repo.SaveCategory(ctx, domain.CategoryData{ID: string(domain.Business), Name: "Business", Active: true})
 
-	h := handler.NewListingHandler(repo, nil, "")
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
 	if err := h.HandleHome(c); err != nil {
 		t.Fatal(err)
 	}
@@ -64,7 +64,7 @@ func TestHandleDetail(t *testing.T) {
 		OwnerOrigin:  "Nigeria",
 	})
 
-	h := handler.NewListingHandler(repo, nil, "")
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
 	if err := h.HandleDetail(c); err != nil {
 		t.Fatal(err)
 	}
@@ -96,7 +96,7 @@ func TestHandleProfile(t *testing.T) {
 		Type:         domain.Business,
 	})
 
-	h := handler.NewListingHandler(repo, nil, "")
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
 	if err := h.HandleProfile(c); err != nil {
 		t.Fatal(err)
 	}
@@ -113,7 +113,7 @@ func TestHandleAbout(t *testing.T) {
 
 	repo := handler.SetupTestRepository(t)
 
-	h := handler.NewListingHandler(repo, nil, "")
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
 	if err := h.HandleAbout(c); err != nil {
 		t.Fatal(err)
 	}
@@ -145,7 +145,7 @@ func TestHandleFragment(t *testing.T) {
 		})
 	}
 
-	h := handler.NewListingHandler(repo, nil, "")
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
 	if err := h.HandleFragment(c); err != nil {
 		t.Fatal(err)
 	}

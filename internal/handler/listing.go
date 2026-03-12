@@ -14,10 +14,11 @@ type ListingHandler struct {
 	Repo             domain.ListingRepository
 	ImageService     domain.ImageService
 	ListingSvc       domain.ListingService
+	GeocodingSvc     domain.GeocodingService
 	GoogleMapsAPIKey string
 }
 
-func NewListingHandler(repo domain.ListingRepository, imageService domain.ImageService, opts ...string) *ListingHandler {
+func NewListingHandler(repo domain.ListingRepository, imageService domain.ImageService, geocodingSvc domain.GeocodingService, opts ...string) *ListingHandler {
 	var uploadDir string
 	if len(opts) > 0 {
 		uploadDir = opts[0]
@@ -26,7 +27,12 @@ func NewListingHandler(repo domain.ListingRepository, imageService domain.ImageS
 		imageService = service.NewLocalImageService(uploadDir)
 	}
 	listingSvc := service.NewListingService(repo)
-	return &ListingHandler{Repo: repo, ImageService: imageService, ListingSvc: listingSvc}
+	return &ListingHandler{
+		Repo:         repo,
+		ImageService: imageService,
+		ListingSvc:   listingSvc,
+		GeocodingSvc: geocodingSvc,
+	}
 }
 
 // Home Handler

@@ -74,7 +74,7 @@ func TestListingHandler_FormParsing(t *testing.T) {
 			repo := handler.SetupTestRepository(t)
 			tt.setup(t, repo)
 
-			h := handler.NewListingHandler(repo, nil, "")
+			h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
 			c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
 			c.Set("User", domain.User{ID: "user-1"})
 
@@ -95,7 +95,7 @@ func TestListingHandler_FormParsing(t *testing.T) {
 
 func TestListingHandler_URLNormalization(t *testing.T) {
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewListingHandler(repo, nil, "")
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
 
 	tests := []struct {
 		name     string

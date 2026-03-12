@@ -21,7 +21,7 @@ func TestListingHandler_HandleImageUpload_CacheBusting(t *testing.T) {
 	repo := handler.SetupTestRepository(t)
 	mockImageService := &MockImageService{}
 
-	h := handler.NewListingHandler(repo, mockImageService)
+	h := handler.NewListingHandler(repo, mockImageService, &handler.MockGeocodingService{})
 
 	// Mock successful upload returning a clean URL
 	mockImageService.On("UploadImage", testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).

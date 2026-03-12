@@ -132,6 +132,16 @@ func (h *ListingHandler) HandleDelete(c echo.Context) error {
 }
 
 func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error {
+	// Auto-populate city from address if missing and GeocodingSvc is available
+	if l.City == "" && l.Address != "" && h.GeocodingSvc != nil {
+		city, err := h.GeocodingSvc.GetCity(c.Request().Context(), l.Address)
+		if err == nil && city != "" {
+			l.City = city
+		} else if err != nil {
+			c.Logger().Errorf("Failed to geocode address: %v", err)
+		}
+	}
+
 	if err := l.Validate(); err != nil {
 		return RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Validation Error: "+err.Error()))
 	}

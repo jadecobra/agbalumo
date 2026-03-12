@@ -18,7 +18,7 @@ import (
 func TestListingHandler_Upload_Malicious(t *testing.T) {
 	// Setup
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewListingHandler(repo, nil, "")
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
 
 	// Create a malicious file (text file disguised as jpg)
 	body := new(bytes.Buffer)
@@ -58,7 +58,7 @@ func TestListingHandler_Upload_Malicious(t *testing.T) {
 func TestListingHandler_Upload_Valid(t *testing.T) {
 	// Setup
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewListingHandler(repo, nil, t.TempDir())
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, t.TempDir())
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)

@@ -36,7 +36,7 @@ func TestHomePageUIValues(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, 2, len(all))
 
-	h := handler.NewListingHandler(repo, nil, "")
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
 	if err := h.HandleHome(c); err != nil {
 		t.Fatal(err)
 	}
