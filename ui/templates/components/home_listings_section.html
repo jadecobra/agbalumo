@@ -29,7 +29,7 @@
             <button hx-get="/listings/fragment?page={{ sub .Page 1 }}" hx-target="#listings-container"
                 hx-indicator="#listings-loading"
                 class="text-earth-clay hover:text-earth-ochre font-bold uppercase tracking-widest text-[10px] md:text-xs flex items-center gap-2 transition-colors">
-                <span class="material-symbols-outlined text-[16px]">arrow_back</span> Previous
+                <span class="material-symbols-outlined text-[16px]">arrow_circle_left</span> Previous
             </button>
             {{ else }}
             <div></div>
@@ -42,7 +42,7 @@
             <button hx-get="/listings/fragment?page={{ add .Page 1 }}" hx-target="#listings-container"
                 hx-indicator="#listings-loading"
                 class="text-earth-clay hover:text-earth-ochre font-bold uppercase tracking-widest text-[10px] md:text-xs flex items-center gap-2 transition-colors">
-                Next <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                Next <span class="material-symbols-outlined text-[16px]">expand_circle_right</span>
             </button>
             {{ else }}
             <div></div>
