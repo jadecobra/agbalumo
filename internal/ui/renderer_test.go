@@ -193,9 +193,10 @@ func TestTemplateRenderer_Render_DisplayCity(t *testing.T) {
 	}{
 		{"with city", "Dallas", "123 Main St", "Dallas"},
 		{"empty city standard address", "", "10051 Whitehurst Dr, Dallas, TX 75243", "Dallas"},
-		{"empty city city only", "", "Houston", "Houston"},
+		{"empty city city only", "", "Houston", ""},
 		{"empty city and address", "", "", ""},
 		{"empty city complex address", "", "10828C Beechnut St, Houston, TX 77072", "Houston"},
+		{"empty city street only", "", "123 Test St", ""},
 	}
 
 	for _, tt := range tests {
@@ -336,19 +337,40 @@ func TestTemplateRenderer_EdgeCases(t *testing.T) {
 		t.Errorf("Expected 'Partial Content', got %s", buf.String())
 	}
 
-	// 3. Test NewTemplateRenderer with no files
-	// Create empty dir
-	emptyDir := t.TempDir()
-	_, err = NewTemplateRenderer(filepath.Join(emptyDir, "*.html"))
+	// 5. Test ParseFiles Errors (Layouts/Partials/Pages)
+	// We'll manually call compileTemplates or trigger it via NewTemplateRenderer with bad files
+	
+	// Create a dir with a bad layout
+	badLayoutDir := t.TempDir()
+	_ = os.Mkdir(filepath.Join(badLayoutDir, "partials"), 0755)
+	_ = os.WriteFile(filepath.Join(badLayoutDir, "base.html"), []byte(`{{ .Oops `), 0644)
+	_ = os.WriteFile(filepath.Join(badLayoutDir, "index.html"), []byte(`Index`), 0644)
+	
+	_, err = NewTemplateRenderer(filepath.Join(badLayoutDir, "*.html"))
 	if err == nil {
-		t.Error("Expected error when no files found, got nil")
+		t.Error("Expected error for bad layout syntax, got nil")
 	}
 
-	// 4. Test Parse Error (Bad Syntax)
-	badSyntaxDir := t.TempDir()
-	_ = os.WriteFile(filepath.Join(badSyntaxDir, "bad.html"), []byte(`{{ .Open `), 0644)
-	_, err = NewTemplateRenderer(filepath.Join(badSyntaxDir, "*.html"))
+	// Create a dir with a bad partial
+	badPartialDir := t.TempDir()
+	badPartSubDir := filepath.Join(badPartialDir, "partials")
+	_ = os.Mkdir(badPartSubDir, 0755)
+	_ = os.WriteFile(filepath.Join(badPartialDir, "index.html"), []byte(`Index`), 0644)
+	_ = os.WriteFile(filepath.Join(badPartSubDir, "bad.html"), []byte(`{{ .Oops `), 0644)
+
+	_, err = NewTemplateRenderer(filepath.Join(badPartialDir, "*.html"), filepath.Join(badPartSubDir, "*.html"))
 	if err == nil {
-		t.Error("Expected error for bad syntax, got nil")
+		t.Error("Expected error for bad partial syntax, got nil")
+	}
+
+	// 6. Test Render Error (Template Not Found)
+	// We already have a renderer from previous steps
+	rec := httptest.NewRecorder()
+	c2 := e.NewContext(httptest.NewRequest(http.MethodGet, "/", nil), rec)
+	
+	// renderer with NO templates
+	emptyRenderer := &TemplateRenderer{templates: make(map[string]*template.Template)}
+	if err := emptyRenderer.Render(rec, "nonexistent", nil, c2); err == nil {
+		t.Error("Expected error for nonexistent template in empty renderer, got nil")
 	}
 }

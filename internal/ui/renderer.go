@@ -116,7 +116,9 @@ func buildGlobalFuncMap() template.FuncMap {
 				// We take the second part if available
 				return strings.TrimSpace(parts[1])
 			}
-			return strings.TrimSpace(parts[0])
+			// If no comma exists, we don't know if it's a city or a street.
+			// To avoid showing "123 Test St" in the city slot, we return empty.
+			return ""
 		},
 	}
 }
