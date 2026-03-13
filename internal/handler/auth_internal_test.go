@@ -20,7 +20,7 @@ func TestRealGoogleProvider_getRedirectURL_BaseURL(t *testing.T) {
 	_ = os.Unsetenv("GOOGLE_REDIRECT_URL")
 
 	p := NewRealGoogleProvider()
-	got := p.getRedirectURL("localhost:8080")
+	got := p.getRedirectURL("http", "localhost:8080")
 
 	assert.Equal(t, "http://192.168.1.5:8080/auth/google/callback", got)
 }
@@ -31,7 +31,7 @@ func TestRealGoogleProvider_getRedirectURL_GoogleRedirectURL(t *testing.T) {
 	defer func() { _ = os.Unsetenv("GOOGLE_REDIRECT_URL") }()
 
 	p := NewRealGoogleProvider()
-	got := p.getRedirectURL("localhost:8080")
+	got := p.getRedirectURL("https", "localhost:8080")
 
 	assert.Equal(t, "https://custom.example.com/callback", got)
 }
@@ -42,7 +42,7 @@ func TestRealGoogleProvider_getRedirectURL_DynamicHTTPS(t *testing.T) {
 	_ = os.Unsetenv("AGBALUMO_ENV")
 
 	p := NewRealGoogleProvider()
-	got := p.getRedirectURL("localhost:8443")
+	got := p.getRedirectURL("https", "localhost:8443")
 
 	assert.Equal(t, "https://localhost:8443/auth/google/callback", got)
 }
@@ -53,7 +53,7 @@ func TestRealGoogleProvider_getRedirectURL_DynamicHTTP(t *testing.T) {
 	_ = os.Unsetenv("AGBALUMO_ENV")
 
 	p := NewRealGoogleProvider()
-	got := p.getRedirectURL("localhost:8080")
+	got := p.getRedirectURL("http", "localhost:8080")
 
 	assert.Equal(t, "http://localhost:8080/auth/google/callback", got)
 }
@@ -65,7 +65,7 @@ func TestRealGoogleProvider_getRedirectURL_Production(t *testing.T) {
 	defer func() { _ = os.Unsetenv("AGBALUMO_ENV") }()
 
 	p := NewRealGoogleProvider()
-	got := p.getRedirectURL("agbalumo.fly.dev")
+	got := p.getRedirectURL("https", "agbalumo.fly.dev")
 
 	assert.Equal(t, "https://agbalumo.fly.dev/auth/google/callback", got)
 }
@@ -78,7 +78,7 @@ func TestRealGoogleProvider_GetAuthCodeURL(t *testing.T) {
 	_ = os.Unsetenv("AGBALUMO_ENV")
 
 	p := NewRealGoogleProvider()
-	url := p.GetAuthCodeURL("test-state", "localhost:8080")
+	url := p.GetAuthCodeURL("test-state", "http", "localhost:8080")
 
 	assert.NotEmpty(t, url)
 	assert.Contains(t, url, "state=test-state")

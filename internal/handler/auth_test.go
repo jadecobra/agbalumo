@@ -23,13 +23,13 @@ type MockGoogleProvider struct {
 	testifyMock.Mock
 }
 
-func (m *MockGoogleProvider) GetAuthCodeURL(state string, host string) string {
-	args := m.Called(state, host)
+func (m *MockGoogleProvider) GetAuthCodeURL(state string, scheme string, host string) string {
+	args := m.Called(state, scheme, host)
 	return args.String(0)
 }
 
-func (m *MockGoogleProvider) Exchange(ctx context.Context, code string, host string) (*oauth2.Token, error) {
-	args := m.Called(ctx, code, host)
+func (m *MockGoogleProvider) Exchange(ctx context.Context, code string, scheme string, host string) (*oauth2.Token, error) {
+	args := m.Called(ctx, code, scheme, host)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
@@ -111,7 +111,7 @@ func TestAuthHandler_GoogleCallback_Success(t *testing.T) {
 	}
 
 	// Mocks
-	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", testifyMock.Anything).Return(token, nil)
+	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", "http", "example.com").Return(token, nil)
 	mockProvider.On("GetUserInfo", testifyMock.Anything, token).Return(gUser, nil)
 
 	// Execute
@@ -140,7 +140,7 @@ func TestAuthHandler_GoogleLogin(t *testing.T) {
 	mockProvider := &MockGoogleProvider{}
 	h := handler.NewAuthHandler(repo, mockProvider, config.LoadConfig())
 
-	mockProvider.On("GetAuthCodeURL", "random-state", testifyMock.Anything).Return("http://google.com/auth")
+	mockProvider.On("GetAuthCodeURL", "random-state", "http", "example.com").Return("http://google.com/auth")
 
 	err := h.GoogleLogin(c)
 
@@ -214,7 +214,7 @@ func TestAuthHandler_GoogleCallback_SaveUserError(t *testing.T) {
 	token := &oauth2.Token{AccessToken: "token"}
 	gUser := &handler.GoogleUser{ID: "g-err", Email: "err@test.com"}
 
-	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", testifyMock.Anything).Return(token, nil)
+	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", "http", "example.com").Return(token, nil)
 	mockProvider.On("GetUserInfo", testifyMock.Anything, token).Return(gUser, nil)
 
 	err := h.GoogleCallback(c)
@@ -253,7 +253,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfile(t *testing.T) {
 	}
 	_ = repo.SaveUser(context.Background(), existingUser)
 
-	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", testifyMock.Anything).Return(token, nil)
+	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", "http", "example.com").Return(token, nil)
 	mockProvider.On("GetUserInfo", testifyMock.Anything, token).Return(gUser, nil)
 
 	err := h.GoogleCallback(c)
@@ -326,7 +326,7 @@ func TestAuthHandler_GoogleCallback_ExchangeError(t *testing.T) {
 	mockProvider := &MockGoogleProvider{}
 	h := handler.NewAuthHandler(repo, mockProvider, config.LoadConfig())
 
-	mockProvider.On("Exchange", testifyMock.Anything, "bad-code", testifyMock.Anything).Return(nil, assert.AnError)
+	mockProvider.On("Exchange", testifyMock.Anything, "bad-code", "http", "example.com").Return(nil, assert.AnError)
 
 	err := h.GoogleCallback(c)
 
@@ -347,7 +347,7 @@ func TestAuthHandler_GoogleCallback_GetUserInfoError(t *testing.T) {
 	h := handler.NewAuthHandler(repo, mockProvider, config.LoadConfig())
 
 	token := &oauth2.Token{AccessToken: "token"}
-	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", testifyMock.Anything).Return(token, nil)
+	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", "http", "example.com").Return(token, nil)
 	mockProvider.On("GetUserInfo", testifyMock.Anything, token).Return(nil, assert.AnError)
 
 	err := h.GoogleCallback(c)
@@ -389,7 +389,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfileSaveError(t *testing.T) {
 	}
 	_ = repo.SaveUser(context.Background(), existingUser)
 
-	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", testifyMock.Anything).Return(token, nil)
+	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", "http", "example.com").Return(token, nil)
 	mockProvider.On("GetUserInfo", testifyMock.Anything, token).Return(gUser, nil)
 
 	err := h.GoogleCallback(c)
@@ -412,7 +412,7 @@ func TestAuthHandler_SetSessionAndRedirect_NilSession(t *testing.T) {
 	token := &oauth2.Token{AccessToken: "token"}
 	gUser := &handler.GoogleUser{ID: "g-no-session", Email: "no-session@test.com", Name: "Test", Picture: "http://pic.com"}
 
-	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", testifyMock.Anything).Return(token, nil)
+	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", "http", "example.com").Return(token, nil)
 	mockProvider.On("GetUserInfo", testifyMock.Anything, token).Return(gUser, nil)
 
 	err := h.GoogleCallback(c)
@@ -471,7 +471,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfile_NoChanges(t *testing.T) {
 	}
 	_ = repo.SaveUser(context.Background(), existingUser)
 
-	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", testifyMock.Anything).Return(token, nil)
+	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", "http", "example.com").Return(token, nil)
 	mockProvider.On("GetUserInfo", testifyMock.Anything, token).Return(gUser, nil)
 
 	err := h.GoogleCallback(c)

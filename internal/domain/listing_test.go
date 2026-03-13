@@ -98,6 +98,12 @@ func TestContactRequirement(t *testing.T) {
 	listing.ContactPhone = "+2348000000000"
 	err = listing.Validate()
 	assert.NoError(t, err)
+
+	// With Website only (New Requirement)
+	listing.ContactPhone = ""
+	listing.WebsiteURL = "https://example.com"
+	err = listing.Validate()
+	assert.NoError(t, err)
 }
 
 func TestOriginValidation(t *testing.T) {

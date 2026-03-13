@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -31,8 +32,8 @@ type GoogleUser struct {
 }
 
 type GoogleProvider interface {
-	GetAuthCodeURL(state string, host string) string
-	Exchange(ctx context.Context, code string, host string) (*oauth2.Token, error)
+	GetAuthCodeURL(state string, scheme string, host string) string
+	Exchange(ctx context.Context, code string, scheme string, host string) (*oauth2.Token, error)
 	GetUserInfo(ctx context.Context, token *oauth2.Token) (*GoogleUser, error)
 }
 
@@ -41,46 +42,60 @@ type RealGoogleProvider struct {
 }
 
 func NewRealGoogleProvider() *RealGoogleProvider {
+	clientID := os.Getenv("GOOGLE_CLIENT_ID")
+	clientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
+
+	if clientID == "" || clientSecret == "" {
+		fmt.Fprintf(os.Stderr, "WARNING: GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET not set. OAuth will fail.\n")
+	}
+
 	config := &oauth2.Config{
-		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
-		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"},
 		Endpoint:     google.Endpoint,
 	}
 	return &RealGoogleProvider{config: config}
 }
 
-func (p *RealGoogleProvider) getRedirectURL(host string) string {
-	// 1. Prefer BASE_URL (e.g. http://192.168.1.5:8080)
+func (p *RealGoogleProvider) getRedirectURL(scheme string, host string) string {
+	// 1. Prefer BASE_URL if set (must include scheme and host)
 	baseURL := os.Getenv("BASE_URL")
 	if baseURL != "" {
 		return fmt.Sprintf("%s/auth/google/callback", baseURL)
 	}
 
-	// 2. Fallback to GOOGLE_REDIRECT_URL (Legacy)
+	// 2. Fallback to GOOGLE_REDIRECT_URL (Explicit)
 	redirectURL := os.Getenv("GOOGLE_REDIRECT_URL")
 	if redirectURL != "" {
 		return redirectURL
 	}
-	// 3. Default to dynamic host
-	scheme := "http"
-	if host == "localhost:8443" || os.Getenv("AGBALUMO_ENV") == "production" {
-		scheme = "https"
+
+	// 3. Robust dynamic host/scheme detection
+	if scheme == "" {
+		scheme = "http"
+		// Secure by default if port matches standard TLS or in production
+		if strings.HasSuffix(host, ":8443") || os.Getenv("AGBALUMO_ENV") == "production" {
+			scheme = "https"
+		}
 	}
-	return fmt.Sprintf("%s://%s/auth/google/callback", scheme, host)
+
+	generated := fmt.Sprintf("%s://%s/auth/google/callback", scheme, host)
+	fmt.Printf("[DEBUG] OAuth Redirect URI: %s\n", generated)
+	return generated
 }
 
-func (p *RealGoogleProvider) GetAuthCodeURL(state string, host string) string {
+func (p *RealGoogleProvider) GetAuthCodeURL(state string, scheme string, host string) string {
 	// Create a copy of the config with the dynamic redirect URL
 	cfg := *p.config
-	cfg.RedirectURL = p.getRedirectURL(host)
+	cfg.RedirectURL = p.getRedirectURL(scheme, host)
 	return cfg.AuthCodeURL(state)
 }
 
-func (p *RealGoogleProvider) Exchange(ctx context.Context, code string, host string) (*oauth2.Token, error) {
+func (p *RealGoogleProvider) Exchange(ctx context.Context, code string, scheme string, host string) (*oauth2.Token, error) {
 	// Create a copy of the config with the dynamic redirect URL
 	cfg := *p.config
-	cfg.RedirectURL = p.getRedirectURL(host)
+	cfg.RedirectURL = p.getRedirectURL(scheme, host)
 	return cfg.Exchange(ctx, code)
 }
 
@@ -152,7 +167,7 @@ func (h *AuthHandler) DevLogin(c echo.Context) error {
 }
 
 func (h *AuthHandler) GoogleLogin(c echo.Context) error {
-	url := h.GoogleProvider.GetAuthCodeURL("random-state", c.Request().Host)
+	url := h.GoogleProvider.GetAuthCodeURL("random-state", c.Scheme(), c.Request().Host)
 	return c.Redirect(http.StatusTemporaryRedirect, url)
 }
 
@@ -163,7 +178,7 @@ func (h *AuthHandler) GoogleCallback(c echo.Context) error {
 	}
 
 	code := c.QueryParam("code")
-	token, err := h.GoogleProvider.Exchange(c.Request().Context(), code, c.Request().Host)
+	token, err := h.GoogleProvider.Exchange(c.Request().Context(), code, c.Scheme(), c.Request().Host)
 	if err != nil {
 		return RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Code exchange failed"))
 	}

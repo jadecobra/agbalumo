@@ -71,7 +71,11 @@ func TestRealGoogleProvider_GetRedirectURL(t *testing.T) {
 			}
 
 			p := handler.NewRealGoogleProvider()
-			rawURL := p.GetAuthCodeURL("state", tt.host)
+			scheme := "http"
+			if tt.host == "localhost:8443" || tt.env["AGBALUMO_ENV"] == "production" {
+				scheme = "https"
+			}
+			rawURL := p.GetAuthCodeURL("state", scheme, tt.host)
 			
 			decodedURL, err := url.QueryUnescape(rawURL)
 			assert.NoError(t, err)

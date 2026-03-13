@@ -143,7 +143,7 @@ func (l *Listing) Validate() error {
 		}
 	}
 
-	if l.ContactEmail == "" && l.ContactWhatsApp == "" && l.ContactPhone == "" {
+	if l.ContactEmail == "" && l.ContactWhatsApp == "" && l.ContactPhone == "" && l.WebsiteURL == "" {
 		return ErrMissingContact
 	}
 
