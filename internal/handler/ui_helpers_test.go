@@ -1,16 +1,14 @@
 package handler_test
 
 import (
-	"encoding/json"
 	"html/template"
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
-	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/jadecobra/agbalumo/internal/ui"
 )
 
 // RealTemplateRenderer parses actual files from ui/templates
@@ -39,42 +37,7 @@ func NewRealTemplateForPage(t *testing.T, pageName string) *template.Template {
 	partialPattern := filepath.Join(projectRoot, "ui", "templates", "partials", "*.html")
 	componentPattern := filepath.Join(projectRoot, "ui", "templates", "components", "*.html")
 
-	funcMap := template.FuncMap{
-		"mod":   func(i, j int) int { return i % j },
-		"add":   func(i, j int) int { return i + j },
-		"sub":   func(i, j int) int { return i - j },
-		"split": strings.Split,
-		"dict": func(values ...interface{}) (map[string]interface{}, error) {
-			if len(values)%2 != 0 {
-				return nil, nil
-			}
-			dict := make(map[string]interface{}, len(values)/2)
-			for i := 0; i < len(values); i += 2 {
-				key, ok := values[i].(string)
-				if !ok {
-					return nil, nil
-				}
-				dict[key] = values[i+1]
-			}
-			return dict, nil
-		},
-		"toJson": func(v interface{}) (template.JS, error) {
-			b, jErr := json.Marshal(v)
-			if jErr != nil {
-				return "", jErr
-			}
-			return template.JS(b), nil
-		},
-		"isNew": func(createdAt time.Time) bool {
-			if createdAt.IsZero() {
-				return false
-			}
-			return time.Since(createdAt) < 7*24*time.Hour
-		},
-		"safeHTML": func(s string) template.HTML {
-			return template.HTML(s)
-		},
-	}
+	funcMap := ui.BuildGlobalFuncMap()
 
 	// We parse base.html, error.html and the specific page
 	tmpl := template.New("base").Funcs(funcMap)

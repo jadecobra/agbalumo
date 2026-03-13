@@ -33,7 +33,7 @@ func NewTemplateRenderer(patterns ...string) (*TemplateRenderer, error) {
 	}
 
 	layoutFiles, partialFiles, pageFiles := categorizeTemplateFiles(allFiles)
-	funcMap := buildGlobalFuncMap()
+	funcMap := BuildGlobalFuncMap()
 
 	templates, err := compileTemplates(layoutFiles, partialFiles, pageFiles, funcMap)
 	if err != nil {
@@ -59,7 +59,7 @@ func categorizeTemplateFiles(files []string) (layouts, partials, pages []string)
 	return
 }
 
-func buildGlobalFuncMap() template.FuncMap {
+func BuildGlobalFuncMap() template.FuncMap {
 	return template.FuncMap{
 		"split": strings.Split,
 		"mod":   func(i, j int) int { return i % j },
