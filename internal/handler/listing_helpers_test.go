@@ -2,15 +2,13 @@ package handler_test
 
 import (
 	"context"
-	"encoding/json"
 	"html/template"
 	"io"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
-	"strings"
-	"time"
 
+	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
 	testifyMock "github.com/stretchr/testify/mock"
 )
@@ -25,43 +23,7 @@ func (t *TestRenderer) Render(w io.Writer, name string, data interface{}, c echo
 }
 
 func NewMainTemplate() *template.Template {
-	funcMap := template.FuncMap{
-		"mod":   func(i, j int) int { return i % j },
-		"add":   func(i, j int) int { return i + j },
-		"sub":   func(i, j int) int { return i - j },
-		"split": strings.Split,
-		"dict": func(values ...interface{}) (map[string]interface{}, error) {
-			if len(values)%2 != 0 {
-				return nil, nil
-			}
-			dict := make(map[string]interface{}, len(values)/2)
-			for i := 0; i < len(values); i += 2 {
-				key, ok := values[i].(string)
-				if !ok {
-					return nil, nil
-				}
-				dict[key] = values[i+1]
-			}
-			return dict, nil
-		},
-		"toJson": func(v interface{}) (template.JS, error) {
-			b, jErr := json.Marshal(v)
-			if jErr != nil {
-				return "", jErr
-			}
-			return template.JS(b), nil
-		},
-		"isNew": func(createdAt time.Time) bool {
-			if createdAt.IsZero() {
-				return false
-			}
-			return time.Since(createdAt) < 7*24*time.Hour
-		},
-		"safeHTML": func(s string) template.HTML {
-			return template.HTML(s)
-		},
-	}
-	return template.Must(template.New("listing").Funcs(funcMap).Parse(`
+	return template.Must(template.New("listing").Funcs(ui.BuildGlobalFuncMap()).Parse(`
 		{{define "index.html"}}{{.TotalCount}} {{range .Listings}}{{.Title}}{{end}}{{end}}
 		{{define "modal_detail"}}{{.Listing.Title}}{{end}}
 		{{define "listing_list"}}{{range .Listings}}{{.Title}}{{end}}{{template "pagination_controls" dict "OOB" true}}{{end}}

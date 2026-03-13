@@ -5,29 +5,14 @@ import (
 	"html/template"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/ui"
 )
 
 // TestListingCardRendering verifies the logic within listing_card.html
 func TestListingCardRendering(t *testing.T) {
-	tmpl := template.New("listing_card.html").Funcs(template.FuncMap{
-		"dict": func(values ...interface{}) (map[string]interface{}, error) {
-			dict := make(map[string]interface{}, len(values)/2)
-			for i := 0; i < len(values); i += 2 {
-				key, _ := values[i].(string)
-				dict[key] = values[i+1]
-			}
-			return dict, nil
-		},
-		"isNew": func(createdAt time.Time) bool {
-			return false
-		},
-		"displayCity": func(city, address string) string {
-			return city
-		},
-	})
+	tmpl := template.New("listing_card.html").Funcs(ui.BuildGlobalFuncMap())
 
 	_, err := tmpl.ParseFiles("../../ui/templates/partials/listing_card.html")
 	if err != nil {

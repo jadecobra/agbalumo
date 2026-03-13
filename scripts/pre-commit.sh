@@ -98,6 +98,13 @@ else
     echo "  ${YELLOW}skipping Agent Drift (no relevant changes)${NC}"
 fi
 
+# 3.2 Template Function Drift Check
+if [ -n "$STAGED_SEC_FILES" ]; then
+    run_task "template_drift" "Template Drift" "$LOG_DIR" bash scripts/template-func-drift-check.sh &
+else
+    echo "  ${YELLOW}skipping Template Draft (no relevant changes)${NC}"
+fi
+
 # 4. Performance Audit
 if [ -n "$STAGED_PERF_FILES" ]; then
     run_task "perf" "Performance Audit" "$LOG_DIR" sh scripts/performance-audit.sh &
