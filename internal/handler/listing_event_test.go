@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/stretchr/testify/assert"
@@ -16,7 +17,7 @@ import (
 
 func TestHandleCreate_EventParsing(t *testing.T) {
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 
 	// Create form data
 	form := url.Values{}

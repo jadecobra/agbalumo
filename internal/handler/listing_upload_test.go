@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/labstack/echo/v4"
@@ -18,7 +19,7 @@ import (
 func TestListingHandler_Upload_Malicious(t *testing.T) {
 	// Setup
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 
 	// Create a malicious file (text file disguised as jpg)
 	body := new(bytes.Buffer)
@@ -58,7 +59,7 @@ func TestListingHandler_Upload_Malicious(t *testing.T) {
 func TestListingHandler_Upload_Valid(t *testing.T) {
 	// Setup
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, t.TempDir())
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)

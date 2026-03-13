@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/stretchr/testify/assert"
@@ -23,7 +24,7 @@ func TestHandleCreate_GeocodingFallback(t *testing.T) {
 		},
 	}
 
-	h := handler.NewListingHandler(repo, nil, mockGeocoding)
+	h := handler.NewListingHandler(repo, nil, mockGeocoding, &config.Config{})
 	
 	// Create context with a user
 	body := "title=Google+HQ&type=Business&owner_origin=Nigeria&description=Tech+Giant+HQ&contact_email=info@google.com&address=1600+Amphitheatre+Parkway,+Mountain+View,+CA"

@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/stretchr/testify/assert"
@@ -54,7 +55,7 @@ func TestHandleCreate(t *testing.T) {
 			repo := handler.SetupTestRepository(t)
 			tt.setup(t, repo)
 
-			h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+			h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 			c.Set("User", domain.User{ID: "test-user-id"})
 
 			_ = h.HandleCreate(c)
@@ -102,7 +103,7 @@ func TestHandleEdit(t *testing.T) {
 
 			repo := handler.SetupTestRepository(t)
 			tt.setup(t, repo)
-			h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+			h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 
 			_ = h.HandleEdit(c)
 
@@ -150,7 +151,7 @@ func TestHandleUpdate(t *testing.T) {
 			repo := handler.SetupTestRepository(t)
 			tt.setup(t, repo)
 
-			h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+			h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 			_ = h.HandleUpdate(c)
 
 			assert.Equal(t, tt.expectedStatus, rec.Code)
@@ -220,7 +221,7 @@ func TestHandleDelete(t *testing.T) {
 			repo := handler.SetupTestRepository(t)
 			tt.setup(t, repo)
 
-			h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+			h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 			_ = h.HandleDelete(c)
 
 			assert.Equal(t, tt.expectCode, rec.Code)
@@ -239,7 +240,7 @@ func TestHandleClaim(t *testing.T) {
 	c.SetParamValues("1")
 	c.Set("User", domain.User{ID: "claimer", Name: "Claimer", Email: "c@e.com"})
 
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 	_ = h.HandleClaim(c)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
@@ -253,7 +254,7 @@ func TestHandleUpdate_NotFound(t *testing.T) {
 	c.SetParamValues("1")
 	c.Set("User", domain.User{ID: "user1"})
 
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 	_ = h.HandleUpdate(c)
 	assert.Equal(t, http.StatusNotFound, rec.Code)
 }
@@ -265,7 +266,7 @@ func TestHandleUpdate_NoUser(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues("1")
 
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 	_ = h.HandleUpdate(c)
 	assert.Equal(t, http.StatusUnauthorized, rec.Code)
 }
@@ -282,7 +283,7 @@ func TestHandleUpdate_DuplicateTitle(t *testing.T) {
 	c.SetParamValues("1")
 	c.Set("User", domain.User{ID: "user1"})
 
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 	_ = h.HandleUpdate(c)
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 }
@@ -292,7 +293,7 @@ func TestHandleCreate_NoUser(t *testing.T) {
 	body := "title=Test&type=Business&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&city=Lagos&address=123+St"
 	c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(body))
 
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 	_ = h.HandleCreate(c)
 	assert.Equal(t, http.StatusUnauthorized, rec.Code)
 }
@@ -305,7 +306,7 @@ func TestHandleCreate_DuplicateTitle(t *testing.T) {
 	c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(body))
 	c.Set("User", domain.User{ID: "user1"})
 
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 	_ = h.HandleCreate(c)
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 }

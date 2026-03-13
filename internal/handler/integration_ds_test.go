@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/labstack/echo/v4"
@@ -25,7 +26,7 @@ func TestIntegration_DataValidation(t *testing.T) {
 
 	for _, bodyStr := range goodData {
 		repo := handler.SetupTestRepository(t)
-		h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+		h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 
 		req := httptest.NewRequest(http.MethodPost, "/listings", strings.NewReader(bodyStr))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
@@ -77,7 +78,7 @@ func TestIntegration_DataValidation(t *testing.T) {
 	for _, tc := range badData {
 		t.Run(tc.name, func(t *testing.T) {
 			repo := handler.SetupTestRepository(t)
-			h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+			h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 
 			req := httptest.NewRequest(http.MethodPost, "/listings", strings.NewReader(tc.body))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)

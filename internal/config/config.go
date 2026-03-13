@@ -17,6 +17,7 @@ type Config struct {
 	RateLimitBurst   int
 	UploadDir        string
 	GoogleMapsAPIKey string
+	HasGoogleAuth    bool
 }
 
 func LoadConfig() *Config {
@@ -29,6 +30,10 @@ func LoadConfig() *Config {
 		}
 	}
 
+	clientID := os.Getenv("GOOGLE_CLIENT_ID")
+	clientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
+	hasGoogleAuth := clientID != "" && clientSecret != ""
+
 	return &Config{
 		Env:              env,
 		DatabaseURL:      getEnv("DATABASE_URL", ".tester/data/agbalumo.db"),
@@ -39,6 +44,7 @@ func LoadConfig() *Config {
 		RateLimitBurst:   getEnvAsInt("RATE_LIMIT_BURST", 40),
 		UploadDir:        uploadDir,
 		GoogleMapsAPIKey: getEnv("GOOGLE_MAPS_API_KEY", ""),
+		HasGoogleAuth:    hasGoogleAuth,
 	}
 }
 

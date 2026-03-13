@@ -11,6 +11,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/labstack/echo/v4"
@@ -39,7 +40,7 @@ func TestHandleCreate_WithImage(t *testing.T) {
 	c, rec := setupTestContext(http.MethodPost, "/listings", body)
 	c.Request().Header.Set(echo.HeaderContentType, writer.FormDataContentType())
 
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, t.TempDir())
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 	c.Set("User", domain.User{ID: "u1"})
 
 	if err := h.HandleCreate(c); err != nil {
@@ -71,7 +72,7 @@ func TestHandleCreate_InvalidDates(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			repo := handler.SetupTestRepository(t)
 			c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
-			h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+			h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 			c.Set("User", domain.User{ID: "u1"})
 			_ = h.HandleCreate(c)
 			assert.Equal(t, tt.expectedStatus, rec.Code)
@@ -94,7 +95,7 @@ func TestHandleCreate_ImageUploadError(t *testing.T) {
 	mockImageService := &MockImageService{}
 	mockImageService.On("UploadImage", testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).Return("", errors.New("upload fail"))
 
-	h := handler.NewListingHandler(repo, mockImageService, &handler.MockGeocodingService{})
+	h := handler.NewListingHandler(repo, mockImageService, &handler.MockGeocodingService{}, &config.Config{})
 	c.Set("User", domain.User{ID: "u1"})
 
 	_ = h.HandleCreate(c)
@@ -104,7 +105,7 @@ func TestHandleCreate_ImageUploadError(t *testing.T) {
 func TestHandleProfile_NoUser(t *testing.T) {
 	repo := handler.SetupTestRepository(t)
 	c, rec := setupTestContext(http.MethodGet, "/profile", nil)
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 	_ = h.HandleProfile(c)
 	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
 }

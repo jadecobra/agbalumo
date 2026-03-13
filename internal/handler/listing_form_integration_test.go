@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/stretchr/testify/assert"
@@ -74,7 +75,7 @@ func TestListingHandler_FormParsing(t *testing.T) {
 			repo := handler.SetupTestRepository(t)
 			tt.setup(t, repo)
 
-			h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+			h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 			c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
 			c.Set("User", domain.User{ID: "user-1"})
 
@@ -95,7 +96,7 @@ func TestListingHandler_FormParsing(t *testing.T) {
 
 func TestListingHandler_URLNormalization(t *testing.T) {
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 
 	tests := []struct {
 		name     string

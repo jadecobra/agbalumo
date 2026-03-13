@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/labstack/echo/v4"
@@ -33,7 +34,7 @@ func TestHandleHome(t *testing.T) {
 	})
 	_ = repo.SaveCategory(ctx, domain.CategoryData{ID: string(domain.Business), Name: "Business", Active: true})
 
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 	if err := h.HandleHome(c); err != nil {
 		t.Fatal(err)
 	}
@@ -64,7 +65,7 @@ func TestHandleDetail(t *testing.T) {
 		OwnerOrigin:  "Nigeria",
 	})
 
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 	if err := h.HandleDetail(c); err != nil {
 		t.Fatal(err)
 	}
@@ -96,7 +97,7 @@ func TestHandleProfile(t *testing.T) {
 		Type:         domain.Business,
 	})
 
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 	if err := h.HandleProfile(c); err != nil {
 		t.Fatal(err)
 	}
@@ -113,7 +114,7 @@ func TestHandleAbout(t *testing.T) {
 
 	repo := handler.SetupTestRepository(t)
 
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 	if err := h.HandleAbout(c); err != nil {
 		t.Fatal(err)
 	}
@@ -145,7 +146,7 @@ func TestHandleFragment(t *testing.T) {
 		})
 	}
 
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 	if err := h.HandleFragment(c); err != nil {
 		t.Fatal(err)
 	}

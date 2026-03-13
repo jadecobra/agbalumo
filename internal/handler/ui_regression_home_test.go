@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/labstack/echo/v4"
@@ -36,7 +37,7 @@ func TestHomePageUIValues(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, 2, len(all))
 
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 	if err := h.HandleHome(c); err != nil {
 		t.Fatal(err)
 	}

@@ -167,6 +167,9 @@ func (h *AuthHandler) DevLogin(c echo.Context) error {
 }
 
 func (h *AuthHandler) GoogleLogin(c echo.Context) error {
+	if !h.Cfg.HasGoogleAuth {
+		return RespondError(c, echo.NewHTTPError(http.StatusServiceUnavailable, "Google OAuth is not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env"))
+	}
 	url := h.GoogleProvider.GetAuthCodeURL("random-state", c.Scheme(), c.Request().Host)
 	return c.Redirect(http.StatusTemporaryRedirect, url)
 }

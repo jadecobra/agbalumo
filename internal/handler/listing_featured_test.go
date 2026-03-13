@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/labstack/echo/v4"
@@ -35,7 +36,7 @@ func TestHandleHome_FeaturedPrioritization(t *testing.T) {
 	_ = repo.Save(context.Background(), r1)
 	_ = repo.Save(context.Background(), r2)
 
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 
 	if err := h.HandleHome(c); err != nil {
 		t.Fatalf("HandleHome failed: %v", err)
@@ -79,7 +80,7 @@ func TestHandleFragment_FeaturedPrioritization(t *testing.T) {
 	_ = repo.Save(context.Background(), f1)
 	_ = repo.Save(context.Background(), r1)
 
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 
 	if err := h.HandleFragment(c); err != nil {
 		t.Fatalf("HandleFragment failed: %v", err)

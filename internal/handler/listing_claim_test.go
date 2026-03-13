@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/stretchr/testify/assert"
@@ -83,7 +84,7 @@ func TestListingHandler_HandleClaim(t *testing.T) {
 				tt.setup(t, repo)
 			}
 
-			h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{})
+			h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
 
 			c, rec := setupTestContext(http.MethodPost, "/listings/listing1/claim", nil)
 			c.SetParamNames("id")

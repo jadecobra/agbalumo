@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/service"
 	"github.com/labstack/echo/v4"
@@ -16,9 +17,10 @@ type ListingHandler struct {
 	ListingSvc       domain.ListingService
 	GeocodingSvc     domain.GeocodingService
 	GoogleMapsAPIKey string
+	Cfg              *config.Config
 }
 
-func NewListingHandler(repo domain.ListingRepository, imageService domain.ImageService, geocodingSvc domain.GeocodingService, opts ...string) *ListingHandler {
+func NewListingHandler(repo domain.ListingRepository, imageService domain.ImageService, geocodingSvc domain.GeocodingService, cfg *config.Config, opts ...string) *ListingHandler {
 	var uploadDir string
 	if len(opts) > 0 {
 		uploadDir = opts[0]
@@ -32,6 +34,7 @@ func NewListingHandler(repo domain.ListingRepository, imageService domain.ImageS
 		ImageService: imageService,
 		ListingSvc:   listingSvc,
 		GeocodingSvc: geocodingSvc,
+		Cfg:          cfg,
 	}
 }
 
@@ -240,6 +243,8 @@ func (h *ListingHandler) renderWithBaseContext(c echo.Context, tmpl string, data
 	}
 
 	data["Categories"] = categories
+	data["Env"] = h.Cfg.Env
+	data["HasGoogleAuth"] = h.Cfg.HasGoogleAuth
 	return c.Render(http.StatusOK, tmpl, data)
 }
 

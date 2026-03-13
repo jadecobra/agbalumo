@@ -91,11 +91,22 @@
                     </button>
                 </div>
                 {{ else }}
-                <a href="/auth/google/login" aria-label="Sign In"
-                    class="flex items-center gap-2 bg-secondary/10 hover:bg-secondary/20 text-secondary dark:text-green-400 dark:hover:bg-green-900/30 px-4 h-10  transition-all font-semibold font-display text-sm whitespace-nowrap">
-                    <span class="material-symbols-outlined text-[18px]">login</span>
-                    Sign In
-                </a>
+                <div class="flex items-center gap-2">
+                    {{ if eq .Env "development" }}
+                    <a href="/auth/dev" aria-label="Dev Login"
+                        class="flex items-center gap-2 bg-earth-ochre/10 hover:bg-earth-ochre/20 text-earth-ochre px-4 h-10 transition-all font-semibold font-display text-[10px] uppercase tracking-widest border border-earth-ochre/20"
+                        title="Quick Login for Development">
+                        <span class="material-symbols-outlined text-[18px]">developer_mode</span>
+                        Dev Login
+                    </a>
+                    {{ end }}
+                    <a href="/auth/google/login" aria-label="Sign In"
+                        class="flex items-center gap-2 bg-secondary/10 hover:bg-secondary/20 text-secondary dark:text-green-400 dark:hover:bg-green-900/30 px-4 h-10 transition-all font-semibold font-display text-sm whitespace-nowrap {{ if not .HasGoogleAuth }}opacity-50{{ end }}"
+                        {{ if not .HasGoogleAuth }}title="Google OAuth not configured in .env"{{ end }}>
+                        <span class="material-symbols-outlined text-[18px]">login</span>
+                        Sign In
+                    </a>
+                </div>
                 {{ end }}
             </div>
         </div>
