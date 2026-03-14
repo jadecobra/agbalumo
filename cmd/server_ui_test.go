@@ -23,6 +23,8 @@ func TestMain(m *testing.M) {
 	_ = os.Setenv("RATE_LIMIT_RATE", "10000")
 	_ = os.Setenv("RATE_LIMIT_BURST", "20000")
 	_ = os.Setenv("DATABASE_URL", "file:test_ui.db?mode=memory&cache=shared")
+	_ = os.Setenv("GOOGLE_CLIENT_ID", "dummy_client_id")
+	_ = os.Setenv("GOOGLE_CLIENT_SECRET", "dummy_client_secret")
 	// SetupServer handles seeding as long as ENV != "production"
 	var err error
 
