@@ -76,7 +76,9 @@ func TestAuthHandler_GoogleCallback_StateMismatch(t *testing.T) {
 
 	repo := handler.SetupTestRepository(t)
 	mockProvider := &MockGoogleProvider{}
-	h := handler.NewAuthHandler(repo, mockProvider, config.LoadConfig())
+	cfg := config.LoadConfig()
+	cfg.HasGoogleAuth = true
+	h := handler.NewAuthHandler(repo, mockProvider, cfg)
 
 	err := h.GoogleCallback(c)
 
@@ -100,7 +102,9 @@ func TestAuthHandler_GoogleCallback_Success(t *testing.T) {
 
 	repo := handler.SetupTestRepository(t)
 	mockProvider := &MockGoogleProvider{}
-	h := handler.NewAuthHandler(repo, mockProvider, config.LoadConfig())
+	cfg := config.LoadConfig()
+	cfg.HasGoogleAuth = true
+	h := handler.NewAuthHandler(repo, mockProvider, cfg)
 
 	token := &oauth2.Token{AccessToken: "access-token"}
 	gUser := &handler.GoogleUser{
@@ -138,7 +142,9 @@ func TestAuthHandler_GoogleLogin(t *testing.T) {
 
 	repo := handler.SetupTestRepository(t)
 	mockProvider := &MockGoogleProvider{}
-	h := handler.NewAuthHandler(repo, mockProvider, config.LoadConfig())
+	cfg := config.LoadConfig()
+	cfg.HasGoogleAuth = true
+	h := handler.NewAuthHandler(repo, mockProvider, cfg)
 
 	mockProvider.On("GetAuthCodeURL", "random-state", "http", "example.com").Return("http://google.com/auth")
 

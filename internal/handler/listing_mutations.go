@@ -132,13 +132,20 @@ func (h *ListingHandler) HandleDelete(c echo.Context) error {
 }
 
 func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error {
-	// Auto-populate city from address if missing and GeocodingSvc is available
-	if l.City == "" && l.Address != "" && h.GeocodingSvc != nil {
-		city, err := h.GeocodingSvc.GetCity(c.Request().Context(), l.Address)
-		if err == nil && city != "" {
-			l.City = city
-		} else if err != nil {
-			c.Logger().Errorf("Failed to geocode address: %v", err)
+	// Auto-populate city from address if missing
+	if l.City == "" && l.Address != "" {
+		if h.GeocodingSvc != nil {
+			city, err := h.GeocodingSvc.GetCity(c.Request().Context(), l.Address)
+			if err == nil && city != "" {
+				l.City = city
+			} else if err != nil {
+				c.Logger().Errorf("Failed to geocode address: %v", err)
+			}
+		}
+
+		// Last resort: Try to extract city manually if still empty
+		if l.City == "" {
+			l.City = extractCityFromAddress(l.Address)
 		}
 	}
 
@@ -170,6 +177,22 @@ func (h *ListingHandler) handleImageUpload(c echo.Context, l *domain.Listing) er
 		return err
 	}
 	return nil
+}
+
+// extractCityFromAddress tries to guess the city from an address string.
+// Assumes formats like "Street, City, Country" or "City, Country".
+func extractCityFromAddress(address string) string {
+	parts := strings.Split(address, ",")
+	// If 3 parts, middle is usually city
+	if len(parts) >= 3 {
+		return strings.TrimSpace(parts[1])
+	}
+	// If 2 parts, first is usually city
+	if len(parts) == 2 {
+		return strings.TrimSpace(parts[0])
+	}
+	// Fallback to the whole string if it's short, or just return it
+	return strings.TrimSpace(address)
 }
 
 // normalizeURL ensures the given string url has a 'http://' or 'https://' prefix.

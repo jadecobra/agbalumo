@@ -10,6 +10,14 @@
             <option value="approve" class="bg-earth-dark">Approve Selected</option>
             <option value="reject" class="bg-earth-dark">Reject Selected</option>
             <option value="delete" class="bg-earth-dark">Delete Selected</option>
+            <option value="change_category" class="bg-earth-dark">Change Category</option>
+        </select>
+        <select name="new_category" id="newCategorySelect"
+            class="hidden text-[10px] uppercase tracking-widest font-bold bg-white/5 border-white/10 text-white focus:outline-none focus:border-earth-ochre px-4 py-2 transition-colors">
+            <option value="" class="bg-earth-dark">Select Category...</option>
+            {{ range .Categories }}
+            <option value="{{ .ID }}" class="bg-earth-dark">{{ .Name }}</option>
+            {{ end }}
         </select>
         <button type="submit"
             class="bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark text-[10px] font-bold uppercase tracking-widest py-2 px-6 transition-all disabled:opacity-30 disabled:grayscale"

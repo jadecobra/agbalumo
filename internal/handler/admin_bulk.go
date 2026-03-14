@@ -34,6 +34,8 @@ func (h *AdminHandler) HandleBulkAction(c echo.Context) error {
 		return c.Redirect(http.StatusFound, "/admin/listings/delete-confirm?"+query.Encode())
 	}
 
+	newCategory := c.FormValue("new_category")
+
 	successCount := 0
 	// Safe bounded admin action: N+1 here is acceptable because batch sizes are limited
 	// by pagination (e.g. 50 items) and SQLite connection overhead is negligible.
@@ -50,6 +52,12 @@ func (h *AdminHandler) HandleBulkAction(c echo.Context) error {
 		case "reject":
 			listing.Status = domain.ListingStatusRejected
 			listing.IsActive = false
+		case "change_category":
+			if newCategory != "" {
+				listing.Type = domain.Category(newCategory)
+			} else {
+				continue
+			}
 		default:
 			continue // Unknown action
 		}

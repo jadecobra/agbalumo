@@ -211,8 +211,14 @@ func (h *ListingHandler) HandleEdit(c echo.Context) error {
 		return RespondError(c, echo.NewHTTPError(http.StatusForbidden, "You are not the owner of this listing"))
 	}
 
+	targetID := c.QueryParam("target")
+	if targetID == "" {
+		targetID = "listing-" + listing.ID
+	}
+
 	return h.renderWithBaseContext(c, "modal_edit_listing", map[string]interface{}{
 		"Listing":          listing,
+		"TargetID":         targetID,
 		"GoogleMapsApiKey": h.GoogleMapsAPIKey,
 	})
 }

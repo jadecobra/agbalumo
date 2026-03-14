@@ -40,6 +40,11 @@ func TestAdminHandler_HandleBulkUpload(t *testing.T) {
 
 	repo := handler.SetupTestRepository(t)
 	h := handler.NewAdminHandler(repo, service.NewCSVService(), config.LoadConfig())
+	
+	store := middleware.NewTestSessionStore()
+	session, _ := store.Get(c.Request(), "auth_session")
+	c.Set("session", session)
+
 	err := h.HandleBulkUpload(c)
 
 	assert.NoError(t, err)
@@ -50,6 +55,29 @@ func TestAdminHandler_HandleBulkUpload(t *testing.T) {
 	listings, _ := repo.FindByTitle(context.Background(), "Test Biz")
 	assert.Len(t, listings, 1)
 	assert.Equal(t, "Test Biz", listings[0].Title)
+}
+
+func TestAdminHandler_HandleBulkUpload_InvalidCSV(t *testing.T) {
+	e := echo.New()
+	// Junk content
+	body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+	part, _ := writer.CreateFormFile("csv_file", "junk.csv")
+	_, _ = part.Write([]byte("invalid,csv,data\n1,2,3"))
+	_ = writer.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/admin/upload", body)
+	req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
+
+	repo := handler.SetupTestRepository(t)
+	// We need to inject a mock session store because HandleBulkUpload uses it for flash messages
+	h := handler.NewAdminHandler(repo, service.NewCSVService(), config.LoadConfig())
+	_ = h.HandleBulkUpload(c)
+
+	assert.Equal(t, http.StatusFound, rec.Code)
 }
 
 func TestAdminHandler_HandleBulkUpload_NoFile(t *testing.T) {
@@ -175,5 +203,70 @@ func TestHandleBulkAction_Delete(t *testing.T) {
 		assert.Equal(t, http.StatusFound, rec.Code)
 		assert.Contains(t, rec.Header().Get("Location"), "/admin/listings/delete-confirm?id=l1")
 	}
+}
+
+func TestHandleBulkAction_ChangeCategory(t *testing.T) {
+	e := echo.New()
+	repo := handler.SetupTestRepository(t)
+	h := handler.NewAdminHandler(repo, nil, &config.Config{})
+
+	// Create listings with "Business" category
+	_ = repo.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Type: domain.Business, City: "Lagos", OwnerOrigin: "Nigeria"})
+	_ = repo.Save(context.Background(), domain.Listing{ID: "l2", Title: "L2", Type: domain.Business, City: "Accra", OwnerOrigin: "Ghana"})
+
+	form := url.Values{}
+	form.Add("action", "change_category")
+	form.Add("selectedListings", "l1")
+	form.Add("selectedListings", "l2")
+	form.Add("new_category", string(domain.Job))
+
+	req := httptest.NewRequest(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	if assert.NoError(t, h.HandleBulkAction(c)) {
+		assert.Equal(t, http.StatusFound, rec.Code)
+		l1, _ := repo.FindByID(context.Background(), "l1")
+		l2, _ := repo.FindByID(context.Background(), "l2")
+		assert.Equal(t, domain.Job, l1.Type)
+		assert.Equal(t, domain.Job, l2.Type)
+	}
+}
+
+func TestHandleBulkAction_NoAction(t *testing.T) {
+	c, rec := setupAdminTestContext(http.MethodPost, "/admin/bulk", strings.NewReader("ids[]=1"))
+	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
+
+	repo := handler.SetupTestRepository(t)
+	h := handler.NewAdminHandler(repo, nil, config.LoadConfig())
+	_ = h.HandleBulkAction(c)
+
+	assert.Equal(t, http.StatusFound, rec.Code)
+}
+
+func TestAdminHandler_HandleBulkUpload_ManyErrors(t *testing.T) {
+	e := echo.New()
+	// CSV with 4 invalid rows (missing title/desc)
+	csvContent := "title,type,description\n,,\n,,\n,,\n,,\n"
+	body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+	part, _ := writer.CreateFormFile("csv_file", "junk.csv")
+	_, _ = part.Write([]byte(csvContent))
+	_ = writer.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/admin/upload", body)
+	req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	store := middleware.NewTestSessionStore()
+	session, _ := store.Get(c.Request(), "auth_session")
+	c.Set("session", session)
+
+	repo := handler.SetupTestRepository(t)
+	h := handler.NewAdminHandler(repo, service.NewCSVService(), config.LoadConfig())
+	_ = h.HandleBulkUpload(c)
+
+	assert.Equal(t, http.StatusFound, rec.Code)
 }
 

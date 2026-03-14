@@ -75,7 +75,7 @@
             {{ if .Listings }}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {{ range .Listings }}
-                {{ template "listing_card" dict "Listing" . "User" $.User "GridClass" "border border-white/10" }}
+                {{ template "listing_card" dict "Listing" . "User" $.User "GridClass" "border border-white/10" "IDPrefix" "modal-" }}
                 {{ end }}
             </div>
             {{ else }}
