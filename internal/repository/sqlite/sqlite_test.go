@@ -132,6 +132,44 @@ func TestFindAll_Filtering(t *testing.T) {
 	}
 }
 
+func TestFindAll_Sorting_Featured(t *testing.T) {
+	repo, _ := newTestRepo(t)
+	ctx := context.Background()
+
+	// Seed Data
+	_ = repo.Save(ctx, domain.Listing{ID: "1", Title: "A-Normal", Status: domain.ListingStatusApproved, IsActive: true, Featured: false, CreatedAt: time.Now()})
+	_ = repo.Save(ctx, domain.Listing{ID: "2", Title: "B-Featured", Status: domain.ListingStatusApproved, IsActive: true, Featured: true, CreatedAt: time.Now().Add(time.Second)})
+	_ = repo.Save(ctx, domain.Listing{ID: "3", Title: "C-Normal", Status: domain.ListingStatusApproved, IsActive: true, Featured: false, CreatedAt: time.Now().Add(2 * time.Second)})
+
+	// Test sort by featured DESC (Featured should be first)
+	res, _, err := repo.FindAll(ctx, "", "", "featured", "DESC", true, 10, 0)
+	if err != nil {
+		t.Fatalf("FindAll failed: %v", err)
+	}
+
+	if len(res) != 3 {
+		t.Fatalf("Expected 3 listings, got %d", len(res))
+	}
+
+	if res[0].ID != "2" {
+		t.Errorf("Expected first listing to be featured (ID 2), got ID %s", res[0].ID)
+	}
+
+	// Test sort by featured ASC (Featured should be last)
+	resAsc, _, errAsc := repo.FindAll(ctx, "", "", "featured", "ASC", true, 10, 0)
+	if errAsc != nil {
+		t.Fatalf("FindAll failed: %v", errAsc)
+	}
+	
+	if len(resAsc) != 3 {
+		t.Fatalf("Expected 3 listings, got %d", len(resAsc))
+	}
+
+	if resAsc[2].ID != "2" {
+		t.Errorf("Expected last listing to be featured (ID 2), got ID %s", resAsc[2].ID)
+	}
+}
+
 func TestGetCounts(t *testing.T) {
 	repo, _ := newTestRepo(t)
 	ctx := context.Background()

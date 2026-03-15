@@ -48,7 +48,17 @@
             Owner
         </th>
         <th class="px-6 py-4 text-center text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
-            Featured</th>
+            <!-- prettier-ignore -->
+            <a href="/admin/listings?page={{.Page}}{{if .Category}}&category={{.Category}}{{end}}&sort=featured{{if eq .SortOrder `DESC`}}&order=asc{{else}}&order=desc{{end}}"
+                class="group inline-flex items-center hover:text-earth-ochre transition-colors justify-center w-full">
+                Featured
+                <span
+                    class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `featured`}}text-earth-ochre{{else}}text-white/30 opacity-0 group-hover:opacity-100{{end}}">
+                    {{if and (eq .SortField `featured`) (eq .SortOrder
+                    `DESC`)}}arrow_downward{{else}}arrow_upward{{end}}
+                </span>
+            </a>
+        </th>
         <th class="px-6 py-4 text-right text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
             Actions</th>
     </tr>
