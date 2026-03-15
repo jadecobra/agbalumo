@@ -288,3 +288,23 @@ func TestModalNoOrphanIconOnlyCloseButton(t *testing.T) {
 		})
 	}
 }
+
+func TestDetailModalAddressLink(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	templatePath := filepath.Join(projectRoot, "ui", "templates", "partials", "modal_detail.html")
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		t.Fatalf("Failed to read modal_detail.html: %v", err)
+	}
+
+	content := string(templateContent)
+
+	if !strings.Contains(content, `<a href="https://www.google.com/maps/search/?api=1&query={{ urlquery .Listing.Address }},{{ urlquery .Listing.City }}"`) {
+		t.Error("Detail modal address is not wrapped in a Google Maps link")
+	}
+}
