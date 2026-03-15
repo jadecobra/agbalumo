@@ -16,7 +16,7 @@
             class="hidden text-[10px] uppercase tracking-widest font-bold bg-white/5 border-white/10 text-white focus:outline-none focus:border-earth-ochre px-4 py-2 transition-colors">
             <option value="" class="bg-earth-dark">Select Category...</option>
             {{ range .Categories }}
-            <option value="{{ .ID }}" class="bg-earth-dark">{{ .Name }}</option>
+            <option value="{{ .Name }}" class="bg-earth-dark">{{ .Name }}</option>
             {{ end }}
         </select>
         <button type="submit"

@@ -270,3 +270,41 @@ func TestAdminHandler_HandleBulkUpload_ManyErrors(t *testing.T) {
 	assert.Equal(t, http.StatusFound, rec.Code)
 }
 
+func TestHandleBulkAction_ChangeToCustomCategory(t *testing.T) {
+	e := echo.New()
+	repo := handler.SetupTestRepository(t)
+	h := handler.NewAdminHandler(repo, nil, &config.Config{})
+
+	// Add a custom category
+	customCategory := domain.CategoryData{
+		ID:     "tech-startups",
+		Name:   "Tech Startups",
+		Active: true,
+	}
+	_ = repo.SaveCategory(context.Background(), customCategory)
+
+	// Create listings with "Business" category
+	_ = repo.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Type: domain.Business, City: "Lagos", OwnerOrigin: "Nigeria"})
+	_ = repo.Save(context.Background(), domain.Listing{ID: "l2", Title: "L2", Type: domain.Business, City: "Accra", OwnerOrigin: "Ghana"})
+
+	form := url.Values{}
+	form.Add("action", "change_category")
+	form.Add("selectedListings", "l1")
+	form.Add("selectedListings", "l2")
+	// The frontend now sends the Category Name as the value
+	form.Add("new_category", customCategory.Name)
+
+	req := httptest.NewRequest(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	if assert.NoError(t, h.HandleBulkAction(c)) {
+		assert.Equal(t, http.StatusFound, rec.Code)
+		l1, _ := repo.FindByID(context.Background(), "l1")
+		l2, _ := repo.FindByID(context.Background(), "l2")
+		// Assert that the listing type is now the Category Name
+		assert.Equal(t, domain.Category("Tech Startups"), l1.Type)
+		assert.Equal(t, domain.Category("Tech Startups"), l2.Type)
+	}
+}
