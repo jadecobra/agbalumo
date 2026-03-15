@@ -17,9 +17,10 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 	category := c.QueryParam("category")
 	sortField := c.QueryParam("sort")
 	sortOrder := strings.ToUpper(c.QueryParam("order"))
+	queryText := strings.TrimSpace(c.QueryParam("q"))
 
 	// Fetch all listings with the given category filter, including inactive ones.
-	listings, totalCountRows, err := h.Repo.FindAll(ctx, category, "", sortField, sortOrder, true, pagination.Limit, pagination.Offset)
+	listings, totalCountRows, err := h.Repo.FindAll(ctx, category, queryText, sortField, sortOrder, true, pagination.Limit, pagination.Offset)
 	if err != nil {
 		return RespondError(c, err)
 	}
@@ -46,6 +47,7 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 		"Category":    category,
 		"SortField":   sortField,
 		"SortOrder":   sortOrder,
+		"QueryText":   queryText,
 		"Counts":      strCounts,
 		"Categories":  categories,
 		"TotalCount":  totalCountRows, // Use totalCountRows from FindAll for consistent count

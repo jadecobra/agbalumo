@@ -38,6 +38,16 @@ func TestAdminHandler_HandleAllListings_Extended(t *testing.T) {
 			query:      "?page=2&sort=created_at&order=desc",
 			expectCode: http.StatusOK,
 		},
+		{
+			name:       "SearchQuery",
+			query:      "?q=Test",
+			expectCode: http.StatusOK,
+		},
+		{
+			name:       "SearchQueryWithCategory",
+			query:      "?q=Test&category=business",
+			expectCode: http.StatusOK,
+		},
 	}
 
 	for _, tt := range tests {
