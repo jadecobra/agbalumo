@@ -18,7 +18,7 @@
             </button>
         </div>
 
-        <form hx-put="/listings/{{.Listing.ID}}" hx-swap="outerHTML" hx-target="#{{.TargetID}}" method="POST"
+        <form hx-put="/listings/{{.Listing.ID}}{{ if eq .Source "admin" }}?source=admin{{ end }}" hx-swap="outerHTML" hx-target="#{{.TargetID}}" method="POST"
             enctype="multipart/form-data" class="flex flex-col gap-4" id="edit-form-{{.Listing.ID}}">
 
             <!-- Type & Origin -->

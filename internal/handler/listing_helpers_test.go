@@ -35,6 +35,7 @@ func NewMainTemplate() *template.Template {
 		{{define "about.html"}}About agbalumo{{end}}
 		{{define "error.html"}}Error Page: {{.Message}}{{end}}
 		{{define "admin_listings.html"}}{{range .Listings}}{{.Title}}{{end}}{{end}}
+		{{define "admin_listing_table_row"}}<tr id="listing-row-{{.ID}}"><input type="checkbox" /></tr>{{end}}
 		{{define "admin_dashboard.html"}}Admin Dashboard{{end}}
 		{{define "modal_feedback.html"}}Feedback Modal{{end}}
 	`))

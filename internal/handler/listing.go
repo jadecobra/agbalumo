@@ -215,10 +215,12 @@ func (h *ListingHandler) HandleEdit(c echo.Context) error {
 	if targetID == "" {
 		targetID = "listing-" + listing.ID
 	}
+	source := c.QueryParam("source")
 
 	return h.renderWithBaseContext(c, "modal_edit_listing", map[string]interface{}{
 		"Listing":          listing,
 		"TargetID":         targetID,
+		"Source":           source,
 		"GoogleMapsApiKey": h.GoogleMapsAPIKey,
 	})
 }

@@ -162,6 +162,11 @@ func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error
 		user = u
 	}
 
+	// If the request came from the admin dashboard, return the table row instead of the card
+	if c.QueryParam("source") == "admin" {
+		return c.Render(http.StatusOK, "admin_listing_table_row", l)
+	}
+
 	return h.renderWithBaseContext(c, "listing_card", map[string]interface{}{
 		"Listing": l,
 		"User":    user,
