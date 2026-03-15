@@ -166,3 +166,36 @@ func TestAdminListingsUIElements(t *testing.T) {
 		t.Error("Regression: admin_listings.html table headers missing premium dark styling (bg-white/5, text-white/50 or admin_listing_table_header component)")
 	}
 }
+
+func TestAdminPaginationUI(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectRoot := filepath.Join(wd, "..", "..")
+
+	// Verify admin_listings.html includes admin_pagination.html
+	adminListingsPath := filepath.Join(projectRoot, "ui", "templates", "admin_listings.html")
+	adminListingsContent, err := os.ReadFile(adminListingsPath)
+	if err != nil {
+		t.Fatalf("Failed to read admin_listings.html: %v", err)
+	}
+	if !strings.Contains(string(adminListingsContent), `template "admin_pagination.html"`) {
+		t.Error("Admin listings missing expected admin_pagination.html inclusion")
+	}
+
+	// Verify admin_pagination.html does not use HTMX
+	adminPaginationPath := filepath.Join(projectRoot, "ui", "templates", "partials", "admin_pagination.html")
+	adminPaginationContent, err := os.ReadFile(adminPaginationPath)
+	if err != nil {
+		t.Fatalf("Failed to read admin_pagination.html: %v", err)
+	}
+	
+	content := string(adminPaginationContent)
+	if strings.Contains(content, "hx-get") {
+		t.Error("Admin pagination should not use HTMX hx-get, it should use plain full-page reloads")
+	}
+	if !strings.Contains(content, `href="?page=`) {
+		t.Error("Admin pagination missing basic href=\"?page=\" links")
+	}
+}
