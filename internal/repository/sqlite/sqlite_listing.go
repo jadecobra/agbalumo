@@ -131,6 +131,8 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 			field = "status"
 		case "featured":
 			field = "featured"
+		case "type":
+			field = "type"
 		}
 
 		order := "DESC"

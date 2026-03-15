@@ -44,6 +44,16 @@ func TestAdminHandler_HandleAllListings_Extended(t *testing.T) {
 			expectCode: http.StatusOK,
 		},
 		{
+			name:       "SortingByTypeAsc",
+			query:      "?sort=type&order=asc",
+			expectCode: http.StatusOK,
+		},
+		{
+			name:       "SortingByTypeDesc",
+			query:      "?sort=type&order=desc",
+			expectCode: http.StatusOK,
+		},
+		{
 			name:       "SearchQuery",
 			query:      "?q=Test",
 			expectCode: http.StatusOK,
