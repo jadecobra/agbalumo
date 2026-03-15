@@ -252,9 +252,10 @@ func (s *CSVService) parseRow(record []string, headerMap map[string]int) (*domai
 	email := get("email")
 	phone := get("phone")
 	whatsapp := get("whatsapp")
+	website := get("website")
 
-	if email == "" && phone == "" && whatsapp == "" {
-		return nil, fmt.Errorf("at least one contact method (email, phone, or whatsapp) is required")
+	if email == "" && phone == "" && whatsapp == "" && website == "" {
+		return nil, fmt.Errorf("at least one contact method (email, phone, whatsapp, or website) is required")
 	}
 
 	address := get("address")
@@ -277,7 +278,7 @@ func (s *CSVService) parseRow(record []string, headerMap map[string]int) (*domai
 		Description:      desc,
 		OwnerOrigin:      origin,
 		ContactEmail:     email,
-		WebsiteURL:       get("website"),
+		WebsiteURL:       website,
 		ContactPhone:     phone,
 		ContactWhatsApp:  whatsapp,
 		Address:          address,

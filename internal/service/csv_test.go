@@ -50,14 +50,15 @@ Test,Desc`
 	})
 
 	t.Run("Partial Failure", func(t *testing.T) {
-		csvContent := `title,type,description,origin,email,phone
-Good,Business,Desc,Ghana,a@b.com,
-BadTypeDefaultsToBusiness,InvalidType,Desc,Ghana,a@b.com,
-MissingDesc,Business,,Ghana,a@b.com,
-,Business,Desc,Ghana,a@b.com,
-MissingOrigin,Business,Desc,,a@b.com,
-MissingEmailHasPhone,Business,Desc,Ghana,,12345
-MissingAllContact,Business,Desc,Ghana,,`
+		csvContent := `title,type,description,origin,email,phone,website
+Good,Business,Desc,Ghana,a@b.com,,
+BadTypeDefaultsToBusiness,InvalidType,Desc,Ghana,a@b.com,,
+MissingDesc,Business,,Ghana,a@b.com,,
+,Business,Desc,Ghana,a@b.com,,
+MissingOrigin,Business,Desc,,a@b.com,,
+MissingEmailHasPhone,Business,Desc,Ghana,,12345,
+MissingAllContact,Business,Desc,Ghana,,,
+MissingEmailPhoneHasWebsite,Business,Desc,Ghana,,,example.com`
 
 		repo := setupTestRepo(t)
 
@@ -66,11 +67,11 @@ MissingAllContact,Business,Desc,Ghana,,`
 			t.Fatalf("Unexpected error: %v", err)
 		}
 
-		if result.TotalProcessed != 7 {
-			t.Errorf("Expected 7 total, got %d", result.TotalProcessed)
+		if result.TotalProcessed != 8 {
+			t.Errorf("Expected 8 total, got %d", result.TotalProcessed)
 		}
-		if result.SuccessCount != 4 {
-			t.Errorf("Expected 4 success, got %d", result.SuccessCount)
+		if result.SuccessCount != 5 {
+			t.Errorf("Expected 5 success, got %d", result.SuccessCount)
 		}
 		if result.FailureCount != 3 {
 			t.Errorf("Expected 3 failures, got %d", result.FailureCount)
