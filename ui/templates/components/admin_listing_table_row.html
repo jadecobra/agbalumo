@@ -8,7 +8,7 @@
         {{ .CreatedAt.Format "Jan 02, 2006" }}
     </td>
     <td class="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider">
-        <a href="/listings/{{ .ID }}" target="_blank"
+        <a href="#" hx-get="/listings/{{ .ID }}" hx-target="body" hx-swap="beforeend"
             class="hover:text-earth-ochre transition-colors underline decoration-white/20 underline-offset-4">{{
             .Title
             }}</a>

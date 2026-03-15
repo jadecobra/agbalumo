@@ -206,3 +206,31 @@ func TestAdminDashboard_ErrorPaths(t *testing.T) {
 		})
 	}
 }
+func TestAdminListings_ModalTrigger(t *testing.T) {
+	e := echo.New()
+	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplateForPage(t, "admin_listings.html")}
+
+	repo := handler.SetupTestRepository(t)
+	ctx := context.Background()
+	_ = repo.Save(ctx, domain.Listing{ID: "listing1", Title: "Business A", Type: domain.Business, IsActive: true})
+
+	h := handler.NewAdminHandler(repo, nil, nil)
+
+	req := httptest.NewRequest(http.MethodGet, "/admin/listings", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	if err := h.HandleAllListings(c); err != nil {
+		t.Fatalf("HandleAllListings failed: %v", err)
+	}
+
+	body := rec.Body.String()
+
+	if strings.Contains(body, `target="_blank"`) && strings.Contains(body, `href="/listings/listing1"`) {
+		t.Error("Listing title link should not use target='_blank' because it's a raw modal fragment")
+	}
+
+	if !strings.Contains(body, `hx-get="/listings/listing1"`) {
+		t.Error("Expected listing title link to trigger HTMX modal using hx-get")
+	}
+}

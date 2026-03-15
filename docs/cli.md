@@ -293,6 +293,22 @@ agbalumo seed custom.db
 
 ---
 
+### backfill-cities
+
+Backfill missing cities from addresses in listings.
+
+```bash
+agbalumo backfill-cities
+```
+
+**Example:**
+
+```bash
+agbalumo backfill-cities
+```
+
+---
+
 ### category
 
 Manage listing categories.
