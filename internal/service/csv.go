@@ -215,13 +215,12 @@ func parseCategory(typeStr string) domain.Category {
 		r[0] = unicode.ToUpper(r[0])
 	}
 	titleCas := string(r)
-	cat = domain.Category(titleCas)
-	switch cat {
-	case domain.Business, domain.Service, domain.Product, domain.Event, domain.Job, domain.Request, domain.Food:
-		return cat
+	if titleCas == "" {
+		return domain.Business
 	}
-
-	return domain.Business
+	
+	// Return the dynamic category, e.g. "Church" instead of defaulting to Business
+	return domain.Category(titleCas)
 }
 
 func (s *CSVService) parseRow(record []string, headerMap map[string]int) (*domain.Listing, error) {

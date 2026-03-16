@@ -108,6 +108,8 @@ Dup Listing,Business,Same Desc,Ghana,dup@test.com,1234,123 St,Accra
 		csvContent := `title,type,description,email
 Lowercase Food,food,Desc,a@b.com
 Random Type,Random,Desc,a@b.com
+Dynamic Church,church,Desc,a@b.com
+UPPERCASE CHURCH,CHURCH,Desc,a@b.com
 `
 		repo := setupTestRepo(t)
 
@@ -117,6 +119,22 @@ Random Type,Random,Desc,a@b.com
 		}
 		if result.FailureCount != 0 {
 			t.Errorf("Expected 0 failures, got %d", result.FailureCount)
+		}
+
+		listings, err := repo.FindByTitle(ctx, "Dynamic Church")
+		if err != nil || len(listings) == 0 {
+			t.Fatalf("Failed to find Dynamic Church listing")
+		}
+		if listings[0].Type != domain.Category("Church") {
+			t.Errorf("Expected category 'Church', got %q", listings[0].Type)
+		}
+
+		listingsUpper, err := repo.FindByTitle(ctx, "UPPERCASE CHURCH")
+		if err != nil || len(listingsUpper) == 0 {
+			t.Fatalf("Failed to find UPPERCASE CHURCH listing")
+		}
+		if listingsUpper[0].Type != domain.Category("Church") {
+			t.Errorf("Expected category 'Church', got %q", listingsUpper[0].Type)
 		}
 	})
 
