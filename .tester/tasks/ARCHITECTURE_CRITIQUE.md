@@ -41,7 +41,7 @@
 - [x] **Task 3: Go Test JSON Parser (Red Gate)** - Create `internal/agent/redtest.go` to parse `go test -json` and definitively identify assertion failures vs. compilation errors.
 - [x] **Task 4: AST Route Extractor** - Create `internal/agent/ast.go` to parse `cmd/server.go` via `go/ast` and extract Echo routes reliably (replacing regex/grep).
 - [x] **Task 5: API Specification Comparer** - Create `internal/agent/drift.go` to validate extracted AST routes against `docs/api.md` and `docs/openapi.yaml`.
-- [ ] **Task 6: Per-Package Coverage Calculator** - Create `internal/agent/coverage.go` to parse coverage files and enforce dynamic per-package thresholds instead of a global limit.
+- [x] **Task 6: Per-Package Coverage Calculator** - Create `internal/agent/coverage.go` to parse coverage files and enforce dynamic per-package thresholds instead of a global limit.
 - [ ] **Task 7: Translate Exec Script** - Migrate `scripts/agent-exec.sh` entirely to the new `harness` binary.
 - [ ] **Task 8: Translate Gate Script** - Migrate `scripts/agent-gate.sh` validation logic entirely into the `harness` binary.
 
