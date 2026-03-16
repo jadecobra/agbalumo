@@ -68,9 +68,52 @@ function initAdminDashboard() {
 
     const csvFileInput = document.getElementById('csvFileInput');
     const csvUploadBtn = document.getElementById('csvUploadBtn');
+    const csvUploadDropzone = document.getElementById('csvUploadDropzone');
+    const csvUploadIcon = document.getElementById('csvUploadIcon');
+    const csvUploadText = document.getElementById('csvUploadText');
+
     if (csvFileInput && csvUploadBtn) {
         csvFileInput.addEventListener('change', function () {
-            csvUploadBtn.disabled = !(this.files && this.files.length > 0);
+            const hasFile = this.files && this.files.length > 0;
+            csvUploadBtn.disabled = !hasFile;
+            
+            if (hasFile && csvUploadDropzone && csvUploadIcon && csvUploadText) {
+                const fileName = this.files[0].name;
+                
+                // Update dropzone styling
+                csvUploadDropzone.classList.remove('border-dashed', 'border-white/10', 'bg-white/2');
+                csvUploadDropzone.classList.add('border-solid', 'border-earth-ochre', 'bg-earth-ochre/10');
+                
+                // Update icon
+                csvUploadIcon.textContent = 'description';
+                csvUploadIcon.classList.remove('text-white/20');
+                csvUploadIcon.classList.add('text-earth-ochre');
+                
+                // Update text securely without innerHTML
+                csvUploadText.textContent = '';
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'text-white text-sm tracking-normal mb-1 block normal-case font-normal';
+                nameSpan.textContent = fileName;
+                
+                const clickSpan = document.createElement('span');
+                clickSpan.className = 'text-[9px] text-earth-ochre font-bold uppercase tracking-[0.2em]';
+                clickSpan.textContent = 'Click to replace';
+
+                csvUploadText.appendChild(nameSpan);
+                csvUploadText.appendChild(clickSpan);
+            } else if (csvUploadDropzone && csvUploadIcon && csvUploadText) {
+                // Revert to initial state
+                csvUploadDropzone.classList.add('border-dashed', 'border-white/10', 'bg-white/2');
+                csvUploadDropzone.classList.remove('border-solid', 'border-earth-ochre', 'bg-earth-ochre/10');
+                
+                csvUploadIcon.textContent = 'add';
+                csvUploadIcon.classList.add('text-white/20');
+                csvUploadIcon.classList.remove('text-earth-ochre');
+                
+                csvUploadText.textContent = 'Choose CSV File';
+                csvUploadText.className = 'text-[10px] font-bold uppercase tracking-[0.2em] text-white/60';
+            }
         });
     }
 

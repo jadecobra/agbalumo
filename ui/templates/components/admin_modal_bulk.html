@@ -16,7 +16,7 @@
             <div class="flex items-center gap-4 mb-8">
                 <div
                     class="w-14 h-14 bg-earth-ochre/10 flex items-center justify-center text-earth-ochre border border-earth-ochre/20">
-                    <span class="material-symbols-outlined text-[28px]">upload_file</span>
+                    <span class="material-symbols-outlined text-[28px]">csv</span>
                 </div>
                 <h2 class="text-3xl font-serif text-white uppercase tracking-tight">Bulk Upload</h2>
             </div>
@@ -26,14 +26,15 @@
                 hx-on:click="if(!confirm('Are you sure you want to upload this CSV document?')) event.preventDefault()">
                 <input type="hidden" name="_csrf" value="{{ .CSRF }}">
 
-                <div
-                    class="border-2 border-dashed border-white/10 p-12 text-center hover:border-earth-ochre/50 transition-colors bg-white/2 cursor-pointer group relative">
+                <div id="csvUploadDropzone"
+                    class="border-2 border-dashed border-white/10 p-12 text-center hover:border-earth-ochre/50 transition-colors bg-white/2 cursor-pointer group relative transition-all duration-300">
                     <input type="file" id="csvFileInput" name="csv_file" accept=".csv" required
                         class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                     <div class="relative z-0">
-                        <span
+                        <span id="csvUploadIcon"
                             class="material-symbols-outlined text-white/20 text-4xl mb-4 group-hover:text-earth-ochre transition-colors">add</span>
-                        <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60">Choose CSV File
+                        <p id="csvUploadText" class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60">
+                            Choose CSV File
                         </p>
                     </div>
                 </div>
