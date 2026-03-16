@@ -45,9 +45,8 @@
 - [x] **Task 7: Translate Exec Script** - Migrate `scripts/agent-exec.sh` entirely to the new `harness` binary.
 - [x] **Task 8: Translate Gate Script** - Migrate `scripts/agent-gate.sh` validation logic entirely into the `harness` binary.
 
-## ⏱️ V1 Baseline Benchmarks
-Measurements taken to evaluate the current bash-based harness performance (to be compared against the V2 Go binary):
-- **`red-test` Full Execution**: ~7.3 seconds (largely dominated by `go test` and recursive grep)
-- **`api-drift-check.sh`**: ~0.3 seconds (sed/awk/comm processing)
-- **`cli-drift-check.sh`**: ~0.2 seconds
-- **`pre-commit.sh` (Empty Stage)**: ~19 seconds (dominated by parallelized `act` local CI)
+## ⏱️ V2 Baseline Benchmarks
+Measurements taken to evaluate the current Go-based harness performance (compared against the V1 bash binary):
+- **`harness verify red-test` Full Execution**: ~8.2 seconds (dominated by `go test` compile/run; JSON parsing overhead is negligible)
+- **`harness verify api-spec`**: ~0.6 seconds (combines API AST parsing & CLI drift check script)
+- **`pre-commit.sh` (Empty Stage)**: ~12 seconds (dominated by parallelized `act` local CI, improved from ~19s)
