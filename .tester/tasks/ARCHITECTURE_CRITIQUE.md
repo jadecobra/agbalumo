@@ -58,12 +58,12 @@ Measurements taken to evaluate the harness performance, comparing the V1 bash sc
 | `cli-drift` Check | ~0.2s | (included) | V2 runs CLI check as part of `api-spec`. |
 | `pre-commit.sh` (Empty Stage) | ~19.0s | ~12.0s | Dominated by `act` local CI. V2 reduces overhead significantly. |
 
-## 🏋️ Stress Testing & Scalability (1M Entities)
-To validate the SQLite data model and UI traversal, 1,000,000 fully randomized listing entities were generated and inserted via the `v2 harness` (specifically `harness stress`). The read times directly reflect HTTP handler latency under heavy database load on cold caches.
+## 🏋️ Stress Testing & Scalability
+To validate the SQLite data model and UI traversal, randomized listing entities were generated and inserted via the `v2 harness` (specifically `harness stress`). The read times directly reflect HTTP handler latency under heavy database load on cold caches.
 
-| Metric / Scenario | Execution Time | Notes |
-| :--- | :--- | :--- |
-| **Write 1,000,000 Listings** | ~12m 33s | Bulk insertion with Go `math/rand/v2` data generation. |
-| **Read Page 1 (No Filters)** | ~6.183s | First 20 results by `created_at DESC`. Shows scaling limit before caching. |
-| **Read Page 500 (Deep Pagination)** | ~5.001s | SQLite performance via `LIMIT/OFFSET`. |
-| **Category Filter (`Business`)** | ~0.495s | FTS & Indexing makes single-constraint filters extremely fast. |
+| Metric / Scenario | 100k Entries | 1M Entries | Notes |
+| :--- | :--- | :--- | :--- |
+| **Write Listings** | ~52.7s | ~12m 33s | Bulk insertion with Go `math/rand/v2` data generation. |
+| **Read Page 1 (No Filters)** | ~0.132s | ~6.183s | First 20 results by `created_at DESC`. Shows scaling limit before caching. |
+| **Read Page 500 (Deep Pagination)** | ~0.064s | ~5.001s | SQLite performance via `LIMIT/OFFSET`. |
+| **Category Filter (`Business`)** | ~0.022s | ~0.495s | FTS & Indexing makes single-constraint filters extremely fast. |

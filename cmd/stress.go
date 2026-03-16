@@ -33,6 +33,6 @@ var stressCmd = &cobra.Command{
 }
 
 func init() {
-	stressCmd.Flags().IntVarP(&stressCount, "count", "c", 1000000, "Number of listings to generate")
+	stressCmd.Flags().IntVarP(&stressCount, "count", "c", 100000, "Number of listings to generate")
 	rootCmd.AddCommand(stressCmd)
 }

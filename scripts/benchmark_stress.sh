@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# Accept count as argument, default to 100000
+COUNT=${1:-100000}
+
 DB_PATH=".tester/data/benchmark.db"
 
 # Cleanup any previous benchmark DB
@@ -11,8 +14,8 @@ rm -f "${DB_PATH}-wal"
 echo "=== Compiling CLI ==="
 go build -o tmp_harness main.go
 
-echo "=== Write Benchmark (1M Inserts) ==="
-time ./tmp_harness stress -c 1000000 "$DB_PATH"
+echo "=== Write Benchmark (${COUNT} Inserts) ==="
+time ./tmp_harness stress -c $COUNT "$DB_PATH"
 
 echo "=== Reconnect & Query DB ==="
 echo "Total Listings Generated:"
