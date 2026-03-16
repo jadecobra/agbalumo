@@ -95,6 +95,69 @@ func (r *SQLiteRepository) Save(ctx context.Context, l domain.Listing) error {
 	return err
 }
 
+// SaveBatch inserts or updates multiple listings in a single transaction.
+func (r *SQLiteRepository) SaveBatch(ctx context.Context, listings []domain.Listing) error {
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	query := `
+	INSERT INTO listings (id, owner_id, title, description, type, owner_origin, city, address, hours_of_operation, is_active, created_at, image_url, contact_email, contact_phone, contact_whatsapp, website_url, deadline, event_start, event_end, skills, job_start_date, job_apply_url, company, pay_range, status, featured)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	ON CONFLICT(id) DO UPDATE SET
+		owner_id = excluded.owner_id,
+		title = excluded.title,
+		description = excluded.description,
+		type = excluded.type,
+		owner_origin = excluded.owner_origin,
+		city = excluded.city,
+		address = excluded.address,
+		hours_of_operation = excluded.hours_of_operation,
+		is_active = excluded.is_active,
+		image_url = excluded.image_url,
+		contact_email = excluded.contact_email,
+		contact_phone = excluded.contact_phone,
+		contact_whatsapp = excluded.contact_whatsapp,
+		website_url = excluded.website_url,
+		deadline = excluded.deadline,
+		event_start = excluded.event_start,
+		event_end = excluded.event_end,
+		skills = excluded.skills,
+		job_start_date = excluded.job_start_date,
+		job_apply_url = excluded.job_apply_url,
+		company = excluded.company,
+		pay_range = excluded.pay_range,
+		status = excluded.status,
+		featured = excluded.featured;
+	`
+
+	stmt, err := tx.PrepareContext(ctx, query)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = stmt.Close() }()
+
+	for _, l := range listings {
+		status := string(l.Status)
+		if status == "" {
+			status = string(domain.ListingStatusApproved)
+		}
+
+		_, err := stmt.ExecContext(ctx,
+			l.ID, l.OwnerID, l.Title, l.Description, l.Type, l.OwnerOrigin, l.City, l.Address, l.HoursOfOperation, l.IsActive, l.CreatedAt,
+			l.ImageURL, l.ContactEmail, l.ContactPhone, l.ContactWhatsApp, l.WebsiteURL, l.Deadline, l.EventStart, l.EventEnd,
+			l.Skills, l.JobStartDate, l.JobApplyURL, l.Company, l.PayRange, status, l.Featured,
+		)
+		if err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit()
+}
+
 func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, queryText string, sortField string, sortOrder string, includeInactive bool, limit int, offset int) ([]domain.Listing, int, error) {
 	whereClause := " WHERE 1=1"
 	var args []interface{}

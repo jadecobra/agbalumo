@@ -29,8 +29,14 @@ func GenerateStressData(ctx context.Context, repo domain.ListingStore, count int
 	cities := []string{"Dallas", "Fort Worth", "Arlington", "Plano", "Irving", "Garland", "Frisco", "McKinney", "Grand Prairie", "Mesquite"}
 	streets := []string{"Main St", "Elm St", "Commerce St", "Belt Line Rd", "Legacy Dr", "MacArthur Blvd", "Central Expy", "Preston Rd"}
 
+	type batchSaver interface {
+		SaveBatch(ctx context.Context, listings []domain.Listing) error
+	}
+	saver, isBatch := repo.(batchSaver)
+
 	successCount := 0
-	batchSize := 1000
+	batchSize := 10000
+	var batch []domain.Listing
 
 	for i := 0; i < count; i++ {
 		category := categories[rand.IntN(len(categories))]
@@ -75,15 +81,27 @@ func GenerateStressData(ctx context.Context, repo domain.ListingStore, count int
 			l.Deadline = time.Now().Add(time.Duration(rand.IntN(60)*24) * time.Hour)
 		}
 
-		// Save the listing
-		if err := repo.Save(ctx, l); err != nil {
-			slog.Error("Failed to save stress listing", "id", l.ID, "error", err)
+		if isBatch {
+			batch = append(batch, l)
+			if len(batch) >= batchSize || i == count-1 {
+				if err := saver.SaveBatch(ctx, batch); err != nil {
+					slog.Error("Failed to save stress batch", "error", err)
+				} else {
+					successCount += len(batch)
+				}
+				batch = batch[:0]
+				slog.Info("Progress", "inserted", i+1, "total", count)
+			}
 		} else {
-			successCount++
-		}
-
-		if (i+1)%batchSize == 0 {
-			slog.Info("Progress", "inserted", i+1, "total", count)
+			// Save the listing individually
+			if err := repo.Save(ctx, l); err != nil {
+				slog.Error("Failed to save stress listing", "id", l.ID, "error", err)
+			} else {
+				successCount++
+			}
+			if (i+1)%1000 == 0 {
+				slog.Info("Progress", "inserted", i+1, "total", count)
+			}
 		}
 	}
 

@@ -11,8 +11,8 @@ rm -f "${DB_PATH}-wal"
 echo "=== Compiling CLI ==="
 go build -o tmp_harness main.go
 
-echo "=== Write Benchmark (100k Inserts) ==="
-time ./tmp_harness stress -c 100000 "$DB_PATH"
+echo "=== Write Benchmark (1M Inserts) ==="
+time ./tmp_harness stress -c 1000000 "$DB_PATH"
 
 echo "=== Reconnect & Query DB ==="
 echo "Total Listings Generated:"
