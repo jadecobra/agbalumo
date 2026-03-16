@@ -43,8 +43,8 @@ func NewSQLiteRepository(dbPath string) (*SQLiteRepository, error) {
 		return nil, err
 	}
 
-	db.SetMaxOpenConns(1)
-	db.SetMaxIdleConns(10)
+	db.SetMaxOpenConns(100)
+	db.SetMaxIdleConns(100)
 	db.SetConnMaxLifetime(0)
 
 	repo := &SQLiteRepository{db: db}

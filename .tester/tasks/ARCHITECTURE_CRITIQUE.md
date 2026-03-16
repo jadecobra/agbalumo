@@ -37,6 +37,7 @@
 
 ## 🔲 Next Steps
 - [ ] Polish end-to-end component granularity and standard metric gathering in production-like environments.
+- [x] Implemented 100k concurrent users distributed load test via k6 and fixed SQLite MaxOpenConns serialization bottleneck.
 - [ ] **Stress Testing & Benchmarking (100k Listings)**
   - [ ] Task 1: Scaffold `internal/seeder/stress.go` with base `GenerateStressData` function.
   - [ ] Task 2: Implement random string/text generation utilities for listing fields.
