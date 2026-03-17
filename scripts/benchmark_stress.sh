@@ -12,10 +12,11 @@ rm -f "${DB_PATH}-shm"
 rm -f "${DB_PATH}-wal"
 
 echo "=== Compiling CLI ==="
-go build -o tmp_harness main.go
+mkdir -p .tester/db_tests
+go build -o .tester/db_tests/tmp_harness main.go
 
 echo "=== Write Benchmark (${COUNT} Inserts) ==="
-time ./tmp_harness stress -c $COUNT "$DB_PATH"
+time ./.tester/db_tests/tmp_harness stress -c $COUNT "$DB_PATH"
 
 echo "=== Reconnect & Query DB ==="
 echo "Total Listings Generated:"
@@ -32,5 +33,5 @@ echo "Querying 'Business' Category - Top 20:"
 time sqlite3 "$DB_PATH" "SELECT id FROM listings WHERE type = 'Business' ORDER BY created_at DESC LIMIT 20 OFFSET 0;" > /dev/null
 
 echo "=== Cleanup ==="
-rm tmp_harness
+rm -f .tester/db_tests/tmp_harness
 echo "Done!"

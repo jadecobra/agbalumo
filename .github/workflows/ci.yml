@@ -65,13 +65,13 @@ jobs:
 
       - name: Run Tests with Coverage
         run: |
-          mkdir -p .tester/data
-          go test -race -coverprofile=coverage.out ./...
-          go tool cover -func=coverage.out
+          mkdir -p .tester/data .tester/coverage
+          go test -race -coverprofile=.tester/coverage/coverage.out ./...
+          go tool cover -func=.tester/coverage/coverage.out
 
       - name: Enforce Coverage Threshold (90.0%)
         run: |
-          COVERAGE=$(go tool cover -func=coverage.out | awk '/^total:/ {print substr($3, 1, length($3)-1)}')
+          COVERAGE=$(go tool cover -func=.tester/coverage/coverage.out | awk '/^total:/ {print substr($3, 1, length($3)-1)}')
           THRESHOLD=90.0
           echo "Coverage: $COVERAGE%"
           if awk "BEGIN {exit !($COVERAGE < $THRESHOLD)}"; then
@@ -111,10 +111,10 @@ jobs:
 
       - name: Start Server (Background)
         run: |
-          mkdir -p .tester/data certs
+          mkdir -p .tester/data .tester/servers certs
           openssl req -x509 -newkey rsa:4096 -keyout certs/key.pem -out certs/cert.pem -days 365 -nodes -subj "/CN=localhost"
           export AGBALUMO_ENV=development
-          nohup ./server serve > server.log 2>&1 &
+          nohup ./server serve > .tester/servers/server.log 2>&1 &
           echo "Waiting for server to start..."
           for i in {1..20}; do
             if curl -k -s https://localhost:8443 > /dev/null; then
@@ -126,7 +126,7 @@ jobs:
           done
           if ! curl -k -s https://localhost:8443 > /dev/null; then
             echo "Server failed to start:"
-            cat server.log
+            cat .tester/servers/server.log
             exit 1
           fi
 
