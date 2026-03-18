@@ -5,6 +5,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"os"
 	"regexp"
 	"sort"
 	"strings"
@@ -16,12 +17,37 @@ type Route struct {
 	Path   string
 }
 
-// ExtractRoutes parses a Go source file and extracts Echo routes.
-func ExtractRoutes(filename string) ([]Route, error) {
+// ExtractRoutes parses Go source files and extracts Echo routes.
+func ExtractRoutes(paths ...string) ([]Route, error) {
 	fset := token.NewFileSet()
-	node, err := parser.ParseFile(fset, filename, nil, parser.ParseComments)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse file: %w", err)
+	var allFiles []*ast.File
+
+	for _, p := range paths {
+		info, err := os.Stat(p)
+		if err != nil {
+			continue
+		}
+		if info.IsDir() {
+			pkgs, err := parser.ParseDir(fset, p, nil, parser.ParseComments)
+			if err != nil {
+				return nil, fmt.Errorf("failed to parse dir %s: %w", p, err)
+			}
+			for _, pkg := range pkgs {
+				for _, f := range pkg.Files {
+					allFiles = append(allFiles, f)
+				}
+			}
+		} else {
+			node, err := parser.ParseFile(fset, p, nil, parser.ParseComments)
+			if err != nil {
+				return nil, fmt.Errorf("failed to parse file %s: %w", p, err)
+			}
+			allFiles = append(allFiles, node)
+		}
+	}
+
+	if len(allFiles) == 0 {
+		return nil, fmt.Errorf("no valid Go files found in provided paths")
 	}
 
 	// Map of variable names to their group prefix paths.
@@ -61,89 +87,98 @@ func ExtractRoutes(filename string) ([]Route, error) {
 	}
 
 	// First pass: Find group definitions
-	ast.Inspect(node, func(n ast.Node) bool {
-		assignStmt, ok := n.(*ast.AssignStmt)
-		if !ok {
-			return true
-		}
+	for _, node := range allFiles {
+		ast.Inspect(node, func(n ast.Node) bool {
+			assignStmt, ok := n.(*ast.AssignStmt)
+			if !ok {
+				return true
+			}
 
-		// Look for `adminGroup := e.Group("/admin")` or `adminLoginGroup := adminGroup.Group("/login")`
-		if len(assignStmt.Lhs) != 1 || len(assignStmt.Rhs) != 1 {
-			return true
-		}
+			if len(assignStmt.Lhs) != 1 || len(assignStmt.Rhs) != 1 {
+				return true
+			}
 
-		ident, ok := assignStmt.Lhs[0].(*ast.Ident)
-		if !ok {
-			return true
-		}
+			ident, ok := assignStmt.Lhs[0].(*ast.Ident)
+			if !ok {
+				return true
+			}
 
-		callExpr, ok := assignStmt.Rhs[0].(*ast.CallExpr)
-		if !ok {
-			return true
-		}
+			callExpr, ok := assignStmt.Rhs[0].(*ast.CallExpr)
+			if !ok {
+				return true
+			}
 
-		selExpr, ok := callExpr.Fun.(*ast.SelectorExpr)
-		if !ok {
-			return true
-		}
+			selExpr, ok := callExpr.Fun.(*ast.SelectorExpr)
+			if !ok {
+				return true
+			}
 
-		if selExpr.Sel.Name == "Group" {
-			receiver, ok := selExpr.X.(*ast.Ident)
-			if ok {
-				if len(callExpr.Args) > 0 {
-					if argLit, ok := callExpr.Args[0].(*ast.BasicLit); ok && argLit.Kind == token.STRING {
-						prefix := strings.Trim(argLit.Value, "\"")
-						base := groupPaths[receiver.Name]
-						groupPaths[ident.Name] = base + prefix
+			if selExpr.Sel.Name == "Group" {
+				receiver, ok := selExpr.X.(*ast.Ident)
+				if ok {
+					if len(callExpr.Args) > 0 {
+						if argLit, ok := callExpr.Args[0].(*ast.BasicLit); ok && argLit.Kind == token.STRING {
+							prefix := strings.Trim(argLit.Value, "\"")
+							base := groupPaths[receiver.Name]
+							groupPaths[ident.Name] = base + prefix
+						}
 					}
 				}
 			}
-		}
 
-		return true
-	})
+			return true
+		})
+	}
 
 	// Second pass: Find route definitions
-	ast.Inspect(node, func(n ast.Node) bool {
-		callExpr, ok := n.(*ast.CallExpr)
-		if !ok {
-			return true
-		}
-
-		selExpr, ok := callExpr.Fun.(*ast.SelectorExpr)
-		if !ok {
-			return true
-		}
-
-		httpMethod := selExpr.Sel.Name
-		if !isHttpMethod(httpMethod) {
-			return true
-		}
-
-		receiver, ok := selExpr.X.(*ast.Ident)
-		if !ok {
-			return true
-		}
-
-		basePath, exists := groupPaths[receiver.Name]
-		if !exists {
-			// Not a recognized router group/instance.
-			return true
-		}
-
-		if len(callExpr.Args) > 0 {
-			if argLit, ok := callExpr.Args[0].(*ast.BasicLit); ok && argLit.Kind == token.STRING {
-				pathSuffix := strings.Trim(argLit.Value, "\"")
-				fullPath := normalizePath(basePath + pathSuffix)
-				routes = append(routes, Route{
-					Method: httpMethod,
-					Path:   fullPath,
-				})
+	for _, node := range allFiles {
+		ast.Inspect(node, func(n ast.Node) bool {
+			callExpr, ok := n.(*ast.CallExpr)
+			if !ok {
+				return true
 			}
-		}
 
-		return true
-	})
+			selExpr, ok := callExpr.Fun.(*ast.SelectorExpr)
+			if !ok {
+				return true
+			}
+
+			httpMethod := selExpr.Sel.Name
+			if !isHttpMethod(httpMethod) {
+				return true
+			}
+
+			receiver, ok := selExpr.X.(*ast.Ident)
+			if !ok {
+				return true
+			}
+
+			basePath, exists := groupPaths[receiver.Name]
+			if !exists {
+				// If the receiver isn't a known group, guess it's a top-level route if it starts with "/"
+				// We relax constraints so distributed handlers don't strictly get missed if they use `e.GET` directly
+				// without tracking `e` assignment.
+				basePath = ""
+			}
+
+			if len(callExpr.Args) > 0 {
+				if argLit, ok := callExpr.Args[0].(*ast.BasicLit); ok && argLit.Kind == token.STRING {
+					pathSuffix := strings.Trim(argLit.Value, "\"")
+					
+					// Only keep if it looks like a valid route definition (must be relative path starting with / or empty string on an existing group)
+					if pathSuffix == "" || strings.HasPrefix(pathSuffix, "/") {
+						fullPath := normalizePath(basePath + pathSuffix)
+						routes = append(routes, Route{
+							Method: httpMethod,
+							Path:   fullPath,
+						})
+					}
+				}
+			}
+
+			return true
+		})
+	}
 
 	// Sort routes for deterministic output
 	sort.Slice(routes, func(i, j int) bool {

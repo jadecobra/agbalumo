@@ -79,7 +79,7 @@ func VerifyRedTest(pattern string) bool {
 func VerifyApiSpec(workflowType string) bool {
 	fmt.Println("Running API and CLI drift checks...")
 
-	codeRoutes, err := ExtractRoutes("cmd/server.go")
+	codeRoutes, err := ExtractRoutes("cmd", "internal/handler")
 	if err != nil {
 		fmt.Println("Error extracting routes from code:", err)
 		return false
@@ -136,13 +136,21 @@ func VerifyApiSpec(workflowType string) bool {
 func VerifyImplementation() bool {
 	fmt.Println("Running build and tests...")
 
-	if err := ExecCommand("go", "build", "./...").Run(); err != nil {
-		fmt.Println("❌ Gate FAIL: implementation build or tests failed.")
+	buildOut, err := RunCommand("go", "build", "./...")
+	if err != nil {
+		fmt.Println("❌ Gate FAIL: implementation build failed.")
+		fmt.Println("--- BUILD OUTPUT ---")
+		fmt.Println(string(buildOut))
 		return false
 	}
 
-	if err := ExecCommand("go", "test", "./...").Run(); err != nil {
-		fmt.Println("❌ Gate FAIL: implementation build or tests failed.")
+	_ = os.MkdirAll(filepath.Join(".tester", "coverage"), 0755)
+	covFile := filepath.Join(".tester", "coverage", "coverage.out")
+	testOut, err := RunCommand("go", "test", "-coverprofile="+covFile, "./...")
+	if err != nil {
+		fmt.Println("❌ Gate FAIL: implementation tests failed.")
+		fmt.Println("--- TEST OUTPUT ---")
+		fmt.Println(string(testOut))
 		return false
 	}
 
@@ -173,10 +181,8 @@ func VerifyLint() bool {
 
 func VerifyCoverage() bool {
 	fmt.Println("Verifying test coverage...")
-	_ = os.MkdirAll(filepath.Join(".tester", "coverage"), 0755)
 
 	covFile := filepath.Join(".tester", "coverage", "coverage.out")
-	_ = ExecCommand("go", "test", "-coverprofile="+covFile, "./...").Run()
 
 	if _, statErr := os.Stat(covFile); os.IsNotExist(statErr) {
 		fmt.Println("❌ Gate FAIL: coverage profile not generated.")

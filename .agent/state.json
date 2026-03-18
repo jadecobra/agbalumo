@@ -1,14 +1,14 @@
 {
-  "feature": "task-8-gate-migration",
-  "workflow_type": "refactor",
-  "phase": "REFACTOR",
+  "feature": "test",
+  "workflow_type": "feature",
+  "phase": "GREEN",
   "gates": {
-    "red-test": "PASS",
-    "api-spec": "PASS",
-    "implementation": "PASS",
-    "lint": "PASS",
-    "coverage": "PASS",
-    "browser-verification": "PASS"
+    "red-test": "PASSED",
+    "api-spec": "PASSED",
+    "implementation": "FAILED",
+    "lint": "PENDING",
+    "coverage": "PENDING",
+    "browser-verification": "PENDING"
   },
-  "updated_at": "2026-03-16T17:06:07.340158Z"
+  "updated_at": "2026-03-18T02:13:53.870468Z"
 }

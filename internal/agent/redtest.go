@@ -37,10 +37,16 @@ func ParseTestJSON(r io.Reader) (*TestResult, error) {
 
 	testOutputs := make(map[string]*strings.Builder)
 	buildOutputs := &strings.Builder{}
+	rawText := &strings.Builder{}
 
 	for scanner.Scan() {
 		line := scanner.Bytes()
-		if len(line) == 0 || line[0] != '{' {
+		if len(line) == 0 {
+			continue
+		}
+		if line[0] != '{' {
+			rawText.Write(line)
+			rawText.WriteByte('\n')
 			continue
 		}
 
@@ -91,6 +97,13 @@ func ParseTestJSON(r io.Reader) (*TestResult, error) {
 		result.Failures = append(result.Failures, TestFailure{
 			TestName: "build",
 			Output:   buildOutputs.String(),
+		})
+	}
+
+	if !result.Success && len(result.Failures) == 0 && rawText.Len() > 0 {
+		result.Failures = append(result.Failures, TestFailure{
+			TestName: "panic/raw",
+			Output:   rawText.String(),
 		})
 	}
 

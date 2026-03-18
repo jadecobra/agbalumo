@@ -13,28 +13,22 @@ func ExtractOpenAPIRoutes(content []byte) ([]Route, error) {
 	var routes []Route
 	var currentPath string
 
+	pathRe := regexp.MustCompile(`^\s*(/.*?):$`)
+	methodRe := regexp.MustCompile(`(?i)^\s*(get|post|put|delete|patch|options|head):$`)
+
 	for _, line := range lines {
-		// Look for path definitions: `  /path/name:`
-		if strings.HasPrefix(line, "  /") && strings.HasSuffix(line, ":") {
-			currentPath = strings.TrimSpace(line)
-			currentPath = strings.TrimSuffix(currentPath, ":")
+		if matches := pathRe.FindStringSubmatch(line); len(matches) > 1 {
+			currentPath = strings.TrimSpace(matches[1])
+			continue
 		}
 
-		// Look for methods: `    get:`
-		if strings.HasPrefix(line, "    ") && strings.HasSuffix(line, ":") {
-			method := strings.TrimSpace(line)
-			method = strings.TrimSuffix(method, ":")
-			
-			// Validate method
-			upperMethod := strings.ToUpper(method)
-			switch upperMethod {
-			case "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD":
-				if currentPath != "" {
-					routes = append(routes, Route{
-						Method: upperMethod,
-						Path:   normalizePath(currentPath),
-					})
-				}
+		if matches := methodRe.FindStringSubmatch(line); len(matches) > 1 {
+			method := strings.ToUpper(matches[1])
+			if currentPath != "" {
+				routes = append(routes, Route{
+					Method: method,
+					Path:   normalizePath(currentPath),
+				})
 			}
 		}
 	}
@@ -49,12 +43,12 @@ func ExtractMarkdownRoutes(content []byte) ([]Route, error) {
 	var routes []Route
 
 	// Regex to match markdown table rows: `| GET | /path | ... |` or `| GET | `+/path+` | ... |`
-	re := regexp.MustCompile(`^\|\s*(GET|POST|PUT|DELETE|PATCH|OPTIONS|HEAD)\s*\|\s*` + "`?" + `([^` + "`" + `| ]*)` + "`?" + `\s*\|`)
+	re := regexp.MustCompile(`(?i)^\|\s*(GET|POST|PUT|DELETE|PATCH|OPTIONS|HEAD)\s*\|\s*` + "`?" + `([^` + "`" + `|\s]+)` + "`?" + `\s*\|`)
 
 	for _, line := range lines {
 		matches := re.FindStringSubmatch(line)
 		if len(matches) == 3 {
-			method := matches[1]
+			method := strings.ToUpper(matches[1])
 			path := matches[2]
 			routes = append(routes, Route{
 				Method: method,
