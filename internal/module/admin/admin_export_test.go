@@ -1,6 +1,7 @@
-package handler_test
+package admin_test
 
 import (
+	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"context"
 	"io"
 	"net/http"
@@ -18,7 +19,7 @@ func TestAdminHandler_HandleExportListings(t *testing.T) {
 	e := echo.New()
 	repo := handler.SetupTestRepository(t)
 	csvSvc := service.NewCSVService()
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, csvSvc, nil)
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, csvSvc, nil)
 
 	ctx := context.Background()
 	// Seed some data

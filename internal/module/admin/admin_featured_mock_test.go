@@ -1,4 +1,4 @@
-package handler_test
+package admin_test
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -24,7 +24,7 @@ func TestAdminHandler_HandleToggleFeatured_Error(t *testing.T) {
 	c.SetParamValues("123")
 	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
-	h := handler.NewAdminHandler(mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, nil, config.LoadConfig())
+	h := admin.NewAdminHandler(mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, nil, config.LoadConfig())
 	err := h.HandleToggleFeatured(c)
 
 	assert.NoError(t, err)

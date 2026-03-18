@@ -1,6 +1,7 @@
-package handler_test
+package admin_test
 
 import (
+	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"context"
 	"net/http"
 	"net/http/httptest"
@@ -29,7 +30,7 @@ func TestAdminHandler_HandleAdminDeleteAction_Success(t *testing.T) {
 	formData.Add("id", "l1")
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings/delete", strings.NewReader(formData.Encode()))
 
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, cfg)
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, cfg)
 	store := middleware.NewTestSessionStore()
 	session, _ := store.Get(c.Request(), "auth_session")
 	c.Set("session", session)
@@ -45,7 +46,7 @@ func TestAdminHandler_HandleAdminDeleteAction_Success(t *testing.T) {
 func TestHandleAdminDeleteView(t *testing.T) {
 	repo := handler.SetupTestRepository(t)
 	_ = repo.Save(context.Background(), domain.Listing{ID: "listing1", Title: "To Delete", OwnerOrigin: "Nigeria", Type: "business"})
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, &config.Config{})
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, &config.Config{})
 
 	req := httptest.NewRequest(http.MethodGet, "/admin/listings/delete?id=listing1", nil)
 	rec := httptest.NewRecorder()
@@ -60,7 +61,7 @@ func TestHandleAdminDeleteView(t *testing.T) {
 
 func TestHandleAdminDeleteView_NoIDs_Redirects(t *testing.T) {
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, &config.Config{})
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, &config.Config{})
 
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin/listings/delete", nil)
 
@@ -72,7 +73,7 @@ func TestHandleAdminDeleteView_NoIDs_Redirects(t *testing.T) {
 func TestHandleAdminDeleteView_FindByIDError_Returns404(t *testing.T) {
 	repo := handler.SetupTestRepository(t)
 	// No data seeded, so "bad-id" will not be found
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, &config.Config{})
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, &config.Config{})
 
 	req := httptest.NewRequest(http.MethodGet, "/admin/listings/delete?id=bad-id", nil)
 	rec := httptest.NewRecorder()
@@ -92,7 +93,7 @@ func TestHandleAdminDeleteAction_NoIDs_Redirects(t *testing.T) {
 	cfg := config.LoadConfig()
 	cfg.AdminCode = "secret"
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, cfg)
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, cfg)
 
 	_ = h.HandleAdminDeleteAction(c)
 	assert.Equal(t, http.StatusFound, rec.Code)
@@ -112,7 +113,7 @@ func TestHandleAdminDeleteAction_WrongCode_RendersConfirmWithError(t *testing.T)
 	// Seed so it doesn't fail on something else
 	_ = repo.Save(context.Background(), domain.Listing{ID: "l1", Title: "To Delete", OwnerOrigin: "Nigeria", Type: "business"})
 
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, cfg)
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, cfg)
 
 	_ = h.HandleAdminDeleteAction(c)
 	assert.Equal(t, http.StatusOK, rec.Code)
@@ -132,7 +133,7 @@ func TestHandleAdminDeleteAction_PartialSuccess(t *testing.T) {
 	formData.Add("id", "l2") // Does not exist
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings/delete", strings.NewReader(formData.Encode()))
 
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, cfg)
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, cfg)
 	store := middleware.NewTestSessionStore()
 	session, _ := store.Get(c.Request(), "auth_session")
 	c.Set("session", session)

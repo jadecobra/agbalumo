@@ -1,6 +1,7 @@
-package handler_test
+package admin_test
 
 import (
+	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"context"
 	"net/http"
 	"testing"
@@ -13,7 +14,7 @@ import (
 
 func TestHandleApproveClaim(t *testing.T) {
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
 
 	// Seed data
 	_ = repo.SaveClaimRequest(context.Background(), domain.ClaimRequest{ID: "claim1", UserID: "u1", ListingID: "l1", Status: domain.ClaimStatusPending})
@@ -34,7 +35,7 @@ func TestHandleApproveClaim(t *testing.T) {
 
 func TestHandleApproveClaim_Error(t *testing.T) {
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
 
 	// No data seeded for "bad" ID should result in error when trying to update
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/claims/bad/approve", nil)
@@ -48,7 +49,7 @@ func TestHandleApproveClaim_Error(t *testing.T) {
 
 func TestHandleRejectClaim(t *testing.T) {
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
 
 	// Seed data
 	_ = repo.SaveClaimRequest(context.Background(), domain.ClaimRequest{ID: "claim1", UserID: "u1", ListingID: "l1", Status: domain.ClaimStatusPending})
@@ -69,7 +70,7 @@ func TestHandleRejectClaim(t *testing.T) {
 
 func TestHandleRejectClaim_Error(t *testing.T) {
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
 
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/claims/bad/reject", nil)
 	c.SetParamNames("id")

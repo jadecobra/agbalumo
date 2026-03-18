@@ -1,6 +1,7 @@
-package handler_test
+package admin_test
 
 import (
+	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"context"
 	"net/http"
 	"net/url"
@@ -21,7 +22,7 @@ func TestAdminHandler_HandleAllListings(t *testing.T) {
 	// Seed a listing
 	_ = repo.Save(context.Background(), domain.Listing{ID: "1", Title: "Test Listing"})
 
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
 	_ = h.HandleAllListings(c)
 	assert.Equal(t, http.StatusOK, rec.Code)
 }
@@ -78,7 +79,7 @@ func TestAdminHandler_HandleToggleFeatured(t *testing.T) {
 			repo := handler.SetupTestRepository(t)
 			tt.setupData(t, repo)
 
-			h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+			h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
 			_ = h.HandleToggleFeatured(c)
 			assert.Equal(t, tt.expectCode, rec.Code)
 
@@ -100,7 +101,7 @@ func TestAdminHandler_HandleApproveClaim(t *testing.T) {
 	// Seed a claim request
 	_ = repo.SaveClaimRequest(context.Background(), domain.ClaimRequest{ID: "cr1", UserID: "u1", ListingID: "l1", Status: domain.ClaimStatusPending})
 
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
 	_ = h.HandleApproveClaim(c)
 	assert.Equal(t, http.StatusOK, rec.Code)
 

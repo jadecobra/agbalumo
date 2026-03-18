@@ -1,6 +1,7 @@
-package handler_test
+package admin_test
 
 import (
+
 	"html/template"
 	"io"
 	"net/http/httptest"

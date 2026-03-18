@@ -1,6 +1,7 @@
-package handler_test
+package admin_test
 
 import (
+	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"net/http"
 	"testing"
 
@@ -21,7 +22,7 @@ func TestAdminHandler_HandleUsers_Success(t *testing.T) {
 	err := repo.SaveUser(c.Request().Context(), user)
 	require.NoError(t, err)
 
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
 	_ = h.HandleUsers(c)
 
 	assert.Equal(t, http.StatusOK, rec.Code)

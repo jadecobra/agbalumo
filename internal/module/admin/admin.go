@@ -1,6 +1,8 @@
-package handler
+package admin
 
 import (
+	"github.com/jadecobra/agbalumo/internal/handler"
+
 	"fmt"
 	"io"
 	"net/http"
@@ -106,7 +108,7 @@ func (h *AdminHandler) HandleLoginAction(c echo.Context) error {
 	u.Role = domain.UserRoleAdmin
 	// SaveUser now handles update via ID efficiently
 	if err := h.UserStore.SaveUser(c.Request().Context(), u); err != nil {
-		return RespondError(c, err)
+		return handler.RespondError(c, err)
 	}
 
 	return c.Redirect(http.StatusFound, "/admin")
@@ -118,32 +120,32 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 
 	claimRequests, err := h.ClaimRequestStore.GetPendingClaimRequests(ctx)
 	if err != nil {
-		return RespondError(c, err)
+		return handler.RespondError(c, err)
 	}
 
 	userCount, err := h.AdminStore.GetUserCount(ctx)
 	if err != nil {
-		return RespondError(c, err)
+		return handler.RespondError(c, err)
 	}
 
 	feedbackCounts, err := h.FeedbackStore.GetFeedbackCounts(ctx)
 	if err != nil {
-		return RespondError(c, err)
+		return handler.RespondError(c, err)
 	}
 
 	listingGrowth, err := h.AnalyticsStore.GetListingGrowth(ctx)
 	if err != nil {
-		return RespondError(c, err)
+		return handler.RespondError(c, err)
 	}
 
 	userGrowth, err := h.AnalyticsStore.GetUserGrowth(ctx)
 	if err != nil {
-		return RespondError(c, err)
+		return handler.RespondError(c, err)
 	}
 
 	feedbacks, err := h.FeedbackStore.GetAllFeedback(ctx)
 	if err != nil {
-		return RespondError(c, err)
+		return handler.RespondError(c, err)
 	}
 
 	// Get Flash Messages
@@ -245,10 +247,10 @@ func (h *AdminHandler) HandleAddCategory(c echo.Context) error {
 // HandleUsers renders the list of users for admins.
 func (h *AdminHandler) HandleUsers(c echo.Context) error {
 	ctx := c.Request().Context()
-	p := GetPagination(c, 50)
+	p := handler.GetPagination(c, 50)
 	users, err := h.AdminStore.GetAllUsers(ctx, p.Limit, p.Offset)
 	if err != nil {
-		return RespondError(c, err)
+		return handler.RespondError(c, err)
 	}
 	p.HasNextPage = len(users) == p.Limit
 
@@ -267,12 +269,12 @@ func (h *AdminHandler) HandleExportListings(c echo.Context) error {
 	// In a very large system, we might want to stream this from the DB directly.
 	listings, _, err := h.ListingStore.FindAll(ctx, "", "", "created_at", "desc", true, 10000, 0)
 	if err != nil {
-		return RespondError(c, err)
+		return handler.RespondError(c, err)
 	}
 
 	reader, err := h.CSVService.GenerateCSV(ctx, listings)
 	if err != nil {
-		return RespondError(c, err)
+		return handler.RespondError(c, err)
 	}
 
 	c.Response().Header().Set(echo.HeaderContentType, "text/csv")

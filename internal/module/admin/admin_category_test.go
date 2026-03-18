@@ -1,6 +1,7 @@
-package handler_test
+package admin_test
 
 import (
+	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"context"
 	"net/http"
 	"net/url"
@@ -27,7 +28,7 @@ func TestAdminHandler_HandleAddCategory_Success(t *testing.T) {
 
 	repo := handler.SetupTestRepository(t)
 
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
 	_ = h.HandleAddCategory(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)
@@ -47,7 +48,7 @@ func TestAdminHandler_HandleAddCategory_EmptyName_Redirects(t *testing.T) {
 	c.Set("User", domain.User{ID: "admin1", Role: domain.UserRoleAdmin})
 
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
 	_ = h.HandleAddCategory(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)
@@ -71,7 +72,7 @@ func TestAdminHandler_HandleAddCategory_DuplicateName_Redirects(t *testing.T) {
 	// Seed existing category
 	_ = repo.SaveCategory(context.Background(), domain.CategoryData{ID: "music", Name: "Music"})
 
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
 	_ = h.HandleAddCategory(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)
@@ -94,7 +95,7 @@ func TestAdminHandler_HandleAddCategory_Claimable(t *testing.T) {
 
 	repo := handler.SetupTestRepository(t)
 
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
 	_ = h.HandleAddCategory(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)

@@ -13,6 +13,7 @@ import (
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
+	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"github.com/jadecobra/agbalumo/internal/module/auth"
 	"github.com/jadecobra/agbalumo/internal/repository/cached"
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
@@ -154,7 +155,7 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 	listingHandler.GoogleMapsAPIKey = cfg.GoogleMapsAPIKey
 	csvService := service.NewCSVService()
 	csvService.Geocoding = geocodingSvc
-	adminHandler := handler.NewAdminHandler(
+	adminHandler := admin.NewAdminHandler(
 		domain.AdminStore(repo),
 		domain.FeedbackStore(repo),
 		domain.AnalyticsStore(repo),

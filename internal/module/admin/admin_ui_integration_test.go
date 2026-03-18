@@ -1,6 +1,7 @@
-package handler_test
+package admin_test
 
 import (
+	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"context"
 	"net/http"
 	"net/http/httptest"
@@ -36,7 +37,7 @@ func TestAdminDashboardFooterPosition(t *testing.T) {
 		CreatedAt: time.Now(),
 	})
 
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, nil)
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, nil)
 
 	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
 	rec := httptest.NewRecorder()
@@ -76,7 +77,7 @@ func TestMetricCardsHaveModalTriggers(t *testing.T) {
 	ctx := context.Background()
 	_ = repo.Save(ctx, domain.Listing{ID: "1", Title: "Business A", Type: domain.Business, IsActive: true})
 
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, nil)
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, nil)
 
 	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
 	rec := httptest.NewRecorder()
@@ -114,7 +115,7 @@ func TestCategoryModalExists(t *testing.T) {
 	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplateForPage(t, "admin_dashboard.html")}
 
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, nil)
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, nil)
 
 	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
 	rec := httptest.NewRecorder()
@@ -152,7 +153,7 @@ func TestAdminDashboard_FlashMessages(t *testing.T) {
 	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplateForPage(t, "admin_dashboard.html")}
 
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, nil)
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, nil)
 
 	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
 	rec := httptest.NewRecorder()
@@ -175,10 +176,10 @@ func TestAdminDashboard_FlashMessages(t *testing.T) {
 
 func TestAdminDashboard_ErrorPaths(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	e.Renderer = &AdminMockRenderer{}
 
 	mockRepo := NewMockRepository()
-	h := handler.NewAdminHandler(mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, nil, nil)
+	h := admin.NewAdminHandler(mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, nil, nil)
 
 	tests := []struct {
 		name    string
@@ -214,7 +215,7 @@ func TestAdminListings_ModalTrigger(t *testing.T) {
 	ctx := context.Background()
 	_ = repo.Save(ctx, domain.Listing{ID: "listing1", Title: "Business A", Type: domain.Business, IsActive: true})
 
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, nil)
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, nil)
 
 	req := httptest.NewRequest(http.MethodGet, "/admin/listings", nil)
 	rec := httptest.NewRecorder()

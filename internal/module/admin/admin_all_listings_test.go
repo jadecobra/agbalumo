@@ -1,6 +1,7 @@
-package handler_test
+package admin_test
 
 import (
+	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"context"
 	"net/http"
 	"testing"
@@ -70,7 +71,7 @@ func TestAdminHandler_HandleAllListings_Extended(t *testing.T) {
 			c, rec := setupAdminTestContext(http.MethodGet, "/admin/listings"+tt.query, nil)
 			c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
-			h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+			h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
 			_ = h.HandleAllListings(c)
 
 			assert.Equal(t, tt.expectCode, rec.Code)
@@ -90,7 +91,7 @@ func TestAdminHandler_HandleAllListings_Counts(t *testing.T) {
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin/listings", nil)
 	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
 	_ = h.HandleAllListings(c)
 
 	assert.Equal(t, http.StatusOK, rec.Code)

@@ -1,6 +1,8 @@
-package handler
+package admin
 
 import (
+	"github.com/jadecobra/agbalumo/internal/handler"
+
 	"net/http"
 	"strings"
 
@@ -12,7 +14,7 @@ import (
 func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	pagination := GetPagination(c, 50)
+	pagination := handler.GetPagination(c, 50)
 
 	category := c.QueryParam("category")
 	sortField := c.QueryParam("sort")
@@ -22,7 +24,7 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 	// Fetch all listings with the given category filter, including inactive ones.
 	listings, totalCountRows, err := h.ListingStore.FindAll(ctx, category, queryText, sortField, sortOrder, true, pagination.Limit, pagination.Offset)
 	if err != nil {
-		return RespondError(c, err)
+		return handler.RespondError(c, err)
 	}
 
 	hasNextPage := pagination.Offset+len(listings) < totalCountRows
@@ -39,11 +41,11 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 		categories = []domain.CategoryData{}
 	}
 
-	strCounts, _ := ConvertCounts(counts)
+	strCounts, _ := handler.ConvertCounts(counts)
 
 	return c.Render(http.StatusOK, "admin_listings.html", map[string]interface{}{
 		"Listings":    listings,
-		"Pagination":  Pagination{Page: pagination.Page, TotalPages: (totalCountRows + pagination.Limit - 1) / pagination.Limit, HasNextPage: hasNextPage, TotalCount: totalCountRows},
+		"Pagination":  handler.Pagination{Page: pagination.Page, TotalPages: (totalCountRows + pagination.Limit - 1) / pagination.Limit, HasNextPage: hasNextPage, TotalCount: totalCountRows},
 		"Category":    category,
 		"SortField":   sortField,
 		"SortOrder":   sortOrder,
@@ -66,7 +68,7 @@ func (h *AdminHandler) HandleToggleFeatured(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	if err := h.ListingStore.SetFeatured(ctx, id, featured); err != nil {
-		return RespondError(c, err)
+		return handler.RespondError(c, err)
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{

@@ -1,6 +1,7 @@
-package handler_test
+package admin_test
 
 import (
+	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"context"
 	"io"
 	"net/http"
@@ -19,7 +20,7 @@ import (
 func TestAdminHandler_HandleBulkAction_MorePaths(t *testing.T) {
 	e := echo.New()
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, nil)
+	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, nil)
 
 	ctx := context.Background()
 	_ = repo.Save(ctx, domain.Listing{ID: "l1", Title: "L1", IsActive: true, Status: domain.ListingStatusApproved})
@@ -69,7 +70,7 @@ func TestAdminHandler_HandleBulkAction_MorePaths(t *testing.T) {
 func TestAdminHandler_HandleBulkAction_Errors(t *testing.T) {
 	e := echo.New()
 	mockRepo := NewMockRepository()
-	h := handler.NewAdminHandler(mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, nil, nil)
+	h := admin.NewAdminHandler(mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, nil, nil)
 
 	mockRepo.ErrorOn = map[string]error{"FindByID": assert.AnError}
 
@@ -94,7 +95,7 @@ func TestAdminHandler_HandleBulkAction_Errors(t *testing.T) {
 func TestAdminHandler_HandleBulkUpload_Errors(t *testing.T) {
 	e := echo.New()
 	mockRepo := NewMockRepository()
-	h := handler.NewAdminHandler(mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, nil, nil)
+	h := admin.NewAdminHandler(mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, nil, nil)
 
 	// No file error
 	req := httptest.NewRequest(http.MethodPost, "/admin/bulk-upload", nil)
@@ -134,7 +135,7 @@ func TestAdminHandler_HandleBulkUpload_ResultFormatting(t *testing.T) {
 			Errors:         []string{"err1", "err2", "err3", "err4"},
 		},
 	}
-	h := handler.NewAdminHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil)
+	h := admin.NewAdminHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil)
 	h.CSVService = mockCSV
 
 	e := echo.New()

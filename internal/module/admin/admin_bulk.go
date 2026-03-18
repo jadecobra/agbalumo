@@ -1,6 +1,7 @@
-package handler
+package admin
 
 import (
+
 	"fmt"
 	"net/http"
 	"net/url"

@@ -1,6 +1,7 @@
-package handler_test
+package admin_test
 
 import (
+	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"context"
 	"net/http"
 	"net/url"
@@ -46,7 +47,7 @@ func TestAdminHandler_HandleLoginView(t *testing.T) {
 			}
 
 			repo := handler.SetupTestRepository(t)
-			h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+			h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
 			_ = h.HandleLoginView(c)
 
 			assert.Equal(t, tt.expectCode, rec.Code)
@@ -65,7 +66,7 @@ func TestAdminHandler_HandleLoginAction(t *testing.T) {
 		user       *domain.User
 		expectCode int
 		expectLoc  string
-		verifyUser func(*testing.T, *handler.AdminHandler, string)
+		verifyUser func(*testing.T, *admin.AdminHandler, string)
 	}{
 		{
 			name:       "WrongCode_RendersError",
@@ -89,7 +90,7 @@ func TestAdminHandler_HandleLoginAction(t *testing.T) {
 			user:       &domain.User{ID: "u1", Email: "admin@example.com", Role: "user"},
 			expectCode: http.StatusFound,
 			expectLoc:  "/admin",
-			verifyUser: func(t *testing.T, h *handler.AdminHandler, userID string) {
+			verifyUser: func(t *testing.T, h *admin.AdminHandler, userID string) {
 				// We don't have a direct way to get user from handler easily without repo
 				// but we can check the repo we passed in.
 			},
@@ -112,7 +113,7 @@ func TestAdminHandler_HandleLoginAction(t *testing.T) {
 			cfg := config.LoadConfig()
 			cfg.AdminCode = tt.adminCode
 
-			h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, cfg)
+			h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, cfg)
 			_ = h.HandleLoginAction(c)
 
 			assert.Equal(t, tt.expectCode, rec.Code)
