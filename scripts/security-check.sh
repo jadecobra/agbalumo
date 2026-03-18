@@ -108,10 +108,61 @@ else
 fi
 
 # ============================================
-# CHECK 6: Secret Scanner (Moved from pre-commit.sh)
+# CHECK 6: SQL Injection Prevention
 # ============================================
 echo ""
-echo "6. Running Secret Scanner..."
+echo "6. Checking for SQL Injection patterns..."
+
+SQLI_FAILED=0
+if git diff --cached -- '*.go' | grep "^+" | grep -iqE 'Sprintf.*\b(SELECT|INSERT|UPDATE|DELETE)\b'; then
+    echo "${RED}❌ FAIL: Potential SQL Injection found using string formatting (Sprintf) in staged changes${NC}"
+    SQLI_FAILED=1
+fi
+
+if git diff --cached -- '*.go' | grep "^+" | grep -iE '(Query|QueryRow|Exec)\(.*[+]'; then
+    echo "${RED}❌ FAIL: Potential SQL Injection found using string concatenation (+) in staged changes${NC}"
+    SQLI_FAILED=1
+fi
+
+if [ $SQLI_FAILED -eq 1 ]; then
+    echo "   Use parameterized queries (?) instead of formatting strings into SQL."
+    FAILED=1
+else
+    echo "${GREEN}✅ PASS: No obvious SQL injection patterns found${NC}"
+fi
+
+# ============================================
+# CHECK 7: Cross-Site Scripting (XSS) in Go
+# ============================================
+echo ""
+echo "7. Checking for XSS vulnerabilities (template.HTML)..."
+
+if git diff --cached -- '*.go' | grep "^+" | grep -q 'template\.HTML('; then
+    echo "${YELLOW}⚠️  WARNING: template.HTML() found in staged changes${NC}"
+    echo "   Verify that the input is strictly sanitized. Only use this for trusted content like system icons."
+else
+    echo "${GREEN}✅ PASS: No dangerous unescaped HTML patterns (template.HTML) found${NC}"
+fi
+
+# ============================================
+# CHECK 8: CSRF in OAuth State
+# ============================================
+echo ""
+echo "8. Checking for hardcoded OAuth state (Login CSRF)..."
+
+if git diff --cached -- '*.go' | grep "^+" | grep -qE 'GetAuthCodeURL\("[^"]+"'; then
+    echo "${RED}❌ FAIL: Hardcoded static state found in GetAuthCodeURL${NC}"
+    echo "   Use a dynamic random state (e.g. uuid.New().String()) and verify it in the callback to prevent CSRF."
+    FAILED=1
+else
+    echo "${GREEN}✅ PASS: No hardcoded OAuth state found${NC}"
+fi
+
+# ============================================
+# CHECK 9: Secret Scanner (Moved from pre-commit.sh)
+# ============================================
+echo ""
+echo "9. Running Secret Scanner..."
 
 # 1. Check filenames (staged)
 # Matches .env, .pem, .key, .db, .db-shm, .db-wal
@@ -133,10 +184,10 @@ if [ $FAILED -eq 0 ]; then
 fi
 
 # ============================================
-# CHECK 7: No hardcoded secrets in Go/JS
+# CHECK 10: No hardcoded secrets in Go/JS
 # ============================================
 echo ""
-echo "7. Checking for hardcoded secrets (less strict, for general patterns)..."
+echo "10. Checking for hardcoded secrets (less strict, for general patterns)..."
 
 # Check for common secret patterns
 if git diff --cached -- '*.go' '*.js' '*.html' 2>/dev/null | grep -qE "(password|secret|key|token).*=\s*[\"'][^\"']{8,}[\"']"; then
@@ -147,10 +198,10 @@ fi
 echo "${GREEN}✅ PASS: No obvious hardcoded secrets (general patterns)${NC}"
 
 # ============================================
-# CHECK 8: Container Scan (if Docker modified)
+# CHECK 11: Container Scan (if Docker modified)
 # ============================================
 echo ""
-echo "8. Checking for container vulnerabilities..."
+echo "11. Checking for container vulnerabilities..."
 
 # Only run if Dockerfile or scripts are modified, or if forced
 if git diff --cached --name-only | grep -qE "Dockerfile|scripts/|go.mod|go.sum"; then
