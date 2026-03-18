@@ -15,13 +15,39 @@ import (
 )
 
 type AdminHandler struct {
-	Repo       domain.ListingRepository
-	CSVService domain.CSVService
-	Cfg        *config.Config
+	AdminStore        domain.AdminStore
+	FeedbackStore     domain.FeedbackStore
+	AnalyticsStore    domain.AnalyticsStore
+	CategoryStore     domain.CategoryStore
+	UserStore         domain.UserStore
+	ListingStore      domain.ListingStore
+	ClaimRequestStore domain.ClaimRequestStore
+	CSVService        domain.CSVService
+	Cfg               *config.Config
 }
 
-func NewAdminHandler(repo domain.ListingRepository, csvService domain.CSVService, cfg *config.Config) *AdminHandler {
-	return &AdminHandler{Repo: repo, CSVService: csvService, Cfg: cfg}
+func NewAdminHandler(
+	adminStore domain.AdminStore,
+	feedbackStore domain.FeedbackStore,
+	analyticsStore domain.AnalyticsStore,
+	categoryStore domain.CategoryStore,
+	userStore domain.UserStore,
+	listingStore domain.ListingStore,
+	claimRequestStore domain.ClaimRequestStore,
+	csvService domain.CSVService,
+	cfg *config.Config,
+) *AdminHandler {
+	return &AdminHandler{
+		AdminStore:        adminStore,
+		FeedbackStore:     feedbackStore,
+		AnalyticsStore:    analyticsStore,
+		CategoryStore:     categoryStore,
+		UserStore:         userStore,
+		ListingStore:      listingStore,
+		ClaimRequestStore: claimRequestStore,
+		CSVService:        csvService,
+		Cfg:               cfg,
+	}
 }
 
 // AdminMiddleware checks if the user is an admin.
@@ -79,7 +105,7 @@ func (h *AdminHandler) HandleLoginAction(c echo.Context) error {
 
 	u.Role = domain.UserRoleAdmin
 	// SaveUser now handles update via ID efficiently
-	if err := h.Repo.SaveUser(c.Request().Context(), u); err != nil {
+	if err := h.UserStore.SaveUser(c.Request().Context(), u); err != nil {
 		return RespondError(c, err)
 	}
 
@@ -90,32 +116,32 @@ func (h *AdminHandler) HandleLoginAction(c echo.Context) error {
 func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	claimRequests, err := h.Repo.GetPendingClaimRequests(ctx)
+	claimRequests, err := h.ClaimRequestStore.GetPendingClaimRequests(ctx)
 	if err != nil {
 		return RespondError(c, err)
 	}
 
-	userCount, err := h.Repo.GetUserCount(ctx)
+	userCount, err := h.AdminStore.GetUserCount(ctx)
 	if err != nil {
 		return RespondError(c, err)
 	}
 
-	feedbackCounts, err := h.Repo.GetFeedbackCounts(ctx)
+	feedbackCounts, err := h.FeedbackStore.GetFeedbackCounts(ctx)
 	if err != nil {
 		return RespondError(c, err)
 	}
 
-	listingGrowth, err := h.Repo.GetListingGrowth(ctx)
+	listingGrowth, err := h.AnalyticsStore.GetListingGrowth(ctx)
 	if err != nil {
 		return RespondError(c, err)
 	}
 
-	userGrowth, err := h.Repo.GetUserGrowth(ctx)
+	userGrowth, err := h.AnalyticsStore.GetUserGrowth(ctx)
 	if err != nil {
 		return RespondError(c, err)
 	}
 
-	feedbacks, err := h.Repo.GetAllFeedback(ctx)
+	feedbacks, err := h.FeedbackStore.GetAllFeedback(ctx)
 	if err != nil {
 		return RespondError(c, err)
 	}
@@ -130,19 +156,19 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 		}
 	}
 
-	counts, _ := h.Repo.GetCounts(ctx)
+	counts, _ := h.ListingStore.GetCounts(ctx)
 	listingCount := 0
 	for _, c := range counts {
 		listingCount += c
 	}
 
-	categories, err := h.Repo.GetCategories(ctx, domain.CategoryFilter{})
+	categories, err := h.CategoryStore.GetCategories(ctx, domain.CategoryFilter{})
 	if err != nil {
 		c.Logger().Errorf("failed to get categories: %v", err)
 		categories = []domain.CategoryData{}
 	}
 
-	users, err := h.Repo.GetAllUsers(ctx, 10, 0)
+	users, err := h.AdminStore.GetAllUsers(ctx, 10, 0)
 	if err != nil {
 		c.Logger().Errorf("failed to get users: %v", err)
 		users = []domain.User{}
@@ -173,7 +199,7 @@ func (h *AdminHandler) HandleAddCategory(c echo.Context) error {
 	}
 
 	// Case-insensitive check for existing category
-	existing, err := h.Repo.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: false})
+	existing, err := h.CategoryStore.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: false})
 	if err == nil {
 		for _, cat := range existing {
 			if strings.EqualFold(cat.Name, name) {
@@ -201,7 +227,7 @@ func (h *AdminHandler) HandleAddCategory(c echo.Context) error {
 		UpdatedAt: now,
 	}
 
-	err = h.Repo.SaveCategory(ctx, cat)
+	err = h.CategoryStore.SaveCategory(ctx, cat)
 	if err != nil {
 		c.Logger().Errorf("failed to save custom category: %v", err)
 	}
@@ -220,7 +246,7 @@ func (h *AdminHandler) HandleAddCategory(c echo.Context) error {
 func (h *AdminHandler) HandleUsers(c echo.Context) error {
 	ctx := c.Request().Context()
 	p := GetPagination(c, 50)
-	users, err := h.Repo.GetAllUsers(ctx, p.Limit, p.Offset)
+	users, err := h.AdminStore.GetAllUsers(ctx, p.Limit, p.Offset)
 	if err != nil {
 		return RespondError(c, err)
 	}
@@ -239,7 +265,7 @@ func (h *AdminHandler) HandleExportListings(c echo.Context) error {
 
 	// Fetch all listings. Using a large limit for export.
 	// In a very large system, we might want to stream this from the DB directly.
-	listings, _, err := h.Repo.FindAll(ctx, "", "", "created_at", "desc", true, 10000, 0)
+	listings, _, err := h.ListingStore.FindAll(ctx, "", "", "created_at", "desc", true, 10000, 0)
 	if err != nil {
 		return RespondError(c, err)
 	}

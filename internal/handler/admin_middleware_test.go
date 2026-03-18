@@ -13,7 +13,7 @@ import (
 
 func TestAdminMiddleware_NoUser(t *testing.T) {
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin", nil)
-	h := handler.NewAdminHandler(nil, nil, config.LoadConfig())
+	h := handler.NewAdminHandler(nil, nil, nil, nil, nil, nil, nil, nil, config.LoadConfig())
 
 	called := false
 	mdw := h.AdminMiddleware(func(c echo.Context) error {
@@ -29,7 +29,7 @@ func TestAdminMiddleware_NoUser(t *testing.T) {
 func TestAdminMiddleware_AdminUser(t *testing.T) {
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin", nil)
 	c.Set("User", domain.User{ID: "admin1", Role: domain.UserRoleAdmin})
-	h := handler.NewAdminHandler(nil, nil, config.LoadConfig())
+	h := handler.NewAdminHandler(nil, nil, nil, nil, nil, nil, nil, nil, config.LoadConfig())
 
 	called := false
 	mdw := h.AdminMiddleware(func(c echo.Context) error {

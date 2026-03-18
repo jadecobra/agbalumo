@@ -20,20 +20,20 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 	queryText := strings.TrimSpace(c.QueryParam("q"))
 
 	// Fetch all listings with the given category filter, including inactive ones.
-	listings, totalCountRows, err := h.Repo.FindAll(ctx, category, queryText, sortField, sortOrder, true, pagination.Limit, pagination.Offset)
+	listings, totalCountRows, err := h.ListingStore.FindAll(ctx, category, queryText, sortField, sortOrder, true, pagination.Limit, pagination.Offset)
 	if err != nil {
 		return RespondError(c, err)
 	}
 
 	hasNextPage := pagination.Offset+len(listings) < totalCountRows
 
-	counts, err := h.Repo.GetCounts(ctx)
+	counts, err := h.ListingStore.GetCounts(ctx)
 	if err != nil {
 		c.Logger().Errorf("failed to get listing counts: %v", err)
 		counts = make(map[domain.Category]int)
 	}
 
-	categories, err := h.Repo.GetCategories(ctx, domain.CategoryFilter{})
+	categories, err := h.CategoryStore.GetCategories(ctx, domain.CategoryFilter{})
 	if err != nil {
 		c.Logger().Errorf("failed to get categories: %v", err)
 		categories = []domain.CategoryData{}
@@ -65,7 +65,7 @@ func (h *AdminHandler) HandleToggleFeatured(c echo.Context) error {
 	featured := c.FormValue("featured") == "true"
 	ctx := c.Request().Context()
 
-	if err := h.Repo.SetFeatured(ctx, id, featured); err != nil {
+	if err := h.ListingStore.SetFeatured(ctx, id, featured); err != nil {
 		return RespondError(c, err)
 	}
 

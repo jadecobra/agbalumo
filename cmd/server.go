@@ -141,7 +141,7 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 	listingHandler.GoogleMapsAPIKey = cfg.GoogleMapsAPIKey
 	csvService := service.NewCSVService()
 	csvService.Geocoding = geocodingSvc
-	adminHandler := handler.NewAdminHandler(repo, csvService, cfg)
+	adminHandler := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, csvService, cfg)
 	authHandler := handler.NewAuthHandler(repo, nil, cfg)
 	authMw := customMiddleware.NewAuthMiddleware(repo)
 

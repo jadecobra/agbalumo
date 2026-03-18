@@ -39,7 +39,7 @@ func TestAdminHandler_HandleBulkUpload(t *testing.T) {
 	c.Set("User", adminUser)
 
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewAdminHandler(repo, service.NewCSVService(), config.LoadConfig())
+	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, service.NewCSVService(), config.LoadConfig())
 
 	store := middleware.NewTestSessionStore()
 	session, _ := store.Get(c.Request(), "auth_session")
@@ -74,7 +74,7 @@ func TestAdminHandler_HandleBulkUpload_InvalidCSV(t *testing.T) {
 
 	repo := handler.SetupTestRepository(t)
 	// We need to inject a mock session store because HandleBulkUpload uses it for flash messages
-	h := handler.NewAdminHandler(repo, service.NewCSVService(), config.LoadConfig())
+	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, service.NewCSVService(), config.LoadConfig())
 	_ = h.HandleBulkUpload(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)
@@ -89,7 +89,7 @@ func TestAdminHandler_HandleBulkUpload_NoFile(t *testing.T) {
 	session, _ := store.Get(c.Request(), "auth_session")
 	c.Set("session", session)
 
-	h := handler.NewAdminHandler(nil, service.NewCSVService(), config.LoadConfig())
+	h := handler.NewAdminHandler(nil, nil, nil, nil, nil, nil, nil, service.NewCSVService(), config.LoadConfig())
 	_ = h.HandleBulkUpload(c)
 	assert.Equal(t, http.StatusFound, rec.Code)
 }
@@ -118,7 +118,7 @@ func TestAdminHandler_HandleBulkUpload_ParseError(t *testing.T) {
 	c.Set("session", session)
 
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewAdminHandler(repo, service.NewCSVService(), config.LoadConfig())
+	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, service.NewCSVService(), config.LoadConfig())
 	_ = h.HandleBulkUpload(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)
@@ -130,7 +130,7 @@ func TestAdminHandler_HandleBulkUpload_ParseError(t *testing.T) {
 func TestHandleBulkAction_NoSelection(t *testing.T) {
 	e := echo.New()
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewAdminHandler(repo, nil, &config.Config{})
+	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, &config.Config{})
 
 	req := httptest.NewRequest(http.MethodPost, "/admin/listings/bulk", nil)
 	rec := httptest.NewRecorder()
@@ -145,7 +145,7 @@ func TestHandleBulkAction_NoSelection(t *testing.T) {
 func TestHandleBulkAction_Approve(t *testing.T) {
 	e := echo.New()
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewAdminHandler(repo, nil, &config.Config{})
+	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, &config.Config{})
 
 	_ = repo.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Status: domain.ListingStatusPending})
 
@@ -167,7 +167,7 @@ func TestHandleBulkAction_Approve(t *testing.T) {
 func TestHandleBulkAction_Reject(t *testing.T) {
 	e := echo.New()
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewAdminHandler(repo, nil, &config.Config{})
+	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, &config.Config{})
 
 	_ = repo.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Status: domain.ListingStatusPending})
 
@@ -189,7 +189,7 @@ func TestHandleBulkAction_Reject(t *testing.T) {
 func TestHandleBulkAction_Delete(t *testing.T) {
 	e := echo.New()
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewAdminHandler(repo, nil, &config.Config{})
+	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, &config.Config{})
 
 	form := url.Values{}
 	form.Add("action", "delete")
@@ -208,7 +208,7 @@ func TestHandleBulkAction_Delete(t *testing.T) {
 func TestHandleBulkAction_ChangeCategory(t *testing.T) {
 	e := echo.New()
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewAdminHandler(repo, nil, &config.Config{})
+	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, &config.Config{})
 
 	// Create listings with "Business" category
 	_ = repo.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Type: domain.Business, City: "Lagos", OwnerOrigin: "Nigeria"})
@@ -239,7 +239,7 @@ func TestHandleBulkAction_NoAction(t *testing.T) {
 	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewAdminHandler(repo, nil, config.LoadConfig())
+	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
 	_ = h.HandleBulkAction(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)
@@ -264,7 +264,7 @@ func TestAdminHandler_HandleBulkUpload_ManyErrors(t *testing.T) {
 	c.Set("session", session)
 
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewAdminHandler(repo, service.NewCSVService(), config.LoadConfig())
+	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, service.NewCSVService(), config.LoadConfig())
 	_ = h.HandleBulkUpload(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)
@@ -273,7 +273,7 @@ func TestAdminHandler_HandleBulkUpload_ManyErrors(t *testing.T) {
 func TestHandleBulkAction_ChangeToCustomCategory(t *testing.T) {
 	e := echo.New()
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewAdminHandler(repo, nil, &config.Config{})
+	h := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, &config.Config{})
 
 	// Add a custom category
 	customCategory := domain.CategoryData{

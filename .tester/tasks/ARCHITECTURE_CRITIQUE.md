@@ -39,8 +39,8 @@
 - [ ] Polish end-to-end component granularity and standard metric gathering in production-like environments.
 - [ ] **Modularization: Phase 1 - Interface Segregation**
   - [x] Task 1.1: Refactor `ListingService` to inject specific stores (`ClaimRequestStore`) instead of `ListingRepository`. Validation: `go test ./internal/service/...`
-  - [ ] Task 1.2: Refactor `ListingHandler` to inject `ListingStore` and `CategoryStore` instead of `ListingRepository`. Validation: `go test ./internal/handler/... -run TestListing`
-  - [ ] Task 1.3: Refactor `AdminHandler` to inject `AdminStore`, `FeedbackStore`, `AnalyticsStore`, `CategoryStore`, `UserStore`. Validation: `go test ./internal/handler/... -run TestAdmin`
+  - [x] Task 1.2: Refactor `ListingHandler` to inject `ListingStore` and `CategoryStore` instead of `ListingRepository`. Validation: `go test ./internal/handler/... -run TestListing`
+  - [x] Task 1.3: Refactor `AdminHandler` to inject `AdminStore`, `FeedbackStore`, `AnalyticsStore`, `CategoryStore`, `UserStore`. Validation: `go test ./internal/handler/... -run TestAdmin`
   - [ ] Task 1.4: Refactor remaining handlers (`AuthHandler`, `UserHandler`, etc.) to inject only their required stores. Validation: `go test ./internal/handler/...`
   - [ ] Task 1.5: Fix DI in `cmd/server.go`. Cast `sqlite.SQLiteRepository` to the specific interfaces when injecting handlers. Validation: Run `./scripts/pre-commit.sh` and `./scripts/verify_restart.sh`.
 - [ ] **Modularization: Phase 2 - Vertical Slices**

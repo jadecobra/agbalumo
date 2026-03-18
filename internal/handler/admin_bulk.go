@@ -40,7 +40,7 @@ func (h *AdminHandler) HandleBulkAction(c echo.Context) error {
 	// Safe bounded admin action: N+1 here is acceptable because batch sizes are limited
 	// by pagination (e.g. 50 items) and SQLite connection overhead is negligible.
 	for _, id := range selectedIDs {
-		listing, err := h.Repo.FindByID(ctx, id)
+		listing, err := h.ListingStore.FindByID(ctx, id)
 		if err != nil {
 			continue // Skip if not found
 		}
@@ -62,7 +62,7 @@ func (h *AdminHandler) HandleBulkAction(c echo.Context) error {
 			continue // Unknown action
 		}
 
-		if err := h.Repo.Save(ctx, listing); err == nil {
+		if err := h.ListingStore.Save(ctx, listing); err == nil {
 			successCount++
 		}
 	}
@@ -100,7 +100,7 @@ func (h *AdminHandler) HandleBulkUpload(c echo.Context) error {
 	defer func() { _ = src.Close() }()
 
 	// 2. Parse and Import
-	result, err := h.CSVService.ParseAndImport(c.Request().Context(), src, h.Repo)
+	result, err := h.CSVService.ParseAndImport(c.Request().Context(), src, h.ListingStore)
 	if err != nil {
 		return handleError("Failed to process CSV: " + err.Error())
 	}
