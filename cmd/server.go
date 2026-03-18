@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gorilla/sessions"
+	"github.com/jadecobra/agbalumo/internal/common"
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
@@ -170,6 +171,7 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 	)
 	authHandler := auth.NewAuthHandler(domain.UserStore(repo), nil, cfg)
 	authMw := auth.NewAuthMiddleware(domain.UserStore(repo))
+	pageHandler := common.NewPageHandler(domain.CategoryStore(cachedRepo), cfg)
 
 	// Auth Routes
 	e.GET("/auth/dev", authHandler.DevLogin)
@@ -195,7 +197,7 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 
 	// Public Routes
 	e.GET("/", listingHandler.HandleHome)
-	e.GET("/about", listingHandler.HandleAbout)
+	e.GET("/about", pageHandler.HandleAbout)
 	e.GET("/listings/fragment", listingHandler.HandleFragment)
 	e.GET("/listings/:id", listingHandler.HandleDetail)
 

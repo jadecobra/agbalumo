@@ -236,12 +236,7 @@ func (h *ListingHandler) HandleEdit(c echo.Context) error {
 	})
 }
 
-// HandleAbout renders the generic about page.
-func (h *ListingHandler) HandleAbout(c echo.Context) error {
-	return h.renderWithBaseContext(c, "about.html", map[string]interface{}{
-		"User": c.Get("User"),
-	})
-}
+
 
 // Helper methods
 

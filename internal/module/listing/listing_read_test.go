@@ -113,24 +113,7 @@ func TestHandleProfile(t *testing.T) {
 	assert.Contains(t, rec.Body.String(), "John Doe")
 }
 
-func TestHandleAbout(t *testing.T) {
-	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
-	req := setupRequest(http.MethodGet, "/about", nil)
-	rec := setupResponseRecorder()
-	c := e.NewContext(req, rec)
 
-	repo := handler.SetupTestRepository(t)
-
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-
-	h := listmod.NewListingHandler(repo, repo, listingSvc, nil, &MockGeocodingService{}, &config.Config{})
-	if err := h.HandleAbout(c); err != nil {
-		t.Fatal(err)
-	}
-
-	assert.Contains(t, rec.Body.String(), "About agbalumo")
-}
 
 func TestHandleFragment(t *testing.T) {
 	e := echo.New()

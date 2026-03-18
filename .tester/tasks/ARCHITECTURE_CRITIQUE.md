@@ -49,7 +49,7 @@
   - [x] Task 2.3: Extract `internal/module/listing/` containing all remaining core listing handlers and services. Validation: `go test ./internal/module/listing/...` and verify `cmd/server.go`.
   - [ ] Task 2.4: Move generic utilities and shared middleware to `internal/common/`. Validation: Run `./scripts/pre-commit.sh` and `./scripts/verify_restart.sh`. This includes:
     - [x] Decoupling `admin_listing_table_row` HTMX response from `ListingHandler`.
-    - [ ] Moving `HandleAbout` to a generic `PageHandler` or `common` module.
+    - [x] Moving `HandleAbout` to a generic `PageHandler` or `common` module.
     - [ ] Extracting pure domain logic (e.g., `extractCityFromAddress`) out of HTTP handlers.
     - [ ] Extracting shared error UI logic (e.g., `IsImageError`, `renderImageErrorToast`).
 - [x] Implemented 100k concurrent users distributed load test via k6 and fixed SQLite MaxOpenConns serialization bottleneck.
