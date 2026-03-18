@@ -1,6 +1,8 @@
 package admin
 
 import (
+	"github.com/jadecobra/agbalumo/internal/module/listing"
+
 	"github.com/jadecobra/agbalumo/internal/handler"
 
 	"fmt"
@@ -247,7 +249,7 @@ func (h *AdminHandler) HandleAddCategory(c echo.Context) error {
 // HandleUsers renders the list of users for admins.
 func (h *AdminHandler) HandleUsers(c echo.Context) error {
 	ctx := c.Request().Context()
-	p := handler.GetPagination(c, 50)
+	p := listing.GetPagination(c, 50)
 	users, err := h.AdminStore.GetAllUsers(ctx, p.Limit, p.Offset)
 	if err != nil {
 		return handler.RespondError(c, err)

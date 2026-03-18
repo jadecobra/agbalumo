@@ -45,8 +45,8 @@
   - [x] Task 1.5: Fix DI in `cmd/server.go`. Cast `sqlite.SQLiteRepository` to the specific interfaces when injecting handlers. Validation: Run `./scripts/pre-commit.sh` and `./scripts/verify_restart.sh`.
 - [ ] **Modularization: Phase 2 - Vertical Slices**
   - [x] Task 2.1: Extract `internal/module/auth/` containing auth features (handlers, middleware). Validation: `go test ./internal/module/auth/...` and verify `cmd/server.go`.
-  - [ ] Task 2.2: Extract `internal/module/admin/` containing admin handlers. Validation: `go test ./internal/module/admin/...` and verify `cmd/server.go`.
-  - [ ] Task 2.3: Extract `internal/module/listing/` containing all remaining core listing handlers and services. Validation: `go test ./internal/module/listing/...` and verify `cmd/server.go`.
+  - [x] Task 2.2: Extract `internal/module/admin/` containing admin handlers. Validation: `go test ./internal/module/admin/...` and verify `cmd/server.go`.
+  - [x] Task 2.3: Extract `internal/module/listing/` containing all remaining core listing handlers and services. Validation: `go test ./internal/module/listing/...` and verify `cmd/server.go`.
   - [ ] Task 2.4: Move generic utilities and shared middleware to `internal/common/`. Validation: Run `./scripts/pre-commit.sh` and `./scripts/verify_restart.sh`.
 - [x] Implemented 100k concurrent users distributed load test via k6 and fixed SQLite MaxOpenConns serialization bottleneck.
 - [ ] **Stress Testing & Benchmarking (100k Listings)**

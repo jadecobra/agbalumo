@@ -1,7 +1,6 @@
 package admin_test
 
 import (
-	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"context"
 	"io"
 	"net/http"
@@ -9,6 +8,8 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+
+	"github.com/jadecobra/agbalumo/internal/module/admin"
 
 	"github.com/gorilla/sessions"
 	"github.com/jadecobra/agbalumo/internal/domain"

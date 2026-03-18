@@ -1,12 +1,13 @@
 package admin_test
 
 import (
-	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"context"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/jadecobra/agbalumo/internal/module/admin"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"

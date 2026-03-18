@@ -1,6 +1,8 @@
 package admin
 
 import (
+	"github.com/jadecobra/agbalumo/internal/module/listing"
+
 	"github.com/jadecobra/agbalumo/internal/handler"
 
 	"net/http"
@@ -14,7 +16,7 @@ import (
 func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	pagination := handler.GetPagination(c, 50)
+	pagination := listing.GetPagination(c, 50)
 
 	category := c.QueryParam("category")
 	sortField := c.QueryParam("sort")
@@ -41,19 +43,19 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 		categories = []domain.CategoryData{}
 	}
 
-	strCounts, _ := handler.ConvertCounts(counts)
+	strCounts, _ := listing.ConvertCounts(counts)
 
 	return c.Render(http.StatusOK, "admin_listings.html", map[string]interface{}{
-		"Listings":    listings,
-		"Pagination":  handler.Pagination{Page: pagination.Page, TotalPages: (totalCountRows + pagination.Limit - 1) / pagination.Limit, HasNextPage: hasNextPage, TotalCount: totalCountRows},
-		"Category":    category,
-		"SortField":   sortField,
-		"SortOrder":   sortOrder,
-		"QueryText":   queryText,
-		"Counts":      strCounts,
-		"Categories":  categories,
-		"TotalCount":  totalCountRows, // Use totalCountRows from FindAll for consistent count
-		"User":        c.Get("User"),
+		"Listings":   listings,
+		"Pagination": listing.Pagination{Page: pagination.Page, TotalPages: (totalCountRows + pagination.Limit - 1) / pagination.Limit, HasNextPage: hasNextPage, TotalCount: totalCountRows},
+		"Category":   category,
+		"SortField":  sortField,
+		"SortOrder":  sortOrder,
+		"QueryText":  queryText,
+		"Counts":     strCounts,
+		"Categories": categories,
+		"TotalCount": totalCountRows, // Use totalCountRows from FindAll for consistent count
+		"User":       c.Get("User"),
 	})
 }
 

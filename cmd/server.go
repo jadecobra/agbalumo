@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"github.com/jadecobra/agbalumo/internal/module/listing"
+
 	"context"
 	"log/slog"
 	"net/http"
@@ -139,12 +141,12 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 	// P2.3: Wrap repo with cached store for GetCounts (60s TTL)
 	cachedRepo := cached.NewCachedListingStore(repo, 60*time.Second)
 	geocodingSvc := service.NewGoogleGeocodingService(cfg.GoogleMapsAPIKey)
-	listingSvc := service.NewListingService(
+	listingSvc := listing.NewListingService(
 		domain.ListingStore(cachedRepo),
 		domain.CategoryStore(cachedRepo),
 		domain.ClaimRequestStore(cachedRepo),
 	)
-	listingHandler := handler.NewListingHandler(
+	listingHandler := listing.NewListingHandler(
 		domain.ListingStore(cachedRepo),
 		domain.CategoryStore(cachedRepo),
 		listingSvc,

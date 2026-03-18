@@ -1,63 +1,55 @@
 package handler_test
 
 import (
+	"context"
 	"html/template"
 	"io"
-	"os"
-	"path/filepath"
-	"testing"
+	"mime/multipart"
 
 	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
+	testifyMock "github.com/stretchr/testify/mock"
 )
 
-// RealTemplateRenderer parses actual files from ui/templates
-type RealTemplateRenderer struct {
+// Simple Template Renderer for testing
+type TestRenderer struct {
 	templates *template.Template
 }
 
-func (t *RealTemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+func (t *TestRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
-// NewRealTemplate returns a template object parsed from actual filesystem files.
-// It includes all templates, partials, and components.
-func NewRealTemplate(t *testing.T) *template.Template {
-	return NewRealTemplateForPage(t, "index.html")
+func NewMainTemplate() *template.Template {
+	return template.Must(template.New("listing").Funcs(ui.BuildGlobalFuncMap()).Parse(`
+		{{define "index.html"}}{{.TotalCount}} {{range .Listings}}{{.Title}}{{end}}{{end}}
+		{{define "modal_detail"}}{{.Listing.Title}}{{end}}
+		{{define "listing_list"}}{{range .Listings}}{{.Title}}{{end}}{{template "pagination_controls" dict "OOB" true}}{{end}}
+		{{define "pagination_controls"}}{{if .OOB}}hx-swap-oob="true" id="pagination-controls"{{end}}{{end}}
+		{{define "listing_card"}}{{.Listing.Title}}{{end}}
+		{{define "modal_edit_listing"}}{{.Listing.Title}}{{end}}
+		{{define "modal_profile"}}{{.User.Name}}{{end}}
+		{{define "profile.html"}}{{.User.Name}}{{end}}
+		{{define "about.html"}}About agbalumo{{end}}
+		{{define "error.html"}}Error Page: {{.Message}}{{end}}
+		{{define "admin_listings.html"}}{{range .Listings}}{{.Title}}{{end}}{{end}}
+		{{define "admin_listing_table_row"}}<tr id="listing-row-{{.ID}}"><input type="checkbox" /></tr>{{end}}
+		{{define "admin_dashboard.html"}}Admin Dashboard{{end}}
+		{{define "modal_feedback.html"}}Feedback Modal{{end}}
+	`))
 }
 
-// NewRealTemplateForPage returns a template object for a specific page.
-func NewRealTemplateForPage(t *testing.T, pageName string) *template.Template {
-	wd, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
+// MockImageService for testing
+type MockImageService struct {
+	testifyMock.Mock
+}
 
-	projectRoot := filepath.Join(wd, "..", "..")
-	partialPattern := filepath.Join(projectRoot, "ui", "templates", "partials", "*.html")
-	componentPattern := filepath.Join(projectRoot, "ui", "templates", "components", "*.html")
+func (m *MockImageService) UploadImage(ctx context.Context, file *multipart.FileHeader, listingID string) (string, error) {
+	args := m.Called(ctx, file, listingID)
+	return args.String(0), args.Error(1)
+}
 
-	funcMap := ui.BuildGlobalFuncMap()
-
-	// We parse base.html, error.html and the specific page
-	tmpl := template.New("base").Funcs(funcMap)
-	tmpl, err = tmpl.ParseFiles(
-		filepath.Join(projectRoot, "ui", "templates", "base.html"),
-		filepath.Join(projectRoot, "ui", "templates", "error.html"),
-		filepath.Join(projectRoot, "ui", "templates", pageName),
-	)
-	if err != nil {
-		t.Fatalf("Failed to parse templates for %s: %v", pageName, err)
-	}
-
-	_, err = tmpl.ParseGlob(partialPattern)
-	if err != nil {
-		t.Fatalf("Failed to parse partial templates: %v", err)
-	}
-	_, err = tmpl.ParseGlob(componentPattern)
-	if err != nil {
-		t.Fatalf("Failed to parse component templates: %v", err)
-	}
-
-	return tmpl
+func (m *MockImageService) DeleteImage(ctx context.Context, imageURL string) error {
+	args := m.Called(ctx, imageURL)
+	return args.Error(0)
 }
