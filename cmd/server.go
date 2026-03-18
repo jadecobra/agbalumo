@@ -10,6 +10,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/jadecobra/agbalumo/internal/config"
+	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/jadecobra/agbalumo/internal/repository/cached"
@@ -136,14 +137,35 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 	// P2.3: Wrap repo with cached store for GetCounts (60s TTL)
 	cachedRepo := cached.NewCachedListingStore(repo, 60*time.Second)
 	geocodingSvc := service.NewGoogleGeocodingService(cfg.GoogleMapsAPIKey)
-	listingSvc := service.NewListingService(cachedRepo, cachedRepo, cachedRepo)
-	listingHandler := handler.NewListingHandler(cachedRepo, cachedRepo, listingSvc, nil, geocodingSvc, cfg)
+	listingSvc := service.NewListingService(
+		domain.ListingStore(cachedRepo),
+		domain.CategoryStore(cachedRepo),
+		domain.ClaimRequestStore(cachedRepo),
+	)
+	listingHandler := handler.NewListingHandler(
+		domain.ListingStore(cachedRepo),
+		domain.CategoryStore(cachedRepo),
+		listingSvc,
+		nil,
+		geocodingSvc,
+		cfg,
+	)
 	listingHandler.GoogleMapsAPIKey = cfg.GoogleMapsAPIKey
 	csvService := service.NewCSVService()
 	csvService.Geocoding = geocodingSvc
-	adminHandler := handler.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, csvService, cfg)
-	authHandler := handler.NewAuthHandler(repo, nil, cfg)
-	authMw := customMiddleware.NewAuthMiddleware(repo)
+	adminHandler := handler.NewAdminHandler(
+		domain.AdminStore(repo),
+		domain.FeedbackStore(repo),
+		domain.AnalyticsStore(repo),
+		domain.CategoryStore(repo),
+		domain.UserStore(repo),
+		domain.ListingStore(repo),
+		domain.ClaimRequestStore(repo),
+		csvService,
+		cfg,
+	)
+	authHandler := handler.NewAuthHandler(domain.UserStore(repo), nil, cfg)
+	authMw := customMiddleware.NewAuthMiddleware(domain.UserStore(repo))
 
 	// Auth Routes
 	e.GET("/auth/dev", authHandler.DevLogin)
