@@ -37,14 +37,14 @@
 
 ## 🔲 Next Steps
 - [ ] Polish end-to-end component granularity and standard metric gathering in production-like environments.
-- [ ] **Modularization: Phase 1 - Interface Segregation**
+- [x] **Modularization: Phase 1 - Interface Segregation**
   - [x] Task 1.1: Refactor `ListingService` to inject specific stores (`ClaimRequestStore`) instead of `ListingRepository`. Validation: `go test ./internal/service/...`
   - [x] Task 1.2: Refactor `ListingHandler` to inject `ListingStore` and `CategoryStore` instead of `ListingRepository`. Validation: `go test ./internal/handler/... -run TestListing`
   - [x] Task 1.3: Refactor `AdminHandler` to inject `AdminStore`, `FeedbackStore`, `AnalyticsStore`, `CategoryStore`, `UserStore`. Validation: `go test ./internal/handler/... -run TestAdmin`
-  - [ ] Task 1.4: Refactor remaining handlers (`AuthHandler`, `UserHandler`, etc.) to inject only their required stores. Validation: `go test ./internal/handler/...`
-  - [ ] Task 1.5: Fix DI in `cmd/server.go`. Cast `sqlite.SQLiteRepository` to the specific interfaces when injecting handlers. Validation: Run `./scripts/pre-commit.sh` and `./scripts/verify_restart.sh`.
+  - [x] Task 1.4: Refactor remaining handlers (`AuthHandler`, `UserHandler`, etc.) to inject only their required stores. Validation: `go test ./internal/handler/...`
+  - [x] Task 1.5: Fix DI in `cmd/server.go`. Cast `sqlite.SQLiteRepository` to the specific interfaces when injecting handlers. Validation: Run `./scripts/pre-commit.sh` and `./scripts/verify_restart.sh`.
 - [ ] **Modularization: Phase 2 - Vertical Slices**
-  - [ ] Task 2.1: Extract `internal/module/auth/` containing auth features (handlers, middleware). Validation: `go test ./internal/module/auth/...` and verify `cmd/server.go`.
+  - [x] Task 2.1: Extract `internal/module/auth/` containing auth features (handlers, middleware). Validation: `go test ./internal/module/auth/...` and verify `cmd/server.go`.
   - [ ] Task 2.2: Extract `internal/module/admin/` containing admin handlers. Validation: `go test ./internal/module/admin/...` and verify `cmd/server.go`.
   - [ ] Task 2.3: Extract `internal/module/listing/` containing all remaining core listing handlers and services. Validation: `go test ./internal/module/listing/...` and verify `cmd/server.go`.
   - [ ] Task 2.4: Move generic utilities and shared middleware to `internal/common/`. Validation: Run `./scripts/pre-commit.sh` and `./scripts/verify_restart.sh`.

@@ -13,6 +13,7 @@ import (
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
+	"github.com/jadecobra/agbalumo/internal/module/auth"
 	"github.com/jadecobra/agbalumo/internal/repository/cached"
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
 	"github.com/jadecobra/agbalumo/internal/seeder"
@@ -164,8 +165,8 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 		csvService,
 		cfg,
 	)
-	authHandler := handler.NewAuthHandler(domain.UserStore(repo), nil, cfg)
-	authMw := customMiddleware.NewAuthMiddleware(domain.UserStore(repo))
+	authHandler := auth.NewAuthHandler(domain.UserStore(repo), nil, cfg)
+	authMw := auth.NewAuthMiddleware(domain.UserStore(repo))
 
 	// Auth Routes
 	e.GET("/auth/dev", authHandler.DevLogin)

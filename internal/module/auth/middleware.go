@@ -1,9 +1,10 @@
-package middleware
+package auth
 
 import (
 	"net/http"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/labstack/echo/v4"
 )
 
@@ -20,7 +21,7 @@ func NewAuthMiddleware(repo domain.UserStore) *AuthMiddleware {
 // OptionalAuth injects user into context if session exists
 func (m *AuthMiddleware) OptionalAuth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		sess := GetSession(c)
+		sess := middleware.GetSession(c)
 		if sess != nil {
 			if userID, ok := sess.Values["user_id"].(string); ok {
 				user, err := m.Repo.FindUserByID(c.Request().Context(), userID)
@@ -36,7 +37,7 @@ func (m *AuthMiddleware) OptionalAuth(next echo.HandlerFunc) echo.HandlerFunc {
 // RequireAuth redirects to login if no active session
 func (m *AuthMiddleware) RequireAuth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		sess := GetSession(c)
+		sess := middleware.GetSession(c)
 		authSuccess := false
 		if sess != nil {
 			if _, ok := sess.Values["user_id"].(string); ok {

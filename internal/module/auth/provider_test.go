@@ -1,11 +1,11 @@
-package handler_test
+package auth_test
 
 import (
 	"net/url"
 	"os"
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/module/auth"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -70,7 +70,7 @@ func TestRealGoogleProvider_GetRedirectURL(t *testing.T) {
 				_ = os.Setenv(k, v)
 			}
 
-			p := handler.NewRealGoogleProvider()
+			p := auth.NewRealGoogleProvider()
 			scheme := "http"
 			if tt.host == "localhost:8443" || tt.env["AGBALUMO_ENV"] == "production" {
 				scheme = "https"
@@ -89,6 +89,6 @@ func TestRealGoogleProvider_Exchange_RedirectURL(t *testing.T) {
 	_ = os.Setenv("BASE_URL", "https://test.com")
 	defer func() { _ = os.Unsetenv("BASE_URL") }()
 
-	p := handler.NewRealGoogleProvider()
+	p := auth.NewRealGoogleProvider()
 	_ = p
 }
