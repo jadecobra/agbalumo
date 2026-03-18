@@ -147,7 +147,7 @@ func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error
 
 		// Last resort: Try to extract city manually if still empty
 		if l.City == "" {
-			l.City = extractCityFromAddress(l.Address)
+			l.City = domain.ExtractCityFromAddress(l.Address)
 		}
 	}
 
@@ -187,34 +187,6 @@ func (h *ListingHandler) handleImageUpload(c echo.Context, l *domain.Listing) er
 		return err
 	}
 	return nil
-}
-
-// extractCityFromAddress tries to guess the city from an address string.
-// Assumes formats like "Street, City, Country" or "City, Country".
-func extractCityFromAddress(address string) string {
-	parts := strings.Split(address, ",")
-	// If 3 parts, middle is usually city
-	if len(parts) >= 3 {
-		return strings.TrimSpace(parts[1])
-	}
-	// If 2 parts, first is usually city
-	if len(parts) == 2 {
-		return strings.TrimSpace(parts[0])
-	}
-	// Fallback to the whole string if it's short, or just return it
-	return strings.TrimSpace(address)
-}
-
-// normalizeURL ensures the given string url has a 'http://' or 'https://' prefix.
-func normalizeURL(u string) string {
-	u = strings.TrimSpace(u)
-	if u == "" {
-		return ""
-	}
-	if !strings.HasPrefix(u, "http://") && !strings.HasPrefix(u, "https://") {
-		return "https://" + u
-	}
-	return u
 }
 
 func IsImageError(err error) bool {

@@ -43,9 +43,9 @@ func (req *ListingFormRequest) ToListing(l *domain.Listing) error {
 	l.ContactEmail = req.ContactEmail
 	l.ContactPhone = req.ContactPhone
 	l.ContactWhatsApp = req.ContactWhatsApp
-	l.WebsiteURL = normalizeURL(req.WebsiteURL)
+	l.WebsiteURL = domain.NormalizeURL(req.WebsiteURL)
 	l.Skills = req.Skills
-	l.JobApplyURL = normalizeURL(req.JobApplyURL)
+	l.JobApplyURL = domain.NormalizeURL(req.JobApplyURL)
 	l.Company = req.Company
 	l.PayRange = req.PayRange
 
