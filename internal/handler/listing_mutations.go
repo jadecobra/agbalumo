@@ -35,7 +35,7 @@ func (h *ListingHandler) HandleCreate(c echo.Context) error {
 	l.OwnerID = user.ID
 
 	// Check for duplicate title
-	existing, err := h.Repo.FindByTitle(c.Request().Context(), l.Title)
+	existing, err := h.ListingStore.FindByTitle(c.Request().Context(), l.Title)
 	if err == nil && len(existing) > 0 {
 		return RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Title already exists. Please choose a different title."))
 	}
@@ -59,7 +59,7 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 	user := u.(domain.User)
 
 	ctx := c.Request().Context()
-	listing, err := h.Repo.FindByID(ctx, id)
+	listing, err := h.ListingStore.FindByID(ctx, id)
 	if err != nil {
 		return RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
 	}
@@ -94,7 +94,7 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 	}
 
 	// Check for duplicate title
-	existing, fErr := h.Repo.FindByTitle(ctx, listing.Title)
+	existing, fErr := h.ListingStore.FindByTitle(ctx, listing.Title)
 	if fErr == nil {
 		// bounded action: title duplicates are usually few
 		for _, ext := range existing {
@@ -115,7 +115,7 @@ func (h *ListingHandler) HandleDelete(c echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	listing, err := h.Repo.FindByID(ctx, id)
+	listing, err := h.ListingStore.FindByID(ctx, id)
 	if err != nil {
 		return RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
 	}
@@ -124,7 +124,7 @@ func (h *ListingHandler) HandleDelete(c echo.Context) error {
 		return RespondError(c, echo.NewHTTPError(http.StatusForbidden, "You are not the owner of this listing"))
 	}
 
-	if err := h.Repo.Delete(ctx, id); err != nil {
+	if err := h.ListingStore.Delete(ctx, id); err != nil {
 		return RespondError(c, err)
 	}
 
@@ -153,7 +153,7 @@ func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error
 		return RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Validation Error: "+err.Error()))
 	}
 
-	if err := h.Repo.Save(c.Request().Context(), *l); err != nil {
+	if err := h.ListingStore.Save(c.Request().Context(), *l); err != nil {
 		return RespondError(c, err)
 	}
 

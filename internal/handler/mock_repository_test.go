@@ -8,7 +8,7 @@ import (
 
 // MockListingRepository is a minimalist mock for testing error paths.
 type MockListingRepository struct {
-	ErrorOn   map[string]error
+	ErrorOn map[string]error
 }
 
 func NewMockRepository() *MockListingRepository {

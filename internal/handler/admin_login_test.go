@@ -83,10 +83,10 @@ func TestAdminHandler_HandleLoginAction(t *testing.T) {
 			expectLoc:  "/auth/google/login",
 		},
 		{
-			name:      "ValidCode_PromotesUser",
-			code:      "secret",
-			adminCode: "secret",
-			user:      &domain.User{ID: "u1", Email: "admin@example.com", Role: "user"},
+			name:       "ValidCode_PromotesUser",
+			code:       "secret",
+			adminCode:  "secret",
+			user:       &domain.User{ID: "u1", Email: "admin@example.com", Role: "user"},
 			expectCode: http.StatusFound,
 			expectLoc:  "/admin",
 			verifyUser: func(t *testing.T, h *handler.AdminHandler, userID string) {
@@ -128,4 +128,3 @@ func TestAdminHandler_HandleLoginAction(t *testing.T) {
 		})
 	}
 }
-

@@ -56,7 +56,7 @@ func TestAdminHandler_HandleBulkAction_MorePaths(t *testing.T) {
 			err := h.HandleBulkAction(c)
 			assert.NoError(t, err)
 			assert.Equal(t, tt.wantCode, rec.Code)
-			
+
 			if tt.action == "reject" {
 				l, _ := repo.FindByID(ctx, "l1")
 				assert.Equal(t, domain.ListingStatusRejected, l.Status)
@@ -100,7 +100,7 @@ func TestAdminHandler_HandleBulkUpload_Errors(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/admin/bulk-upload", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	
+
 	store := sessions.NewCookieStore([]byte("secret"))
 	sess, _ := store.Get(req, "session-name")
 	c.Set("session", sess)
@@ -141,7 +141,7 @@ func TestAdminHandler_HandleBulkUpload_ResultFormatting(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/admin/bulk-upload", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	
+
 	store := sessions.NewCookieStore([]byte("secret"))
 	sess, _ := store.Get(req, "session-name")
 	c.Set("session", sess)

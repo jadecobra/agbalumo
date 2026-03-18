@@ -22,7 +22,7 @@ func TestFeedbackHandler_HandleModal(t *testing.T) {
 
 	repo := handler.SetupTestRepository(t)
 	h := handler.NewFeedbackHandler(repo)
-	
+
 	// Use TestRenderer from listing_helpers_test.go
 	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 

@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"context"
+	"github.com/jadecobra/agbalumo/internal/service"
 	"net/http"
 	"net/url"
 	"strings"
@@ -14,10 +15,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-
 func TestHandleCreate_EventParsing(t *testing.T) {
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
+	listingSvc := service.NewListingService(repo, repo, repo)
+	h := handler.NewListingHandler(repo, repo, listingSvc, nil, &handler.MockGeocodingService{}, &config.Config{})
 
 	// Create form data
 	form := url.Values{}

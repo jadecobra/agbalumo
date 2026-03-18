@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"context"
+	"github.com/jadecobra/agbalumo/internal/service"
 	"net/http"
 	"strings"
 	"testing"
@@ -24,12 +25,14 @@ func TestHandleCreate_GeocodingFallback(t *testing.T) {
 		},
 	}
 
-	h := handler.NewListingHandler(repo, nil, mockGeocoding, &config.Config{})
-	
+	listingSvc := service.NewListingService(repo, repo, repo)
+
+	h := handler.NewListingHandler(repo, repo, listingSvc, nil, mockGeocoding, &config.Config{})
+
 	// Create context with a user
 	body := "title=Google+HQ&type=Business&owner_origin=Nigeria&description=Tech+Giant+HQ&contact_email=info@google.com&address=1600+Amphitheatre+Parkway,+Mountain+View,+CA"
 	// NOTE WELL: mapping 'city' is intentionally left empty in the form body to trigger fallback
-	
+
 	c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(body))
 	c.Set("User", domain.User{ID: "test-user-id", Email: "info@google.com"})
 
@@ -39,7 +42,7 @@ func TestHandleCreate_GeocodingFallback(t *testing.T) {
 
 	// 3. Assert
 	assert.Equal(t, http.StatusOK, rec.Code)
-	
+
 	// Verify that the city was automatically populated in the database
 	listings, err := repo.FindByTitle(context.Background(), "Google HQ")
 	assert.NoError(t, err)

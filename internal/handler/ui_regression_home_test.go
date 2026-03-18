@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"context"
+	"github.com/jadecobra/agbalumo/internal/service"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -37,7 +38,9 @@ func TestHomePageUIValues(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, 2, len(all))
 
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
+	listingSvc := service.NewListingService(repo, repo, repo)
+
+	h := handler.NewListingHandler(repo, repo, listingSvc, nil, &handler.MockGeocodingService{}, &config.Config{})
 	if err := h.HandleHome(c); err != nil {
 		t.Fatal(err)
 	}

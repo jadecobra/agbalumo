@@ -107,4 +107,3 @@ func TestAdminHandler_HandleApproveClaim(t *testing.T) {
 	cr, _ := repo.GetClaimRequestByUserAndListing(context.Background(), "u1", "l1")
 	assert.Equal(t, domain.ClaimStatusApproved, cr.Status)
 }
-

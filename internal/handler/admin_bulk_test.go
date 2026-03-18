@@ -40,7 +40,7 @@ func TestAdminHandler_HandleBulkUpload(t *testing.T) {
 
 	repo := handler.SetupTestRepository(t)
 	h := handler.NewAdminHandler(repo, service.NewCSVService(), config.LoadConfig())
-	
+
 	store := middleware.NewTestSessionStore()
 	session, _ := store.Get(c.Request(), "auth_session")
 	c.Set("session", session)

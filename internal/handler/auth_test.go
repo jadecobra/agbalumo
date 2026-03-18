@@ -13,8 +13,8 @@ import (
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	testifyMock "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 	"golang.org/x/oauth2"
 )
 

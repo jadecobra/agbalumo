@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"testing"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestPagination_GetPageRange(t *testing.T) {

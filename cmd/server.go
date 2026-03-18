@@ -136,7 +136,8 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 	// P2.3: Wrap repo with cached store for GetCounts (60s TTL)
 	cachedRepo := cached.NewCachedListingStore(repo, 60*time.Second)
 	geocodingSvc := service.NewGoogleGeocodingService(cfg.GoogleMapsAPIKey)
-	listingHandler := handler.NewListingHandler(cachedRepo, nil, geocodingSvc, cfg)
+	listingSvc := service.NewListingService(cachedRepo, cachedRepo, cachedRepo)
+	listingHandler := handler.NewListingHandler(cachedRepo, cachedRepo, listingSvc, nil, geocodingSvc, cfg)
 	listingHandler.GoogleMapsAPIKey = cfg.GoogleMapsAPIKey
 	csvService := service.NewCSVService()
 	csvService.Geocoding = geocodingSvc

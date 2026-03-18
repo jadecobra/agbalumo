@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"context"
+	"github.com/jadecobra/agbalumo/internal/service"
 	"net/http"
 	"testing"
 	"time"
@@ -84,7 +85,9 @@ func TestListingHandler_HandleClaim(t *testing.T) {
 				tt.setup(t, repo)
 			}
 
-			h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
+			listingSvc := service.NewListingService(repo, repo, repo)
+
+			h := handler.NewListingHandler(repo, repo, listingSvc, nil, &handler.MockGeocodingService{}, &config.Config{})
 
 			c, rec := setupTestContext(http.MethodPost, "/listings/listing1/claim", nil)
 			c.SetParamNames("id")

@@ -3,6 +3,7 @@ package handler_test
 import (
 	"bytes"
 	"context"
+	"github.com/jadecobra/agbalumo/internal/service"
 	"image"
 	"image/png"
 	"mime/multipart"
@@ -19,7 +20,8 @@ import (
 func TestListingHandler_Upload_Malicious(t *testing.T) {
 	// Setup
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
+	listingSvc := service.NewListingService(repo, repo, repo)
+	h := handler.NewListingHandler(repo, repo, listingSvc, nil, &handler.MockGeocodingService{}, &config.Config{})
 
 	// Create a malicious file (text file disguised as jpg)
 	body := new(bytes.Buffer)
@@ -59,7 +61,8 @@ func TestListingHandler_Upload_Malicious(t *testing.T) {
 func TestListingHandler_Upload_Valid(t *testing.T) {
 	// Setup
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
+	listingSvc := service.NewListingService(repo, repo, repo)
+	h := handler.NewListingHandler(repo, repo, listingSvc, nil, &handler.MockGeocodingService{}, &config.Config{})
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)

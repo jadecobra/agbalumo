@@ -2,13 +2,14 @@ package handler_test
 
 import (
 	"context"
-	"net/http"
-	"strings"
-	"testing"
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/service"
 	"github.com/stretchr/testify/assert"
+	"net/http"
+	"strings"
+	"testing"
 )
 
 func TestListingHandler_FormParsing(t *testing.T) {
@@ -20,9 +21,9 @@ func TestListingHandler_FormParsing(t *testing.T) {
 		verify         func(t *testing.T, repo domain.ListingRepository)
 	}{
 		{
-			name: "Success_EventWithDates",
-			body: "title=Event+Test&type=Event&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St&city=Lagos&event_start=2027-12-01T10:00&event_end=2027-12-01T12:00",
-			setup: func(t *testing.T, repo domain.ListingRepository) {},
+			name:           "Success_EventWithDates",
+			body:           "title=Event+Test&type=Event&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St&city=Lagos&event_start=2027-12-01T10:00&event_end=2027-12-01T12:00",
+			setup:          func(t *testing.T, repo domain.ListingRepository) {},
 			expectedStatus: http.StatusOK,
 			verify: func(t *testing.T, repo domain.ListingRepository) {
 				listings, _, err := repo.FindAll(context.Background(), "", "Event Test", "", "", false, 1, 0)
@@ -35,9 +36,9 @@ func TestListingHandler_FormParsing(t *testing.T) {
 			},
 		},
 		{
-			name: "Success_JobWithStartDateAndURL",
-			body: "title=Job+Test&type=Job&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St&job_start_date=2027-12-01T09:00&job_apply_url=example.com&company=Acme&skills=Golang&pay_range=100k-200k&city=Lagos",
-			setup: func(t *testing.T, repo domain.ListingRepository) {},
+			name:           "Success_JobWithStartDateAndURL",
+			body:           "title=Job+Test&type=Job&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St&job_start_date=2027-12-01T09:00&job_apply_url=example.com&company=Acme&skills=Golang&pay_range=100k-200k&city=Lagos",
+			setup:          func(t *testing.T, repo domain.ListingRepository) {},
 			expectedStatus: http.StatusOK,
 			verify: func(t *testing.T, repo domain.ListingRepository) {
 				listings, _, err := repo.FindAll(context.Background(), "", "Job Test", "", "", false, 1, 0)
@@ -49,9 +50,9 @@ func TestListingHandler_FormParsing(t *testing.T) {
 			},
 		},
 		{
-			name: "Success_RequestWithDeadline",
-			body: "title=Request+Test&type=Request&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St&city=Lagos&deadline_date=2026-04-30",
-			setup: func(t *testing.T, repo domain.ListingRepository) {},
+			name:           "Success_RequestWithDeadline",
+			body:           "title=Request+Test&type=Request&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St&city=Lagos&deadline_date=2026-04-30",
+			setup:          func(t *testing.T, repo domain.ListingRepository) {},
 			expectedStatus: http.StatusOK,
 			verify: func(t *testing.T, repo domain.ListingRepository) {
 				listings, _, err := repo.FindAll(context.Background(), "", "Request Test", "", "", false, 1, 0)
@@ -63,9 +64,9 @@ func TestListingHandler_FormParsing(t *testing.T) {
 			},
 		},
 		{
-			name: "Failure_InvalidEventDate",
-			body: "title=Bad+Event&type=Event&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St&city=Lagos&event_start=invalid",
-			setup: func(t *testing.T, repo domain.ListingRepository) {},
+			name:           "Failure_InvalidEventDate",
+			body:           "title=Bad+Event&type=Event&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St&city=Lagos&event_start=invalid",
+			setup:          func(t *testing.T, repo domain.ListingRepository) {},
 			expectedStatus: http.StatusBadRequest,
 		},
 	}
@@ -75,7 +76,9 @@ func TestListingHandler_FormParsing(t *testing.T) {
 			repo := handler.SetupTestRepository(t)
 			tt.setup(t, repo)
 
-			h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
+			listingSvc := service.NewListingService(repo, repo, repo)
+
+			h := handler.NewListingHandler(repo, repo, listingSvc, nil, &handler.MockGeocodingService{}, &config.Config{})
 			c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
 			c.Set("User", domain.User{ID: "user-1"})
 
@@ -96,7 +99,8 @@ func TestListingHandler_FormParsing(t *testing.T) {
 
 func TestListingHandler_URLNormalization(t *testing.T) {
 	repo := handler.SetupTestRepository(t)
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
+	listingSvc := service.NewListingService(repo, repo, repo)
+	h := handler.NewListingHandler(repo, repo, listingSvc, nil, &handler.MockGeocodingService{}, &config.Config{})
 
 	tests := []struct {
 		name     string

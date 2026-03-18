@@ -3,6 +3,7 @@ package handler_test
 import (
 	"bytes"
 	"context"
+	"github.com/jadecobra/agbalumo/internal/service"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -32,7 +33,9 @@ func TestListingHandler_HandleUpdate_Reproduction(t *testing.T) {
 	err := repo.Save(ctx, listing)
 	assert.NoError(t, err)
 
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
+	listingSvc := service.NewListingService(repo, repo, repo)
+
+	h := handler.NewListingHandler(repo, repo, listingSvc, nil, &handler.MockGeocodingService{}, &config.Config{})
 
 	// 2. Prepare update data
 	updatedTitle := "Updated Title"
@@ -52,7 +55,7 @@ func TestListingHandler_HandleUpdate_Reproduction(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPut, "/listings/test-id-123", &b)
 	req.Header.Set(echo.HeaderContentType, w.FormDataContentType())
 	rec := httptest.NewRecorder()
-	
+
 	e := echo.New()
 	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 	c := e.NewContext(req, rec)
@@ -70,7 +73,7 @@ func TestListingHandler_HandleUpdate_Reproduction(t *testing.T) {
 		t.Logf("Response Body: %s", rec.Body.String())
 	}
 	assert.Equal(t, http.StatusOK, rec.Code)
-	
+
 	updatedListing, err := repo.FindByID(ctx, "test-id-123")
 	assert.NoError(t, err)
 	assert.Equal(t, updatedTitle, updatedListing.Title, "Title should be updated in database")
@@ -93,7 +96,9 @@ func TestListingHandler_HandleUpdate_AdminSource(t *testing.T) {
 	err := repo.Save(ctx, listing)
 	assert.NoError(t, err)
 
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
+	listingSvc := service.NewListingService(repo, repo, repo)
+
+	h := handler.NewListingHandler(repo, repo, listingSvc, nil, &handler.MockGeocodingService{}, &config.Config{})
 
 	// 2. Prepare update data
 	updatedTitle := "Updated Title Admin"
@@ -113,7 +118,7 @@ func TestListingHandler_HandleUpdate_AdminSource(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPut, "/listings/test-id-admin?source=admin", &b)
 	req.Header.Set(echo.HeaderContentType, w.FormDataContentType())
 	rec := httptest.NewRecorder()
-	
+
 	e := echo.New()
 	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 	c := e.NewContext(req, rec)
@@ -130,7 +135,7 @@ func TestListingHandler_HandleUpdate_AdminSource(t *testing.T) {
 		t.Logf("Response Body: %s", rec.Body.String())
 	}
 	assert.Equal(t, http.StatusOK, rec.Code)
-	
+
 	// Ensure the response contains admin table row specific elements, not the listing card
 	body := rec.Body.String()
 	assert.Contains(t, body, "id=\"listing-row-test-id-admin\"", "Response should render the admin table row")

@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/labstack/echo/v4"
 	"github.com/jadecobra/agbalumo/internal/ui"
+	"github.com/labstack/echo/v4"
 )
 
 // RealTemplateRenderer parses actual files from ui/templates

@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"context"
+	"github.com/jadecobra/agbalumo/internal/service"
 	"html/template"
 	"net/http"
 	"net/http/httptest"
@@ -36,7 +37,9 @@ func TestHandleHome_FeaturedPrioritization(t *testing.T) {
 	_ = repo.Save(context.Background(), r1)
 	_ = repo.Save(context.Background(), r2)
 
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
+	listingSvc := service.NewListingService(repo, repo, repo)
+
+	h := handler.NewListingHandler(repo, repo, listingSvc, nil, &handler.MockGeocodingService{}, &config.Config{})
 
 	if err := h.HandleHome(c); err != nil {
 		t.Fatalf("HandleHome failed: %v", err)
@@ -49,11 +52,11 @@ func TestHandleHome_FeaturedPrioritization(t *testing.T) {
 	// featured, _ := h.Repo.GetFeaturedListings(c.Request().Context())
 	// regular, _ := h.Repo.FindAll(c.Request().Context(), "", "", "", "", false, 20, 0)
 	// listings := handler.PrioritizeFeatured(featured, regular)
-	
+
 	// PrioritizeFeatured deduplicates and puts featured at the front in the order returned by GetFeaturedListings.
 	// GetFeaturedListings sorts by created_at DESC.
 	// So f2, f1 if saved in this order.
-	
+
 	assert.Contains(t, rec.Body.String(), "Featured 1")
 	assert.Contains(t, rec.Body.String(), "Featured 2")
 	assert.Contains(t, rec.Body.String(), "Regular 1")
@@ -80,7 +83,9 @@ func TestHandleFragment_FeaturedPrioritization(t *testing.T) {
 	_ = repo.Save(context.Background(), f1)
 	_ = repo.Save(context.Background(), r1)
 
-	h := handler.NewListingHandler(repo, nil, &handler.MockGeocodingService{}, &config.Config{})
+	listingSvc := service.NewListingService(repo, repo, repo)
+
+	h := handler.NewListingHandler(repo, repo, listingSvc, nil, &handler.MockGeocodingService{}, &config.Config{})
 
 	if err := h.HandleFragment(c); err != nil {
 		t.Fatalf("HandleFragment failed: %v", err)

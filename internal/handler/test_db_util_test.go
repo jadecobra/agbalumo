@@ -14,17 +14,17 @@ func TestSetupTestRepository(t *testing.T) {
 	assert.NotNil(t, repo)
 
 	ctx := context.Background()
-	
+
 	// Verify we can save and read
 	l := domain.Listing{
 		ID:    "test-1",
 		Title: "Test Listing",
 		Type:  domain.Business,
 	}
-	
+
 	err := repo.Save(ctx, l)
 	assert.NoError(t, err)
-	
+
 	found, err := repo.FindByID(ctx, "test-1")
 	assert.NoError(t, err)
 	assert.Equal(t, "Test Listing", found.Title)

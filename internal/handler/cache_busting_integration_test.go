@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"bytes"
+	"github.com/jadecobra/agbalumo/internal/service"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -23,7 +24,9 @@ func TestListingHandler_HandleImageUpload_CacheBusting(t *testing.T) {
 	mockImageService := &MockImageService{}
 	mockGeocodingService := &handler.MockGeocodingService{}
 
-	h := handler.NewListingHandler(repo, mockImageService, mockGeocodingService, &config.Config{})
+	listingSvc := service.NewListingService(repo, repo, repo)
+
+	h := handler.NewListingHandler(repo, repo, listingSvc, mockImageService, mockGeocodingService, &config.Config{})
 
 	// Mock successful upload returning a clean URL
 	mockImageService.On("UploadImage", testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).

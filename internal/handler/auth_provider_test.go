@@ -76,7 +76,7 @@ func TestRealGoogleProvider_GetRedirectURL(t *testing.T) {
 				scheme = "https"
 			}
 			rawURL := p.GetAuthCodeURL("state", scheme, tt.host)
-			
+
 			decodedURL, err := url.QueryUnescape(rawURL)
 			assert.NoError(t, err)
 			assert.Contains(t, decodedURL, "redirect_uri="+tt.expected)

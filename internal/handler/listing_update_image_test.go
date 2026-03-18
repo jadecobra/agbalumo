@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"context"
+	"github.com/jadecobra/agbalumo/internal/service"
 	"net/http"
 	"strings"
 	"testing"
@@ -38,7 +39,9 @@ func TestHandleUpdate_ImageRemoval(t *testing.T) {
 	// UploadImage might be called with nil if no image is uploaded
 	mockImageService.On("UploadImage", testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).Return("", nil).Maybe()
 
-	h := handler.NewListingHandler(repo, mockImageService, &handler.MockGeocodingService{}, &config.Config{})
+	listingSvc := service.NewListingService(repo, repo, repo)
+
+	h := handler.NewListingHandler(repo, repo, listingSvc, mockImageService, &handler.MockGeocodingService{}, &config.Config{})
 
 	// Body with remove_image=true and required fields
 	body := "title=New+Title&remove_image=true&owner_origin=Nigeria&description=Cool&contact_email=test@test.com&city=Lagos&address=123+Street&type=Business"

@@ -190,7 +190,7 @@ func TestAdminPaginationUI(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to read admin_pagination.html: %v", err)
 	}
-	
+
 	content := string(adminPaginationContent)
 	if strings.Contains(content, "hx-get") {
 		t.Error("Admin pagination should not use HTMX hx-get, it should use plain full-page reloads")

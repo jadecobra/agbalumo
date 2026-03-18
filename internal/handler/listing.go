@@ -12,7 +12,8 @@ import (
 )
 
 type ListingHandler struct {
-	Repo             domain.ListingRepository
+	ListingStore     domain.ListingStore
+	CategoryStore    domain.CategoryStore
 	ImageService     domain.ImageService
 	ListingSvc       domain.ListingService
 	GeocodingSvc     domain.GeocodingService
@@ -20,7 +21,15 @@ type ListingHandler struct {
 	Cfg              *config.Config
 }
 
-func NewListingHandler(repo domain.ListingRepository, imageService domain.ImageService, geocodingSvc domain.GeocodingService, cfg *config.Config, opts ...string) *ListingHandler {
+func NewListingHandler(
+	listingStore domain.ListingStore,
+	categoryStore domain.CategoryStore,
+	listingSvc domain.ListingService,
+	imageService domain.ImageService,
+	geocodingSvc domain.GeocodingService,
+	cfg *config.Config,
+	opts ...string,
+) *ListingHandler {
 	var uploadDir string
 	if len(opts) > 0 {
 		uploadDir = opts[0]
@@ -28,13 +37,13 @@ func NewListingHandler(repo domain.ListingRepository, imageService domain.ImageS
 	if imageService == nil {
 		imageService = service.NewLocalImageService(uploadDir)
 	}
-	listingSvc := service.NewListingService(repo, repo, repo)
 	return &ListingHandler{
-		Repo:         repo,
-		ImageService: imageService,
-		ListingSvc:   listingSvc,
-		GeocodingSvc: geocodingSvc,
-		Cfg:          cfg,
+		ListingStore:  listingStore,
+		CategoryStore: categoryStore,
+		ImageService:  imageService,
+		ListingSvc:    listingSvc,
+		GeocodingSvc:  geocodingSvc,
+		Cfg:           cfg,
 	}
 }
 
@@ -65,19 +74,19 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	var totalCount int
 	go func() {
 		defer wg.Done()
-		listings, totalCount, listingsErr = h.Repo.FindAll(ctx, "", "", "", "", false, limit, offset)
+		listings, totalCount, listingsErr = h.ListingStore.FindAll(ctx, "", "", "", "", false, limit, offset)
 	}()
 	go func() {
 		defer wg.Done()
-		counts, countsErr = h.Repo.GetCounts(ctx)
+		counts, countsErr = h.ListingStore.GetCounts(ctx)
 	}()
 	go func() {
 		defer wg.Done()
-		featured, featuredErr = h.Repo.GetFeaturedListings(ctx)
+		featured, featuredErr = h.ListingStore.GetFeaturedListings(ctx)
 	}()
 	go func() {
 		defer wg.Done()
-		locations, locationsErr = h.Repo.GetLocations(ctx)
+		locations, locationsErr = h.ListingStore.GetLocations(ctx)
 	}()
 	wg.Wait()
 
@@ -140,7 +149,7 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	limit := p.Limit
 	offset := p.Offset
 
-	listings, totalCount, err := h.Repo.FindAll(c.Request().Context(), filterType, queryText, "", "", false, limit, offset)
+	listings, totalCount, err := h.ListingStore.FindAll(c.Request().Context(), filterType, queryText, "", "", false, limit, offset)
 	if err != nil {
 		return RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, err.Error()))
 	}
@@ -149,7 +158,7 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	// For the first page of the main feed (no filters/search), include featured listings
 	finalListings := listings
 	if page == 1 && filterType == "" && queryText == "" {
-		featured, err := h.Repo.GetFeaturedListings(c.Request().Context())
+		featured, err := h.ListingStore.GetFeaturedListings(c.Request().Context())
 		if err == nil {
 			finalListings = h.mergeFeatured(featured, listings, limit)
 		}
@@ -177,13 +186,13 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 	id := c.Param("id")
 	ctx := c.Request().Context()
 
-	listing, err := h.Repo.FindByID(ctx, id)
+	listing, err := h.ListingStore.FindByID(ctx, id)
 	if err != nil {
 		return RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
 	}
 
 	// Fetch category data to check if claimable
-	category, _ := h.Repo.GetCategory(ctx, string(listing.Type))
+	category, _ := h.CategoryStore.GetCategory(ctx, string(listing.Type))
 
 	return c.Render(http.StatusOK, "modal_detail", map[string]interface{}{
 		"Listing":          listing,
@@ -201,7 +210,7 @@ func (h *ListingHandler) HandleEdit(c echo.Context) error {
 		return RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, "Login required"))
 	}
 
-	listing, err := h.Repo.FindByID(c.Request().Context(), id)
+	listing, err := h.ListingStore.FindByID(c.Request().Context(), id)
 	if err != nil {
 		return RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
 	}
@@ -244,7 +253,7 @@ func (h *ListingHandler) getFileHeader(c echo.Context, key string) *multipart.Fi
 
 func (h *ListingHandler) renderWithBaseContext(c echo.Context, tmpl string, data map[string]interface{}) error {
 	ctx := c.Request().Context()
-	categories, err := h.Repo.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: true})
+	categories, err := h.CategoryStore.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: true})
 	if err != nil {
 		c.Logger().Errorf("Failed to retrieve categories: %v", err)
 		categories = []domain.CategoryData{}
