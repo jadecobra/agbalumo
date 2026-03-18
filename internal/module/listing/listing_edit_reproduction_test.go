@@ -137,11 +137,9 @@ func TestListingHandler_HandleUpdate_AdminSource(t *testing.T) {
 	}
 	assert.Equal(t, http.StatusOK, rec.Code)
 
-	// Ensure the response contains admin table row specific elements, not the listing card
-	body := rec.Body.String()
-	assert.Contains(t, body, "id=\"listing-row-test-id-admin\"", "Response should render the admin table row")
-	assert.Contains(t, body, "checkbox", "Admin table row contains a checkbox")
-	assert.NotContains(t, body, "listing-card", "Response should not be a listing card")
+	// Ensure the response contains the HX-Trigger header and no content
+	assert.Equal(t, "listing-updated-test-id-admin", rec.Header().Get("HX-Trigger"), "Response should trigger listing-updated event")
+	assert.Empty(t, rec.Body.String(), "Response should be empty for admin source update")
 
 	updatedListing, err := repo.FindByID(ctx, "test-id-admin")
 	assert.NoError(t, err)

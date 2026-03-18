@@ -164,9 +164,12 @@ func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error
 		user = u
 	}
 
-	// If the request came from the admin dashboard, return the table row instead of the card
+	// Trigger an HTMX event so other components (like admin table rows) can update themselves
+	c.Response().Header().Add("HX-Trigger", fmt.Sprintf("listing-updated-%s", l.ID))
+
+	// If the request came from the admin dashboard, return no content and let the HX-Trigger handle updates
 	if c.QueryParam("source") == "admin" {
-		return c.Render(http.StatusOK, "admin_listing_table_row", l)
+		return c.NoContent(http.StatusOK)
 	}
 
 	return h.renderWithBaseContext(c, "listing_card", map[string]interface{}{

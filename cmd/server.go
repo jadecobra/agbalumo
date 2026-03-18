@@ -235,6 +235,7 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 	adminGroup.POST("/claims/:id/approve", adminHandler.HandleApproveClaim)
 	adminGroup.POST("/claims/:id/reject", adminHandler.HandleRejectClaim)
 	adminGroup.POST("/listings/bulk", adminHandler.HandleBulkAction)
+	adminGroup.GET("/listings/:id/row", adminHandler.HandleListingRow)
 	adminGroup.GET("/listings/delete-confirm", adminHandler.HandleAdminDeleteView)
 	adminGroup.POST("/listings/delete", adminHandler.HandleAdminDeleteAction)
 	adminGroup.POST("/listings/:id/featured", adminHandler.HandleToggleFeatured)

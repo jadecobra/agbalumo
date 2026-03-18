@@ -47,7 +47,11 @@
   - [x] Task 2.1: Extract `internal/module/auth/` containing auth features (handlers, middleware). Validation: `go test ./internal/module/auth/...` and verify `cmd/server.go`.
   - [x] Task 2.2: Extract `internal/module/admin/` containing admin handlers. Validation: `go test ./internal/module/admin/...` and verify `cmd/server.go`.
   - [x] Task 2.3: Extract `internal/module/listing/` containing all remaining core listing handlers and services. Validation: `go test ./internal/module/listing/...` and verify `cmd/server.go`.
-  - [ ] Task 2.4: Move generic utilities and shared middleware to `internal/common/`. Validation: Run `./scripts/pre-commit.sh` and `./scripts/verify_restart.sh`.
+  - [ ] Task 2.4: Move generic utilities and shared middleware to `internal/common/`. Validation: Run `./scripts/pre-commit.sh` and `./scripts/verify_restart.sh`. This includes:
+    - [x] Decoupling `admin_listing_table_row` HTMX response from `ListingHandler`.
+    - [ ] Moving `HandleAbout` to a generic `PageHandler` or `common` module.
+    - [ ] Extracting pure domain logic (e.g., `extractCityFromAddress`) out of HTTP handlers.
+    - [ ] Extracting shared error UI logic (e.g., `IsImageError`, `renderImageErrorToast`).
 - [x] Implemented 100k concurrent users distributed load test via k6 and fixed SQLite MaxOpenConns serialization bottleneck.
 - [ ] **Stress Testing & Benchmarking (100k Listings)**
   - [ ] Task 1: Scaffold `internal/seeder/stress.go` with base `GenerateStressData` function.

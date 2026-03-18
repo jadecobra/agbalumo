@@ -18,7 +18,10 @@
             </button>
         </div>
 
-        <form hx-put="/listings/{{.Listing.ID}}{{ if eq .Source "admin" }}?source=admin{{ end }}" hx-swap="outerHTML" hx-target="#{{.TargetID}}" method="POST"
+        <form hx-put="/listings/{{.Listing.ID}}{{ if eq .Source "admin" }}?source=admin{{ end }}" 
+            hx-swap="{{ if eq .Source "admin" }}none{{ else }}outerHTML{{ end }}" 
+            {{ if eq .Source "admin" }}hx-on::after-request="if(event.detail.successful) { this.closest('dialog').close(); }"{{ end }}
+            hx-target="#{{.TargetID}}" method="POST"
             enctype="multipart/form-data" class="flex flex-col gap-4" id="edit-form-{{.Listing.ID}}">
 
             <!-- Type & Origin -->

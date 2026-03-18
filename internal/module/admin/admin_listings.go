@@ -59,6 +59,17 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 	})
 }
 
+// HandleListingRow renders a single table row for a listing.
+func (h *AdminHandler) HandleListingRow(c echo.Context) error {
+	id := c.Param("id")
+	ctx := c.Request().Context()
+	listing, err := h.ListingStore.FindByID(ctx, id)
+	if err != nil {
+		return handler.RespondError(c, err)
+	}
+	return c.Render(http.StatusOK, "admin_listing_table_row", listing)
+}
+
 // HandleToggleFeatured toggles the featured status of a listing.
 func (h *AdminHandler) HandleToggleFeatured(c echo.Context) error {
 	id := c.Param("id")

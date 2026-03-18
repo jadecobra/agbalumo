@@ -120,6 +120,7 @@ Requires admin role and session authentication.
 | POST | `/admin/login` | Login action |
 | GET | `/admin/users` | List users |
 | GET | `/admin/listings` | List all listings |
+| GET | `/admin/listings/:id/row` | Return HTML row for listing |
 | POST | `/admin/claims/:id/approve` | Approve claim request |
 | POST | `/admin/claims/:id/reject` | Reject claim request |
 | POST | `/admin/listings/:id/featured` | Toggle featured (`featured=true/false`) |

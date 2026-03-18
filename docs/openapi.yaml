@@ -453,6 +453,28 @@ paths:
         '200':
           description: Listings list HTML
 
+  /admin/listings/{id}/row:
+    get:
+      summary: Get admin listing table row
+      description: Returns administration table row HTML for a specific listing
+      tags:
+        - Admin
+      security:
+        - CookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: HTML table row
+          content:
+            text/html:
+              schema:
+                type: string
+
   /admin/claims/{id}/approve:
     post:
       summary: Approve claim request

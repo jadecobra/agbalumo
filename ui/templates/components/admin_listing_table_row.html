@@ -1,5 +1,5 @@
 {{ define "admin_listing_table_row" }}
-<tr id="listing-row-{{ .ID }}" class="{{ if not .IsActive }}bg-white/5{{ end }} hover:bg-white/5 transition-colors">
+<tr id="listing-row-{{ .ID }}" hx-trigger="listing-updated-{{.ID}} from:body" hx-get="/admin/listings/{{.ID}}/row" hx-swap="outerHTML" class="{{ if not .IsActive }}bg-white/5{{ end }} hover:bg-white/5 transition-colors">
     <td class="px-6 py-4 whitespace-nowrap">
         <input type="checkbox" name="selectedListings" value="{{ .ID }}"
             class="row-checkbox border-white/10 text-earth-ochre shadow-sm focus:border-earth-ochre focus:ring focus:ring-earth-ochre focus:ring-opacity-50 bg-white/5">
