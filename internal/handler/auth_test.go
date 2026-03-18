@@ -74,6 +74,11 @@ func TestAuthHandler_GoogleCallback_StateMismatch(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
+	store := sessions.NewCookieStore([]byte("secret"))
+	sess, _ := store.Get(req, "session-name")
+	sess.Values["oauth_state"] = "random-state"
+	c.Set("session", sess)
+
 	repo := handler.SetupTestRepository(t)
 	mockProvider := &MockGoogleProvider{}
 	cfg := config.LoadConfig()
@@ -98,6 +103,7 @@ func TestAuthHandler_GoogleCallback_Success(t *testing.T) {
 
 	store := sessions.NewCookieStore([]byte("secret"))
 	sess, _ := store.Get(req, "session-name")
+	sess.Values["oauth_state"] = "random-state"
 	c.Set("session", sess)
 
 	repo := handler.SetupTestRepository(t)
@@ -140,13 +146,17 @@ func TestAuthHandler_GoogleLogin(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
+	store := sessions.NewCookieStore([]byte("secret"))
+	sess, _ := store.Get(req, "session-name")
+	c.Set("session", sess)
+
 	repo := handler.SetupTestRepository(t)
 	mockProvider := &MockGoogleProvider{}
 	cfg := config.LoadConfig()
 	cfg.HasGoogleAuth = true
 	h := handler.NewAuthHandler(repo, mockProvider, cfg)
 
-	mockProvider.On("GetAuthCodeURL", "random-state", "http", "example.com").Return("http://google.com/auth")
+	mockProvider.On("GetAuthCodeURL", testifyMock.AnythingOfType("string"), "http", "example.com").Return("http://google.com/auth")
 
 	err := h.GoogleLogin(c)
 
@@ -164,6 +174,7 @@ func TestAuthHandler_Logout(t *testing.T) {
 
 	store := sessions.NewCookieStore([]byte("secret"))
 	sess, _ := store.Get(req, "session-name")
+	sess.Values["oauth_state"] = "random-state"
 	c.Set("session", sess)
 
 	repo := handler.SetupTestRepository(t)
@@ -211,6 +222,7 @@ func TestAuthHandler_GoogleCallback_SaveUserError(t *testing.T) {
 
 	store := sessions.NewCookieStore([]byte("secret"))
 	sess, _ := store.Get(req, "session-name")
+	sess.Values["oauth_state"] = "random-state"
 	c.Set("session", sess)
 
 	repo := handler.SetupTestRepository(t)
@@ -236,6 +248,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfile(t *testing.T) {
 
 	store := sessions.NewCookieStore([]byte("secret"))
 	sess, _ := store.Get(req, "session-name")
+	sess.Values["oauth_state"] = "random-state"
 	c.Set("session", sess)
 
 	repo := handler.SetupTestRepository(t)
@@ -328,6 +341,11 @@ func TestAuthHandler_GoogleCallback_ExchangeError(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
+	store := sessions.NewCookieStore([]byte("secret"))
+	sess, _ := store.Get(req, "session-name")
+	sess.Values["oauth_state"] = "random-state"
+	c.Set("session", sess)
+
 	repo := handler.SetupTestRepository(t)
 	mockProvider := &MockGoogleProvider{}
 	h := handler.NewAuthHandler(repo, mockProvider, config.LoadConfig())
@@ -347,6 +365,11 @@ func TestAuthHandler_GoogleCallback_GetUserInfoError(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
+
+	store := sessions.NewCookieStore([]byte("secret"))
+	sess, _ := store.Get(req, "session-name")
+	sess.Values["oauth_state"] = "random-state"
+	c.Set("session", sess)
 
 	repo := handler.SetupTestRepository(t)
 	mockProvider := &MockGoogleProvider{}
@@ -372,6 +395,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfileSaveError(t *testing.T) {
 
 	store := sessions.NewCookieStore([]byte("secret"))
 	sess, _ := store.Get(req, "session-name")
+	sess.Values["oauth_state"] = "random-state"
 	c.Set("session", sess)
 
 	repo := handler.SetupTestRepository(t)
@@ -454,6 +478,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfile_NoChanges(t *testing.T) {
 
 	store := sessions.NewCookieStore([]byte("secret"))
 	sess, _ := store.Get(req, "session-name")
+	sess.Values["oauth_state"] = "random-state"
 	c.Set("session", sess)
 
 	repo := handler.SetupTestRepository(t)

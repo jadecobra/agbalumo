@@ -170,15 +170,37 @@ func (h *AuthHandler) GoogleLogin(c echo.Context) error {
 	if !h.Cfg.HasGoogleAuth {
 		return RespondError(c, echo.NewHTTPError(http.StatusServiceUnavailable, "Google OAuth is not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env"))
 	}
-	url := h.GoogleProvider.GetAuthCodeURL("random-state", c.Scheme(), c.Request().Host)
+
+	state := uuid.New().String()
+	sess := customMiddleware.GetSession(c)
+	if sess != nil {
+		sess.Values["oauth_state"] = state
+		if err := sess.Save(c.Request(), c.Response()); err != nil {
+			return RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Failed to save session"))
+		}
+	} else {
+		return RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Session Store Missing"))
+	}
+
+	url := h.GoogleProvider.GetAuthCodeURL(state, c.Scheme(), c.Request().Host)
 	return c.Redirect(http.StatusTemporaryRedirect, url)
 }
 
 func (h *AuthHandler) GoogleCallback(c echo.Context) error {
 	state := c.QueryParam("state")
-	if state != "random-state" {
-		return RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "States don't match"))
+	
+	sess := customMiddleware.GetSession(c)
+	if sess == nil {
+		return RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Session Store Missing"))
 	}
+	
+	storedState, ok := sess.Values["oauth_state"].(string)
+	if !ok || state != storedState {
+		return RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "States don't match or expired"))
+	}
+	
+	delete(sess.Values, "oauth_state")
+	_ = sess.Save(c.Request(), c.Response())
 
 	code := c.QueryParam("code")
 	token, err := h.GoogleProvider.Exchange(c.Request().Context(), code, c.Scheme(), c.Request().Host)
