@@ -9,21 +9,24 @@ import (
 	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
-// ListingServiceRepo is the required repository interface for the listing service.
-type ListingServiceRepo interface {
-	domain.ListingStore
-	domain.CategoryStore
-	domain.ClaimRequestStore
-}
-
 // ListingService encapsulates business logic for listing operations.
 type ListingService struct {
-	Repo ListingServiceRepo
+	ListingStore      domain.ListingStore
+	CategoryStore     domain.CategoryStore
+	ClaimRequestStore domain.ClaimRequestStore
 }
 
 // NewListingService creates a new ListingService.
-func NewListingService(repo ListingServiceRepo) *ListingService {
-	return &ListingService{Repo: repo}
+func NewListingService(
+	listingStore domain.ListingStore,
+	categoryStore domain.CategoryStore,
+	claimRequestStore domain.ClaimRequestStore,
+) *ListingService {
+	return &ListingService{
+		ListingStore:      listingStore,
+		CategoryStore:     categoryStore,
+		ClaimRequestStore: claimRequestStore,
+	}
 }
 
 // ClaimListing creates a pending claim request for an unclaimed, claimable listing.
@@ -34,7 +37,7 @@ func (s *ListingService) ClaimListing(ctx context.Context, user domain.User, lis
 		return domain.ClaimRequest{}, errors.New("user ID is required")
 	}
 
-	listing, err := s.Repo.FindByID(ctx, listingID)
+	listing, err := s.ListingStore.FindByID(ctx, listingID)
 	if err != nil {
 		return domain.ClaimRequest{}, errors.New("listing not found")
 	}
@@ -43,7 +46,7 @@ func (s *ListingService) ClaimListing(ctx context.Context, user domain.User, lis
 		return domain.ClaimRequest{}, errors.New("listing is already owned")
 	}
 
-	categoryInfo, err := s.Repo.GetCategory(ctx, string(listing.Type))
+	categoryInfo, err := s.CategoryStore.GetCategory(ctx, string(listing.Type))
 	if err != nil {
 		return domain.ClaimRequest{}, errors.New("invalid category type")
 	}
@@ -53,7 +56,7 @@ func (s *ListingService) ClaimListing(ctx context.Context, user domain.User, lis
 	}
 
 	// Check for an existing pending claim from this user
-	existing, err := s.Repo.GetClaimRequestByUserAndListing(ctx, user.ID, listingID)
+	existing, err := s.ClaimRequestStore.GetClaimRequestByUserAndListing(ctx, user.ID, listingID)
 	if err == nil && existing.Status == domain.ClaimStatusPending {
 		return domain.ClaimRequest{}, errors.New("you already have a pending claim for this listing")
 	}
@@ -69,7 +72,7 @@ func (s *ListingService) ClaimListing(ctx context.Context, user domain.User, lis
 		CreatedAt:    time.Now(),
 	}
 
-	if err := s.Repo.SaveClaimRequest(ctx, cr); err != nil {
+	if err := s.ClaimRequestStore.SaveClaimRequest(ctx, cr); err != nil {
 		return domain.ClaimRequest{}, errors.New("failed to save claim request")
 	}
 

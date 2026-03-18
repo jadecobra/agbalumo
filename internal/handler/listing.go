@@ -28,7 +28,7 @@ func NewListingHandler(repo domain.ListingRepository, imageService domain.ImageS
 	if imageService == nil {
 		imageService = service.NewLocalImageService(uploadDir)
 	}
-	listingSvc := service.NewListingService(repo)
+	listingSvc := service.NewListingService(repo, repo, repo)
 	return &ListingHandler{
 		Repo:         repo,
 		ImageService: imageService,
