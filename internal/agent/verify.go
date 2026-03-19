@@ -79,7 +79,7 @@ func VerifyRedTest(pattern string) bool {
 func VerifyApiSpec(workflowType string) bool {
 	fmt.Println("Running API and CLI drift checks...")
 
-	codeRoutes, err := ExtractRoutes("cmd", "internal/handler")
+	codeRoutes, err := ExtractRoutes("cmd", "internal/handler", "internal/module")
 	if err != nil {
 		fmt.Println("Error extracting routes from code:", err)
 		return false

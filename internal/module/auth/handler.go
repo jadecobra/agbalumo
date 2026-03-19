@@ -142,6 +142,13 @@ func NewAuthHandler(deps AuthDependencies) *AuthHandler {
 	}
 }
 
+func (h *AuthHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddleware) {
+	e.GET("/auth/dev", h.DevLogin)
+	e.GET("/auth/logout", h.Logout)
+	e.GET("/auth/google/login", h.GoogleLogin)
+	e.GET("/auth/google/callback", h.GoogleCallback)
+}
+
 // DevLogin simulates a Google Login for development
 // param: email
 func (h *AuthHandler) DevLogin(c echo.Context) error {

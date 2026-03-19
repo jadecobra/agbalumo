@@ -177,10 +177,7 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 	pageHandler := common.NewPageHandler(domain.CategoryStore(cachedRepo), cfg)
 
 	// Auth Routes
-	e.GET("/auth/dev", authHandler.DevLogin)
-	e.GET("/auth/logout", authHandler.Logout)
-	e.GET("/auth/google/login", authHandler.GoogleLogin)
-	e.GET("/auth/google/callback", authHandler.GoogleCallback)
+	authHandler.RegisterRoutes(e, authMw)
 
 	// Health Check (before auth middleware — bypasses CSRF, rate limiting, sessions)
 	e.GET("/healthz", func(c echo.Context) error {

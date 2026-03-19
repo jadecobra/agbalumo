@@ -1,4 +1,4 @@
-package listing
+package common
 
 import (
 	"errors"
@@ -24,11 +24,8 @@ func TestRenderImageErrorToast(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	h := &ListingHandler{}
-
-	err := h.renderImageErrorToast(c, echo.NewHTTPError(http.StatusBadRequest, "some error"))
+	err := RenderImageErrorToast(c, echo.NewHTTPError(http.StatusBadRequest, "some error"))
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 	assert.Contains(t, rec.Body.String(), "some error")
 }
-

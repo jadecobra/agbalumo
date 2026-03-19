@@ -82,7 +82,7 @@ func TestCompareRoutes(t *testing.T) {
 
 func TestIntegrationAPIDrift(t *testing.T) {
 	// Skip if we are running unit tests quickly, or just run it since it's local
-	codeRoutes, err := agent.ExtractRoutes("../../cmd/server.go")
+	codeRoutes, err := agent.ExtractRoutes("../../cmd", "../../internal/handler", "../../internal/module")
 	if err != nil {
 		t.Fatalf("failed to extract code routes: %v", err)
 	}

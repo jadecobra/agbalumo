@@ -6,6 +6,7 @@ import (
 	"go/parser"
 	"go/token"
 	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
@@ -22,26 +23,27 @@ func ExtractRoutes(paths ...string) ([]Route, error) {
 	fset := token.NewFileSet()
 	var allFiles []*ast.File
 
+	var goFiles []string
 	for _, p := range paths {
 		info, err := os.Stat(p)
 		if err != nil {
 			continue
 		}
 		if info.IsDir() {
-			pkgs, err := parser.ParseDir(fset, p, nil, parser.ParseComments)
-			if err != nil {
-				return nil, fmt.Errorf("failed to parse dir %s: %w", p, err)
-			}
-			for _, pkg := range pkgs {
-				for _, f := range pkg.Files {
-					allFiles = append(allFiles, f)
+			_ = filepath.WalkDir(p, func(path string, d os.DirEntry, err error) error {
+				if err == nil && !d.IsDir() && strings.HasSuffix(path, ".go") {
+					goFiles = append(goFiles, path)
 				}
-			}
+				return nil
+			})
 		} else {
-			node, err := parser.ParseFile(fset, p, nil, parser.ParseComments)
-			if err != nil {
-				return nil, fmt.Errorf("failed to parse file %s: %w", p, err)
-			}
+			goFiles = append(goFiles, p)
+		}
+	}
+
+	for _, filePath := range goFiles {
+		node, err := parser.ParseFile(fset, filePath, nil, parser.ParseComments)
+		if err == nil {
 			allFiles = append(allFiles, node)
 		}
 	}
