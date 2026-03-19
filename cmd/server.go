@@ -175,16 +175,10 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 	authMw := auth.NewAuthMiddleware(domain.UserStore(repo))
 	pageHandler := common.NewPageHandler(domain.CategoryStore(cachedRepo), cfg)
 
-	// Auth Routes
-	authHandler.RegisterRoutes(e, authMw)
-
 	// Health Check (before auth middleware — bypasses CSRF, rate limiting, sessions)
 	e.GET("/healthz", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
 	})
-
-	// Global Auth Middleware
-	e.Use(authMw.OptionalAuth)
 
 	// Static files with cache-control (P0.2)
 	staticCacheMiddleware := staticCacheHeaders()
@@ -194,8 +188,18 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 	// This is needed because in production, uploads go to a different directory (e.g., /data/uploads)
 	e.Group("/static/uploads", staticCacheMiddleware).Static("/", cfg.UploadDir)
 
-	// Listing Routes
-	listingHandler.RegisterRoutes(e, authMw)
+	// Global Auth Middleware
+	e.Use(authMw.OptionalAuth)
+
+	// Vertical Slice Modules Registration
+	modules := []domain.Registrar{
+		authHandler,
+		listingHandler,
+		adminHandler,
+	}
+	for _, module := range modules {
+		module.RegisterRoutes(e, authMw)
+	}
 
 	// Public Routes
 	e.GET("/about", pageHandler.HandleAbout)
@@ -204,9 +208,6 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 	feedbackHandler := handler.NewFeedbackHandler(repo)
 	e.GET("/feedback/modal", feedbackHandler.HandleModal, authMw.RequireAuth)
 	e.POST("/feedback", feedbackHandler.HandleSubmit, authMw.RequireAuth)
-
-	// Admin Routes
-	adminHandler.RegisterRoutes(e, authMw)
 }
 
 // staticCacheHeaders returns middleware that sets Cache-Control headers for static assets.
