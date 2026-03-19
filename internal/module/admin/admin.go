@@ -16,6 +16,7 @@ import (
 	"github.com/jadecobra/agbalumo/internal/domain"
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/labstack/echo/v4"
+	"golang.org/x/time/rate"
 )
 
 type AdminDependencies struct {
@@ -54,6 +55,38 @@ func NewAdminHandler(deps AdminDependencies) *AdminHandler {
 		CSVService:        deps.CSVService,
 		Cfg:               deps.Cfg,
 	}
+}
+
+// RegisterRoutes registers all admin-related routes.
+func (h *AdminHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddleware) {
+	// Strict rate limiter for sensitive admin login endpoint (5 req/min, burst 10)
+	adminAuthLimiter := customMiddleware.NewRateLimiter(customMiddleware.RateLimitConfig{
+		Rate:  rate.Limit(5),
+		Burst: 10,
+	})
+
+	adminGroup := e.Group("/admin")
+	adminGroup.Use(authMw.OptionalAuth)
+	adminGroup.GET("/login", h.HandleLoginView)
+
+	// Admin login POST with strict rate limiting
+	adminLoginGroup := adminGroup.Group("/login")
+	adminLoginGroup.Use(adminAuthLimiter.Middleware())
+	adminLoginGroup.POST("", h.HandleLoginAction)
+	adminGroup.Use(h.AdminMiddleware)
+	adminGroup.GET("", h.HandleDashboard)
+	adminGroup.GET("/users", h.HandleUsers)
+	adminGroup.GET("/listings", h.HandleAllListings)
+	adminGroup.POST("/claims/:id/approve", h.HandleApproveClaim)
+	adminGroup.POST("/claims/:id/reject", h.HandleRejectClaim)
+	adminGroup.POST("/listings/bulk", h.HandleBulkAction)
+	adminGroup.GET("/listings/:id/row", h.HandleListingRow)
+	adminGroup.GET("/listings/delete-confirm", h.HandleAdminDeleteView)
+	adminGroup.POST("/listings/delete", h.HandleAdminDeleteAction)
+	adminGroup.POST("/listings/:id/featured", h.HandleToggleFeatured)
+	adminGroup.POST("/upload", h.HandleBulkUpload)
+	adminGroup.GET("/listings/export", h.HandleExportListings)
+	adminGroup.POST("/categories", h.HandleAddCategory)
 }
 
 // AdminMiddleware checks if the user is an admin.
