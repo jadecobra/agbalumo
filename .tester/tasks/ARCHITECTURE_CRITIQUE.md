@@ -47,11 +47,20 @@
   - [x] Task 2.1: Extract `internal/module/auth/` containing auth features (handlers, middleware). Validation: `go test ./internal/module/auth/...` and verify `cmd/server.go`.
   - [x] Task 2.2: Extract `internal/module/admin/` containing admin handlers. Validation: `go test ./internal/module/admin/...` and verify `cmd/server.go`.
   - [x] Task 2.3: Extract `internal/module/listing/` containing all remaining core listing handlers and services. Validation: `go test ./internal/module/listing/...` and verify `cmd/server.go`.
-  - [ ] Task 2.4: Move generic utilities and shared middleware to `internal/common/`. Validation: Run `./scripts/pre-commit.sh` and `./scripts/verify_restart.sh`. This includes:
+  - [x] Task 2.4: Move generic utilities and shared middleware to `internal/common/`. Validation: Run `./scripts/pre-commit.sh` and `./scripts/verify_restart.sh`. This includes:
     - [x] Decoupling `admin_listing_table_row` HTMX response from `ListingHandler`.
     - [x] Moving `HandleAbout` to a generic `PageHandler` or `common` module.
     - [x] Extracting pure domain logic (e.g., `extractCityFromAddress`) out of HTTP handlers.
-    - [ ] Extracting shared error UI logic (e.g., `IsImageError`, `renderImageErrorToast`).
+    - [x] Extracting shared error UI logic (e.g., `IsImageError`, `renderImageErrorToast`).
+- [ ] **Modularization: Phase 3 - Standardized Assembly (Software Factory)**
+  - [x] Task 3.1: Define a `Registrar` interface in `internal/domain/module.go` with a `RegisterRoutes(e *echo.Echo, authMw *auth.AuthMiddleware)` method.
+  - [ ] Task 3.2: In `internal/module/auth/auth.go`, create an `AuthDependencies` struct. Update `NewAuthHandler` to accept this struct instead of multiple arguments. Fix `auth` tests.
+  - [ ] Task 3.3: Implement `RegisterRoutes` on `AuthHandler`. Move all `/auth/*` route definitions from `cmd/server.go` into this method.
+  - [ ] Task 3.4: In `internal/module/admin/admin.go`, create an `AdminDependencies` struct. Update `NewAdminHandler` to accept this struct instead of multiple arguments. Fix `admin` tests.
+  - [ ] Task 3.5: Implement `RegisterRoutes` on `AdminHandler`. Move all `/admin/*` route definitions from `cmd/server.go` into this method.
+  - [ ] Task 3.6: In `internal/module/listing/listing.go`, create a `ListingDependencies` struct. Update `NewListingHandler` to accept this struct. Fix `listing` tests.
+  - [ ] Task 3.7: Implement `RegisterRoutes` on `ListingHandler`. Move all `/listings/*`, Home `/`, fragment, and profile route definitions from `cmd/server.go` into this method.
+  - [ ] Task 3.8: Clean up `cmd/server.go`. It should now construct dependency structs, initialize the modules, and call `RegisterRoutes` on each. Run `./scripts/pre-commit.sh` to validate.
 - [x] Implemented 100k concurrent users distributed load test via k6 and fixed SQLite MaxOpenConns serialization bottleneck.
 - [ ] **Stress Testing & Benchmarking (100k Listings)**
   - [ ] Task 1: Scaffold `internal/seeder/stress.go` with base `GenerateStressData` function.
