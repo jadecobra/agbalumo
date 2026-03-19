@@ -60,7 +60,7 @@
   - [x] Task 3.5: Implement `RegisterRoutes` on `AdminHandler`. Move all `/admin/*` route definitions from `cmd/server.go` into this method.
     - [ ] MISSING TEST: Add unit tests for `AdminHandler.RegisterRoutes` to restore coverage >= 80.0%.
   - [x] Task 3.6: In `internal/module/listing/listing.go`, create a `ListingDependencies` struct. Update `NewListingHandler` to accept this struct. Fix `listing` tests.
-  - [ ] Task 3.7: Implement `RegisterRoutes` on `ListingHandler`. Move all `/listings/*`, Home `/`, fragment, and profile route definitions from `cmd/server.go` into this method.
+  - [x] Task 3.7: Implement `RegisterRoutes` on `ListingHandler`. Move all `/listings/*`, Home `/`, fragment, and profile route definitions from `cmd/server.go` into this method.
   - [ ] Task 3.8: Clean up `cmd/server.go`. It should now construct dependency structs, initialize the modules, and call `RegisterRoutes` on each. Run `./scripts/pre-commit.sh` to validate.
 - [x] Implemented 100k concurrent users distributed load test via k6 and fixed SQLite MaxOpenConns serialization bottleneck.
 - [ ] **Stress Testing & Benchmarking (100k Listings)**

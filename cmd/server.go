@@ -194,20 +194,11 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 	// This is needed because in production, uploads go to a different directory (e.g., /data/uploads)
 	e.Group("/static/uploads", staticCacheMiddleware).Static("/", cfg.UploadDir)
 
-	// Public Routes
-	e.GET("/", listingHandler.HandleHome)
-	e.GET("/about", pageHandler.HandleAbout)
-	e.GET("/listings/fragment", listingHandler.HandleFragment)
-	e.GET("/listings/:id", listingHandler.HandleDetail)
+	// Listing Routes
+	listingHandler.RegisterRoutes(e, authMw)
 
-	// Authenticated Routes
-	e.POST("/listings", listingHandler.HandleCreate, authMw.RequireAuth)
-	e.GET("/listings/:id/edit", listingHandler.HandleEdit, authMw.RequireAuth)
-	e.PUT("/listings/:id", listingHandler.HandleUpdate, authMw.RequireAuth)
-	e.POST("/listings/:id", listingHandler.HandleUpdate, authMw.RequireAuth)
-	e.DELETE("/listings/:id", listingHandler.HandleDelete, authMw.RequireAuth)
-	e.GET("/profile", listingHandler.HandleProfile, authMw.RequireAuth)
-	e.POST("/listings/:id/claim", listingHandler.HandleClaim, authMw.RequireAuth)
+	// Public Routes
+	e.GET("/about", pageHandler.HandleAbout)
 
 	// Feedback
 	feedbackHandler := handler.NewFeedbackHandler(repo)

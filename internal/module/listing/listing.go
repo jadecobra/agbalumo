@@ -50,6 +50,23 @@ func NewListingHandler(deps ListingDependencies) *ListingHandler {
 	}
 }
 
+// RegisterRoutes wires up all HTTP endpoints relating to the Listing domain.
+func (h *ListingHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddleware) {
+	// Public Routes
+	e.GET("/", h.HandleHome)
+	e.GET("/listings/fragment", h.HandleFragment)
+	e.GET("/listings/:id", h.HandleDetail)
+
+	// Authenticated Routes
+	e.POST("/listings", h.HandleCreate, authMw.RequireAuth)
+	e.GET("/listings/:id/edit", h.HandleEdit, authMw.RequireAuth)
+	e.PUT("/listings/:id", h.HandleUpdate, authMw.RequireAuth)
+	e.POST("/listings/:id", h.HandleUpdate, authMw.RequireAuth)
+	e.DELETE("/listings/:id", h.HandleDelete, authMw.RequireAuth)
+	e.GET("/profile", h.HandleProfile, authMw.RequireAuth)
+	e.POST("/listings/:id/claim", h.HandleClaim, authMw.RequireAuth)
+}
+
 // Home Handler
 func (h *ListingHandler) HandleHome(c echo.Context) error {
 	ctx := c.Request().Context()
