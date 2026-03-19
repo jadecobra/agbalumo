@@ -42,7 +42,14 @@ func TestHandleUpdate_ImageRemoval(t *testing.T) {
 
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
-	h := listmod.NewListingHandler(repo, repo, listingSvc, mockImageService, &MockGeocodingService{}, &config.Config{})
+	h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     mockImageService,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
 
 	// Body with remove_image=true and required fields
 	body := "title=New+Title&remove_image=true&owner_origin=Nigeria&description=Cool&contact_email=test@test.com&city=Lagos&address=123+Street&type=Business"

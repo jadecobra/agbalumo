@@ -13,6 +13,17 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+type ListingDependencies struct {
+	ListingStore     domain.ListingStore
+	CategoryStore    domain.CategoryStore
+	ImageService     domain.ImageService // Optional
+	ListingSvc       domain.ListingService
+	GeocodingSvc     domain.GeocodingService
+	Config           *config.Config
+	GoogleMapsAPIKey string
+	UploadDir        string // Optional
+}
+
 type ListingHandler struct {
 	ListingStore     domain.ListingStore
 	CategoryStore    domain.CategoryStore
@@ -23,29 +34,19 @@ type ListingHandler struct {
 	Cfg              *config.Config
 }
 
-func NewListingHandler(
-	listingStore domain.ListingStore,
-	categoryStore domain.CategoryStore,
-	listingSvc domain.ListingService,
-	imageService domain.ImageService,
-	geocodingSvc domain.GeocodingService,
-	cfg *config.Config,
-	opts ...string,
-) *ListingHandler {
-	var uploadDir string
-	if len(opts) > 0 {
-		uploadDir = opts[0]
-	}
-	if imageService == nil {
-		imageService = service.NewLocalImageService(uploadDir)
+func NewListingHandler(deps ListingDependencies) *ListingHandler {
+	imgSvc := deps.ImageService
+	if imgSvc == nil {
+		imgSvc = service.NewLocalImageService(deps.UploadDir)
 	}
 	return &ListingHandler{
-		ListingStore:  listingStore,
-		CategoryStore: categoryStore,
-		ImageService:  imageService,
-		ListingSvc:    listingSvc,
-		GeocodingSvc:  geocodingSvc,
-		Cfg:           cfg,
+		ListingStore:     deps.ListingStore,
+		CategoryStore:    deps.CategoryStore,
+		ImageService:     imgSvc,
+		ListingSvc:       deps.ListingSvc,
+		GeocodingSvc:     deps.GeocodingSvc,
+		GoogleMapsAPIKey: deps.GoogleMapsAPIKey,
+		Cfg:              deps.Config,
 	}
 }
 

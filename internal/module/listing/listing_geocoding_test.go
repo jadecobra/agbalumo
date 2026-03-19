@@ -28,7 +28,14 @@ func TestHandleCreate_GeocodingFallback(t *testing.T) {
 
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
-	h := listmod.NewListingHandler(repo, repo, listingSvc, nil, mockGeocoding, &config.Config{})
+	h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     nil,
+		GeocodingSvc:     mockGeocoding,
+		Config:           &config.Config{},
+	})
 
 	// Create context with a user
 	body := "title=Google+HQ&type=Business&owner_origin=Nigeria&description=Tech+Giant+HQ&contact_email=info@google.com&address=1600+Amphitheatre+Parkway,+Mountain+View,+CA"

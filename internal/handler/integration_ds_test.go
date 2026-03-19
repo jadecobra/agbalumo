@@ -29,7 +29,14 @@ func TestIntegration_DataValidation(t *testing.T) {
 	for _, bodyStr := range goodData {
 		repo := handler.SetupTestRepository(t)
 		listingSvc := listmod.NewListingService(repo, repo, repo)
-		h := listmod.NewListingHandler(repo, repo, listingSvc, nil, &MockGeocodingService{}, &config.Config{})
+		h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     nil,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
 
 		req := httptest.NewRequest(http.MethodPost, "/listings", strings.NewReader(bodyStr))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
@@ -82,7 +89,14 @@ func TestIntegration_DataValidation(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			repo := handler.SetupTestRepository(t)
 			listingSvc := listmod.NewListingService(repo, repo, repo)
-			h := listmod.NewListingHandler(repo, repo, listingSvc, nil, &MockGeocodingService{}, &config.Config{})
+			h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     nil,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
 
 			req := httptest.NewRequest(http.MethodPost, "/listings", strings.NewReader(tc.body))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)

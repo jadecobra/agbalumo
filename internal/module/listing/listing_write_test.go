@@ -59,7 +59,14 @@ func TestHandleCreate(t *testing.T) {
 
 			listingSvc := listmod.NewListingService(repo, repo, repo)
 
-			h := listmod.NewListingHandler(repo, repo, listingSvc, nil, &MockGeocodingService{}, &config.Config{})
+			h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     nil,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
 			c.Set("User", domain.User{ID: "test-user-id"})
 
 			_ = h.HandleCreate(c)
@@ -108,7 +115,14 @@ func TestHandleEdit(t *testing.T) {
 			repo := handler.SetupTestRepository(t)
 			tt.setup(t, repo)
 			listingSvc := listmod.NewListingService(repo, repo, repo)
-			h := listmod.NewListingHandler(repo, repo, listingSvc, nil, &MockGeocodingService{}, &config.Config{})
+			h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     nil,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
 
 			_ = h.HandleEdit(c)
 
@@ -158,7 +172,14 @@ func TestHandleUpdate(t *testing.T) {
 
 			listingSvc := listmod.NewListingService(repo, repo, repo)
 
-			h := listmod.NewListingHandler(repo, repo, listingSvc, nil, &MockGeocodingService{}, &config.Config{})
+			h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     nil,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
 			_ = h.HandleUpdate(c)
 
 			assert.Equal(t, tt.expectedStatus, rec.Code)
@@ -230,7 +251,14 @@ func TestHandleDelete(t *testing.T) {
 
 			listingSvc := listmod.NewListingService(repo, repo, repo)
 
-			h := listmod.NewListingHandler(repo, repo, listingSvc, nil, &MockGeocodingService{}, &config.Config{})
+			h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     nil,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
 			_ = h.HandleDelete(c)
 
 			assert.Equal(t, tt.expectCode, rec.Code)
@@ -251,7 +279,14 @@ func TestHandleClaim(t *testing.T) {
 
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
-	h := listmod.NewListingHandler(repo, repo, listingSvc, nil, &MockGeocodingService{}, &config.Config{})
+	h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     nil,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
 	_ = h.HandleClaim(c)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
@@ -267,7 +302,14 @@ func TestHandleUpdate_NotFound(t *testing.T) {
 
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
-	h := listmod.NewListingHandler(repo, repo, listingSvc, nil, &MockGeocodingService{}, &config.Config{})
+	h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     nil,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
 	_ = h.HandleUpdate(c)
 	assert.Equal(t, http.StatusNotFound, rec.Code)
 }
@@ -281,7 +323,14 @@ func TestHandleUpdate_NoUser(t *testing.T) {
 
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
-	h := listmod.NewListingHandler(repo, repo, listingSvc, nil, &MockGeocodingService{}, &config.Config{})
+	h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     nil,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
 	_ = h.HandleUpdate(c)
 	assert.Equal(t, http.StatusUnauthorized, rec.Code)
 }
@@ -300,7 +349,14 @@ func TestHandleUpdate_DuplicateTitle(t *testing.T) {
 
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
-	h := listmod.NewListingHandler(repo, repo, listingSvc, nil, &MockGeocodingService{}, &config.Config{})
+	h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     nil,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
 	_ = h.HandleUpdate(c)
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 }
@@ -312,7 +368,14 @@ func TestHandleCreate_NoUser(t *testing.T) {
 
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
-	h := listmod.NewListingHandler(repo, repo, listingSvc, nil, &MockGeocodingService{}, &config.Config{})
+	h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     nil,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
 	_ = h.HandleCreate(c)
 	assert.Equal(t, http.StatusUnauthorized, rec.Code)
 }
@@ -327,7 +390,14 @@ func TestHandleCreate_DuplicateTitle(t *testing.T) {
 
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
-	h := listmod.NewListingHandler(repo, repo, listingSvc, nil, &MockGeocodingService{}, &config.Config{})
+	h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     nil,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
 	_ = h.HandleCreate(c)
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 }

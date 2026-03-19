@@ -26,7 +26,14 @@ func TestListingHandler_HandleImageUpload_CacheBusting(t *testing.T) {
 
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
-	h := listmod.NewListingHandler(repo, repo, listingSvc, mockImageService, mockGeocodingService, &config.Config{})
+	h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     mockImageService,
+		GeocodingSvc:     mockGeocodingService,
+		Config:           &config.Config{},
+	})
 
 	// Mock successful upload returning a clean URL
 	mockImageService.On("UploadImage", testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).

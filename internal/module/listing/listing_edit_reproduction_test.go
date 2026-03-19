@@ -36,7 +36,14 @@ func TestListingHandler_HandleUpdate_Reproduction(t *testing.T) {
 
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
-	h := listmod.NewListingHandler(repo, repo, listingSvc, nil, &MockGeocodingService{}, &config.Config{})
+	h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     nil,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
 
 	// 2. Prepare update data
 	updatedTitle := "Updated Title"
@@ -99,7 +106,14 @@ func TestListingHandler_HandleUpdate_AdminSource(t *testing.T) {
 
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
-	h := listmod.NewListingHandler(repo, repo, listingSvc, nil, &MockGeocodingService{}, &config.Config{})
+	h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     nil,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
 
 	// 2. Prepare update data
 	updatedTitle := "Updated Title Admin"

@@ -88,7 +88,14 @@ func TestListingHandler_HandleClaim(t *testing.T) {
 
 			listingSvc := listmod.NewListingService(repo, repo, repo)
 
-			h := listmod.NewListingHandler(repo, repo, listingSvc, nil, &MockGeocodingService{}, &config.Config{})
+			h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     nil,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
 
 			c, rec := setupTestContext(http.MethodPost, "/listings/listing1/claim", nil)
 			c.SetParamNames("id")

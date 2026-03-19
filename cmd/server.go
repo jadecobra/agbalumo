@@ -147,15 +147,14 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 		domain.CategoryStore(cachedRepo),
 		domain.ClaimRequestStore(cachedRepo),
 	)
-	listingHandler := listing.NewListingHandler(
-		domain.ListingStore(cachedRepo),
-		domain.CategoryStore(cachedRepo),
-		listingSvc,
-		nil,
-		geocodingSvc,
-		cfg,
-	)
-	listingHandler.GoogleMapsAPIKey = cfg.GoogleMapsAPIKey
+	listingHandler := listing.NewListingHandler(listing.ListingDependencies{
+		ListingStore:     domain.ListingStore(cachedRepo),
+		CategoryStore:    domain.CategoryStore(cachedRepo),
+		ListingSvc:       listingSvc,
+		GeocodingSvc:     geocodingSvc,
+		Config:           cfg,
+		GoogleMapsAPIKey: cfg.GoogleMapsAPIKey,
+	})
 	csvService := service.NewCSVService()
 	csvService.Geocoding = geocodingSvc
 	adminHandler := admin.NewAdminHandler(admin.AdminDependencies{

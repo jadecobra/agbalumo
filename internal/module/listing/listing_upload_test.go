@@ -22,7 +22,14 @@ func TestListingHandler_Upload_Malicious(t *testing.T) {
 	// Setup
 	repo := handler.SetupTestRepository(t)
 	listingSvc := listmod.NewListingService(repo, repo, repo)
-	h := listmod.NewListingHandler(repo, repo, listingSvc, nil, &MockGeocodingService{}, &config.Config{})
+	h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     nil,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
 
 	// Create a malicious file (text file disguised as jpg)
 	body := new(bytes.Buffer)
@@ -63,7 +70,14 @@ func TestListingHandler_Upload_Valid(t *testing.T) {
 	// Setup
 	repo := handler.SetupTestRepository(t)
 	listingSvc := listmod.NewListingService(repo, repo, repo)
-	h := listmod.NewListingHandler(repo, repo, listingSvc, nil, &MockGeocodingService{}, &config.Config{})
+	h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     nil,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)

@@ -44,7 +44,14 @@ func TestHandleCreate_WithImage(t *testing.T) {
 
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
-	h := listmod.NewListingHandler(repo, repo, listingSvc, nil, &MockGeocodingService{}, &config.Config{})
+	h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     nil,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
 	c.Set("User", domain.User{ID: "u1"})
 
 	if err := h.HandleCreate(c); err != nil {
@@ -77,7 +84,14 @@ func TestHandleCreate_InvalidDates(t *testing.T) {
 			repo := handler.SetupTestRepository(t)
 			c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
 			listingSvc := listmod.NewListingService(repo, repo, repo)
-			h := listmod.NewListingHandler(repo, repo, listingSvc, nil, &MockGeocodingService{}, &config.Config{})
+			h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     nil,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
 			c.Set("User", domain.User{ID: "u1"})
 			_ = h.HandleCreate(c)
 			assert.Equal(t, tt.expectedStatus, rec.Code)
@@ -102,7 +116,14 @@ func TestHandleCreate_ImageUploadError(t *testing.T) {
 
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
-	h := listmod.NewListingHandler(repo, repo, listingSvc, mockImageService, &MockGeocodingService{}, &config.Config{})
+	h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     mockImageService,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
 	c.Set("User", domain.User{ID: "u1"})
 
 	_ = h.HandleCreate(c)
@@ -113,7 +134,14 @@ func TestHandleProfile_NoUser(t *testing.T) {
 	repo := handler.SetupTestRepository(t)
 	c, rec := setupTestContext(http.MethodGet, "/profile", nil)
 	listingSvc := listmod.NewListingService(repo, repo, repo)
-	h := listmod.NewListingHandler(repo, repo, listingSvc, nil, &MockGeocodingService{}, &config.Config{})
+	h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     nil,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
 	_ = h.HandleProfile(c)
 	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
 }
