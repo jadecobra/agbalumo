@@ -147,6 +147,26 @@ else
     echo "  ${YELLOW}skipping Tests & Coverage (no staged Go files)${NC}"
 fi
 
+# 5.5 Coverage Threshold Anti-Degradation Check
+if [ -n "$STAGED_ALL" ]; then
+    check_threshold() {
+        THRESHOLD_FILE=".agent/coverage-threshold"
+        if [ -f "$THRESHOLD_FILE" ] && git ls-files --error-unmatch "$THRESHOLD_FILE" >/dev/null 2>&1; then
+            if git diff --cached --name-only | grep -q "^$THRESHOLD_FILE$"; then
+                OLD_THRESHOLD=$(git show HEAD:$THRESHOLD_FILE 2>/dev/null || echo "0.0")
+                NEW_THRESHOLD=$(cat "$THRESHOLD_FILE")
+                if awk "BEGIN {exit !($NEW_THRESHOLD < $OLD_THRESHOLD)}"; then
+                    echo "  ${RED}❌ Error: Coverage threshold cannot be lowered ($NEW_THRESHOLD < $OLD_THRESHOLD)${NC}"
+                    echo "  ${YELLOW}You must write tests to maintain or improve coverage, not lower the threshold!${NC}"
+                    return 1
+                fi
+            fi
+        fi
+        return 0
+    }
+    run_task "threshold" "Coverage Threshold Check" "$LOG_DIR" check_threshold &
+fi
+
 # 6. Security Check
 if [ -n "$STAGED_ALL" ]; then
     run_task "security" "Security Check" "$LOG_DIR" sh scripts/security-check.sh &

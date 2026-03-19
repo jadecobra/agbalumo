@@ -1,10 +1,12 @@
 ---
-description: Update test coverage threshold
+description: Update test coverage threshold (ONLY INCREASE, NEVER LOWER)
 ---
 
 # Update Test Coverage Workflow
 
-Follow these steps to update the test coverage threshold for the project.
+> **CRITICAL RULE: NEVER lower the test coverage below its current value in `.agent/coverage-threshold`. If test coverage drops due to your changes, you MUST write new tests to cover the new or modified code until the threshold is met again. Lowering the threshold is strictly forbidden.**
+
+Follow these steps to update the test coverage threshold for the project ONLY when you have ADDED tests and the coverage has INCREASED.
 
 1. Find the current total test coverage percentage by executing the following command:
 ```sh
