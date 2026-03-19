@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
+	"time"
 
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
 	"github.com/jadecobra/agbalumo/internal/seeder"
@@ -27,12 +29,22 @@ var stressCmd = &cobra.Command{
 		ctx := context.Background()
 
 		slog.Info("Starting stress generation...", "count", stressCount)
-		seeder.GenerateStressData(ctx, repo, stressCount)
-		slog.Info("Stress generation complete!")
+		start := time.Now()
+
+		listings := seeder.GenerateStressListings(stressCount)
+		
+		slog.Info("Inserting listings...", "count", len(listings))
+		if err := repo.BulkInsertListings(ctx, listings); err != nil {
+			slog.Error("Failed to bulk insert listings", "error", err)
+			os.Exit(1)
+		}
+
+		duration := time.Since(start)
+		fmt.Printf("Stress generation and insertion of %d listings complete in %v\n", stressCount, duration)
 	},
 }
 
 func init() {
-	stressCmd.Flags().IntVarP(&stressCount, "count", "c", 100000, "Number of listings to generate")
+	stressCmd.Flags().IntVarP(&stressCount, "count", "c", 10000, "Number of listings to generate")
 	rootCmd.AddCommand(stressCmd)
 }
