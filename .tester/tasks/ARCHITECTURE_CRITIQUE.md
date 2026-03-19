@@ -37,20 +37,20 @@
   - [x] Implement `BulkInsertListings` in `internal/repository/sqlite/listing.go` (or dedicated stress file).
   - [x] Wrap in a single `.BeginTx()` and execute bulk `INSERT` statements using SQLite parameterized bindings (chunked into batches of 500).
   - [x] Write a unit test to insert 10,000 listings and assert that `TotalCount` increases appropriately.
-- [ ] **Task 4.3: Construct the `stress` CLI Command**
-  - [ ] Create `cmd/stress.go` using Cobra and add a `stress` sub-command to the root command.
-  - [ ] Accept flag `--count` (default: 10,000), initialize DB, run `GenerateStressListings()`, then pass to `BulkInsertListings()`.
-  - [ ] Ensure `time.Since()` prints the total duration to `stdout`.
-- [ ] **Task 4.4: Scaffold Read-Heavy Validation Scripts**
-  - [ ] Add a `benchmark` sub-command inside `cmd/stress.go` (or `cmd/benchmark.go`).
-  - [ ] Write isolated functions that execute `ListingStore.FindAll` at offsets (Page 1, Page 500) and specific category filters.
-  - [ ] Output a formatted table to `stdout` detailing query execution times in ms.
+- [x] **Task 4.3: Construct the `stress` CLI Command**
+  - [x] Create `cmd/stress.go` using Cobra and add a `stress` sub-command to the root command.
+  - [x] Accept flag `--count` (default: 10,000), initialize DB, run `GenerateStressListings()`, then pass to `BulkInsertListings()`.
+  - [x] Ensure `time.Since()` prints the total duration to `stdout`.
+- [x] **Task 4.4: Scaffold Read-Heavy Validation Scripts**
+  - [x] Add a `benchmark` sub-command inside `cmd/stress.go` (or `cmd/benchmark.go`).
+  - [x] Write isolated functions that execute `ListingStore.FindAll` at offsets (Page 1, Page 500) and specific category filters.
+  - [x] Output a formatted table to `stdout` detailing query execution times in ms.
 
 ### Phase 5: Production Metrics & Granularity
-- [ ] **Task 5.1: Implement Query Latency Logging**
-  - [ ] Wrap critical read paths (`FindAll`, `GetCounts`, `FindByID`) in `internal/repository/sqlite/listing.go` with latency tracking.
-  - [ ] Use `slog.Debug` or `slog.Info` to log `duration_ms` on slow queries (> 50ms).
-  - [ ] Run the `benchmark` command and verify slow queries are logged in structured JSON output.
+- [x] **Task 5.1: Implement Query Latency Logging**
+  - [x] Wrap critical read paths (`FindAll`, `GetCounts`, `FindByID`) in `internal/repository/sqlite/listing.go` with latency tracking.
+  - [x] Use `slog.Debug` or `slog.Info` to log `duration_ms` on slow queries (> 50ms).
+  - [x] Run the `benchmark` command and verify slow queries are logged in structured JSON output.
 
 ## ⏱️ Baseline Benchmarks
 Measurements taken to evaluate the harness performance, comparing the V1 bash script against the V2 Go binary:
