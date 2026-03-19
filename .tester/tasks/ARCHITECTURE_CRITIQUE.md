@@ -33,10 +33,10 @@
   - [x] Create `internal/seeder/stress_generator.go`.
   - [x] Implement `GenerateStressListings(count int) []domain.Listing` using `math/rand/v2`.
   - [x] Write `stress_generator_test.go` to assert function returns exactly `count` items with no empty critical fields.
-- [ ] **Task 4.2: Author High-Performance Batch Saver**
-  - [ ] Implement `BulkInsertListings` in `internal/repository/sqlite/listing.go` (or dedicated stress file).
-  - [ ] Wrap in a single `.BeginTx()` and execute bulk `INSERT` statements using SQLite parameterized bindings (chunked into batches of 500).
-  - [ ] Write a unit test to insert 10,000 listings and assert that `TotalCount` increases appropriately.
+- [x] **Task 4.2: Author High-Performance Batch Saver**
+  - [x] Implement `BulkInsertListings` in `internal/repository/sqlite/listing.go` (or dedicated stress file).
+  - [x] Wrap in a single `.BeginTx()` and execute bulk `INSERT` statements using SQLite parameterized bindings (chunked into batches of 500).
+  - [x] Write a unit test to insert 10,000 listings and assert that `TotalCount` increases appropriately.
 - [ ] **Task 4.3: Construct the `stress` CLI Command**
   - [ ] Create `cmd/stress.go` using Cobra and add a `stress` sub-command to the root command.
   - [ ] Accept flag `--count` (default: 10,000), initialize DB, run `GenerateStressListings()`, then pass to `BulkInsertListings()`.
