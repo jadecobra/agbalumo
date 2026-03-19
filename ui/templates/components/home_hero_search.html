@@ -42,10 +42,7 @@
                     </div>
 
                     <!-- Search Button (Inside Bar for Desktop, hidden on Mobile) -->
-                    <button type="button"
-                        class="search-btn hidden md:flex bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark h-14 px-8 font-bold uppercase text-xs tracking-widest transition-colors items-center shadow-lg shadow-earth-ochre/20 border-l border-white/20">
-                        Search
-                    </button>
+                    {{ template "button_sharp" dict "Type" "button" "Classes" "search-btn hidden md:flex bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark h-14 px-8 font-bold uppercase text-xs tracking-widest transition-colors items-center shadow-lg shadow-earth-ochre/20 border-l border-white/20" "Label" "Search" }}
 
                     <!-- Filters Toggle (Desktop View) -->
                     <button type="button" data-action="toggle-filters"
@@ -57,10 +54,7 @@
 
                 <!-- Action Buttons (Mobile View) -->
                 <div class="flex md:hidden items-center mt-1 p-1 gap-1">
-                    <button type="button"
-                        class="search-btn flex-1 bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark h-12 font-bold uppercase text-[10px] tracking-widest transition-colors text-center shadow-lg shadow-earth-ochre/20">
-                        Search
-                    </button>
+                    {{ template "button_sharp" dict "Type" "button" "Classes" "search-btn flex-1 bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark h-12 font-bold uppercase text-[10px] tracking-widest transition-colors text-center shadow-lg shadow-earth-ochre/20" "Label" "Search" }}
                     <button type="button" data-action="toggle-filters"
                         class="filters-btn flex-1 flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white h-12 text-[10px] font-bold uppercase tracking-widest transition-colors">
                         <span class="material-symbols-outlined text-[16px]">tune</span>
