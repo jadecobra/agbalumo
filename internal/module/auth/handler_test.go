@@ -58,7 +58,7 @@ func TestAuthHandler_DevLogin_Production(t *testing.T) {
 
 	cfg := config.LoadConfig()
 	cfg.Env = "production"
-	h := auth.NewAuthHandler(repo, nil, cfg)
+	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, Config: cfg})
 
 	// Execute
 	err := h.DevLogin(c)
@@ -86,7 +86,7 @@ func TestAuthHandler_GoogleCallback_StateMismatch(t *testing.T) {
 	mockProvider := &MockGoogleProvider{}
 	cfg := config.LoadConfig()
 	cfg.HasGoogleAuth = true
-	h := auth.NewAuthHandler(repo, mockProvider, cfg)
+	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, GoogleProvider: mockProvider, Config: cfg})
 
 	err := h.GoogleCallback(c)
 
@@ -113,7 +113,7 @@ func TestAuthHandler_GoogleCallback_Success(t *testing.T) {
 	mockProvider := &MockGoogleProvider{}
 	cfg := config.LoadConfig()
 	cfg.HasGoogleAuth = true
-	h := auth.NewAuthHandler(repo, mockProvider, cfg)
+	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, GoogleProvider: mockProvider, Config: cfg})
 
 	token := &oauth2.Token{AccessToken: "access-token"}
 	gUser := &auth.GoogleUser{
@@ -158,7 +158,7 @@ func TestAuthHandler_GoogleLogin(t *testing.T) {
 	mockProvider := &MockGoogleProvider{}
 	cfg := config.LoadConfig()
 	cfg.HasGoogleAuth = true
-	h := auth.NewAuthHandler(repo, mockProvider, cfg)
+	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, GoogleProvider: mockProvider, Config: cfg})
 
 	mockProvider.On("GetAuthCodeURL", testifyMock.AnythingOfType("string"), "http", "example.com").Return("http://google.com/auth")
 
@@ -183,7 +183,7 @@ func TestAuthHandler_Logout(t *testing.T) {
 	c.Set("session", sess)
 
 	repo := handler.SetupTestRepository(t)
-	h := auth.NewAuthHandler(repo, nil, config.LoadConfig())
+	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, Config: config.LoadConfig()})
 
 	err := h.Logout(c)
 
@@ -205,7 +205,7 @@ func TestAuthHandler_DevLogin_Success(t *testing.T) {
 	c.Set("session", sess)
 
 	repo := handler.SetupTestRepository(t)
-	h := auth.NewAuthHandler(repo, nil, config.LoadConfig())
+	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, Config: config.LoadConfig()})
 
 	_ = os.Setenv("AGBALUMO_ENV", "development")
 	defer func() { _ = os.Unsetenv("AGBALUMO_ENV") }()
@@ -233,7 +233,7 @@ func TestAuthHandler_GoogleCallback_SaveUserError(t *testing.T) {
 
 	repo := handler.SetupTestRepository(t)
 	mockProvider := &MockGoogleProvider{}
-	h := auth.NewAuthHandler(repo, mockProvider, config.LoadConfig())
+	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, GoogleProvider: mockProvider, Config: config.LoadConfig()})
 
 	token := &oauth2.Token{AccessToken: "token"}
 	gUser := &auth.GoogleUser{ID: "g-err", Email: "err@test.com"}
@@ -260,7 +260,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfile(t *testing.T) {
 
 	repo := handler.SetupTestRepository(t)
 	mockProvider := &MockGoogleProvider{}
-	h := auth.NewAuthHandler(repo, mockProvider, config.LoadConfig())
+	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, GoogleProvider: mockProvider, Config: config.LoadConfig()})
 
 	token := &oauth2.Token{AccessToken: "token"}
 	gUser := &auth.GoogleUser{
@@ -303,7 +303,7 @@ func TestAuthHandler_DevLogin_GOENVFallback(t *testing.T) {
 	c.Set("session", sess)
 
 	repo := handler.SetupTestRepository(t)
-	h := auth.NewAuthHandler(repo, nil, config.LoadConfig())
+	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, Config: config.LoadConfig()})
 
 	_ = os.Unsetenv("AGBALUMO_ENV")
 	_ = os.Setenv("GO_ENV", "development")
@@ -328,7 +328,7 @@ func TestAuthHandler_DevLogin_DefaultEmail(t *testing.T) {
 	c.Set("session", sess)
 
 	repo := handler.SetupTestRepository(t)
-	h := auth.NewAuthHandler(repo, nil, config.LoadConfig())
+	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, Config: config.LoadConfig()})
 
 	_ = os.Setenv("AGBALUMO_ENV", "development")
 	defer func() { _ = os.Unsetenv("AGBALUMO_ENV") }()
@@ -358,7 +358,7 @@ func TestAuthHandler_GoogleCallback_ExchangeError(t *testing.T) {
 
 	repo := handler.SetupTestRepository(t)
 	mockProvider := &MockGoogleProvider{}
-	h := auth.NewAuthHandler(repo, mockProvider, config.LoadConfig())
+	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, GoogleProvider: mockProvider, Config: config.LoadConfig()})
 
 	mockProvider.On("Exchange", testifyMock.Anything, "bad-code", "http", "example.com").Return(nil, assert.AnError)
 
@@ -384,7 +384,7 @@ func TestAuthHandler_GoogleCallback_GetUserInfoError(t *testing.T) {
 
 	repo := handler.SetupTestRepository(t)
 	mockProvider := &MockGoogleProvider{}
-	h := auth.NewAuthHandler(repo, mockProvider, config.LoadConfig())
+	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, GoogleProvider: mockProvider, Config: config.LoadConfig()})
 
 	token := &oauth2.Token{AccessToken: "token"}
 	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", "http", "example.com").Return(token, nil)
@@ -412,7 +412,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfileSaveError(t *testing.T) {
 
 	repo := handler.SetupTestRepository(t)
 	mockProvider := &MockGoogleProvider{}
-	h := auth.NewAuthHandler(repo, mockProvider, config.LoadConfig())
+	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, GoogleProvider: mockProvider, Config: config.LoadConfig()})
 
 	token := &oauth2.Token{AccessToken: "token"}
 	gUser := &auth.GoogleUser{
@@ -450,7 +450,7 @@ func TestAuthHandler_SetSessionAndRedirect_NilSession(t *testing.T) {
 
 	repo := handler.SetupTestRepository(t)
 	mockProvider := &MockGoogleProvider{}
-	h := auth.NewAuthHandler(repo, mockProvider, config.LoadConfig())
+	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, GoogleProvider: mockProvider, Config: config.LoadConfig()})
 
 	token := &oauth2.Token{AccessToken: "token"}
 	gUser := &auth.GoogleUser{ID: "g-no-session", Email: "no-session@test.com", Name: "Test", Picture: "http://pic.com"}
@@ -474,7 +474,7 @@ func TestAuthHandler_Logout_NoSession(t *testing.T) {
 	c := e.NewContext(req, rec)
 
 	repo := handler.SetupTestRepository(t)
-	h := auth.NewAuthHandler(repo, nil, config.LoadConfig())
+	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, Config: config.LoadConfig()})
 
 	err := h.Logout(c)
 
@@ -498,7 +498,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfile_NoChanges(t *testing.T) {
 
 	repo := handler.SetupTestRepository(t)
 	mockProvider := &MockGoogleProvider{}
-	h := auth.NewAuthHandler(repo, mockProvider, config.LoadConfig())
+	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, GoogleProvider: mockProvider, Config: config.LoadConfig()})
 
 	token := &oauth2.Token{AccessToken: "token"}
 	gUser := &auth.GoogleUser{

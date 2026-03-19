@@ -131,14 +131,14 @@ type AuthHandler struct {
 	Cfg            *config.Config
 }
 
-func NewAuthHandler(repo domain.UserStore, provider GoogleProvider, cfg *config.Config) *AuthHandler {
-	if provider == nil {
-		provider = NewRealGoogleProvider()
+func NewAuthHandler(deps AuthDependencies) *AuthHandler {
+	if deps.GoogleProvider == nil {
+		deps.GoogleProvider = NewRealGoogleProvider()
 	}
 	return &AuthHandler{
-		Repo:           repo,
-		GoogleProvider: provider,
-		Cfg:            cfg,
+		Repo:           deps.UserStore,
+		GoogleProvider: deps.GoogleProvider,
+		Cfg:            deps.Config,
 	}
 }
 

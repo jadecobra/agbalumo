@@ -169,7 +169,10 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 		csvService,
 		cfg,
 	)
-	authHandler := auth.NewAuthHandler(domain.UserStore(repo), nil, cfg)
+	authHandler := auth.NewAuthHandler(auth.AuthDependencies{
+		UserStore: domain.UserStore(repo),
+		Config:    cfg,
+	})
 	authMw := auth.NewAuthMiddleware(domain.UserStore(repo))
 	pageHandler := common.NewPageHandler(domain.CategoryStore(cachedRepo), cfg)
 

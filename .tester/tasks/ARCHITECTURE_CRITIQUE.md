@@ -54,7 +54,7 @@
     - [x] Extracting shared error UI logic (e.g., `IsImageError`, `renderImageErrorToast`).
 - [ ] **Modularization: Phase 3 - Standardized Assembly (Software Factory)**
   - [x] Task 3.1: Define a `Registrar` interface in `internal/domain/module.go` with a `RegisterRoutes(e *echo.Echo, authMw *auth.AuthMiddleware)` method.
-  - [ ] Task 3.2: In `internal/module/auth/auth.go`, create an `AuthDependencies` struct. Update `NewAuthHandler` to accept this struct instead of multiple arguments. Fix `auth` tests.
+  - [x] Task 3.2: In `internal/module/auth/auth.go`, create an `AuthDependencies` struct. Update `NewAuthHandler` to accept this struct instead of multiple arguments. Fix `auth` tests.
   - [ ] Task 3.3: Implement `RegisterRoutes` on `AuthHandler`. Move all `/auth/*` route definitions from `cmd/server.go` into this method.
   - [ ] Task 3.4: In `internal/module/admin/admin.go`, create an `AdminDependencies` struct. Update `NewAdminHandler` to accept this struct instead of multiple arguments. Fix `admin` tests.
   - [ ] Task 3.5: Implement `RegisterRoutes` on `AdminHandler`. Move all `/admin/*` route definitions from `cmd/server.go` into this method.
