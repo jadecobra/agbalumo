@@ -23,7 +23,7 @@ func TestAdminHandler_HandleUsers_Success(t *testing.T) {
 	err := repo.SaveUser(c.Request().Context(), user)
 	require.NoError(t, err)
 
-	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
 	_ = h.HandleUsers(c)
 
 	assert.Equal(t, http.StatusOK, rec.Code)

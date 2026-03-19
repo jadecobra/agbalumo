@@ -20,7 +20,7 @@ func TestAdminHandler_HandleExportListings(t *testing.T) {
 	e := echo.New()
 	repo := handler.SetupTestRepository(t)
 	csvSvc := service.NewCSVService()
-	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, csvSvc, nil)
+	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: csvSvc, Cfg: nil})
 
 	ctx := context.Background()
 	// Seed some data

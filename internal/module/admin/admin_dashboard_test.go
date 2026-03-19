@@ -36,7 +36,7 @@ func TestAdminHandler_HandleDashboard_HappyPath(t *testing.T) {
 	// 5. Categories
 	_ = repo.SaveCategory(ctx, domain.CategoryData{ID: "music", Name: "Music"})
 
-	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin", nil)
 	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
@@ -55,7 +55,7 @@ func TestAdminHandler_HandleDashboard_GrowthMetrics(t *testing.T) {
 	_ = repo.SaveUser(ctx, domain.User{ID: "u1", CreatedAt: now})
 	_ = repo.Save(ctx, domain.Listing{ID: "l1", CreatedAt: now})
 
-	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin", nil)
 	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 

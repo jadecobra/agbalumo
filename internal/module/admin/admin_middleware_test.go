@@ -13,7 +13,7 @@ import (
 
 func TestAdminMiddleware_NoUser(t *testing.T) {
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin", nil)
-	h := admin.NewAdminHandler(nil, nil, nil, nil, nil, nil, nil, nil, config.LoadConfig())
+	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: nil, FeedbackStore: nil, AnalyticsStore: nil, CategoryStore: nil, UserStore: nil, ListingStore: nil, ClaimRequestStore: nil, CSVService: nil, Cfg: config.LoadConfig()})
 
 	called := false
 	mdw := h.AdminMiddleware(func(c echo.Context) error {
@@ -29,7 +29,7 @@ func TestAdminMiddleware_NoUser(t *testing.T) {
 func TestAdminMiddleware_AdminUser(t *testing.T) {
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin", nil)
 	c.Set("User", domain.User{ID: "admin1", Role: domain.UserRoleAdmin})
-	h := admin.NewAdminHandler(nil, nil, nil, nil, nil, nil, nil, nil, config.LoadConfig())
+	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: nil, FeedbackStore: nil, AnalyticsStore: nil, CategoryStore: nil, UserStore: nil, ListingStore: nil, ClaimRequestStore: nil, CSVService: nil, Cfg: config.LoadConfig()})
 
 	called := false
 	mdw := h.AdminMiddleware(func(c echo.Context) error {

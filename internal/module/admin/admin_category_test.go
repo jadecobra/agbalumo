@@ -29,7 +29,7 @@ func TestAdminHandler_HandleAddCategory_Success(t *testing.T) {
 
 	repo := handler.SetupTestRepository(t)
 
-	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
 	_ = h.HandleAddCategory(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)
@@ -49,7 +49,7 @@ func TestAdminHandler_HandleAddCategory_EmptyName_Redirects(t *testing.T) {
 	c.Set("User", domain.User{ID: "admin1", Role: domain.UserRoleAdmin})
 
 	repo := handler.SetupTestRepository(t)
-	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
 	_ = h.HandleAddCategory(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)
@@ -73,7 +73,7 @@ func TestAdminHandler_HandleAddCategory_DuplicateName_Redirects(t *testing.T) {
 	// Seed existing category
 	_ = repo.SaveCategory(context.Background(), domain.CategoryData{ID: "music", Name: "Music"})
 
-	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
 	_ = h.HandleAddCategory(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)
@@ -96,7 +96,7 @@ func TestAdminHandler_HandleAddCategory_Claimable(t *testing.T) {
 
 	repo := handler.SetupTestRepository(t)
 
-	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
 	_ = h.HandleAddCategory(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)

@@ -18,6 +18,18 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+type AdminDependencies struct {
+	AdminStore        domain.AdminStore
+	FeedbackStore     domain.FeedbackStore
+	AnalyticsStore    domain.AnalyticsStore
+	CategoryStore     domain.CategoryStore
+	UserStore         domain.UserStore
+	ListingStore      domain.ListingStore
+	ClaimRequestStore domain.ClaimRequestStore
+	CSVService        domain.CSVService
+	Cfg               *config.Config
+}
+
 type AdminHandler struct {
 	AdminStore        domain.AdminStore
 	FeedbackStore     domain.FeedbackStore
@@ -30,27 +42,17 @@ type AdminHandler struct {
 	Cfg               *config.Config
 }
 
-func NewAdminHandler(
-	adminStore domain.AdminStore,
-	feedbackStore domain.FeedbackStore,
-	analyticsStore domain.AnalyticsStore,
-	categoryStore domain.CategoryStore,
-	userStore domain.UserStore,
-	listingStore domain.ListingStore,
-	claimRequestStore domain.ClaimRequestStore,
-	csvService domain.CSVService,
-	cfg *config.Config,
-) *AdminHandler {
+func NewAdminHandler(deps AdminDependencies) *AdminHandler {
 	return &AdminHandler{
-		AdminStore:        adminStore,
-		FeedbackStore:     feedbackStore,
-		AnalyticsStore:    analyticsStore,
-		CategoryStore:     categoryStore,
-		UserStore:         userStore,
-		ListingStore:      listingStore,
-		ClaimRequestStore: claimRequestStore,
-		CSVService:        csvService,
-		Cfg:               cfg,
+		AdminStore:        deps.AdminStore,
+		FeedbackStore:     deps.FeedbackStore,
+		AnalyticsStore:    deps.AnalyticsStore,
+		CategoryStore:     deps.CategoryStore,
+		UserStore:         deps.UserStore,
+		ListingStore:      deps.ListingStore,
+		ClaimRequestStore: deps.ClaimRequestStore,
+		CSVService:        deps.CSVService,
+		Cfg:               deps.Cfg,
 	}
 }
 

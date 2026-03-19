@@ -72,7 +72,7 @@ func TestAdminHandler_HandleAllListings_Extended(t *testing.T) {
 			c, rec := setupAdminTestContext(http.MethodGet, "/admin/listings"+tt.query, nil)
 			c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
-			h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+			h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
 			_ = h.HandleAllListings(c)
 
 			assert.Equal(t, tt.expectCode, rec.Code)
@@ -92,7 +92,7 @@ func TestAdminHandler_HandleAllListings_Counts(t *testing.T) {
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin/listings", nil)
 	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
-	h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
 	_ = h.HandleAllListings(c)
 
 	assert.Equal(t, http.StatusOK, rec.Code)

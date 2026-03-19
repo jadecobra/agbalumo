@@ -24,7 +24,7 @@ func TestAdminHandler_HandleToggleFeatured_Error(t *testing.T) {
 	c.SetParamValues("123")
 	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
-	h := admin.NewAdminHandler(mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, mockRepo, nil, config.LoadConfig())
+	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: mockRepo, FeedbackStore: mockRepo, AnalyticsStore: mockRepo, CategoryStore: mockRepo, UserStore: mockRepo, ListingStore: mockRepo, ClaimRequestStore: mockRepo, CSVService: nil, Cfg: config.LoadConfig()})
 	err := h.HandleToggleFeatured(c)
 
 	assert.NoError(t, err)

@@ -48,7 +48,7 @@ func TestAdminHandler_HandleLoginView(t *testing.T) {
 			}
 
 			repo := handler.SetupTestRepository(t)
-			h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, config.LoadConfig())
+			h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
 			_ = h.HandleLoginView(c)
 
 			assert.Equal(t, tt.expectCode, rec.Code)
@@ -114,7 +114,7 @@ func TestAdminHandler_HandleLoginAction(t *testing.T) {
 			cfg := config.LoadConfig()
 			cfg.AdminCode = tt.adminCode
 
-			h := admin.NewAdminHandler(repo, repo, repo, repo, repo, repo, repo, nil, cfg)
+			h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: cfg})
 			_ = h.HandleLoginAction(c)
 
 			assert.Equal(t, tt.expectCode, rec.Code)
