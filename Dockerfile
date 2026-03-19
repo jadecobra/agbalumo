@@ -5,9 +5,11 @@ WORKDIR /src
 RUN git clone https://github.com/benbjohnson/litestream.git . && \
     git checkout v0.3.13 && \
     go get golang.org/x/crypto@latest && \
-    go get google.golang.org/grpc@v1.57.1 && \
-    go get golang.org/x/net@v0.23.0 && \
-    go get golang.org/x/oauth2@v0.27.0 && \
+    go get google.golang.org/grpc@latest && \
+    go get google.golang.org/api@latest && \
+    go get go.opentelemetry.io/otel/sdk@latest && \
+    go get golang.org/x/net@latest && \
+    go get golang.org/x/oauth2@latest && \
     go mod tidy && \
     CGO_ENABLED=1 go install -ldflags '-extldflags "-static"' ./cmd/litestream
 
