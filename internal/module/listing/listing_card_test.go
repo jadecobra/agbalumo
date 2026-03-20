@@ -14,7 +14,10 @@ import (
 func TestListingCardRendering(t *testing.T) {
 	tmpl := template.New("listing_card.html").Funcs(ui.BuildGlobalFuncMap())
 
-	_, err := tmpl.ParseFiles("../../../ui/templates/partials/listing_card.html")
+	_, err := tmpl.ParseFiles(
+		"../../../ui/templates/partials/listing_card.html",
+		"../../../ui/templates/partials/ui_components.html",
+	)
 	if err != nil {
 		t.Fatalf("Failed to parse listing_card.html: %v", err)
 	}

@@ -79,8 +79,8 @@ func TestCreateRequestModalTheme(t *testing.T) {
 
 	content := string(templateContent)
 
-	if !strings.Contains(content, `bg-earth-dark/95 backdrop-blur-xl p-6`) {
-		t.Error("Create Request modal missing expected dark theme wrapper classes")
+	if !strings.Contains(content, `template "modal_base"`) {
+		t.Error("Create Request modal missing expected modal_base component usage")
 	}
 
 	if !strings.Contains(content, `bg-earth-sand/10 border border-white/20 p-1`) {
@@ -201,7 +201,6 @@ func TestModalCloseButtons(t *testing.T) {
 
 	checks := []modalCheck{
 		{file: "modal_create_listing.html", wantText: "CLOSE", wantAttr: `data-modal-action="close"`},
-		{file: "modal_create_request.html", wantText: "CLOSE", wantAttr: `data-modal-action="close"`},
 		{file: "modal_profile.html", wantText: "CLOSE", wantAttr: `data-modal-action="close"`},
 		{file: "modal_feedback.html", wantText: "CLOSE", wantAttr: `data-modal-action="close"`},
 		{file: "modal_detail.html", wantText: "CLOSE", wantAttr: `data-modal-action="close"`},
@@ -237,7 +236,6 @@ func TestModalCloseButtonStyle(t *testing.T) {
 
 	modalFiles := []string{
 		"modal_create_listing.html",
-		"modal_create_request.html",
 	}
 
 	for _, file := range modalFiles {
@@ -268,7 +266,6 @@ func TestModalNoOrphanIconOnlyCloseButton(t *testing.T) {
 
 	modalFiles := []string{
 		"modal_create_listing.html",
-		"modal_create_request.html",
 		"modal_profile.html",
 		"modal_feedback.html",
 		"modal_detail.html",

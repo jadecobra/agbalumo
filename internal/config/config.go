@@ -16,8 +16,9 @@ type Config struct {
 	RateLimitRate    int
 	RateLimitBurst   int
 	UploadDir        string
-	GoogleMapsAPIKey string
-	HasGoogleAuth    bool
+	GoogleMapsAPIKey     string
+	HasGoogleAuth        bool
+	SlowQueryThresholdMs int
 }
 
 func LoadConfig() *Config {
@@ -42,9 +43,10 @@ func LoadConfig() *Config {
 		DevAuthEmail:     getEnv("DEV_AUTH_EMAIL", "dev@agbalumo.com"),
 		RateLimitRate:    getEnvAsInt("RATE_LIMIT_RATE", 20),
 		RateLimitBurst:   getEnvAsInt("RATE_LIMIT_BURST", 40),
-		UploadDir:        uploadDir,
-		GoogleMapsAPIKey: getEnv("GOOGLE_MAPS_API_KEY", ""),
-		HasGoogleAuth:    hasGoogleAuth,
+		UploadDir:            uploadDir,
+		GoogleMapsAPIKey:     getEnv("GOOGLE_MAPS_API_KEY", ""),
+		HasGoogleAuth:        hasGoogleAuth,
+		SlowQueryThresholdMs: getEnvAsInt("SLOW_QUERY_THRESHOLD_MS", 50),
 	}
 }
 

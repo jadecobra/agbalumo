@@ -3,6 +3,7 @@ package sqlite
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	_ "modernc.org/sqlite" // register driver
 )
@@ -12,12 +13,16 @@ type Scanner interface {
 }
 
 type SQLiteRepository struct {
-	db *sql.DB
+	db                 *sql.DB
+	slowQueryThreshold time.Duration
 }
 
 // NewSQLiteRepositoryFromDB creates a new repository using an existing DB connection.
 func NewSQLiteRepositoryFromDB(db *sql.DB) *SQLiteRepository {
-	return &SQLiteRepository{db: db}
+	return &SQLiteRepository{
+		db:                 db,
+		slowQueryThreshold: 50 * time.Millisecond,
+	}
 }
 
 func NewSQLiteRepository(dbPath string) (*SQLiteRepository, error) {
@@ -52,12 +57,20 @@ func NewSQLiteRepository(dbPath string) (*SQLiteRepository, error) {
 	}
 	db.SetConnMaxLifetime(0)
 
-	repo := &SQLiteRepository{db: db}
+	repo := &SQLiteRepository{
+		db:                 db,
+		slowQueryThreshold: 50 * time.Millisecond,
+	}
 	if err := repo.migrate(); err != nil {
 		return nil, err
 	}
 
 	return repo, nil
+}
+
+// SetSlowQueryThreshold updates the threshold for logging slow queries.
+func (r *SQLiteRepository) SetSlowQueryThreshold(d time.Duration) {
+	r.slowQueryThreshold = d
 }
 
 func (r *SQLiteRepository) migrate() error {

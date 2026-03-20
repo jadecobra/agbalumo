@@ -61,6 +61,7 @@ func SetupServer() (*echo.Echo, error) {
 	if err != nil {
 		return nil, err
 	}
+	repo.SetSlowQueryThreshold(time.Duration(cfg.SlowQueryThresholdMs) * time.Millisecond)
 
 	renderer, err := initRenderer()
 	if err != nil {

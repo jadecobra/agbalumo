@@ -237,7 +237,7 @@ func (r *SQLiteRepository) BulkInsertListings(ctx context.Context, listings []do
 func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, queryText string, sortField string, sortOrder string, includeInactive bool, limit int, offset int) ([]domain.Listing, int, error) {
 	start := time.Now()
 	defer func() {
-		if duration := time.Since(start); duration > 50*time.Millisecond {
+		if duration := time.Since(start); duration > r.slowQueryThreshold {
 			slog.Info("Slow query detected", slog.String("query", "FindAll"), slog.Int64("duration_ms", duration.Milliseconds()))
 		}
 	}()
@@ -313,7 +313,7 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 func (r *SQLiteRepository) FindByID(ctx context.Context, id string) (domain.Listing, error) {
 	start := time.Now()
 	defer func() {
-		if duration := time.Since(start); duration > 50*time.Millisecond {
+		if duration := time.Since(start); duration > r.slowQueryThreshold {
 			slog.Info("Slow query detected", slog.String("query", "FindByID"), slog.Int64("duration_ms", duration.Milliseconds()))
 		}
 	}()
@@ -412,7 +412,7 @@ func (r *SQLiteRepository) Delete(ctx context.Context, id string) error {
 func (r *SQLiteRepository) GetCounts(ctx context.Context) (map[domain.Category]int, error) {
 	start := time.Now()
 	defer func() {
-		if duration := time.Since(start); duration > 50*time.Millisecond {
+		if duration := time.Since(start); duration > r.slowQueryThreshold {
 			slog.Info("Slow query detected", slog.String("query", "GetCounts"), slog.Int64("duration_ms", duration.Milliseconds()))
 		}
 	}()
