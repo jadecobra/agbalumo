@@ -25,7 +25,10 @@ func getState() *agent.State {
 }
 
 func saveState(state *agent.State) {
-	os.MkdirAll(".agent", 0755)
+	if err := os.MkdirAll(".agent", 0755); err != nil {
+		fmt.Fprintf(os.Stderr, "Error creating .agent directory: %v\n", err)
+		os.Exit(1)
+	}
 	if err := agent.SaveState(stateFile, state); err != nil {
 		fmt.Fprintf(os.Stderr, "Error saving state: %v\n", err)
 		os.Exit(1)

@@ -1,73 +1,67 @@
 # Architecture Critique: Progress & Achievements
 
-**Agbalumo** is a robust Go web application built for the West African diaspora community. Powered by the Echo framework, SQLite, HTMX, and Tailwind CSS.
+**Agbalumo** is a robust Go web application built for the West African diaspora community.
 
-## 🚀 Achievements & Completed Work
+### 🏆 What Has Been Done
 
-**Performance & Core Infrastructure**
-- Tuned SQLite with `MaxOpenConns(1)`, FTS5 trigram search, parallelized queries, and TTL caching.
-- Enabled Gzip compression, `Cache-Control` headers, and admin-only asset optimization mapping.
-- Hardened robust CSV data ingestion to dynamically categorize specialized business types.
-- Implemented `/healthz` endpoints and exact memory optimizations under 100k concurrent user loads.
+**Core Infrastructure, Performance, & Security**
+*   **Optimized SQLite Engine**: Tuned with `MaxOpenConns(1)`, FTS5 trigram search, parallelized queries, and TTL caching.
+*   **Network & Load**: Enabled Gzip compression and `Cache-Control` headers; achieved stable memory footprint under 100k concurrent connections.
+*   **Security Posture**: Hardened via CSP, CSRF, HSTS, structural logging (`slog`), and strict request rate limiting.
 
-**Security, Architecture & Modularization**
-- Completely modularized handlers (`admin`, `auth`, `listing`, `common`) into domain-driven vertical slices.
-- Standardized module assembly via a `Registrar` pattern for cohesive route registration mapping.
-- Segregated `Listing`, `Admin`, and `Auth` interfaces for precision dependency injection modeling.
-- Hardened system security with CSP, CSRF, HSTS, strict rate limiting, and centralized structural logging.
+**Architecture & Modularization**
+*   **Domain-Driven Handlers**: Horizontally sliced the application into distinct `admin`, `auth`, `listing`, and `common` modules.
+*   **Registrar Assembly**: Standardized dependency injection and HTTP routing registration via a cohesive `Registrar` interface.
 
-**UI/UX Excellence**
-- Deployed modernized admin dashboard with dynamic HTMX modals, deep pagination, and stable multi-field sorting.
-- Enforced unified "Sharp Editorial Earth" aesthetics (zero-radius corners, Playfair Display typography).
-- Reusable Tailwind/HTMX components heavily audited for smooth user interactive feedback loops (loaders, preview states).
+**UI/UX Quality (HTMX / Tailwind)**
+*   **Interactive Fluidity**: Validated reusable Tailwind/HTMX loops (modals, loaders, pagination, multi-field sorting).
+*   **Aesthetic Discipline**: Unified "Sharp Editorial Earth" design using CSS grid spacing and Playfair Display typography.
 
-**Tooling & Quality Assurance**
-- Scaffolded standard-setting `harness` Go CLI incorporating API (`AST` routing), CLI, and testing drift checks.
-- Reached and enforced >90% code coverage application-wide.
-- Built a high-fidelity `SetupTestRepository` for actual SQLite state-integration testing rather than fragile internal mocks.
+**Tooling, Testing, & Metrics**
+*   **Harness CLI**: Scaffolded Go-based CLI testing harness (`api-spec`, `cli-drift`).
+*   **TDD Rigor**: Surpassed 90% system-wide test coverage incorporating actual SQLite state testing (`SetupTestRepository`).
+*   **Database Tooling**: Implemented chunked 500-batch native inserts, randomized dataset generators, latency loggers (>50ms), and CLI query benchmarking. 
 
-## 🔲 Next Steps
+### ⏱️ Hardware & System Benchmarks
 
-### Phase 4: Stress Testing & Benchmarking Implementation
-- [x] **Task 4.1: Scaffold Data Generator Utilities**
-  - [x] Create `internal/seeder/stress_generator.go`.
-  - [x] Implement `GenerateStressListings(count int) []domain.Listing` using `math/rand/v2`.
-  - [x] Write `stress_generator_test.go` to assert function returns exactly `count` items with no empty critical fields.
-- [x] **Task 4.2: Author High-Performance Batch Saver**
-  - [x] Implement `BulkInsertListings` in `internal/repository/sqlite/listing.go` (or dedicated stress file).
-  - [x] Wrap in a single `.BeginTx()` and execute bulk `INSERT` statements using SQLite parameterized bindings (chunked into batches of 500).
-  - [x] Write a unit test to insert 10,000 listings and assert that `TotalCount` increases appropriately.
-- [x] **Task 4.3: Construct the `stress` CLI Command**
-  - [x] Create `cmd/stress.go` using Cobra and add a `stress` sub-command to the root command.
-  - [x] Accept flag `--count` (default: 10,000), initialize DB, run `GenerateStressListings()`, then pass to `BulkInsertListings()`.
-  - [x] Ensure `time.Since()` prints the total duration to `stdout`.
-- [x] **Task 4.4: Scaffold Read-Heavy Validation Scripts**
-  - [x] Add a `benchmark` sub-command inside `cmd/stress.go` (or `cmd/benchmark.go`).
-  - [x] Write isolated functions that execute `ListingStore.FindAll` at offsets (Page 1, Page 500) and specific category filters.
-  - [x] Output a formatted table to `stdout` detailing query execution times in ms.
-
-### Phase 5: Production Metrics & Granularity
-- [x] **Task 5.1: Implement Query Latency Logging**
-  - [x] Wrap critical read paths (`FindAll`, `GetCounts`, `FindByID`) in `internal/repository/sqlite/listing.go` with latency tracking.
-  - [x] Use `slog.Debug` or `slog.Info` to log `duration_ms` on slow queries (> 50ms).
-  - [x] Run the `benchmark` command and verify slow queries are logged in structured JSON output.
-
-## ⏱️ Baseline Benchmarks
-Measurements taken to evaluate the harness performance, comparing the V1 bash script against the V2 Go binary:
+**Baseline Benchmarks (Script vs Binary Go Harness):**
 
 | Benchmark | V1 (Bash) | V2 (Go) | Notes |
 | :--- | :--- | :--- | :--- |
-| `red-test` Full Execution | ~7.3s | ~8.2s | V2 includes `go test` compile/run; JSON parsing overhead is negligible. |
-| `api-spec` Drift Check | ~0.3s | ~0.6s | V2 combines API AST parsing & CLI drift check script. |
-| `cli-drift` Check | ~0.2s | (included) | V2 runs CLI check as part of `api-spec`. |
-| `pre-commit.sh` (Empty Stage) | ~19.0s | ~12.0s | Dominated by `act` local CI. V2 reduces overhead significantly. |
+| `red-test` Full Execution | ~7.3s | ~8.2s | V2 includes `go test` compile/run |
+| `api-spec` Drift Check | ~0.3s | ~0.6s | V2 combines API AST parsing |
+| `pre-commit.sh` | ~19.0s | ~12.0s | V2 reduces overhead significantly |
 
-## 🏋️ Stress Testing & Scalability
-To validate the SQLite data model and UI traversal, randomized listing entities were generated and inserted via `harness stress`. Read times directly reflect HTTP handler latency under heavy database load on cold caches.
+**Read/Write Stress Testing:**
 
 | Metric / Scenario | 100k Entries | 1M Entries | Notes |
 | :--- | :--- | :--- | :--- |
-| **Write Listings** | ~52.7s | ~12m 33s | Bulk insertion with Go `math/rand/v2` data generation. |
-| **Read Page 1 (No Filters)** | ~0.132s | ~6.183s | First 20 results by `created_at DESC`. Shows scaling limit before caching. |
-| **Read Page 500 (Deep Pagination)** | ~0.064s | ~5.001s | SQLite performance via `LIMIT/OFFSET`. |
-| **Category Filter (`Business`)** | ~0.022s | ~0.495s | FTS & Indexing makes single-constraint filters extremely fast. |
+| **Write Listings** | ~52.7s | ~12m 33s | Bulk insert batching |
+| **Read Page 1 (No Filters)** | ~0.132s | ~6.183s | Scaled limit before caching |
+| **Read Page 500 (Offset Pagination)** | ~0.064s | ~5.001s | SQLite performance via `LIMIT/OFFSET` |
+| **Category Filter (`Business`)**| ~0.022s | ~0.495s | FTS indexing single-constraint speeds |
+
+---
+
+### 💡 Recommendations for Improvement (Flash-Sized Tasks)
+
+*   [x] **Task 1: Warm-up the `benchmark` CLI constraint**
+    *   *Implementation*: Modify `cmd/benchmark.go` to optionally execute a specific query 5 times in a loop *before* taking the recorded time measurement.
+*   [x] **Task 2: Configurable Slow-Query Thresholds**
+    *   *Implementation*: Extract the hardcoded `> 50*time.Millisecond` check in `sqlite_listing.go` into a configuration field (e.g., loaded via `.env` as `SLOW_QUERY_THRESHOLD_MS`), defaulting to `50`.
+*   [x] **Task 3: Progress Output for `stress` Generation**
+    *   *Implementation*: Add an atomic counter or a basic log tick every 10% progress in `internal/repository/sqlite/sqlite_listing.go` to provide visibility. 
+*   [x] **Task 4: Parallelize `GenerateStressListings`**
+    *   *Implementation*: Refactor the data-scaffolding generation slice in `internal/seeder/stress_generator.go` to run concurrently with `errgroup` or basic go-routines.
+
+### 🧩 Recommendations for Improvement: UI Modularity (Flash-Sized Tasks)
+
+*   [x] **Task 5: Standardize Button Components**
+    *   *Implementation*: Refactor `ui/templates/components/home_hero_search.html` to use the `button_sharp` component from `ui_components.html` instead of hardcoding Tailwind classes for the "Search" buttons.
+    *   *Validation*: Run `./scripts/verify_restart.sh`, open `http://localhost:8443/`, and visually confirm the search buttons in the hero section render and hover correctly.
+*   [x] **Task 6: Unify Status Badges**
+    *   *Implementation*: Refactor `ui/templates/partials/listing_card.html` to use the `status_badge_sharp` template for the "NEW" badge instead of inline utility classes.
+    *   *Validation*: Run `./scripts/verify_restart.sh` and ensure new listings correctly display the unified "NEW" badge.
+*   [x] **Task 7: Create a Reusable Modal Shell**
+    *   *Implementation*: Define a `modal_base` component in `ui/templates/partials/ui_components.html` that encapsulates the backdrop, fixed z-index positioning, and close button. Update `modal_create_request.html` to use this base component.
+    *   *Validation*: Click the "Ask" and "Post" buttons on the homepage to open the modal. Verify the overlay, close functionality (ESC key and click), and content rendering behave identically to the previous implementation.

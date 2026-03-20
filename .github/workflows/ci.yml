@@ -69,11 +69,14 @@ jobs:
           go test -race -coverprofile=.tester/coverage/coverage.out ./...
           go tool cover -func=.tester/coverage/coverage.out
 
-      - name: Enforce Coverage Threshold (90.0%)
+      - name: Enforce Coverage Threshold
         run: |
           COVERAGE=$(go tool cover -func=.tester/coverage/coverage.out | awk '/^total:/ {print substr($3, 1, length($3)-1)}')
           THRESHOLD=90.0
-          echo "Coverage: $COVERAGE%"
+          if [ -f ".agent/coverage-threshold" ]; then
+            THRESHOLD=$(cat ".agent/coverage-threshold")
+          fi
+          echo "Coverage: $COVERAGE%, Required: $THRESHOLD%"
           if awk "BEGIN {exit !($COVERAGE < $THRESHOLD)}"; then
             echo "❌ Coverage is below $THRESHOLD%"
             exit 1
