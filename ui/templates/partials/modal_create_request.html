@@ -5,16 +5,17 @@
             <input type="hidden" name="type" value="Request">
 
             <!-- Origin -->
-            <div class="flex flex-col gap-1.5">
-                <label
-                    class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Origin</label>
-                <div class="bg-earth-sand/10 border border-white/20 p-1 relative flex items-center">
-                    <select required name="owner_origin"
-                        class="w-full bg-transparent !bg-none border-none px-4 py-3 h-12 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50 appearance-none">
-                        {{ template "country_options" dict "Selected" "Nigeria" }}
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white/50">
-                        <span class="material-symbols-outlined text-[20px]">expand_more</span>
+            <div class="flex flex-col gap-1.5 z-10">
+                <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Origin</label>
+                <div class="custom-dropdown relative w-full" style="z-index: 10;">
+                    <input type="hidden" name="owner_origin" value="Nigeria" required>
+                    <button type="button" data-dropdown-toggle
+                        class="w-full bg-earth-sand/10 border border-white/20 px-4 py-3 h-12 flex justify-between items-center text-white font-light text-base outline-none transition-all placeholder:text-white/50">
+                        <span class="dropdown-display">Nigeria</span>
+                        <span class="material-symbols-outlined text-[20px] text-white/50">expand_more</span>
+                    </button>
+                    <div class="dropdown-menu hidden absolute top-full left-0 w-full mt-1 bg-earth-sand border-[3px] border-earth-ochre text-earth-dark shadow-2xl z-50 max-h-60 overflow-y-auto">
+                        {{ template "custom_country_options" dict "Selected" "Nigeria" }}
                     </div>
                 </div>
             </div>

@@ -102,7 +102,7 @@ function setupFilterButtons() {
 // Since it's a dialog, we can check mostly when it opens or just delegate change events.
 function setupListingModalDelegation() {
     document.addEventListener('change', (event) => {
-        if (event.target.matches('#create-listing-modal select[name="type"]')) {
+        if (event.target.matches('#create-listing-modal select[name="type"], #create-listing-modal input[name="type"]')) {
             toggleListingFields(event.target);
         }
     });
@@ -110,7 +110,7 @@ function setupListingModalDelegation() {
     // If the modal is already present or inserted, we might need to init.
     // MutationObserver could be used, or just running check on interactions.
     // For now, let's also look for the element on load.
-    const typeSelect = document.querySelector('#create-listing-modal select[name="type"]');
+    const typeSelect = document.querySelector('#create-listing-modal select[name="type"], #create-listing-modal input[name="type"]');
     if (typeSelect) {
         toggleListingFields(typeSelect);
     }
@@ -405,6 +405,13 @@ function setupHtmxIntegration() {
             dialog.remove();
         }
     });
+
+    // Initialize custom dropdowns on HTMX swap
+    document.body.addEventListener('htmx:afterSwap', (evt) => {
+        if (typeof initCustomDropdownsActiveState === 'function') {
+            initCustomDropdownsActiveState(evt.detail.elt);
+        }
+    });
 }
 
 // 7. CSRF Token Injection for HTMX
@@ -676,6 +683,108 @@ function setupFilterToggle() {
     });
 }
 
+// 12. Custom Dropdown Logic
+function initCustomDropdownsActiveState(root = document) {
+    // Initialize active states based on hidden inputs
+    root.querySelectorAll('.custom-dropdown').forEach(container => {
+        const input = container.querySelector('input[type="hidden"]');
+        if (input && input.value) {
+            const activeBtn = container.querySelector(`[data-dropdown-value="${input.value}"]`);
+            if (activeBtn) {
+                container.querySelectorAll('[data-dropdown-value]').forEach(btn => {
+                    btn.classList.remove('bg-earth-ochre', 'text-white');
+                    btn.classList.add('bg-earth-dark/5', 'text-earth-dark');
+                });
+                activeBtn.classList.remove('bg-earth-dark/5', 'text-earth-dark');
+                activeBtn.classList.add('bg-earth-ochre', 'text-white');
+            }
+        }
+    });
+}
+
+function setupCustomDropdowns() {
+    initCustomDropdownsActiveState();
+    
+    
+
+    document.addEventListener('click', (e) => {
+        // Handle clicking a dropdown toggle button
+        const toggleBtn = e.target.closest('[data-dropdown-toggle]');
+        if (toggleBtn) {
+            const container = toggleBtn.closest('.custom-dropdown');
+            if (!container) return;
+            
+            const menu = container.querySelector('.dropdown-menu');
+            if (menu) {
+                // Close other open dropdowns first
+                document.querySelectorAll('.custom-dropdown .dropdown-menu').forEach(m => {
+                    if (m !== menu) m.classList.add('hidden');
+                });
+                
+                menu.classList.toggle('hidden');
+                
+                // Adjust z-index of all containers to ensure the active one sits on top
+                document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
+                    dropdown.style.zIndex = dropdown === container ? '50' : '10';
+                });
+            }
+            return;
+        }
+
+        // Handle clicking an option inside the dropdown menu
+        const optionBtn = e.target.closest('[data-dropdown-value]');
+        if (optionBtn) {
+            const container = optionBtn.closest('.custom-dropdown');
+            if (!container) return;
+
+            const value = optionBtn.dataset.dropdownValue;
+            let label = optionBtn.textContent.trim();
+            
+            // Remove emoji flags from label for display if we want cleaner text,
+            // but for now we'll just use the textContent directly.
+            
+            const input = container.querySelector('input[type="hidden"]');
+            const display = container.querySelector('.dropdown-display');
+            const menu = container.querySelector('.dropdown-menu');
+
+            if (input && input.value !== value) {
+                input.value = value;
+                // Dispatch change event so other scripts (like toggleListingFields) catch it
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+
+            if (display) {
+                display.textContent = label;
+            }
+
+            // Update active state visuals
+            container.querySelectorAll('[data-dropdown-value]').forEach(btn => {
+                btn.classList.remove('bg-earth-ochre', 'text-white');
+                btn.classList.add('bg-earth-dark/5', 'text-earth-dark');
+            });
+            optionBtn.classList.remove('bg-earth-dark/5', 'text-earth-dark');
+            optionBtn.classList.add('bg-earth-ochre', 'text-white');
+
+            if (menu) {
+                menu.classList.add('hidden');
+                
+                // Reset z-index
+                container.style.zIndex = '10';
+            }
+            return;
+        }
+
+        // Click outside closes all dropdowns
+        if (!e.target.closest('.custom-dropdown')) {
+            document.querySelectorAll('.custom-dropdown .dropdown-menu').forEach(m => {
+                m.classList.add('hidden');
+                const container = m.closest('.custom-dropdown');
+                if (container) container.style.zIndex = '10';
+            });
+        }
+    });
+}
+
 const originalInit = initApp;
 initApp = function () {
     originalInit();
@@ -688,4 +797,5 @@ initApp = function () {
     setupFeaturedCarousel();
     setupCreateImagePreviewInit();
     setupFilterToggle();
+    setupCustomDropdowns();
 };
