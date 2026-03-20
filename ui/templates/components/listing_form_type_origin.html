@@ -4,7 +4,7 @@
     <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Type</label>
     <div class="bg-earth-sand/10 border border-white/20 p-1 relative flex items-center">
         <select name="type"
-            class="w-full bg-transparent border-none px-4 py-3 h-12 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50 appearance-none">
+            class="w-full bg-transparent !bg-none border-none px-4 py-3 h-12 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50 appearance-none">
             {{ range .Categories }}
             <option value="{{ .Name }}" {{ if eq $.SelectedType .Name }}selected{{ end }}
                 class="bg-earth-dark text-white">{{ .Name }}</option>
@@ -21,7 +21,7 @@
     <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Origin</label>
     <div class="bg-earth-sand/10 border border-white/20 p-1 relative flex items-center">
         <select name="owner_origin"
-            class="w-full bg-transparent border-none px-4 py-3 h-12 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50 appearance-none">
+            class="w-full bg-transparent !bg-none border-none px-4 py-3 h-12 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50 appearance-none">
             {{ template "country_options" dict "Selected" .SelectedOrigin }}
         </select>
         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white/50">
