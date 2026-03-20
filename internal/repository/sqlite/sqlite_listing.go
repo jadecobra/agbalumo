@@ -167,6 +167,9 @@ func (r *SQLiteRepository) BulkInsertListings(ctx context.Context, listings []do
 	}
 	defer func() { _ = tx.Rollback() }()
 
+	total := len(listings)
+	nextThreshold := 10
+
 	const batchSize = 500
 	for i := 0; i < len(listings); i += batchSize {
 		end := i + batchSize
@@ -228,6 +231,14 @@ func (r *SQLiteRepository) BulkInsertListings(ctx context.Context, listings []do
 		_, err := tx.ExecContext(ctx, query, args...)
 		if err != nil {
 			return err
+		}
+
+		if total > 0 {
+			percentage := (end * 100) / total
+			if percentage >= nextThreshold {
+				slog.Info("Bulk insert progress", slog.Int("percentage", percentage), slog.Int("processed", end), slog.Int("total", total))
+				nextThreshold = ((percentage / 10) + 1) * 10
+			}
 		}
 	}
 
