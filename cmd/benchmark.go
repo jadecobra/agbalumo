@@ -12,6 +12,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var warmup bool
+
 var benchmarkCmd = &cobra.Command{
 	Use:   "benchmark",
 	Short: "Run read-heavy queries to benchmark SQLite performance",
@@ -47,6 +49,12 @@ var benchmarkCmd = &cobra.Command{
 		}
 
 		for _, s := range scenarios {
+			if warmup {
+				for i := 0; i < 5; i++ {
+					_, _, _ = repo.FindAll(ctx, s.filterType, s.queryText, s.sortField, s.sortOrder, false, s.limit, s.offset)
+				}
+			}
+
 			start := time.Now()
 			listings, _, err := repo.FindAll(ctx, s.filterType, s.queryText, s.sortField, s.sortOrder, false, s.limit, s.offset)
 			duration := time.Since(start)
@@ -64,5 +72,6 @@ var benchmarkCmd = &cobra.Command{
 }
 
 func init() {
+	benchmarkCmd.Flags().BoolVar(&warmup, "warmup", false, "Execute queries 5 times in a loop before measuring time")
 	rootCmd.AddCommand(benchmarkCmd)
 }
