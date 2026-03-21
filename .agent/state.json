@@ -1,14 +1,16 @@
 {
-  "feature": "HtmlTemplateLinterTest",
-  "workflow_type": "bugfix",
-  "phase": "REFACTOR",
+  "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
+  "feature": "none",
+  "workflow_type": "feature",
+  "phase": "IDLE",
   "gates": {
-    "red-test": "PASSED",
-    "api-spec": "PASSED",
-    "implementation": "PASSED",
-    "lint": "PASSED",
-    "coverage": "FAILED",
+    "red-test": "PENDING",
+    "api-spec": "PENDING",
+    "implementation": "PENDING",
+    "lint": "PENDING",
+    "coverage": "PENDING",
     "browser-verification": "PENDING"
   },
-  "updated_at": "2026-03-21T16:59:21.273576Z"
+  "updated_at": "2026-03-21T17:53:39.923709Z",
+  "signature": "141b7ef1d61ccb3b3750f386730a136190ea5ed9fafdab8750c8775c4192873e"
 }

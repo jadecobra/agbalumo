@@ -5,21 +5,20 @@
       "description": "Database, performance tuning, and API modularization",
       "passes": true,
       "steps": [
-        "Optimized SQLite Engine (MaxOpenConns, FTS5 trigram search, TTL caching)",
-        "Network \u0026 Load optimizations (Gzip compression, Cache-Control headers)",
-        "Domain-Driven Handlers (admin, auth, listing, common modules)",
-        "Registrar Assembly for standardized dependency injection"
+        "Verify SQLite Engine optimizations: Run `sqlite3 data/agbalumo.db \"PRAGMA optimize;\"` and ensure no errors",
+        "Verify Network & Load optimizations: Execute `curl -I -H \"Accept-Encoding: gzip\" http://localhost:8443` and verify 'Content-Encoding: gzip' and 'Cache-Control' headers are present",
+        "Verify Domain-Driven Handlers exist: Check `cmd/server/main.go` and `internal/config/registrar.go` to confirm handlers are assembled via dependency injection without circular dependencies"
       ]
     },
     {
-      "category": "Performance \u0026 Benchmarks",
+      "category": "Performance & Benchmarks",
       "description": "Optimizing long-running tasks and CLI benchmarks",
       "passes": true,
       "steps": [
-        "Warm-up the benchmark CLI constraint",
-        "Configurable Slow-Query Thresholds (SLOW_QUERY_THRESHOLD_MS)",
-        "Progress Output for stress Generation",
-        "Parallelize GenerateStressListings"
+        "Verify benchmark CLI constraint: Run `make benchmark` or equivalent CLI command and verify execution time is below threshold",
+        "Verify Slow-Query Thresholds: Configure `SLOW_QUERY_THRESHOLD_MS=1` and run `go test ./...` to observe slow query logs in output",
+        "Verify Stress Generation progress: Run `go run main.go cli stress-listings` and observe progress bar output in the terminal",
+        "Verify parallel execution: Check `internal/service/stress.go` to confirm `errgroup` or goroutines are used for parallel listing generation"
       ]
     },
     {
@@ -27,82 +26,75 @@
       "description": "Security posture and secrets management",
       "passes": true,
       "steps": [
-        "CSP, CSRF, HSTS, structural logging, strict request rate limiting",
-        "Scrub History (remove tracked test artifacts)",
-        "Prevent Future Leaks (Secret Scanner in pre-commit)"
+        "Verify security headers: Send a request to `http://localhost:8443` and verify response headers containing 'Content-Security-Policy', 'Strict-Transport-Security', and CSRF tokens",
+        "Verify History is scrubbed: Ensure no tracked test artifacts exist in the repository history",
+        "Verify Secret Scanner: Run `./scripts/pre-commit.sh` and ensure the secret scanner step passes with no leaks detected"
       ]
     },
     {
-      "category": "Authentication \u0026 Sessions",
+      "category": "Authentication & Sessions",
       "description": "Manage user authentication flow and secure cookies",
       "passes": true,
       "steps": [
-        "Fix OAuth State Cookie SameSite Policy (SameSiteLaxMode)",
-        "Enforce StrictMode on Authenticated Sessions",
-        "Identified SameSite=StrictMode causing oauth_state missing in Google callback",
-        "Extracted oauth_state into a dedicated temporary cookie with SameSite=LaxMode",
-        "Added a cross-site callback reproduction test to ensure session creation works securely",
-        "Verified all regression tests pass"
+        "Verify OAuth Cookie Policy: Navigate to `/login`, click 'Continue with Google', and intercept the request to verify `oauth_state` cookie is set with `SameSite=Lax`",
+        "Verify strict session policy: Complete the login flow, check the active session cookie in the browser, and verify it uses `SameSite=Strict`",
+        "Verify OAuth callback integrity: Run `go test -v ./internal/handler -run TestOAuthCallback` to ensure cross-site callback validation passes"
       ]
     },
     {
-      "category": "UI Framework \u0026 Design System",
-      "description": "Global Theme Rollout \u0026 Design System Refinement to Earth theme",
+      "category": "UI Framework & Design System",
+      "description": "Global Theme Rollout & Design System Refinement to Earth theme",
       "passes": true,
       "steps": [
-        "Design System Update (tailwind.config.js \u0026 base.html)",
-        "Integrate Earth color palette (earth-dark, earth-cream, earth-accent)",
-        "Typography: Apply Inter and Playfair Display fonts globally",
-        "Dark Theme on profile.html, about.html, error.html",
-        "Standardize Button \u0026 Tag Components (bg-earth-accent CTA, sharp edges)"
+        "Verify Design System Update: Inspect `tailwind.config.js` and `base.html` for Earth theme definitions",
+        "Verify Earth color palette: Open the application in a browser and verify `bg-earth-dark` and `text-earth-cream` classes are applied effectively across pages",
+        "Verify Typography: Inspect text elements using developer tools to ensure 'Inter' or 'Playfair Display' font families are rendered",
+        "Verify Dark Theme components: Navigate to `/profile` and `/about` to confirm they render with the dark theme palette",
+        "Verify Standard Components: Hover and click on main CTA buttons (like 'Post' or 'Ask') to verify standard sharp edges and `bg-earth-accent` coloring"
       ]
     },
     {
-      "category": "UI Modals \u0026 Interactions",
+      "category": "UI Modals & Interactions",
       "description": "Refactoring modals and adding micro-animations",
       "passes": true,
       "steps": [
-        "Create a Reusable Modal Shell (modal_base)",
-        "Refactor modal_create_listing.html (Dark/Frosted wrapper, transparent inputs)",
-        "Refactor modal_edit_listing.html (Dark Theme)",
-        "Dark Theme on modal_create_request, modal_detail, modal_profile, modal_feedback",
-        "Global Micro-Animations (active:scale-95, hover:scale-105, transition-duration-300)",
-        "Refactor remaining modals to use modal_base shell (Completed)",
-        "Refactored modal_base component to extract CLOSE button into a sticky footer, ensuring consistent bottom spacing"
+        "Verify Reusable Modal Shell (`modal_base`): Open the 'Create Listing' modal and verify it utilizes a dark frosted wrapper with transparent input fields",
+        "Verify Modal Refactoring (`modal_edit_listing.html`): Inspect the Edit Listing modal for proper Dark Theme integration",
+        "Verify Modal Refactoring (others): Check `modal_create_request`, `modal_detail`, `modal_profile`, `modal_feedback` for Dark Theme usage",
+        "Verify Global Micro-Animations: Hover over interactive UI elements (like filter tags or modal buttons) and ensure `hover:scale-105` visual effects are triggered",
+        "Verify modal consistency: Ensure remaining modals use the `modal_base` shell and have consistent bottom formatting, like the sticky footer for the CLOSE button"
       ]
     },
     {
-      "category": "Admin UI \u0026 Dashboard",
+      "category": "Admin UI & Dashboard",
       "description": "Admin panel features and styling",
       "passes": false,
       "steps": [
-        "Bulk Upload Feature (CSV) inside Admin",
-        "Admin Users View implementations",
-        "Dark Theme on Admin Dashboard \u0026 metric cards (Pending)",
-        "Dark Theme on Admin Listings, Admin Users, Admin Login, Admin Delete (Pending)"
+        "Verify Bulk Upload Feature: Navigate to `/admin/upload` and upload a valid CSV file to verify bulk listing import functions correctly",
+        "Verify Admin Users View: Log in as an admin and navigate to the 'Users' dashboard view to ensure all user records are displayed",
+        "Verify Admin Dark Theme (Pending): Ensure that the Admin Dashboard, metrics cards, Listings, and Users views fully render in the Dark Theme"
       ]
     },
     {
-      "category": "Business Features \u0026 Logic",
+      "category": "Business Features & Logic",
       "description": "Core application capabilities and user workflows",
       "passes": true,
       "steps": [
-        "Implement Claim Ownership Logic",
-        "Polish Claim Ownership UI",
-        "Ensure Service type is featured on homepage",
-        "Unify Status Badges in listing cards"
+        "Verify Claim Ownership Logic: Log in as a standard user, navigate to an unowned listing, and click 'Claim' to verify the ownership request workflow initializes",
+        "Verify Homepage Services: Navigate to the homepage and verify at least one listing categorized as 'Service' is displayed in the featured section",
+        "Verify Status Badges: Inspect various listing cards across search and category pages to verify Status Badges render uniformly"
       ]
     },
     {
-      "category": "Testing \u0026 CLI Harness",
+      "category": "Testing & CLI Harness",
       "description": "Comprehensive test metric improvements and testing tools",
       "passes": false,
       "steps": [
-        "Scaffold Go-based CLI testing harness (api-spec, cli-drift)",
-        "Establish \u003e90% system-wide baseline coverage",
-        "Phase 1: Fix critical coverage gaps in security-audit main functions, ratelimit, session, and SQLite (Priority 1) (Pending)",
-        "Phase 2: Fix gap in configuration validation and domain validation tests (Priority 2) (Pending)",
-        "Phase 3: Additional mock and infrastructure testing (Priority 3) (Pending)"
+        "Verify Go-based CLI testing harness: Run scaffolding scripts and verify `api-spec` and `cli-drift` validations execute successfully",
+        "Verify Baseline Coverage: Run `go test -cover ./...` and verify overall system coverage reports as >90%",
+        "Verify Phase 1 test coverage (Priority 1) (Pending): Run `go test -v ./internal/middleware -run TestRateLimit` to verify critical rate-limiting coverage is met",
+        "Verify Phase 2 test coverage (Priority 2) (Pending): Run validation domain tests to ensure configuration validation passes",
+        "Verify Phase 3 test coverage (Priority 3) (Pending): Run mock and infrastructure testing suites and verify they execute successfully"
       ]
     },
     {
@@ -110,45 +102,44 @@
       "description": "Reducing duplication and streamlining API handlers",
       "passes": false,
       "steps": [
-        "Pagination Helper \u0026 Standardization",
-        "Error Handling Standardization",
-        "Route Grouping (Complete/Standardize public vs auth boundaries) (Partial)",
-        "Add Response Helpers (RenderSuccess, JSONSuccess, ErrorResponse) (Pending)",
-        "Create Base Handler Struct to reduce session access duplication (Pending)",
-        "Service Layer Consolidation \u0026 Validation Middleware (Pending)"
+        "Verify Pagination Standardization: Examine `internal/handler/pagination.go` to ensure standardized helpers are used across multiple listing handler routes",
+        "Verify Error Handling: Trigger an intentional 400 Error and verify it returns a standard `ErrorResponse` JSON structure",
+        "Verify Route Grouping (Partial): Inspect `cmd/server/main.go` and ensure auth-required routes are fully separated from public routes via grouped middleware",
+        "Verify Response Helpers (Pending): Check for usage of `RenderSuccess`, `JSONSuccess`, and `ErrorResponse` handlers across controllers",
+        "Verify Base Handler Struct (Pending): Review handler method signatures to confirm they use a base struct to eliminate session parsing duplication",
+        "Verify Service Layer Consolidation (Pending): Inspect service layer structures and ensure validation middleware runs consistently"
       ]
     },
     {
-      "category": "API \u0026 UI Route Verification",
+      "category": "API & UI Route Verification",
       "description": "Verified all public, user, and admin routes are accessible and functional via the UI",
       "passes": true,
       "steps": [
-        "Verified Public Routes (Home, About, Search, Listing Details, OAuth)",
-        "Verified User Routes (Profile, Create/Edit/Delete/Claim listing workflows, Feedback, Session Management)",
-        "Verified Admin Routes (Dashboard, User \u0026 Listing Management, Moderation workflows, Bulk Actions, Bulk Upload)",
-        "Bug Fix: Allowed unauthenticated access to Admin Login routes",
-        "Bug Fix: Relaxed Client Form URL Validation and added backend normalizer"
+        "Verify Public Routes: Manually navigate through 'Home', 'About', 'Search', and a 'Listing Detail' page to check for 200 OK responses and fully rendered pages",
+        "Verify User Routes: Log in and navigate through 'Profile', 'Create Listing', 'Edit Listing', and 'Feedback' forms to verify authenticated routes open cleanly",
+        "Verify Admin Routes & Bugfixes: In an incognito window, navigate to `/admin/login` and check that the login screen renders without pre-authentication",
+        "Verify Form Validations: Submit a client form containing URL inputs with missing schemes or trailing slashes and verify the backend normalizer transforms them successfully"
       ]
     },
     {
-      "category": "CI/CD \u0026 Build Tooling",
+      "category": "CI/CD & Build Tooling",
       "description": "Continuous integration, vulnerability scanning, and build workflows",
       "passes": true,
       "steps": [
-        "Moved from Tailwind CDN to Tailwind CLI build step",
-        "govulncheck and docker scout integrated into CI pipeline",
-        "Deploy to Fly.io configured"
+        "Verify Tailwind CLI compilation: Run `npm run build:css` locally and ensure it successfully outputs compiled styles without referencing CDN",
+        "Verify Vulnerability scanning: Push a test branch and ensure GitHub Actions pipeline natively runs `govulncheck` and `docker scout` without failure",
+        "Verify Deploy scripts: Ensure Fly.io configuration correctly validates parameters required for deployment"
       ]
     },
     {
-      "category": "Modular Services \u0026 Domain Utilities",
+      "category": "Modular Services & Domain Utilities",
       "description": "Refactoring features into dedicated services and domain packages",
       "passes": true,
       "steps": [
-        "Refactored Image Upload to dedicated ImageService",
-        "Added Hours of Operation for Business/Food categorization",
-        "Decoupled AuthMiddleware from AuthHandler for modularity",
-        "Extracted date parsing to domain package for strict correctness"
+        "Verify Image Upload refactor: Upload an image to a listing and verify the request logs output from `ImageService` instead of an HTTP Handler",
+        "Verify Hours of Operation: Create a business or food listing with explicit daily hours and ensure the domain handles proper parsing",
+        "Verify AuthMiddleware & Handlers: Check `internal/middleware/auth.go` code to confirm it is fully decoupled from the primary AuthHandler package",
+        "Verify Date parsing: Send a raw date string during listing creation and verify it relies on strict parsing provided by the domain package"
       ]
     },
     {
@@ -156,40 +147,37 @@
       "description": "Features and architectural improvements planned for the next phase",
       "passes": false,
       "steps": [
-        "Auth Expansion: Add Apple/Facebook login platforms (Requires developer accounts)",
-        "DevLogin Hardening: Hardcode claim workflow instead of skipping it",
-        "Admin Customization: Enable dynamic color/font config from the dashboard",
-        "Expiration Ticker: Background service to deactivate expired listings",
-        "Dedicated Location Filter (filterLocation string parameter)",
-        "Browser Test Expansion: Verify 'Create Listing' flow via subagent",
-        "Security Monitoring: Track \u0026 patch CVE-2025-60876 in alpine:latest",
-        "Fat Handler Refactoring: Use structural tags and validation libraries"
+        "Verify Apple/Facebook Platforms (Pending): Click on 'Apple' and 'Facebook' login buttons in the identity section and configure dev accounts",
+        "Verify DevLogin Hardening (Pending): Ensure hitting the DevLogin route in a prod-like condition executes the real claim workflow instead of a skip mechanism",
+        "Verify Admin Customization (Pending): Navigate to Admin settings and inject a custom dashboard color or font, then confirm the page updates dynamically",
+        "Verify Expiration Ticker (Pending): Confirm that the background service correctly tags listings older than their configured TTL config as 'expired'",
+        "Verify Location Filter (Pending): Perform a map-based search query like `?filterLocation=City` and assert that the returned result list matches accurately",
+        "Verify Browser Integration Test (Pending): Trigger the browser integration test suite and verify 'Create Listing' finishes flawlessly start to end",
+        "Verify Security Hardening (Pending): Identify dependencies utilizing alpine:latest and ensure that CVE-2025-60876 patches are updated",
+        "Verify Fat Handler Structs (Pending): Use structural tag libraries rather than custom parsing to validate object bindings"
       ]
     },
     {
-      "category": "Security Audit \u0026 Hardening",
+      "category": "Security Audit & Hardening",
       "description": "Comprehensive security audit fixes and defense-in-depth improvements",
       "passes": true,
       "steps": [
-        "Enforced ADMIN_CODE requirement for production startup",
-        "Added 5 req/min rate limit to /admin/login POST",
-        "Moved all template inline scripts to external JS for strict CSP",
-        "Replaced inline onclick with HTMX hx-on event handlers",
-        "Self-hosted Chart.js and htmx locally to remove CDN dependencies",
-        "Verified SQL Injection (parameterized queries) and CSRF protection",
-        "Verified Session security (Secure, HttpOnly, SameSite=Strict)",
-        "Pending: Consider self-hosting Tailwind CSS for admin_login.html (Minor)"
+        "Verify ADMIN_CODE logic: Start the application without the `ADMIN_CODE` environment variable and confirm it exits safely on startup",
+        "Verify Admin Login limits: Execute 6 rapid login attempts against `/admin/login` and verify being rate-limited appropriately",
+        "Verify Content-Security-Policy: Inspect the HTML source from the browser and confirm no inline `<script>` or CSS definitions exist outside external scripts",
+        "Verify Client-side Interactivity: Click on dynamic UI components and confirm execution pathways utilize htmx `hx-on` bindings instead of standalone `onclick` injections",
+        "Verify local asset hosting: Turn off network access and render the page to see if Chart.js and HTMX assets load smoothly"
       ]
     },
     {
-      "category": "User \u0026 Admin Journeys Mapping",
+      "category": "User & Admin Journeys Mapping",
       "description": "Comprehensive mapping of application routes and workflows for all user personas",
       "passes": true,
       "steps": [
-        "Unauthenticated Visitor Journey (Landing, Discovery, Deep Dive, About, OAuth onboarding)",
-        "Authenticated Standard User Journey (Profile Management, Listing Creation/Edit/Claim, Feedback, Logout)",
-        "Administrator Journey (Admin Login, Dashboard, User Directory, Content Moderation, Bulk Upload)",
-        "CLI Command Line Journey (Listing Management, Admin Operations, Server/Database Management)"
+        "Verify Visitor Journey: Using an automated flow or browser test, walk through onboarding, search, and deep-dive sequences seamlessly without authentication blocking",
+        "Verify Authenticated Standard User Journey: Utilize a logged-in user to conduct the entire post-claim and profile management loop gracefully",
+        "Verify Administrator Journey: Ensure admin interactions regarding users, metrics, content moderation, and batch uploads function perfectly under admin scope",
+        "Verify CLI Management Integration: Trigger local system checks over the DB for maintenance through CLI utility bounds"
       ]
     }
   ]
