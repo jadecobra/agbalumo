@@ -218,11 +218,7 @@ if [ "$BENCH_OUT" = "error" ]; then
 else
     # Parse the JSON output or fallback to raw text parsing for ns/op
     if echo "$BENCH_OUT" | grep -q '"Action"'; then
-        if command -v jq >/dev/null 2>&1; then
-            TEXT_OUT=$(echo "$BENCH_OUT" | jq -r 'select(.Output != null) | .Output')
-        else
-            TEXT_OUT=$(echo "$BENCH_OUT" | grep '"Output":"' | sed -E 's/.*"Output":"(.*)".*/\1/' | sed 's/\\t/ /g' | sed 's/\\n//g')
-        fi
+        TEXT_OUT=$(echo "$BENCH_OUT" | grep '"Output":"' | sed -E 's/.*"Output":"(.*)".*/\1/' | sed 's/\\t/ /g' | sed 's/\\n//g')
     else
         TEXT_OUT="$BENCH_OUT"
     fi
