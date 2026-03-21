@@ -110,5 +110,5 @@ Implement the minimal fix.
 - [ ] **Gate: `lint`** - `./scripts/pre-commit.sh` passed.
 - [ ] **Gate: `coverage`** - Threshold met.
 - [ ] `task.md` updated.
-- [ ] Commit with short, imperative message (e.g., "Fix: resolve nil pointer in listing handler").
+- [ ] **AUTO-COMMIT**: Execute git commit automatically with a short, imperative message (e.g., "Fix: resolve nil pointer in listing handler"). DO NOT wait for the user to explicitly tell you to commit.
 - [ ] **FINALIZE**: Instruct the agent to use the `mcp_mcp-memory-service_memory_store` tool to save the bugfix completion and context.

@@ -185,5 +185,5 @@ A feature is **DONE** when ALL boxes are checked:
 - [ ] `task.md` updated with completed status.
 - [ ] `spec.md` reviewed and updated if needed.
 - [ ] `@[.agent/workflows/restart-server.md]` was run after verification.
-- [ ] Commit with short, imperative message.
+- [ ] **AUTO-COMMIT**: Execute git commit automatically with a short, imperative message. DO NOT wait for the user to explicitly tell you to commit.
 - [ ] **FINALIZE**: Instruct the agent to use the `mcp_mcp-memory-service_memory_store` tool to save the feature completion and context.

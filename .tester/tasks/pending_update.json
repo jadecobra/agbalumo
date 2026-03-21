@@ -1,11 +1,9 @@
 {
-  "category": "UI Modals & Interactions",
-  "description": "Refactored the modal_base component to extract the CLOSE button into a sticky footer, ensuring it is always visible and consistent across all modals regardless of content height.",
+  "category": "Testing & CLI Harness",
+  "description": "Implemented eager HTML template validation test to catch missing quotes and unclosed tags at test-time instead of runtime.",
   "steps": [
-    "Analyzed the layout difference between the Ask and Post modals.",
-    "Identified the flexing behavior with `mt-auto` on the CLOSE button causing spacing inconsistency.",
-    "Restructured `modal_base.html` to separate the scrollable form content (`flex-1`, `overflow-y-auto`) from a fixed bottom container.",
-    "Placed the CLOSE button inside the new sticky footer with appropriate padding (`px-6 py-4`) and aesthetics (`bg-earth-dark`).",
-    "Verified UI logic and ensured no templates were broken."
+    "Researched html/template context-aware escaping behavior",
+    "Created TestAllTemplates_SyntaxAndEscaping test to eager render all templates",
+    "Verified test reliably catches HTML syntax errors without flagging mock nil data errors"
   ]
 }

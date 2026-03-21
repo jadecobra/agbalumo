@@ -110,5 +110,5 @@ Modify the code while keeping tests green.
 - [ ] **Gate: `lint`** - `./scripts/pre-commit.sh` passed.
 - [ ] **Gate: `coverage`** - No coverage drop.
 - [ ] `task.md` updated.
-- [ ] Commit with short, imperative message (e.g., "Refactor: extract helper function").
+- [ ] **AUTO-COMMIT**: Execute git commit automatically with a short, imperative message (e.g., "Refactor: extract helper function"). DO NOT wait for the user to explicitly tell you to commit.
 - [ ] **FINALIZE**: Instruct the agent to use the `mcp_mcp-memory-service_memory_store` tool to save the refactor completion and context.

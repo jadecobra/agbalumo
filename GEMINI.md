@@ -6,6 +6,7 @@ For detailed rules and development process, run or refer to these workflows:
 - `/restart-server`: Commands to rebuild CSS and binary.
 
 ## Git Rules
+- **ALWAYS execute `git commit` automatically (using `run_command`) after all gates pass, without waiting for the user to explicitly tell you to do so.**
 - keep commit message short and concise, imperative mood.
 - Run CI locally before pushing using `scripts/ci-local.sh`.
 - NEVER remove files from `.gitignore` without explicit approval.
