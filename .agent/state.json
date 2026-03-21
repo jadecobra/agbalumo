@@ -1,14 +1,14 @@
 {
-  "feature": "none",
-  "workflow_type": "bugfix",
-  "phase": "IDLE",
+  "feature": "modal-sticky-close",
+  "workflow_type": "feature",
+  "phase": "REFACTOR",
   "gates": {
-    "red-test": "PENDING",
-    "api-spec": "PENDING",
-    "implementation": "PENDING",
-    "lint": "PENDING",
-    "coverage": "PENDING",
-    "browser-verification": "PENDING"
+    "red-test": "PASS",
+    "api-spec": "PASS",
+    "implementation": "PASS",
+    "lint": "PASS",
+    "coverage": "PASS",
+    "browser-verification": "PASS"
   },
-  "updated_at": "2026-03-21T06:00:37.8557Z"
+  "updated_at": "2026-03-21T10:04:16.523475Z"
 }

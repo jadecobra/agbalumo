@@ -61,55 +61,62 @@
 {{ define "modal_base" }}
 <dialog id="{{ .ID }}" {{ if .AutoOpen }}data-auto-open="true"{{ end }} {{ if .DialogDataTarget }}data-target="{{ .DialogDataTarget }}"{{ end }} {{ if .DialogDataListingId }}data-listing-id="{{ .DialogDataListingId }}"{{ end }}
     class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-none {{ if .MaxWidthClass }}{{ .MaxWidthClass }}{{ else }}md:max-w-sm{{ end }} {{ if .MarginClass }}{{ .MarginClass }}{{ else }}m-auto{{ end }} shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed {{ if .InsetClass }}{{ .InsetClass }}{{ else }}inset-0{{ end }} z-50 h-full md:h-auto border border-white/20">
-    <div {{ if .ContentID }}id="{{ .ContentID }}"{{ end }} class="bg-earth-dark/95 backdrop-blur-xl {{ if .NoPadding }}p-0{{ else }}p-6{{ end }} relative overflow-y-auto flex flex-col h-full md:h-auto {{ if .MaxHeightClass }}{{ .MaxHeightClass }}{{ else }}md:max-h-[85vh]{{ end }}">
-        <!-- Decorative Background -->
-        {{ if not .NoDecorativeBg }}
-        <div class="absolute top-0 right-0 w-32 h-32 {{ if .DecorativeBgClass }}{{ .DecorativeBgClass }}{{ else }}bg-earth-accent/10{{ end }} blur-3xl -z-10 transform translate-x-10 -translate-y-10"></div>
-        {{ end }}
-
-        {{ if not .NoHeader }}
-        <div class="flex justify-between items-start mb-8 {{ .HeaderClass }}">
-            <h2 class="font-serif italic text-4xl leading-tight text-white drop-shadow-md">{{ .Title }}</h2>
-            {{ if .ShowCloseIcon }}
-            <button data-modal-action="close" class="text-white/50 hover:text-white transition-colors focus:outline-none p-1">
-                <span class="material-symbols-outlined">close</span>
-            </button>
-            {{ end }}
-        </div>
-        {{ end }}
-
-        {{ if .IsForm }}
-        <form {{ if .FormAction }}hx-post="{{ .FormAction }}"{{ end }} {{ if .FormPut }}hx-put="{{ .FormPut }}"{{ end }} {{ if .FormSwap }}hx-swap="{{ .FormSwap }}"{{ end }} {{ if .FormTarget }}hx-target="{{ .FormTarget }}"{{ end }} method="{{ if .FormMethod }}{{ .FormMethod }}{{ else }}POST{{ end }}" {{ if .FormEnctype }}enctype="{{ .FormEnctype }}"{{ end }} {{ if .FormID }}id="{{ .FormID }}"{{ end }} {{ if .FormAfterRequest }}hx-on::after-request="{{ .FormAfterRequest }}"{{ end }}
-            class="flex flex-col gap-5 flex-1" autocomplete="off" {{ if not .NoSubmitClose }}data-modal-action-submit-close{{ end }}>
-        {{ else }}
-        <div class="flex flex-col flex-1 w-full h-full">
-        {{ end }}
-
-            {{ if eq .InnerTemplate "modal_create_request_fields" }}
-                {{ template "modal_create_request_fields" .Data }}
-            {{ else if eq .InnerTemplate "modal_create_listing_fields" }}
-                {{ template "modal_create_listing_fields" .Data }}
-            {{ else if eq .InnerTemplate "modal_edit_listing_fields" }}
-                {{ template "modal_edit_listing_fields" .Data }}
-            {{ else if eq .InnerTemplate "modal_detail_content" }}
-                {{ template "modal_detail_content" .Data }}
-            {{ else if eq .InnerTemplate "modal_profile_content" }}
-                {{ template "modal_profile_content" .Data }}
-            {{ else if eq .InnerTemplate "modal_feedback_content" }}
-                {{ template "modal_feedback_content" .Data }}
+    <div {{ if .ContentID }}id="{{ .ContentID }}"{{ end }} class="bg-earth-dark/95 backdrop-blur-xl relative flex flex-col h-full md:h-auto {{ if .MaxHeightClass }}{{ .MaxHeightClass }}{{ else }}md:max-h-[85vh]{{ end }} overflow-hidden">
+        
+        <!-- Scrollable Inner Content -->
+        <div class="{{ if .NoPadding }}p-0{{ else }}p-6{{ end }} relative overflow-y-auto flex-1 flex flex-col min-h-0">
+            <!-- Decorative Background -->
+            {{ if not .NoDecorativeBg }}
+            <div class="absolute top-0 right-0 w-32 h-32 {{ if .DecorativeBgClass }}{{ .DecorativeBgClass }}{{ else }}bg-earth-accent/10{{ end }} blur-3xl -z-10 transform translate-x-10 -translate-y-10"></div>
             {{ end }}
 
-            {{ if not .NoBottomClose }}
+            {{ if not .NoHeader }}
+            <div class="flex justify-between items-start mb-8 {{ .HeaderClass }}">
+                <h2 class="font-serif italic text-4xl leading-tight text-white drop-shadow-md">{{ .Title }}</h2>
+                {{ if .ShowCloseIcon }}
+                <button data-modal-action="close" class="text-white/50 hover:text-white transition-colors focus:outline-none p-1">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+                {{ end }}
+            </div>
+            {{ end }}
+
+            {{ if .IsForm }}
+            <form {{ if .FormAction }}hx-post="{{ .FormAction }}"{{ end }} {{ if .FormPut }}hx-put="{{ .FormPut }}"{{ end }} {{ if .FormSwap }}hx-swap="{{ .FormSwap }}"{{ end }} {{ if .FormTarget }}hx-target="{{ .FormTarget }}"{{ end }} method="{{ if .FormMethod }}{{ .FormMethod }}{{ else }}POST{{ end }}" {{ if .FormEnctype }}enctype="{{ .FormEnctype }}"{{ end }} {{ if .FormID }}id="{{ .FormID }}"{{ end }} {{ if .FormAfterRequest }}hx-on::after-request="{{ .FormAfterRequest }}"{{ end }}
+                class="flex flex-col gap-5 flex-1" autocomplete="off" {{ if not .NoSubmitClose }}data-modal-action-submit-close{{ end }}>
+            {{ else }}
+            <div class="flex flex-col flex-1 w-full h-full">
+            {{ end }}
+
+                {{ if eq .InnerTemplate "modal_create_request_fields" }}
+                    {{ template "modal_create_request_fields" .Data }}
+                {{ else if eq .InnerTemplate "modal_create_listing_fields" }}
+                    {{ template "modal_create_listing_fields" .Data }}
+                {{ else if eq .InnerTemplate "modal_edit_listing_fields" }}
+                    {{ template "modal_edit_listing_fields" .Data }}
+                {{ else if eq .InnerTemplate "modal_detail_content" }}
+                    {{ template "modal_detail_content" .Data }}
+                {{ else if eq .InnerTemplate "modal_profile_content" }}
+                    {{ template "modal_profile_content" .Data }}
+                {{ else if eq .InnerTemplate "modal_feedback_content" }}
+                    {{ template "modal_feedback_content" .Data }}
+                {{ end }}
+
+            {{ if .IsForm }}
+            </form>
+            {{ else }}
+            </div>
+            {{ end }}
+        </div> <!-- End Scrollable Area -->
+
+        {{ if not .NoBottomClose }}
+        <!-- Sticky Footer -->
+        <div class="shrink-0 bg-earth-dark border-t border-white/5 z-20 {{ if .NoPadding }}p-0{{ else }}px-6 py-4{{ end }}">
             <!-- CLOSE button — large touch target for mobile -->
             <button type="button" data-modal-action="close"
-                class="w-full bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark font-bold uppercase text-xs tracking-widest py-4 transition-colors active:scale-95 mt-auto">
+                class="w-full bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark font-bold uppercase text-xs tracking-widest py-4 transition-colors active:scale-95">
                 CLOSE
             </button>
-            {{ end }}
-
-        {{ if .IsForm }}
-        </form>
-        {{ else }}
         </div>
         {{ end }}
     </div>

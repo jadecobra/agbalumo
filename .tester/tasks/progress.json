@@ -67,7 +67,8 @@
         "Refactor modal_edit_listing.html (Dark Theme)",
         "Dark Theme on modal_create_request, modal_detail, modal_profile, modal_feedback",
         "Global Micro-Animations (active:scale-95, hover:scale-105, transition-duration-300)",
-        "Refactor remaining modals to use modal_base shell (Completed)"
+        "Refactor remaining modals to use modal_base shell (Completed)",
+        "Refactored modal_base component to extract CLOSE button into a sticky footer, ensuring consistent bottom spacing"
       ]
     },
     {
