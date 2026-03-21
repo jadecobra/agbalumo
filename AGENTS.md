@@ -10,18 +10,18 @@ agbalumo is a Go web application for the West African diaspora community, featur
 
 ### Run All Tests
 ```bash
-go test ./...
+go test -json ./...
 ```
 
 ### Run Single Test
 ```bash
-go test -v -run TestFunctionName ./internal/package/
-go test -v -run TestFunctionName/SubtestName ./internal/package/
+go test -json -v -run TestFunctionName ./internal/package/
+go test -json -v -run TestFunctionName/SubtestName ./internal/package/
 ```
 
 ### Run Tests with Race Detection
 ```bash
-go test -race ./...
+go test -json -race ./...
 ```
 
 ### Pre-Commit Quality Gate

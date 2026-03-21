@@ -29,7 +29,7 @@ supports filtering and can output the results in a machine-readable JSON format.
 		}
 
 		if len(listings) == 0 {
-			if flagJSON {
+			if !flagText {
 				cmd.Println("[]")
 			} else {
 				cmd.Println("No listings found")
@@ -37,7 +37,7 @@ supports filtering and can output the results in a machine-readable JSON format.
 			return
 		}
 
-		if flagJSON {
+		if !flagText {
 			data, _ := json.MarshalIndent(listings, "", "  ")
 			cmd.Println(string(data))
 			return
@@ -63,7 +63,7 @@ var listingGetCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		if flagJSON {
+		if !flagText {
 			data, _ := json.MarshalIndent(listing, "", "  ")
 			cmd.Println(string(data))
 			return

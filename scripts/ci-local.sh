@@ -27,4 +27,4 @@ act "${ARCH_FLAG[@]}" "$@"
 # Run full performance benchmarks
 echo ""
 echo "📊 Running full search performance benchmarks (10,000 listings)..."
-go test -v -bench=BenchmarkSearchPerformance ./internal/repository/sqlite/search_performance_test.go
+go test -json -v -bench=BenchmarkSearchPerformance ./internal/repository/sqlite/search_performance_test.go

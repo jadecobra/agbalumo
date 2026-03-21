@@ -12,6 +12,20 @@ import (
 
 const stateFile = ".agent/state.json"
 
+var flagText bool
+
+type CommandOutput struct {
+	Status  string         `json:"status"`
+	Message string         `json:"message,omitempty"`
+	Data    map[string]any `json:"data,omitempty"`
+}
+
+func printJSON(status, message string, data map[string]any) {
+	out := CommandOutput{Status: status, Message: message, Data: data}
+	b, _ := json.MarshalIndent(out, "", "  ")
+	fmt.Println(string(b))
+}
+
 func getState() *agent.State {
 	state, err := agent.LoadState(stateFile)
 	if err != nil {
@@ -62,17 +76,19 @@ func summarizeProgress() {
 		}
 	}
 
-	fmt.Printf("\n--- Project Progress Summary ---\n")
-	fmt.Printf("Total Tracked Goals: %d\n", len(tracker.Features))
-	fmt.Printf("✅ Passed / Completed: %d\n", passed)
-	fmt.Printf("⏳ Pending / In-Progress: %d\n", pending)
-	if pending > 0 {
-		fmt.Printf("Pending Categories:\n")
-		for _, cat := range pendingCategories {
-			fmt.Printf("  - %s\n", cat)
+	if flagText {
+		fmt.Printf("\n--- Project Progress Summary ---\n")
+		fmt.Printf("Total Tracked Goals: %d\n", len(tracker.Features))
+		fmt.Printf("✅ Passed / Completed: %d\n", passed)
+		fmt.Printf("⏳ Pending / In-Progress: %d\n", pending)
+		if pending > 0 {
+			fmt.Printf("Pending Categories:\n")
+			for _, cat := range pendingCategories {
+				fmt.Printf("  - %s\n", cat)
+			}
 		}
+		fmt.Printf("--------------------------------\n\n")
 	}
-	fmt.Printf("--------------------------------\n\n")
 }
 
 func checkAndApplyProgressUpdate() {
@@ -195,8 +211,16 @@ func NewRootCmd() *cobra.Command {
 				},
 			}
 			saveState(state)
-			fmt.Printf("Workflow initialized for %s: %s\n", workflowType, feature)
-			summarizeProgress()
+			if flagText {
+				fmt.Printf("Workflow initialized for %s: %s\n", workflowType, feature)
+				summarizeProgress()
+			} else {
+				printJSON("success", fmt.Sprintf("Workflow initialized for %s: %s", workflowType, feature), map[string]any{
+					"feature":      feature,
+					"workflowType": workflowType,
+					"state":        state,
+				})
+			}
 		},
 	}
 
@@ -213,7 +237,14 @@ func NewRootCmd() *cobra.Command {
 			state := getState()
 			state.Phase = phase
 			saveState(state)
-			fmt.Printf("Phase set to: %s\n", phase)
+			if flagText {
+				fmt.Printf("Phase set to: %s\n", phase)
+			} else {
+				printJSON("success", fmt.Sprintf("Phase set to: %s", phase), map[string]any{
+					"phase": phase,
+					"state": state,
+				})
+			}
 		},
 	}
 
@@ -265,7 +296,15 @@ func NewRootCmd() *cobra.Command {
 			saveState(state)
 			// original bash script logged the input statusStr 
 			// echo "Gate '$gate' set to: $status"
-			fmt.Printf("Gate '%s' set to: %s\n", gateID, statusStr)
+			if flagText {
+				fmt.Printf("Gate '%s' set to: %s\n", gateID, statusStr)
+			} else {
+				printJSON("success", fmt.Sprintf("Gate '%s' set to: %s", gateID, statusStr), map[string]any{
+					"gate":   gateID,
+					"status": statusStr,
+					"state":  state,
+				})
+			}
 		},
 	}
 
@@ -286,7 +325,9 @@ func NewRootCmd() *cobra.Command {
 				os.Exit(1)
 			}
 
-			fmt.Printf("Verifying gate: %s for feature: %s (%s) [%s]\n", gateID, state.Feature, state.Phase, state.WorkflowType)
+			if flagText {
+				fmt.Printf("Verifying gate: %s for feature: %s (%s) [%s]\n", gateID, state.Feature, state.Phase, state.WorkflowType)
+			}
 
 			// Dependency Checks
 			switch gateID {
@@ -370,22 +411,34 @@ func NewRootCmd() *cobra.Command {
 			switch state.Phase {
 			case "RED":
 				if state.Gates.RedTest == agent.GatePassed && state.Gates.ApiSpec == agent.GatePassed {
+				if flagText {
 					fmt.Println("✨ All RED gates passed. Transitioning to GREEN phase.")
+				}
 					_ = exec.Command("scripts/agent-exec.sh", "workflow", "set-phase", "GREEN").Run()
 				}
 			case "GREEN":
 				if state.Gates.Implementation == agent.GatePassed {
+				if flagText {
 					fmt.Println("✨ Implementation passed. Transitioning to REFACTOR phase.")
+				}
 					_ = exec.Command("scripts/agent-exec.sh", "workflow", "set-phase", "REFACTOR").Run()
 					checkAndApplyProgressUpdate()
 				}
 			}
 
 			// Print current status
-			fmt.Println("--- Current Workflow Status ---")
 			state = getState()
-			b, _ := json.Marshal(state.Gates)
-			fmt.Printf("Feature: %s [%s] (%s)\nGates: %s\n", state.Feature, state.WorkflowType, state.Phase, string(b))
+			if flagText {
+				fmt.Println("--- Current Workflow Status ---")
+				b, _ := json.Marshal(state.Gates)
+				fmt.Printf("Feature: %s [%s] (%s)\nGates: %s\n", state.Feature, state.WorkflowType, state.Phase, string(b))
+			} else {
+				printJSON("success", "Gate verification completed", map[string]any{
+					"gate":    gateID,
+					"success": success,
+					"state":   state,
+				})
+			}
 
 			if !success {
 				os.Exit(1)
@@ -399,15 +452,20 @@ func NewRootCmd() *cobra.Command {
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
 			state := getState()
-			b, err := json.MarshalIndent(state, "", "  ")
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error marshaling state: %v\n", err)
-				os.Exit(1)
+			if flagText {
+				b, err := json.MarshalIndent(state, "", "  ")
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error marshaling state: %v\n", err)
+					os.Exit(1)
+				}
+				fmt.Println(string(b))
+			} else {
+				printJSON("success", "Current harness status", map[string]any{"state": state})
 			}
-			fmt.Println(string(b))
 		},
 	}
 
+	rootCmd.PersistentFlags().BoolVar(&flagText, "text", false, "Output in human-readable text format (JSON is default)")
 	rootCmd.AddCommand(initCmd, setPhaseCmd, gateCmd, verifyCmd, statusCmd)
 
 	return rootCmd

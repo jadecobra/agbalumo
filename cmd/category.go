@@ -62,7 +62,7 @@ var categoryListCmd = &cobra.Command{
 		}
 
 		if len(categories) == 0 {
-			if flagJSON {
+			if !flagText {
 				cmd.Println("[]")
 			} else {
 				cmd.Println("No categories found.")
@@ -70,7 +70,7 @@ var categoryListCmd = &cobra.Command{
 			return
 		}
 
-		if flagJSON {
+		if !flagText {
 			data, _ := json.MarshalIndent(categories, "", "  ")
 			cmd.Println(string(data))
 			return

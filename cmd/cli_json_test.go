@@ -20,7 +20,7 @@ func TestCLIJSONOutput(t *testing.T) {
 	t.Run("listing list --json empty", func(t *testing.T) {
 		buf := new(bytes.Buffer)
 		rootCmd.SetOut(buf)
-		rootCmd.SetArgs([]string{"listing", "list", "--json"})
+		rootCmd.SetArgs([]string{"listing", "list"})
 
 		if err := rootCmd.Execute(); err != nil {
 			t.Fatalf("Execute failed: %v", err)
@@ -37,7 +37,7 @@ func TestCLIJSONOutput(t *testing.T) {
 	t.Run("category list --json", func(t *testing.T) {
 		buf := new(bytes.Buffer)
 		rootCmd.SetOut(buf)
-		rootCmd.SetArgs([]string{"category", "list", "--json"})
+		rootCmd.SetArgs([]string{"category", "list"})
 
 		if err := rootCmd.Execute(); err != nil {
 			t.Fatalf("Execute failed: %v", err)
@@ -61,7 +61,7 @@ func TestCLIJSONOutput(t *testing.T) {
 	t.Run("listing create --json", func(t *testing.T) {
 		buf := new(bytes.Buffer)
 		rootCmd.SetOut(buf)
-		rootCmd.SetArgs([]string{"listing", "create", "--title", "JSON Test Listing", "--json"})
+		rootCmd.SetArgs([]string{"listing", "create", "--title", "JSON Test Listing"})
 
 		if err := rootCmd.Execute(); err != nil {
 			t.Fatalf("Execute failed: %v", err)

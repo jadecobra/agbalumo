@@ -171,8 +171,8 @@ if err != nil {
 
 ## Testing Commands
 ```bash
-go test -v -run TestHandlerName ./internal/handler/
-go test -v -run TestHandlerName/SubtestName ./internal/handler/
+go test -json -v -run TestHandlerName ./internal/handler/
+go test -json -v -run TestHandlerName/SubtestName ./internal/handler/
 ```
 
 ## Notes

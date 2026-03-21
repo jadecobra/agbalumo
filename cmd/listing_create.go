@@ -76,7 +76,7 @@ can be specified via flags.`,
 			os.Exit(1)
 		}
 
-		if flagJSON {
+		if !flagText {
 			data, _ := json.MarshalIndent(listing, "", "  ")
 			cmd.Println(string(data))
 			return

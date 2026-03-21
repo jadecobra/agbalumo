@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var flagJSON bool
+var flagText bool
 
 var rootCmd = &cobra.Command{
 	Use:   "agbalumo",
@@ -33,5 +33,5 @@ func Execute() error {
 }
 
 func init() {
-	rootCmd.PersistentFlags().BoolVar(&flagJSON, "json", false, "Output in JSON format")
+	rootCmd.PersistentFlags().BoolVar(&flagText, "text", false, "Output in human-readable text format (JSON is default)")
 }

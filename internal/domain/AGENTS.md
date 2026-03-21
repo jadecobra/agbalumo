@@ -185,8 +185,8 @@ func isValidType(t string) bool {
 
 ## Testing Commands
 ```bash
-go test -v -run TestDomainName ./internal/domain/
-go test -v -run TestDomainName/SubtestName ./internal/domain/
+go test -json -v -run TestDomainName ./internal/domain/
+go test -json -v -run TestDomainName/SubtestName ./internal/domain/
 ```
 
 ## Notes

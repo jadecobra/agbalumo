@@ -16,7 +16,7 @@ When starting a new task:
 1.  **Plan:** Define the objective and update `task.md` or `implementation_plan.md`.
 2.  **Test:** Create the verification strategy (Automated Tests).
 3.  **Implement:** Write the code to pass the tests.
-4.  **Verify:** Run the full suite (`go test ./...`).
+4.  **Verify:** Run the full suite (`go test -json ./...`).
 5.  **Repeat:** Repeat steps 1-4 until goal is achieved.
 6.  **Reflect:** Update documentation.
 

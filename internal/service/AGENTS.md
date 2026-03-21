@@ -187,8 +187,8 @@ return fmt.Errorf("operation failed: %w", err)
 
 ## Testing Commands
 ```bash
-go test -v -run TestServiceName ./internal/service/
-go test -v -run TestServiceName/SubtestName ./internal/service/
+go test -json -v -run TestServiceName ./internal/service/
+go test -json -v -run TestServiceName/SubtestName ./internal/service/
 ```
 
 ## Notes

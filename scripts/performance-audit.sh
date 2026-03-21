@@ -211,13 +211,22 @@ echo "${BOLD}4. Search Smoke Benchmarks (Repository Layer)${NC}"
 
 # Run a quick smoke benchmark with 500 records
 # We use benchtime=100ms for speed in the pre-commit gate
-BENCH_OUT=$(BENCH_LISTINGS=500 go test -v -bench=BenchmarkSearchPerformance/FindAll_Default_Page1 -benchtime=100ms ./internal/repository/sqlite/search_performance_test.go 2>/dev/null || echo "error")
+BENCH_OUT=$(BENCH_LISTINGS=500 go test -json -v -bench=BenchmarkSearchPerformance/FindAll_Default_Page1 -benchtime=100ms ./internal/repository/sqlite/search_performance_test.go 2>/dev/null || echo "error")
 
 if [ "$BENCH_OUT" = "error" ]; then
     warn "Could not run search smoke benchmarks (ensure Go is installed and test file exists)"
 else
-    # Extract ns/op from the benchmark line
-    NS_OP=$(echo "$BENCH_OUT" | grep "FindAll_Default_Page1" | awk '{print $3}')
+    # Parse the JSON output or fallback to raw text parsing for ns/op
+    if echo "$BENCH_OUT" | grep -q '"Action"'; then
+        if command -v jq >/dev/null 2>&1; then
+            TEXT_OUT=$(echo "$BENCH_OUT" | jq -r 'select(.Output != null) | .Output')
+        else
+            TEXT_OUT=$(echo "$BENCH_OUT" | grep '"Output":"' | sed -E 's/.*"Output":"(.*)".*/\1/' | sed 's/\\t/ /g' | sed 's/\\n//g')
+        fi
+    else
+        TEXT_OUT="$BENCH_OUT"
+    fi
+    NS_OP=$(echo "$TEXT_OUT" | grep "FindAll_Default_Page1" | awk '{print $3}')
     if [ -n "$NS_OP" ]; then
         # Convert ns to ms (one millionth)
         MS_OP=$(awk "BEGIN { printf \"%.2f\", $NS_OP / 1000000 }")

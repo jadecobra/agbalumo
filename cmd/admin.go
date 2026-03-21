@@ -105,7 +105,7 @@ var adminPendingClaimsCmd = &cobra.Command{
 		}
 
 		if len(claims) == 0 {
-			if flagJSON {
+			if !flagText {
 				fmt.Println("[]")
 			} else {
 				fmt.Println("No pending claim requests")
@@ -113,7 +113,7 @@ var adminPendingClaimsCmd = &cobra.Command{
 			return
 		}
 
-		if flagJSON {
+		if !flagText {
 			data, _ := json.MarshalIndent(claims, "", "  ")
 			cmd.Println(string(data))
 			return
@@ -140,7 +140,7 @@ var adminUsersCmd = &cobra.Command{
 		}
 
 		if len(users) == 0 {
-			if flagJSON {
+			if !flagText {
 				fmt.Println("[]")
 			} else {
 				fmt.Println("No users found")
@@ -148,7 +148,7 @@ var adminUsersCmd = &cobra.Command{
 			return
 		}
 
-		if flagJSON {
+		if !flagText {
 			data, _ := json.MarshalIndent(users, "", "  ")
 			cmd.Println(string(data))
 			return
