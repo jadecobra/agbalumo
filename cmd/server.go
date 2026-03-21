@@ -210,8 +210,9 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 
 	// Feedback
 	feedbackHandler := handler.NewFeedbackHandler(repo)
-	e.GET("/feedback/modal", feedbackHandler.HandleModal, authMw.RequireAuth)
-	e.POST("/feedback", feedbackHandler.HandleSubmit, authMw.RequireAuth)
+	feedbackGroup := e.Group("/feedback", authMw.RequireAuth)
+	feedbackGroup.GET("/modal", feedbackHandler.HandleModal)
+	feedbackGroup.POST("", feedbackHandler.HandleSubmit)
 }
 
 // staticCacheHeaders returns middleware that sets Cache-Control headers for static assets.

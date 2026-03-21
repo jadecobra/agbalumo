@@ -58,13 +58,14 @@ func (h *ListingHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddlewa
 	e.GET("/listings/:id", h.HandleDetail)
 
 	// Authenticated Routes
-	e.POST("/listings", h.HandleCreate, authMw.RequireAuth)
-	e.GET("/listings/:id/edit", h.HandleEdit, authMw.RequireAuth)
-	e.PUT("/listings/:id", h.HandleUpdate, authMw.RequireAuth)
-	e.POST("/listings/:id", h.HandleUpdate, authMw.RequireAuth)
-	e.DELETE("/listings/:id", h.HandleDelete, authMw.RequireAuth)
-	e.GET("/profile", h.HandleProfile, authMw.RequireAuth)
-	e.POST("/listings/:id/claim", h.HandleClaim, authMw.RequireAuth)
+	authGroup := e.Group("", authMw.RequireAuth)
+	authGroup.POST("/listings", h.HandleCreate)
+	authGroup.GET("/listings/:id/edit", h.HandleEdit)
+	authGroup.PUT("/listings/:id", h.HandleUpdate)
+	authGroup.POST("/listings/:id", h.HandleUpdate)
+	authGroup.DELETE("/listings/:id", h.HandleDelete)
+	authGroup.GET("/profile", h.HandleProfile)
+	authGroup.POST("/listings/:id/claim", h.HandleClaim)
 }
 
 // Home Handler

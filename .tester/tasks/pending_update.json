@@ -1,7 +1,0 @@
-{
-  "category": "Code Refactoring",
-  "description": "Reducing duplication and streamlining API handlers",
-  "steps": [
-    "Verify Error Handling: Trigger an intentional 400 Error and verify it returns a standard `ErrorResponse` JSON structure"
-  ]
-}

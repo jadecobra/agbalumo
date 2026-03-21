@@ -6,12 +6,12 @@
       "passes": true,
       "steps": [
         "Verify SQLite Engine optimizations: Run `sqlite3 data/agbalumo.db \"PRAGMA optimize;\"` and ensure no errors",
-        "Verify Network & Load optimizations: Execute `curl -I -H \"Accept-Encoding: gzip\" http://localhost:8443` and verify 'Content-Encoding: gzip' and 'Cache-Control' headers are present",
+        "Verify Network \u0026 Load optimizations: Execute `curl -I -H \"Accept-Encoding: gzip\" http://localhost:8443` and verify 'Content-Encoding: gzip' and 'Cache-Control' headers are present",
         "Verify Domain-Driven Handlers exist: Check `cmd/server/main.go` and `internal/config/registrar.go` to confirm handlers are assembled via dependency injection without circular dependencies"
       ]
     },
     {
-      "category": "Performance & Benchmarks",
+      "category": "Performance \u0026 Benchmarks",
       "description": "Optimizing long-running tasks and CLI benchmarks",
       "passes": true,
       "steps": [
@@ -32,7 +32,7 @@
       ]
     },
     {
-      "category": "Authentication & Sessions",
+      "category": "Authentication \u0026 Sessions",
       "description": "Manage user authentication flow and secure cookies",
       "passes": true,
       "steps": [
@@ -42,8 +42,8 @@
       ]
     },
     {
-      "category": "UI Framework & Design System",
-      "description": "Global Theme Rollout & Design System Refinement to Earth theme",
+      "category": "UI Framework \u0026 Design System",
+      "description": "Global Theme Rollout \u0026 Design System Refinement to Earth theme",
       "passes": true,
       "steps": [
         "Verify Design System Update: Inspect `tailwind.config.js` and `base.html` for Earth theme definitions",
@@ -54,7 +54,7 @@
       ]
     },
     {
-      "category": "UI Modals & Interactions",
+      "category": "UI Modals \u0026 Interactions",
       "description": "Refactoring modals and adding micro-animations",
       "passes": true,
       "steps": [
@@ -66,7 +66,7 @@
       ]
     },
     {
-      "category": "Admin UI & Dashboard",
+      "category": "Admin UI \u0026 Dashboard",
       "description": "Admin panel features and styling",
       "passes": true,
       "steps": [
@@ -76,7 +76,7 @@
       ]
     },
     {
-      "category": "Business Features & Logic",
+      "category": "Business Features \u0026 Logic",
       "description": "Core application capabilities and user workflows",
       "passes": true,
       "steps": [
@@ -86,12 +86,12 @@
       ]
     },
     {
-      "category": "Testing & CLI Harness",
+      "category": "Testing \u0026 CLI Harness",
       "description": "Comprehensive test metric improvements and testing tools",
       "passes": false,
       "steps": [
         "Verify Go-based CLI testing harness: Run scaffolding scripts and verify `api-spec` and `cli-drift` validations execute successfully",
-        "Verify Baseline Coverage: Run `go test -cover ./...` and verify overall system coverage reports as >90%",
+        "Verify Baseline Coverage: Run `go test -cover ./...` and verify overall system coverage reports as \u003e90%",
         "Verify Phase 1 test coverage (Priority 1) (Pending): Run `go test -v ./internal/middleware -run TestRateLimit` to verify critical rate-limiting coverage is met",
         "Verify Phase 2 test coverage (Priority 2) (Pending): Run validation domain tests to ensure configuration validation passes",
         "Verify Phase 3 test coverage (Priority 3) (Pending): Run mock and infrastructure testing suites and verify they execute successfully"
@@ -100,29 +100,29 @@
     {
       "category": "Code Refactoring",
       "description": "Reducing duplication and streamlining API handlers",
-      "passes": false,
+      "passes": true,
       "steps": [
         "Verify Pagination Standardization: Examine `internal/module/listing/pagination.go` to ensure standardized helpers are used across multiple listing handler routes",
         "Verify Error Handling: Trigger an intentional 400 Error and verify it returns a standard `ErrorResponse` JSON structure",
-        "Verify Route Grouping (Partial): Inspect `cmd/server/main.go` and ensure auth-required routes are fully separated from public routes via grouped middleware",
         "Verify Response Helpers (Pending): Check for usage of `RenderSuccess`, `JSONSuccess`, and `ErrorResponse` handlers across controllers",
         "Verify Base Handler Struct (Pending): Review handler method signatures to confirm they use a base struct to eliminate session parsing duplication",
-        "Verify Service Layer Consolidation (Pending): Inspect service layer structures and ensure validation middleware runs consistently"
+        "Verify Service Layer Consolidation (Pending): Inspect service layer structures and ensure validation middleware runs consistently",
+        "Verify Route Grouping (Completed): Inspect code and ensure auth-required routes are fully separated from public routes via grouped middleware"
       ]
     },
     {
-      "category": "API & UI Route Verification",
+      "category": "API \u0026 UI Route Verification",
       "description": "Verified all public, user, and admin routes are accessible and functional via the UI",
       "passes": true,
       "steps": [
         "Verify Public Routes: Manually navigate through 'Home', 'About', 'Search', and a 'Listing Detail' page to check for 200 OK responses and fully rendered pages",
         "Verify User Routes: Log in and navigate through 'Profile', 'Create Listing', 'Edit Listing', and 'Feedback' forms to verify authenticated routes open cleanly",
-        "Verify Admin Routes & Bugfixes: In an incognito window, navigate to `/admin/login` and check that the login screen renders without pre-authentication",
+        "Verify Admin Routes \u0026 Bugfixes: In an incognito window, navigate to `/admin/login` and check that the login screen renders without pre-authentication",
         "Verify Form Validations: Submit a client form containing URL inputs with missing schemes or trailing slashes and verify the backend normalizer transforms them successfully"
       ]
     },
     {
-      "category": "CI/CD & Build Tooling",
+      "category": "CI/CD \u0026 Build Tooling",
       "description": "Continuous integration, vulnerability scanning, and build workflows",
       "passes": true,
       "steps": [
@@ -132,13 +132,13 @@
       ]
     },
     {
-      "category": "Modular Services & Domain Utilities",
+      "category": "Modular Services \u0026 Domain Utilities",
       "description": "Refactoring features into dedicated services and domain packages",
       "passes": true,
       "steps": [
         "Verify Image Upload refactor: Upload an image to a listing and verify the request logs output from `ImageService` instead of an HTTP Handler",
         "Verify Hours of Operation: Create a business or food listing with explicit daily hours and ensure the domain handles proper parsing",
-        "Verify AuthMiddleware & Handlers: Check `internal/middleware/auth.go` code to confirm it is fully decoupled from the primary AuthHandler package",
+        "Verify AuthMiddleware \u0026 Handlers: Check `internal/middleware/auth.go` code to confirm it is fully decoupled from the primary AuthHandler package",
         "Verify Date parsing: Send a raw date string during listing creation and verify it relies on strict parsing provided by the domain package"
       ]
     },
@@ -158,19 +158,19 @@
       ]
     },
     {
-      "category": "Security Audit & Hardening",
+      "category": "Security Audit \u0026 Hardening",
       "description": "Comprehensive security audit fixes and defense-in-depth improvements",
       "passes": true,
       "steps": [
         "Verify ADMIN_CODE logic: Start the application without the `ADMIN_CODE` environment variable and confirm it exits safely on startup",
         "Verify Admin Login limits: Execute 6 rapid login attempts against `/admin/login` and verify being rate-limited appropriately",
-        "Verify Content-Security-Policy: Inspect the HTML source from the browser and confirm no inline `<script>` or CSS definitions exist outside external scripts",
+        "Verify Content-Security-Policy: Inspect the HTML source from the browser and confirm no inline `\u003cscript\u003e` or CSS definitions exist outside external scripts",
         "Verify Client-side Interactivity: Click on dynamic UI components and confirm execution pathways utilize htmx `hx-on` bindings instead of standalone `onclick` injections",
         "Verify local asset hosting: Turn off network access and render the page to see if Chart.js and HTMX assets load smoothly"
       ]
     },
     {
-      "category": "User & Admin Journeys Mapping",
+      "category": "User \u0026 Admin Journeys Mapping",
       "description": "Comprehensive mapping of application routes and workflows for all user personas",
       "passes": true,
       "steps": [
