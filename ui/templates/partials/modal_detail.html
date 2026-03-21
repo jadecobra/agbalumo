@@ -1,10 +1,8 @@
-```
 {{ define "modal_detail" }}
-<dialog id="detail-modal-{{.Listing.ID}}"
-    class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-none md:max-w-sm m-0 md:m-auto  md: shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed md:relative inset-0 md:inset-auto h-full md:h-auto">
-    <div id="modal-content"
-        class="bg-earth-dark/95 backdrop-blur-xl border border-white/10 p-0  md: shadow-2xl relative overflow-y-auto flex flex-col h-full md:h-auto md:max-h-[90vh]">
+{{ template "modal_base" dict "ID" (print "detail-modal-" .Listing.ID) "MarginClass" "m-0 md:m-auto" "InsetClass" "fixed md:relative inset-0 md:inset-auto" "ContentID" "modal-content" "MaxHeightClass" "md:max-h-[90vh]" "NoPadding" true "NoDecorativeBg" true "NoHeader" true "NoBottomClose" true "InnerTemplate" "modal_detail_content" "Data" . }}
+{{ end }}
 
+{{ define "modal_detail_content" }}
         <!-- Header Image with Back/Close -->
         <div class="relative w-full aspect-video shrink-0">
             <div class="w-full h-full bg-center {{ if .Listing.ImageURL }}bg-cover{{ else }}bg-contain bg-no-repeat p-12 bg-origin-content opacity-90{{ end }} bg-white dark:bg-surface-dark"
@@ -189,6 +187,4 @@
                 CLOSE
             </button>
         </div>
-    </div>
-</dialog>
 {{ end }}

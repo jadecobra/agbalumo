@@ -1,29 +1,15 @@
 {{ define "modal_edit_listing" }}
-<dialog id="edit-listing-modal-{{.Listing.ID}}"
-    class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-none md:max-w-sm m-auto  shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed inset-0 h-full md:h-auto"
-    data-auto-open="true" data-listing-id="{{.Listing.ID}}">
-    <div
-        class="bg-earth-dark/95 backdrop-blur-xl border border-white/10 p-6  shadow-2xl relative overflow-y-auto h-full md:h-auto md:max-h-[85vh]">
-        <!-- Decorative Background -->
-        <div
-            class="absolute top-0 right-0 w-32 h-32 bg-earth-accent/10 blur-3xl -z-10 transform translate-x-10 -translate-y-10">
-        </div>
+{{ $putUrl := print "/listings/" .Listing.ID }}
+{{ if eq .Source "admin" }}{{ $putUrl = print $putUrl "?source=admin" }}{{ end }}
+{{ $swap := "outerHTML" }}
+{{ if eq .Source "admin" }}{{ $swap = "none" }}{{ end }}
+{{ $afterReq := "" }}
+{{ if eq .Source "admin" }}{{ $afterReq = "if(event.detail.successful) { this.closest('dialog').close(); }" }}{{ end }}
 
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="text-xl font-bold text-earth-cream font-serif">Edit Listing</h3>
-            <button data-modal-action="close"
-                class="p-2 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 transition-colors">
-                <span class="material-symbols-outlined text-[20px]">close</span>
-                <span class="sr-only">Close</span>
-            </button>
-        </div>
+{{ template "modal_base" dict "ID" (print "edit-listing-modal-" .Listing.ID) "Title" "Edit Listing" "AutoOpen" true "DialogDataListingId" .Listing.ID "ShowCloseIcon" true "IsForm" true "FormPut" $putUrl "FormSwap" $swap "FormAfterRequest" $afterReq "FormTarget" (print "#" .TargetID) "FormEnctype" "multipart/form-data" "FormID" (print "edit-form-" .Listing.ID) "InnerTemplate" "modal_edit_listing_fields" "Data" . }}
+{{ end }}
 
-        <form hx-put="/listings/{{.Listing.ID}}{{ if eq .Source "admin" }}?source=admin{{ end }}" 
-            hx-swap="{{ if eq .Source "admin" }}none{{ else }}outerHTML{{ end }}" 
-            {{ if eq .Source "admin" }}hx-on::after-request="if(event.detail.successful) { this.closest('dialog').close(); }"{{ end }}
-            hx-target="#{{.TargetID}}" method="POST"
-            enctype="multipart/form-data" class="flex flex-col gap-4" id="edit-form-{{.Listing.ID}}">
-
+{{ define "modal_edit_listing_fields" }}
             <!-- Type & Origin -->
             {{ template "listing_form_type_origin" dict "Categories" .Categories "SelectedType" .Listing.Type
             "SelectedOrigin" .Listing.OwnerOrigin }}
@@ -44,24 +30,19 @@
                     class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Deadline</label>
                 <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
                     <input name="deadline_date" type="date"
-                        value="{{ if not .Listing.Deadline.IsZero }}{{ .Listing.Deadline.Format " 2006-01-02" }}{{ end
-                        }}"
+                        value="{{ if not .Listing.Deadline.IsZero }}{{ .Listing.Deadline.Format "2006-01-02" }}{{ end }}"
                         class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-sm md:text-base outline-none transition-all placeholder:text-white/50 color-scheme-dark">
                 </div>
             </div>
 
             <!-- Job Details (Hidden by default unless Job) -->
-            {{ template "listing_form_job_fields" dict "Listing" .Listing "IDPrefix" "edit-" "Visible" (eq .Listing.Type
-            "Job") }}
+            {{ template "listing_form_job_fields" dict "Listing" .Listing "IDPrefix" "edit-" "Visible" (eq .Listing.Type "Job") }}
 
             <!-- Event Dates (Hidden by default unless Event) -->
-            {{ template "listing_form_event_fields" dict "Listing" .Listing "IDPrefix" "edit-" "Visible" (eq
-            .Listing.Type "Event") }}
+            {{ template "listing_form_event_fields" dict "Listing" .Listing "IDPrefix" "edit-" "Visible" (eq .Listing.Type "Event") }}
 
             <!-- Location & Hours -->
-            {{ template "listing_form_location" dict "ListingID" .Listing.ID "IDPrefix" "edit-" "Address"
-            .Listing.Address "City" .Listing.City "Hours" .Listing.HoursOfOperation "GoogleMapsApiKey" .GoogleMapsApiKey
-            }}
+            {{ template "listing_form_location" dict "ListingID" .Listing.ID "IDPrefix" "edit-" "Address" .Listing.Address "City" .Listing.City "Hours" .Listing.HoursOfOperation "GoogleMapsApiKey" .GoogleMapsApiKey }}
 
             <!-- Contact Section -->
             {{ template "listing_form_contact_fields" dict "Listing" .Listing "SplitWhatsApp" true }}
@@ -73,14 +54,4 @@
                 class="w-full bg-earth-ochre hover:bg-earth-ochre-light text-white font-bold uppercase text-xs tracking-widest py-4 transition-colors active:scale-95">
                 SAVE CHANGES
             </button>
-
-            <!-- CLOSE button — large touch target for mobile -->
-            <button type="button" data-modal-action="close"
-                class="w-full bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark font-bold uppercase text-xs tracking-widest py-4 transition-colors active:scale-95">
-                CLOSE
-            </button>
-        </form>
-    </div>
-</dialog>
-
 {{ end }}

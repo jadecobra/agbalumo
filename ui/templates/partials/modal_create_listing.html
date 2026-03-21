@@ -1,22 +1,10 @@
-<dialog id="create-listing-modal"
-    class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-none md:max-w-sm m-auto  shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed inset-0 h-full md:h-auto border border-white/20">
-    <div class="bg-earth-dark/95 backdrop-blur-xl p-6 relative overflow-y-auto h-full md:h-auto md:max-h-[85vh]">
-        <!-- Decorative Background -->
-        <div
-            class="absolute top-0 right-0 w-32 h-32 bg-earth-accent/10 blur-3xl -z-10 transform translate-x-10 -translate-y-10">
-        </div>
+{{ template "modal_base" dict "ID" "create-listing-modal" "Title" "Post" "IsForm" true "FormAction" "/listings" "FormSwap" "afterbegin transition:true" "FormTarget" "#listings-container" "FormEnctype" "multipart/form-data" "InnerTemplate" "modal_create_listing_fields" "Data" . }}
 
-        <div class="flex justify-between items-start mb-8">
-            <h2 class="font-serif italic text-4xl leading-tight text-white drop-shadow-md">Post</h2>
-        </div>
-
-        <form hx-post="/listings" hx-swap="afterbegin transition:true" hx-target="#listings-container" method="POST"
-            enctype="multipart/form-data" class="flex flex-col gap-5" autocomplete="off" data-modal-action-submit-close>
+{{ define "modal_create_listing_fields" }}
             <input type="hidden" name="_csrf" value="{{ .CSRF }}">
 
             <!-- Type & Origin -->
-            {{ template "listing_form_type_origin" dict "Categories" .Categories "SelectedType" "" "SelectedOrigin"
-            "Nigeria" }}
+            {{ template "listing_form_type_origin" dict "Categories" .Categories "SelectedType" "" "SelectedOrigin" "Nigeria" }}
 
             <!-- Title -->
             {{ template "listing_form_title" dict "Value" "" }}
@@ -26,8 +14,7 @@
 
             <!-- Location Section -->
             <!-- Location & Hours -->
-            {{ template "listing_form_location" dict "ListingID" "" "IDPrefix" "create-" "Address" "" "City" "" "Hours"
-            "" "GoogleMapsApiKey" .GoogleMapsApiKey }}
+            {{ template "listing_form_location" dict "ListingID" "" "IDPrefix" "create-" "Address" "" "City" "" "Hours" "" "GoogleMapsApiKey" .GoogleMapsApiKey }}
 
             <!-- Description -->
             {{ template "listing_form_description" dict "Value" "" }}
@@ -52,17 +39,10 @@
                 <span class="hidden htmx-request:block">Posting...</span>
             </button>
 
-            <!-- CLOSE button — large touch target for mobile -->
-            <button type="button" data-modal-action="close"
-                class="w-full bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark font-bold uppercase text-xs tracking-widest py-4 transition-colors active:scale-95">
-                CLOSE
-            </button>
-        </form>
-    </div>
-</dialog>
 <style>
     /* Add dark color scheme to datetime inputs to prevent white dropdown on mobile */
     .color-scheme-dark {
         color-scheme: dark;
     }
 </style>
+{{ end }}

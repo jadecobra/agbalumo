@@ -1,23 +1,21 @@
-<dialog id="feedback-modal"
-    class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-none md:max-w-lg m-0 md:m-auto  shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed md:relative inset-0 md:inset-auto h-full md:h-auto">
-    <div
-        class="bg-earth-dark/95 backdrop-blur-xl border border-white/10 p-0  shadow-2xl relative overflow-y-auto flex flex-col h-full md:h-auto md:max-h-[85vh]">
+{{ template "modal_base" dict "ID" "feedback-modal" "MaxWidthClass" "md:max-w-lg" "MarginClass" "m-0 md:m-auto" "InsetClass" "fixed md:relative inset-0 md:inset-auto" "NoPadding" true "NoDecorativeBg" true "NoHeader" true "IsForm" true "FormAction" "/feedback" "FormSwap" "outerHTML" "NoBottomClose" true "InnerTemplate" "modal_feedback_content" "Data" . }}
 
+{{ define "modal_feedback_content" }}
         <!-- Header -->
         <div class="flex items-center justify-between p-4 border-b border-white/10 bg-white/5 backdrop-blur-sm">
             <h2 class="text-xl font-bold font-serif text-earth-cream flex items-center gap-2">
                 <span class="material-symbols-outlined text-earth-accent">feedback</span>
                 Submit Feedback
             </h2>
-            <button data-modal-action="close"
+            <button type="button" data-modal-action="close"
                 class="p-2 hover:bg-white/10 text-stone-400 hover:text-white transition-colors">
                 <span class="material-symbols-outlined">close</span>
                 <span class="sr-only">Close</span>
             </button>
         </div>
 
-        <!-- Form -->
-        <form hx-post="/feedback" hx-swap="outerHTML" class="p-6 space-y-4">
+        <!-- Form Content -->
+        <div class="p-6 space-y-4">
             <!-- Type -->
             <div class="space-y-1">
                 <label class="block text-sm font-bold text-earth-cream/70">Feedback Type</label>
@@ -58,6 +56,5 @@
                     Submit
                 </button>
             </div>
-        </form>
-    </div>
-</dialog>
+        </div>
+{{ end }}

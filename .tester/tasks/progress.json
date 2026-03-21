@@ -35,10 +35,14 @@
     {
       "category": "Authentication \u0026 Sessions",
       "description": "Manage user authentication flow and secure cookies",
-      "passes": false,
+      "passes": true,
       "steps": [
         "Fix OAuth State Cookie SameSite Policy (SameSiteLaxMode)",
-        "Enforce StrictMode on Authenticated Sessions"
+        "Enforce StrictMode on Authenticated Sessions",
+        "Identified SameSite=StrictMode causing oauth_state missing in Google callback",
+        "Extracted oauth_state into a dedicated temporary cookie with SameSite=LaxMode",
+        "Added a cross-site callback reproduction test to ensure session creation works securely",
+        "Verified all regression tests pass"
       ]
     },
     {
@@ -56,13 +60,14 @@
     {
       "category": "UI Modals \u0026 Interactions",
       "description": "Refactoring modals and adding micro-animations",
-      "passes": false,
+      "passes": true,
       "steps": [
         "Create a Reusable Modal Shell (modal_base)",
         "Refactor modal_create_listing.html (Dark/Frosted wrapper, transparent inputs)",
-        "Refactor modal_edit_listing.html (Pending styling update to dark theme)",
-        "Dark Theme on modal_create_request, modal_detail, modal_profile, modal_feedback (Pending)",
-        "Global Micro-Animations (active:scale-95, hover:scale-105, transition-duration-300) (Pending)"
+        "Refactor modal_edit_listing.html (Dark Theme)",
+        "Dark Theme on modal_create_request, modal_detail, modal_profile, modal_feedback",
+        "Global Micro-Animations (active:scale-95, hover:scale-105, transition-duration-300)",
+        "Refactor remaining modals to use modal_base shell (Completed)"
       ]
     },
     {
@@ -184,17 +189,6 @@
         "Authenticated Standard User Journey (Profile Management, Listing Creation/Edit/Claim, Feedback, Logout)",
         "Administrator Journey (Admin Login, Dashboard, User Directory, Content Moderation, Bulk Upload)",
         "CLI Command Line Journey (Listing Management, Admin Operations, Server/Database Management)"
-      ]
-    },
-    {
-      "category": "Authentication \u0026 Sessions",
-      "description": "Fixed Google OAuth login cross-site cookie issue.",
-      "passes": true,
-      "steps": [
-        "Identified SameSite=StrictMode causing oauth_state missing in Google callback",
-        "Extracted oauth_state into a dedicated temporary cookie with SameSite=LaxMode",
-        "Added a cross-site callback reproduction test to ensure session creation works securely",
-        "Verified all regression tests pass"
       ]
     }
   ]

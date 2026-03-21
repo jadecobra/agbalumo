@@ -112,7 +112,34 @@ func checkAndApplyProgressUpdate() {
 	}
 
 	if features, ok := tracker["features"].([]interface{}); ok {
-		tracker["features"] = append(features, newFeature)
+		merged := false
+		newCategory, _ := newFeature["category"].(string)
+
+		for i, f := range features {
+			if featMap, ok := f.(map[string]interface{}); ok {
+				if cat, _ := featMap["category"].(string); cat == newCategory && newCategory != "" {
+					featMap["passes"] = true
+
+					// Merge steps
+					if existingSteps, ok := featMap["steps"].([]interface{}); ok {
+						if newSteps, ok := newFeature["steps"].([]interface{}); ok {
+							existingSteps = append(existingSteps, newSteps...)
+							featMap["steps"] = existingSteps
+						}
+					}
+
+					features[i] = featMap
+					merged = true
+					break
+				}
+			}
+		}
+
+		if !merged {
+			tracker["features"] = append(features, newFeature)
+		} else {
+			tracker["features"] = features
+		}
 	} else {
 		fmt.Println("⚠️ progress.json missing features array")
 		return
