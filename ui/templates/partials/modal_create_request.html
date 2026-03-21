@@ -10,9 +10,9 @@
                 <div class="custom-dropdown relative w-full" style="z-index: 10;">
                     <input type="hidden" name="owner_origin" value="Nigeria" required>
                     <button type="button" data-dropdown-toggle
-                        class="w-full bg-earth-sand/10 border border-white/20 px-4 py-3 h-12 flex justify-between items-center text-white font-light text-base outline-none transition-all placeholder:text-white/50">
-                        <span class="dropdown-display">Nigeria</span>
-                        <span class="material-symbols-outlined text-[20px] text-white/50">expand_more</span>
+                        class="w-full bg-earth-sand/10 border border-white/20 px-4 py-3 h-12 flex justify-between items-center text-white font-light text-base outline-none transition-all placeholder:text-white/50 cursor-pointer">
+                        <span class="dropdown-display pointer-events-none">Nigeria</span>
+                        <span class="material-symbols-outlined text-[20px] text-white/50 pointer-events-none">expand_more</span>
                     </button>
                     <div class="dropdown-menu hidden absolute top-full left-0 w-full mt-1 bg-earth-sand border-[3px] border-earth-ochre text-earth-dark shadow-2xl z-50 max-h-60 overflow-y-auto">
                         {{ template "custom_country_options" dict "Selected" "Nigeria" }}

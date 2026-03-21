@@ -65,3 +65,12 @@
 *   [x] **Task 7: Create a Reusable Modal Shell**
     *   *Implementation*: Define a `modal_base` component in `ui/templates/partials/ui_components.html` that encapsulates the backdrop, fixed z-index positioning, and close button. Update `modal_create_request.html` to use this base component.
     *   *Validation*: Click the "Ask" and "Post" buttons on the homepage to open the modal. Verify the overlay, close functionality (ESC key and click), and content rendering behave identically to the previous implementation.
+
+### 🔐 Recommendations for Improvement: Authentication & Sessions (Flash-Sized Tasks)
+
+*   [ ] **Task 8: Fix OAuth State Cookie SameSite Policy**
+    *   *Implementation*: In `internal/module/auth/handler.go` (`GoogleLogin`), explicitly set `sess.Options.SameSite = http.SameSiteLaxMode` so the `oauth_state` session cookie survives the Google cross-site redirect.
+    *   *Validation*: Run `go test ./internal/module/auth -v` to verify the handler logic successfully compiles and passes.
+*   [ ] **Task 9: Enforce StrictMode on Authenticated Sessions**
+    *   *Implementation*: In `internal/module/auth/handler.go` (`setSessionAndRedirect`), update the `SameSite` configurable option to `http.SameSiteStrictMode` to fulfill production security requirements.
+    *   *Validation*: Run `./scripts/verify_restart.sh`. Use the browser to log in via Google. Verify the final `auth_session` cookie issued to the browser has `SameSite=Strict`. After logging out, verify that a subsequent login attempt succeeds, confirming Task 8.

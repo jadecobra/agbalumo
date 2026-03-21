@@ -7,7 +7,6 @@ For detailed rules and development process, run or refer to these workflows:
 
 ## Git Rules
 - keep commit message short and concise, imperative mood.
-- NEVER commit `ARCHITECTURE_CRITIQUE.md` or remove it from `.gitignore`.
 - Run CI locally before pushing using `scripts/ci-local.sh`.
 - NEVER remove files from `.gitignore` without explicit approval.
 

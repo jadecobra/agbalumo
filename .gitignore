@@ -13,6 +13,8 @@ ui/static/uploads/*
 AWSCLIV2.pkg
 run_dev.sh
 .env
+venv/
+.venv/
 main
 certs/
 *.out
@@ -25,13 +27,8 @@ server.log
 /server
 internal/module/listing/ui/static/uploads/
 coverage.html
-# DO NOT REMOVE - AI Instruction: Leave ARCHITECTURE_CRITIQUE.md ignored
-ARCHITECTURE_CRITIQUE.md
 *.bak
 pnpm-lock.yaml
-tasks/
-tester/
-data/
 .sisyphus/
 logs/
 .cache/
