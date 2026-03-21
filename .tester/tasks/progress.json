@@ -102,7 +102,7 @@
       "description": "Reducing duplication and streamlining API handlers",
       "passes": false,
       "steps": [
-        "Verify Pagination Standardization: Examine `internal/handler/pagination.go` to ensure standardized helpers are used across multiple listing handler routes",
+        "Verify Pagination Standardization: Examine `internal/module/listing/pagination.go` to ensure standardized helpers are used across multiple listing handler routes",
         "Verify Error Handling: Trigger an intentional 400 Error and verify it returns a standard `ErrorResponse` JSON structure",
         "Verify Route Grouping (Partial): Inspect `cmd/server/main.go` and ensure auth-required routes are fully separated from public routes via grouped middleware",
         "Verify Response Helpers (Pending): Check for usage of `RenderSuccess`, `JSONSuccess`, and `ErrorResponse` handlers across controllers",

@@ -74,7 +74,7 @@ func (h *AdminHandler) HandleListingRow(c echo.Context) error {
 func (h *AdminHandler) HandleToggleFeatured(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Listing ID is required"})
+		return handler.RespondJSONError(c, http.StatusBadRequest, "Listing ID is required")
 	}
 
 	featured := c.FormValue("featured") == "true"

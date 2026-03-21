@@ -1,9 +1,7 @@
 {
-  "category": "Testing & CLI Harness",
-  "description": "Implemented eager HTML template validation test to catch missing quotes and unclosed tags at test-time instead of runtime.",
+  "category": "Code Refactoring",
+  "description": "Reducing duplication and streamlining API handlers",
   "steps": [
-    "Researched html/template context-aware escaping behavior",
-    "Created TestAllTemplates_SyntaxAndEscaping test to eager render all templates",
-    "Verified test reliably catches HTML syntax errors without flagging mock nil data errors"
+    "Verify Error Handling: Trigger an intentional 400 Error and verify it returns a standard `ErrorResponse` JSON structure"
   ]
 }

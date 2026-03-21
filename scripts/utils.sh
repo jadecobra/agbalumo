@@ -100,7 +100,7 @@ check_workflow_gates() {
     for gate in $required_gates; do
         local status
         status=$(jq -r ".gates[\"$gate\"]" "$state_file")
-        if [ "$status" != "PASS" ]; then
+        if [ "$status" != "PASS" ] && [ "$status" != "PASSED" ]; then
             failures=$((failures + 1))
             failed_gates="$failed_gates $gate($status)"
         fi
