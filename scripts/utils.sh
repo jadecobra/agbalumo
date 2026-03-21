@@ -21,10 +21,39 @@ setup_path() {
 }
 
 # Messaging
-pass() { echo "${GREEN}  ✅ PASS:${NC} $1"; }
-warn() { echo "${YELLOW}  ⚠️  WARN:${NC} $1"; }
-fail() { echo "${RED}  ❌ FAIL:${NC} $1"; }
-info() { echo "${CYAN}  ℹ️  INFO:${NC} $1"; }
+pass() { if [ "$FMT" != "json" ]; then echo "${GREEN}  ✅ PASS:${NC} $1"; fi }
+warn() { if [ "$FMT" != "json" ]; then echo "${YELLOW}  ⚠️  WARN:${NC} $1"; fi }
+fail() { if [ "$FMT" != "json" ]; then echo "${RED}  ❌ FAIL:${NC} $1"; fi }
+info() { if [ "$FMT" != "json" ]; then echo "${CYAN}  ℹ️  INFO:${NC} $1"; fi }
+
+# output_json_envelope <success_bool> <command_string> <output_string_or_json> [warnings_json_array]
+output_json_envelope() {
+    local success=$1
+    local cmd=$2
+    local out=$3
+    local warnings=${4:-"[]"}
+
+    # If $out is valid JSON, insert it directly, otherwise as array of strings
+    local out_json
+    if echo "$out" | jq -e . >/dev/null 2>&1; then
+        out_json="$out"
+    else
+        out_json=$(jq -Rn --arg str "$out" '$str')
+    fi
+
+    # Convert success to explicit boolean 
+    local bool_success="true"
+    if [ "$success" = "false" ] || [ "$success" = "0" ]; then
+        bool_success="false"
+    fi
+
+    jq -n \
+        --argjson success "$bool_success" \
+        --arg cmd "$cmd" \
+        --argjson output "$out_json" \
+        --argjson warnings "$warnings" \
+        '{success: $success, command: $cmd, output: $output, warnings: $warnings}'
+}
 
 # Task Runner
 # Usage: run_task "task_id" "Task Name" log_dir command args...
@@ -44,12 +73,14 @@ run_task() {
 
     if "$@" > "$log_file" 2>&1; then
         local end=$(date +%s)
-        echo "  ${GREEN}✅ $task_name passed ($((end - start))s)${NC}"
+        if [ "$FMT" != "json" ]; then echo "  ${GREEN}✅ $task_name passed ($((end - start))s)${NC}"; fi
         return 0
     else
         local end=$(date +%s)
-        echo "  ${RED}❌ $task_name failed ($((end - start))s)${NC}"
-        cat "$log_file"
+        if [ "$FMT" != "json" ]; then 
+            echo "  ${RED}❌ $task_name failed ($((end - start))s)${NC}"
+            cat "$log_file"
+        fi
         return 1
     fi
 }
@@ -107,17 +138,19 @@ check_workflow_gates() {
     done
 
     if [ "$failures" -gt 0 ]; then
-        echo "  ${RED}❌ Workflow gate enforcement failed for '$feature' [$workflow_type] ($phase):${NC}"
-        echo "  ${RED}   Required gates not PASS:${failed_gates}${NC}"
-        
-        local doc_link=".agent/workflows/feature-implementation.md"
-        if [ "$workflow_type" = "bugfix" ]; then doc_link=".agent/workflows/bugfix.md"; fi
-        if [ "$workflow_type" = "refactor" ]; then doc_link=".agent/workflows/refactor.md"; fi
+        if [ "$FMT" != "json" ]; then
+            echo "  ${RED}❌ Workflow gate enforcement failed for '$feature' [$workflow_type] ($phase):${NC}"
+            echo "  ${RED}   Required gates not PASS:${failed_gates}${NC}"
+            
+            local doc_link=".agent/workflows/feature-implementation.md"
+            if [ "$workflow_type" = "bugfix" ]; then doc_link=".agent/workflows/bugfix.md"; fi
+            if [ "$workflow_type" = "refactor" ]; then doc_link=".agent/workflows/refactor.md"; fi
 
-        echo "  ${YELLOW}   See: $doc_link${NC}"
+            echo "  ${YELLOW}   See: $doc_link${NC}"
+        fi
         return 1
     fi
 
-    echo "  ${GREEN}✅ Workflow gates verified ($phase: $(echo $required_gates | wc -w | tr -d ' ') gates)${NC}"
+    if [ "$FMT" != "json" ]; then echo "  ${GREEN}✅ Workflow gates verified ($phase: $(echo $required_gates | wc -w | tr -d ' ') gates)${NC}"; fi
     return 0
 }

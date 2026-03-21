@@ -16,6 +16,12 @@
 
 set -e
 
+FMT="json"
+if [ "$1" = "--text" ]; then 
+    FMT="text"
+    shift
+fi
+
 # Robust PATH discovery
 source "$(dirname "$0")/utils.sh"
 setup_path
@@ -30,25 +36,38 @@ fi
 
 # Messaging functions (pass, warn, fail, info) are now in utils.sh
 # Overriding them slightly to track WARNINGS/FAILURES
-pass() { echo "${GREEN}  ✅ PASS:${NC} $1"; }
-warn() { echo "${YELLOW}  ⚠️  WARN:${NC} $1"; WARNINGS=$((WARNINGS + 1)); }
-fail() { echo "${RED}  ❌ FAIL:${NC} $1"; FAILURES=$((FAILURES + 1)); }
-info() { echo "${CYAN}  ℹ️  INFO:${NC} $1"; }
+COLLECTED_WARNINGS=()
+COLLECTED_FAILURES=()
+
+pass() { if [ "$FMT" != "json" ]; then echo "${GREEN}  ✅ PASS:${NC} $1"; fi; }
+warn() { 
+    if [ "$FMT" != "json" ]; then echo "${YELLOW}  ⚠️  WARN:${NC} $1"; fi
+    WARNINGS=$((WARNINGS + 1))
+    COLLECTED_WARNINGS+=("$1")
+}
+fail() { 
+    if [ "$FMT" != "json" ]; then echo "${RED}  ❌ FAIL:${NC} $1"; fi
+    FAILURES=$((FAILURES + 1))
+    COLLECTED_FAILURES+=("$1")
+}
+info() { if [ "$FMT" != "json" ]; then echo "${CYAN}  ℹ️  INFO:${NC} $1"; fi; }
 
 # Determine project root (script may be called from any dir)
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$ROOT"
 
-echo ""
-echo "${BOLD}${BLUE}════════════════════════════════════════════════${NC}"
-echo "${BOLD}${BLUE}  agbalumo Performance Audit${NC}"
-echo "${BOLD}${BLUE}════════════════════════════════════════════════${NC}"
-echo ""
+if [ "$FMT" != "json" ]; then
+    echo ""
+    echo "${BOLD}${BLUE}════════════════════════════════════════════════${NC}"
+    echo "${BOLD}${BLUE}  agbalumo Performance Audit${NC}"
+    echo "${BOLD}${BLUE}════════════════════════════════════════════════${NC}"
+    echo ""
+fi
 
 # ─── CHECK 1: Static Asset Sizes ──────────────────────────────────────────────
 
-echo "${BOLD}1. Static Asset Sizes${NC}"
+if [ "$FMT" != "json" ]; then echo "${BOLD}1. Static Asset Sizes${NC}"; fi
 
 # Logo PNG — should be < 100KB (ideally WebP)
 LOGO="ui/static/images/logo.png"
@@ -131,8 +150,10 @@ fi
 
 # ─── CHECK 2: Cache-Busting Strategy ──────────────────────────────────────────
 
-echo ""
-echo "${BOLD}2. Cache-Busting & HTTP Caching${NC}"
+if [ "$FMT" != "json" ]; then
+    echo ""
+    echo "${BOLD}2. Cache-Busting & HTTP Caching${NC}"
+fi
 
 # Static assets should use ?v= or content hash for cache busting
 if grep -n "app\.js\"" ui/templates/base.html 2>/dev/null | grep -qv "?v=\|?t="; then
@@ -150,8 +171,10 @@ fi
 
 # ─── CHECK 3: Database Configuration ──────────────────────────────────────────
 
-echo ""
-echo "${BOLD}3. Database Configuration${NC}"
+if [ "$FMT" != "json" ]; then
+    echo ""
+    echo "${BOLD}3. Database Configuration${NC}"
+fi
 
 SQLITE_FILE="internal/repository/sqlite/sqlite.go"
 
@@ -206,8 +229,10 @@ fi
 
 # ─── CHECK 4: Search Smoke Benchmarks ─────────────────────────────────────────
 
-echo ""
-echo "${BOLD}4. Search Smoke Benchmarks (Repository Layer)${NC}"
+if [ "$FMT" != "json" ]; then
+    echo ""
+    echo "${BOLD}4. Search Smoke Benchmarks (Repository Layer)${NC}"
+fi
 
 # Run a quick smoke benchmark with 500 records
 # We use benchtime=100ms for speed in the pre-commit gate
@@ -241,8 +266,10 @@ fi
 
 # ─── CHECK 5: In-Memory Cache Layer ───────────────────────────────────────────
 
-echo ""
-echo "${BOLD}5. In-Memory Cache Layer${NC}"
+if [ "$FMT" != "json" ]; then
+    echo ""
+    echo "${BOLD}5. In-Memory Cache Layer${NC}"
+fi
 
 CACHED_FILE="internal/repository/cached/cached.go"
 
@@ -273,8 +300,10 @@ fi
 
 # ─── CHECK 6: Accessibility (Performance Impact via Core Web Vitals) ──────────
 
-echo ""
-echo "${BOLD}6. Accessibility & CLS/INP Checks${NC}"
+if [ "$FMT" != "json" ]; then
+    echo ""
+    echo "${BOLD}6. Accessibility & CLS/INP Checks${NC}"
+fi
 
 BASE_HTML="ui/templates/base.html"
 
@@ -323,8 +352,10 @@ fi
 
 # ─── CHECK 7: N+1 Query Pattern Detection ────────────────────────────────────
 
-echo ""
-echo "${BOLD}7. N+1 Query Pattern Detection${NC}"
+if [ "$FMT" != "json" ]; then
+    echo ""
+    echo "${BOLD}7. N+1 Query Pattern Detection${NC}"
+fi
 
 # Heuristic: look for DB calls inside range loops in handlers
 N1_CANDIDATES=$(grep -rn "range \|for .*range" internal/handler/ --include="*.go" 2>/dev/null | \
@@ -350,8 +381,10 @@ fi
 # ─── CHECK 8: Live Response Time (optional) ───────────────────────────────────
 
 if [ "$LIVE_MODE" -eq 1 ]; then
-    echo ""
-    echo "${BOLD}8. Live Response Time Checks${NC}"
+    if [ "$FMT" != "json" ]; then
+        echo ""
+        echo "${BOLD}8. Live Response Time Checks${NC}"
+    fi
 
     BASE_URL="${BASE_URL:-https://localhost:8443}"
 
@@ -394,12 +427,33 @@ if [ "$LIVE_MODE" -eq 1 ]; then
         fail "Static CSS missing Cache-Control: immutable. Clients won't cache aggressively."
     fi
 else
-    echo ""
-    info "Skipping live response time checks. Run with --live to include them:"
-    info "  BASE_URL=https://localhost:8443 ./scripts/performance-audit.sh --live"
+    if [ "$FMT" != "json" ]; then
+        echo ""
+        info "Skipping live response time checks. Run with --live to include them:"
+        info "  BASE_URL=https://localhost:8443 ./scripts/performance-audit.sh --live"
+    fi
 fi
 
 # ─── Summary ──────────────────────────────────────────────────────────────────
+
+if [ "$FMT" = "json" ]; then
+    COMBINED_HINTS="[]"
+    if [ ${#COLLECTED_WARNINGS[@]} -gt 0 ] || [ ${#COLLECTED_FAILURES[@]} -gt 0 ]; then
+        # merge arrays for warnings field in JSON envelope
+        COMBINED_HINTS=$(printf '%s\n' "${COLLECTED_FAILURES[@]}" "${COLLECTED_WARNINGS[@]}" | jq -R . | jq -s .)
+    fi
+
+    if [ "$FAILURES" -eq 0 ] && [ "$WARNINGS" -eq 0 ]; then
+        output_json_envelope true "performance-audit.sh" "🏆 All checks passed with no warnings!" "$COMBINED_HINTS"
+        exit 0
+    elif [ "$FAILURES" -eq 0 ]; then
+        output_json_envelope true "performance-audit.sh" "⚠️ $WARNINGS warning(s) found — no critical failures." "$COMBINED_HINTS"
+        exit 1
+    else
+        output_json_envelope false "performance-audit.sh" "❌ $FAILURES failure(s), $WARNINGS warning(s) found." "$COMBINED_HINTS"
+        exit 2
+    fi
+fi
 
 echo ""
 echo "${BOLD}${BLUE}════════════════════════════════════════════════${NC}"

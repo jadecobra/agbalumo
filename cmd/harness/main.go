@@ -16,13 +16,22 @@ const stateFile = ".agent/state.json"
 var flagText bool
 
 type CommandOutput struct {
-	Status  string         `json:"status"`
-	Message string         `json:"message,omitempty"`
-	Data    map[string]any `json:"data,omitempty"`
+	Success  bool           `json:"success"`
+	Command  string         `json:"command"`
+	Output   any            `json:"output"`
+	Warnings []string       `json:"warnings"`
 }
 
-func printJSON(status, message string, data map[string]any) {
-	out := CommandOutput{Status: status, Message: message, Data: data}
+func printJSON(success bool, command string, output any, warnings []string) {
+	if warnings == nil {
+		warnings = []string{}
+	}
+	out := CommandOutput{
+		Success:  success,
+		Command:  command,
+		Output:   output,
+		Warnings: warnings,
+	}
 	b, _ := json.MarshalIndent(out, "", "  ")
 	fmt.Println(string(b))
 }
@@ -227,11 +236,12 @@ func NewRootCmd() *cobra.Command {
 				fmt.Printf("Workflow initialized for %s: %s\n", workflowType, feature)
 				summarizeProgress()
 			} else {
-				printJSON("success", fmt.Sprintf("Workflow initialized for %s: %s", workflowType, feature), map[string]any{
+				printJSON(true, "init", map[string]any{
+					"message":      fmt.Sprintf("Workflow initialized for %s: %s", workflowType, feature),
 					"feature":      feature,
 					"workflowType": workflowType,
 					"state":        state,
-				})
+				}, nil)
 			}
 		},
 	}
@@ -252,10 +262,11 @@ func NewRootCmd() *cobra.Command {
 			if flagText {
 				fmt.Printf("Phase set to: %s\n", phase)
 			} else {
-				printJSON("success", fmt.Sprintf("Phase set to: %s", phase), map[string]any{
-					"phase": phase,
-					"state": state,
-				})
+				printJSON(true, "set-phase", map[string]any{
+					"message": fmt.Sprintf("Phase set to: %s", phase),
+					"phase":   phase,
+					"state":   state,
+				}, nil)
 			}
 		},
 	}
@@ -311,11 +322,12 @@ func NewRootCmd() *cobra.Command {
 			if flagText {
 				fmt.Printf("Gate '%s' set to: %s\n", gateID, statusStr)
 			} else {
-				printJSON("success", fmt.Sprintf("Gate '%s' set to: %s", gateID, statusStr), map[string]any{
-					"gate":   gateID,
-					"status": statusStr,
-					"state":  state,
-				})
+				printJSON(true, "gate", map[string]any{
+					"message": fmt.Sprintf("Gate '%s' set to: %s", gateID, statusStr),
+					"gate":    gateID,
+					"status":  statusStr,
+					"state":   state,
+				}, nil)
 			}
 		},
 	}
@@ -445,11 +457,11 @@ func NewRootCmd() *cobra.Command {
 				b, _ := json.Marshal(state.Gates)
 				fmt.Printf("Feature: %s [%s] (%s)\nGates: %s\n", state.Feature, state.WorkflowType, state.Phase, string(b))
 			} else {
-				printJSON("success", "Gate verification completed", map[string]any{
+				printJSON(success, "verify", map[string]any{
+					"message": "Gate verification completed",
 					"gate":    gateID,
-					"success": success,
 					"state":   state,
-				})
+				}, nil)
 			}
 
 			if !success {
@@ -472,7 +484,7 @@ func NewRootCmd() *cobra.Command {
 				}
 				fmt.Println(string(b))
 			} else {
-				printJSON("success", "Current harness status", map[string]any{"state": state})
+				printJSON(true, "status", map[string]any{"state": state}, nil)
 			}
 		},
 	}

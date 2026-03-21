@@ -7,15 +7,17 @@ GREEN=$(printf '\033[0;32m')
 BLUE=$(printf '\033[0;34m')
 NC=$(printf '\033[0m')
 
-printf "${BLUE}Running API Drift Check...${NC}\n"
+# Check for format flag
+FMT="json"
+if [ "$1" = "--text" ]; then FMT="text"; fi
+
+source "$(dirname "$0")/utils.sh"
+
+if [ "$FMT" = "text" ]; then
+    printf "${BLUE}Running API Drift Check...${NC}\n"
+fi
 
 # Helper for normalization
-# 1. method path
-# 2. replace :id with {id}
-# 3. ensure leading slash if missing (should not happen here)
-# 4. remove trailing slashes
-# 5. if path is empty, make it /
-# 6. deduplicate slashes
 normalize() {
     sed 's/:id/{id}/g' | \
     sed -E 's|//+|/|g' | \
@@ -30,7 +32,7 @@ normalize() {
 # 1. Extract routes from cmd/server.go
 ROUTES_TMP=$(mktemp)
 
-# Direct Echo routes: e.GET("/path", ...)
+# Direct Echo routes
 grep -E 'e\.(GET|POST|PUT|DELETE|PATCH)\("' cmd/server.go | \
     sed -E 's/.*e\.([A-Z]+)\("([^"]*)".*/\1 \2/' >> "$ROUTES_TMP"
 
@@ -38,11 +40,11 @@ grep -E 'e\.(GET|POST|PUT|DELETE|PATCH)\("' cmd/server.go | \
 adminGroup_Path=$(grep "adminGroup := e.Group" cmd/server.go | sed -E 's/.*e\.Group\("([^"]+)".*/\1/')
 adminLoginGroup_Path=$(grep "adminLoginGroup := adminGroup.Group" cmd/server.go | sed -E 's/.*adminGroup\.Group\("([^"]+)".*/\1/')
 
-# Extract adminGroup routes: adminGroup.GET("/path", ...)
+# Extract adminGroup routes
 grep -E 'adminGroup\.(GET|POST|PUT|DELETE|PATCH)\("' cmd/server.go | \
     sed -E "s@.*adminGroup\.([A-Z]+)\(\"([^\"]*)\".*@\1 ${adminGroup_Path}\2@" >> "$ROUTES_TMP"
 
-# Extract adminLoginGroup routes: adminLoginGroup.POST("", ...)
+# Extract adminLoginGroup routes
 grep -E 'adminLoginGroup\.(GET|POST|PUT|DELETE|PATCH)\("' cmd/server.go | \
     sed -E "s@.*adminLoginGroup\.([A-Z]+)\(\"([^\"]*)\".*@\1 ${adminGroup_Path}${adminLoginGroup_Path}\2@" >> "$ROUTES_TMP"
 
@@ -64,7 +66,9 @@ OPENAPI_ENDPOINTS=$(awk '
 API_MD_ENDPOINTS=$(grep -E '^\| (GET|POST|PUT|DELETE|PATCH) \| `?/[^`| ]*`? \|' docs/api.md | \
     sed -E 's/\| ([A-Z]+) \| `?([^`| ]*)`?.*/\1 \2/' | normalize)
 
-# Function to find differences
+DRIFT_WARNINGS="[]"
+COLLECTED_WARNINGS=()
+
 check_diff() {
     local source_name=$1
     local target_name=$2
@@ -77,19 +81,19 @@ check_diff() {
     echo "$target_content" | grep -v "^$" > "$tmp_target"
 
     local error_found=0
-    # Endpoints in source but missing in target
     local missing=$(comm -23 "$tmp_source" "$tmp_target")
     
     if [ ! -z "$missing" ]; then
-        local err_file=$(mktemp)
         echo "$missing" | while read -r line; do
             if [ ! -z "$line" ]; then
-                printf "${RED}❌ Missing in %s: %s (found in %s)${NC}\n" "$target_name" "$line" "$source_name"
-                echo "1" > "$err_file"
+                local warn_msg="Missing in $target_name: $line (found in $source_name)"
+                COLLECTED_WARNINGS+=("$warn_msg")
+                if [ "$FMT" = "text" ]; then
+                    printf "${RED}❌ %s${NC}\n" "$warn_msg"
+                fi
             fi
         done
-        if [ -s "$err_file" ]; then error_found=1; fi
-        rm "$err_file"
+        error_found=1
     fi
     
     rm "$tmp_source" "$tmp_target"
@@ -98,19 +102,32 @@ check_diff() {
 
 DRIFT_DETECTED=0
 
-printf "\n${BLUE}Comparing Code vs OpenAPI Spec...${NC}\n"
+if [ "$FMT" = "text" ]; then printf "\n${BLUE}Comparing Code vs OpenAPI Spec...${NC}\n"; fi
 check_diff "Code (cmd/server.go)" "OpenAPI (docs/openapi.yaml)" "$IMPLEMENTED_ROUTES" "$OPENAPI_ENDPOINTS" || DRIFT_DETECTED=1
 
-printf "\n${BLUE}Comparing Code vs API Markdown...${NC}\n"
+if [ "$FMT" = "text" ]; then printf "\n${BLUE}Comparing Code vs API Markdown...${NC}\n"; fi
 check_diff "Code (cmd/server.go)" "API Docs (docs/api.md)" "$IMPLEMENTED_ROUTES" "$API_MD_ENDPOINTS" || DRIFT_DETECTED=1
 
-printf "\n${BLUE}Comparing OpenAPI vs API Markdown...${NC}\n"
+if [ "$FMT" = "text" ]; then printf "\n${BLUE}Comparing OpenAPI vs API Markdown...${NC}\n"; fi
 check_diff "OpenAPI (docs/openapi.yaml)" "API Docs (docs/api.md)" "$OPENAPI_ENDPOINTS" "$API_MD_ENDPOINTS" || DRIFT_DETECTED=1
 
+# Convert bash array to JSON array string for our envelope
+if [ ${#COLLECTED_WARNINGS[@]} -gt 0 ]; then
+    DRIFT_WARNINGS=$(printf '%s\n' "${COLLECTED_WARNINGS[@]}" | jq -R . | jq -s .)
+fi
+
 if [ $DRIFT_DETECTED -eq 1 ]; then
-    printf "\n${RED}❌ API Drift Detected! Please update documentation or code to match.${NC}\n"
+    if [ "$FMT" = "text" ]; then
+        printf "\n${RED}❌ API Drift Detected! Please update documentation or code to match.${NC}\n"
+    else
+        output_json_envelope false "api-drift-check.sh" "API Drift Detected! Please update documentation or code to match." "$DRIFT_WARNINGS"
+    fi
     exit 1
 else
-    printf "\n${GREEN}✅ All APIs are in sync across implementation and documentation.${NC}\n"
+    if [ "$FMT" = "text" ]; then
+        printf "\n${GREEN}✅ All APIs are in sync across implementation and documentation.${NC}\n"
+    else
+        output_json_envelope true "api-drift-check.sh" "All APIs are in sync across implementation and documentation." "[]"
+    fi
     exit 0
 fi
