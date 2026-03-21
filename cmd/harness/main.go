@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/jadecobra/agbalumo/internal/agent"
 	"github.com/spf13/cobra"
@@ -47,6 +48,17 @@ func saveState(state *agent.State) {
 		fmt.Fprintf(os.Stderr, "Error saving state: %v\n", err)
 		os.Exit(1)
 	}
+}
+
+func hasPending(steps interface{}) bool {
+	if sList, ok := steps.([]interface{}); ok {
+		for _, step := range sList {
+			if s, ok := step.(string); ok && strings.Contains(s, "(Pending)") {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func summarizeProgress() {
@@ -112,7 +124,7 @@ func checkAndApplyProgressUpdate() {
 		fmt.Println("⚠️ Failed to parse pending update JSON:", err)
 		return
 	}
-	newFeature["passes"] = true
+	newFeature["passes"] = !hasPending(newFeature["steps"])
 
 	targetData, err := os.ReadFile(targetFile)
 	if err != nil {
@@ -134,8 +146,6 @@ func checkAndApplyProgressUpdate() {
 		for i, f := range features {
 			if featMap, ok := f.(map[string]interface{}); ok {
 				if cat, _ := featMap["category"].(string); cat == newCategory && newCategory != "" {
-					featMap["passes"] = true
-
 					// Merge steps
 					if existingSteps, ok := featMap["steps"].([]interface{}); ok {
 						if newSteps, ok := newFeature["steps"].([]interface{}); ok {
@@ -143,6 +153,8 @@ func checkAndApplyProgressUpdate() {
 							featMap["steps"] = existingSteps
 						}
 					}
+
+					featMap["passes"] = !hasPending(featMap["steps"])
 
 					features[i] = featMap
 					merged = true
