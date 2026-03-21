@@ -61,3 +61,19 @@ func TestVerifyCoverage(t *testing.T) {
 	success := VerifyCoverage()
     fmt.Printf("Coverage result: %v\n", success)
 }
+
+func TestVerifyRedTest(t *testing.T) {
+	orig := ExecCommand
+	ExecCommand = mockExecCommand
+	defer func() { ExecCommand = orig }()
+
+	VerifyRedTest("dummy pattern")
+}
+
+func TestVerifyApiSpec(t *testing.T) {
+	orig := ExecCommand
+	ExecCommand = mockExecCommand
+	defer func() { ExecCommand = orig }()
+
+	VerifyApiSpec("feature")
+}

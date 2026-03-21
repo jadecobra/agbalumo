@@ -234,6 +234,11 @@ func NewRootCmd() *cobra.Command {
 			case "PENDING":
 				status = agent.GatePending
 			case "PASS", "PASSED":
+				if gateID == "coverage" || gateID == "lint" || gateID == "implementation" || gateID == "api-spec" {
+					fmt.Fprintf(os.Stderr, "❌ Error: The '%s' gate cannot be manually bypassed.\n", gateID)
+					fmt.Fprintln(os.Stderr, "💡 HINT: You must pass this gate through automated verification by fixing the code/adding tests and running: ./scripts/agent-exec.sh verify "+gateID)
+					os.Exit(1)
+				}
 				status = agent.GatePassed
 			case "FAIL", "FAILED":
 				status = agent.GateFailed
