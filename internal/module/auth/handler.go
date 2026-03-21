@@ -266,11 +266,14 @@ func (h *AuthHandler) setSessionAndRedirect(c echo.Context, userID string) error
 		return handler.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Session Store Missing"))
 	}
 
+	baseURL := os.Getenv("BASE_URL")
+	isSecure := h.Cfg.Env == "production" || strings.HasPrefix(baseURL, "https://")
+
 	sess.Options = &sessions.Options{
 		Path:     "/",
 		MaxAge:   86400 * 7,
 		HttpOnly: true,
-		Secure:   c.Scheme() == "https" || os.Getenv("AGBALUMO_ENV") == "production",
+		Secure:   c.Scheme() == "https" || isSecure,
 		SameSite: http.SameSiteLaxMode,
 	}
 	sess.Values["user_id"] = userID

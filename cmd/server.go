@@ -92,13 +92,16 @@ func setupMiddleware(e *echo.Echo, cfg *config.Config) {
 		e.Use(rateLimiter.Middleware())
 	}
 
+	baseURL := os.Getenv("BASE_URL")
+	isSecure := cfg.Env == "production" || strings.HasPrefix(baseURL, "https://")
+
 	// CSRF Protection
 	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
 		TokenLookup:    "header:X-CSRF-Token,form:_csrf",
 		CookiePath:     "/",
 		CookieName:     "_csrf",
 		CookieSameSite: http.SameSiteStrictMode,
-		CookieSecure:   cfg.Env == "production",
+		CookieSecure:   isSecure,
 		CookieHTTPOnly: false,
 	}))
 
@@ -115,7 +118,7 @@ func setupMiddleware(e *echo.Echo, cfg *config.Config) {
 		Path:     "/",
 		MaxAge:   86400 * 7, // 7 days
 		HttpOnly: true,
-		Secure:   cfg.Env == "production",
+		Secure:   isSecure,
 		SameSite: http.SameSiteStrictMode,
 	}
 	e.Use(customMiddleware.SessionMiddleware(store))

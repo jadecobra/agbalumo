@@ -1,14 +1,14 @@
 {
-  "feature": "none",
-  "workflow_type": "feature",
-  "phase": "IDLE",
+  "feature": "oauth-state-fix",
+  "workflow_type": "bugfix",
+  "phase": "GREEN",
   "gates": {
-    "red-test": "PENDING",
-    "api-spec": "PENDING",
-    "implementation": "PENDING",
-    "lint": "PENDING",
-    "coverage": "PENDING",
-    "browser-verification": "PENDING"
+    "red-test": "PASS",
+    "api-spec": "PASS",
+    "implementation": "PASS",
+    "lint": "PASS",
+    "coverage": "PASS",
+    "browser-verification": "PASS"
   },
-  "updated_at": "2026-03-18T02:41:49.771425Z"
+  "updated_at": "2026-03-21T01:05:31.672191Z"
 }
