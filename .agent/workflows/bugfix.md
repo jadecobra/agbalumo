@@ -111,3 +111,4 @@ Implement the minimal fix.
 - [ ] **Gate: `coverage`** - Threshold met.
 - [ ] `task.md` updated.
 - [ ] Commit with short, imperative message (e.g., "Fix: resolve nil pointer in listing handler").
+- [ ] **FINALIZE**: Instruct the agent to use the `mcp_mcp-memory-service_memory_store` tool to save the bugfix completion and context.

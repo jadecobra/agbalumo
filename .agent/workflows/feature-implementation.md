@@ -186,3 +186,4 @@ A feature is **DONE** when ALL boxes are checked:
 - [ ] `spec.md` reviewed and updated if needed.
 - [ ] `@[.agent/workflows/restart-server.md]` was run after verification.
 - [ ] Commit with short, imperative message.
+- [ ] **FINALIZE**: Instruct the agent to use the `mcp_mcp-memory-service_memory_store` tool to save the feature completion and context.
