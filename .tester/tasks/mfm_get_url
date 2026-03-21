@@ -1,0 +1,12 @@
+=LET(
+  target_url, I2,
+  script_data, IFERROR(JOIN(" ", IMPORTXML(target_url, "//script[@type='application/ld+json']")), ""),
+  mail, IFERROR(
+    REGEXEXTRACT(script_data, """email"":\s*""([^""]+)"""), 
+    IFERROR(REGEXEXTRACT(INDEX(IMPORTXML(target_url, "//b[contains(.,'Email')]/following-sibling::span"), 1), "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}") , "info@mfmamerica.org")
+  ),
+  web_from_script, IFERROR(SUBSTITUTE(REGEXEXTRACT(script_data, """url"":\s*""(https?:[^""]+)"""), "\/", "/"), ""),
+  web_from_link, IFERROR(INDEX(IMPORTXML(target_url, "//a[contains(@rel, 'external')]/@href"), 1), ""),
+  web, IF(web_from_script <> "", web_from_script, IF(web_from_link <> "", web_from_link, I2)),
+  {web, mail}
+)

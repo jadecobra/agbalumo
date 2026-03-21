@@ -1,0 +1,190 @@
+{
+  "features": [
+    {
+      "category": "Core Infrastructure",
+      "description": "Database, performance tuning, and API modularization",
+      "steps": [
+        "Optimized SQLite Engine (MaxOpenConns, FTS5 trigram search, TTL caching)",
+        "Network & Load optimizations (Gzip compression, Cache-Control headers)",
+        "Domain-Driven Handlers (admin, auth, listing, common modules)",
+        "Registrar Assembly for standardized dependency injection"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Performance & Benchmarks",
+      "description": "Optimizing long-running tasks and CLI benchmarks",
+      "steps": [
+        "Warm-up the benchmark CLI constraint",
+        "Configurable Slow-Query Thresholds (SLOW_QUERY_THRESHOLD_MS)",
+        "Progress Output for stress Generation",
+        "Parallelize GenerateStressListings"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Security",
+      "description": "Security posture and secrets management",
+      "steps": [
+        "CSP, CSRF, HSTS, structural logging, strict request rate limiting",
+        "Scrub History (remove tracked test artifacts)",
+        "Prevent Future Leaks (Secret Scanner in pre-commit)"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Authentication & Sessions",
+      "description": "Manage user authentication flow and secure cookies",
+      "steps": [
+        "Fix OAuth State Cookie SameSite Policy (SameSiteLaxMode)",
+        "Enforce StrictMode on Authenticated Sessions"
+      ],
+      "passes": false
+    },
+    {
+      "category": "UI Framework & Design System",
+      "description": "Global Theme Rollout & Design System Refinement to Earth theme",
+      "steps": [
+        "Design System Update (tailwind.config.js & base.html)",
+        "Integrate Earth color palette (earth-dark, earth-cream, earth-accent)",
+        "Typography: Apply Inter and Playfair Display fonts globally",
+        "Dark Theme on profile.html, about.html, error.html",
+        "Standardize Button & Tag Components (bg-earth-accent CTA, sharp edges)"
+      ],
+      "passes": true
+    },
+    {
+      "category": "UI Modals & Interactions",
+      "description": "Refactoring modals and adding micro-animations",
+      "steps": [
+        "Create a Reusable Modal Shell (modal_base)",
+        "Refactor modal_create_listing.html (Dark/Frosted wrapper, transparent inputs)",
+        "Refactor modal_edit_listing.html (Pending styling update to dark theme)",
+        "Dark Theme on modal_create_request, modal_detail, modal_profile, modal_feedback (Pending)",
+        "Global Micro-Animations (active:scale-95, hover:scale-105, transition-duration-300) (Pending)"
+      ],
+      "passes": false
+    },
+    {
+      "category": "Admin UI & Dashboard",
+      "description": "Admin panel features and styling",
+      "steps": [
+        "Bulk Upload Feature (CSV) inside Admin",
+        "Admin Users View implementations",
+        "Dark Theme on Admin Dashboard & metric cards (Pending)",
+        "Dark Theme on Admin Listings, Admin Users, Admin Login, Admin Delete (Pending)"
+      ],
+      "passes": false
+    },
+    {
+      "category": "Business Features & Logic",
+      "description": "Core application capabilities and user workflows",
+      "steps": [
+        "Implement Claim Ownership Logic",
+        "Polish Claim Ownership UI",
+        "Ensure Service type is featured on homepage",
+        "Unify Status Badges in listing cards"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Testing & CLI Harness",
+      "description": "Comprehensive test metric improvements and testing tools",
+      "steps": [
+        "Scaffold Go-based CLI testing harness (api-spec, cli-drift)",
+        "Establish >90% system-wide baseline coverage",
+        "Phase 1: Fix critical coverage gaps in security-audit main functions, ratelimit, session, and SQLite (Priority 1) (Pending)",
+        "Phase 2: Fix gap in configuration validation and domain validation tests (Priority 2) (Pending)",
+        "Phase 3: Additional mock and infrastructure testing (Priority 3) (Pending)"
+      ],
+      "passes": false
+    },
+    {
+      "category": "Code Refactoring",
+      "description": "Reducing duplication and streamlining API handlers",
+      "steps": [
+        "Pagination Helper & Standardization",
+        "Error Handling Standardization",
+        "Route Grouping (Complete/Standardize public vs auth boundaries) (Partial)",
+        "Add Response Helpers (RenderSuccess, JSONSuccess, ErrorResponse) (Pending)",
+        "Create Base Handler Struct to reduce session access duplication (Pending)",
+        "Service Layer Consolidation & Validation Middleware (Pending)"
+      ],
+      "passes": false
+    },
+    {
+      "category": "API & UI Route Verification",
+      "description": "Verified all public, user, and admin routes are accessible and functional via the UI",
+      "steps": [
+        "Verified Public Routes (Home, About, Search, Listing Details, OAuth)",
+        "Verified User Routes (Profile, Create/Edit/Delete/Claim listing workflows, Feedback, Session Management)",
+        "Verified Admin Routes (Dashboard, User & Listing Management, Moderation workflows, Bulk Actions, Bulk Upload)",
+        "Bug Fix: Allowed unauthenticated access to Admin Login routes",
+        "Bug Fix: Relaxed Client Form URL Validation and added backend normalizer"
+      ],
+      "passes": true
+    },
+    {
+      "category": "CI/CD & Build Tooling",
+      "description": "Continuous integration, vulnerability scanning, and build workflows",
+      "steps": [
+        "Moved from Tailwind CDN to Tailwind CLI build step",
+        "govulncheck and docker scout integrated into CI pipeline",
+        "Deploy to Fly.io configured"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Modular Services & Domain Utilities",
+      "description": "Refactoring features into dedicated services and domain packages",
+      "steps": [
+        "Refactored Image Upload to dedicated ImageService",
+        "Added Hours of Operation for Business/Food categorization",
+        "Decoupled AuthMiddleware from AuthHandler for modularity",
+        "Extracted date parsing to domain package for strict correctness"
+      ],
+      "passes": true
+    },
+    {
+      "category": "Phase 3 Roadmap (Pending)",
+      "description": "Features and architectural improvements planned for the next phase",
+      "steps": [
+        "Auth Expansion: Add Apple/Facebook login platforms (Requires developer accounts)",
+        "DevLogin Hardening: Hardcode claim workflow instead of skipping it",
+        "Admin Customization: Enable dynamic color/font config from the dashboard",
+        "Expiration Ticker: Background service to deactivate expired listings",
+        "Dedicated Location Filter (filterLocation string parameter)",
+        "Browser Test Expansion: Verify 'Create Listing' flow via subagent",
+        "Security Monitoring: Track & patch CVE-2025-60876 in alpine:latest",
+        "Fat Handler Refactoring: Use structural tags and validation libraries"
+      ],
+      "passes": false
+    },
+    {
+      "category": "Security Audit & Hardening",
+      "description": "Comprehensive security audit fixes and defense-in-depth improvements",
+      "steps": [
+        "Enforced ADMIN_CODE requirement for production startup",
+        "Added 5 req/min rate limit to /admin/login POST",
+        "Moved all template inline scripts to external JS for strict CSP",
+        "Replaced inline onclick with HTMX hx-on event handlers",
+        "Self-hosted Chart.js and htmx locally to remove CDN dependencies",
+        "Verified SQL Injection (parameterized queries) and CSRF protection",
+        "Verified Session security (Secure, HttpOnly, SameSite=Strict)",
+        "Pending: Consider self-hosting Tailwind CSS for admin_login.html (Minor)"
+      ],
+      "passes": true
+    },
+    {
+      "category": "User & Admin Journeys Mapping",
+      "description": "Comprehensive mapping of application routes and workflows for all user personas",
+      "steps": [
+        "Unauthenticated Visitor Journey (Landing, Discovery, Deep Dive, About, OAuth onboarding)",
+        "Authenticated Standard User Journey (Profile Management, Listing Creation/Edit/Claim, Feedback, Logout)",
+        "Administrator Journey (Admin Login, Dashboard, User Directory, Content Moderation, Bulk Upload)",
+        "CLI Command Line Journey (Listing Management, Admin Operations, Server/Database Management)"
+      ],
+      "passes": true
+    }
+  ]
+}
