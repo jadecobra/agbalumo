@@ -77,9 +77,12 @@ func TestAuthHandler_GoogleCallback_StateMismatch(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
+	// Using cookie instead of session for oauth_state
+	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "random-state"})
+
+	// Still need session for finding if a user is logged in later (if applicable), though here we just test callback handling.
 	store := sessions.NewCookieStore([]byte("secret"))
 	sess, _ := store.Get(req, "session-name")
-	sess.Values["oauth_state"] = "random-state"
 	c.Set("session", sess)
 
 	repo := handler.SetupTestRepository(t)
@@ -104,9 +107,11 @@ func TestAuthHandler_GoogleCallback_Success(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
+	// Using cookie instead of session for oauth_state
+	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "random-state"})
+
 	store := sessions.NewCookieStore([]byte("secret"))
 	sess, _ := store.Get(req, "session-name")
-	sess.Values["oauth_state"] = "random-state"
 	c.Set("session", sess)
 
 	repo := handler.SetupTestRepository(t)
@@ -179,7 +184,6 @@ func TestAuthHandler_Logout(t *testing.T) {
 
 	store := sessions.NewCookieStore([]byte("secret"))
 	sess, _ := store.Get(req, "session-name")
-	sess.Values["oauth_state"] = "random-state"
 	c.Set("session", sess)
 
 	repo := handler.SetupTestRepository(t)
@@ -226,9 +230,9 @@ func TestAuthHandler_GoogleCallback_SaveUserError(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
+	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "random-state"})
 	store := sessions.NewCookieStore([]byte("secret"))
 	sess, _ := store.Get(req, "session-name")
-	sess.Values["oauth_state"] = "random-state"
 	c.Set("session", sess)
 
 	repo := handler.SetupTestRepository(t)
@@ -253,9 +257,9 @@ func TestAuthHandler_GoogleCallback_UpdateProfile(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
+	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "random-state"})
 	store := sessions.NewCookieStore([]byte("secret"))
 	sess, _ := store.Get(req, "session-name")
-	sess.Values["oauth_state"] = "random-state"
 	c.Set("session", sess)
 
 	repo := handler.SetupTestRepository(t)
@@ -351,9 +355,9 @@ func TestAuthHandler_GoogleCallback_ExchangeError(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
+	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "random-state"})
 	store := sessions.NewCookieStore([]byte("secret"))
 	sess, _ := store.Get(req, "session-name")
-	sess.Values["oauth_state"] = "random-state"
 	c.Set("session", sess)
 
 	repo := handler.SetupTestRepository(t)
@@ -377,9 +381,9 @@ func TestAuthHandler_GoogleCallback_GetUserInfoError(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
+	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "random-state"})
 	store := sessions.NewCookieStore([]byte("secret"))
 	sess, _ := store.Get(req, "session-name")
-	sess.Values["oauth_state"] = "random-state"
 	c.Set("session", sess)
 
 	repo := handler.SetupTestRepository(t)
@@ -405,9 +409,9 @@ func TestAuthHandler_GoogleCallback_UpdateProfileSaveError(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
+	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "random-state"})
 	store := sessions.NewCookieStore([]byte("secret"))
 	sess, _ := store.Get(req, "session-name")
-	sess.Values["oauth_state"] = "random-state"
 	c.Set("session", sess)
 
 	repo := handler.SetupTestRepository(t)
@@ -445,6 +449,8 @@ func TestAuthHandler_SetSessionAndRedirect_NilSession(t *testing.T) {
 	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 
 	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
+	// Inject cookie to bypass state verification and reach setSessionAndRedirect
+	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "random-state"})
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
@@ -491,9 +497,9 @@ func TestAuthHandler_GoogleCallback_UpdateProfile_NoChanges(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
+	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "random-state"})
 	store := sessions.NewCookieStore([]byte("secret"))
 	sess, _ := store.Get(req, "session-name")
-	sess.Values["oauth_state"] = "random-state"
 	c.Set("session", sess)
 
 	repo := handler.SetupTestRepository(t)
@@ -524,3 +530,47 @@ func TestAuthHandler_GoogleCallback_UpdateProfile_NoChanges(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
 }
+
+func TestAuthHandler_GoogleCallback_CrossSiteCallback(t *testing.T) {
+	// Simulate Google callback where the main session cookie is dropped due to SameSite=StrictMode
+	// but the custom 'oauth_state' cookie is preserved because it's SameSite=LaxMode.
+	e := echo.New()
+	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+
+	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
+	
+	// ONLY set the oauth_state cookie, NOT the main session cookie
+	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "random-state"})
+	
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	// Inject a fresh, empty session to simulate what SessionMiddleware does when the strict cookie is missing cross-site.
+	store := sessions.NewCookieStore([]byte("secret"))
+	sess, _ := store.Get(req, "session-name")
+	c.Set("session", sess)
+
+	repo := handler.SetupTestRepository(t)
+	mockProvider := &MockGoogleProvider{}
+	cfg := config.LoadConfig()
+	cfg.HasGoogleAuth = true
+	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, GoogleProvider: mockProvider, Config: cfg})
+
+	token := &oauth2.Token{AccessToken: "access-token"}
+	gUser := &auth.GoogleUser{
+		ID:      "google-cross-site",
+		Email:   "cross@example.com",
+		Name:    "Cross Site",
+		Picture: "http://pic.com",
+	}
+
+	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", "http", "example.com").Return(token, nil)
+	mockProvider.On("GetUserInfo", testifyMock.Anything, token).Return(gUser, nil)
+
+	err := h.GoogleCallback(c)
+
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
+	assert.Equal(t, "/", rec.Header().Get("Location"))
+}
+

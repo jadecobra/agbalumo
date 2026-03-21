@@ -180,15 +180,18 @@ func (h *AuthHandler) GoogleLogin(c echo.Context) error {
 	}
 
 	state := uuid.New().String()
-	sess := customMiddleware.GetSession(c)
-	if sess != nil {
-		sess.Values["oauth_state"] = state
-		if err := sess.Save(c.Request(), c.Response()); err != nil {
-			return handler.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Failed to save session"))
-		}
-	} else {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Session Store Missing"))
-	}
+	baseURL := os.Getenv("BASE_URL")
+	isSecure := h.Cfg.Env == "production" || strings.HasPrefix(baseURL, "https://")
+
+	cookie := new(http.Cookie)
+	cookie.Name = "oauth_state"
+	cookie.Value = state
+	cookie.Path = "/"
+	cookie.MaxAge = 10 * 60 // 10 minutes
+	cookie.HttpOnly = true
+	cookie.Secure = c.Scheme() == "https" || isSecure
+	cookie.SameSite = http.SameSiteLaxMode
+	c.SetCookie(cookie)
 
 	url := h.GoogleProvider.GetAuthCodeURL(state, c.Scheme(), c.Request().Host)
 	return c.Redirect(http.StatusTemporaryRedirect, url)
@@ -197,18 +200,17 @@ func (h *AuthHandler) GoogleLogin(c echo.Context) error {
 func (h *AuthHandler) GoogleCallback(c echo.Context) error {
 	state := c.QueryParam("state")
 
-	sess := customMiddleware.GetSession(c)
-	if sess == nil {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Session Store Missing"))
-	}
-
-	storedState, ok := sess.Values["oauth_state"].(string)
-	if !ok || state != storedState {
+	stateCookie, err := c.Cookie("oauth_state")
+	if err != nil || stateCookie.Value != state {
 		return handler.RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "States don't match or expired"))
 	}
 
-	delete(sess.Values, "oauth_state")
-	_ = sess.Save(c.Request(), c.Response())
+	deleteCookie := new(http.Cookie)
+	deleteCookie.Name = "oauth_state"
+	deleteCookie.Value = ""
+	deleteCookie.Path = "/"
+	deleteCookie.MaxAge = -1
+	c.SetCookie(deleteCookie)
 
 	code := c.QueryParam("code")
 	token, err := h.GoogleProvider.Exchange(c.Request().Context(), code, c.Scheme(), c.Request().Host)

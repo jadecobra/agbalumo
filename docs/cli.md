@@ -412,3 +412,57 @@ agbalumo admin users
 # Admin: Promote user
 agbalumo admin promote <user-id>
 ```
+
+---
+
+### Agent Harness and Testing
+
+Internal commands for testing and the agent workflow harness.
+
+#### benchmark
+Run performance query benchmarks.
+```bash
+agbalumo benchmark [flags]
+```
+
+#### gate
+Agent workflow gate verification.
+```bash
+agbalumo gate [gate-id]
+```
+
+#### harness
+Agent testing harness operations.
+```bash
+agbalumo harness [command]
+```
+
+#### init
+Initialize agent workflow.
+```bash
+agbalumo init [feature-name] [workflow-type]
+```
+
+#### set-phase
+Set current agent phase.
+```bash
+agbalumo set-phase [phase]
+```
+
+#### status
+Show agent workflow status.
+```bash
+agbalumo status
+```
+
+#### stress
+Generate stress test data.
+```bash
+agbalumo stress [flags]
+```
+
+#### verify
+Verify workflow gate.
+```bash
+agbalumo verify [gate-id]
+```
