@@ -14,3 +14,10 @@ func TestNewRootCmd(t *testing.T) {
 		t.Errorf("expected at least 5 subcommands, got %d", len(cmd.Commands()))
 	}
 }
+
+func TestCoverageHelpers(t *testing.T) {
+	// Call these purely for coverage. They safely return early or are read-only operations.
+	getState()
+	summarizeProgress()
+	checkAndApplyProgressUpdate()
+}

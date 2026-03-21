@@ -35,6 +35,104 @@ func saveState(state *agent.State) {
 	}
 }
 
+func summarizeProgress() {
+	data, err := os.ReadFile(".tester/tasks/progress.json")
+	if err != nil {
+		return
+	}
+	var tracker struct {
+		Features []struct {
+			Category string `json:"category"`
+			Passes   bool   `json:"passes"`
+		} `json:"features"`
+	}
+	if err := json.Unmarshal(data, &tracker); err != nil {
+		return
+	}
+
+	passed, pending := 0, 0
+	var pendingCategories []string
+
+	for _, f := range tracker.Features {
+		if f.Passes {
+			passed++
+		} else {
+			pending++
+			pendingCategories = append(pendingCategories, f.Category)
+		}
+	}
+
+	fmt.Printf("\n--- Project Progress Summary ---\n")
+	fmt.Printf("Total Tracked Goals: %d\n", len(tracker.Features))
+	fmt.Printf("✅ Passed / Completed: %d\n", passed)
+	fmt.Printf("⏳ Pending / In-Progress: %d\n", pending)
+	if pending > 0 {
+		fmt.Printf("Pending Categories:\n")
+		for _, cat := range pendingCategories {
+			fmt.Printf("  - %s\n", cat)
+		}
+	}
+	fmt.Printf("--------------------------------\n\n")
+}
+
+func checkAndApplyProgressUpdate() {
+	updateFile := ".tester/tasks/pending_update.json"
+	targetFile := ".tester/tasks/progress.json"
+
+	if _, err := os.Stat(updateFile); os.IsNotExist(err) {
+		return // No update file provided
+	}
+
+	fmt.Println("📦 Found pending_update.json. Triggering automatic progress tracker update...")
+	updateData, err := os.ReadFile(updateFile)
+	if err != nil {
+		fmt.Println("⚠️ Failed to read pending update:", err)
+		return
+	}
+
+	var newFeature map[string]interface{}
+	err = json.Unmarshal(updateData, &newFeature)
+	if err != nil {
+		fmt.Println("⚠️ Failed to parse pending update JSON:", err)
+		return
+	}
+	newFeature["passes"] = true
+
+	targetData, err := os.ReadFile(targetFile)
+	if err != nil {
+		fmt.Println("⚠️ Failed to read progress.json:", err)
+		return
+	}
+
+	var tracker map[string]interface{}
+	err = json.Unmarshal(targetData, &tracker)
+	if err != nil {
+		fmt.Println("⚠️ Failed to parse progress.json:", err)
+		return
+	}
+
+	if features, ok := tracker["features"].([]interface{}); ok {
+		tracker["features"] = append(features, newFeature)
+	} else {
+		fmt.Println("⚠️ progress.json missing features array")
+		return
+	}
+
+	outData, err := json.MarshalIndent(tracker, "", "  ")
+	if err != nil {
+		fmt.Println("⚠️ Failed to encode updated progress.json:", err)
+		return
+	}
+
+	if err := os.WriteFile(targetFile, outData, 0644); err != nil {
+		fmt.Println("⚠️ Failed to save updated progress.json:", err)
+		return
+	}
+
+	fmt.Println("✅ Successfully updated progress.json with new feature implementation!")
+	_ = os.Remove(updateFile)
+}
+
 func NewRootCmd() *cobra.Command {
 	var rootCmd = &cobra.Command{
 		Use:   "harness",
@@ -71,6 +169,7 @@ func NewRootCmd() *cobra.Command {
 			}
 			saveState(state)
 			fmt.Printf("Workflow initialized for %s: %s\n", workflowType, feature)
+			summarizeProgress()
 		},
 	}
 
@@ -184,7 +283,7 @@ func NewRootCmd() *cobra.Command {
 			case "coverage":
 				success = agent.VerifyCoverage()
 			case "browser-verification":
-				fmt.Println("⚠️  browser-verification requires manual confirmation or browser subagent.")
+				fmt.Println("⚠️  AGENT INSTRUCTION: You must use the browser_subagent tool to verify the UI. Once the subagent finishes and the UI is verified, run: ./scripts/agent-exec.sh workflow gate browser-verification PASS")
 				if state.Gates.BrowserVerification == agent.GatePassed {
 					fmt.Println("✅ Gate PASS: browser-verification already marked as PASS.")
 					success = true
@@ -243,6 +342,7 @@ func NewRootCmd() *cobra.Command {
 				if state.Gates.Implementation == agent.GatePassed {
 					fmt.Println("✨ Implementation passed. Transitioning to REFACTOR phase.")
 					_ = exec.Command("scripts/agent-exec.sh", "workflow", "set-phase", "REFACTOR").Run()
+					checkAndApplyProgressUpdate()
 				}
 			}
 

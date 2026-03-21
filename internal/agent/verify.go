@@ -134,7 +134,15 @@ func VerifyApiSpec(workflowType string) bool {
 }
 
 func VerifyImplementation() bool {
-	fmt.Println("Running build and tests...")
+	fmt.Println("Running early lint and build...")
+
+	vetOut, err := RunCommand("go", "vet", "./...")
+	if err != nil {
+		fmt.Println("❌ Gate FAIL: early static analysis (go vet) failed.")
+		fmt.Println("--- GO VET OUTPUT ---")
+		fmt.Println(string(vetOut))
+		return false
+	}
 
 	buildOut, err := RunCommand("go", "build", "./...")
 	if err != nil {
@@ -144,13 +152,23 @@ func VerifyImplementation() bool {
 		return false
 	}
 
+	fmt.Println("Running tests...")
 	_ = os.MkdirAll(filepath.Join(".tester", "coverage"), 0755)
 	covFile := filepath.Join(".tester", "coverage", "coverage.out")
-	testOut, err := RunCommand("go", "test", "-coverprofile="+covFile, "./...")
+	testOut, err := RunCommand("go", "test", "-json", "-coverprofile="+covFile, "./...")
 	if err != nil {
 		fmt.Println("❌ Gate FAIL: implementation tests failed.")
-		fmt.Println("--- TEST OUTPUT ---")
-		fmt.Println(string(testOut))
+		res, parseErr := ParseTestJSON(bytes.NewReader(testOut))
+		if parseErr == nil && len(res.Failures) > 0 {
+			fmt.Println("--- TEST FAILURES ---")
+			for _, fail := range res.Failures {
+				fmt.Println(fail.TestName, ":")
+				fmt.Println(fail.Output)
+			}
+		} else {
+			fmt.Println("--- RAW TEST OUTPUT ---")
+			fmt.Println(string(testOut))
+		}
 		return false
 	}
 

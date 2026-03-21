@@ -41,5 +41,5 @@ cmd/agbalumo.db
 cmd/agbalumo.db-shm
 internal/repository/sqlite/agbalumo.db
 
-harness
+/harness
 tmp_harness
