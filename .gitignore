@@ -32,7 +32,11 @@ pnpm-lock.yaml
 .sisyphus/
 logs/
 .cache/
-.tester/
+.tester/servers
+.tester/samples
+.tester/data
+.tester/coverage
+.tester/db_tests
 cmd/agbalumo.db
 cmd/agbalumo.db-shm
 internal/repository/sqlite/agbalumo.db
