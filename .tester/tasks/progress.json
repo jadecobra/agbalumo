@@ -68,11 +68,11 @@
     {
       "category": "Admin UI & Dashboard",
       "description": "Admin panel features and styling",
-      "passes": false,
+      "passes": true,
       "steps": [
-        "Verify Bulk Upload Feature: Navigate to `/admin/upload` and upload a valid CSV file to verify bulk listing import functions correctly",
+        "Verify Bulk Upload Feature: Open the Bulk Upload modal from the Admin Dashboard, select a valid CSV file, and submit to verify bulk listing import functions correctly",
         "Verify Admin Users View: Log in as an admin and navigate to the 'Users' dashboard view to ensure all user records are displayed",
-        "Verify Admin Dark Theme (Pending): Ensure that the Admin Dashboard, metrics cards, Listings, and Users views fully render in the Dark Theme"
+        "Verify Admin Dark Theme: Ensure that the Admin Dashboard, metrics cards, Listings, and Users views fully render in the Dark Theme"
       ]
     },
     {
