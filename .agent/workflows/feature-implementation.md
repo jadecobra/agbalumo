@@ -25,7 +25,7 @@ Before writing any implementation code, prove the feature doesn't exist and defi
 
 ### 1a. Write Failing Unit Test (RED)
 
-> **Persona: SDET** — Write table-driven tests in `*_test.go` files only. Never write production code. Focus on functional and integration coverage. Cover West African country/domain inputs where relevant. Tests must fail for the right reason before any implementation.
+> **Persona: SDET** — Write table-driven tests in `*_test.go` files only. Never write production code. Focus on functional and integration coverage. Cover African country/domain inputs where relevant. Tests must fail for the right reason before any implementation.
 
 - *File*: Create or update the relevant `*_test.go` file.
 - Write a test expecting the new feature to work (e.g. hitting the hypothetical endpoint).
