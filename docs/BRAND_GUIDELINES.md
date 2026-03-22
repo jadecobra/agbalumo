@@ -14,28 +14,12 @@ All colors, neutral scales, and gradient tokens have been extracted to a dedicat
 
 ## 2. Typography
 
-### Font Family
+All font families, scales, and text styling tokens have been extracted to a dedicated typography system.
 
-| Token | Font | Weights | Source |
-|-------|------|---------|--------|
-| `font-display` | **Lexend** | 300, 400, 500, 600, 700 | Google Fonts |
-
-Applied globally via `<body class="font-display">`. No other font families are used.
-
-### Scale
-
-| Element | Classes |
-|---------|---------|
-| Page heading | `text-4xl md:text-5xl font-bold tracking-tight` |
-| Section heading | `text-2xl font-bold` |
-| Card title | `text-xl font-bold uppercase leading-tight` |
-| Modal title | `text-xl font-bold` |
-| Body text | `text-sm leading-relaxed` |
-| Label | `text-xs font-bold uppercase tracking-wider` |
-| Badge | `text-[10px] uppercase font-bold tracking-wider` |
-| Caption | `text-[10px] font-medium` |
+> **See [Design System Typography](./design_system/typography.md)** for the complete typography guidelines.
 
 ---
+
 
 ## 3. Icons
 
