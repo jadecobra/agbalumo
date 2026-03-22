@@ -1,6 +1,6 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "cli-admin-docs",
+  "feature": "Verify AGENTS.md Modularization (Commands)",
   "workflow_type": "refactor",
   "phase": "REFACTOR",
   "gates": {
@@ -11,6 +11,6 @@
     "coverage": "PASSED",
     "browser-verification": "PASSED"
   },
-  "updated_at": "2026-03-22T18:37:58.305394Z",
-  "signature": "eda46540d477e70a0d25dd07ebdd4b57ce77ad978638dd9b4d458c6c7710c502"
+  "updated_at": "2026-03-22T20:01:06.344256Z",
+  "signature": "084348da1e545b4c977e9bbb33baa996d25653776ec23cd082cf4f314f3ac19f"
 }

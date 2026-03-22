@@ -1,0 +1,7 @@
+{
+  "category": "Agent Context Optimization",
+  "description": "Reduce token footprint of agent context by breaking monolithic specs and documentation into granular files.",
+  "steps": [
+    "Verify AGENTS.md Modularization (Commands) (Completed): Extract testing, linting, and build commands (e.g., pre-commit, race detection) into `.agent/rules/commands.md`."
+  ]
+}
