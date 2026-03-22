@@ -206,7 +206,8 @@
         "Verify CLI Modularization (Testing): Extract stress testing, execution harnesses, and benchmark commands to `docs/cli/testing.md`.",
         "Verify CLI Modularization (Listings): Extract listing manipulation and creation commands to `docs/cli/listing.md`.",
         "Verify BRAND_GUIDELINES Modularization (Components) (Completed): Extract reusable component designs (cards, modals) into `docs/design_system/components.md`.",
-        "Verify BRAND_GUIDELINES Modularization (Typography) (Completed): Extract font definitions and text logic into `docs/design_system/typography.md`."
+        "Verify BRAND_GUIDELINES Modularization (Typography) (Completed): Extract font definitions and text logic into `docs/design_system/typography.md`.",
+        "Verify CLI Modularization (Admin): Extract Cobra command documentation for admin operations to `docs/cli/admin.md`."
       ]
     },
     {

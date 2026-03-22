@@ -16,10 +16,10 @@ IMPLEMENTED_COMMANDS=$(grep -rh 'Use:[[:space:]]*"[^"]*"' cmd/ | \
     grep -v "^$" | \
     sort -u)
 
-# 2. Extract command headers from docs/cli.md
+# 2. Extract command headers from docs/cli.md and docs/cli/*.md
 # We look for ### (main commands) or ##### (subcommands)
 # We exclude "subcommands", "commands", "flags", "example", etc.
-CLI_MD_COMMANDS=$(grep -E '^###+ ' docs/cli.md | \
+CLI_MD_COMMANDS=$(cat docs/cli.md docs/cli/*.md 2>/dev/null | grep -E '^###+ ' | \
     sed -E 's/^###+ //g' | \
     tr '[:upper:]' '[:lower:]' | \
     grep -vE '^(subcommands|flags|example|quick reference|environment variables)$' | \
