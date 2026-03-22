@@ -84,7 +84,7 @@ check_diff() {
     local missing=$(comm -23 "$tmp_source" "$tmp_target")
     
     if [ ! -z "$missing" ]; then
-        echo "$missing" | while read -r line; do
+        while IFS= read -r line; do
             if [ ! -z "$line" ]; then
                 local warn_msg="Missing in $target_name: $line (found in $source_name)"
                 COLLECTED_WARNINGS+=("$warn_msg")
@@ -92,7 +92,7 @@ check_diff() {
                     printf "${RED}❌ %s${NC}\n" "$warn_msg"
                 fi
             fi
-        done
+        done <<< "$missing"
         error_found=1
     fi
     
