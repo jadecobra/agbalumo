@@ -1,0 +1,7 @@
+{
+  "category": "Agent Context Optimization (API Docs)",
+  "description": "Reduce token footprint of agent context by breaking monolithic OpenAPI spec into granular files and auto-generating overlapping documentation.",
+  "steps": [
+    "Verify OpenAPI Modularization (Components) (Completed): Extract schemas and responses into modular files under `docs/openapi/components/`."
+  ]
+}

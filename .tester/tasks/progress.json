@@ -201,7 +201,7 @@
         "Verify OpenAPI Modularization (Auth) (Completed): Extract Auth-related paths from `docs/openapi.yaml` into `docs/openapi/paths/auth.yaml` and reference it via `$ref`.",
         "Verify OpenAPI Modularization (Listings) (Completed): Extract Listing-related paths into `docs/openapi/paths/listings.yaml`.",
         "Verify OpenAPI Modularization (Admin) (Completed): Extract Admin-related paths into `docs/openapi/paths/admin.yaml`.",
-        "Verify OpenAPI Modularization (Components): Extract schemas and responses into modular files under `docs/openapi/components/`.",
+        "Verify OpenAPI Modularization (Components) (Completed): Extract schemas and responses into modular files under `docs/openapi/components/`.",
         "Verify OpenAPI Bundling script: Create `scripts/bundle-openapi.sh` using `swagger-cli` to bundle modular files into a built `docs/openapi.yaml` for downstream verification.",
         "Verify API Markdown Auto-generation: Add a generation step utilizing the bundled OpenAPI specification to auto-generate `docs/api.md` and enforce a single source of truth.",
         "Verify OpenAPI Modularization (Admin) (Completed): Extract Admin-related paths into `docs/openapi/paths/admin.yaml`."

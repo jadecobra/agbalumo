@@ -87,9 +87,9 @@ func TestIntegrationAPIDrift(t *testing.T) {
 		t.Fatalf("failed to extract code routes: %v", err)
 	}
 
-	yamlContent, err := os.ReadFile("../../docs/openapi.yaml")
+	yamlContent, err := agent.RunCommand("npx", "swagger-cli", "bundle", "../../docs/openapi.yaml", "-r", "-t", "yaml")
 	if err != nil {
-		t.Fatalf("failed to read openapi.yaml: %v", err)
+		t.Fatalf("failed to bundle openapi.yaml: %v\nOutput: %s", err, string(yamlContent))
 	}
 	openapiRoutes, err := agent.ExtractOpenAPIRoutes(yamlContent)
 	if err != nil {

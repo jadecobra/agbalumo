@@ -52,15 +52,18 @@ IMPLEMENTED_ROUTES=$(normalize < "$ROUTES_TMP")
 rm "$ROUTES_TMP"
 
 # 2. Extract endpoints from docs/openapi.yaml
-OPENAPI_ENDPOINTS=$(awk '
-    /^  \/[^:]+:$/ { 
-        current_path = substr($1, 1, length($1)-1)
+OPENAPI_ENDPOINTS=$(npx swagger-cli bundle docs/openapi.yaml -r -t yaml | awk '
+    /^  \x27?\/[^:]+\x27?:$/ { 
+        current_path = $1
+        sub(/:$/, "", current_path)
+        sub(/^\x27/, "", current_path)
+        sub(/\x27$/, "", current_path)
     }
     /^    (get|post|put|delete|patch):$/ { 
         method = toupper(substr($1, 1, length($1)-1))
         print method " " current_path
     }
-' docs/openapi.yaml | normalize)
+' | normalize)
 
 # 3. Extract endpoints from docs/api.md
 API_MD_ENDPOINTS=$(grep -E '^\| (GET|POST|PUT|DELETE|PATCH) \| `?/[^`| ]*`? \|' docs/api.md | \

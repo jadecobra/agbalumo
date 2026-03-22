@@ -1,0 +1,11 @@
+type: object
+required:
+  - content
+properties:
+  type:
+    type: string
+    enum: [Bug, Feature, Question, Other]
+    example: "Bug"
+  content:
+    type: string
+    example: "Great app!"

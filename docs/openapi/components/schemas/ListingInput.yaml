@@ -1,0 +1,69 @@
+type: object
+required:
+  - title
+  - type
+  - owner_origin
+  - city
+properties:
+  title:
+    type: string
+    minLength: 1
+    maxLength: 100
+    example: "Lagos Restaurant"
+  type:
+    type: string
+    enum: [Business, Service, Product, Food, Event, Job, Request]
+    example: "Business"
+  owner_origin:
+    type: string
+    example: "Nigeria"
+  description:
+    type: string
+    maxLength: 2000
+    example: "Authentic Nigerian cuisine"
+  city:
+    type: string
+    example: "Lagos"
+  address:
+    type: string
+    example: "123 Main Street"
+  hours_of_operation:
+    type: string
+    example: "Mon-Fri: 9am-6pm"
+  contact_email:
+    type: string
+    format: email
+  contact_phone:
+    type: string
+  contact_whatsapp:
+    type: string
+  website_url:
+    type: string
+    format: uri
+  deadline_date:
+    type: string
+    format: date
+  event_start:
+    type: string
+    format: date-time
+  event_end:
+    type: string
+    format: date-time
+  skills:
+    type: string
+  job_start_date:
+    type: string
+    format: date-time
+  job_apply_url:
+    type: string
+    format: uri
+  company:
+    type: string
+  pay_range:
+    type: string
+  image:
+    type: string
+    format: binary
+  remove_image:
+    type: boolean
+    description: Set to true to remove existing image

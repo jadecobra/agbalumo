@@ -13,7 +13,7 @@ func ExtractOpenAPIRoutes(content []byte) ([]Route, error) {
 	var routes []Route
 	var currentPath string
 
-	pathRe := regexp.MustCompile(`^\s*(/.*?):$`)
+	pathRe := regexp.MustCompile(`^\s*'?(/.*?)'?:$`)
 	methodRe := regexp.MustCompile(`(?i)^\s*(get|post|put|delete|patch|options|head):$`)
 
 	for _, line := range lines {

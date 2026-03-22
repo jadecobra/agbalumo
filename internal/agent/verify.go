@@ -85,9 +85,9 @@ func VerifyApiSpec(workflowType string) bool {
 		return false
 	}
 
-	openapiData, err := os.ReadFile("docs/openapi.yaml")
+	openapiData, err := RunCommand("npx", "swagger-cli", "bundle", "docs/openapi.yaml", "-r", "-t", "yaml")
 	if err != nil {
-		fmt.Println("Error reading docs/openapi.yaml:", err)
+		fmt.Println("Error bundling docs/openapi.yaml:", err)
 		return false
 	}
 	openapiRoutes, err := ExtractOpenAPIRoutes(openapiData)

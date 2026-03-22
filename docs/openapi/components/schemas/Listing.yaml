@@ -1,0 +1,88 @@
+type: object
+properties:
+  id:
+    type: string
+    example: "abc123"
+  owner_id:
+    type: string
+    example: "user-456"
+  owner_origin:
+    type: string
+    example: "Nigeria"
+  type:
+    type: string
+    enum: [Business, Service, Product, Food, Event, Job, Request]
+    example: "Business"
+  anchor:
+    type: string
+    example: "Professional"
+  title:
+    type: string
+    example: "Lagos Restaurant"
+  description:
+    type: string
+    example: "Authentic Nigerian cuisine"
+  city:
+    type: string
+    example: "Lagos"
+  address:
+    type: string
+    example: "123 Main Street"
+  hours_of_operation:
+    type: string
+    example: "Mon-Fri: 9am-6pm"
+  image_url:
+    type: string
+    example: "/uploads/listing-abc123.jpg"
+  contact_email:
+    type: string
+    format: email
+    example: "info@example.com"
+  contact_phone:
+    type: string
+    example: "+2341234567890"
+  contact_whatsapp:
+    type: string
+    example: "+2340987654321"
+  website_url:
+    type: string
+    format: uri
+    example: "https://example.com"
+  created_at:
+    type: string
+    format: date-time
+    example: "2024-01-15T10:30:00Z"
+  deadline:
+    type: string
+    format: date-time
+  event_start:
+    type: string
+    format: date-time
+  event_end:
+    type: string
+    format: date-time
+  skills:
+    type: string
+    example: "JavaScript, React, Node.js"
+  job_start_date:
+    type: string
+    format: date-time
+  job_apply_url:
+    type: string
+    format: uri
+  company:
+    type: string
+    example: "Tech Corp"
+  pay_range:
+    type: string
+    example: "$50,000 - $70,000"
+  is_active:
+    type: boolean
+    example: true
+  status:
+    type: string
+    enum: [Pending, Approved, Rejected]
+    example: "Approved"
+  featured:
+    type: boolean
+    example: false

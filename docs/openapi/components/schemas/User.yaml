@@ -1,0 +1,25 @@
+type: object
+properties:
+  id:
+    type: string
+    example: "user-123"
+  google_id:
+    type: string
+    example: "google-123456"
+  email:
+    type: string
+    format: email
+    example: "user@example.com"
+  name:
+    type: string
+    example: "John Doe"
+  avatar_url:
+    type: string
+    format: uri
+  role:
+    type: string
+    enum: [Admin, User]
+    example: "User"
+  created_at:
+    type: string
+    format: date-time
