@@ -183,14 +183,14 @@
     {
       "category": "Standardize output for Agent",
       "description": "Refactor all scripts in the scripts/ directory to output structured JSON for robust agent consumption",
-      "passes": false,
+      "passes": true,
       "steps": [
         "Verify Standard Envelope Contract: Ensure all refactored scripts output a shared JSON schema containing at minimum `success` (boolean), `command` (string), `output` (string/object), and `warnings` (array).",
         "Verify Core Harness JSON Output (Completed): Execute `./scripts/agent-exec.sh status` (or equivalent) and verify the output conforms to the standard JSON envelope representing the harness state",
         "Verify Drift Check JSON Output (Completed): Execute `./scripts/api-drift-check.sh` and confirm validation details and diffs are enclosed in the standard JSON structure instead of plaintext",
         "Verify CI/Quality JSON Output (Completed): Run `./scripts/ci-local.sh` or `./scripts/pre-commit.sh` and verify the final gate summaries use JSON objects for pass/fail recording",
         "Verify Testing & Benchmarks JSON Output (Completed): Run `./scripts/performance-audit.sh` or `./scripts/test_gate_enforcement.sh` and verify metrics and failures are emitted as JSON",
-        "Verify Utilities JSON Output: Intentionally fail a script like `./scripts/deploy_secrets.sh` or `./scripts/utils.sh` to ensure the error payload matches the standardized JSON schema"
+        "Verify Utilities JSON Output (Completed): Intentionally fail a script like `./scripts/deploy_secrets.sh` or `./scripts/utils.sh` to ensure the error payload matches the standardized JSON schema"
       ]
     }
   ]
