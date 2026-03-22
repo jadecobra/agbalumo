@@ -159,7 +159,7 @@
       "steps": [
         "Verify monolithic specs (OpenAPI, BRAND_GUIDELINES, CLI commands) are successfully extracted into granular modular files (e.g. docs/openapi/components/)",
         "Verify Feature-Implementation Workflow Modularization (Red Phase): Extract RED phase failing-test requirements to `.agent/workflows/feature-implementation/red.md`.",
-        "Verify Feature-Implementation Workflow Modularization (Green Phase): Extract GREEN phase implementation constraints to `.agent/workflows/feature-implementation/green.md`.",
+        "Verify Feature-Implementation Workflow Modularization (Green Phase) (Completed): Extract GREEN phase implementation constraints to `.agent/workflows/feature-implementation/green.md`.",
         "Verify Feature-Implementation Workflow Modularization (Refactor Phase): Extract REFACTOR phase linting and cleanup rules to `.agent/workflows/feature-implementation/refactor.md`.",
         "Verify AGENTS.md Modularization (Architecture): Extract the project architecture tree and directory descriptions from root `AGENTS.md` into `.agent/rules/architecture.md`.",
         "Verify AGENTS.md Modularization (Commands): Extract testing, linting, and build commands (e.g., pre-commit, race detection) into `.agent/rules/commands.md`.",
