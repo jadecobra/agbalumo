@@ -63,253 +63,28 @@ paths:
                 type: string
 
   /listings:
-    post:
-      summary: Create a new listing
-      description: Create a new business listing, service, job, event, or request
-      tags:
-        - Listings
-      security:
-        - CookieAuth: []
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/ListingInput'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/ListingInput'
-      responses:
-        '302':
-          description: Redirect to listing detail
-          headers:
-            Location:
-              schema:
-                type: string
-        '400':
-          description: Validation error
-        '401':
-          description: Unauthorized
+    $ref: './openapi/paths/listings.yaml#/listings'
 
   /listings/fragment:
-    get:
-      summary: Get listings fragment
-      description: Returns HTML fragment for HTMX partial updates
-      tags:
-        - Public
-      parameters:
-        - name: type
-          in: query
-          description: Filter by category
-          schema:
-            type: string
-        - name: q
-          in: query
-          description: Search term
-          schema:
-            type: string
-        - name: page
-          in: query
-          description: Page number
-          schema:
-            type: integer
-            default: 1
-      responses:
-        '200':
-          description: HTML fragment
+    $ref: './openapi/paths/listings.yaml#/fragment'
 
   /listings/{id}:
-    get:
-      summary: Get listing details
-      description: Returns full details of a specific listing
-      tags:
-        - Public
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Listing details
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Listing'
-        '404':
-          description: Listing not found
-
-    post:
-      summary: Update a listing (POST)
-      description: Alternative update endpoint for forms
-      tags:
-        - Listings
-      security:
-        - CookieAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/ListingInput'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/ListingInput'
-      responses:
-        '302':
-          description: Redirect to listing detail
-        '401':
-          description: Unauthorized
-        '404':
-          description: Listing not found
-
-    put:
-      summary: Update a listing
-      description: Update an existing listing
-      tags:
-        - Listings
-      security:
-        - CookieAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/ListingInput'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/ListingInput'
-      responses:
-        '302':
-          description: Redirect to listing detail
-        '401':
-          description: Unauthorized
-        '404':
-          description: Listing not found
-
-    delete:
-      summary: Delete a listing
-      description: Delete a listing (owner or admin only)
-      tags:
-        - Listings
-      security:
-        - CookieAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '302':
-          description: Redirect to home
-        '401':
-          description: Unauthorized
-        '404':
-          description: Listing not found
+    $ref: './openapi/paths/listings.yaml#/single'
 
   /listings/{id}/edit:
-    get:
-      summary: Get edit form
-      description: Returns HTML form for editing a listing
-      tags:
-        - Listings
-      security:
-        - CookieAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: HTML form
-        '401':
-          description: Unauthorized
-        '404':
-          description: Listing not found
+    $ref: './openapi/paths/listings.yaml#/edit'
 
   /listings/{id}/claim:
-    post:
-      summary: Claim a listing
-      description: Claim ownership of an unclaimed listing
-      tags:
-        - Listings
-      security:
-        - CookieAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '302':
-          description: Redirect to profile
-        '401':
-          description: Unauthorized
+    $ref: './openapi/paths/listings.yaml#/claim'
 
   /profile:
-    get:
-      summary: Get user profile
-      description: Returns the authenticated user's profile and their listings
-      tags:
-        - Listings
-      security:
-        - CookieAuth: []
-      responses:
-        '200':
-          description: User profile page
-        '401':
-          description: Unauthorized
+    $ref: './openapi/paths/listings.yaml#/profile'
 
   /feedback:
-    post:
-      summary: Submit feedback
-      description: Submit user feedback
-      tags:
-        - Listings
-      security:
-        - CookieAuth: []
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Feedback'
-      responses:
-        '200':
-          description: Success message HTML
-        '400':
-          description: Validation error
-        '401':
-          description: Unauthorized
+    $ref: './openapi/paths/listings.yaml#/feedback'
 
   /feedback/modal:
-    get:
-      summary: Get feedback modal
-      description: Returns HTML modal for feedback form
-      tags:
-        - Listings
-      security:
-        - CookieAuth: []
-      responses:
-        '200':
-          description: HTML modal
+    $ref: './openapi/paths/listings.yaml#/feedback_modal'
 
   /healthz:
     get:
@@ -323,375 +98,59 @@ paths:
 
   # Authentication Routes
   /auth/dev:
-    get:
-      summary: Dev login
-      description: Development-only login endpoint (bypasses OAuth)
-      tags:
-        - Auth
-      responses:
-        '302':
-          description: Redirect to home with session
+    $ref: './openapi/paths/auth.yaml#/dev'
 
   /auth/logout:
-    get:
-      summary: Logout
-      description: Clear session and redirect to home
-      tags:
-        - Auth
-      responses:
-        '302':
-          description: Redirect to home
+    $ref: './openapi/paths/auth.yaml#/logout'
 
   /auth/google/login:
-    get:
-      summary: Google login
-      description: Initiate Google OAuth flow
-      tags:
-        - Auth
-      responses:
-        '302':
-          description: Redirect to Google OAuth
+    $ref: './openapi/paths/auth.yaml#/google_login'
 
   /auth/google/callback:
-    get:
-      summary: Google callback
-      description: Handle OAuth callback from Google
-      tags:
-        - Auth
-      responses:
-        '302':
-          description: Redirect to home with session
+    $ref: './openapi/paths/auth.yaml#/google_callback'
 
   # Admin Routes
   /admin:
-    get:
-      summary: Admin dashboard
-      description: Returns admin dashboard with statistics
-      tags:
-        - Admin
-      security:
-        - CookieAuth: []
-      responses:
-        '200':
-          description: Admin dashboard HTML
-        '302':
-          description: Redirect to login
+    $ref: './openapi/paths/admin.yaml#/dashboard'
 
   /admin/login:
-    get:
-      summary: Admin login form
-      tags:
-        - Admin
-      responses:
-        '200':
-          description: Login form HTML
-
-    post:
-      summary: Admin login action
-      tags:
-        - Admin
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              required:
-                - code
-              properties:
-                code:
-                  type: string
-      responses:
-        '200':
-          description: Login result
-        '400':
-          description: Invalid code
+    $ref: './openapi/paths/admin.yaml#/login'
 
   /admin/users:
-    get:
-      summary: List all users
-      description: Returns list of all registered users
-      tags:
-        - Admin
-      security:
-        - CookieAuth: []
-      responses:
-        '200':
-          description: Users list HTML
+    $ref: './openapi/paths/admin.yaml#/users'
 
   /admin/listings:
-    get:
-      summary: List all listings (admin)
-      description: Returns all listings with moderation controls
-      tags:
-        - Admin
-      security:
-        - CookieAuth: []
-      parameters:
-        - name: category
-          in: query
-          description: Filter by category
-          schema:
-            type: string
-        - name: sort
-          in: query
-          description: Sort field
-          schema:
-            type: string
-        - name: order
-          in: query
-          description: Sort order
-          schema:
-            type: string
-            enum: [ASC, DESC]
-        - name: page
-          in: query
-          description: Page number
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Listings list HTML
+    $ref: './openapi/paths/admin.yaml#/listings'
 
   /admin/listings/{id}/row:
-    get:
-      summary: Get admin listing table row
-      description: Returns administration table row HTML for a specific listing
-      tags:
-        - Admin
-      security:
-        - CookieAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: HTML table row
-          content:
-            text/html:
-              schema:
-                type: string
+    $ref: './openapi/paths/admin.yaml#/listings_row'
 
   /admin/claims/{id}/approve:
-    post:
-      summary: Approve claim request
-      description: Approve a pending claim request and transfer ownership
-      tags:
-        - Admin
-      security:
-        - CookieAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Success
-        '404':
-          description: Claim request not found
+    $ref: './openapi/paths/admin.yaml#/claims_approve'
 
   /admin/claims/{id}/reject:
-    post:
-      summary: Reject claim request
-      description: Reject a claim request
-      tags:
-        - Admin
-      security:
-        - CookieAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Success
-        '404':
-          description: Claim request not found
+    $ref: './openapi/paths/admin.yaml#/claims_reject'
 
   /admin/listings/{id}/featured:
-    post:
-      summary: Toggle featured
-      description: Toggle featured status of a listing
-      tags:
-        - Admin
-      security:
-        - CookieAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              required:
-                - featured
-              properties:
-                featured:
-                  type: string
-                  enum: ["true", "false"]
-      responses:
-        '200':
-          description: Success
-        '400':
-          description: Bad request
+    $ref: './openapi/paths/admin.yaml#/listings_featured'
 
   /admin/listings/bulk:
-    post:
-      summary: Bulk action
-      description: Perform bulk action on multiple listings
-      tags:
-        - Admin
-      security:
-        - CookieAuth: []
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              required:
-                - action
-                - selectedListings
-              properties:
-                action:
-                  type: string
-                  enum: [approve, reject, delete]
-                selectedListings:
-                  type: array
-                  items:
-                    type: string
-      responses:
-        '302':
-          description: Redirect to listings
+    $ref: './openapi/paths/admin.yaml#/listings_bulk'
 
   /admin/listings/delete-confirm:
-    get:
-      summary: Delete confirmation
-      description: Returns delete confirmation modal
-      tags:
-        - Admin
-      security:
-        - CookieAuth: []
-      parameters:
-        - name: id
-          in: query
-          description: ID(s) to delete
-          schema:
-            type: array
-            items:
-              type: string
-      responses:
-        '200':
-          description: Confirmation modal HTML
+    $ref: './openapi/paths/admin.yaml#/listings_delete_confirm'
 
   /admin/listings/delete:
-    post:
-      summary: Delete listing (admin)
-      description: Admin can delete any listing
-      tags:
-        - Admin
-      security:
-        - CookieAuth: []
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              required:
-                - id
-                - admin_code
-              properties:
-                id:
-                  type: array
-                  items:
-                    type: string
-                admin_code:
-                  type: string
-      responses:
-        '302':
-          description: Redirect to listings
+    $ref: './openapi/paths/admin.yaml#/listings_delete'
 
   /admin/upload:
-    post:
-      summary: Bulk upload
-      description: Upload CSV file for bulk listing import
-      tags:
-        - Admin
-      security:
-        - CookieAuth: []
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required:
-                - csv_file
-              properties:
-                csv_file:
-                  type: string
-                  format: binary
-      responses:
-        '302':
-          description: Redirect to listings
+    $ref: './openapi/paths/admin.yaml#/upload'
 
   /admin/listings/export:
-    get:
-      summary: Export all listings to CSV
-      description: Download a CSV file containing all directory listings and requests
-      tags:
-        - Admin
-      security:
-        - CookieAuth: []
-      responses:
-        '200':
-          description: CSV file download
-          content:
-            text/csv:
-              schema:
-                type: string
-                format: binary
-        '302':
-          description: Redirect to login
+    $ref: './openapi/paths/admin.yaml#/listings_export'
 
   /admin/categories:
-    post:
-      summary: Add custom category
-      description: Create a new custom category
-      tags:
-        - Admin
-      security:
-        - CookieAuth: []
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              required:
-                - name
-              properties:
-                name:
-                  type: string
-                claimable:
-                  type: string
-                  enum: ["true", "false"]
-      responses:
-        '302':
-          description: Redirect to dashboard
+    $ref: './openapi/paths/admin.yaml#/categories'
 
 components:
   securitySchemes:

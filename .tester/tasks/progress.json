@@ -189,8 +189,22 @@
         "Verify Core Harness JSON Output (Completed): Execute `./scripts/agent-exec.sh status` (or equivalent) and verify the output conforms to the standard JSON envelope representing the harness state",
         "Verify Drift Check JSON Output (Completed): Execute `./scripts/api-drift-check.sh` and confirm validation details and diffs are enclosed in the standard JSON structure instead of plaintext",
         "Verify CI/Quality JSON Output (Completed): Run `./scripts/ci-local.sh` or `./scripts/pre-commit.sh` and verify the final gate summaries use JSON objects for pass/fail recording",
-        "Verify Testing & Benchmarks JSON Output (Completed): Run `./scripts/performance-audit.sh` or `./scripts/test_gate_enforcement.sh` and verify metrics and failures are emitted as JSON",
+        "Verify Testing \u0026 Benchmarks JSON Output (Completed): Run `./scripts/performance-audit.sh` or `./scripts/test_gate_enforcement.sh` and verify metrics and failures are emitted as JSON",
         "Verify Utilities JSON Output (Completed): Intentionally fail a script like `./scripts/deploy_secrets.sh` or `./scripts/utils.sh` to ensure the error payload matches the standardized JSON schema"
+      ]
+    },
+    {
+      "category": "Agent Context Optimization (API Docs)",
+      "description": "Reduce token footprint of agent context by breaking monolithic OpenAPI spec into granular files and auto-generating overlapping documentation.",
+      "passes": true,
+      "steps": [
+        "Verify OpenAPI Modularization (Auth) (Completed): Extract Auth-related paths from `docs/openapi.yaml` into `docs/openapi/paths/auth.yaml` and reference it via `$ref`.",
+        "Verify OpenAPI Modularization (Listings) (Completed): Extract Listing-related paths into `docs/openapi/paths/listings.yaml`.",
+        "Verify OpenAPI Modularization (Admin) (Completed): Extract Admin-related paths into `docs/openapi/paths/admin.yaml`.",
+        "Verify OpenAPI Modularization (Components): Extract schemas and responses into modular files under `docs/openapi/components/`.",
+        "Verify OpenAPI Bundling script: Create `scripts/bundle-openapi.sh` using `swagger-cli` to bundle modular files into a built `docs/openapi.yaml` for downstream verification.",
+        "Verify API Markdown Auto-generation: Add a generation step utilizing the bundled OpenAPI specification to auto-generate `docs/api.md` and enforce a single source of truth.",
+        "Verify OpenAPI Modularization (Admin) (Completed): Extract Admin-related paths into `docs/openapi/paths/admin.yaml`."
       ]
     }
   ]

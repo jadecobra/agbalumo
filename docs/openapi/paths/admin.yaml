@@ -1,0 +1,329 @@
+dashboard:
+  get:
+    summary: Admin dashboard
+    description: Returns admin dashboard with statistics
+    tags:
+      - Admin
+    security:
+      - CookieAuth: []
+    responses:
+      '200':
+        description: Admin dashboard HTML
+      '302':
+        description: Redirect to login
+
+login:
+  get:
+    summary: Admin login form
+    tags:
+      - Admin
+    responses:
+      '200':
+        description: Login form HTML
+
+  post:
+    summary: Admin login action
+    tags:
+      - Admin
+    requestBody:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            type: object
+            required:
+              - code
+            properties:
+              code:
+                type: string
+    responses:
+      '200':
+        description: Login result
+      '400':
+        description: Invalid code
+
+users:
+  get:
+    summary: List all users
+    description: Returns list of all registered users
+    tags:
+      - Admin
+    security:
+      - CookieAuth: []
+    responses:
+      '200':
+        description: Users list HTML
+
+listings:
+  get:
+    summary: List all listings (admin)
+    description: Returns all listings with moderation controls
+    tags:
+      - Admin
+    security:
+      - CookieAuth: []
+    parameters:
+      - name: category
+        in: query
+        description: Filter by category
+        schema:
+          type: string
+      - name: sort
+        in: query
+        description: Sort field
+        schema:
+          type: string
+      - name: order
+        in: query
+        description: Sort order
+        schema:
+          type: string
+          enum: [ASC, DESC]
+      - name: page
+        in: query
+        description: Page number
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Listings list HTML
+
+listings_row:
+  get:
+    summary: Get admin listing table row
+    description: Returns administration table row HTML for a specific listing
+    tags:
+      - Admin
+    security:
+      - CookieAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: HTML table row
+        content:
+          text/html:
+            schema:
+              type: string
+
+claims_approve:
+  post:
+    summary: Approve claim request
+    description: Approve a pending claim request and transfer ownership
+    tags:
+      - Admin
+    security:
+      - CookieAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Success
+      '404':
+        description: Claim request not found
+
+claims_reject:
+  post:
+    summary: Reject claim request
+    description: Reject a claim request
+    tags:
+      - Admin
+    security:
+      - CookieAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Success
+      '404':
+        description: Claim request not found
+
+listings_featured:
+  post:
+    summary: Toggle featured
+    description: Toggle featured status of a listing
+    tags:
+      - Admin
+    security:
+      - CookieAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            type: object
+            required:
+              - featured
+            properties:
+              featured:
+                type: string
+                enum: ["true", "false"]
+    responses:
+      '200':
+        description: Success
+      '400':
+        description: Bad request
+
+listings_bulk:
+  post:
+    summary: Bulk action
+    description: Perform bulk action on multiple listings
+    tags:
+      - Admin
+    security:
+      - CookieAuth: []
+    requestBody:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            type: object
+            required:
+              - action
+              - selectedListings
+            properties:
+              action:
+                type: string
+                enum: [approve, reject, delete]
+              selectedListings:
+                type: array
+                items:
+                  type: string
+    responses:
+      '302':
+        description: Redirect to listings
+
+listings_delete_confirm:
+  get:
+    summary: Delete confirmation
+    description: Returns delete confirmation modal
+    tags:
+      - Admin
+    security:
+      - CookieAuth: []
+    parameters:
+      - name: id
+        in: query
+        description: ID(s) to delete
+        schema:
+          type: array
+          items:
+            type: string
+    responses:
+      '200':
+        description: Confirmation modal HTML
+
+listings_delete:
+  post:
+    summary: Delete listing (admin)
+    description: Admin can delete any listing
+    tags:
+      - Admin
+    security:
+      - CookieAuth: []
+    requestBody:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            type: object
+            required:
+              - id
+              - admin_code
+            properties:
+              id:
+                type: array
+                items:
+                  type: string
+              admin_code:
+                type: string
+    responses:
+      '302':
+        description: Redirect to listings
+
+upload:
+  post:
+    summary: Bulk upload
+    description: Upload CSV file for bulk listing import
+    tags:
+      - Admin
+    security:
+      - CookieAuth: []
+    requestBody:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            required:
+              - csv_file
+            properties:
+              csv_file:
+                type: string
+                format: binary
+    responses:
+      '302':
+        description: Redirect to listings
+
+listings_export:
+  get:
+    summary: Export all listings to CSV
+    description: Download a CSV file containing all directory listings and requests
+    tags:
+      - Admin
+    security:
+      - CookieAuth: []
+    responses:
+      '200':
+        description: CSV file download
+        content:
+          text/csv:
+            schema:
+              type: string
+              format: binary
+      '302':
+        description: Redirect to login
+
+categories:
+  post:
+    summary: Add custom category
+    description: Create a new custom category
+    tags:
+      - Admin
+    security:
+      - CookieAuth: []
+    requestBody:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+              claimable:
+                type: string
+                enum: ["true", "false"]
+    responses:
+      '302':
+        description: Redirect to dashboard
