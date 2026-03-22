@@ -1,0 +1,11 @@
+{
+  "github.com/jadecobra/agbalumo/internal/handler": 90.0,
+  "github.com/jadecobra/agbalumo/internal/domain": 90.0,
+  "github.com/jadecobra/agbalumo/internal/repository": 90.0,
+  "github.com/jadecobra/agbalumo/internal/service": 80.0,
+  "github.com/jadecobra/agbalumo/cmd/harness": 0.0,
+  "github.com/jadecobra/agbalumo/cmd": 0.0,
+  "github.com/jadecobra/agbalumo/internal/agent": 0.0,
+  "github.com/jadecobra/agbalumo": 0.0,
+  "default": 80.0
+}

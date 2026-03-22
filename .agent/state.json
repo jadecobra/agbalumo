@@ -1,0 +1,16 @@
+{
+  "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
+  "feature": "extract-components",
+  "workflow_type": "refactor",
+  "phase": "REFACTOR",
+  "gates": {
+    "red-test": "PASSED",
+    "api-spec": "PASSED",
+    "implementation": "PASSED",
+    "lint": "PASSED",
+    "coverage": "PASSED",
+    "browser-verification": "PASSED"
+  },
+  "updated_at": "2026-03-22T15:15:10.166254Z",
+  "signature": "17de6d15776642d54cf0dbdff6ff403b633f17ca972fcaf4bcabe28104524e2c"
+}

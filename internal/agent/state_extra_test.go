@@ -13,7 +13,9 @@ func TestStateExtraCoverage(t *testing.T) {
 	
 	// 2. Test SaveState and calculateSignature
 	testPath := "test_state.json"
-	defer os.Remove(testPath)
+	defer func() {
+		_ = os.Remove(testPath)
+	}()
 
 	state := &State{
 		Feature: "test-feature-x",

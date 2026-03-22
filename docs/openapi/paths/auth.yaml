@@ -1,0 +1,39 @@
+dev:
+  get:
+    summary: Dev login
+    description: Development-only login endpoint (bypasses OAuth)
+    tags:
+      - Auth
+    responses:
+      '302':
+        description: Redirect to home with session
+
+logout:
+  get:
+    summary: Logout
+    description: Clear session and redirect to home
+    tags:
+      - Auth
+    responses:
+      '302':
+        description: Redirect to home
+
+google_login:
+  get:
+    summary: Google login
+    description: Initiate Google OAuth flow
+    tags:
+      - Auth
+    responses:
+      '302':
+        description: Redirect to Google OAuth
+
+google_callback:
+  get:
+    summary: Google callback
+    description: Handle OAuth callback from Google
+    tags:
+      - Auth
+    responses:
+      '302':
+        description: Redirect to home with session

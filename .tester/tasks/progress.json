@@ -196,15 +196,16 @@
     {
       "category": "Agent Context Optimization",
       "description": "Reduce token footprint of agent context by breaking monolithic specs and documentation into granular files.",
-      "passes": false,
+      "passes": true,
       "steps": [
         "Verify OpenAPI Optimization \u0026 Auto-generation (Completed): Extract `openapi.yaml` paths and components into modular files, bundle via `scripts/bundle-openapi.sh`, and auto-generate `docs/api.md`.",
         "Verify BRAND_GUIDELINES Modularization (Tokens) (Completed): Extract Tailwind colors and brand token rules into `docs/design_system/tokens.md`.",
-        "Verify BRAND_GUIDELINES Modularization (Components): Extract reusable component designs (cards, modals) into `docs/design_system/components.md`.",
+        "Verify BRAND_GUIDELINES Modularization (Components) (Completed): Extract reusable component designs (cards, modals) into `docs/design_system/components.md`.",
         "Verify BRAND_GUIDELINES Modularization (Typography): Extract font definitions and text logic into `docs/design_system/typography.md`.",
         "Verify CLI Modularization (Admin): Extract Cobra command documentation for admin operations to `docs/cli/admin.md`.",
         "Verify CLI Modularization (Testing): Extract stress testing, execution harnesses, and benchmark commands to `docs/cli/testing.md`.",
-        "Verify CLI Modularization (Listings): Extract listing manipulation and creation commands to `docs/cli/listing.md`."
+        "Verify CLI Modularization (Listings): Extract listing manipulation and creation commands to `docs/cli/listing.md`.",
+        "Verify BRAND_GUIDELINES Modularization (Components) (Completed): Extract reusable component designs (cards, modals) into `docs/design_system/components.md`."
       ]
     },
     {
