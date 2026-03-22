@@ -13,11 +13,8 @@ See `.agent/rules/commands.md` for testing, linting, and build instructions.
 ---
 
 ## Specialized Workflows
-See `.agent/workflows/` for deep-dive guidelines:
-- `/coding-standards`: Code Style Guidelines, Naming, Error Handling, Testing Structure
-- `/feature-implementation`: Feature Development Workflow
-- `/audit`: Performance, Auth, Security gates
-- `/restart-server`: Commands to rebuild CSS and binary
+
+See `.agent/rules/workflows.md` for the available workflow registry and deep-dive guidelines.
 
 ---
 
