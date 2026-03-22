@@ -5,9 +5,7 @@
       "description": "Database, performance tuning, and API modularization",
       "passes": true,
       "steps": [
-        "Verify SQLite Engine optimizations: Run `sqlite3 data/agbalumo.db \"PRAGMA optimize;\"` and ensure no errors",
-        "Verify Network \u0026 Load optimizations: Execute `curl -I -H \"Accept-Encoding: gzip\" http://localhost:8443` and verify 'Content-Encoding: gzip' and 'Cache-Control' headers are present",
-        "Verify Domain-Driven Handlers exist: Check `cmd/server/main.go` and `internal/config/registrar.go` to confirm handlers are assembled via dependency injection without circular dependencies"
+        "Verify SQLite optimizations, Network/Load headers (gzip, Cache-Control), and Domain-Driven Handler dependency injection (cmd/server/main.go)"
       ]
     },
     {
@@ -15,10 +13,7 @@
       "description": "Optimizing long-running tasks and CLI benchmarks",
       "passes": true,
       "steps": [
-        "Verify benchmark CLI constraint: Run `make benchmark` or equivalent CLI command and verify execution time is below threshold",
-        "Verify Slow-Query Thresholds: Configure `SLOW_QUERY_THRESHOLD_MS=1` and run `go test ./...` to observe slow query logs in output",
-        "Verify Stress Generation progress: Run `go run main.go cli stress-listings` and observe progress bar output in the terminal",
-        "Verify parallel execution: Check `internal/service/stress.go` to confirm `errgroup` or goroutines are used for parallel listing generation"
+        "Verify CLI benchmarks, slow-query logging (SLOW_QUERY_THRESHOLD_MS), stress generation progress UI, and parallel execution (goroutines/errgroup)"
       ]
     },
     {
@@ -26,9 +21,7 @@
       "description": "Security posture and secrets management",
       "passes": true,
       "steps": [
-        "Verify security headers: Send a request to `http://localhost:8443` and verify response headers containing 'Content-Security-Policy', 'Strict-Transport-Security', and CSRF tokens",
-        "Verify History is scrubbed: Ensure no tracked test artifacts exist in the repository history",
-        "Verify Secret Scanner: Run `./scripts/pre-commit.sh` and ensure the secret scanner step passes with no leaks detected"
+        "Verify security headers (CSP, HSTS, CSRF), track/scrub test artifacts from git history, and run secret scanner pre-commit gate"
       ]
     },
     {
@@ -36,9 +29,7 @@
       "description": "Manage user authentication flow and secure cookies",
       "passes": true,
       "steps": [
-        "Verify OAuth Cookie Policy: Navigate to `/login`, click 'Continue with Google', and intercept the request to verify `oauth_state` cookie is set with `SameSite=Lax`",
-        "Verify strict session policy: Complete the login flow, check the active session cookie in the browser, and verify it uses `SameSite=Strict`",
-        "Verify OAuth callback integrity: Run `go test -v ./internal/handler -run TestOAuthCallback` to ensure cross-site callback validation passes"
+        "Verify OAuth/Session cookie policies (SameSite=Lax/Strict) and cross-site OAuth callback validation"
       ]
     },
     {
@@ -46,11 +37,7 @@
       "description": "Global Theme Rollout \u0026 Design System Refinement to Earth theme",
       "passes": true,
       "steps": [
-        "Verify Design System Update: Inspect `tailwind.config.js` and `base.html` for Earth theme definitions",
-        "Verify Earth color palette: Open the application in a browser and verify `bg-earth-dark` and `text-earth-cream` classes are applied effectively across pages",
-        "Verify Typography: Inspect text elements using developer tools to ensure 'Inter' or 'Playfair Display' font families are rendered",
-        "Verify Dark Theme components: Navigate to `/profile` and `/about` to confirm they render with the dark theme palette",
-        "Verify Standard Components: Hover and click on main CTA buttons (like 'Post' or 'Ask') to verify standard sharp edges and `bg-earth-accent` coloring"
+        "Verify Earth theme palette (bg-earth/text-earth), typography (Inter/Playfair), and standard component styles across all pages"
       ]
     },
     {
@@ -58,11 +45,7 @@
       "description": "Refactoring modals and adding micro-animations",
       "passes": true,
       "steps": [
-        "Verify Reusable Modal Shell (`modal_base`): Open the 'Create Listing' modal and verify it utilizes a dark frosted wrapper with transparent input fields",
-        "Verify Modal Refactoring (`modal_edit_listing.html`): Inspect the Edit Listing modal for proper Dark Theme integration",
-        "Verify Modal Refactoring (others): Check `modal_create_request`, `modal_detail`, `modal_profile`, `modal_feedback` for Dark Theme usage",
-        "Verify Global Micro-Animations: Hover over interactive UI elements (like filter tags or modal buttons) and ensure `hover:scale-105` visual effects are triggered",
-        "Verify modal consistency: Ensure remaining modals use the `modal_base` shell and have consistent bottom formatting, like the sticky footer for the CLOSE button"
+        "Verify modal_base shell reusability, Dark Theme integration, and global micro-animations (hover:scale-105) across all modals"
       ]
     },
     {
@@ -70,9 +53,7 @@
       "description": "Admin panel features and styling",
       "passes": true,
       "steps": [
-        "Verify Bulk Upload Feature: Open the Bulk Upload modal from the Admin Dashboard, select a valid CSV file, and submit to verify bulk listing import functions correctly",
-        "Verify Admin Users View: Log in as an admin and navigate to the 'Users' dashboard view to ensure all user records are displayed",
-        "Verify Admin Dark Theme: Ensure that the Admin Dashboard, metrics cards, Listings, and Users views fully render in the Dark Theme"
+        "Verify Bulk Upload functionality, Admin Users view, and Dark Theme rendering across the Admin Dashboard metrics/listings"
       ]
     },
     {
@@ -80,9 +61,7 @@
       "description": "Core application capabilities and user workflows",
       "passes": true,
       "steps": [
-        "Verify Claim Ownership Logic: Log in as a standard user, navigate to an unowned listing, and click 'Claim' to verify the ownership request workflow initializes",
-        "Verify Homepage Services: Navigate to the homepage and verify at least one listing categorized as 'Service' is displayed in the featured section",
-        "Verify Status Badges: Inspect various listing cards across search and category pages to verify Status Badges render uniformly"
+        "Verify Claim Ownership workflow, Homepage Service listings, and Status Badge rendering across search/categories"
       ]
     },
     {
@@ -90,8 +69,8 @@
       "description": "Comprehensive test metric improvements and testing tools",
       "passes": false,
       "steps": [
-        "Verify Go-based CLI testing harness: Run scaffolding scripts and verify `api-spec` and `cli-drift` validations execute successfully",
-        "Verify Baseline Coverage: Run `go test -cover ./...` and verify overall system coverage reports as \u003e90%",
+        "Verify CLI testing harness (api-spec, cli-drift validations)",
+        "Verify Baseline Coverage (\u003e90%)",
         "Verify Phase 1 test coverage (Priority 1) (Pending): Run `go test -v ./internal/middleware -run TestRateLimit` to verify critical rate-limiting coverage is met",
         "Verify Phase 2 test coverage (Priority 2) (Pending): Run validation domain tests to ensure configuration validation passes",
         "Verify Phase 3 test coverage (Priority 3) (Pending): Run mock and infrastructure testing suites and verify they execute successfully"
@@ -102,8 +81,8 @@
       "description": "Reducing duplication and streamlining API handlers",
       "passes": false,
       "steps": [
-        "Verify Pagination Standardization: Examine `internal/module/listing/pagination.go` to ensure standardized helpers are used across multiple listing handler routes",
-        "Verify Error Handling: Trigger an intentional 400 Error and verify it returns a standard `ErrorResponse` JSON structure",
+        "Verify Pagination Standardization",
+        "Verify standard ErrorResponse JSON structure on 400 Error",
         "Verify Response Helpers (Pending): Check for usage of `RenderSuccess`, `JSONSuccess`, and `ErrorResponse` handlers across controllers",
         "Verify Base Handler Struct (Pending): Review handler method signatures to confirm they use a base struct to eliminate session parsing duplication",
         "Verify Service Layer Consolidation (Pending): Inspect service layer structures and ensure validation middleware runs consistently",
@@ -115,10 +94,7 @@
       "description": "Verified all public, user, and admin routes are accessible and functional via the UI",
       "passes": true,
       "steps": [
-        "Verify Public Routes: Manually navigate through 'Home', 'About', 'Search', and a 'Listing Detail' page to check for 200 OK responses and fully rendered pages",
-        "Verify User Routes: Log in and navigate through 'Profile', 'Create Listing', 'Edit Listing', and 'Feedback' forms to verify authenticated routes open cleanly",
-        "Verify Admin Routes \u0026 Bugfixes: In an incognito window, navigate to `/admin/login` and check that the login screen renders without pre-authentication",
-        "Verify Form Validations: Submit a client form containing URL inputs with missing schemes or trailing slashes and verify the backend normalizer transforms them successfully"
+        "Verify successful navigation of Public (Home/About/Search), User (Profile/Create), Admin routes, and client form backend URL normalizer validations"
       ]
     },
     {
@@ -126,9 +102,7 @@
       "description": "Continuous integration, vulnerability scanning, and build workflows",
       "passes": true,
       "steps": [
-        "Verify Tailwind CLI compilation: Run `npm run build:css` locally and ensure it successfully outputs compiled styles without referencing CDN",
-        "Verify Vulnerability scanning: Push a test branch and ensure GitHub Actions pipeline natively runs `govulncheck` and `docker scout` without failure",
-        "Verify Deploy scripts: Ensure Fly.io configuration correctly validates parameters required for deployment"
+        "Verify Tailwind CLI compilation (no CDN), GitHub Actions pipeline (govulncheck, docker scout), and Fly.io deployment config validation"
       ]
     },
     {
@@ -136,10 +110,7 @@
       "description": "Refactoring features into dedicated services and domain packages",
       "passes": true,
       "steps": [
-        "Verify Image Upload refactor: Upload an image to a listing and verify the request logs output from `ImageService` instead of an HTTP Handler",
-        "Verify Hours of Operation: Create a business or food listing with explicit daily hours and ensure the domain handles proper parsing",
-        "Verify AuthMiddleware \u0026 Handlers: Check `internal/middleware/auth.go` code to confirm it is fully decoupled from the primary AuthHandler package",
-        "Verify Date parsing: Send a raw date string during listing creation and verify it relies on strict parsing provided by the domain package"
+        "Verify refactored ImageService, domain-level Hours of Operation string parsing, decoupled AuthMiddleware, and strict date parsing workflows"
       ]
     },
     {
@@ -162,11 +133,7 @@
       "description": "Comprehensive security audit fixes and defense-in-depth improvements",
       "passes": true,
       "steps": [
-        "Verify ADMIN_CODE logic: Start the application without the `ADMIN_CODE` environment variable and confirm it exits safely on startup",
-        "Verify Admin Login limits: Execute 6 rapid login attempts against `/admin/login` and verify being rate-limited appropriately",
-        "Verify Content-Security-Policy: Inspect the HTML source from the browser and confirm no inline `\u003cscript\u003e` or CSS definitions exist outside external scripts",
-        "Verify Client-side Interactivity: Click on dynamic UI components and confirm execution pathways utilize htmx `hx-on` bindings instead of standalone `onclick` injections",
-        "Verify local asset hosting: Turn off network access and render the page to see if Chart.js and HTMX assets load smoothly"
+        "Verify ADMIN_CODE logic, Admin Login rate limits, Content-Security-Policy compliance (no inline scripts), HTMX bindings (`hx-on`), and local asset hosting"
       ]
     },
     {
@@ -174,10 +141,7 @@
       "description": "Comprehensive mapping of application routes and workflows for all user personas",
       "passes": true,
       "steps": [
-        "Verify Visitor Journey: Using an automated flow or browser test, walk through onboarding, search, and deep-dive sequences seamlessly without authentication blocking",
-        "Verify Authenticated Standard User Journey: Utilize a logged-in user to conduct the entire post-claim and profile management loop gracefully",
-        "Verify Administrator Journey: Ensure admin interactions regarding users, metrics, content moderation, and batch uploads function perfectly under admin scope",
-        "Verify CLI Management Integration: Trigger local system checks over the DB for maintenance through CLI utility bounds"
+        "Verify Visitor, Authenticated User, and Admin comprehensive journeys, and local DB CLI tool maintenance integration"
       ]
     },
     {
@@ -185,12 +149,7 @@
       "description": "Refactor all scripts in the scripts/ directory to output structured JSON for robust agent consumption",
       "passes": true,
       "steps": [
-        "Verify Standard Envelope Contract: Ensure all refactored scripts output a shared JSON schema containing at minimum `success` (boolean), `command` (string), `output` (string/object), and `warnings` (array).",
-        "Verify Core Harness JSON Output (Completed): Execute `./scripts/agent-exec.sh status` (or equivalent) and verify the output conforms to the standard JSON envelope representing the harness state",
-        "Verify Drift Check JSON Output (Completed): Execute `./scripts/api-drift-check.sh` and confirm validation details and diffs are enclosed in the standard JSON structure instead of plaintext",
-        "Verify CI/Quality JSON Output (Completed): Run `./scripts/ci-local.sh` or `./scripts/pre-commit.sh` and verify the final gate summaries use JSON objects for pass/fail recording",
-        "Verify Testing \u0026 Benchmarks JSON Output (Completed): Run `./scripts/performance-audit.sh` or `./scripts/test_gate_enforcement.sh` and verify metrics and failures are emitted as JSON",
-        "Verify Utilities JSON Output (Completed): Intentionally fail a script like `./scripts/deploy_secrets.sh` or `./scripts/utils.sh` to ensure the error payload matches the standardized JSON schema"
+        "Verify script outputs (harness, drift check, CI gates, tests, utils) conform to standard JSON envelope contracts"
       ]
     },
     {
@@ -198,24 +157,14 @@
       "description": "Reduce token footprint of agent context by breaking monolithic specs and documentation into granular files.",
       "passes": true,
       "steps": [
-        "Verify OpenAPI Optimization \u0026 Auto-generation (Completed): Extract `openapi.yaml` paths and components into modular files, bundle via `scripts/bundle-openapi.sh`, and auto-generate `docs/api.md`.",
-        "Verify BRAND_GUIDELINES Modularization (Tokens) (Completed): Extract Tailwind colors and brand token rules into `docs/design_system/tokens.md`.",
-        "Verify BRAND_GUIDELINES Modularization (Components) (Completed): Extract reusable component designs (cards, modals) into `docs/design_system/components.md`.",
-        "Verify BRAND_GUIDELINES Modularization (Typography) (Completed): Extract font definitions and text logic into `docs/design_system/typography.md`.",
-        "Verify CLI Modularization (Admin): Extract Cobra command documentation for admin operations to `docs/cli/admin.md`.",
-        "Verify CLI Modularization (Testing): Extract stress testing, execution harnesses, and benchmark commands to `docs/cli/testing.md`.",
-        "Verify CLI Modularization (Listings): Extract listing manipulation and creation commands to `docs/cli/listing.md`.",
-        "Verify BRAND_GUIDELINES Modularization (Components) (Completed): Extract reusable component designs (cards, modals) into `docs/design_system/components.md`.",
-        "Verify BRAND_GUIDELINES Modularization (Typography) (Completed): Extract font definitions and text logic into `docs/design_system/typography.md`.",
-        "Verify CLI Modularization (Admin): Extract Cobra command documentation for admin operations to `docs/cli/admin.md`."
-      ]
-    },
-    {
-      "category": "Agent Context Optimization (API Docs)",
-      "description": "Reduce token footprint of agent context by breaking monolithic OpenAPI spec into granular files and auto-generating overlapping documentation.",
-      "passes": true,
-      "steps": [
-        "Verify OpenAPI Modularization (Components) (Completed): Extract schemas and responses into modular files under `docs/openapi/components/`."
+        "Verify monolithic specs (OpenAPI, BRAND_GUIDELINES, CLI commands) are successfully extracted into granular modular files (e.g. docs/openapi/components/)",
+        "Verify Feature-Implementation Workflow Modularization (Red Phase): Extract RED phase failing-test requirements to `.agent/workflows/feature-implementation/red.md`.",
+        "Verify Feature-Implementation Workflow Modularization (Green Phase): Extract GREEN phase implementation constraints to `.agent/workflows/feature-implementation/green.md`.",
+        "Verify Feature-Implementation Workflow Modularization (Refactor Phase): Extract REFACTOR phase linting and cleanup rules to `.agent/workflows/feature-implementation/refactor.md`.",
+        "Verify AGENTS.md Modularization (Architecture): Extract the project architecture tree and directory descriptions from root `AGENTS.md` into `.agent/rules/architecture.md`.",
+        "Verify AGENTS.md Modularization (Commands): Extract testing, linting, and build commands (e.g., pre-commit, race detection) into `.agent/rules/commands.md`.",
+        "Verify AGENTS.md Modularization (Workflows): Extract the registry of available specialized workflows into `.agent/rules/workflows.md`.",
+        "Verify Feature-Implementation Workflow Modularization (Planning) (Completed): Extract TDD planning and pre-flight rules into `.agent/workflows/feature-implementation/planning.md`."
       ]
     }
   ]
