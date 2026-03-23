@@ -195,3 +195,48 @@ func TestHandleFragment_FeaturedPrioritization_Page2(t *testing.T) {
 	assert.Contains(t, rec.Body.String(), "Featured 1")
 }
 
+func TestHandleFragment_FeaturedListings_CategoryFilter(t *testing.T) {
+	e := echo.New()
+	t_temp := template.New("base")
+	template.Must(t_temp.New("listing_list").Parse(`{{range .Listings}}{{.Title}},{{end}}`))
+	e.Renderer = &TestRenderer{templates: t_temp}
+
+	// Requesting fragment for 'business' category, page 2 (HTMX pagination)
+	req := httptest.NewRequest(http.MethodGet, "/listings/fragment?type=business&page=2", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	repo := handler.SetupTestRepository(t)
+
+	// Seed data: Featured listings across MULTIPLE categories
+	f1 := domain.Listing{ID: "f1", Title: "Featured Business", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
+	f2 := domain.Listing{ID: "f2", Title: "Featured Event", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "event", Address: "123 St"}
+	r1 := domain.Listing{ID: "r1", Title: "Regular Business", Featured: false, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
+
+	_ = repo.Save(context.Background(), f1)
+	_ = repo.Save(context.Background(), f2)
+	_ = repo.Save(context.Background(), r1)
+
+	listingSvc := listmod.NewListingService(repo, repo, repo)
+
+	h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     nil,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
+
+	if err := h.HandleFragment(c); err != nil {
+		t.Fatalf("HandleFragment failed: %v", err)
+	}
+
+	body := rec.Body.String()
+
+	// Assert only the featured listing for 'business' category is present
+	assert.Contains(t, body, "Featured Business")
+	// Assert the featured listing for 'event' category is NOT present
+	assert.NotContains(t, body, "Featured Event")
+}
+

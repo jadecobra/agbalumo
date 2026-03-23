@@ -1,7 +1,0 @@
-{
-  "category": "Featured Listings Per Category Implementation",
-  "description": "Implemented category-specific featured listings with a max limit of 3, persisting across pagination",
-  "steps": [
-    "Verify Admin HandleToggleFeatured prevents featuring more than 3 items per category (Completed)"
-  ]
-}
