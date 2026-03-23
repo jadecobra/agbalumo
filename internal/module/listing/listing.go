@@ -103,7 +103,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	}()
 	go func() {
 		defer wg.Done()
-		featured, featuredErr = h.ListingStore.GetFeaturedListings(ctx)
+		featured, featuredErr = h.ListingStore.GetFeaturedListings(ctx, "")
 	}()
 	go func() {
 		defer wg.Done()
@@ -173,10 +173,10 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	}
 	hasNextPage := offset+len(listings) < totalCount
 
-	// For the main feed (no filters/search), include featured listings
+	// For the main feed (no search query), include featured listings
 	finalListings := listings
-	if filterType == "" && queryText == "" {
-		featured, err := h.ListingStore.GetFeaturedListings(c.Request().Context())
+	if queryText == "" {
+		featured, err := h.ListingStore.GetFeaturedListings(c.Request().Context(), filterType)
 		if err == nil {
 			finalListings = h.mergeFeatured(featured, listings, limit)
 		}

@@ -1,7 +1,7 @@
 {
-  "category": "Agent Context Optimization",
-  "description": "Reduce token footprint of agent context by breaking monolithic specs and documentation into granular files.",
+  "category": "Featured Listings Per Category Implementation",
+  "description": "Implemented category-specific featured listings with a max limit of 3, persisting across pagination",
   "steps": [
-    "Verify AGENTS.md Modularization (Commands) (Completed): Extract testing, linting, and build commands (e.g., pre-commit, race detection) into `.agent/rules/commands.md`."
+    "Verify Admin HandleToggleFeatured prevents featuring more than 3 items per category (Completed)"
   ]
 }

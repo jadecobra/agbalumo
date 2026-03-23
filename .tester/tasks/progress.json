@@ -170,6 +170,21 @@
         "Removed `page == 1` restriction in `HandleHome` and `HandleFragment`.",
         "Added a failing test to verify featured prioritization on page 2."
       ]
+    },
+    {
+      "category": "Featured Listings Per Category Implementation",
+      "description": "Implemented category-specific featured listings with a max limit of 3, persisting across pagination",
+      "passes": false,
+      "steps": [
+        "Verify ListingStore GetFeaturedListings interface accepts category parameter",
+        "Verify SQLite GetFeaturedListings query filters by category and enforces LIMIT 3 constraint (Completed)",
+        "Verify Admin HandleToggleFeatured prevents featuring more than 3 items per category (Completed)",
+        "Verify listing HandleHome calls GetFeaturedListings correctly with empty category (Completed)",
+        "Verify listing HandleFragment passes category filter to GetFeaturedListings during HTMX pagination",
+        "Verify mock repository implementations match the updated GetFeaturedListings signature",
+        "Verify failing test implementation enforces admin max 3 featured listings constraint",
+        "Verify failing test implementation asserts category-specific featured persistence upon pagination"
+      ]
     }
   ]
 }

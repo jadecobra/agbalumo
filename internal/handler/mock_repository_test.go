@@ -53,7 +53,7 @@ func (m *MockListingRepository) GetLocations(ctx context.Context) ([]string, err
 	return nil, m.ErrorOn["GetLocations"]
 }
 
-func (m *MockListingRepository) GetFeaturedListings(ctx context.Context) ([]domain.Listing, error) {
+func (m *MockListingRepository) GetFeaturedListings(ctx context.Context, category string) ([]domain.Listing, error) {
 	return nil, m.ErrorOn["GetFeaturedListings"]
 }
 

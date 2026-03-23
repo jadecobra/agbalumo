@@ -15,7 +15,7 @@ type ListingStore interface {
 	Delete(ctx context.Context, id string) error
 	GetCounts(ctx context.Context) (map[Category]int, error)
 	GetLocations(ctx context.Context) ([]string, error)
-	GetFeaturedListings(ctx context.Context) ([]Listing, error)
+	GetFeaturedListings(ctx context.Context, category string) ([]Listing, error)
 	SetFeatured(ctx context.Context, id string, featured bool) error
 }
 

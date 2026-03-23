@@ -41,7 +41,7 @@ func TestAdminHandler_HandleToggleFeatured(t *testing.T) {
 			id:       "123",
 			featured: "true",
 			setupData: func(t *testing.T, repo domain.ListingRepository) {
-				_ = repo.Save(context.Background(), domain.Listing{ID: "123", Title: "Test", Featured: false})
+				_ = repo.Save(context.Background(), domain.Listing{ID: "123", Title: "Test", Featured: false, Type: domain.Business})
 			},
 			expectCode: http.StatusOK,
 		},
@@ -58,7 +58,42 @@ func TestAdminHandler_HandleToggleFeatured(t *testing.T) {
 			featured: "true",
 			setupData: func(t *testing.T, repo domain.ListingRepository) {
 			},
-			expectCode: http.StatusOK, // SQLite UPDATE is no-op, repo returns nil error
+			expectCode: http.StatusInternalServerError, // FindByID fails
+		},
+		{
+			name:     "MaxFeaturedExceeded",
+			id:       "999",
+			featured: "true",
+			setupData: func(t *testing.T, repo domain.ListingRepository) {
+				_ = repo.Save(context.Background(), domain.Listing{ID: "1", Title: "F1", Type: domain.Business, Featured: true, IsActive: true})
+				_ = repo.Save(context.Background(), domain.Listing{ID: "2", Title: "F2", Type: domain.Business, Featured: true, IsActive: true})
+				_ = repo.Save(context.Background(), domain.Listing{ID: "3", Title: "F3", Type: domain.Business, Featured: true, IsActive: true})
+				_ = repo.Save(context.Background(), domain.Listing{ID: "999", Title: "New", Type: domain.Business, Featured: false, IsActive: true})
+			},
+			expectCode: http.StatusBadRequest,
+		},
+		{
+			name:     "ToggleOffWhenMaxReached",
+			id:       "1",
+			featured: "false",
+			setupData: func(t *testing.T, repo domain.ListingRepository) {
+				_ = repo.Save(context.Background(), domain.Listing{ID: "1", Title: "F1", Type: domain.Business, Featured: true, IsActive: true})
+				_ = repo.Save(context.Background(), domain.Listing{ID: "2", Title: "F2", Type: domain.Business, Featured: true, IsActive: true})
+				_ = repo.Save(context.Background(), domain.Listing{ID: "3", Title: "F3", Type: domain.Business, Featured: true, IsActive: true})
+			},
+			expectCode: http.StatusOK,
+		},
+		{
+			name:     "FeatureDifferentCategoryAllowed",
+			id:       "999",
+			featured: "true",
+			setupData: func(t *testing.T, repo domain.ListingRepository) {
+				_ = repo.Save(context.Background(), domain.Listing{ID: "1", Title: "F1", Type: domain.Business, Featured: true, IsActive: true})
+				_ = repo.Save(context.Background(), domain.Listing{ID: "2", Title: "F2", Type: domain.Business, Featured: true, IsActive: true})
+				_ = repo.Save(context.Background(), domain.Listing{ID: "3", Title: "F3", Type: domain.Business, Featured: true, IsActive: true})
+				_ = repo.Save(context.Background(), domain.Listing{ID: "999", Title: "New", Type: domain.Food, Featured: false, IsActive: true})
+			},
+			expectCode: http.StatusOK,
 		},
 	}
 

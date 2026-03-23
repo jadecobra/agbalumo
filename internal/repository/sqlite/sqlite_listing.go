@@ -510,17 +510,24 @@ func (r *SQLiteRepository) ExpireListings(ctx context.Context) (int64, error) {
 	return totalAffected, nil
 }
 
-// GetFeaturedListings returns featured listings set by admin.
-func (r *SQLiteRepository) GetFeaturedListings(ctx context.Context) ([]domain.Listing, error) {
+// GetFeaturedListings returns featured listings set by admin, optionally filtered by category.
+func (r *SQLiteRepository) GetFeaturedListings(ctx context.Context, category string) ([]domain.Listing, error) {
+	whereClause := "WHERE featured = 1 AND is_active = 1"
+	var args []interface{}
+
+	if category != "" {
+		whereClause += " AND type = ?"
+		args = append(args, category)
+	}
+
 	query := `
 		SELECT ` + listingSelections + `
 		FROM listings 
-		WHERE featured = 1 
-		AND is_active = 1 
+		` + whereClause + `
 		ORDER BY created_at DESC 
-		LIMIT 5
+		LIMIT 3
 	`
-	rows, err := r.db.QueryContext(ctx, query)
+	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}

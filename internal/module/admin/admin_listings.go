@@ -80,6 +80,23 @@ func (h *AdminHandler) HandleToggleFeatured(c echo.Context) error {
 	featured := c.FormValue("featured") == "true"
 	ctx := c.Request().Context()
 
+	if featured {
+		listing, err := h.ListingStore.FindByID(ctx, id)
+		if err != nil {
+			return handler.RespondError(c, err)
+		}
+
+		if !listing.Featured {
+			featuredListings, err := h.ListingStore.GetFeaturedListings(ctx, string(listing.Type))
+			if err != nil {
+				return handler.RespondError(c, err)
+			}
+			if len(featuredListings) >= 3 {
+				return handler.RespondJSONError(c, http.StatusBadRequest, "Maximum of 3 featured listings per category reached")
+			}
+		}
+	}
+
 	if err := h.ListingStore.SetFeatured(ctx, id, featured); err != nil {
 		return handler.RespondError(c, err)
 	}

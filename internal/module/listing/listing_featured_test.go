@@ -71,6 +71,53 @@ func TestHandleHome_FeaturedPrioritization(t *testing.T) {
 	assert.Contains(t, rec.Body.String(), "Regular 2")
 }
 
+func TestHandleHome_FeaturedListings_EmptyCategory(t *testing.T) {
+	e := echo.New()
+	t_temp := template.New("base")
+	template.Must(t_temp.New("index.html").Parse(`Listings: {{range .Listings}}{{.Title}},{{end}}`))
+	e.Renderer = &TestRenderer{templates: t_temp}
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	repo := handler.SetupTestRepository(t)
+
+	// Seed data: Featured listings across MULTIPLE categories to verify HandleHome doesn't filter by a specific category
+	f1 := domain.Listing{ID: "f1", Title: "Featured Business", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
+	f2 := domain.Listing{ID: "f2", Title: "Featured Event", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "event", Address: "123 St"}
+	f3 := domain.Listing{ID: "f3", Title: "Featured Service", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "service", Address: "123 St"}
+	r1 := domain.Listing{ID: "r1", Title: "Regular Business", Featured: false, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
+
+	_ = repo.Save(context.Background(), f1)
+	_ = repo.Save(context.Background(), f2)
+	_ = repo.Save(context.Background(), f3)
+	_ = repo.Save(context.Background(), r1)
+
+	listingSvc := listmod.NewListingService(repo, repo, repo)
+
+	h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     nil,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
+
+	if err := h.HandleHome(c); err != nil {
+		t.Fatalf("HandleHome failed: %v", err)
+	}
+
+	body := rec.Body.String()
+	
+	// If HandleHome was passing a specific category string (e.g. "business") to GetFeaturedListings,
+	// then the "event" and "service" featured listings would NOT be present in the response.
+	// Since we assert they are all present, we verify it passes an empty string (or doesn't filter).
+	assert.Contains(t, body, "Featured Business")
+	assert.Contains(t, body, "Featured Event")
+	assert.Contains(t, body, "Featured Service")
+}
+
 func TestHandleFragment_FeaturedPrioritization(t *testing.T) {
 	e := echo.New()
 	t_temp := template.New("base")

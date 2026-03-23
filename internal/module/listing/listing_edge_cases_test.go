@@ -44,11 +44,14 @@ func TestHandleCreate_WithImage(t *testing.T) {
 
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
+	mockImageService := &MockImageService{}
+	mockImageService.On("UploadImage", testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).Return("/fake/url", nil)
+
 	h := listmod.NewListingHandler(listmod.ListingDependencies{
 		ListingStore:     repo,
 		CategoryStore:    repo,
 		ListingSvc:       listingSvc,
-		ImageService:     nil,
+		ImageService:     mockImageService,
 		GeocodingSvc:     &MockGeocodingService{},
 		Config:           &config.Config{},
 	})

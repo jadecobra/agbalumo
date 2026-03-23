@@ -16,6 +16,7 @@ import (
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
+	testifyMock "github.com/stretchr/testify/mock"
 )
 
 func TestListingHandler_Upload_Malicious(t *testing.T) {
@@ -70,11 +71,14 @@ func TestListingHandler_Upload_Valid(t *testing.T) {
 	// Setup
 	repo := handler.SetupTestRepository(t)
 	listingSvc := listmod.NewListingService(repo, repo, repo)
+	mockImageService := &MockImageService{}
+	mockImageService.On("UploadImage", testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).Return("/fake/url", nil)
+
 	h := listmod.NewListingHandler(listmod.ListingDependencies{
 		ListingStore:     repo,
 		CategoryStore:    repo,
 		ListingSvc:       listingSvc,
-		ImageService:     nil,
+		ImageService:     mockImageService,
 		GeocodingSvc:     &MockGeocodingService{},
 		Config:           &config.Config{},
 	})
