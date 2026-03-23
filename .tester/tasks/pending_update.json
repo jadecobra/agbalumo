@@ -1,0 +1,10 @@
+{
+  "category": "Verification",
+  "description": "Verified necessity of MockImageService in listing tests and removed it where possible.",
+  "steps": [
+    "Replaced MockImageService with real LocalImageService using t.TempDir() in TestHandleCreate_WithImage to avoid I/O pollution.",
+    "Replaced MockImageService with real LocalImageService using t.TempDir() in TestListingHandler_Upload_Valid.",
+    "Removed unused testifyMock import from listing_upload_test.go.",
+    "Confirmed MockImageService is still needed in TestHandleCreate_ImageUploadError to simulate upload failures."
+  ]
+}

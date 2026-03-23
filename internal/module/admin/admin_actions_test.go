@@ -152,3 +152,17 @@ func TestAdminHandler_HandleApproveClaim(t *testing.T) {
 	cr, _ := repo.GetClaimRequestByUserAndListing(context.Background(), "u1", "l1")
 	assert.Equal(t, domain.ClaimStatusApproved, cr.Status)
 }
+
+func TestAdminHandler_HandleListingRow(t *testing.T) {
+	c, rec := setupAdminTestContext(http.MethodGet, "/admin/listings/1/row", nil)
+	c.SetParamNames("id")
+	c.SetParamValues("1")
+	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
+
+	repo := handler.SetupTestRepository(t)
+	_ = repo.Save(context.Background(), domain.Listing{ID: "1", Title: "Test Row Listing"})
+
+	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
+	_ = h.HandleListingRow(c)
+	assert.Equal(t, http.StatusOK, rec.Code)
+}

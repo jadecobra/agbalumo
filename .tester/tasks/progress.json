@@ -163,20 +163,12 @@
       ]
     },
     {
-      "category": "Bugfixes / Enhancements",
-      "description": "Made featured listings persistent on all pagination pages",
-      "passes": true,
-      "steps": [
-        "Removed `page == 1` restriction in `HandleHome` and `HandleFragment`.",
-        "Added a failing test to verify featured prioritization on page 2.",
-        "Verify if MockImageService in TestHandleCreate_WithImage and TestListingHandler_Upload_Valid to resolve filesystem I/O errors during tests is still needed"
-      ]
-    },
-    {
       "category": "Featured Listings Per Category Implementation",
       "description": "Implemented category-specific featured listings with a max limit of 3, persisting across pagination",
       "passes": true,
       "steps": [
+        "Added a failing test to verify featured prioritization on page 2.",
+        "Removed `page == 1` restriction in `HandleHome` and `HandleFragment`.",
         "Verify ListingStore GetFeaturedListings interface accepts category parameter",
         "Verify SQLite GetFeaturedListings query filters by category and enforces LIMIT 3 constraint (Completed)",
         "Verify Admin HandleToggleFeatured prevents featuring more than 3 items per category (Completed)",
@@ -193,10 +185,12 @@
       "description": "Fixed Admin Featured Listings HTMX row swap turning into JSON",
       "passes": true,
       "steps": [
+        "Verify if MockImageService in TestHandleCreate_WithImage and TestListingHandler_Upload_Valid to resolve filesystem I/O errors during tests is still needed",
         "Identified target `HandleToggleFeatured` in `admin_listings.go` returning JSON natively.",
         "Updated test helper `setupAdminTestContext` to mock the renderer to expect an admin_listing_table_row.",
         "Modified `admin_actions_test.go` to explicitly verify HTML is returned.",
-        "Refactored `HandleToggleFeatured` to return `updatedListing` HTML upon successful save."
+        "Refactored `HandleToggleFeatured` to return `updatedListing` HTML upon successful save.",
+        "Fixed jq JSON parsing bug in scripts/utils.sh when failures contain unescaped characters"
       ]
     }
   ]

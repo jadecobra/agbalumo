@@ -41,6 +41,14 @@ output_json_envelope() {
         out_json=$(jq -Rn --arg str "$out" '$str')
     fi
 
+    # If $warnings is valid JSON, insert it directly, otherwise wrap in an array
+    local warnings_json
+    if echo "$warnings" | jq -e . >/dev/null 2>&1; then
+        warnings_json="$warnings"
+    else
+        warnings_json=$(jq -Rn --arg str "$warnings" '[$str]')
+    fi
+
     # Convert success to explicit boolean 
     local bool_success="true"
     if [ "$success" = "false" ] || [ "$success" = "0" ]; then
@@ -51,7 +59,7 @@ output_json_envelope() {
         --argjson success "$bool_success" \
         --arg cmd "$cmd" \
         --argjson output "$out_json" \
-        --argjson warnings "$warnings" \
+        --argjson warnings "$warnings_json" \
         '{success: $success, command: $cmd, output: $output, warnings: $warnings}'
 }
 
