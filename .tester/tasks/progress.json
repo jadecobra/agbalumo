@@ -182,10 +182,21 @@
         "Verify Admin HandleToggleFeatured prevents featuring more than 3 items per category (Completed)",
         "Verify listing HandleHome calls GetFeaturedListings correctly with empty category (Completed)",
         "Verify listing HandleFragment passes category filter to GetFeaturedListings during HTMX pagination (Completed)",
-        "Verify mock repository implementations match the updated GetFeaturedListings signature",
+        "Verify mock repository implementations match the updated GetFeaturedListings signature (Completed)",
         "Verify failing test implementation enforces admin max 3 featured listings constraint",
         "Verify failing test implementation asserts category-specific featured persistence upon pagination",
         "Verify listing HandleFragment passes category filter to GetFeaturedListings during HTMX pagination"
+      ]
+    },
+    {
+      "category": "Bugfixes",
+      "description": "Fixed Admin Featured Listings HTMX row swap turning into JSON",
+      "passes": true,
+      "steps": [
+        "Identified target `HandleToggleFeatured` in `admin_listings.go` returning JSON natively.",
+        "Updated test helper `setupAdminTestContext` to mock the renderer to expect an admin_listing_table_row.",
+        "Modified `admin_actions_test.go` to explicitly verify HTML is returned.",
+        "Refactored `HandleToggleFeatured` to return `updatedListing` HTML upon successful save."
       ]
     }
   ]

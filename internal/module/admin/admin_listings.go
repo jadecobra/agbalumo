@@ -101,8 +101,10 @@ func (h *AdminHandler) HandleToggleFeatured(c echo.Context) error {
 		return handler.RespondError(c, err)
 	}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"id":       id,
-		"featured": featured,
-	})
+	updatedListing, err := h.ListingStore.FindByID(ctx, id)
+	if err != nil {
+		return handler.RespondError(c, err)
+	}
+
+	return c.Render(http.StatusOK, "admin_listing_table_row", updatedListing)
 }

@@ -119,6 +119,14 @@ func TestAdminHandler_HandleToggleFeatured(t *testing.T) {
 			_ = h.HandleToggleFeatured(c)
 			assert.Equal(t, tt.expectCode, rec.Code)
 
+			if tt.expectCode == http.StatusOK {
+				// The response must be the HTML row snippet for HTMX swapping.
+				// Not a JSON response.
+				htmlResponse := rec.Body.String()
+				assert.Contains(t, htmlResponse, "listing-row-")
+				assert.NotContains(t, htmlResponse, "{\"featured\":")
+			}
+
 			if tt.expectCode == http.StatusOK && tt.id == "123" {
 				l, _ := repo.FindByID(context.Background(), tt.id)
 				assert.True(t, l.Featured)

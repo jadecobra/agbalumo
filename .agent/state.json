@@ -1,7 +1,7 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "HandleFragment Category Pagination Fix",
-  "workflow_type": "feature",
+  "feature": "Bugfix_AdminFeaturedListingJSON",
+  "workflow_type": "bugfix",
   "phase": "REFACTOR",
   "gates": {
     "red-test": "PASSED",
@@ -11,6 +11,6 @@
     "coverage": "PASSED",
     "browser-verification": "PASSED"
   },
-  "updated_at": "2026-03-23T14:24:48.882911Z",
-  "signature": "beb2a014fc221e5c129f3e45cd28e044d9f97779eb12b217aa2d6335f7ff4c45"
+  "updated_at": "2026-03-23T15:38:59.427368Z",
+  "signature": "50ddbe3b4f1318a815ce3651424708ac0e1976df456686a2705258e5ca0d882f"
 }

@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http/httptest"
 
+	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/labstack/echo/v4"
 )
 
@@ -12,6 +13,13 @@ import (
 type AdminMockRenderer struct{}
 
 func (m *AdminMockRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	if name == "admin_listing_table_row" {
+		listing, ok := data.(domain.Listing)
+		if ok {
+			_, err := w.Write([]byte(`<tr id="listing-row-` + listing.ID + `">Mock HTML Row</tr>`))
+			return err
+		}
+	}
 	// Simple mock that does nothing but satisfying the interface
 	return nil
 }
