@@ -31,7 +31,7 @@ go tool cover -func=coverage.out
 ```
 
 ### Coverage Threshold
-A minimum test coverage threshold is required, enforced from `.agent/coverage-threshold`. This is checked by `scripts/pre-commit.sh`.
+A minimum test coverage threshold is required, enforced from `.agents/coverage-threshold`. This is checked by `scripts/pre-commit.sh`.
 
 ---
 
@@ -79,7 +79,7 @@ Programmatically verify workflow gates (e.g., Red tests) using:
 ```
 
 ### Brand Enforcement ("Juice")
-Generate CSS tokens and Go constants from `.agent/rules/brand.toon`:
+Generate CSS tokens and Go constants from `.agents/rules/brand.toon`:
 ```bash
 ./scripts/generate-juice.sh
 ```

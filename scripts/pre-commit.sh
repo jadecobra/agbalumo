@@ -10,7 +10,7 @@ source "$(dirname "$0")/utils.sh"
 setup_path
 
 # Documentation Links
-DOC_WORKFLOW=".agent/workflows/feature-implementation.md"
+DOC_WORKFLOW=".agents/workflows/feature-implementation.md"
 DOC_STANDARDS="docs/CODING_STANDARDS.md"
 DOC_API="docs/api.md"
 DOC_CLI="docs/cli.md"
@@ -19,7 +19,7 @@ START_TIME=$(date +%s)
 if [ "$FMT" != "json" ]; then echo "${BLUE}Running 10x Engineer Quality Checks...${NC}"; fi
 
 # 0. Workflow Gate Enforcement (phase-aware)
-STATE_FILE=".agent/state.json"
+STATE_FILE=".agents/state.json"
 if [ -f "$STATE_FILE" ]; then
     if ! check_workflow_gates "$STATE_FILE"; then
         if [ "$FMT" = "json" ]; then output_json_envelope false "pre-commit.sh" "Workflow gate enforcement failed."; fi
@@ -35,7 +35,7 @@ STAGED_CLI_DOCS=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '^c
 STAGED_PERF_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '^ui/|^internal/handler/|^internal/repository/|^scripts/' || true)
 STAGED_SEC_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.html$|\.go$|\.js$' || true)
 STAGED_AGENT_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.agents/agent\.yaml$|docs/CODING_STANDARDS\.md$' || true)
-STAGED_BRAND_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.agent/rules/brand\.toon$' || true)
+STAGED_BRAND_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.agents/rules/brand\.toon$' || true)
 STAGED_ALL=$(git diff --cached --name-only || true)
 
 # Create a temporary directory for parallel task outputs
@@ -129,7 +129,7 @@ if [ -n "$STAGED_GO_FILES" ]; then
         mkdir -p .tester/coverage
         go test -json -race -count=1 -coverprofile=.tester/coverage/coverage.out ./... > /dev/null
         COVERAGE=$(go tool cover -func=.tester/coverage/coverage.out | awk '/^total:/ {print substr($3, 1, length($3)-1)}')
-        THRESHOLD_FILE=".agent/coverage-threshold"
+        THRESHOLD_FILE=".agents/coverage-threshold"
         THRESHOLD=90.0
         if [ -f "$THRESHOLD_FILE" ]; then
             THRESHOLD=$(cat "$THRESHOLD_FILE")
@@ -153,7 +153,7 @@ fi
 # 5.5 Coverage Threshold Anti-Degradation Check
 if [ -n "$STAGED_ALL" ]; then
     check_threshold() {
-        THRESHOLD_FILE=".agent/coverage-threshold"
+        THRESHOLD_FILE=".agents/coverage-threshold"
         if [ -f "$THRESHOLD_FILE" ] && git ls-files --error-unmatch "$THRESHOLD_FILE" >/dev/null 2>&1; then
             if git diff --cached --name-only | grep -q "^$THRESHOLD_FILE$"; then
                 OLD_THRESHOLD=$(git show HEAD:$THRESHOLD_FILE 2>/dev/null || echo "0.0")

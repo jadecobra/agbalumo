@@ -11,7 +11,7 @@ set -e
 source "$(dirname "$0")/utils.sh"
 setup_path
 
-STATE_FILE=".agent/state.json"
+STATE_FILE=".agents/state.json"
 
 if [ ! -f "$STATE_FILE" ]; then
     echo "Error: State file not found. Initialize with ./scripts/agent-exec.sh workflow init <feature>"

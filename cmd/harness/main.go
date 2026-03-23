@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const stateFile = ".agent/state.json"
+const stateFile = ".agents/state.json"
 
 var flagText bool
 
@@ -49,7 +49,7 @@ func getState() *agent.State {
 }
 
 func saveState(state *agent.State) {
-	if err := os.MkdirAll(".agent", 0755); err != nil {
+	if err := os.MkdirAll(".agents", 0755); err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating .agent directory: %v\n", err)
 		os.Exit(1)
 	}
@@ -358,7 +358,7 @@ func NewRootCmd() *cobra.Command {
 			case "implementation":
 				if state.Gates.RedTest != agent.GatePassed || state.Gates.ApiSpec != agent.GatePassed {
 					fmt.Fprintln(os.Stderr, "❌ Error: 'implementation' requires 'red-test' and 'api-spec' to be PASS.")
-					fmt.Fprintln(os.Stderr, "💡 HINT: If this is a UI layer/HTML template layout change where a Go red-test is impossible, DO NOT edit the .agent/state.json file.")
+					fmt.Fprintln(os.Stderr, "💡 HINT: If this is a UI layer/HTML template layout change where a Go red-test is impossible, DO NOT edit the .agents/state.json file.")
 					fmt.Fprintln(os.Stderr, "💡 HINT: Instead, use the harness bypass command: ./scripts/agent-exec.sh gate red-test PASS")
 					fmt.Fprintln(os.Stderr, "💡 HINT: Note that you MUST still pass the lint gate and verify the UI using the browser_subagent.")
 					os.Exit(1)

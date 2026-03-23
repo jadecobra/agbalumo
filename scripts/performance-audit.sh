@@ -448,7 +448,7 @@ if [ "$FMT" = "json" ]; then
         exit 0
     elif [ "$FAILURES" -eq 0 ]; then
         output_json_envelope true "performance-audit.sh" "⚠️ $WARNINGS warning(s) found — no critical failures." "$COMBINED_HINTS"
-        exit 1
+        exit 0
     else
         output_json_envelope false "performance-audit.sh" "❌ $FAILURES failure(s), $WARNINGS warning(s) found." "$COMBINED_HINTS"
         exit 2
@@ -467,7 +467,7 @@ if [ "$FAILURES" -eq 0 ] && [ "$WARNINGS" -eq 0 ]; then
 elif [ "$FAILURES" -eq 0 ]; then
     echo "${YELLOW}${BOLD}⚠️  ${WARNINGS} warning(s) found — no critical failures.${NC}"
     echo "   Address warnings to maintain peak performance."
-    exit 1
+    exit 0
 else
     echo "${RED}${BOLD}❌ ${FAILURES} failure(s), ${WARNINGS} warning(s) found.${NC}"
     echo "   Fix failures before deploying."

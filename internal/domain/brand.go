@@ -2,12 +2,12 @@
 package domain
 
 const (
-	BrandColorPrimary    = "#FF8A00"
-	BrandColorEarthDark  = "#1A120E"
-	BrandColorEarthClay  = "#A0522D"
+	BrandColorPrimary = "#FF8A00"
+	BrandColorEarthDark = "#1A120E"
+	BrandColorEarthClay = "#A0522D"
 	BrandColorEarthOchre = "#CC7722"
-	BrandColorEarthSand  = "#F4EBD0"
+	BrandColorEarthSand = "#F4EBD0"
 	BrandColorEarthCream = "#FAF8F1"
-	BrandColorSecondary  = "#005D3A"
-	BrandColorAccent     = "#F58608"
+	BrandColorSecondary = "#005D3A"
+	BrandColorAccent = "#F58608"
 )

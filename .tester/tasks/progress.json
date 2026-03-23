@@ -187,10 +187,10 @@
       "steps": [
         "Verify if MockImageService in TestHandleCreate_WithImage and TestListingHandler_Upload_Valid to resolve filesystem I/O errors during tests is still needed",
         "Identified target `HandleToggleFeatured` in `admin_listings.go` returning JSON natively.",
-        "Updated test helper `setupAdminTestContext` to mock the renderer to expect an admin_listing_table_row.",
-        "Modified `admin_actions_test.go` to explicitly verify HTML is returned.",
-        "Refactored `HandleToggleFeatured` to return `updatedListing` HTML upon successful save.",
-        "Fixed jq JSON parsing bug in scripts/utils.sh when failures contain unescaped characters"
+        "Verify `setupAdminTestContext` mocking the renderer to expect an admin_listing_table_row. is necessary",
+        "Verify `admin_actions_test.go` explicitly verifies HTML is returned.",
+        "Verify Refactored `HandleToggleFeatured` returns `updatedListing` HTML upon successful save.",
+        "Verify Fixed jq JSON parsing bug in scripts/utils.sh when failures contain unescaped characters"
       ]
     }
   ]

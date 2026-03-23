@@ -1,10 +1,10 @@
 #!/bin/bash
 # scripts/generate-juice.sh — Agent.4 Brand "Juice" Generation
-# Parses .agent/rules/brand.toon and generates CSS variables and Go constants.
+# Parses .agents/rules/brand.toon and generates CSS variables and Go constants.
 
 set -e
 
-TOON_FILE=".agent/rules/brand.toon"
+TOON_FILE=".agents/rules/brand.toon"
 CSS_OUT="ui/static/css/brand-tokens.css"
 GO_OUT="internal/domain/brand.go"
 

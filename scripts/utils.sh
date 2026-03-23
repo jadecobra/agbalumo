@@ -150,9 +150,9 @@ check_workflow_gates() {
             echo "  ${RED}❌ Workflow gate enforcement failed for '$feature' [$workflow_type] ($phase):${NC}"
             echo "  ${RED}   Required gates not PASS:${failed_gates}${NC}"
             
-            local doc_link=".agent/workflows/feature-implementation.md"
-            if [ "$workflow_type" = "bugfix" ]; then doc_link=".agent/workflows/bugfix.md"; fi
-            if [ "$workflow_type" = "refactor" ]; then doc_link=".agent/workflows/refactor.md"; fi
+            local doc_link=".agents/workflows/feature-implementation.md"
+            if [ "$workflow_type" = "bugfix" ]; then doc_link=".agents/workflows/bugfix.md"; fi
+            if [ "$workflow_type" = "refactor" ]; then doc_link=".agents/workflows/refactor.md"; fi
 
             echo "  ${YELLOW}   See: $doc_link${NC}"
         fi

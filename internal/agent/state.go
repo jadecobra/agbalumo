@@ -27,7 +27,7 @@ type Gates struct {
 	BrowserVerification GateStatus `json:"browser-verification"`
 }
 
-// State represents the contents of .agent/state.json
+// State represents the contents of .agents/state.json
 type State struct {
 	Warning      string    `json:"_DO_NOT_EDIT_"`
 	Feature      string    `json:"feature"`
@@ -64,7 +64,7 @@ func LoadState(path string) (*State, error) {
 	if state.Signature != "" {
 		expected := calculateSignature(&state)
 		if state.Signature != expected {
-			return nil, errors.New("ANTI-CHEAT TRIGGERED: Manual modification of .agent/state.json detected. You must use the ./scripts/agent-exec.sh commands to manage state")
+			return nil, errors.New("ANTI-CHEAT TRIGGERED: Manual modification of .agents/state.json detected. You must use the ./scripts/agent-exec.sh commands to manage state")
 		}
 	}
 
