@@ -126,11 +126,8 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		featured = []domain.Listing{} // Graceful fallback
 	}
 
-	// Prioritize featured listings on the first page
-	finalListings := listings
-	if page == 1 {
-		finalListings = h.mergeFeatured(featured, listings, limit)
-	}
+	// Prioritize featured listings on all pages
+	finalListings := h.mergeFeatured(featured, listings, limit)
 
 	strCounts := make(map[string]int)
 	categoryTotal := 0
@@ -176,9 +173,9 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	}
 	hasNextPage := offset+len(listings) < totalCount
 
-	// For the first page of the main feed (no filters/search), include featured listings
+	// For the main feed (no filters/search), include featured listings
 	finalListings := listings
-	if page == 1 && filterType == "" && queryText == "" {
+	if filterType == "" && queryText == "" {
 		featured, err := h.ListingStore.GetFeaturedListings(c.Request().Context())
 		if err == nil {
 			finalListings = h.mergeFeatured(featured, listings, limit)

@@ -161,6 +161,15 @@
         "Verify codebase documentation (AGENTS.md, Feature Workflows) is fully modularized into granular rules under `.agent/rules/` and `.agent/workflows/` (Completed)",
         "Verify feature-implementation workflows (refactor.md) enforce proactive Code Smell evaluation, safe continuous refactoring loops, and strict test preservation (Completed)"
       ]
+    },
+    {
+      "category": "Bugfixes / Enhancements",
+      "description": "Made featured listings persistent on all pagination pages",
+      "passes": true,
+      "steps": [
+        "Removed `page == 1` restriction in `HandleHome` and `HandleFragment`.",
+        "Added a failing test to verify featured prioritization on page 2."
+      ]
     }
   ]
 }

@@ -109,3 +109,42 @@ func TestHandleFragment_FeaturedPrioritization(t *testing.T) {
 	assert.Contains(t, rec.Body.String(), "Featured 1")
 	assert.Contains(t, rec.Body.String(), "Regular 1")
 }
+
+func TestHandleFragment_FeaturedPrioritization_Page2(t *testing.T) {
+	e := echo.New()
+	t_temp := template.New("base")
+	template.Must(t_temp.New("listing_list").Parse(`{{range .Listings}}{{.Title}},{{end}}`))
+	e.Renderer = &TestRenderer{templates: t_temp}
+
+	// Page 2, no filters
+	req := httptest.NewRequest(http.MethodGet, "/listings/fragment?page=2", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	repo := handler.SetupTestRepository(t)
+
+	// Seed data
+	f1 := domain.Listing{ID: "f1", Title: "Featured 1", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
+	r1 := domain.Listing{ID: "r1", Title: "Regular 1", Featured: false, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
+
+	_ = repo.Save(context.Background(), f1)
+	_ = repo.Save(context.Background(), r1)
+
+	listingSvc := listmod.NewListingService(repo, repo, repo)
+
+	h := listmod.NewListingHandler(listmod.ListingDependencies{
+		ListingStore:     repo,
+		CategoryStore:    repo,
+		ListingSvc:       listingSvc,
+		ImageService:     nil,
+		GeocodingSvc:     &MockGeocodingService{},
+		Config:           &config.Config{},
+	})
+
+	if err := h.HandleFragment(c); err != nil {
+		t.Fatalf("HandleFragment failed: %v", err)
+	}
+
+	assert.Contains(t, rec.Body.String(), "Featured 1")
+}
+
