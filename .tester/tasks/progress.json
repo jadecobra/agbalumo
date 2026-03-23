@@ -158,7 +158,8 @@
       "passes": true,
       "steps": [
         "Verify monolithic specs (OpenAPI, BRAND_GUIDELINES, CLI commands) are successfully extracted into granular modular files (Completed)",
-        "Verify codebase documentation (AGENTS.md, Feature Workflows) is fully modularized into granular rules under `.agent/rules/` and `.agent/workflows/` (Completed)"
+        "Verify codebase documentation (AGENTS.md, Feature Workflows) is fully modularized into granular rules under `.agent/rules/` and `.agent/workflows/` (Completed)",
+        "Verify feature-implementation workflows (refactor.md) enforce proactive Code Smell evaluation, safe continuous refactoring loops, and strict test preservation (Completed)"
       ]
     }
   ]
