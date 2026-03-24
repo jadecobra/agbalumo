@@ -288,7 +288,7 @@ func NewRootCmd() *cobra.Command {
 			case "PENDING":
 				status = agent.GatePending
 			case "PASS", "PASSED":
-				if gateID == "coverage" || gateID == "lint" || gateID == "implementation" || gateID == "api-spec" {
+				if gateID == "red-test" || gateID == "coverage" || gateID == "lint" || gateID == "implementation" || gateID == "api-spec" {
 					fmt.Fprintf(os.Stderr, "❌ Error: The '%s' gate cannot be manually bypassed.\n", gateID)
 					fmt.Fprintln(os.Stderr, "💡 HINT: You must pass this gate through automated verification by fixing the code/adding tests and running: ./scripts/agent-exec.sh verify "+gateID)
 					os.Exit(1)
@@ -358,8 +358,7 @@ func NewRootCmd() *cobra.Command {
 			case "implementation":
 				if state.Gates.RedTest != agent.GatePassed || state.Gates.ApiSpec != agent.GatePassed {
 					fmt.Fprintln(os.Stderr, "❌ Error: 'implementation' requires 'red-test' and 'api-spec' to be PASS.")
-					fmt.Fprintln(os.Stderr, "💡 HINT: If this is a UI layer/HTML template layout change where a Go red-test is impossible, DO NOT edit the .agents/state.json file.")
-					fmt.Fprintln(os.Stderr, "💡 HINT: Instead, use the harness bypass command: ./scripts/agent-exec.sh gate red-test PASS")
+					fmt.Fprintln(os.Stderr, "💡 HINT: If this is a UI layer change, use './scripts/agent-exec.sh verify red-test ui-bypass'.")
 					fmt.Fprintln(os.Stderr, "💡 HINT: Note that you MUST still pass the lint gate and verify the UI using the browser_subagent.")
 					os.Exit(1)
 				}

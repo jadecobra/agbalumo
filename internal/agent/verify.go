@@ -19,6 +19,31 @@ func RunCommand(name string, args ...string) ([]byte, error) {
 }
 
 func VerifyRedTest(pattern string) bool {
+	if pattern == "ui-bypass" || pattern == "--ui-bypass" {
+		out, err := RunCommand("git", "status", "--porcelain")
+		if err == nil {
+			lines := strings.Split(string(out), "\n")
+			for _, line := range lines {
+				line = strings.TrimSpace(line)
+				if line == "" {
+					continue
+				}
+				fields := strings.Fields(line)
+				if len(fields) >= 2 {
+					filename := fields[len(fields)-1]
+					if strings.HasSuffix(filename, ".go") && !strings.HasSuffix(filename, "_test.go") {
+						fmt.Printf("❌ Gate FAIL: --ui-bypass is only permitted for UI files. Non-UI file modified: %s\n", filename)
+						return false
+					}
+				}
+			}
+		}
+		fmt.Println("⚠️  UI BYPASS ENGAGED: Skipping Go test failure requirement.")
+		fmt.Println("⚠️  NOTE: You are strictly required to use the browser_subagent to verify your changes.")
+		fmt.Println("Gate PASS: red-test bypassed for UI change.")
+		return true
+	}
+
 	fmt.Println("Running tests expecting failure...")
 
 	// 1. Verify code compiles first.
