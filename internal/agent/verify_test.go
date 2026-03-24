@@ -62,12 +62,64 @@ func TestVerifyCoverage(t *testing.T) {
     fmt.Printf("Coverage result: %v\n", success)
 }
 
-func TestVerifyRedTest(t *testing.T) {
-	orig := ExecCommand
-	ExecCommand = mockExecCommand
-	defer func() { ExecCommand = orig }()
+func mockExecCommandRedTestEvasion(command string, args ...string) *exec.Cmd {
+	cs := []string{"-test.run=TestHelperProcessRedTestEvasion", "--", command}
+	cs = append(cs, args...)
+	cmd := exec.Command(os.Args[0], cs...)
+	cmd.Env = []string{"GO_WANT_HELPER_PROCESS=1"}
+	return cmd
+}
 
-	VerifyRedTest("dummy pattern")
+func TestHelperProcessRedTestEvasion(t *testing.T) {
+	if os.Getenv("GO_WANT_HELPER_PROCESS") != "1" {
+		return
+	}
+	// Simulated outputs for evasion (a test panicking prints fail for package but no tests)
+	fmt.Println(`{"Time":"2023-01-01T00:00:00Z","Action":"output","Package":"fake","Output":"FAIL\tfake\t0.331s\n"}`)
+	fmt.Println(`{"Time":"2023-01-01T00:00:00Z","Action":"fail","Package":"fake","Elapsed":0.332}`)
+	os.Exit(0)
+}
+
+func mockExecCommandRedTestValid(command string, args ...string) *exec.Cmd {
+	cs := []string{"-test.run=TestHelperProcessRedTestValid", "--", command}
+	cs = append(cs, args...)
+	cmd := exec.Command(os.Args[0], cs...)
+	cmd.Env = []string{"GO_WANT_HELPER_PROCESS=1"}
+	return cmd
+}
+
+func TestHelperProcessRedTestValid(t *testing.T) {
+	if os.Getenv("GO_WANT_HELPER_PROCESS") != "1" {
+		return
+	}
+	// Simulated outputs for a valid failing red-test
+	fmt.Println(`{"Time":"2023-01-01T00:00:00Z","Action":"output","Package":"fake","Test":"TestRed","Output":"--- FAIL: TestRed\n"}`)
+	fmt.Println(`{"Time":"2023-01-01T00:00:00Z","Action":"fail","Package":"fake","Test":"TestRed","Elapsed":0.332}`)
+	os.Exit(0)
+}
+
+func TestVerifyRedTest(t *testing.T) {
+	t.Run("EvasionExploit", func(t *testing.T) {
+		orig := ExecCommand
+		ExecCommand = mockExecCommandRedTestEvasion
+		defer func() { ExecCommand = orig }()
+
+		// With pattern="" we expect it to fail the gate because there's no actual test failures inside
+		if VerifyRedTest("") {
+			t.Error("VerifyRedTest passed on an evasion exploit! It should have failed.")
+		}
+	})
+
+	t.Run("ValidFailure", func(t *testing.T) {
+		orig := ExecCommand
+		ExecCommand = mockExecCommandRedTestValid
+		defer func() { ExecCommand = orig }()
+
+		// With pattern="" we expect it to pass the gate
+		if !VerifyRedTest("") {
+			t.Error("VerifyRedTest failed a valid failing red-test.")
+		}
+	})
 }
 
 func TestVerifyApiSpec(t *testing.T) {

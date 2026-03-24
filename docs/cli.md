@@ -360,3 +360,9 @@ Verify workflow gate.
 ```bash
 agbalumo verify [gate-id]
 ```
+
+#### update-coverage
+Update the required threshold for coverage tests to pass.
+```bash
+agbalumo update-coverage <package_path> <threshold>
+```

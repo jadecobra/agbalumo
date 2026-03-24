@@ -75,6 +75,18 @@ func VerifyRedTest(pattern string) bool {
 		return false
 	}
 
+	validFailures := 0
+	for _, f := range res.Failures {
+		if f.TestName != "panic/raw" && f.TestName != "build" {
+			validFailures++
+		}
+	}
+
+	if validFailures == 0 {
+		fmt.Println("Gate FAIL: tests failed but no individual test failures were recorded (possible panic/os.Exit evasion).")
+		return false
+	}
+
 	if pattern != "" {
 		patternFound := false
 		for _, fail := range res.Failures {

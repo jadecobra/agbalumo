@@ -1,16 +1,16 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "background-coverage",
-  "workflow_type": "feature",
+  "feature": "panic-evasion-exploit",
+  "workflow_type": "bugfix",
   "phase": "REFACTOR",
   "gates": {
-    "red-test": "FAILED",
+    "red-test": "PASSED",
     "api-spec": "PASSED",
     "implementation": "PASSED",
     "lint": "PASSED",
     "coverage": "PASSED",
     "browser-verification": "PENDING"
   },
-  "updated_at": "2026-03-24T05:51:08.048931Z",
-  "signature": "9d84bf07005a7770afcf01aa9dac030c8f38b5aec3179bd7604b86f075d20d30"
+  "updated_at": "2026-03-24T12:20:03.147378Z",
+  "signature": "f31b92313e59b2301fddb3d3b523f79d09615fc624ebd449a44cae90ac419d92"
 }

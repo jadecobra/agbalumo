@@ -1,0 +1,427 @@
+Detected Apple M-series chip. Using --container-architecture linux/amd64
+🚀 Running local CI with act...
+[CI/CD Pipeline/Tests & Coverage     ] ⭐ Run Set up job
+[CI/CD Pipeline/Custom Security Audit] ⭐ Run Set up job
+[CI/CD Pipeline/Lint Check           ] ⭐ Run Set up job
+[CI/CD Pipeline/Vulnerability Check  ] ⭐ Run Set up job
+[CI/CD Pipeline/Vulnerability Check  ] 🚀  Start image=catthehacker/ubuntu:act-latest
+[CI/CD Pipeline/Custom Security Audit] 🚀  Start image=catthehacker/ubuntu:act-latest
+[CI/CD Pipeline/Lint Check           ] 🚀  Start image=catthehacker/ubuntu:act-latest
+[CI/CD Pipeline/Tests & Coverage     ] 🚀  Start image=catthehacker/ubuntu:act-latest
+[CI/CD Pipeline/Vulnerability Check  ]   🐳  docker pull image=catthehacker/ubuntu:act-latest platform=linux/amd64 username= forcePull=true
+[CI/CD Pipeline/Lint Check           ]   🐳  docker pull image=catthehacker/ubuntu:act-latest platform=linux/amd64 username= forcePull=true
+[CI/CD Pipeline/Custom Security Audit]   🐳  docker pull image=catthehacker/ubuntu:act-latest platform=linux/amd64 username= forcePull=true
+[CI/CD Pipeline/Tests & Coverage     ]   🐳  docker pull image=catthehacker/ubuntu:act-latest platform=linux/amd64 username= forcePull=true
+[CI/CD Pipeline/Vulnerability Check  ] using DockerAuthConfig authentication for docker pull
+[CI/CD Pipeline/Tests & Coverage     ] using DockerAuthConfig authentication for docker pull
+[CI/CD Pipeline/Lint Check           ] using DockerAuthConfig authentication for docker pull
+[CI/CD Pipeline/Custom Security Audit] using DockerAuthConfig authentication for docker pull
+[CI/CD Pipeline/Custom Security Audit]   🐳  docker create image=catthehacker/ubuntu:act-latest platform=linux/amd64 entrypoint=["tail" "-f" "/dev/null"] cmd=[] network="host"
+[CI/CD Pipeline/Custom Security Audit]   🐳  docker run image=catthehacker/ubuntu:act-latest platform=linux/amd64 entrypoint=["tail" "-f" "/dev/null"] cmd=[] network="host"
+[CI/CD Pipeline/Custom Security Audit]   🐳  docker exec cmd=[node --no-warnings -e console.log(process.execPath)] user= workdir=
+[CI/CD Pipeline/Vulnerability Check  ]   🐳  docker create image=catthehacker/ubuntu:act-latest platform=linux/amd64 entrypoint=["tail" "-f" "/dev/null"] cmd=[] network="host"
+[CI/CD Pipeline/Custom Security Audit]   ✅  Success - Set up job
+[CI/CD Pipeline/Custom Security Audit]   ☁  git clone 'https://github.com/actions/setup-go' # ref=v5
+[CI/CD Pipeline/Lint Check           ]   🐳  docker create image=catthehacker/ubuntu:act-latest platform=linux/amd64 entrypoint=["tail" "-f" "/dev/null"] cmd=[] network="host"
+[CI/CD Pipeline/Tests & Coverage     ]   🐳  docker create image=catthehacker/ubuntu:act-latest platform=linux/amd64 entrypoint=["tail" "-f" "/dev/null"] cmd=[] network="host"
+[CI/CD Pipeline/Vulnerability Check  ]   🐳  docker run image=catthehacker/ubuntu:act-latest platform=linux/amd64 entrypoint=["tail" "-f" "/dev/null"] cmd=[] network="host"
+[CI/CD Pipeline/Lint Check           ]   🐳  docker run image=catthehacker/ubuntu:act-latest platform=linux/amd64 entrypoint=["tail" "-f" "/dev/null"] cmd=[] network="host"
+[CI/CD Pipeline/Tests & Coverage     ]   🐳  docker run image=catthehacker/ubuntu:act-latest platform=linux/amd64 entrypoint=["tail" "-f" "/dev/null"] cmd=[] network="host"
+[CI/CD Pipeline/Vulnerability Check  ]   🐳  docker exec cmd=[node --no-warnings -e console.log(process.execPath)] user= workdir=
+[CI/CD Pipeline/Lint Check           ]   🐳  docker exec cmd=[node --no-warnings -e console.log(process.execPath)] user= workdir=
+[CI/CD Pipeline/Vulnerability Check  ]   ✅  Success - Set up job
+[CI/CD Pipeline/Lint Check           ]   ✅  Success - Set up job
+[CI/CD Pipeline/Lint Check           ]   ☁  git clone 'https://github.com/actions/setup-go' # ref=v5
+[CI/CD Pipeline/Vulnerability Check  ]   ☁  git clone 'https://github.com/actions/setup-go' # ref=v5
+[CI/CD Pipeline/Tests & Coverage     ]   🐳  docker exec cmd=[node --no-warnings -e console.log(process.execPath)] user= workdir=
+[CI/CD Pipeline/Tests & Coverage     ]   ✅  Success - Set up job
+[CI/CD Pipeline/Tests & Coverage     ]   ☁  git clone 'https://github.com/actions/setup-go' # ref=v5
+[CI/CD Pipeline/Custom Security Audit] Non-terminating error while running 'git clone': some refs were not updated
+[CI/CD Pipeline/Custom Security Audit]   ☁  git clone 'https://github.com/actions/setup-node' # ref=v4
+[CI/CD Pipeline/Lint Check           ] Non-terminating error while running 'git clone': some refs were not updated
+[CI/CD Pipeline/Lint Check           ]   ☁  git clone 'https://github.com/golangci/golangci-lint-action' # ref=v7
+[CI/CD Pipeline/Vulnerability Check  ] Non-terminating error while running 'git clone': some refs were not updated
+[CI/CD Pipeline/Vulnerability Check  ]   ☁  git clone 'https://github.com/golang/govulncheck-action' # ref=v1
+[CI/CD Pipeline/Tests & Coverage     ] Non-terminating error while running 'git clone': some refs were not updated
+[CI/CD Pipeline/Tests & Coverage     ] ⭐ Run Main Checkout Code
+[CI/CD Pipeline/Tests & Coverage     ]   🐳  docker cp src=/Users/johnnyblase/gym/agbalumo/. dst=/Users/johnnyblase/gym/agbalumo
+[CI/CD Pipeline/Custom Security Audit] Non-terminating error while running 'git clone': some refs were not updated
+[CI/CD Pipeline/Custom Security Audit] ⭐ Run Main Checkout Code
+[CI/CD Pipeline/Custom Security Audit]   🐳  docker cp src=/Users/johnnyblase/gym/agbalumo/. dst=/Users/johnnyblase/gym/agbalumo
+[CI/CD Pipeline/Lint Check           ] Non-terminating error while running 'git clone': some refs were not updated
+[CI/CD Pipeline/Lint Check           ] ⭐ Run Main Checkout Code
+[CI/CD Pipeline/Lint Check           ]   🐳  docker cp src=/Users/johnnyblase/gym/agbalumo/. dst=/Users/johnnyblase/gym/agbalumo
+[CI/CD Pipeline/Vulnerability Check  ] ⭐ Run Pre Vulnerability Check (Govulncheck)
+[CI/CD Pipeline/Vulnerability Check  ]   ☁  git clone 'https://github.com/actions/setup-go' # ref=v5.0.0
+[CI/CD Pipeline/Vulnerability Check  ] Non-terminating error while running 'git clone': some refs were not updated
+[CI/CD Pipeline/Vulnerability Check  ]   ✅  Success - Pre Vulnerability Check (Govulncheck) [477.292083ms]
+[CI/CD Pipeline/Vulnerability Check  ] ⭐ Run Main Checkout Code
+[CI/CD Pipeline/Vulnerability Check  ]   🐳  docker cp src=/Users/johnnyblase/gym/agbalumo/. dst=/Users/johnnyblase/gym/agbalumo
+[CI/CD Pipeline/Lint Check           ]   ✅  Success - Main Checkout Code [3.8327855s]
+[CI/CD Pipeline/Tests & Coverage     ]   ✅  Success - Main Checkout Code [5.029315792s]
+[CI/CD Pipeline/Custom Security Audit]   ✅  Success - Main Checkout Code [4.58784575s]
+[CI/CD Pipeline/Lint Check           ] ⭐ Run Main Setup Go
+[CI/CD Pipeline/Tests & Coverage     ] ⭐ Run Main Setup Go
+[CI/CD Pipeline/Lint Check           ]   🐳  docker cp src=/Users/johnnyblase/.cache/act/actions-setup-go@v5/ dst=/var/run/act/actions/actions-setup-go@v5/
+[CI/CD Pipeline/Custom Security Audit] ⭐ Run Main Setup Go
+[CI/CD Pipeline/Tests & Coverage     ]   🐳  docker cp src=/Users/johnnyblase/.cache/act/actions-setup-go@v5/ dst=/var/run/act/actions/actions-setup-go@v5/
+[CI/CD Pipeline/Custom Security Audit]   🐳  docker cp src=/Users/johnnyblase/.cache/act/actions-setup-go@v5/ dst=/var/run/act/actions/actions-setup-go@v5/
+[CI/CD Pipeline/Vulnerability Check  ]   ✅  Success - Main Checkout Code [3.352131375s]
+[CI/CD Pipeline/Vulnerability Check  ] ⭐ Run Main Setup Go
+[CI/CD Pipeline/Vulnerability Check  ]   🐳  docker cp src=/Users/johnnyblase/.cache/act/actions-setup-go@v5/ dst=/var/run/act/actions/actions-setup-go@v5/
+[CI/CD Pipeline/Vulnerability Check  ]   🐳  docker exec cmd=[node /var/run/act/actions/actions-setup-go@v5/dist/setup/index.js] user= workdir=
+[CI/CD Pipeline/Tests & Coverage     ]   🐳  docker exec cmd=[node /var/run/act/actions/actions-setup-go@v5/dist/setup/index.js] user= workdir=
+[CI/CD Pipeline/Custom Security Audit]   🐳  docker exec cmd=[node /var/run/act/actions/actions-setup-go@v5/dist/setup/index.js] user= workdir=
+[CI/CD Pipeline/Lint Check           ]   🐳  docker exec cmd=[node /var/run/act/actions/actions-setup-go@v5/dist/setup/index.js] user= workdir=
+[CI/CD Pipeline/Vulnerability Check  ]   | Setup go version spec 1.25.8
+[CI/CD Pipeline/Vulnerability Check  ]   | Found in cache @ /opt/hostedtoolcache/go/1.25.8/x64
+[CI/CD Pipeline/Vulnerability Check  ]   | (node:22) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+[CI/CD Pipeline/Vulnerability Check  ]   | (Use `node --trace-deprecation ...` to show where the warning was created)
+[CI/CD Pipeline/Vulnerability Check  ]   | Added go to the path
+[CI/CD Pipeline/Vulnerability Check  ]   | Successfully set up Go version 1.25.8
+[CI/CD Pipeline/Custom Security Audit]   | Setup go version spec 1.25.8
+[CI/CD Pipeline/Custom Security Audit]   | Found in cache @ /opt/hostedtoolcache/go/1.25.8/x64
+[CI/CD Pipeline/Custom Security Audit]   | (node:26) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+[CI/CD Pipeline/Custom Security Audit]   | (Use `node --trace-deprecation ...` to show where the warning was created)
+[CI/CD Pipeline/Custom Security Audit]   | Added go to the path
+[CI/CD Pipeline/Custom Security Audit]   | Successfully set up Go version 1.25.8
+[CI/CD Pipeline/Tests & Coverage     ]   | Setup go version spec 1.25.8
+[CI/CD Pipeline/Tests & Coverage     ]   | Found in cache @ /opt/hostedtoolcache/go/1.25.8/x64
+[CI/CD Pipeline/Tests & Coverage     ]   | (node:25) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+[CI/CD Pipeline/Tests & Coverage     ]   | (Use `node --trace-deprecation ...` to show where the warning was created)
+[CI/CD Pipeline/Tests & Coverage     ]   | Added go to the path
+[CI/CD Pipeline/Tests & Coverage     ]   | Successfully set up Go version 1.25.8
+[CI/CD Pipeline/Vulnerability Check  ]   | [command]/opt/hostedtoolcache/go/1.25.8/x64/bin/go env GOMODCACHE
+[CI/CD Pipeline/Vulnerability Check  ]   | [command]/opt/hostedtoolcache/go/1.25.8/x64/bin/go env GOCACHE
+[CI/CD Pipeline/Custom Security Audit]   | [command]/opt/hostedtoolcache/go/1.25.8/x64/bin/go env GOMODCACHE
+[CI/CD Pipeline/Custom Security Audit]   | [command]/opt/hostedtoolcache/go/1.25.8/x64/bin/go env GOCACHE
+[CI/CD Pipeline/Lint Check           ]   | Setup go version spec 1.25.8
+[CI/CD Pipeline/Vulnerability Check  ]   | /root/go/pkg/mod
+[CI/CD Pipeline/Lint Check           ]   | Found in cache @ /opt/hostedtoolcache/go/1.25.8/x64
+[CI/CD Pipeline/Lint Check           ]   | (node:24) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+[CI/CD Pipeline/Lint Check           ]   | (Use `node --trace-deprecation ...` to show where the warning was created)
+[CI/CD Pipeline/Lint Check           ]   | Added go to the path
+[CI/CD Pipeline/Lint Check           ]   | Successfully set up Go version 1.25.8
+[CI/CD Pipeline/Vulnerability Check  ]   | /root/.cache/go-build
+[CI/CD Pipeline/Tests & Coverage     ]   | [command]/opt/hostedtoolcache/go/1.25.8/x64/bin/go env GOMODCACHE
+[CI/CD Pipeline/Tests & Coverage     ]   | [command]/opt/hostedtoolcache/go/1.25.8/x64/bin/go env GOCACHE
+[CI/CD Pipeline/Custom Security Audit]   | /root/go/pkg/mod
+[CI/CD Pipeline/Custom Security Audit]   | /root/.cache/go-build
+[CI/CD Pipeline/Tests & Coverage     ]   | /root/.cache/go-build
+[CI/CD Pipeline/Vulnerability Check  ]   | Cache is not found
+[CI/CD Pipeline/Vulnerability Check  ]   ❓ add-matcher /run/act/actions/actions-setup-go@v5/matchers.json
+[CI/CD Pipeline/Vulnerability Check  ]   | go version go1.25.8 linux/amd64
+[CI/CD Pipeline/Vulnerability Check  ]   | 
+[CI/CD Pipeline/Vulnerability Check  ]   ❓  ::group::go env
+[CI/CD Pipeline/Tests & Coverage     ]   | /root/go/pkg/mod
+[CI/CD Pipeline/Custom Security Audit]   | Cache is not found
+[CI/CD Pipeline/Custom Security Audit]   ❓ add-matcher /run/act/actions/actions-setup-go@v5/matchers.json
+[CI/CD Pipeline/Custom Security Audit]   | go version go1.25.8 linux/amd64
+[CI/CD Pipeline/Custom Security Audit]   | 
+[CI/CD Pipeline/Custom Security Audit]   ❓  ::group::go env
+[CI/CD Pipeline/Tests & Coverage     ]   | Cache is not found
+[CI/CD Pipeline/Tests & Coverage     ]   ❓ add-matcher /run/act/actions/actions-setup-go@v5/matchers.json
+[CI/CD Pipeline/Tests & Coverage     ]   | go version go1.25.8 linux/amd64
+[CI/CD Pipeline/Tests & Coverage     ]   | 
+[CI/CD Pipeline/Tests & Coverage     ]   ❓  ::group::go env
+[CI/CD Pipeline/Lint Check           ]   | [command]/opt/hostedtoolcache/go/1.25.8/x64/bin/go env GOMODCACHE
+[CI/CD Pipeline/Lint Check           ]   | [command]/opt/hostedtoolcache/go/1.25.8/x64/bin/go env GOCACHE
+[CI/CD Pipeline/Lint Check           ]   | /root/go/pkg/mod
+[CI/CD Pipeline/Lint Check           ]   | /root/.cache/go-build
+[CI/CD Pipeline/Lint Check           ]   | Cache is not found
+[CI/CD Pipeline/Lint Check           ]   ❓ add-matcher /run/act/actions/actions-setup-go@v5/matchers.json
+[CI/CD Pipeline/Lint Check           ]   | go version go1.25.8 linux/amd64
+[CI/CD Pipeline/Lint Check           ]   | 
+[CI/CD Pipeline/Lint Check           ]   ❓  ::group::go env
+[CI/CD Pipeline/Vulnerability Check  ]   | AR='ar'
+[CI/CD Pipeline/Vulnerability Check  ]   | CC='gcc'
+[CI/CD Pipeline/Vulnerability Check  ]   | CGO_CFLAGS='-O2 -g'
+[CI/CD Pipeline/Vulnerability Check  ]   | CGO_CPPFLAGS=''
+[CI/CD Pipeline/Vulnerability Check  ]   | CGO_CXXFLAGS='-O2 -g'
+[CI/CD Pipeline/Vulnerability Check  ]   | CGO_ENABLED='1'
+[CI/CD Pipeline/Vulnerability Check  ]   | CGO_FFLAGS='-O2 -g'
+[CI/CD Pipeline/Vulnerability Check  ]   | CGO_LDFLAGS='-O2 -g'
+[CI/CD Pipeline/Vulnerability Check  ]   | CXX='g++'
+[CI/CD Pipeline/Vulnerability Check  ]   | GCCGO='gccgo'
+[CI/CD Pipeline/Vulnerability Check  ]   | GO111MODULE=''
+[CI/CD Pipeline/Vulnerability Check  ]   | GOAMD64='v1'
+[CI/CD Pipeline/Vulnerability Check  ]   | GOARCH='amd64'
+[CI/CD Pipeline/Vulnerability Check  ]   | GOAUTH='netrc'
+[CI/CD Pipeline/Vulnerability Check  ]   | GOBIN=''
+[CI/CD Pipeline/Vulnerability Check  ]   | GOCACHE='/root/.cache/go-build'
+[CI/CD Pipeline/Vulnerability Check  ]   | GOCACHEPROG=''
+[CI/CD Pipeline/Vulnerability Check  ]   | GODEBUG=''
+[CI/CD Pipeline/Vulnerability Check  ]   | GOENV='/root/.config/go/env'
+[CI/CD Pipeline/Vulnerability Check  ]   | GOEXE=''
+[CI/CD Pipeline/Vulnerability Check  ]   | GOEXPERIMENT=''
+[CI/CD Pipeline/Vulnerability Check  ]   | GOFIPS140='off'
+[CI/CD Pipeline/Vulnerability Check  ]   | GOFLAGS=''
+[CI/CD Pipeline/Vulnerability Check  ]   | GOGCCFLAGS='-fPIC -m64 -pthread -Wl,--no-gc-sections -fmessage-length=0 -ffile-prefix-map=/tmp/go-build49951586=/tmp/go-build -gno-record-gcc-switches'
+[CI/CD Pipeline/Vulnerability Check  ]   | GOHOSTARCH='amd64'
+[CI/CD Pipeline/Vulnerability Check  ]   | GOHOSTOS='linux'
+[CI/CD Pipeline/Vulnerability Check  ]   | GOINSECURE=''
+[CI/CD Pipeline/Vulnerability Check  ]   | GOMOD='/Users/johnnyblase/gym/agbalumo/go.mod'
+[CI/CD Pipeline/Vulnerability Check  ]   | GOMODCACHE='/root/go/pkg/mod'
+[CI/CD Pipeline/Vulnerability Check  ]   | GONOPROXY=''
+[CI/CD Pipeline/Vulnerability Check  ]   | GONOSUMDB=''
+[CI/CD Pipeline/Vulnerability Check  ]   | GOOS='linux'
+[CI/CD Pipeline/Vulnerability Check  ]   | GOPATH='/root/go'
+[CI/CD Pipeline/Vulnerability Check  ]   | GOPRIVATE=''
+[CI/CD Pipeline/Vulnerability Check  ]   | GOPROXY='https://proxy.golang.org,direct'
+[CI/CD Pipeline/Vulnerability Check  ]   | GOROOT='/opt/hostedtoolcache/go/1.25.8/x64'
+[CI/CD Pipeline/Vulnerability Check  ]   | GOSUMDB='sum.golang.org'
+[CI/CD Pipeline/Vulnerability Check  ]   | GOTELEMETRY='local'
+[CI/CD Pipeline/Vulnerability Check  ]   | GOTELEMETRYDIR='/root/.config/go/telemetry'
+[CI/CD Pipeline/Vulnerability Check  ]   | GOTMPDIR=''
+[CI/CD Pipeline/Vulnerability Check  ]   | GOTOOLCHAIN='auto'
+[CI/CD Pipeline/Vulnerability Check  ]   | GOTOOLDIR='/opt/hostedtoolcache/go/1.25.8/x64/pkg/tool/linux_amd64'
+[CI/CD Pipeline/Vulnerability Check  ]   | GOVCS=''
+[CI/CD Pipeline/Vulnerability Check  ]   | GOVERSION='go1.25.8'
+[CI/CD Pipeline/Vulnerability Check  ]   | GOWORK=''
+[CI/CD Pipeline/Vulnerability Check  ]   | PKG_CONFIG='pkg-config'
+[CI/CD Pipeline/Vulnerability Check  ]   | 
+[CI/CD Pipeline/Vulnerability Check  ]   ❓  ::endgroup::
+[CI/CD Pipeline/Tests & Coverage     ]   | AR='ar'
+[CI/CD Pipeline/Tests & Coverage     ]   | CC='gcc'
+[CI/CD Pipeline/Tests & Coverage     ]   | CGO_CFLAGS='-O2 -g'
+[CI/CD Pipeline/Tests & Coverage     ]   | CGO_CPPFLAGS=''
+[CI/CD Pipeline/Tests & Coverage     ]   | CGO_CXXFLAGS='-O2 -g'
+[CI/CD Pipeline/Tests & Coverage     ]   | CGO_ENABLED='1'
+[CI/CD Pipeline/Tests & Coverage     ]   | CGO_FFLAGS='-O2 -g'
+[CI/CD Pipeline/Tests & Coverage     ]   | CGO_LDFLAGS='-O2 -g'
+[CI/CD Pipeline/Tests & Coverage     ]   | CXX='g++'
+[CI/CD Pipeline/Tests & Coverage     ]   | GCCGO='gccgo'
+[CI/CD Pipeline/Tests & Coverage     ]   | GO111MODULE=''
+[CI/CD Pipeline/Tests & Coverage     ]   | GOAMD64='v1'
+[CI/CD Pipeline/Tests & Coverage     ]   | GOARCH='amd64'
+[CI/CD Pipeline/Tests & Coverage     ]   | GOAUTH='netrc'
+[CI/CD Pipeline/Tests & Coverage     ]   | GOBIN=''
+[CI/CD Pipeline/Tests & Coverage     ]   | GOCACHE='/root/.cache/go-build'
+[CI/CD Pipeline/Tests & Coverage     ]   | GOCACHEPROG=''
+[CI/CD Pipeline/Tests & Coverage     ]   | GODEBUG=''
+[CI/CD Pipeline/Tests & Coverage     ]   | GOENV='/root/.config/go/env'
+[CI/CD Pipeline/Tests & Coverage     ]   | GOEXE=''
+[CI/CD Pipeline/Tests & Coverage     ]   | GOEXPERIMENT=''
+[CI/CD Pipeline/Tests & Coverage     ]   | GOFIPS140='off'
+[CI/CD Pipeline/Tests & Coverage     ]   | GOFLAGS=''
+[CI/CD Pipeline/Tests & Coverage     ]   | GOGCCFLAGS='-fPIC -m64 -pthread -Wl,--no-gc-sections -fmessage-length=0 -ffile-prefix-map=/tmp/go-build4171246344=/tmp/go-build -gno-record-gcc-switches'
+[CI/CD Pipeline/Tests & Coverage     ]   | GOHOSTARCH='amd64'
+[CI/CD Pipeline/Tests & Coverage     ]   | GOHOSTOS='linux'
+[CI/CD Pipeline/Tests & Coverage     ]   | GOINSECURE=''
+[CI/CD Pipeline/Tests & Coverage     ]   | GOMOD='/Users/johnnyblase/gym/agbalumo/go.mod'
+[CI/CD Pipeline/Tests & Coverage     ]   | GOMODCACHE='/root/go/pkg/mod'
+[CI/CD Pipeline/Tests & Coverage     ]   | GONOPROXY=''
+[CI/CD Pipeline/Tests & Coverage     ]   | GONOSUMDB=''
+[CI/CD Pipeline/Tests & Coverage     ]   | GOOS='linux'
+[CI/CD Pipeline/Tests & Coverage     ]   | GOPATH='/root/go'
+[CI/CD Pipeline/Tests & Coverage     ]   | GOPRIVATE=''
+[CI/CD Pipeline/Tests & Coverage     ]   | GOPROXY='https://proxy.golang.org,direct'
+[CI/CD Pipeline/Tests & Coverage     ]   | GOROOT='/opt/hostedtoolcache/go/1.25.8/x64'
+[CI/CD Pipeline/Tests & Coverage     ]   | GOSUMDB='sum.golang.org'
+[CI/CD Pipeline/Tests & Coverage     ]   | GOTELEMETRY='local'
+[CI/CD Pipeline/Tests & Coverage     ]   | GOTELEMETRYDIR='/root/.config/go/telemetry'
+[CI/CD Pipeline/Tests & Coverage     ]   | GOTMPDIR=''
+[CI/CD Pipeline/Tests & Coverage     ]   | GOTOOLCHAIN='auto'
+[CI/CD Pipeline/Tests & Coverage     ]   | GOTOOLDIR='/opt/hostedtoolcache/go/1.25.8/x64/pkg/tool/linux_amd64'
+[CI/CD Pipeline/Tests & Coverage     ]   | GOVCS=''
+[CI/CD Pipeline/Tests & Coverage     ]   | GOVERSION='go1.25.8'
+[CI/CD Pipeline/Tests & Coverage     ]   | GOWORK=''
+[CI/CD Pipeline/Tests & Coverage     ]   | PKG_CONFIG='pkg-config'
+[CI/CD Pipeline/Tests & Coverage     ]   | 
+[CI/CD Pipeline/Tests & Coverage     ]   ❓  ::endgroup::
+[CI/CD Pipeline/Custom Security Audit]   | AR='ar'
+[CI/CD Pipeline/Custom Security Audit]   | CC='gcc'
+[CI/CD Pipeline/Custom Security Audit]   | CGO_CFLAGS='-O2 -g'
+[CI/CD Pipeline/Custom Security Audit]   | CGO_CPPFLAGS=''
+[CI/CD Pipeline/Custom Security Audit]   | CGO_CXXFLAGS='-O2 -g'
+[CI/CD Pipeline/Custom Security Audit]   | CGO_ENABLED='1'
+[CI/CD Pipeline/Custom Security Audit]   | CGO_FFLAGS='-O2 -g'
+[CI/CD Pipeline/Custom Security Audit]   | CGO_LDFLAGS='-O2 -g'
+[CI/CD Pipeline/Custom Security Audit]   | CXX='g++'
+[CI/CD Pipeline/Custom Security Audit]   | GCCGO='gccgo'
+[CI/CD Pipeline/Custom Security Audit]   | GO111MODULE=''
+[CI/CD Pipeline/Custom Security Audit]   | GOAMD64='v1'
+[CI/CD Pipeline/Custom Security Audit]   | GOARCH='amd64'
+[CI/CD Pipeline/Custom Security Audit]   | GOAUTH='netrc'
+[CI/CD Pipeline/Custom Security Audit]   | GOBIN=''
+[CI/CD Pipeline/Custom Security Audit]   | GOCACHE='/root/.cache/go-build'
+[CI/CD Pipeline/Custom Security Audit]   | GOCACHEPROG=''
+[CI/CD Pipeline/Custom Security Audit]   | GODEBUG=''
+[CI/CD Pipeline/Custom Security Audit]   | GOENV='/root/.config/go/env'
+[CI/CD Pipeline/Custom Security Audit]   | GOEXE=''
+[CI/CD Pipeline/Custom Security Audit]   | GOEXPERIMENT=''
+[CI/CD Pipeline/Custom Security Audit]   | GOFIPS140='off'
+[CI/CD Pipeline/Custom Security Audit]   | GOFLAGS=''
+[CI/CD Pipeline/Custom Security Audit]   | GOGCCFLAGS='-fPIC -m64 -pthread -Wl,--no-gc-sections -fmessage-length=0 -ffile-prefix-map=/tmp/go-build2878988231=/tmp/go-build -gno-record-gcc-switches'
+[CI/CD Pipeline/Custom Security Audit]   | GOHOSTARCH='amd64'
+[CI/CD Pipeline/Custom Security Audit]   | GOHOSTOS='linux'
+[CI/CD Pipeline/Custom Security Audit]   | GOINSECURE=''
+[CI/CD Pipeline/Custom Security Audit]   | GOMOD='/Users/johnnyblase/gym/agbalumo/go.mod'
+[CI/CD Pipeline/Custom Security Audit]   | GOMODCACHE='/root/go/pkg/mod'
+[CI/CD Pipeline/Custom Security Audit]   | GONOPROXY=''
+[CI/CD Pipeline/Custom Security Audit]   | GONOSUMDB=''
+[CI/CD Pipeline/Custom Security Audit]   | GOOS='linux'
+[CI/CD Pipeline/Custom Security Audit]   | GOPATH='/root/go'
+[CI/CD Pipeline/Custom Security Audit]   | GOPRIVATE=''
+[CI/CD Pipeline/Custom Security Audit]   | GOPROXY='https://proxy.golang.org,direct'
+[CI/CD Pipeline/Custom Security Audit]   | GOROOT='/opt/hostedtoolcache/go/1.25.8/x64'
+[CI/CD Pipeline/Custom Security Audit]   | GOSUMDB='sum.golang.org'
+[CI/CD Pipeline/Custom Security Audit]   | GOTELEMETRY='local'
+[CI/CD Pipeline/Custom Security Audit]   | GOTELEMETRYDIR='/root/.config/go/telemetry'
+[CI/CD Pipeline/Custom Security Audit]   | GOTMPDIR=''
+[CI/CD Pipeline/Custom Security Audit]   | GOTOOLCHAIN='auto'
+[CI/CD Pipeline/Custom Security Audit]   | GOTOOLDIR='/opt/hostedtoolcache/go/1.25.8/x64/pkg/tool/linux_amd64'
+[CI/CD Pipeline/Custom Security Audit]   | GOVCS=''
+[CI/CD Pipeline/Custom Security Audit]   | GOVERSION='go1.25.8'
+[CI/CD Pipeline/Custom Security Audit]   | GOWORK=''
+[CI/CD Pipeline/Custom Security Audit]   | PKG_CONFIG='pkg-config'
+[CI/CD Pipeline/Custom Security Audit]   | 
+[CI/CD Pipeline/Custom Security Audit]   ❓  ::endgroup::
+[CI/CD Pipeline/Vulnerability Check  ]   ✅  Success - Main Setup Go [3.308016292s]
+[CI/CD Pipeline/Vulnerability Check  ]   ⚙  ::set-output:: cache-hit=false
+[CI/CD Pipeline/Vulnerability Check  ]   ⚙  ::set-output:: go-version=1.25.8
+[CI/CD Pipeline/Vulnerability Check  ]   ⚙  ::add-path:: /opt/hostedtoolcache/go/1.25.8/x64/bin
+[CI/CD Pipeline/Tests & Coverage     ]   ✅  Success - Main Setup Go [3.708525833s]
+[CI/CD Pipeline/Vulnerability Check  ]   ⚙  ::add-path:: /root/go/bin
+[CI/CD Pipeline/Tests & Coverage     ]   ⚙  ::set-output:: cache-hit=false
+[CI/CD Pipeline/Tests & Coverage     ]   ⚙  ::set-output:: go-version=1.25.8
+[CI/CD Pipeline/Custom Security Audit]   ✅  Success - Main Setup Go [3.707357792s]
+[CI/CD Pipeline/Lint Check           ]   | AR='ar'
+[CI/CD Pipeline/Lint Check           ]   | CC='gcc'
+[CI/CD Pipeline/Lint Check           ]   | CGO_CFLAGS='-O2 -g'
+[CI/CD Pipeline/Lint Check           ]   | CGO_CPPFLAGS=''
+[CI/CD Pipeline/Lint Check           ]   | CGO_CXXFLAGS='-O2 -g'
+[CI/CD Pipeline/Lint Check           ]   | CGO_ENABLED='1'
+[CI/CD Pipeline/Lint Check           ]   | CGO_FFLAGS='-O2 -g'
+[CI/CD Pipeline/Lint Check           ]   | CGO_LDFLAGS='-O2 -g'
+[CI/CD Pipeline/Lint Check           ]   | CXX='g++'
+[CI/CD Pipeline/Lint Check           ]   | GCCGO='gccgo'
+[CI/CD Pipeline/Lint Check           ]   | GO111MODULE=''
+[CI/CD Pipeline/Lint Check           ]   | GOAMD64='v1'
+[CI/CD Pipeline/Lint Check           ]   | GOARCH='amd64'
+[CI/CD Pipeline/Lint Check           ]   | GOAUTH='netrc'
+[CI/CD Pipeline/Lint Check           ]   | GOBIN=''
+[CI/CD Pipeline/Lint Check           ]   | GOCACHE='/root/.cache/go-build'
+[CI/CD Pipeline/Lint Check           ]   | GOCACHEPROG=''
+[CI/CD Pipeline/Lint Check           ]   | GODEBUG=''
+[CI/CD Pipeline/Lint Check           ]   | GOENV='/root/.config/go/env'
+[CI/CD Pipeline/Lint Check           ]   | GOEXE=''
+[CI/CD Pipeline/Lint Check           ]   | GOEXPERIMENT=''
+[CI/CD Pipeline/Lint Check           ]   | GOFIPS140='off'
+[CI/CD Pipeline/Lint Check           ]   | GOFLAGS=''
+[CI/CD Pipeline/Lint Check           ]   | GOGCCFLAGS='-fPIC -m64 -pthread -Wl,--no-gc-sections -fmessage-length=0 -ffile-prefix-map=/tmp/go-build3915591943=/tmp/go-build -gno-record-gcc-switches'
+[CI/CD Pipeline/Lint Check           ]   | GOHOSTARCH='amd64'
+[CI/CD Pipeline/Lint Check           ]   | GOHOSTOS='linux'
+[CI/CD Pipeline/Lint Check           ]   | GOINSECURE=''
+[CI/CD Pipeline/Lint Check           ]   | GOMOD='/Users/johnnyblase/gym/agbalumo/go.mod'
+[CI/CD Pipeline/Lint Check           ]   | GOMODCACHE='/root/go/pkg/mod'
+[CI/CD Pipeline/Lint Check           ]   | GONOPROXY=''
+[CI/CD Pipeline/Lint Check           ]   | GONOSUMDB=''
+[CI/CD Pipeline/Lint Check           ]   | GOOS='linux'
+[CI/CD Pipeline/Lint Check           ]   | GOPATH='/root/go'
+[CI/CD Pipeline/Lint Check           ]   | GOPRIVATE=''
+[CI/CD Pipeline/Lint Check           ]   | GOPROXY='https://proxy.golang.org,direct'
+[CI/CD Pipeline/Lint Check           ]   | GOROOT='/opt/hostedtoolcache/go/1.25.8/x64'
+[CI/CD Pipeline/Lint Check           ]   | GOSUMDB='sum.golang.org'
+[CI/CD Pipeline/Lint Check           ]   | GOTELEMETRY='local'
+[CI/CD Pipeline/Lint Check           ]   | GOTELEMETRYDIR='/root/.config/go/telemetry'
+[CI/CD Pipeline/Lint Check           ]   | GOTMPDIR=''
+[CI/CD Pipeline/Lint Check           ]   | GOTOOLCHAIN='auto'
+[CI/CD Pipeline/Lint Check           ]   | GOTOOLDIR='/opt/hostedtoolcache/go/1.25.8/x64/pkg/tool/linux_amd64'
+[CI/CD Pipeline/Lint Check           ]   | GOVCS=''
+[CI/CD Pipeline/Lint Check           ]   | GOVERSION='go1.25.8'
+[CI/CD Pipeline/Lint Check           ]   | GOWORK=''
+[CI/CD Pipeline/Lint Check           ]   | PKG_CONFIG='pkg-config'
+[CI/CD Pipeline/Lint Check           ]   | 
+[CI/CD Pipeline/Lint Check           ]   ❓  ::endgroup::
+[CI/CD Pipeline/Tests & Coverage     ]   ⚙  ::add-path:: /opt/hostedtoolcache/go/1.25.8/x64/bin
+[CI/CD Pipeline/Tests & Coverage     ]   ⚙  ::add-path:: /root/go/bin
+[CI/CD Pipeline/Custom Security Audit]   ⚙  ::set-output:: cache-hit=false
+[CI/CD Pipeline/Custom Security Audit]   ⚙  ::set-output:: go-version=1.25.8
+[CI/CD Pipeline/Vulnerability Check  ] ⭐ Run Main Vulnerability Check (Govulncheck)
+[CI/CD Pipeline/Custom Security Audit]   ⚙  ::add-path:: /opt/hostedtoolcache/go/1.25.8/x64/bin
+[CI/CD Pipeline/Custom Security Audit]   ⚙  ::add-path:: /root/go/bin
+[CI/CD Pipeline/Vulnerability Check  ]   🐳  docker cp src=/Users/johnnyblase/.cache/act/golang-govulncheck-action@v1/ dst=/var/run/act/actions/golang-govulncheck-action@v1/
+[CI/CD Pipeline/Tests & Coverage     ] ⭐ Run Main Run Tests with Coverage
+[CI/CD Pipeline/Lint Check           ]   ✅  Success - Main Setup Go [3.802329167s]
+[CI/CD Pipeline/Custom Security Audit] ⭐ Run Main Setup Node
+[CI/CD Pipeline/Lint Check           ]   ⚙  ::set-output:: cache-hit=false
+[CI/CD Pipeline/Lint Check           ]   ⚙  ::set-output:: go-version=1.25.8
+[CI/CD Pipeline/Custom Security Audit]   🐳  docker cp src=/Users/johnnyblase/.cache/act/actions-setup-node@v4/ dst=/var/run/act/actions/actions-setup-node@v4/
+[CI/CD Pipeline/Lint Check           ]   ⚙  ::add-path:: /opt/hostedtoolcache/go/1.25.8/x64/bin
+[CI/CD Pipeline/Lint Check           ]   ⚙  ::add-path:: /root/go/bin
+[CI/CD Pipeline/Vulnerability Check  ] ⭐ Run Main actions/checkout@v4.1.1
+[CI/CD Pipeline/Vulnerability Check  ]   🐳  docker cp src=/Users/johnnyblase/gym/agbalumo/. dst=/Users/johnnyblase/gym/agbalumo
+[CI/CD Pipeline/Lint Check           ] ⭐ Run Main Linter (GolangCI-Lint)
+[CI/CD Pipeline/Tests & Coverage     ]   🐳  docker exec cmd=[bash -e /var/run/act/workflow/2] user= workdir=
+[CI/CD Pipeline/Lint Check           ]   🐳  docker cp src=/Users/johnnyblase/.cache/act/golangci-golangci-lint-action@v7/ dst=/var/run/act/actions/golangci-golangci-lint-action@v7/
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading github.com/spf13/cobra v1.8.0
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading github.com/google/uuid v1.6.0
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading github.com/gorilla/sessions v1.4.0
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading github.com/joho/godotenv v1.5.1
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading github.com/labstack/echo/v4 v4.15.0
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading golang.org/x/time v0.14.0
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading github.com/stretchr/testify v1.11.1
+[CI/CD Pipeline/Lint Check           ]   🐳  docker exec cmd=[node /var/run/act/actions/golangci-golangci-lint-action@v7/dist/run/index.js] user= workdir=
+[CI/CD Pipeline/Lint Check           ]   | OCI runtime exec failed: exec failed: unable to start container process: exec: "node": executable file not found in $PATH
+[CI/CD Pipeline/Lint Check           ]   ❌  Failure - Main Linter (GolangCI-Lint) [1.124296458s]
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading golang.org/x/oauth2 v0.34.0
+[CI/CD Pipeline/Lint Check           ] exitcode '127': command not found, please refer to https://github.com/nektos/act/issues/107 for more information
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading github.com/gen2brain/webp v0.5.5
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading modernc.org/sqlite v1.44.3
+[CI/CD Pipeline/Lint Check           ] ⭐ Run Post Linter (GolangCI-Lint)
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading github.com/mattn/go-sqlite3 v1.14.34
+[CI/CD Pipeline/Lint Check           ]   🐳  docker exec cmd=[node /var/run/act/actions/golangci-golangci-lint-action@v7/dist/post_run/index.js] user= workdir=
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading golang.org/x/image v0.36.0
+[CI/CD Pipeline/Lint Check           ]   | OCI runtime exec failed: exec failed: unable to start container process: exec: "node": executable file not found in $PATH
+[CI/CD Pipeline/Lint Check           ]   ❌  Failure - Post Linter (GolangCI-Lint) [93.477958ms]
+[CI/CD Pipeline/Lint Check           ] exitcode '127': command not found, please refer to https://github.com/nektos/act/issues/107 for more information
+[CI/CD Pipeline/Lint Check           ] ⭐ Run Complete job
+[CI/CD Pipeline/Lint Check           ]   ✅  Success - Complete job
+[CI/CD Pipeline/Lint Check           ] 🏁  Job failed
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading github.com/davecgh/go-spew v1.1.1
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading github.com/pmezard/go-difflib v1.0.0
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading github.com/stretchr/objx v0.5.3
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading github.com/gorilla/securecookie v1.1.2
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading github.com/spf13/pflag v1.0.5
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading github.com/labstack/gommon v0.4.2
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading golang.org/x/crypto v0.48.0
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading golang.org/x/net v0.49.0
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading github.com/valyala/fasttemplate v1.2.2
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading cloud.google.com/go/compute/metadata v0.9.0
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading github.com/ebitengine/purego v0.8.3
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading github.com/tetratelabs/wazero v1.9.0
+[CI/CD Pipeline/Custom Security Audit]   🐳  docker exec cmd=[node /var/run/act/actions/actions-setup-node@v4/dist/setup/index.js] user= workdir=
+[CI/CD Pipeline/Custom Security Audit]   | OCI runtime exec failed: exec failed: unable to start container process: exec: "node": executable file not found in $PATH
+[CI/CD Pipeline/Custom Security Audit]   ❌  Failure - Main Setup Node [2.873460125s]
+[CI/CD Pipeline/Custom Security Audit] exitcode '127': command not found, please refer to https://github.com/nektos/act/issues/107 for more information
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading gopkg.in/yaml.v3 v3.0.1
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading github.com/mattn/go-colorable v0.1.14
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading github.com/mattn/go-isatty v0.0.20
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading github.com/valyala/bytebufferpool v1.0.0
+[CI/CD Pipeline/Vulnerability Check  ]   ✅  Success - Main actions/checkout@v4.1.1 [2.977974375s]
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading golang.org/x/sys v0.41.0
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading golang.org/x/text v0.34.0
+[CI/CD Pipeline/Vulnerability Check  ] ⭐ Run Main actions/setup-go@v5.0.0
+[CI/CD Pipeline/Vulnerability Check  ]   🐳  docker cp src=/Users/johnnyblase/.cache/act/actions-setup-go@v5.0.0/ dst=/var/run/act/actions/actions-setup-go@v5.0.0/
+[CI/CD Pipeline/Custom Security Audit] ⭐ Run Complete job
+[CI/CD Pipeline/Custom Security Audit]   ✅  Success - Complete job
+[CI/CD Pipeline/Custom Security Audit] 🏁  Job failed
+[CI/CD Pipeline/Vulnerability Check  ]   🐳  docker exec cmd=[node /var/run/act/actions/actions-setup-go@v5.0.0/dist/setup/index.js] user= workdir=
+[CI/CD Pipeline/Vulnerability Check  ]   | OCI runtime exec failed: exec failed: unable to start container process: exec: "node": executable file not found in $PATH
+[CI/CD Pipeline/Vulnerability Check  ]   ❌  Failure - Main actions/setup-go@v5.0.0 [800.487583ms]
+[CI/CD Pipeline/Vulnerability Check  ] exitcode '127': command not found, please refer to https://github.com/nektos/act/issues/107 for more information
+[CI/CD Pipeline/Vulnerability Check  ]   ❌  Failure - Main Vulnerability Check (Govulncheck) [4.093817584s]
+[CI/CD Pipeline/Vulnerability Check  ] exitcode '127': command not found, please refer to https://github.com/nektos/act/issues/107 for more information
+[CI/CD Pipeline/Vulnerability Check  ] ⭐ Run Post Vulnerability Check (Govulncheck)
+[CI/CD Pipeline/Vulnerability Check  ]   🐳  docker cp src=/Users/johnnyblase/.cache/act/golang-govulncheck-action@v1/ dst=/var/run/act/actions/golang-govulncheck-action@v1/
+[CI/CD Pipeline/Vulnerability Check  ]   ✅  Success - Post Vulnerability Check (Govulncheck) [37.54475ms]
+[CI/CD Pipeline/Vulnerability Check  ] ⭐ Run Complete job
+[CI/CD Pipeline/Vulnerability Check  ]   ✅  Success - Complete job
+[CI/CD Pipeline/Vulnerability Check  ] 🏁  Job failed
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading modernc.org/libc v1.68.0
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading github.com/dustin/go-humanize v1.0.1
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading modernc.org/mathutil v1.7.1
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading modernc.org/memory v1.11.0
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading golang.org/x/exp v0.0.0-20251023183803-a4bb9ffd2546
+[CI/CD Pipeline/Tests & Coverage     ]   | go: downloading github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec
