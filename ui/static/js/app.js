@@ -12,9 +12,6 @@ function initApp() {
     document.body.addEventListener('htmx:afterSwap', (evt) => {
         // specific re-init if needed
     });
-
-    // Listing Modal Logic (Event Delegation because modal might not exist yet)
-    setupListingModalDelegation();
 }
 
 // 0. Mobile Bottom Nav Scroll-Aware Show/Hide
@@ -97,215 +94,7 @@ function setupFilterButtons() {
     }, true);
 }
 
-// 3. Create Listing Modal Logic
-// We attach this to document because the modal is inserted dynamically or exists statically but hidden.
-// Since it's a dialog, we can check mostly when it opens or just delegate change events.
-function setupListingModalDelegation() {
-    document.addEventListener('change', (event) => {
-        if (event.target.matches('#create-listing-modal select[name="type"], #create-listing-modal input[name="type"]')) {
-            toggleListingFields(event.target);
-        }
-    });
 
-    // If the modal is already present or inserted, we might need to init.
-    // MutationObserver could be used, or just running check on interactions.
-    // For now, let's also look for the element on load.
-    const typeSelect = document.querySelector('#create-listing-modal select[name="type"], #create-listing-modal input[name="type"]');
-    if (typeSelect) {
-        toggleListingFields(typeSelect);
-    }
-}
-
-function toggleListingFields(typeSelect) {
-    const modal = typeSelect.closest('dialog');
-    if (!modal) return;
-
-    const eventSection = modal.querySelector('#event-dates-section');
-    const jobSection = modal.querySelector('#job-fields-section');
-    const imageSection = modal.querySelector('#image-upload-section');
-    const hoursSection = modal.querySelector('#hours-section');
-    const locationLabel = modal.querySelector('#location-label');
-    const descriptionLabel = modal.querySelector('#description-label');
-    const addressInput = modal.querySelector('#create-address-input');
-
-    const val = typeSelect.value;
-
-    // Event Logic
-    if (eventSection) {
-        if (val === 'Event') {
-            eventSection.classList.remove('hidden');
-            eventSection.querySelectorAll('input').forEach(i => i.required = true);
-        } else {
-            eventSection.classList.add('hidden');
-            eventSection.querySelectorAll('input').forEach(i => {
-                i.required = false;
-                i.value = '';
-            });
-        }
-    }
-
-    // Job Logic
-    if (jobSection) {
-        if (val === 'Job') {
-            jobSection.classList.remove('hidden');
-            jobSection.querySelectorAll('input, textarea').forEach(i => {
-                if (i.name === 'company' || i.name === 'skills' || i.name === 'job_start_date' || i.name === 'pay_range' || i.name === 'job_apply_url') {
-                    i.required = true;
-                }
-            });
-
-            // Hide Image Upload for Jobs
-            if (imageSection) imageSection.classList.add('hidden');
-        } else {
-            jobSection.classList.add('hidden');
-            jobSection.querySelectorAll('input, textarea').forEach(i => {
-                i.required = false;
-                i.value = '';
-            });
-
-            // Show Image Upload for others
-            if (imageSection) imageSection.classList.remove('hidden');
-        }
-    }
-
-    // Address & Label Logic
-    if (addressInput) {
-        if (val === 'Job') {
-            addressInput.required = true;
-            addressInput.placeholder = "City, Country or Address";
-            if (locationLabel) locationLabel.textContent = "Location";
-            if (descriptionLabel) descriptionLabel.textContent = "Job Description";
-        } else {
-            if (descriptionLabel) descriptionLabel.textContent = "Description";
-            // Address is optional for Service, Request, Product, and Event
-            if (val === 'Service' || val === 'Request' || val === 'Product' || val === 'Event') {
-                addressInput.required = false;
-                addressInput.placeholder = "Address (Optional)";
-                if (locationLabel) locationLabel.textContent = "Address (Optional)";
-            } else {
-                // Business, Food
-                addressInput.required = true;
-                addressInput.placeholder = "Start typing address...";
-                if (locationLabel) locationLabel.textContent = "Address (Validated)";
-            }
-        }
-    }
-
-    // Hours of Operation Logic
-    if (hoursSection) {
-        const hoursInput = hoursSection.querySelector('input');
-        // Allowed: Business, Service, Food
-        // Explicitly check for allowed types
-        if (val === 'Business' || val === 'Service' || val === 'Food') {
-            hoursSection.classList.remove('hidden');
-            hoursSection.style.display = ''; // Clear any inline styles
-            if (hoursInput) hoursInput.disabled = false;
-        } else {
-            // Product, Event, Job, Request
-            hoursSection.classList.add('hidden');
-            hoursSection.style.display = ''; // Clear any inline styles
-            if (hoursInput) {
-                hoursInput.value = '';
-                hoursInput.disabled = true;
-            }
-        }
-    }
-}
-
-// Google Maps lazy loading
-let googleMapsLoaded = false;
-
-function loadGoogleMapsApi(apiKey) {
-    if (googleMapsLoaded || !apiKey) return;
-
-    const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMaps`;
-    script.async = true;
-    script.defer = true;
-    document.head.appendChild(script);
-    googleMapsLoaded = true;
-}
-
-// Google Maps Init (Global scope needed for callback)
-window.initGoogleMaps = function () {
-    const inputs = document.querySelectorAll('[name="address"][data-google-maps-key]');
-    if (inputs.length === 0) return;
-
-    if (typeof google === 'undefined' || !google.maps || !google.maps.places) return;
-
-    inputs.forEach(input => {
-        // Prevent double-initialization
-        if (input.dataset.autocompleteInitialized) return;
-
-        const options = {
-            fields: ["address_components", "geometry", "formatted_address"],
-            types: ["address"],
-        };
-        const autocomplete = new google.maps.places.Autocomplete(input, options);
-        autocomplete.addListener("place_changed", () => {
-            const place = autocomplete.getPlace();
-            if (!place || !place.address_components) return;
-
-            let city = "";
-            for (const component of place.address_components) {
-                const types = component.types;
-                if (types.includes("locality")) {
-                    city = component.long_name;
-                    break;
-                } else if (types.includes("sublocality_level_1") || types.includes("sublocality")) {
-                    city = component.long_name;
-                } else if (!city && (types.includes("postal_town") || types.includes("administrative_area_level_2") || types.includes("neighborhood"))) {
-                    city = component.long_name;
-                }
-            }
-
-            // Find companion city input based on ID/Structure
-            const id = input.id;
-            const cityInputId = id.replace('address-input', 'city-input');
-            const cityInput = document.getElementById(cityInputId);
-
-            if (cityInput) {
-                cityInput.value = city || "Unknown";
-            }
-
-            if (place.formatted_address) {
-                input.value = place.formatted_address;
-            }
-        });
-        input.dataset.autocompleteInitialized = "true";
-    });
-}
-
-// Load Google Maps when create or edit listing modal opens
-function setupGoogleMapsLazyLoad() {
-    document.addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-modal-id="create-listing-modal"], [hx-get*="/edit"]');
-        if (btn) {
-            // Short delay to ensure modal is in DOM or being loaded
-            setTimeout(() => {
-                const input = document.querySelector('[name="address"][data-google-maps-key]');
-                if (input) {
-                    const apiKey = input.dataset.googleMapsKey;
-                    if (apiKey) {
-                        loadGoogleMapsApi(apiKey);
-                    }
-                }
-            }, 500);
-        }
-    });
-
-    // Also look for edit modals already in DOM (HTMX swapped)
-    document.body.addEventListener('htmx:afterSwap', (evt) => {
-        const elt = evt.detail.elt;
-        const input = elt.querySelector ? elt.querySelector('[name="address"][data-google-maps-key]') : null;
-        if (input) {
-            const apiKey = input.dataset.googleMapsKey;
-            if (apiKey) {
-                loadGoogleMapsApi(apiKey);
-            }
-        }
-    });
-}
 // 4. Auth Action Logic (Replaces inline onclicks)
 function setupAuthActions() {
     document.addEventListener('click', (e) => {
@@ -355,70 +144,6 @@ function setupModalActions() {
                 }, { once: true });
             }
         }
-    });
-}
-
-// 6. HTMX Integration for Modals
-function setupHtmxIntegration() {
-    document.body.addEventListener('htmx:afterSwap', (evt) => {
-        // htmx:afterSwap provides the swapped element in evt.detail.elt
-        const elt = evt.detail.elt;
-        if (!elt) return;
-
-        // Auto-open and init edit modals inserted via HTMX
-        function initEditDialog(d) {
-            if (d.dataset.autoOpen === 'true' && !d.open) {
-                d.showModal();
-                const listingId = d.dataset.listingId;
-                if (listingId) {
-                    if (window.initEditTypeToggle) window.initEditTypeToggle(listingId);
-                    if (window.initEditMaps) window.initEditMaps(listingId);
-                    if (window.initEditImagePreview) window.initEditImagePreview(listingId);
-                }
-            }
-        }
-
-        // Check if the swapped element is the dialog itself
-        if (elt.tagName === 'DIALOG' && elt.id.startsWith('edit-listing-modal-')) {
-            initEditDialog(elt);
-        } else {
-            // Or if the dialog is contained within the swapped element
-            const dialogs = elt.querySelectorAll ? elt.querySelectorAll('dialog[id^="edit-listing-modal-"]') : [];
-            dialogs.forEach(d => initEditDialog(d));
-        }
-
-        // Init create image preview when create modal is swapped in
-        if (elt.id === 'create-listing-modal' || (elt.querySelectorAll && elt.querySelector('#create-listing-modal'))) {
-            if (window.initCreateImagePreview) window.initCreateImagePreview();
-        }
-    });
-
-    // Auto-close edit modal after successful save
-    document.body.addEventListener('htmx:afterRequest', (evt) => {
-        const form = evt.detail.elt;
-        if (!form || !form.id || !form.id.startsWith('edit-form-')) return;
-        if (!evt.detail.successful) return;
-
-        const dialog = form.closest('dialog');
-        if (dialog) {
-            dialog.close();
-            dialog.remove();
-        }
-    });
-
-    // Initialize custom dropdowns on HTMX swap
-    document.body.addEventListener('htmx:afterSwap', (evt) => {
-        if (typeof initCustomDropdownsActiveState === 'function') {
-            initCustomDropdownsActiveState(evt.detail.elt);
-        }
-    });
-}
-
-// 7. CSRF Token Injection for HTMX
-function setupCsrf() {
-    document.body.addEventListener('htmx:configRequest', (evt) => {
-        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        evt.detail.headers['X-CSRF-Token'] = token;
     });
 }
 
@@ -542,24 +267,6 @@ function setupFeaturedCarousel() {
     if (carousel.dataset.autoplay === 'true') {
         startAutoplay();
     }
-}
-
-// 10. Create Image Preview Init (replaces inline script)
-function setupCreateImagePreviewInit() {
-    // Init on page load if create modal already exists in DOM
-    if (document.getElementById('create-listing-modal') && window.initCreateImagePreview) {
-        window.initCreateImagePreview();
-    }
-
-    // Also init when create modal is opened via button click
-    document.addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-modal-id="create-listing-modal"]');
-        if (btn) {
-            setTimeout(() => {
-                if (window.initCreateImagePreview) window.initCreateImagePreview();
-            }, 50);
-        }
-    });
 }
 
 // 11. Filter Toggle Logic
@@ -790,12 +497,8 @@ initApp = function () {
     originalInit();
     setupAuthActions();
     setupModalActions();
-    setupHtmxIntegration();
-    setupCsrf();
     setupDynamicBackgrounds();
-    setupGoogleMapsLazyLoad();
     setupFeaturedCarousel();
-    setupCreateImagePreviewInit();
     setupFilterToggle();
     setupCustomDropdowns();
 };

@@ -179,7 +179,11 @@
       "steps": [
         "Verify monolithic specs (OpenAPI, BRAND_GUIDELINES, CLI commands) are successfully extracted into granular modular files (Completed)",
         "Verify codebase documentation (AGENTS.md, Feature Workflows) is fully modularized into granular rules under `.agent/rules/` and `.agent/workflows/` (Completed)",
-        "Verify feature-implementation workflows (refactor.md) enforce proactive Code Smell evaluation, safe continuous refactoring loops, and strict test preservation (Completed)"
+        "Verify feature-implementation workflows (refactor.md) enforce proactive Code Smell evaluation, safe continuous refactoring loops, and strict test preservation (Completed)",
+        "Verify Context Cost Math: Implement CalculateContextCost and RMS mathematical logic (Gemini 3 Flash Task) (Completed)",
+        "Verify Context Cost Tests: Implement unit tests in internal/agent/cost_test.go covering whitelist/blacklist file filtering and correct RMS output (Gemini 3 Flash Task) (Completed)",
+        "Verify Context Cost CLI: Integrate harness cost command into cmd/harness/main.go (Gemini 3 Flash Task) (Completed)",
+        "Verify Context Cost Execution: Run harness cost command and validate terminal output aesthetic (Gemini 3 Flash Task) (Completed)"
       ]
     },
     {
@@ -227,15 +231,32 @@
     {
       "category": "Harness Security \u0026 Anti-Cheat",
       "description": "Fix exploits and bypasses in the 10x Engineer CLI harness to ensure strict TDD adherence",
-      "passes": false,
+      "passes": true,
       "steps": [
         "Verify JSON Casing Exploit: Modify state.json with uppercase keys and ensure LoadState rejects the invalid signature (Completed)",
         "Verify Coverage Spoofing Exploit: Attempt to bypass coverage by modifying .agents/coverage-thresholds.json and ensure Harness catches it (Completed)",
         "Verify Red-Test Bypass Exploit: Ensure 'gate red-test PASS' cannot be manually executed via CLI (Completed)",
-        "Verify Panic Evasion Exploit: Ensure tests that os.Exit(0) without outputting failure correctly trigger red-test failure ",
-        "Verify Coverage Spoofing Exploit: Attempt to bypass coverage by modifying .agents/coverage-thresholds.json and ensure Harness catches it (Completed)",
-        "Verify Red-Test Bypass Exploit: Ensure 'gate red-test PASS' cannot be manually executed via CLI (Completed)",
         "Verify Panic Evasion Exploit: Ensure tests that os.Exit(0) without outputting failure correctly trigger red-test failure (Completed)"
+      ]
+    },
+    {
+      "category": "Context Cost Reduction",
+      "description": "Granular refactoring tasks to reduce the context cost of the top 10 most expensive files",
+      "passes": false,
+      "steps": [
+        "app.js: Extract HTMX event listeners into modular functions (Completed)",
+        "app.js: Extract Form Validation and map utilities to separate files (Completed)",
+        "sqlite_test.go: Split user repository tests into sqlite_user_test.go",
+        "sqlite_test.go: Split listing repository tests into sqlite_listing_test.go",
+        "harness/main.go: Extract CLI command definitions into separate packages (e.g., cmd/harness/commands)",
+        "auth/handler_test.go: Split test cases by endpoint (login, register, logout)",
+        "sqlite_listing.go: Split read operations into sqlite_listing_read.go",
+        "sqlite_listing.go: Split write operations into sqlite_listing_write.go",
+        "listing_test.go: Split validation tests from struct method tests",
+        "image_test.go: Split mock initialization and teardown into test helpers",
+        "performance-audit.sh: Abstract reporting functions into scripts/utils/audit_helpers.sh",
+        "server_ui_test.go: Split browser verification specs by user journey",
+        "listing_write_test.go: Split create, update, and delete tests into isolated files"
       ]
     }
   ]
