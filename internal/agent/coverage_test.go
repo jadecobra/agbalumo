@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 
@@ -40,13 +41,20 @@ func TestEnforceCoverageThresholds(t *testing.T) {
 		"github.com/jadecobra/agbalumo/internal/service": 70.0,
 	}
 
-	thresholdJSON := `{
+	thresholdsMap := map[string]float64{
 		"github.com/jadecobra/agbalumo/internal/handler": 90.0,
-		"github.com/jadecobra/agbalumo/internal/domain": 100.0,
-		"default": 80.0
-	}`
+		"github.com/jadecobra/agbalumo/internal/domain":  100.0,
+		"default":                                        80.0,
+	}
+	
+	// Create signed payload manually since SaveThresholds writes to file
+	config := CoverageConfig{
+		Thresholds: thresholdsMap,
+	}
+	config.Signature = calculateCoverageSignature(&config)
+	payload, _ := json.Marshal(config)
 
-	thresholds, err := ParseThresholds([]byte(thresholdJSON))
+	thresholds, err := ParseThresholds(payload)
 	require.NoError(t, err)
 
 	violations := EnforceCoverage(coverage, thresholds)
@@ -58,4 +66,45 @@ func TestEnforceCoverageThresholds(t *testing.T) {
 
 	// Service failed default threshold (70 < 80)
 	assert.Equal(t, "github.com/jadecobra/agbalumo/internal/service: coverage 70.0% is below default threshold of 80.0%", violations[1])
+}
+
+func TestParseThresholds_SignatureValidation(t *testing.T) {
+	t.Run("Valid Signature", func(t *testing.T) {
+		// Valid signature tests
+		config := CoverageConfig{
+			Thresholds: map[string]float64{"default": 80.0},
+		}
+		config.Signature = calculateCoverageSignature(&config)
+		payload, _ := json.Marshal(config)
+
+		res, err := ParseThresholds(payload)
+		require.NoError(t, err)
+		assert.Equal(t, 80.0, res["default"])
+	})
+
+	t.Run("Invalid Signature (Spoofing)", func(t *testing.T) {
+		// User modifies the threshold payload without updating signature
+		payload := []byte(`{
+			"thresholds": {
+				"default": 10.0
+			},
+			"signature": "fake-invalid-signature-123"
+		}`)
+
+		_, err := ParseThresholds(payload)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "ANTI-CHEAT TRIGGERED: Manual modification of .agents/coverage-thresholds.json detected")
+	})
+
+	t.Run("Missing Signature", func(t *testing.T) {
+		payload := []byte(`{
+			"thresholds": {
+				"default": 90.0
+			}
+		}`)
+
+		_, err := ParseThresholds(payload)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "ANTI-CHEAT TRIGGERED: Manual modification of .agents/coverage-thresholds.json detected")
+	})
 }

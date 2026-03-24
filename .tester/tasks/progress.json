@@ -225,9 +225,9 @@
       ]
     },
     {
-      "category": "Harness Security & Anti-Cheat",
+      "category": "Harness Security \u0026 Anti-Cheat",
       "description": "Fix exploits and bypasses in the 10x Engineer CLI harness to ensure strict TDD adherence",
-      "passes": false,
+      "passes": true,
       "steps": [
         "Verify JSON Casing Exploit: Modify state.json with uppercase keys and ensure LoadState rejects the invalid signature",
         "Verify Coverage Spoofing Exploit: Attempt to bypass coverage by modifying .agents/coverage-thresholds.json and ensure Harness catches it",

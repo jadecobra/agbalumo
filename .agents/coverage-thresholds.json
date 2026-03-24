@@ -1,11 +1,14 @@
 {
-  "github.com/jadecobra/agbalumo/internal/handler": 90.0,
-  "github.com/jadecobra/agbalumo/internal/domain": 90.0,
-  "github.com/jadecobra/agbalumo/internal/repository": 90.0,
-  "github.com/jadecobra/agbalumo/internal/service": 80.0,
-  "github.com/jadecobra/agbalumo/cmd/harness": 0.0,
-  "github.com/jadecobra/agbalumo/cmd": 0.0,
-  "github.com/jadecobra/agbalumo/internal/agent": 0.0,
-  "github.com/jadecobra/agbalumo": 0.0,
-  "default": 80.0
+  "thresholds": {
+    "default": 80,
+    "github.com/jadecobra/agbalumo": 0,
+    "github.com/jadecobra/agbalumo/cmd": 0,
+    "github.com/jadecobra/agbalumo/cmd/harness": 0,
+    "github.com/jadecobra/agbalumo/internal/agent": 0,
+    "github.com/jadecobra/agbalumo/internal/domain": 90,
+    "github.com/jadecobra/agbalumo/internal/handler": 90,
+    "github.com/jadecobra/agbalumo/internal/repository": 90,
+    "github.com/jadecobra/agbalumo/internal/service": 80
+  },
+  "signature": "af003433644bc04c2e1c4d43e020f90ff200d1848cbf3ead8db4419879e6d26c"
 }

@@ -2,9 +2,11 @@ package agent
 
 import (
 	"bufio"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -79,21 +81,64 @@ func ParseCoverageProfile(r io.Reader) (map[string]float64, error) {
 	return coverageByPkg, nil
 }
 
+// CoverageConfig holds the coverage requirements securely.
+type CoverageConfig struct {
+	Thresholds map[string]float64 `json:"thresholds"`
+	Signature  string             `json:"signature"`
+}
+
+func calculateCoverageSignature(c *CoverageConfig) string {
+	copy := *c
+	copy.Signature = "" // exclude signature itself from hash
+
+	// predictable hashing by marshalling
+	b, _ := json.Marshal(copy)
+	hash := sha256.Sum256(b)
+	return fmt.Sprintf("%x", hash)
+}
+
 // ParseThresholds parses a JSON mapping of package paths to minimum coverage thresholds.
-// It supports a special "default" key.
+// It supports a special "default" key. It now enforces an Anti-Cheat signature.
 func ParseThresholds(data []byte) (map[string]float64, error) {
 	if len(data) == 0 {
 		return map[string]float64{"default": 90.0}, nil
 	}
 
-	var thresholds map[string]float64
-	if err := json.Unmarshal(data, &thresholds); err != nil {
+	var config CoverageConfig
+	if err := json.Unmarshal(data, &config); err != nil {
 		return nil, fmt.Errorf("failed to parse coverage thresholds: %w", err)
 	}
 
-	return thresholds, nil
+	if config.Signature != "" {
+		expected := calculateCoverageSignature(&config)
+		if config.Signature != expected {
+			return nil, fmt.Errorf("ANTI-CHEAT TRIGGERED: Manual modification of .agents/coverage-thresholds.json detected")
+		}
+	} else {
+		// Missing signature is also spoofing/tampering, reject it
+		return nil, fmt.Errorf("ANTI-CHEAT TRIGGERED: Manual modification of .agents/coverage-thresholds.json detected")
+	}
+
+	if config.Thresholds == nil {
+		return map[string]float64{"default": 90.0}, nil
+	}
+	return config.Thresholds, nil
 }
 
+// SaveThresholds signs and persists the thresholds.
+func SaveThresholds(path string, thresholds map[string]float64) error {
+	config := CoverageConfig{
+		Thresholds: thresholds,
+	}
+	config.Signature = calculateCoverageSignature(&config)
+
+	b, err := json.MarshalIndent(config, "", "  ")
+	if err != nil {
+		return err
+	}
+	b = append(b, '\n')
+	return os.WriteFile(path, b, 0644)
+}
 // EnforceCoverage checks the measured coverage against expected thresholds.
 // Returns a list of formatted violation strings, sorted alphabetically.
 func EnforceCoverage(coverage map[string]float64, thresholds map[string]float64) []string {

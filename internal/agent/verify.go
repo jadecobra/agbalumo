@@ -257,7 +257,12 @@ func VerifyCoverage() bool {
 	thresholdsData, err := os.ReadFile(filepath.Join(".agents", "coverage-thresholds.json"))
 	var thresholds map[string]float64
 	if err == nil {
-		thresholds, _ = ParseThresholds(thresholdsData)
+		var parseErr error
+		thresholds, parseErr = ParseThresholds(thresholdsData)
+		if parseErr != nil {
+			fmt.Println("❌ " + parseErr.Error())
+			return false
+		}
 	} else {
 		globalThreshold := 90.0
 		legacyData, err := os.ReadFile(filepath.Join(".agents", "coverage-threshold"))
