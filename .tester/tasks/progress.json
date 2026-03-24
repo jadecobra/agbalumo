@@ -223,6 +223,17 @@
         "Removed unused testifyMock import from listing_upload_test.go.",
         "Confirmed MockImageService is still needed in TestHandleCreate_ImageUploadError to simulate upload failures."
       ]
+    },
+    {
+      "category": "Harness Security & Anti-Cheat",
+      "description": "Fix exploits and bypasses in the 10x Engineer CLI harness to ensure strict TDD adherence",
+      "passes": false,
+      "steps": [
+        "Verify JSON Casing Exploit: Modify state.json with uppercase keys and ensure LoadState rejects the invalid signature (Gemini 3 Flash Task)",
+        "Verify Coverage Spoofing Exploit: Attempt to bypass coverage by modifying .agents/coverage-thresholds.json and ensure Harness catches it (Gemini 3 Flash Task)",
+        "Verify Red-Test Bypass Exploit: Ensure 'gate red-test PASS' cannot be manually executed via CLI (Gemini 3 Flash Task)",
+        "Verify Panic Evasion Exploit: Ensure tests that os.Exit(0) without outputting failure correctly trigger red-test failure (Gemini 3 Flash Task)"
+      ]
     }
   ]
 }
