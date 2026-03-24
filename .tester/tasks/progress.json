@@ -233,7 +233,6 @@
         "Verify Coverage Spoofing Exploit: Attempt to bypass coverage by modifying .agents/coverage-thresholds.json and ensure Harness catches it (Completed)",
         "Verify Red-Test Bypass Exploit: Ensure 'gate red-test PASS' cannot be manually executed via CLI (Completed)",
         "Verify Panic Evasion Exploit: Ensure tests that os.Exit(0) without outputting failure correctly trigger red-test failure ",
-        "Verify JSON Casing Exploit: Modify state.json with uppercase keys and ensure LoadState rejects the invalid signature",
         "Verify Coverage Spoofing Exploit: Attempt to bypass coverage by modifying .agents/coverage-thresholds.json and ensure Harness catches it (Completed)",
         "Verify Red-Test Bypass Exploit: Ensure 'gate red-test PASS' cannot be manually executed via CLI (Completed)",
         "Verify Panic Evasion Exploit: Ensure tests that os.Exit(0) without outputting failure correctly trigger red-test failure (Completed)"

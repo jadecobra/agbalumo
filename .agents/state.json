@@ -1,6 +1,6 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "panic-evasion-exploit",
+  "feature": "harness-progress-fix",
   "workflow_type": "bugfix",
   "phase": "REFACTOR",
   "gates": {
@@ -11,6 +11,6 @@
     "coverage": "PASSED",
     "browser-verification": "PENDING"
   },
-  "updated_at": "2026-03-24T12:20:03.147378Z",
-  "signature": "f31b92313e59b2301fddb3d3b523f79d09615fc624ebd449a44cae90ac419d92"
+  "updated_at": "2026-03-24T12:43:47.169445Z",
+  "signature": "0b40e700b1a928d93310bee283bc59a4b4570ac5eec6af1469a089552646db3a"
 }

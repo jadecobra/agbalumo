@@ -425,3 +425,76 @@ Detected Apple M-series chip. Using --container-architecture linux/amd64
 [CI/CD Pipeline/Tests & Coverage     ]   | go: downloading modernc.org/memory v1.11.0
 [CI/CD Pipeline/Tests & Coverage     ]   | go: downloading golang.org/x/exp v0.0.0-20251023183803-a4bb9ffd2546
 [CI/CD Pipeline/Tests & Coverage     ]   | go: downloading github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec
+[CI/CD Pipeline/Tests & Coverage     ]   | 	github.com/jadecobra/agbalumo		coverage: 0.0% of statements
+[CI/CD Pipeline/Tests & Coverage     ]   | ok  	github.com/jadecobra/agbalumo/cmd	6.914s	coverage: 64.5% of statements
+[CI/CD Pipeline/Tests & Coverage     ]   | ok  	github.com/jadecobra/agbalumo/cmd/harness	1.190s	coverage: 18.5% of statements
+[CI/CD Pipeline/Tests & Coverage     ]   | ok  	github.com/jadecobra/agbalumo/cmd/security-audit	1.234s	coverage: 86.4% of statements
+[CI/CD Pipeline/Tests & Coverage     ]   | Running early lint and build...
+[CI/CD Pipeline/Tests & Coverage     ]   | Running tests...
+[CI/CD Pipeline/Tests & Coverage     ]   | ✅ Gate PASS: implementation build and tests passed.
+[CI/CD Pipeline/Tests & Coverage     ]   | Running linter...
+[CI/CD Pipeline/Tests & Coverage     ]   | ⚠️  golangci-lint not found, skipping...
+[CI/CD Pipeline/Tests & Coverage     ]   | ✅ Gate PASS: lint passed.
+[CI/CD Pipeline/Tests & Coverage     ]   | Verifying test coverage...
+[CI/CD Pipeline/Tests & Coverage     ]   | ✅ Gate PASS: Coverage meets thresholds.
+[CI/CD Pipeline/Tests & Coverage     ]   | Coverage result: true
+[CI/CD Pipeline/Tests & Coverage     ]   | Running tests expecting failure...
+[CI/CD Pipeline/Tests & Coverage     ]   | Gate FAIL: tests failed but no individual test failures were recorded (possible panic/os.Exit evasion).
+[CI/CD Pipeline/Tests & Coverage     ]   | Running tests expecting failure...
+[CI/CD Pipeline/Tests & Coverage     ]   | Gate PASS: red-test failed as expected.
+[CI/CD Pipeline/Tests & Coverage     ]   | Running API and CLI drift checks...
+[CI/CD Pipeline/Tests & Coverage     ]   | Error extracting routes from code: no valid Go files found in provided paths
+[CI/CD Pipeline/Tests & Coverage     ]   | Running API and CLI drift checks...
+[CI/CD Pipeline/Tests & Coverage     ]   | ❌ Missing in Code (cmd/server.go): GET /missing (found in API Docs (docs/api.md))
+[CI/CD Pipeline/Tests & Coverage     ]   | ❌ Missing in OpenAPI (docs/openapi.yaml): GET /missing (found in API Docs (docs/api.md))
+[CI/CD Pipeline/Tests & Coverage     ]   | ❌ Missing in CLI Docs: serve (found in Code)
+[CI/CD Pipeline/Tests & Coverage     ]   | ❌ Missing in Code: unknown (found in CLI Docs)
+[CI/CD Pipeline/Tests & Coverage     ]   | ❌ Gate FAIL: contract drift detected.
+[CI/CD Pipeline/Tests & Coverage     ]   | --- FAIL: TestIntegrationAPIDrift (0.26s)
+[CI/CD Pipeline/Tests & Coverage     ]   |     drift_test.go:92: failed to bundle openapi.yaml: exec: "npx": executable file not found in $PATH
+[CI/CD Pipeline/Tests & Coverage     ]   |         Output: 
+[CI/CD Pipeline/Tests & Coverage     ]   | FAIL
+[CI/CD Pipeline/Tests & Coverage     ]   | coverage: 74.4% of statements
+[CI/CD Pipeline/Tests & Coverage     ]   | FAIL	github.com/jadecobra/agbalumo/internal/agent	9.787s
+[CI/CD Pipeline/Tests & Coverage     ]   | ok  	github.com/jadecobra/agbalumo/internal/common	1.504s	coverage: 91.3% of statements
+[CI/CD Pipeline/Tests & Coverage     ]   | ok  	github.com/jadecobra/agbalumo/internal/config	1.250s	coverage: 92.6% of statements
+[CI/CD Pipeline/Tests & Coverage     ]   | ok  	github.com/jadecobra/agbalumo/internal/domain	1.227s	coverage: 100.0% of statements
+[CI/CD Pipeline/Tests & Coverage     ]   | ok  	github.com/jadecobra/agbalumo/internal/handler	3.525s	coverage: 95.6% of statements
+[CI/CD Pipeline/Tests & Coverage     ]   | ok  	github.com/jadecobra/agbalumo/internal/middleware	1.205s	coverage: 97.9% of statements
+[CI/CD Pipeline/Tests & Coverage     ]   | ok  	github.com/jadecobra/agbalumo/internal/module/admin	7.978s	coverage: 91.8% of statements
+[CI/CD Pipeline/Tests & Coverage     ]   | ok  	github.com/jadecobra/agbalumo/internal/module/auth	3.859s	coverage: 86.4% of statements
+[CI/CD Pipeline/Tests & Coverage     ]   | ok  	github.com/jadecobra/agbalumo/internal/module/listing	9.163s	coverage: 87.7% of statements
+[CI/CD Pipeline/Tests & Coverage     ]   | ok  	github.com/jadecobra/agbalumo/internal/repository/cached	1.164s	coverage: 100.0% of statements
+[CI/CD Pipeline/Tests & Coverage     ]   | ok  	github.com/jadecobra/agbalumo/internal/repository/sqlite	90.018s	coverage: 84.4% of statements
+[CI/CD Pipeline/Tests & Coverage     ]   | ok  	github.com/jadecobra/agbalumo/internal/security	1.359s	coverage: [no statements]
+[CI/CD Pipeline/Tests & Coverage     ]   | ok  	github.com/jadecobra/agbalumo/internal/seeder	6.237s	coverage: 91.6% of statements
+[CI/CD Pipeline/Tests & Coverage     ]   | ok  	github.com/jadecobra/agbalumo/internal/service	5.477s	coverage: 87.3% of statements
+[CI/CD Pipeline/Tests & Coverage     ]   | ok  	github.com/jadecobra/agbalumo/internal/ui	1.931s	coverage: 95.1% of statements
+[CI/CD Pipeline/Tests & Coverage     ]   | FAIL
+[CI/CD Pipeline/Tests & Coverage     ]   ❌  Failure - Main Run Tests with Coverage [3m26.329320667s]
+[CI/CD Pipeline/Tests & Coverage     ] exitcode '1': failure
+[CI/CD Pipeline/Tests & Coverage     ] ⭐ Run Complete job
+[CI/CD Pipeline/Tests & Coverage     ]   ✅  Success - Complete job
+[CI/CD Pipeline/Tests & Coverage     ] 🏁  Job failed
+
+📊 Running full search performance benchmarks (10,000 listings)...
+{"Time":"2026-03-24T07:28:12.914703-05:00","Action":"start","Package":"command-line-arguments"}
+{"Time":"2026-03-24T07:28:13.276415-05:00","Action":"output","Package":"command-line-arguments","Output":"goos: darwin\n"}
+{"Time":"2026-03-24T07:28:13.276506-05:00","Action":"output","Package":"command-line-arguments","Output":"goarch: arm64\n"}
+{"Time":"2026-03-24T07:28:13.276513-05:00","Action":"output","Package":"command-line-arguments","Output":"cpu: Apple M1 Pro\n"}
+{"Time":"2026-03-24T07:28:13.276517-05:00","Action":"output","Package":"command-line-arguments","Output":"BenchmarkSearchPerformance\n"}
+{"Time":"2026-03-24T07:28:13.281768-05:00","Action":"output","Package":"command-line-arguments","Output":"    search_performance_test.go:34: Seeding 10000 listings...\n"}
+{"Time":"2026-03-24T07:28:16.425283-05:00","Action":"output","Package":"command-line-arguments","Output":"    search_performance_test.go:63: Seeding complete.\n"}
+{"Time":"2026-03-24T07:28:16.425326-05:00","Action":"output","Package":"command-line-arguments","Output":"BenchmarkSearchPerformance/FindAll_Default_Page1\n"}
+{"Time":"2026-03-24T07:28:17.794507-05:00","Action":"output","Package":"command-line-arguments","Output":"BenchmarkSearchPerformance/FindAll_Default_Page1-8         \t     564\t   2042586 ns/op\n"}
+{"Time":"2026-03-24T07:28:17.795022-05:00","Action":"output","Package":"command-line-arguments","Output":"BenchmarkSearchPerformance/FindAll_Search_Page1\n"}
+{"Time":"2026-03-24T07:28:19.009012-05:00","Action":"output","Package":"command-line-arguments","Output":"BenchmarkSearchPerformance/FindAll_Search_Page1-8          \t      69\t  17325210 ns/op\n"}
+{"Time":"2026-03-24T07:28:19.009075-05:00","Action":"output","Package":"command-line-arguments","Output":"BenchmarkSearchPerformance/FindAll_Filter_Page1\n"}
+{"Time":"2026-03-24T07:28:20.286004-05:00","Action":"output","Package":"command-line-arguments","Output":"BenchmarkSearchPerformance/FindAll_Filter_Page1-8          \t    1393\t    852182 ns/op\n"}
+{"Time":"2026-03-24T07:28:20.286067-05:00","Action":"output","Package":"command-line-arguments","Output":"BenchmarkSearchPerformance/FindAll_Search_Filter_Page1\n"}
+{"Time":"2026-03-24T07:28:21.510343-05:00","Action":"output","Package":"command-line-arguments","Output":"BenchmarkSearchPerformance/FindAll_Search_Filter_Page1-8   \t      91\t  13294105 ns/op\n"}
+{"Time":"2026-03-24T07:28:21.510399-05:00","Action":"output","Package":"command-line-arguments","Output":"BenchmarkSearchPerformance/FindAll_Deep_Pagination\n"}
+{"Time":"2026-03-24T07:28:23.100633-05:00","Action":"output","Package":"command-line-arguments","Output":"BenchmarkSearchPerformance/FindAll_Deep_Pagination-8       \t     316\t   3815147 ns/op\n"}
+{"Time":"2026-03-24T07:28:23.101201-05:00","Action":"output","Package":"command-line-arguments","Output":"PASS\n"}
+{"Time":"2026-03-24T07:28:23.103982-05:00","Action":"output","Package":"command-line-arguments","Output":"ok  \tcommand-line-arguments\t10.188s\n"}
+{"Time":"2026-03-24T07:28:23.104017-05:00","Action":"pass","Package":"command-line-arguments","Elapsed":10.189}

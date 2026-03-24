@@ -63,7 +63,7 @@ func saveState(state *agent.State) {
 func hasPending(steps interface{}) bool {
 	if sList, ok := steps.([]interface{}); ok {
 		for _, step := range sList {
-			if s, ok := step.(string); ok && strings.Contains(s, "(Pending)") {
+			if s, ok := step.(string); ok && !strings.Contains(s, "(Completed)") {
 				return true
 			}
 		}
