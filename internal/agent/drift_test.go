@@ -110,3 +110,89 @@ func TestIntegrationAPIDrift(t *testing.T) {
 		t.Errorf("expected 0 drift, got %d:\n%v", len(diffs), strings.Join(diffs, "\n"))
 	}
 }
+
+func TestExtractCLICodeCommands(t *testing.T) {
+	// Create a temporary mock cmd dir
+	tmpDir := t.TempDir()
+	code1 := `package main
+	import "github.com/spf13/cobra"
+	var cmd = &cobra.Command{ Use: "serve" }`
+	code2 := `package main
+var cmd = &cobra.Command{
+	Use:   "admin",
+}
+var subCmd = &cobra.Command{
+	Use: "approve [id]",
+}`
+	_ = os.WriteFile(tmpDir+"/1.go", []byte(code1), 0644)
+	_ = os.WriteFile(tmpDir+"/2.go", []byte(code2), 0644)
+	_ = os.WriteFile(tmpDir+"/ignore.txt", []byte(`Use: "ignoreMe"`), 0644) // Should be ignored
+
+	expected := []string{"admin", "approve", "serve"}
+	cmds, err := agent.ExtractCLICodeCommands(tmpDir)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if !reflect.DeepEqual(cmds, expected) {
+		t.Errorf("expected %v, got %v", expected, cmds)
+	}
+}
+
+func TestExtractCLIMarkdownCommands(t *testing.T) {
+	tmpDir := t.TempDir()
+	md1 := `
+### Serve
+Some description
+
+### Admin
+Another description
+
+##### approve
+Approves stuff
+
+### Subcommands
+(Ignored)
+`
+	md2 := `
+### seed
+Description	
+`
+	_ = os.WriteFile(tmpDir+"/cli.md", []byte(md1), 0644)
+	_ = os.MkdirAll(tmpDir+"/cli", 0755)
+	_ = os.WriteFile(tmpDir+"/cli/seed.md", []byte(md2), 0644)
+
+	expected := []string{"admin", "approve", "seed", "serve"}
+
+	cmds, err := agent.ExtractCLIMarkdownCommands(tmpDir+"/cli.md", tmpDir+"/cli/seed.md")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if !reflect.DeepEqual(cmds, expected) {
+		t.Errorf("expected %v, got %v", expected, cmds)
+	}
+}
+
+func TestCheckCLIDrift(t *testing.T) {
+	codeCmds := []string{"serve", "admin"}
+	mdCmds := []string{"serve", "seed"}
+
+	diffs := agent.CheckCLIDrift(codeCmds, mdCmds)
+	if len(diffs) != 2 {
+		t.Fatalf("expected 2 diffs, got %d: %v", len(diffs), diffs)
+	}
+	
+	expected1 := "❌ Missing in CLI Docs: admin (found in Code)"
+	expected2 := "❌ Missing in Code: seed (found in CLI Docs)"
+
+	found1, found2 := false, false
+	for _, d := range diffs {
+		if d == expected1 { found1 = true }
+		if d == expected2 { found2 = true }
+	}
+
+	if !found1 || !found2 {
+		t.Errorf("did not find expected differences, got: %v", diffs)
+	}
+}

@@ -1,7 +1,7 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "Bugfix_AdminFeaturedListingJSON",
-  "workflow_type": "bugfix",
+  "feature": "CLI_Testing_Harness",
+  "workflow_type": "feature",
   "phase": "REFACTOR",
   "gates": {
     "red-test": "PASSED",
@@ -11,6 +11,6 @@
     "coverage": "PASSED",
     "browser-verification": "PASSED"
   },
-  "updated_at": "2026-03-23T15:38:59.427368Z",
-  "signature": "50ddbe3b4f1318a815ce3651424708ac0e1976df456686a2705258e5ca0d882f"
+  "updated_at": "2026-03-24T00:02:29.258659Z",
+  "signature": "85409ec376f8a9c52cacf83265b6e27ceca9ae28c447a4823296de3cbf0a9ad7"
 }

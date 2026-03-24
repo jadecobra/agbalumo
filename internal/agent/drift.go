@@ -2,6 +2,8 @@ package agent
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
@@ -149,3 +151,120 @@ func uniqueStrings(strs []string) []string {
 	}
 	return unique
 }
+
+func ExtractCLICodeCommands(dir string) ([]string, error) {
+	var cmds []string
+	useRe := regexp.MustCompile(`(?m)Use:\s*"([^ "\n]+)`)
+
+	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() && filepath.Ext(path) == ".go" {
+			data, err := os.ReadFile(path)
+			if err != nil {
+				return err
+			}
+			matches := useRe.FindAllStringSubmatch(string(data), -1)
+			for _, match := range matches {
+				if len(match) > 1 {
+					cmd := strings.TrimSpace(match[1])
+					if cmd != "" && cmd != "agbalumo" {
+						cmds = append(cmds, cmd)
+					}
+				}
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	cmds = uniqueStrings(cmds)
+	sort.Strings(cmds)
+	return cmds, nil
+}
+
+func ExtractCLIMarkdownCommands(paths ...string) ([]string, error) {
+	var cmds []string
+	headerRe := regexp.MustCompile(`(?m)^###+\s+(.*)`)
+	ignored := map[string]bool{
+		"subcommands":               true,
+		"commands":                  true,
+		"flags":                     true,
+		"example":                   true,
+		"quick reference":           true,
+		"environment variables":     true,
+		"global flags":              true,
+		"agent harness and testing": true,
+	}
+
+	for _, path := range paths {
+		info, err := os.Stat(path)
+		if err != nil {
+			continue // skip missing files like docs/cli/*.md if dir not there
+		}
+		if info.IsDir() {
+			_ = filepath.Walk(path, func(p string, i os.FileInfo, e error) error {
+				if e == nil && !i.IsDir() && filepath.Ext(p) == ".md" {
+					data, _ := os.ReadFile(p)
+					matches := headerRe.FindAllStringSubmatch(string(data), -1)
+					for _, match := range matches {
+						if len(match) > 1 {
+							cmd := strings.TrimSpace(strings.ToLower(match[1]))
+							if cmd != "" && !ignored[cmd] {
+								cmds = append(cmds, cmd)
+							}
+						}
+					}
+				}
+				return nil
+			})
+		} else if filepath.Ext(path) == ".md" {
+			data, err := os.ReadFile(path)
+			if err == nil {
+				matches := headerRe.FindAllStringSubmatch(string(data), -1)
+				for _, match := range matches {
+					if len(match) > 1 {
+						cmd := strings.TrimSpace(strings.ToLower(match[1]))
+						if cmd != "" && !ignored[cmd] {
+							cmds = append(cmds, cmd)
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	cmds = uniqueStrings(cmds)
+	sort.Strings(cmds)
+	return cmds, nil
+}
+
+func CheckCLIDrift(codeCmds, mdCmds []string) []string {
+	var diffs []string
+	codeMap := make(map[string]bool)
+	for _, c := range codeCmds {
+		codeMap[c] = true
+	}
+	mdMap := make(map[string]bool)
+	for _, c := range mdCmds {
+		mdMap[c] = true
+	}
+
+	for _, c := range codeCmds {
+		if !mdMap[c] {
+			diffs = append(diffs, fmt.Sprintf("❌ Missing in CLI Docs: %s (found in Code)", c))
+		}
+	}
+	for _, c := range mdCmds {
+		if !codeMap[c] {
+			diffs = append(diffs, fmt.Sprintf("❌ Missing in Code: %s (found in CLI Docs)", c))
+		}
+	}
+
+	sort.Strings(diffs)
+	return diffs
+}
+

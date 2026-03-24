@@ -89,11 +89,6 @@ else
     if [ "$FMT" != "json" ]; then echo "  ${YELLOW}skipping API Drift (no relevant changes)${NC}"; fi
 fi
 
-if [ -n "$STAGED_CLI_DOCS" ]; then
-    run_task "cli_drift" "CLI Drift" "$LOG_DIR" bash scripts/cli-drift-check.sh &
-else
-    if [ "$FMT" != "json" ]; then echo "  ${YELLOW}skipping CLI Drift (no relevant changes)${NC}"; fi
-fi
 
 # 3.1 Agent Drift Check
 if [ -n "$STAGED_AGENT_FILES" ]; then

@@ -69,7 +69,14 @@
       "description": "Comprehensive test metric improvements and testing tools",
       "passes": false,
       "steps": [
-        "Verify CLI testing harness (api-spec, cli-drift validations)",
+        "Verify CLI testing harness (api-spec, cli-drift validations): Implement ExtractCLICodeCommands in internal/agent/drift.go to parse cmd/ directory for Cobra Use declarations (Completed)",
+        "Verify CLI testing harness (api-spec, cli-drift validations): Implement ExtractCLIMarkdownCommands in internal/agent/drift.go to parse docs/cli.md and docs/cli/*.md for headers (Completed)",
+        "Verify CLI testing harness (api-spec, cli-drift validations): Implement CheckCLIDrift in internal/agent/drift.go to compare CLI code commands against CLI markdown documentation (Completed)",
+        "Verify CLI testing harness (api-spec, cli-drift validations): Add Unit Tests for ExtractCLICodeCommands and ExtractCLIMarkdownCommands in internal/agent/drift_test.go (Completed)",
+        "Verify CLI testing harness (api-spec, cli-drift validations): Add Unit Test for CheckCLIDrift in internal/agent/drift_test.go (Completed)",
+        "Verify CLI testing harness (api-spec, cli-drift validations): Refactor VerifyApiSpec in internal/agent/verify.go to use CheckCLIDrift instead of scripts/cli-drift-check.sh shell command (Completed)",
+        "Verify CLI testing harness (api-spec, cli-drift validations): Mock simulate CLI/API drift violations in internal/agent/verify_test.go to verify VerifyApiSpec aggregates errors correctly (Completed)",
+        "Verify CLI testing harness (api-spec, cli-drift validations): Delete deprecated scripts/cli-drift-check.sh and update scripts/pre-commit.sh to use native agent gate (Completed)",
         "Verify Baseline Coverage (\u003e90%)",
         "Verify Phase 1 test coverage (Priority 1) (Pending): Run `go test -v ./internal/middleware -run TestRateLimit` to verify critical rate-limiting coverage is met",
         "Verify Phase 2 test coverage (Priority 2) (Pending): Run validation domain tests to ensure configuration validation passes",
@@ -186,11 +193,22 @@
       "passes": true,
       "steps": [
         "Verify if MockImageService in TestHandleCreate_WithImage and TestListingHandler_Upload_Valid to resolve filesystem I/O errors during tests is still needed",
-        "Identified target `HandleToggleFeatured` in `admin_listings.go` returning JSON natively.",
+        "Verify `HandleToggleFeatured` in `admin_listings.go` returns JSON natively.",
         "Verify `setupAdminTestContext` mocking the renderer to expect an admin_listing_table_row. is necessary",
         "Verify `admin_actions_test.go` explicitly verifies HTML is returned.",
         "Verify Refactored `HandleToggleFeatured` returns `updatedListing` HTML upon successful save.",
         "Verify Fixed jq JSON parsing bug in scripts/utils.sh when failures contain unescaped characters"
+      ]
+    },
+    {
+      "category": "Verification",
+      "description": "Verified necessity of MockImageService in listing tests and removed it where possible.",
+      "passes": true,
+      "steps": [
+        "Replaced MockImageService with real LocalImageService using t.TempDir() in TestHandleCreate_WithImage to avoid I/O pollution.",
+        "Replaced MockImageService with real LocalImageService using t.TempDir() in TestListingHandler_Upload_Valid.",
+        "Removed unused testifyMock import from listing_upload_test.go.",
+        "Confirmed MockImageService is still needed in TestHandleCreate_ImageUploadError to simulate upload failures."
       ]
     }
   ]

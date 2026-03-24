@@ -109,14 +109,23 @@ func VerifyApiSpec(workflowType string) bool {
 
 	drifts := CheckAPIDrift(codeRoutes, openapiRoutes, mdRoutes)
 
-	cliDriftFailed := false
-	cliOut, err := RunCommand("bash", "scripts/cli-drift-check.sh")
+	// -- native CLI Drift calculations --
+	cliCodeCmds, err := ExtractCLICodeCommands("cmd")
 	if err != nil {
-		fmt.Print(string(cliOut))
-		cliDriftFailed = true
+		fmt.Println("Error extracting CLI code cmds:", err)
+		return false
+	}
+	
+	cliMDCmds, err := ExtractCLIMarkdownCommands("docs/cli.md", "docs/cli")
+	if err != nil {
+		fmt.Println("Error extracting CLI md cmds:", err)
+		return false
 	}
 
-	if len(drifts) == 0 && !cliDriftFailed {
+	cliDrifts := CheckCLIDrift(cliCodeCmds, cliMDCmds)
+	drifts = append(drifts, cliDrifts...)
+
+	if len(drifts) == 0 {
 		fmt.Println("✅ Gate PASS: drift checks passed.")
 		return true
 	}
