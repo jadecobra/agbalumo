@@ -1,8 +1,8 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "context-cost-listing-read",
+  "feature": "Context_Cost_Reduction",
   "workflow_type": "refactor",
-  "phase": "IDLE",
+  "phase": "REFACTOR",
   "gates": {
     "red-test": "PASSED",
     "api-spec": "PASSED",
@@ -11,6 +11,6 @@
     "coverage": "PASSED",
     "browser-verification": "PENDING"
   },
-  "updated_at": "2026-03-24T22:51:16.766484Z",
-  "signature": "678e92934252e744fc6ff7e1f68094d92595d7e7c9b89f65451bf0f7a725ca41"
+  "updated_at": "2026-03-24T23:12:04.241837Z",
+  "signature": "95dd7f2644822a2d1eb84edfc29f62c200b6f336803e03de35e48024f9950901"
 }

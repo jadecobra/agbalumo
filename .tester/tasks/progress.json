@@ -251,14 +251,15 @@
         "Verify harness/main.go CLI command definitions are extracted into separate packages (e.g., cmd/harness/commands) (Completed)",
         "Verify auth/handler_test.go test cases are split by endpoint (login, register, logout) (Completed)",
         "Verify sqlite_listing.go read operations are split into sqlite_listing_read.go",
-        "Verify sqlite_listing.go write operations are split into sqlite_listing_write.go",
+        "Verify sqlite_listing.go write operations are split into sqlite_listing_write.go (Completed)",
         "Verify listing_test.go validation tests are split from struct method tests",
         "Verify image_test.go mock initialization and teardown are split into test helpers",
         "Verify performance-audit.sh reporting functions are abstracted into scripts/utils/audit_helpers.sh",
         "Verify server_ui_test.go browser verification specs are split by user journey",
         "Verify listing_write_test.go create, update, and delete tests are split into isolated files",
         "Verify sqlite_test.go listing repository tests are split into sqlite_listing_test.go (Completed)",
-        "Verify auth/handler_test.go test cases are split by endpoint (login, register, logout) (Completed)"
+        "Verify auth/handler_test.go test cases are split by endpoint (login, register, logout) (Completed)",
+        "Verify sqlite_listing.go read operations are split into sqlite_listing_read.go"
       ]
     }
   ]
