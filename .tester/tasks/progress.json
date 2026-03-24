@@ -80,7 +80,19 @@
         "Verify Baseline Coverage (\u003e90%)",
         "Verify Phase 1 test coverage (Priority 1) (Completed): Run `go test -v ./internal/middleware -run TestRateLimit` to verify critical rate-limiting coverage is met",
         "Verify Phase 2 test coverage (Priority 2) (Completed): Run validation domain tests to ensure configuration validation passes",
-        "Verify Phase 3 test coverage (Priority 3) (Completed): Run mock and infrastructure testing suites and verify they execute successfully"
+        "Verify Phase 3 test coverage (Priority 3) (Completed): Run mock and infrastructure testing suites and verify they execute successfully",
+        "Verify cmd/listing.go test coverage (Completed): Run unit tests and ensure >90% coverage threshold is met (Gemini 3 Flash Task)",
+        "Verify internal/agent/coverage.go test coverage: Run unit tests and ensure >90% coverage threshold is met (Gemini 3 Flash Task)",
+        "Verify internal/service/background.go test coverage: Run unit tests and ensure >90% coverage threshold is met (Gemini 3 Flash Task)",
+        "Verify internal/service/csv.go test coverage: Run unit tests and ensure >90% coverage threshold is met (Gemini 3 Flash Task)",
+        "Verify internal/seeder/seeder.go test coverage: Run unit tests and ensure >90% coverage threshold is met (Gemini 3 Flash Task)",
+        "Verify internal/agent/drift.go test coverage: Run unit tests and ensure >90% coverage threshold is met (Gemini 3 Flash Task)",
+        "Verify internal/repository/sqlite/sqlite_claim.go test coverage: Run unit tests and ensure >90% coverage threshold is met (Gemini 3 Flash Task)",
+        "Verify internal/repository/sqlite/sqlite.go test coverage: Run unit tests and ensure >90% coverage threshold is met (Gemini 3 Flash Task)",
+        "Verify cmd/security-audit/main.go test coverage: Run unit tests and ensure >90% coverage threshold is met (Gemini 3 Flash Task)",
+        "Verify cmd/server.go test coverage: Run unit tests and ensure >90% coverage threshold is met (Gemini 3 Flash Task)",
+        "Verify internal/config/config.go test coverage: Run unit tests and ensure >90% coverage threshold is met (Gemini 3 Flash Task)",
+        "Verify internal/module/admin/admin_listings.go test coverage: Run unit tests and ensure >90% coverage threshold is met (Gemini 3 Flash Task)"
       ]
     },
     {
