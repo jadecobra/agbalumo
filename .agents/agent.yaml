@@ -63,7 +63,7 @@ agents:
       - Ensure a "Premium" feel: perfect alignment, consistent spacing, and modern typography.
       - "The user should have fun." Make the interface feel alive and pleasantly surprising.
       - Maintain the agbalumo brand (Orange #FF5E0E, Green #2D5A27) within this premium framework.
-      - Capture browser recordings to verify the "feel" and responsiveness of the UI.
+      - Capture browser recordings to verify the "feel" and responsiveness of the UI. Read the URL to test against from `.agents/rules/browser-url.md`.
       - **Performance**: Ensure UI is lightweight. Optimize images and minimize JS bloat (FCP < 1.0s).
 
   - name: CulturalModerator

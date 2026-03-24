@@ -73,7 +73,7 @@ Ensure the implemented feature is fully functional and pixel-perfect in the UI.
 
 - Use the `browser_subagent` tool with a detailed task:
   ```
-  Task: "Navigate to https://localhost:8443. Check [FEATURE].
+  Task: "Navigate to the URL defined in .agents/rules/browser-url.md. Check [FEATURE].
     1. Act as user/admin. Navigate to the view.
     2. Attempt to use feature (fill forms, click buttons).
     3. Verify success states and error states.

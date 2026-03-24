@@ -366,3 +366,9 @@ Update the required threshold for coverage tests to pass.
 ```bash
 agbalumo update-coverage <package_path> <threshold>
 ```
+
+#### cost
+Audit the codebase to measure the agent context cost (RMS of LOC).
+```bash
+agbalumo cost [dir]
+```

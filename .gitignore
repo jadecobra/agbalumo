@@ -22,11 +22,15 @@ certs/
 .vscode/
 # Node
 node_modules/
+*.log
 server.log
 
 /server
 internal/module/listing/ui/static/uploads/
 coverage.html
+benchmark
+benchmark-shm
+benchmark-wal
 *.bak
 pnpm-lock.yaml
 .sisyphus/

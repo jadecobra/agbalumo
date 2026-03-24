@@ -1,7 +1,0 @@
-{
-  "category": "Harness Security & Anti-Cheat",
-  "description": "Fix exploits in the 10x Engineer CLI harness",
-  "steps": [
-    "Verify JSON Casing Exploit: Modify state.json with uppercase keys and ensure LoadState rejects the invalid signature (Completed)"
-  ]
-}

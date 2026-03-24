@@ -26,8 +26,12 @@ We follow a strict **TDD (Red-Green-Refactor)** protocol.
 go test -json -v -race ./...
 
 # Run tests with coverage
-go test -json -coverprofile=coverage.out ./...
-go tool cover -func=coverage.out
+mkdir -p .tester/coverage
+go test -json -coverprofile=.tester/coverage/coverage.out ./...
+go tool cover -func=.tester/coverage/coverage.out
+
+# Generate HTML coverage report
+go tool cover -html=.tester/coverage/coverage.out -o .tester/coverage/coverage.html
 ```
 
 ### Coverage Threshold

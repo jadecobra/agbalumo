@@ -1,6 +1,6 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "harness-progress-fix",
+  "feature": "ignore-lockfiles",
   "workflow_type": "bugfix",
   "phase": "REFACTOR",
   "gates": {
@@ -9,8 +9,8 @@
     "implementation": "PASSED",
     "lint": "PASSED",
     "coverage": "PASSED",
-    "browser-verification": "PENDING"
+    "browser-verification": "PASSED"
   },
-  "updated_at": "2026-03-24T12:43:47.169445Z",
-  "signature": "0b40e700b1a928d93310bee283bc59a4b4570ac5eec6af1469a089552646db3a"
+  "updated_at": "2026-03-24T15:00:06.666644Z",
+  "signature": "152bee7b2a6f2c9f89d8e215f8d834912eca162219cf1372618363a3af908862"
 }

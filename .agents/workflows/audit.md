@@ -41,7 +41,7 @@ description: comprehensive project audit (tests, security, ui, performance)
       go run cmd/server/main.go
       ```
     - **Browser Verification**: Use the `browser_subagent` to:
-      - Visit `https://localhost:8443`
+      - Visit the URL defined in `.agents/rules/browser-url.md`
       - Take a screenshot of the home page.
       - Check console for errors (CSP, 404s, JS crashes).
       - Verify responsive layout on mobile/desktop viewports.

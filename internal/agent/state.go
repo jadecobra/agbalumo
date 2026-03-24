@@ -56,8 +56,8 @@ func LoadState(path string) (*State, error) {
 	}
 
 	var state State
-	if err := json.Unmarshal(b, &state); err != nil {
-		return nil, err
+	if unmarshalErr := json.Unmarshal(b, &state); unmarshalErr != nil {
+		return nil, unmarshalErr
 	}
 
 	// Validate structural equivalence to prevent case-insensitive JSON bypasses

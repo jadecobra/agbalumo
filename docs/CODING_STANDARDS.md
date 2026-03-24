@@ -32,7 +32,7 @@
 *   **SDET-Tester**: Owns `*_test.go`. Writes failing tests (Red) BEFORE implementation.
 *   **BackendEngineer**: Implements logic to pass tests. **Strict Rule: No code without a failing test.**
 *   **SecurityEngineer**: Owns `security_test.go` and audits. "Trust but verify."
-*   **UIUXDesigner**: Owns look/feel (HIG/Material 3). Ensures "User Delight" and FCP < 1.0s.
+*   **UIUXDesigner**: Owns look/feel (HIG/Material 3). Ensures "User Delight" and FCP < 1.0s. Reads browser testing URLs from `.agents/rules/browser-url.md`.
 *   **CulturalModerator**: Ensures content relevance via Gemini. "Validate first."
 
 ## 6. Security Best Practices (Zero Trust)

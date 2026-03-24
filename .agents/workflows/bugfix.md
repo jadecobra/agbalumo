@@ -88,6 +88,7 @@ Implement the minimal fix.
   ```bash
   ./scripts/verify_restart.sh
   ```
+@[.agents/rules/browser-url.md]
 - **Gate: `browser-verification`**
 
 ---

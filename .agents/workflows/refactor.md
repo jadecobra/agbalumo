@@ -88,6 +88,7 @@ Modify the code while keeping tests green.
   ```bash
   ./scripts/verify_restart.sh
   ```
+@[.agents/rules/browser-url.md]
 - **Gate: `browser-verification`** (Optional, but recommended if UI logic was touched).
 
 ---
