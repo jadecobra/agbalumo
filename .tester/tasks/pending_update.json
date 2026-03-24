@@ -1,7 +1,0 @@
-{
-  "category": "Context Cost Reduction",
-  "description": "Granular refactoring tasks to reduce the context cost of the top 10 most expensive files",
-  "steps": [
-    "Verify sqlite_test.go user repository tests are split into sqlite_user_test.go (Completed)"
-  ]
-}

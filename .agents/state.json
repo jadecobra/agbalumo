@@ -1,7 +1,7 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "ignore-lockfiles",
-  "workflow_type": "bugfix",
+  "feature": "context-cost-listing-test",
+  "workflow_type": "refactor",
   "phase": "REFACTOR",
   "gates": {
     "red-test": "PASSED",
@@ -11,6 +11,6 @@
     "coverage": "PASSED",
     "browser-verification": "PASSED"
   },
-  "updated_at": "2026-03-24T15:00:06.666644Z",
-  "signature": "152bee7b2a6f2c9f89d8e215f8d834912eca162219cf1372618363a3af908862"
+  "updated_at": "2026-03-24T21:05:22.234119Z",
+  "signature": "d1209117271e67da9b42a54f4f61fe9c173e687366f2d6a39766c6b7a603dfea"
 }
