@@ -1,0 +1,7 @@
+{
+  "category": "Context Cost Reduction",
+  "description": "Granular refactoring tasks to reduce the context cost of the top 10 most expensive files",
+  "steps": [
+    "Verify sqlite_listing.go read operations are split into sqlite_listing_read.go"
+  ]
+}
