@@ -60,6 +60,15 @@ func LoadState(path string) (*State, error) {
 		return nil, err
 	}
 
+	// Validate structural equivalence to prevent case-insensitive JSON bypasses
+	canonicalBytes, err := json.MarshalIndent(state, "", "  ")
+	if err == nil {
+		canonicalBytes = append(canonicalBytes, '\n')
+		if string(b) != string(canonicalBytes) {
+			return nil, errors.New("ANTI-CHEAT TRIGGERED: Manual modification of .agents/state.json detected (structural mismatch). You must use the ./scripts/agent-exec.sh commands to manage state")
+		}
+	}
+
 	// Validate signature to prevent manual edits
 	if state.Signature != "" {
 		expected := calculateSignature(&state)

@@ -12,6 +12,7 @@ import (
 func TestStateSerialization(t *testing.T) {
 	t.Run("LoadState", func(t *testing.T) {
 		content := `{
+  "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
   "feature": "login-widget",
   "workflow_type": "feature",
   "phase": "IMPLEMENTATION",
@@ -23,8 +24,10 @@ func TestStateSerialization(t *testing.T) {
     "coverage": "PENDING",
     "browser-verification": "PENDING"
   },
-  "updated_at": "2026-03-15T13:47:32Z"
-}`
+  "updated_at": "2026-03-15T13:47:32Z",
+  "signature": ""
+}
+`
 		tmpDir := t.TempDir()
 		statePath := filepath.Join(tmpDir, "state.json")
 		err := os.WriteFile(statePath, []byte(content), 0644)
@@ -112,6 +115,40 @@ func TestStateSerialization(t *testing.T) {
 		}
 		if !agent.IsNotExist(err) && !os.IsNotExist(err) {
 			t.Errorf("expected IsNotExist error, got %v", err)
+		}
+	})
+
+	t.Run("LoadState_InvalidCasingSignature", func(t *testing.T) {
+		// Valid signature for lower-case "feature"
+		content := `{
+  "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
+  "Feature": "login-widget",
+  "workflow_type": "feature",
+  "phase": "IMPLEMENTATION",
+  "gates": {
+    "red-test": "PASSED",
+    "api-spec": "PENDING",
+    "implementation": "PENDING",
+    "lint": "PENDING",
+    "coverage": "PENDING",
+    "browser-verification": "PENDING"
+  },
+  "updated_at": "2026-03-15T13:47:32Z",
+  "signature": "ce73463aee24cd8c2ba43dc759bc65bcba172b8c9d0b674bfa0e6f3b55c6ce8e"
+}`
+		tmpDir := t.TempDir()
+		statePath := filepath.Join(tmpDir, "state.json")
+		err := os.WriteFile(statePath, []byte(content), 0644)
+		if err != nil {
+			t.Fatalf("failed to write temp file: %v", err)
+		}
+
+		_, err = agent.LoadState(statePath)
+		if err == nil {
+			t.Fatalf("expected error due to casing exploit, got none")
+		}
+		if !contains(err.Error(), "structural mismatch") {
+			t.Errorf("expected structural mismatch error, got: %v", err)
 		}
 	})
 }
