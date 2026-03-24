@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"errors"
 	"testing"
 	"time"
 
@@ -40,6 +41,12 @@ func TestValidateDeadline(t *testing.T) {
 			typeStr:  Business,
 			wantErr:  nil,
 		},
+		{
+			name:     "Deadline in Past",
+			deadline: now.Add(-48 * time.Hour),
+			typeStr:  Request,
+			wantErr:  errors.New("deadline cannot be in the past"),
+		},
 	}
 
 	for _, tt := range tests {
@@ -58,7 +65,7 @@ func TestValidateDeadline(t *testing.T) {
 			}
 			err := l.Validate()
 			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+				assert.EqualError(t, err, tt.wantErr.Error())
 			} else {
 				assert.NoError(t, err)
 			}

@@ -226,10 +226,7 @@ func (l *Listing) validateJob() error {
 	if l.JobStartDate.Before(time.Now().Add(-24 * time.Hour)) {
 		return errors.New("job start date cannot be in the past")
 	}
-	if l.City == "" && l.Address == "" {
-		// We check City primarily as "Location" usually maps to City
-		return errors.New("location (city) is required")
-	}
+
 	if l.JobApplyURL == "" {
 		return errors.New("apply url is required")
 	}
