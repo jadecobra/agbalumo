@@ -39,7 +39,15 @@ func TestBackgroundService_ExpireListings(t *testing.T) {
 }
 
 func TestBackgroundService_ExpireListings_Error(t *testing.T) {
-	// Hard to force with SQLite without mocks.
+	repo := setupTestRepo(t)
+	service := NewBackgroundService(repo)
+
+	// Passing a canceled context to simulate a database query error or timeout
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel() // Cancel immediately
+
+	service.expireListings(ctx)
+	// We expect this to print an error log and return early, achieving coverage of err != nil branch.
 }
 
 func TestBackgroundService_StartTicker_Cancels(t *testing.T) {
