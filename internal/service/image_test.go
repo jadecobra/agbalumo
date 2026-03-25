@@ -34,6 +34,37 @@ func createValidJPEG() []byte {
 	return buf.Bytes()
 }
 
+func setupTestImageService(t *testing.T) (*service.LocalImageService, string) {
+	t.Helper()
+	tempDir := t.TempDir()
+	svc := &service.LocalImageService{
+		UploadDir:      tempDir,
+		MaxUploadSize:  1024 * 1024,
+		MaxFileSize:    200 * 1024,
+		InitialQuality: 80,
+		MinQuality:     20,
+	}
+	return svc, tempDir
+}
+
+func createMultipartImageRequest(t *testing.T, fieldName, fileName string, fileData []byte) *multipart.FileHeader {
+	t.Helper()
+	body := &strings.Builder{}
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile(fieldName, fileName)
+	assert.NoError(t, err)
+	_, err = part.Write(fileData)
+	assert.NoError(t, err)
+	_ = writer.Close()
+
+	req := httptest.NewRequest("POST", "/", strings.NewReader(body.String()))
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	err = req.ParseMultipartForm(10 * 1024 * 1024)
+	assert.NoError(t, err)
+
+	return req.MultipartForm.File[fieldName][0]
+}
+
 func TestNewLocalImageService(t *testing.T) {
 	svc := service.NewLocalImageService("")
 
@@ -46,32 +77,12 @@ func TestNewLocalImageService(t *testing.T) {
 }
 
 func TestLocalImageService_UploadImage(t *testing.T) {
-	tempDir := t.TempDir()
-	svc := &service.LocalImageService{
-		UploadDir:      tempDir,
-		MaxUploadSize:  1024 * 1024,
-		MaxFileSize:    200 * 1024,
-		InitialQuality: 80,
-		MinQuality:     20,
-	}
+	svc, tempDir := setupTestImageService(t)
 
 	pngData := createValidPNG()
 	assert.NotNil(t, pngData, "failed to create test PNG")
 
-	body := &strings.Builder{}
-	writer := multipart.NewWriter(body)
-	part, err := writer.CreateFormFile("image", "test.png")
-	assert.NoError(t, err)
-	_, err = part.Write(pngData)
-	assert.NoError(t, err)
-	_ = writer.Close()
-
-	req := httptest.NewRequest("POST", "/", strings.NewReader(body.String()))
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-	err = req.ParseMultipartForm(1024)
-	assert.NoError(t, err)
-
-	fileHeader := req.MultipartForm.File["image"][0]
+	fileHeader := createMultipartImageRequest(t, "image", "test.png", pngData)
 	path, err := svc.UploadImage(context.Background(), fileHeader, "listing-123")
 
 	assert.NoError(t, err)
@@ -100,16 +111,7 @@ func TestLocalImageService_UploadImage_Validation(t *testing.T) {
 	_ = tmpfile.Close()
 	defer func() { _ = os.Remove(tmpfile.Name()) }()
 
-	body := &strings.Builder{}
-	writer := multipart.NewWriter(body)
-	part, _ := writer.CreateFormFile("image", "test.txt")
-	_, _ = part.Write([]byte("This is a text file"))
-	_ = writer.Close()
-
-	req := httptest.NewRequest("POST", "/", strings.NewReader(body.String()))
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-	_ = req.ParseMultipartForm(1024)
-	fileHeader := req.MultipartForm.File["image"][0]
+	fileHeader := createMultipartImageRequest(t, "image", "test.txt", []byte("This is a text file"))
 
 	_, err = svc.UploadImage(context.Background(), fileHeader, "invalid-type")
 	assert.Error(t, err)
@@ -123,16 +125,7 @@ func TestLocalImageService_UploadImage_JPEG(t *testing.T) {
 	jpegData := createValidJPEG()
 	assert.NotNil(t, jpegData, "failed to create test JPEG")
 
-	body := &strings.Builder{}
-	writer := multipart.NewWriter(body)
-	part, _ := writer.CreateFormFile("image", "test.jpg")
-	_, _ = part.Write(jpegData)
-	_ = writer.Close()
-
-	req := httptest.NewRequest("POST", "/", strings.NewReader(body.String()))
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-	_ = req.ParseMultipartForm(1024)
-	fileHeader := req.MultipartForm.File["image"][0]
+	fileHeader := createMultipartImageRequest(t, "image", "test.jpg", jpegData)
 
 	path, err := svc.UploadImage(context.Background(), fileHeader, "jpeg-listing")
 	assert.NoError(t, err)
@@ -156,16 +149,7 @@ func TestLocalImageService_UploadImage_GIF(t *testing.T) {
 	gifData := createValidGIF()
 	assert.NotNil(t, gifData, "failed to create test GIF")
 
-	body := &strings.Builder{}
-	writer := multipart.NewWriter(body)
-	part, _ := writer.CreateFormFile("image", "test.gif")
-	_, _ = part.Write(gifData)
-	_ = writer.Close()
-
-	req := httptest.NewRequest("POST", "/", strings.NewReader(body.String()))
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-	_ = req.ParseMultipartForm(1024)
-	fileHeader := req.MultipartForm.File["image"][0]
+	fileHeader := createMultipartImageRequest(t, "image", "test.gif", gifData)
 
 	path, err := svc.UploadImage(context.Background(), fileHeader, "gif-listing")
 	assert.NoError(t, err)
@@ -178,16 +162,7 @@ func TestLocalImageService_UploadImage_Compression(t *testing.T) {
 	svc.InitialQuality = 50
 
 	pngData := createValidPNG()
-	body := &strings.Builder{}
-	writer := multipart.NewWriter(body)
-	part, _ := writer.CreateFormFile("image", "test.png")
-	_, _ = part.Write(pngData)
-	_ = writer.Close()
-
-	req := httptest.NewRequest("POST", "/", strings.NewReader(body.String()))
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-	_ = req.ParseMultipartForm(1024)
-	fileHeader := req.MultipartForm.File["image"][0]
+	fileHeader := createMultipartImageRequest(t, "image", "test.png", pngData)
 
 	path, err := svc.UploadImage(context.Background(), fileHeader, "compress-test")
 	assert.NoError(t, err)
@@ -213,16 +188,7 @@ func TestLocalImageService_UploadImage_Errors(t *testing.T) {
 		}
 
 		pngData := createValidPNG()
-		body := &strings.Builder{}
-		writer := multipart.NewWriter(body)
-		part, _ := writer.CreateFormFile("image", "test.png")
-		_, _ = part.Write(pngData)
-		_ = writer.Close()
-
-		req := httptest.NewRequest("POST", "/", strings.NewReader(body.String()))
-		req.Header.Set("Content-Type", writer.FormDataContentType())
-		_ = req.ParseMultipartForm(1024)
-		header := req.MultipartForm.File["image"][0]
+		header := createMultipartImageRequest(t, "image", "test.png", pngData)
 
 		_, err = svc.UploadImage(context.Background(), header, "err")
 		assert.Error(t, err)
@@ -243,16 +209,7 @@ func TestLocalImageService_UploadImage_Errors(t *testing.T) {
 		}
 
 		pngData := createValidPNG()
-		body := &strings.Builder{}
-		writer := multipart.NewWriter(body)
-		part, _ := writer.CreateFormFile("image", "test.png")
-		_, _ = part.Write(pngData)
-		_ = writer.Close()
-
-		req := httptest.NewRequest("POST", "/", strings.NewReader(body.String()))
-		req.Header.Set("Content-Type", writer.FormDataContentType())
-		_ = req.ParseMultipartForm(1024)
-		header := req.MultipartForm.File["image"][0]
+		header := createMultipartImageRequest(t, "image", "test.png", pngData)
 
 		// Note: UploadImage calls os.MkdirAll(svc.UploadDir, 0755).
 		// If svc.UploadDir is an existing file, MkdirAll might fail or succeed depending on implementation.
@@ -316,16 +273,7 @@ func TestLocalImageService_UploadImage_LargeImageCompression(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Create multipart form with large image
-	body := &strings.Builder{}
-	writer := multipart.NewWriter(body)
-	part, _ := writer.CreateFormFile("image", "large.jpg")
-	_, _ = part.Write(imgBuf.Bytes())
-	_ = writer.Close()
-
-	req := httptest.NewRequest("POST", "/", strings.NewReader(body.String()))
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-	_ = req.ParseMultipartForm(1024 * 1024)
-	fileHeader := req.MultipartForm.File["image"][0]
+	fileHeader := createMultipartImageRequest(t, "image", "large.jpg", imgBuf.Bytes())
 
 	path, err := svc.UploadImage(context.Background(), fileHeader, "large-test")
 	assert.NoError(t, err)
@@ -347,16 +295,7 @@ func TestLocalImageService_UploadImage_DecodeError(t *testing.T) {
 	}
 
 	// Create a file with invalid image data
-	body := &strings.Builder{}
-	writer := multipart.NewWriter(body)
-	part, _ := writer.CreateFormFile("image", "invalid.jpg")
-	_, _ = part.Write([]byte("not an image"))
-	_ = writer.Close()
-
-	req := httptest.NewRequest("POST", "/", strings.NewReader(body.String()))
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-	_ = req.ParseMultipartForm(1024)
-	fileHeader := req.MultipartForm.File["image"][0]
+	fileHeader := createMultipartImageRequest(t, "image", "invalid.jpg", []byte("not an image"))
 
 	_, err := svc.UploadImage(context.Background(), fileHeader, "decode-error")
 	assert.Error(t, err)
@@ -444,16 +383,7 @@ func TestLocalImageService_UploadImage_Downscale(t *testing.T) {
 	err := jpeg.Encode(&imgBuf, img, &jpeg.Options{Quality: 95})
 	assert.NoError(t, err)
 
-	body := &strings.Builder{}
-	writer := multipart.NewWriter(body)
-	part, _ := writer.CreateFormFile("image", "downscale.jpg")
-	_, _ = part.Write(imgBuf.Bytes())
-	_ = writer.Close()
-
-	req := httptest.NewRequest("POST", "/", strings.NewReader(body.String()))
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-	_ = req.ParseMultipartForm(1024 * 1024)
-	fileHeader := req.MultipartForm.File["image"][0]
+	fileHeader := createMultipartImageRequest(t, "image", "downscale.jpg", imgBuf.Bytes())
 
 	path, err := svc.UploadImage(context.Background(), fileHeader, "downscale-test")
 	assert.NoError(t, err)
