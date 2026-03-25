@@ -1,7 +1,0 @@
-{
-  "category": "CI/CD Pipeline Improvements",
-  "description": "Replace act delegation in ci-local.sh with native execution of lint, test, coverage, and security checks (matching pre-commit.sh gates)",
-  "steps": [
-    "Verify ci-local.sh rewrite: Replace `act` delegation in ci-local.sh with native execution of lint, test, coverage, and security checks (matching pre-commit.sh gates) (Completed)"
-  ]
-}
