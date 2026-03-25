@@ -218,7 +218,7 @@
     {
       "category": "Context Cost Reduction",
       "description": "Granular refactoring tasks to reduce the context cost of the top 10 most expensive files",
-      "passes": false,
+      "passes": true,
       "steps": [
         "Verify app.js HTMX event listeners are extracted into modular functions (Completed)",
         "Verify app.js Form Validation and map utilities are extracted into separate files (Completed)",
@@ -233,9 +233,9 @@
         "Verify listing_write_test.go create, update, and delete tests are split into isolated files (Completed)",
         "Verify sqlite_listing.go read operations are split into sqlite_listing_read.go (Completed)",
         "Verify image_test.go mock initialization and teardown are split into test helpers (Completed)",
-        "Verify listing_test.go only contains TestHoursOfOperationField struct method test",
-        "Verify validation tests are housed in listing_validation_test.go, listing_job_test.go, and listing_event_test.go",
-        "Verify all tests pass"
+        "Verify listing_test.go only contains TestHoursOfOperationField struct method test (Completed)",
+        "Verify validation tests are housed in listing_validation_test.go, listing_job_test.go, and listing_event_test.go (Completed)",
+        "Verify all tests pass (Completed)"
       ]
     },
     {
