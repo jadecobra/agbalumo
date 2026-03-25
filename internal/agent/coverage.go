@@ -32,7 +32,7 @@ func ParseCoverageProfile(r io.Reader) (map[string]float64, error) {
 		// Format: name:line.col,line.col numStmts count
 		parts := strings.Fields(line)
 		if len(parts) != 3 {
-			continue
+			return nil, fmt.Errorf("malformed coverage line: %s", line)
 		}
 
 		filePart := parts[0]
