@@ -1,0 +1,7 @@
+{
+  "category": "Context Cost Reduction",
+  "description": "Granular refactoring tasks to reduce the context cost of the top 10 most expensive files",
+  "steps": [
+    "Verify listing_test.go validation tests are split from struct method tests (Completed)"
+  ]
+}
