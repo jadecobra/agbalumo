@@ -46,6 +46,7 @@ func TestServerE2E(t *testing.T) {
 	t.Run("Healthz", func(t *testing.T) {
 		resp, err := client.Get(ts.URL + "/healthz")
 		assert.NoError(t, err)
+		defer func() { _ = resp.Body.Close() }()
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
 	})
 
@@ -53,6 +54,7 @@ func TestServerE2E(t *testing.T) {
 	t.Run("Home Page", func(t *testing.T) {
 		resp, err := client.Get(ts.URL + "/")
 		assert.NoError(t, err)
+		defer func() { _ = resp.Body.Close() }()
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
 		body, _ := io.ReadAll(resp.Body)
 		assert.Contains(t, string(body), "find what you want")
@@ -62,6 +64,7 @@ func TestServerE2E(t *testing.T) {
 	t.Run("Search Fragment", func(t *testing.T) {
 		resp, err := client.Get(ts.URL + "/listings/fragment?q=test")
 		assert.NoError(t, err)
+		defer func() { _ = resp.Body.Close() }()
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
 	})
 }
