@@ -71,7 +71,7 @@ jobs:
       - name: Run Tests with Coverage
         run: |
           mkdir -p .tester/data .tester/coverage
-          go test -race -coverprofile=.tester/coverage/coverage.out ./...
+          go test -race -count=1 -coverprofile=.tester/coverage/coverage.out ./...
           go tool cover -func=.tester/coverage/coverage.out
 
       - name: Enforce Coverage Threshold
