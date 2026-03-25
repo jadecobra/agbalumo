@@ -1,7 +1,0 @@
-{
-  "category": "Context Cost Reduction",
-  "description": "Refactored server_ui_test.go to split browser verification specs by user journey.",
-  "steps": [
-    "Verify server_ui_test.go browser verification specs are split by user journey (Completed)"
-  ]
-}
