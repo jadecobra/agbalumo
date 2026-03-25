@@ -1,8 +1,10 @@
 package commands
 
 import (
+	"encoding/json"
 	"os"
 	"testing"
+
 	"github.com/jadecobra/agbalumo/internal/agent"
 )
 
@@ -52,26 +54,21 @@ func TestErrorPaths(t *testing.T) {
 
 func TestHasPending(t *testing.T) {
 	// A strictly complete list
-	stepsWithCompleted := []interface{}{"Task 1 (Completed)", "Task 2 (Completed)", "Task 3 (Completed)"}
+	stepsWithCompleted := []string{"Task 1 (Completed)", "Task 2 (Completed)", "Task 3 (Completed)"}
 	if hasPending(stepsWithCompleted) {
 		t.Errorf("Expected hasPending to return false for fully completed steps")
 	}
 
 	// Contains an unmarked step, implicitly pending
-	stepsWithoutPending := []interface{}{"Task 1 (Completed)", "Task 2"}
+	stepsWithoutPending := []string{"Task 1 (Completed)", "Task 2"}
 	if !hasPending(stepsWithoutPending) {
 		t.Errorf("Expected hasPending to return true due to unmarked step 'Task 2'")
 	}
 
 	// Contains an explicitly pending step
-	stepsWithPending := []interface{}{"Task 1 (Completed)", "Task 2 (Pending)"}
+	stepsWithPending := []string{"Task 1 (Completed)", "Task 2 (Pending)"}
 	if !hasPending(stepsWithPending) {
 		t.Errorf("Expected hasPending to return true due to 'Task 2 (Pending)'")
-	}
-
-	invalidSteps := "Not a list"
-	if hasPending(invalidSteps) {
-		t.Errorf("Expected hasPending to be false for invalid input")
 	}
 }
 
@@ -101,5 +98,78 @@ func TestBypassGates(t *testing.T) {
 	state.Phase = "REFACTOR"
 	if err := saveState(state); err != nil {
 		t.Fatalf("failed to save state: %v", err)
+	}
+}
+func TestCheckAndApplyProgressUpdate(t *testing.T) {
+	// Create mock progress.json
+	progressFile := ".tester/tasks/progress.json"
+	updateFile := ".tester/tasks/pending_update.json"
+
+	// Backup original progress.json
+	backupFile := progressFile + ".bak"
+	if _, err := os.Stat(progressFile); err == nil {
+		_ = os.Rename(progressFile, backupFile)
+		defer func() {
+			_ = os.Remove(progressFile)
+			_ = os.Rename(backupFile, progressFile)
+		}()
+	}
+
+	initialProgress := `{
+  "features": [
+    {
+      "category": "Test Category",
+      "description": "Test Description",
+      "passes": false,
+      "steps": ["Step 1 (Completed)"]
+    }
+  ]
+}`
+	_ = os.MkdirAll(".tester/tasks", 0755)
+	_ = os.WriteFile(progressFile, []byte(initialProgress), 0644)
+
+	pendingUpdate := `{
+  "category": "Test Category",
+  "steps": ["Step 2 (Completed)"]
+}`
+	_ = os.WriteFile(updateFile, []byte(pendingUpdate), 0644)
+	defer func() { _ = os.Remove(updateFile) }()
+
+	err := checkAndApplyProgressUpdate()
+	if err != nil {
+		t.Fatalf("checkAndApplyProgressUpdate failed: %v", err)
+	}
+
+	// Verify the result
+	data, err := os.ReadFile(progressFile)
+	if err != nil {
+		t.Fatalf("failed to read updated progress.json: %v", err)
+	}
+
+	var tracker struct {
+		Features []struct {
+			Category string   `json:"category"`
+			Passes   bool     `json:"passes"`
+			Steps    []string `json:"steps"`
+		} `json:"features"`
+	}
+	if err := json.Unmarshal(data, &tracker); err != nil {
+		t.Fatalf("failed to unmarshal updated progress.json: %v", err)
+	}
+
+	if len(tracker.Features) != 1 {
+		t.Errorf("expected 1 feature, got %d", len(tracker.Features))
+	}
+	if len(tracker.Features) > 0 {
+		f := tracker.Features[0]
+		if f.Category != "Test Category" {
+			t.Errorf("expected category 'Test Category', got '%s'", f.Category)
+		}
+		if len(f.Steps) != 2 {
+			t.Errorf("expected 2 steps, got %d", len(f.Steps))
+		}
+		if !f.Passes {
+			t.Errorf("expected passes to be true")
+		}
 	}
 }

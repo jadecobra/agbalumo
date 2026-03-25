@@ -15,10 +15,21 @@ const stateFile = ".agents/state.json"
 var flagText bool
 
 type CommandOutput struct {
-	Success  bool           `json:"success"`
-	Command  string         `json:"command"`
-	Output   any            `json:"output"`
-	Warnings []string       `json:"warnings"`
+	Success  bool     `json:"success"`
+	Command  string   `json:"command"`
+	Output   any      `json:"output"`
+	Warnings []string `json:"warnings"`
+}
+
+type Feature struct {
+	Category    string   `json:"category"`
+	Description string   `json:"description"`
+	Passes      bool     `json:"passes"`
+	Steps       []string `json:"steps"`
+}
+
+type ProgressTracker struct {
+	Features []Feature `json:"features"`
 }
 
 func printJSON(success bool, command string, output any, warnings []string) {
@@ -56,12 +67,10 @@ func saveState(state *agent.State) error {
 	return nil
 }
 
-func hasPending(steps interface{}) bool {
-	if sList, ok := steps.([]interface{}); ok {
-		for _, step := range sList {
-			if s, ok := step.(string); ok && !strings.Contains(s, "(Completed)") {
-				return true
-			}
+func hasPending(steps []string) bool {
+	for _, step := range steps {
+		if !strings.Contains(step, "(Completed)") {
+			return true
 		}
 	}
 	return false
@@ -72,12 +81,7 @@ func summarizeProgress() error {
 	if err != nil {
 		return err
 	}
-	var tracker struct {
-		Features []struct {
-			Category string `json:"category"`
-			Passes   bool   `json:"passes"`
-		} `json:"features"`
-	}
+	var tracker ProgressTracker
 	if err := json.Unmarshal(data, &tracker); err != nil {
 		return err
 	}
@@ -124,55 +128,38 @@ func checkAndApplyProgressUpdate() error {
 		return fmt.Errorf("failed to read pending update: %w", err)
 	}
 
-	var newFeature map[string]interface{}
+	var newFeature Feature
 	err = json.Unmarshal(updateData, &newFeature)
 	if err != nil {
 		return fmt.Errorf("failed to parse pending update JSON: %w", err)
 	}
-	newFeature["passes"] = !hasPending(newFeature["steps"])
+	newFeature.Passes = !hasPending(newFeature.Steps)
 
 	targetData, err := os.ReadFile(targetFile)
 	if err != nil {
 		return fmt.Errorf("failed to read progress.json: %w", err)
 	}
 
-	var tracker map[string]interface{}
+	var tracker ProgressTracker
 	err = json.Unmarshal(targetData, &tracker)
 	if err != nil {
 		return fmt.Errorf("failed to parse progress.json: %w", err)
 	}
 
-	if features, ok := tracker["features"].([]interface{}); ok {
-		merged := false
-		newCategory, _ := newFeature["category"].(string)
-
-		for i, f := range features {
-			if featMap, ok := f.(map[string]interface{}); ok {
-				if cat, _ := featMap["category"].(string); cat == newCategory && newCategory != "" {
-					// Merge steps
-					if existingSteps, ok := featMap["steps"].([]interface{}); ok {
-						if newSteps, ok := newFeature["steps"].([]interface{}); ok {
-							existingSteps = append(existingSteps, newSteps...)
-							featMap["steps"] = existingSteps
-						}
-					}
-
-					featMap["passes"] = !hasPending(featMap["steps"])
-
-					features[i] = featMap
-					merged = true
-					break
-				}
-			}
+	merged := false
+	for i, f := range tracker.Features {
+		if f.Category == newFeature.Category && newFeature.Category != "" {
+			// Merge steps
+			f.Steps = append(f.Steps, newFeature.Steps...)
+			f.Passes = !hasPending(f.Steps)
+			tracker.Features[i] = f
+			merged = true
+			break
 		}
+	}
 
-		if !merged {
-			tracker["features"] = append(features, newFeature)
-		} else {
-			tracker["features"] = features
-		}
-	} else {
-		return fmt.Errorf("progress.json missing features array")
+	if !merged {
+		tracker.Features = append(tracker.Features, newFeature)
 	}
 
 	outData, err := json.MarshalIndent(tracker, "", "  ")
