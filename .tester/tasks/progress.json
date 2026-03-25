@@ -286,7 +286,7 @@
         "Verify CI test cache-busting: Add `-count=1` flag to `go test` in ci.yml:69 to match pre-commit.sh behavior and catch flaky tests",
         "Verify CI drift check parity: Add a new `drift_checks` job to ci.yml that runs `scripts/api-drift-check.sh` and `scripts/template-func-drift-check.sh`",
         "Verify CI coverage anti-degradation: Add a step in the ci.yml `test` job that checks `.agents/coverage-threshold` cannot be lowered (Completed)",
-        "Verify CI coverage artifact upload: Add `actions/upload-artifact@v4` step in ci.yml to upload `.tester/coverage/coverage.out` as a build artifact",
+        "Verify CI coverage artifact upload: Add `actions/upload-artifact@v4` step in ci.yml to upload `.tester/coverage/coverage.out` as a build artifact (Completed)",
         "Verify golangci-lint expansion: Add `gosec` and `bodyclose` linters to `scripts/.golangci.yml` under linters.enable list (Completed)",
         "Verify ci-local.sh rewrite: Replace `act` delegation in ci-local.sh with native execution of lint, test, coverage, and security checks (matching pre-commit.sh gates) (Completed)",
         "Verify restart removal from pre-commit: Remove `verify_restart.sh` task from pre-commit.sh:203 and add it as a standalone workflow in `.agents/workflows/restart-server.md` (Completed)",
