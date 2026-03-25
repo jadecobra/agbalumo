@@ -1,0 +1,13 @@
+{
+  "features": [
+    {
+      "category": "Test Category",
+      "description": "Test Description",
+      "passes": true,
+      "steps": [
+        "Step 1 (Completed)",
+        "Step 2 (Completed)"
+      ]
+    }
+  ]
+}

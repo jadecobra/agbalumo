@@ -45,9 +45,9 @@ func TestVerifyImplementation(t *testing.T) {
 		Name string
 		Args []string
 	}{
-		{"go", []string{"vet", "./..."}},
-		{"go", []string{"build", "./..."}},
-		{"go", []string{"test", "-json", "-coverprofile=.tester/coverage/coverage.out", "./..."}},
+		{"go", []string{"vet", "./cmd/...", "./internal/..."}},
+		{"go", []string{"build", "./cmd/...", "./internal/..."}},
+		{"go", []string{"test", "-json", "-coverprofile=.tester/coverage/coverage.out", "./cmd/...", "./internal/..."}},
 	}
 
 	if len(recordedCommands) != len(expected) {

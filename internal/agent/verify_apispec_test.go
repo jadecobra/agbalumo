@@ -91,12 +91,15 @@ func TestHelperProcessApiSpec(t *testing.T) {
 	if os.Getenv("GO_WANT_HELPER_PROCESS") != "1" {
 		return
 	}
-	// For npx swagger-cli bundle, return a minimal valid OpenAPI YAML.
-	// Check args for "swagger-cli"
 	args := os.Args
 	for _, a := range args {
 		if a == "swagger-cli" {
-			fmt.Println("paths:")
+			data, err := os.ReadFile("docs/openapi.yaml")
+			if err == nil {
+				fmt.Print(string(data))
+			} else {
+				fmt.Println("paths: {}")
+			}
 			os.Exit(0)
 		}
 	}
@@ -473,5 +476,167 @@ func RegisterRoutes(e *echo.Echo) {
 
 	if !strings.Contains(output, "Error extracting CLI code cmds") {
 		t.Errorf("expected output to contain 'Error extracting CLI code cmds', got: %s", output)
+	}
+}
+
+func TestVerifyApiSpec_FullDriftReport(t *testing.T) {
+	orig := ExecCommand
+	ExecCommand = mockExecCommandApiSpec
+	defer func() { ExecCommand = orig }()
+
+	// Create complex drift across all sources
+	cleanup := setupVerifyApiSpecEnv(t, apiSpecEnvOpts{
+		cmdGoContent: `package main
+import "github.com/labstack/echo/v4"
+func routes(e *echo.Echo) {
+	e.GET("/code-only", nil)
+	e.POST("/shared", nil)
+}
+`,
+		openapiContent: `paths:
+  /openapi-only:
+    get: {}
+  /shared:
+    post: {}
+`,
+		apiMdContent: `| Method | Path |
+|--------|------|
+| GET | /md-only |
+| POST | /shared |
+`,
+		cliMdContent: `### md-cmd`,
+	})
+	defer cleanup()
+
+	_ = os.WriteFile("cmd/server.go", []byte(`package main
+import "github.com/spf13/cobra"
+var cmd = &cobra.Command{ Use: "code-cmd" }
+`), 0644)
+
+	output := captureStdout(t, func() {
+		result := VerifyApiSpec("feature")
+		if result {
+			t.Error("expected VerifyApiSpec to fail with full drift")
+		}
+	})
+
+	// Assertions for specific drift messages
+	expectedDrifts := []string{
+		"Missing in OpenAPI (docs/openapi.yaml): GET /code-only",
+		"❌ Missing in Code (cmd/server.go): GET /openapi-only",
+		"Missing in API Docs (docs/api.md): GET /code-only",
+		"❌ Missing in Code (cmd/server.go): GET /md-only",
+		"❌ Missing in CLI Docs: code-cmd (found in Code)",
+		"❌ Missing in Code: md-cmd (found in CLI Docs)",
+	}
+
+	for _, exp := range expectedDrifts {
+		if !strings.Contains(output, exp) {
+			t.Errorf("missing expected drift message: %s\nFull output:\n%s", exp, output)
+		}
+	}
+}
+
+func TestVerifyApiSpec_EmptyFiles(t *testing.T) {
+	orig := ExecCommand
+	ExecCommand = mockExecCommandApiSpec
+	defer func() { ExecCommand = orig }()
+
+	cleanup := setupVerifyApiSpecEnv(t, apiSpecEnvOpts{
+		cmdGoContent: `package main
+import "github.com/labstack/echo/v4"
+func routes(e *echo.Echo) {}
+`,
+		openapiContent: `paths: {}`,
+		apiMdContent:   "# fake", // non-empty but no routes
+		cliMdContent:   "",       // empty CLI MD
+	})
+	defer cleanup()
+
+	_ = os.WriteFile("cmd/server.go", []byte(`package main`), 0644)
+
+	output := captureStdout(t, func() {
+		result := VerifyApiSpec("feature")
+		// Should pass because empty files = no routes = no drift
+		if !result {
+			t.Error("expected VerifyApiSpec to pass with empty documentation files")
+		}
+	})
+
+	if !strings.Contains(output, "Gate PASS") {
+		t.Errorf("expected Gate PASS, got: %s", output)
+	}
+}
+
+func TestVerifyApiSpec_MarkdownPathEdgeCases(t *testing.T) {
+	orig := ExecCommand
+	ExecCommand = mockExecCommandApiSpec
+	defer func() { ExecCommand = orig }()
+
+	// Test backticks in markdown and trailing slashes
+	// We use a unique route /api/v1/edge to avoid any overlap
+	cleanup := setupVerifyApiSpecEnv(t, apiSpecEnvOpts{
+		cmdGoContent: `package main
+import "github.com/labstack/echo/v4"
+func routes(e *echo.Echo) {
+	e.GET("/api/v1/edge", nil)
+}
+`,
+		openapiContent: `paths:
+  /api/v1/edge:
+    get:
+      summary: edge
+`,
+		apiMdContent: `| Method | Path |
+|--------|------|
+| GET | /api/v1/edge |
+`,
+		cliMdContent: `### serve`,
+	})
+	defer cleanup()
+
+	_ = os.WriteFile("cmd/server.go", []byte(`package main
+import "github.com/spf13/cobra"
+var cmd = &cobra.Command{ Use: "serve" }
+`), 0644)
+
+	output := captureStdout(t, func() {
+		result := VerifyApiSpec("feature")
+		if !result {
+			t.Error("expected VerifyApiSpec to pass with normalized markdown paths")
+		}
+	})
+
+	if !strings.Contains(output, "Gate PASS") {
+		t.Errorf("expected Gate PASS, got: %s", output)
+	}
+}
+
+func TestVerifyApiSpec_ExtractMarkdownRoutes_Direct(t *testing.T) {
+	// Directly test ExtractMarkdownRoutes with various formats
+	content := []byte(`
+| GET | /users | List users |
+| POST | ` + "`/users`" + ` | Create user |
+| PUT | /users/ | Update user |
+`)
+	routes, err := ExtractMarkdownRoutes(content)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(routes) != 3 { // GET /users, POST /users, PUT /users
+		t.Errorf("expected 3 unique routes, got %d", len(routes))
+	}
+	
+	foundGet := false
+	foundPost := false
+	foundPut := false
+	for _, r := range routes {
+		if r.Method == "GET" && r.Path == "/users" { foundGet = true }
+		if r.Method == "POST" && r.Path == "/users" { foundPost = true }
+		if r.Method == "PUT" && r.Path == "/users" { foundPut = true }
+	}
+	if !foundGet || !foundPost || !foundPut {
+		t.Errorf("missing expected routes: GET (/users): %v, POST (/users): %v, PUT (/users): %v", foundGet, foundPost, foundPut)
 	}
 }

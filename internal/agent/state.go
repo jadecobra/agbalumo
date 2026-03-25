@@ -17,6 +17,24 @@ const (
 	GateFailed  GateStatus = "FAILED"
 )
 
+// Standard gate IDs
+const (
+	GateRedTest             = "red-test"
+	GateApiSpec             = "api-spec"
+	GateImplementation      = "implementation"
+	GateLint                = "lint"
+	GateCoverage            = "coverage"
+	GateBrowserVerification  = "browser-verification"
+)
+
+
+// Standard workflow types
+const (
+	WorkflowFeature  = "feature"
+	WorkflowBugfix   = "bugfix"
+	WorkflowRefactor = "refactor"
+)
+
 // Gates represents the state of various validation checks.
 type Gates struct {
 	RedTest             GateStatus `json:"red-test"`

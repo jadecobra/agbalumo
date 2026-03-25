@@ -16,7 +16,7 @@ func ExtractOpenAPIRoutes(content []byte) ([]Route, error) {
 	var currentPath string
 
 	pathRe := regexp.MustCompile(`^\s*'?(/.*?)'?:$`)
-	methodRe := regexp.MustCompile(`(?i)^\s*(get|post|put|delete|patch|options|head):$`)
+	methodRe := regexp.MustCompile(`(?i)^\s*(get|post|put|delete|patch|options|head):.*$`)
 
 	for _, line := range lines {
 		if matches := pathRe.FindStringSubmatch(line); len(matches) > 1 {
@@ -29,7 +29,7 @@ func ExtractOpenAPIRoutes(content []byte) ([]Route, error) {
 			if currentPath != "" {
 				routes = append(routes, Route{
 					Method: method,
-					Path:   normalizePath(currentPath),
+					Path:   NormalizePath(currentPath),
 				})
 			}
 		}
@@ -54,7 +54,7 @@ func ExtractMarkdownRoutes(content []byte) ([]Route, error) {
 			path := matches[2]
 			routes = append(routes, Route{
 				Method: method,
-				Path:   normalizePath(path),
+				Path:   NormalizePath(path),
 			})
 		}
 	}
@@ -101,24 +101,6 @@ func CheckAPIDrift(codeRoutes, openapiRoutes, mdRoutes []Route) []string {
 	return uniqueStrings(allDrift)
 }
 
-func normalizePath(p string) string {
-	// Our bash logic:
-	// 1. replace :id with {id}
-	p = regexp.MustCompile(`:([a-zA-Z0-9_]+)`).ReplaceAllString(p, "{$1}")
-	
-	// 2. Remove trailing slashes (except root)
-	if len(p) > 1 && strings.HasSuffix(p, "/") {
-		p = strings.TrimSuffix(p, "/")
-	}
-	
-	// 3. Deduplicate slashes
-	p = regexp.MustCompile(`//+`).ReplaceAllString(p, "/")
-	
-	if p == "" {
-		p = "/"
-	}
-	return p
-}
 
 func uniqueAndSort(routes []Route) []Route {
 	seen := make(map[string]bool)

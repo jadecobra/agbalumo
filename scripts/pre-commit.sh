@@ -8,6 +8,9 @@ fi
 # Robust PATH discovery
 source "$(dirname "$0")/utils.sh"
 setup_path
+export GOCACHE=/tmp/gocache
+export GOTMPDIR=/tmp/gotmp
+mkdir -p "$GOCACHE" "$GOTMPDIR"
 
 # Documentation Links
 DOC_WORKFLOW=".agents/workflows/feature-implementation.md"
@@ -39,8 +42,10 @@ STAGED_BRAND_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E 
 STAGED_ALL=$(git diff --cached --name-only || true)
 
 # Create a temporary directory for parallel task outputs
-LOG_DIR=$(mktemp -d)
+LOG_DIR=$(mktemp -d /tmp/pre-commit-XXXXXX)
 trap 'rm -rf "$LOG_DIR"' EXIT
+
+
 
 # 1. GolangCI-Lint (Smart local optimization)
 if [ -n "$STAGED_GO_FILES" ]; then
@@ -121,9 +126,9 @@ fi
 # 5. Tests & Coverage
 if [ -n "$STAGED_GO_FILES" ]; then
     check_tests() {
-        mkdir -p .tester/coverage
-        go test -json -race -count=1 -coverprofile=.tester/coverage/coverage.out ./... > /dev/null
-        COVERAGE=$(go tool cover -func=.tester/coverage/coverage.out | awk '/^total:/ {print substr($3, 1, length($3)-1)}')
+        mkdir -p /tmp/.tester/coverage
+        go test -json -race -count=1 -coverprofile=/tmp/.tester/coverage/coverage.out ./... > /dev/null
+        COVERAGE=$(go tool cover -func=/tmp/.tester/coverage/coverage.out | awk '/^total:/ {print substr($3, 1, length($3)-1)}')
         THRESHOLD_FILE=".agents/coverage-threshold"
         THRESHOLD=90.0
         if [ -f "$THRESHOLD_FILE" ]; then
@@ -133,7 +138,7 @@ if [ -n "$STAGED_GO_FILES" ]; then
             if [ "$FMT" != "json" ]; then
                 echo "  ${RED}❌ Error: Coverage is below threshold: $COVERAGE% < $THRESHOLD%${NC}"
                 echo "  ${YELLOW}Top 5 lowest coverage files:${NC}"
-                go tool cover -func=.tester/coverage/coverage.out | grep -v "100.0%" | sort -k 3 -n | head -5 | sed 's/^/    /'
+                go tool cover -func=/tmp/.tester/coverage/coverage.out | grep -v "100.0%" | sort -k 3 -n | head -5 | sed 's/^/    /'
                 echo "  ${BLUE}See: $DOC_WORKFLOW (Gate: coverage)${NC}"
             fi
             return 2

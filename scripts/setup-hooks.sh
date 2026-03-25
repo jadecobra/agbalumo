@@ -40,7 +40,7 @@ cat > "$PRE_COMMIT_HOOK" <<EOF
 # agbalumo 10x Engineer Pre-commit Hook
 # Runs security checks and quality checks before commit
 
-./scripts/security-check.sh && ./scripts/pre-commit.sh
+./scripts/pre-commit.sh
 EOF
 
 chmod +x "$PRE_COMMIT_HOOK"

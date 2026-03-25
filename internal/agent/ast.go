@@ -7,7 +7,6 @@ import (
 	"go/token"
 	"os"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strings"
 )
@@ -71,21 +70,6 @@ func ExtractRoutes(paths ...string) ([]Route, error) {
 			}
 		}
 		return false
-	}
-
-	normalizePath := func(p string) string {
-		// Replace :id with {id}
-		p = regexp.MustCompile(`:([a-zA-Z0-9_]+)`).ReplaceAllString(p, "{$1}")
-		// Remove trailing slashes (except root)
-		if len(p) > 1 && strings.HasSuffix(p, "/") {
-			p = strings.TrimSuffix(p, "/")
-		}
-		// Deduplicate slashes
-		p = regexp.MustCompile(`//+`).ReplaceAllString(p, "/")
-		if p == "" {
-			p = "/"
-		}
-		return p
 	}
 
 	// First pass: Find group definitions
@@ -169,7 +153,7 @@ func ExtractRoutes(paths ...string) ([]Route, error) {
 					
 					// Only keep if it looks like a valid route definition (must be relative path starting with / or empty string on an existing group)
 					if pathSuffix == "" || strings.HasPrefix(pathSuffix, "/") {
-						fullPath := normalizePath(basePath + pathSuffix)
+						fullPath := NormalizePath(basePath + pathSuffix)
 						routes = append(routes, Route{
 							Method: httpMethod,
 							Path:   fullPath,

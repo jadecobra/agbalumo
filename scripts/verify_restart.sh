@@ -22,9 +22,9 @@ echo "🎨 Building CSS..."
 npm run build:css
 
 echo "🔨 Building Server..."
-mkdir -p .tester/servers
-mkdir -p .tester/data
-go build -o .tester/servers/agbalumo main.go
+mkdir -p /tmp/.tester/servers
+mkdir -p /tmp/.tester/data
+go build -o /tmp/.tester/servers/agbalumo main.go
 
 # 3. Restart the Server
 echo "🔄 Restarting Server..."
@@ -64,18 +64,18 @@ shutdown_port 8080
 # Start the new server in the background
 echo "🚀 Starting new server instance..."
 export AGBALUMO_ENV=development
-nohup ./.tester/servers/agbalumo serve > .tester/servers/server.log 2>&1 &
+nohup /tmp/.tester/servers/agbalumo serve > /tmp/.tester/servers/server.log 2>&1 &
 NEW_PID=$!
 echo "Server started with PID: $NEW_PID"
-echo "Logs are being written to .tester/servers/server.log"
+echo "Logs are being written to /tmp/.tester/servers/server.log"
 
 # Wait a moment to ensure it doesn't crash immediately
 sleep 2
 if ps -p $NEW_PID > /dev/null; then
    echo "✅ Server is running!"
 else
-   echo "❌ Server failed to start. Check .tester/servers/server.log:"
-   cat .tester/servers/server.log
+   echo "❌ Server failed to start. Check /tmp/.tester/servers/server.log:"
+   cat /tmp/.tester/servers/server.log
    exit 1
 fi
 

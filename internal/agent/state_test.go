@@ -1,6 +1,7 @@
 package agent_test
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
@@ -208,7 +209,7 @@ func TestStateSerialization(t *testing.T) {
 		}
 	})
 
-	t.Run("SaveState_Permissions", func(t *testing.T) {
+	t.Run("LoadState_Permissions", func(t *testing.T) {
 		tmpDir := t.TempDir()
 		statePath := filepath.Join(tmpDir, "state.json")
 		state := &agent.State{Feature: "perm-test"}
@@ -225,6 +226,63 @@ func TestStateSerialization(t *testing.T) {
 
 		if info.Mode().Perm() != 0644 {
 			t.Errorf("expected perm 0644, got %o", info.Mode().Perm())
+		}
+	})
+
+	t.Run("LoadState_ValidWithSignature", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		statePath := filepath.Join(tmpDir, "state.json")
+		state := &agent.State{
+			Feature:      "valid-feature",
+			WorkflowType: "feature",
+			Phase:        "READY",
+		}
+		
+		err := agent.SaveState(statePath, state)
+		if err != nil {
+			t.Fatalf("SaveState failed: %v", err)
+		}
+
+		loaded, err := agent.LoadState(statePath)
+		if err != nil {
+			t.Fatalf("LoadState failed: %v", err)
+		}
+		if loaded.Feature != "valid-feature" {
+			t.Errorf("expected feature valid-feature, got %s", loaded.Feature)
+		}
+		if loaded.Signature == "" {
+			t.Error("expected signature to be set by SaveState")
+		}
+	})
+
+	t.Run("LoadState_StructuralMismatch_ExtraField", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		statePath := filepath.Join(tmpDir, "state.json")
+		state := &agent.State{Feature: "structural"}
+		err := agent.SaveState(statePath, state)
+		if err != nil {
+			t.Fatalf("SaveState failed: %v", err)
+		}
+
+		// Manually add a field to the JSON
+		b, _ := os.ReadFile(statePath)
+		var m map[string]interface{}
+		if uerr := json.Unmarshal(b, &m); uerr != nil {
+			t.Fatalf("Unmarshal failed: %v", uerr)
+		}
+		m["extra"] = "field"
+		b2, _ := json.MarshalIndent(m, "", "  ")
+		b2 = append(b2, '\n')
+		if werr := os.WriteFile(statePath, b2, 0644); werr != nil {
+			t.Fatalf("WriteFile failed: %v", werr)
+		}
+
+		_, err = agent.LoadState(statePath)
+		if err == nil {
+			t.Fatal("expected error for structural mismatch (extra field), got none")
+		}
+		if !contains(err.Error(), "structural mismatch") {
+			t.Errorf("expected structural mismatch error, got: %v", err)
 		}
 	})
 }

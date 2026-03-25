@@ -14,11 +14,11 @@ func InitCmd() *cobra.Command {
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			feature := args[0]
-			workflowType := "feature"
+			workflowType := agent.WorkflowFeature
 			if len(args) > 1 {
 				workflowType = args[1]
 			}
-			if workflowType != "feature" && workflowType != "bugfix" && workflowType != "refactor" {
+			if workflowType != agent.WorkflowFeature && workflowType != agent.WorkflowBugfix && workflowType != agent.WorkflowRefactor {
 				return fmt.Errorf("invalid workflow type '%s'", workflowType)
 			}
 

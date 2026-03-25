@@ -29,6 +29,9 @@ func VerifyCmd() *cobra.Command {
 			if state.Feature == "" {
 				return fmt.Errorf("no active feature found in state file")
 			}
+			if state.WorkflowType == "" {
+				state.WorkflowType = agent.WorkflowFeature
+			}
 
 			if flagText {
 				fmt.Printf("Verifying gate: %s for feature: %s (%s) [%s]\n", gateID, state.Feature, state.Phase, state.WorkflowType)
@@ -36,11 +39,11 @@ func VerifyCmd() *cobra.Command {
 
 			// Dependency Checks
 			switch gateID {
-			case "implementation":
+			case agent.GateImplementation:
 				if state.Gates.RedTest != agent.GatePassed || state.Gates.ApiSpec != agent.GatePassed {
 					return fmt.Errorf("implementation requires red-test and api-spec to be PASS. 💡 HINT: If this is a UI layer change, use './scripts/agent-exec.sh verify red-test ui-bypass'. 💡 HINT: Note that you MUST still pass the lint gate and verify the UI using the browser_subagent")
 				}
-			case "lint", "coverage", "browser-verification":
+			case agent.GateLint, agent.GateCoverage, agent.GateBrowserVerification:
 				if state.Gates.Implementation != agent.GatePassed {
 					return fmt.Errorf("%s requires implementation to be PASS", gateID)
 				}
@@ -48,17 +51,17 @@ func VerifyCmd() *cobra.Command {
 
 			success := false
 			switch gateID {
-			case "red-test":
+			case agent.GateRedTest:
 				success = agent.VerifyRedTest(pattern)
-			case "api-spec":
+			case agent.GateApiSpec:
 				success = agent.VerifyApiSpec(state.WorkflowType)
-			case "implementation":
+			case agent.GateImplementation:
 				success = agent.VerifyImplementation()
-			case "lint":
+			case agent.GateLint:
 				success = agent.VerifyLint()
-			case "coverage":
+			case agent.GateCoverage:
 				success = agent.VerifyCoverage()
-			case "browser-verification":
+			case agent.GateBrowserVerification:
 				fmt.Println("⚠️  AGENT INSTRUCTION: You must use the browser_subagent tool to verify the UI. Once the subagent finishes and the UI is verified, run: ./scripts/agent-exec.sh workflow gate browser-verification PASS")
 				if state.Gates.BrowserVerification == agent.GatePassed {
 					fmt.Println("✅ Gate PASS: browser-verification already marked as PASS.")
@@ -83,21 +86,21 @@ func VerifyCmd() *cobra.Command {
 
 			// Save in local state
 			switch gateID {
-			case "red-test":
+			case agent.GateRedTest:
 				state.Gates.RedTest = status
-			case "api-spec":
+			case agent.GateApiSpec:
 				state.Gates.ApiSpec = status
-			case "implementation":
+			case agent.GateImplementation:
 				state.Gates.Implementation = status
-			case "lint":
+			case agent.GateLint:
 				state.Gates.Lint = status
-			case "coverage":
+			case agent.GateCoverage:
 				state.Gates.Coverage = status
-			case "browser-verification":
+			case agent.GateBrowserVerification:
 				// Already handled above
 			}
 
-			if gateID != "browser-verification" {
+			if gateID != agent.GateBrowserVerification {
 				if err = saveState(state); err != nil {
 					return err
 				}

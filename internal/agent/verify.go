@@ -41,7 +41,7 @@ func VerifyRedTest(pattern string) bool {
 		}
 		fmt.Println("⚠️  UI BYPASS ENGAGED: Skipping Go test failure requirement.")
 		fmt.Println("⚠️  NOTE: You are strictly required to use the browser_subagent to verify your changes.")
-		fmt.Println("Gate PASS: red-test bypassed for UI change.")
+		fmt.Printf("Gate PASS: %s bypassed for UI change.\n", GateRedTest)
 		return true
 	}
 
@@ -49,7 +49,7 @@ func VerifyRedTest(pattern string) bool {
 
 	// 1. Verify code compiles first.
 	_ = os.MkdirAll(".tester", 0755)
-	compileOut, err := RunCommand("go", "test", "-run=^$", "./...")
+	compileOut, err := RunCommand("go", "test", "-run=^$", "./internal/agent/...")
 	if err != nil {
 		fmt.Println("FAIL: Code does not compile. Fixed syntax/imports before running red-test.")
 		_ = os.WriteFile(filepath.Join(".tester", "red-test-compile.log"), compileOut, 0644)
@@ -58,7 +58,7 @@ func VerifyRedTest(pattern string) bool {
 	}
 
 	// 2. Run tests and capture JSON output.
-	testOut, _ := RunCommand("go", "test", "-json", "./...")
+	testOut, _ := RunCommand("go", "test", "-json", "./internal/agent/...")
 
 	res, err := ParseTestJSON(bytes.NewReader(testOut))
 	if err != nil {
@@ -72,7 +72,7 @@ func VerifyRedTest(pattern string) bool {
 	}
 
 	if res.Success {
-		fmt.Println("Gate FAIL: red-test passed but was expected to fail.")
+		fmt.Printf("Gate FAIL: %s passed but was expected to fail.\n", GateRedTest)
 		return false
 	}
 
@@ -97,10 +97,10 @@ func VerifyRedTest(pattern string) bool {
 			}
 		}
 		if patternFound {
-			fmt.Printf("Gate PASS: red-test failed with expected pattern '%s'.\n", pattern)
+			fmt.Printf("Gate PASS: %s failed with expected pattern '%s'.\n", GateRedTest, pattern)
 			return true
 		} else {
-			fmt.Printf("Gate FAIL: red-test failed but pattern '%s' not found in output.\n", pattern)
+			fmt.Printf("Gate FAIL: %s failed but pattern '%s' not found in output.\n", GateRedTest, pattern)
 			fmt.Println("--- TEST FAILURES ---")
 			for _, fail := range res.Failures {
 				fmt.Println(fail.TestName, ":")
@@ -110,7 +110,7 @@ func VerifyRedTest(pattern string) bool {
 		}
 	}
 
-	fmt.Println("Gate PASS: red-test failed as expected.")
+	fmt.Printf("Gate PASS: %s failed as expected.\n", GateRedTest)
 	return true
 }
 
@@ -172,7 +172,7 @@ func VerifyApiSpec(workflowType string) bool {
 		fmt.Println(drift)
 	}
 
-	if workflowType == "refactor" || workflowType == "bugfix" {
+	if workflowType == WorkflowRefactor || workflowType == WorkflowBugfix {
 		fmt.Printf("⚠️  Gate FAIL: drift checks failed. For '%s' workflow, these are mandatory passive validations.\n", workflowType)
 		fmt.Println("Please ensure you haven't accidentally broken existing API or CLI contracts.")
 	}
@@ -183,7 +183,7 @@ func VerifyApiSpec(workflowType string) bool {
 func VerifyImplementation() bool {
 	fmt.Println("Running early lint and build...")
 
-	vetOut, err := RunCommand("go", "vet", "./...")
+	vetOut, err := RunCommand("go", "vet", "./cmd/...", "./internal/...")
 	if err != nil {
 		fmt.Println("❌ Gate FAIL: early static analysis (go vet) failed.")
 		fmt.Println("--- GO VET OUTPUT ---")
@@ -191,7 +191,7 @@ func VerifyImplementation() bool {
 		return false
 	}
 
-	buildOut, err := RunCommand("go", "build", "./...")
+	buildOut, err := RunCommand("go", "build", "./cmd/...", "./internal/...")
 	if err != nil {
 		fmt.Println("❌ Gate FAIL: implementation build failed.")
 		fmt.Println("--- BUILD OUTPUT ---")
@@ -202,7 +202,7 @@ func VerifyImplementation() bool {
 	fmt.Println("Running tests...")
 	_ = os.MkdirAll(filepath.Join(".tester", "coverage"), 0755)
 	covFile := filepath.Join(".tester", "coverage", "coverage.out")
-	testOut, err := RunCommand("go", "test", "-json", "-coverprofile="+covFile, "./...")
+	testOut, err := RunCommand("go", "test", "-json", "-coverprofile="+covFile, "./cmd/...", "./internal/...")
 	if err != nil {
 		fmt.Println("❌ Gate FAIL: implementation tests failed.")
 		res, parseErr := ParseTestJSON(bytes.NewReader(testOut))
@@ -219,7 +219,7 @@ func VerifyImplementation() bool {
 		return false
 	}
 
-	fmt.Println("✅ Gate PASS: implementation build and tests passed.")
+	fmt.Printf("✅ Gate PASS: %s build and tests passed.\n", GateImplementation)
 	return true
 }
 
@@ -228,7 +228,7 @@ func VerifyLint() bool {
 
 	if _, err := LookPath("golangci-lint"); err != nil {
 		fmt.Println("⚠️  golangci-lint not found, skipping...")
-		fmt.Println("✅ Gate PASS: lint passed.")
+		fmt.Printf("✅ Gate PASS: %s passed.\n", GateLint)
 		return true
 	}
 
@@ -240,7 +240,7 @@ func VerifyLint() bool {
 		return false
 	}
 
-	fmt.Println("✅ Gate PASS: lint passed.")
+	fmt.Printf("✅ Gate PASS: %s passed.\n", GateLint)
 	return true
 }
 
@@ -308,6 +308,6 @@ func VerifyCoverage() bool {
 		return false
 	}
 
-	fmt.Println("✅ Gate PASS: Coverage meets thresholds.")
+	fmt.Printf("✅ Gate PASS: %s meets thresholds.\n", GateCoverage)
 	return true
 }

@@ -197,12 +197,18 @@
     {
       "category": "Verification",
       "description": "Verified necessity of MockImageService in listing tests and removed it where possible.",
-      "passes": true,
+      "passes": false,
       "steps": [
         "Replaced MockImageService with real LocalImageService using t.TempDir() in TestHandleCreate_WithImage to avoid I/O pollution.",
         "Replaced MockImageService with real LocalImageService using t.TempDir() in TestListingHandler_Upload_Valid.",
         "Removed unused testifyMock import from listing_upload_test.go.",
-        "Confirmed MockImageService is still needed in TestHandleCreate_ImageUploadError to simulate upload failures."
+        "Confirmed MockImageService is still needed in TestHandleCreate_ImageUploadError to simulate upload failures.",
+        "Implemented TestVerifyApiSpec_FullDriftReport for complete drift aggregation",
+        "Implemented TestVerifyApiSpec_EmptyFiles for minimal docs edge cases",
+        "Implemented TestVerifyApiSpec_MarkdownPathEdgeCases for path normalization",
+        "Implemented TestVerifyApiSpec_ExtractMarkdownRoutes_Direct for unit testing extraction logic",
+        "Verified all tests pass with GOCACHE/GOTMPDIR /tmp configuration",
+        "Passed all harness gates: red-test, api-spec, implementation, lint, coverage, browser-verification"
       ]
     },
     {
@@ -232,13 +238,27 @@
       "description": "Small, granular tasks suitable for Gemini 3 Flash execution to improve harness quality and testability.",
       "passes": false,
       "steps": [
-        "Verify normalizePath utility is extracted to a shared helper in internal/agent to eliminate duplication between drift.go and ast.go",
-        "Verify hardcoded gate strings (e.g. 'red-test', 'api-spec') are extracted into exported constants in internal/agent/state.go",
-        "Verify map[string]interface{} usage in checkAndApplyProgressUpdate (cmd/harness/commands/root.go) is replaced with strongly-typed structs",
-        "Verify internal/agent/state.go test coverage for LoadState: Write tests covering valid load, missing file, structural mismatch anti-cheat, and signature mismatch",
-        "Verify internal/agent/state.go test coverage for SaveState and calculateSignature: Write tests ensuring proper file creation, permissions, and valid SHA256 generation",
+        "Verify normalizePath utility is extracted to a shared helper in internal/agent to eliminate duplication between drift.go and ast.go (Completed)",
+        "Verify hardcoded gate strings (e.g. 'red-test', 'api-spec') are extracted into exported constants in internal/agent/state.go (Completed)",
         "Verify internal/agent/verify.go test coverage for VerifyRedTest: Write tests covering UI bypass logic, compilation failure, expected failure, and panic/exit evasion (Completed)",
-        "Verify internal/agent/verify.go test coverage for VerifyApiSpec: Write tests covering CLI and API drift detection assertions",
+        "Verify internal/agent/verify.go test coverage for VerifyApiSpec - Case 1: Route in Code only (fail, missing in OpenAPI and MD)",
+        "Verify internal/agent/verify.go test coverage for VerifyApiSpec - Case 2: Route in OpenAPI only (fail, missing in Code and MD)",
+        "Verify internal/agent/verify.go test coverage for VerifyApiSpec - Case 3: Route in MD only (fail, missing in Code and OpenAPI)",
+        "Verify internal/agent/verify.go test coverage for VerifyApiSpec - Case 4: Route in Code and OpenAPI, but missing in MD (fail)",
+        "Verify internal/agent/verify.go test coverage for VerifyApiSpec - Case 5: Route in Code and MD, but missing in OpenAPI (fail)",
+        "Verify internal/agent/verify.go test coverage for VerifyApiSpec - Case 6: Route in OpenAPI and MD, but missing in Code (fail)",
+        "Verify internal/agent/verify.go test coverage for VerifyApiSpec - Case 7: Command in Code only (fail, missing in Docs)",
+        "Verify internal/agent/verify.go test coverage for VerifyApiSpec - Case 8: Command in MD only (fail, missing in Code)",
+        "Verify internal/agent/verify.go test coverage for VerifyApiSpec - Case 9: Drift during 'refactor' workflow (assert special error message)",
+        "Verify internal/agent/verify.go test coverage for VerifyApiSpec - Case 10: Drift during 'bugfix' workflow (assert special error message)",
+        "Verify internal/agent/verify.go test coverage for VerifyApiSpec - Case 11: Drift during 'feature' workflow (assert generic error message)",
+        "Verify internal/agent/verify.go test coverage for VerifyApiSpec - Case 12: ExtractRoutes error (assert false, log: 'Error extracting routes from code')",
+        "Verify internal/agent/verify.go test coverage for VerifyApiSpec - Case 13: swagger-cli bundle command fails (assert false, log: 'Error bundling docs/openapi.yaml')",
+        "Verify internal/agent/verify.go test coverage for VerifyApiSpec - Case 14: ExtractOpenAPIRoutes fails on malformed YAML (assert false, log: 'Error extracting openapi routes')",
+        "Verify internal/agent/verify.go test coverage for VerifyApiSpec - Case 15: os.ReadFile('docs/api.md') fails (assert false, log: 'Error reading docs/api.md')",
+        "Verify internal/agent/verify.go test coverage for VerifyApiSpec - Case 16: ExtractMarkdownRoutes error (assert false, log: 'Error extracting md routes')",
+        "Verify internal/agent/verify.go test coverage for VerifyApiSpec - Case 17: ExtractCLICodeCommands error (assert false, log: 'Error extracting CLI code cmds')",
+        "Verify internal/agent/verify.go test coverage for VerifyApiSpec - Case 18: ExtractCLIMarkdownCommands error (assert false, log: 'Error extracting CLI md cmds')",
         "Verify internal/agent/verify.go test coverage for VerifyImplementation and VerifyLint: Write tests asserting correct mock execution of build, test, and vet commands (Completed)",
         "Verify internal/agent/verify.go test coverage for VerifyCoverage: Write tests covering profile parsing, threshold enforcement, and violation reporting (Completed)",
         "Verify os.Exit(1) calls in root.go and init.go are replaced with proper RunE error returns to enable unit testing error paths",
@@ -251,8 +271,9 @@
         "Coverage improved from 61.9% to 85.7% for VerifyApiSpec",
         "Created 7 new test cases covering UI bypass (clean/rejected), compilation failure, compilation-failed-from-JSON, all-tests-pass gate rejection, pattern-matched, and pattern-not-matched branches",
         "Refactored mock exec factories into reusable makeMockExec helper",
+        "Verify internal/agent/state.go test coverage for SaveState and calculateSignature: Write tests ensuring proper file creation, permissions, and valid SHA256 generation (Completed)",
         "Verify internal/agent/state.go test coverage for LoadState: Write tests covering valid load, missing file, structural mismatch anti-cheat, and signature mismatch (Completed)",
-        "Verify internal/agent/state.go test coverage for SaveState and calculateSignature: Write tests ensuring proper file creation, permissions, and valid SHA256 generation (Completed)"
+        "Verify map[string]interface{} usage in checkAndApplyProgressUpdate (cmd/harness/commands/root.go) is replaced with strongly-typed structs (Completed)"
       ]
     },
     {
@@ -261,7 +282,7 @@
       "passes": false,
       "steps": [
         "Verify coverage threshold path: Fix `.agent/coverage-threshold` in ci.yml to `.agents/coverage-threshold` to match pre-commit.sh (single line change in ci.yml:76)",
-        "Verify duplicate security-check removal: Remove `./scripts/security-check.sh \u0026\u0026` from git hook in scripts/setup-hooks.sh:43 since pre-commit.sh already runs security-check.sh",
+        "Verify duplicate security-check removal: Remove `./scripts/security-check.sh \u0026\u0026` from git hook in scripts/setup-hooks.sh:43 since pre-commit.sh already runs security-check.sh (Completed)",
         "Verify CI test cache-busting: Add `-count=1` flag to `go test` in ci.yml:69 to match pre-commit.sh behavior and catch flaky tests",
         "Verify CI drift check parity: Add a new `drift_checks` job to ci.yml that runs `scripts/api-drift-check.sh` and `scripts/template-func-drift-check.sh`",
         "Verify CI coverage anti-degradation: Add a step in the ci.yml `test` job that checks `.agents/coverage-threshold` cannot be lowered (port logic from pre-commit.sh:150-168)",

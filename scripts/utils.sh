@@ -75,8 +75,8 @@ run_task() {
     
     # Special legacy path for lint
     if [ "$task_id" = "lint" ]; then
-        mkdir -p .tester/coverage
-        log_file=".tester/coverage/lint-results.txt"
+        mkdir -p /tmp/.tester/coverage
+        log_file="/tmp/.tester/coverage/lint-results.txt"
     fi
 
     if "$@" > "$log_file" 2>&1; then
