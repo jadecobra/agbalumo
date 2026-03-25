@@ -237,7 +237,7 @@
         "Verify map[string]interface{} usage in checkAndApplyProgressUpdate (cmd/harness/commands/root.go) is replaced with strongly-typed structs",
         "Verify internal/agent/state.go test coverage for LoadState: Write tests covering valid load, missing file, structural mismatch anti-cheat, and signature mismatch",
         "Verify internal/agent/state.go test coverage for SaveState and calculateSignature: Write tests ensuring proper file creation, permissions, and valid SHA256 generation",
-        "Verify internal/agent/verify.go test coverage for VerifyRedTest: Write tests covering UI bypass logic, compilation failure, expected failure, and panic/exit evasion",
+        "Verify internal/agent/verify.go test coverage for VerifyRedTest: Write tests covering UI bypass logic, compilation failure, expected failure, and panic/exit evasion (Completed)",
         "Verify internal/agent/verify.go test coverage for VerifyApiSpec: Write tests covering CLI and API drift detection assertions",
         "Verify internal/agent/verify.go test coverage for VerifyImplementation and VerifyLint: Write tests asserting correct mock execution of build, test, and vet commands (Completed)",
         "Verify internal/agent/verify.go test coverage for VerifyCoverage: Write tests covering profile parsing, threshold enforcement, and violation reporting (Completed)",
@@ -248,7 +248,27 @@
         "Update init.go and verify.go to handle errors",
         "Add unit tests for error paths in root_test.go",
         "Created verify_apispec_test.go with 9 tests covering success, API drift, CLI drift, workflow-specific messages (refactor/bugfix), and error paths",
-        "Coverage improved from 61.9% to 85.7% for VerifyApiSpec"
+        "Coverage improved from 61.9% to 85.7% for VerifyApiSpec",
+        "Created 7 new test cases covering UI bypass (clean/rejected), compilation failure, compilation-failed-from-JSON, all-tests-pass gate rejection, pattern-matched, and pattern-not-matched branches",
+        "Refactored mock exec factories into reusable makeMockExec helper"
+      ]
+    },
+    {
+      "category": "CI/CD Pipeline Improvements",
+      "description": "Fix parity gaps, redundancies, and reliability issues between GitHub Actions CI and local pre-commit pipeline.",
+      "passes": false,
+      "steps": [
+        "Verify coverage threshold path: Fix `.agent/coverage-threshold` in ci.yml to `.agents/coverage-threshold` to match pre-commit.sh (single line change in ci.yml:76)",
+        "Verify duplicate security-check removal: Remove `./scripts/security-check.sh \u0026\u0026` from git hook in scripts/setup-hooks.sh:43 since pre-commit.sh already runs security-check.sh",
+        "Verify CI test cache-busting: Add `-count=1` flag to `go test` in ci.yml:69 to match pre-commit.sh behavior and catch flaky tests",
+        "Verify CI drift check parity: Add a new `drift_checks` job to ci.yml that runs `scripts/api-drift-check.sh` and `scripts/template-func-drift-check.sh`",
+        "Verify CI coverage anti-degradation: Add a step in the ci.yml `test` job that checks `.agents/coverage-threshold` cannot be lowered (port logic from pre-commit.sh:150-168)",
+        "Verify CI coverage artifact upload: Add `actions/upload-artifact@v4` step in ci.yml to upload `.tester/coverage/coverage.out` as a build artifact",
+        "Verify golangci-lint expansion: Add `gosec` and `bodyclose` linters to `scripts/.golangci.yml` under linters.enable list",
+        "Verify GitHub Actions SHA pinning: Pin `actions/checkout`, `actions/setup-go`, and `actions/setup-node` in ci.yml to commit SHAs with version comments",
+        "Verify ci-local.sh rewrite: Replace `act` delegation in ci-local.sh with native execution of lint, test, coverage, and security checks (matching pre-commit.sh gates)",
+        "Verify restart removal from pre-commit: Remove `verify_restart.sh` task from pre-commit.sh:203 and add it as a standalone workflow in `.agents/workflows/restart-server.md`",
+        "Verify CI security job split: Split the monolithic `security` job in ci.yml into `security_static` (govulncheck + pattern checks) and `security_dynamic` (live server audit) jobs"
       ]
     }
   ]
