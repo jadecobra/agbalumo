@@ -1,7 +1,7 @@
 {
   "category": "Context Cost Reduction",
-  "description": "Granular refactoring tasks to reduce the context cost of the top 10 most expensive files",
+  "description": "Refactored server_ui_test.go to split browser verification specs by user journey.",
   "steps": [
-    "Verify listing_test.go validation tests are split from struct method tests (Completed)"
+    "Verify server_ui_test.go browser verification specs are split by user journey (Completed)"
   ]
 }
