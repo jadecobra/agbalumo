@@ -26,31 +26,14 @@ fi
 source "$(dirname "$0")/utils.sh"
 setup_path
 
-WARNINGS=0
-FAILURES=0
 LIVE_MODE=0
 
 if [ "${1:-}" = "--live" ]; then
     LIVE_MODE=1
 fi
 
-# Messaging functions (pass, warn, fail, info) are now in utils.sh
-# Overriding them slightly to track WARNINGS/FAILURES
-COLLECTED_WARNINGS=()
-COLLECTED_FAILURES=()
-
-pass() { if [ "$FMT" != "json" ]; then echo "${GREEN}  ✅ PASS:${NC} $1"; fi; }
-warn() { 
-    if [ "$FMT" != "json" ]; then echo "${YELLOW}  ⚠️  WARN:${NC} $1"; fi
-    WARNINGS=$((WARNINGS + 1))
-    COLLECTED_WARNINGS+=("$1")
-}
-fail() { 
-    if [ "$FMT" != "json" ]; then echo "${RED}  ❌ FAIL:${NC} $1"; fi
-    FAILURES=$((FAILURES + 1))
-    COLLECTED_FAILURES+=("$1")
-}
-info() { if [ "$FMT" != "json" ]; then echo "${CYAN}  ℹ️  INFO:${NC} $1"; fi; }
+# Source audit helpers for reporting and tracking
+source "$(dirname "$0")/utils/audit_helpers.sh"
 
 # Determine project root (script may be called from any dir)
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -436,40 +419,4 @@ fi
 
 # ─── Summary ──────────────────────────────────────────────────────────────────
 
-if [ "$FMT" = "json" ]; then
-    COMBINED_HINTS="[]"
-    if [ ${#COLLECTED_WARNINGS[@]} -gt 0 ] || [ ${#COLLECTED_FAILURES[@]} -gt 0 ]; then
-        # merge arrays for warnings field in JSON envelope
-        COMBINED_HINTS=$(printf '%s\n' "${COLLECTED_FAILURES[@]}" "${COLLECTED_WARNINGS[@]}" | jq -R . | jq -s .)
-    fi
-
-    if [ "$FAILURES" -eq 0 ] && [ "$WARNINGS" -eq 0 ]; then
-        output_json_envelope true "performance-audit.sh" "🏆 All checks passed with no warnings!" "$COMBINED_HINTS"
-        exit 0
-    elif [ "$FAILURES" -eq 0 ]; then
-        output_json_envelope true "performance-audit.sh" "⚠️ $WARNINGS warning(s) found — no critical failures." "$COMBINED_HINTS"
-        exit 0
-    else
-        output_json_envelope false "performance-audit.sh" "❌ $FAILURES failure(s), $WARNINGS warning(s) found." "$COMBINED_HINTS"
-        exit 2
-    fi
-fi
-
-echo ""
-echo "${BOLD}${BLUE}════════════════════════════════════════════════${NC}"
-echo "${BOLD}  Audit Summary${NC}"
-echo "${BOLD}${BLUE}════════════════════════════════════════════════${NC}"
-echo ""
-
-if [ "$FAILURES" -eq 0 ] && [ "$WARNINGS" -eq 0 ]; then
-    echo "${GREEN}${BOLD}🏆 All checks passed with no warnings!${NC}"
-    exit 0
-elif [ "$FAILURES" -eq 0 ]; then
-    echo "${YELLOW}${BOLD}⚠️  ${WARNINGS} warning(s) found — no critical failures.${NC}"
-    echo "   Address warnings to maintain peak performance."
-    exit 0
-else
-    echo "${RED}${BOLD}❌ ${FAILURES} failure(s), ${WARNINGS} warning(s) found.${NC}"
-    echo "   Fix failures before deploying."
-    exit 2
-fi
+audit_summary "performance-audit.sh"
