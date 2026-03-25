@@ -232,7 +232,8 @@
         "Verify performance-audit.sh reporting functions are abstracted into scripts/utils/audit_helpers.sh (Completed)",
         "Verify server_ui_test.go browser verification specs are split by user journey (Completed)",
         "Verify listing_write_test.go create, update, and delete tests are split into isolated files (Completed)",
-        "Verify sqlite_listing.go read operations are split into sqlite_listing_read.go (Completed)"
+        "Verify sqlite_listing.go read operations are split into sqlite_listing_read.go (Completed)",
+        "Verify image_test.go mock initialization and teardown are split into test helpers (Completed)"
       ]
     },
     {

@@ -34,7 +34,7 @@ func createValidJPEG() []byte {
 	return buf.Bytes()
 }
 
-func setupTestImageService(t *testing.T) (*service.LocalImageService, string) {
+func setupTestImageService(t *testing.T, mutators ...func(*service.LocalImageService)) (*service.LocalImageService, string) {
 	t.Helper()
 	tempDir := t.TempDir()
 	svc := &service.LocalImageService{
@@ -44,7 +44,12 @@ func setupTestImageService(t *testing.T) (*service.LocalImageService, string) {
 		InitialQuality: 80,
 		MinQuality:     20,
 	}
-	return svc, tempDir
+	for _, m := range mutators {
+		if m != nil {
+			m(svc)
+		}
+	}
+	return svc, svc.UploadDir
 }
 
 func createMultipartImageRequest(t *testing.T, fieldName, fileName string, fileData []byte) *multipart.FileHeader {
@@ -94,8 +99,9 @@ func TestLocalImageService_UploadImage(t *testing.T) {
 }
 
 func TestLocalImageService_UploadImage_Validation(t *testing.T) {
-	svc := service.NewLocalImageService("")
-	svc.MaxUploadSize = 100
+	svc, _ := setupTestImageService(t, func(s *service.LocalImageService) {
+		s.MaxUploadSize = 100
+	})
 
 	path, err := svc.UploadImage(context.Background(), nil, "start")
 	assert.NoError(t, err)
@@ -119,8 +125,7 @@ func TestLocalImageService_UploadImage_Validation(t *testing.T) {
 }
 
 func TestLocalImageService_UploadImage_JPEG(t *testing.T) {
-	svc := service.NewLocalImageService("")
-	svc.UploadDir = t.TempDir()
+	svc, _ := setupTestImageService(t)
 
 	jpegData := createValidJPEG()
 	assert.NotNil(t, jpegData, "failed to create test JPEG")
@@ -143,8 +148,7 @@ func createValidGIF() []byte {
 }
 
 func TestLocalImageService_UploadImage_GIF(t *testing.T) {
-	svc := service.NewLocalImageService("")
-	svc.UploadDir = t.TempDir()
+	svc, _ := setupTestImageService(t)
 
 	gifData := createValidGIF()
 	assert.NotNil(t, gifData, "failed to create test GIF")
@@ -157,8 +161,7 @@ func TestLocalImageService_UploadImage_GIF(t *testing.T) {
 }
 
 func TestLocalImageService_UploadImage_Compression(t *testing.T) {
-	svc := service.NewLocalImageService("")
-	svc.UploadDir = t.TempDir()
+	svc, _ := setupTestImageService(t)
 	svc.InitialQuality = 50
 
 	pngData := createValidPNG()
@@ -181,11 +184,9 @@ func TestLocalImageService_UploadImage_Errors(t *testing.T) {
 		assert.NoError(t, err)
 		defer func() { _ = os.Remove(tmpFile.Name()) }()
 
-		svc := &service.LocalImageService{
-			UploadDir:      filepath.Join(tmpFile.Name(), "subdir"),
-			MaxUploadSize:  1024 * 1024,
-			InitialQuality: 80,
-		}
+		svc, _ := setupTestImageService(t, func(s *service.LocalImageService) {
+			s.UploadDir = filepath.Join(tmpFile.Name(), "subdir")
+		})
 
 		pngData := createValidPNG()
 		header := createMultipartImageRequest(t, "image", "test.png", pngData)
@@ -202,11 +203,9 @@ func TestLocalImageService_UploadImage_Errors(t *testing.T) {
 		assert.NoError(t, err)
 		defer func() { _ = os.Remove(tmpFile.Name()) }()
 
-		svc := &service.LocalImageService{
-			UploadDir:      tmpFile.Name(), // This is a file, so os.Create(filepath.Join(svc.UploadDir, "err.webp")) will fail
-			MaxUploadSize:  1024 * 1024,
-			InitialQuality: 80,
-		}
+		svc, _ := setupTestImageService(t, func(s *service.LocalImageService) {
+			s.UploadDir = tmpFile.Name() // This is a file, so os.Create(filepath.Join(svc.UploadDir, "err.webp")) will fail
+		})
 
 		pngData := createValidPNG()
 		header := createMultipartImageRequest(t, "image", "test.png", pngData)
@@ -221,8 +220,7 @@ func TestLocalImageService_UploadImage_Errors(t *testing.T) {
 }
 
 func TestLocalImageService_CompressImage(t *testing.T) {
-	svc := service.NewLocalImageService("")
-	svc.InitialQuality = 80
+	svc, _ := setupTestImageService(t)
 
 	img := image.NewRGBA(image.Rect(0, 0, 10, 10))
 	var originalBuf bytes.Buffer
@@ -236,8 +234,7 @@ func TestLocalImageService_CompressImage(t *testing.T) {
 }
 
 func TestLocalImageService_ConvertToWebP(t *testing.T) {
-	svc := service.NewLocalImageService("")
-	svc.InitialQuality = 80
+	svc, _ := setupTestImageService(t)
 
 	img := image.NewRGBA(image.Rect(0, 0, 10, 10))
 	var pngBuf bytes.Buffer
@@ -251,13 +248,10 @@ func TestLocalImageService_ConvertToWebP(t *testing.T) {
 }
 
 func TestLocalImageService_UploadImage_LargeImageCompression(t *testing.T) {
-	svc := &service.LocalImageService{
-		UploadDir:      t.TempDir(),
-		MaxUploadSize:  5 * 1024 * 1024,
-		MaxFileSize:    200 * 1024, // 200KB target
-		InitialQuality: 85,
-		MinQuality:     20,
-	}
+	svc, _ := setupTestImageService(t, func(s *service.LocalImageService) {
+		s.MaxUploadSize = 5 * 1024 * 1024
+		s.InitialQuality = 85
+	})
 
 	// Create a larger image (100x100) that will need compression
 	img := image.NewRGBA(image.Rect(0, 0, 100, 100))
@@ -287,12 +281,9 @@ func TestLocalImageService_UploadImage_LargeImageCompression(t *testing.T) {
 }
 
 func TestLocalImageService_UploadImage_DecodeError(t *testing.T) {
-	svc := &service.LocalImageService{
-		UploadDir:      t.TempDir(),
-		MaxUploadSize:  1024 * 1024,
-		MaxFileSize:    200 * 1024,
-		InitialQuality: 85,
-	}
+	svc, _ := setupTestImageService(t, func(s *service.LocalImageService) {
+		s.InitialQuality = 85
+	})
 
 	// Create a file with invalid image data
 	fileHeader := createMultipartImageRequest(t, "image", "invalid.jpg", []byte("not an image"))
@@ -303,14 +294,14 @@ func TestLocalImageService_UploadImage_DecodeError(t *testing.T) {
 }
 
 func TestLocalImageService_CompressImage_DecodeError(t *testing.T) {
-	svc := service.NewLocalImageService("")
+	svc, _ := setupTestImageService(t)
 
 	_, err := svc.CompressImage(strings.NewReader("not an image"))
 	assert.Error(t, err)
 }
 
 func TestLocalImageService_ConvertToWebP_DecodeError(t *testing.T) {
-	svc := service.NewLocalImageService("")
+	svc, _ := setupTestImageService(t)
 
 	_, err := svc.ConvertToWebP(strings.NewReader("not a png"))
 	assert.Error(t, err)
@@ -354,7 +345,7 @@ func TestLocalImageService_DeleteImage(t *testing.T) {
 }
 
 func TestLocalImageService_ConvertToWebP_EncodeError(t *testing.T) {
-	svc := service.NewLocalImageService("")
+	svc, _ := setupTestImageService(t)
 	svc.InitialQuality = -1 // Likely to cause issues
 
 	img := image.NewRGBA(image.Rect(0, 0, 1, 1))
@@ -408,7 +399,7 @@ func TestLocalImageService_DeleteImage_EdgeCases(t *testing.T) {
 }
 
 func TestLocalImageService_Errors(t *testing.T) {
-	svc := service.NewLocalImageService("")
+	svc, _ := setupTestImageService(t)
 
 	// Test CompressImage decode error
 	_, err := svc.CompressImage(strings.NewReader("not-an-image"))
