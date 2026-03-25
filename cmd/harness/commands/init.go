@@ -40,7 +40,9 @@ func InitCmd() *cobra.Command {
 			}
 			if flagText {
 				fmt.Printf("Workflow initialized for %s: %s\n", workflowType, feature)
-				summarizeProgress()
+				if err := summarizeProgress(); err != nil {
+					return fmt.Errorf("failed to summarize progress: %w", err)
+				}
 			} else {
 				printJSON(true, "init", map[string]any{
 					"message":      fmt.Sprintf("Workflow initialized for %s: %s", workflowType, feature),

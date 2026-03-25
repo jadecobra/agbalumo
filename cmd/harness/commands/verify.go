@@ -25,6 +25,7 @@ func VerifyCmd() *cobra.Command {
 				return err
 			}
 
+
 			if state.Feature == "" {
 				return fmt.Errorf("no active feature found in state file")
 			}
@@ -125,7 +126,9 @@ func VerifyCmd() *cobra.Command {
 					fmt.Println("✨ Implementation passed. Transitioning to REFACTOR phase.")
 				}
 					_ = exec.Command("scripts/agent-exec.sh", "workflow", "set-phase", "REFACTOR").Run()
-					checkAndApplyProgressUpdate()
+					if uErr := checkAndApplyProgressUpdate(); uErr != nil {
+						return fmt.Errorf("failed to update progress: %w", uErr)
+					}
 				}
 			}
 

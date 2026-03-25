@@ -67,10 +67,10 @@ func hasPending(steps interface{}) bool {
 	return false
 }
 
-func summarizeProgress() {
+func summarizeProgress() error {
 	data, err := os.ReadFile(".tester/tasks/progress.json")
 	if err != nil {
-		return
+		return err
 	}
 	var tracker struct {
 		Features []struct {
@@ -79,7 +79,7 @@ func summarizeProgress() {
 		} `json:"features"`
 	}
 	if err := json.Unmarshal(data, &tracker); err != nil {
-		return
+		return err
 	}
 
 	passed, pending := 0, 0
@@ -107,42 +107,39 @@ func summarizeProgress() {
 		}
 		fmt.Printf("--------------------------------\n\n")
 	}
+	return nil
 }
 
-func checkAndApplyProgressUpdate() {
+func checkAndApplyProgressUpdate() error {
 	updateFile := ".tester/tasks/pending_update.json"
 	targetFile := ".tester/tasks/progress.json"
 
 	if _, err := os.Stat(updateFile); os.IsNotExist(err) {
-		return // No update file provided
+		return nil // No update file provided
 	}
 
 	fmt.Println("📦 Found pending_update.json. Triggering automatic progress tracker update...")
 	updateData, err := os.ReadFile(updateFile)
 	if err != nil {
-		fmt.Println("⚠️ Failed to read pending update:", err)
-		return
+		return fmt.Errorf("failed to read pending update: %w", err)
 	}
 
 	var newFeature map[string]interface{}
 	err = json.Unmarshal(updateData, &newFeature)
 	if err != nil {
-		fmt.Println("⚠️ Failed to parse pending update JSON:", err)
-		return
+		return fmt.Errorf("failed to parse pending update JSON: %w", err)
 	}
 	newFeature["passes"] = !hasPending(newFeature["steps"])
 
 	targetData, err := os.ReadFile(targetFile)
 	if err != nil {
-		fmt.Println("⚠️ Failed to read progress.json:", err)
-		return
+		return fmt.Errorf("failed to read progress.json: %w", err)
 	}
 
 	var tracker map[string]interface{}
 	err = json.Unmarshal(targetData, &tracker)
 	if err != nil {
-		fmt.Println("⚠️ Failed to parse progress.json:", err)
-		return
+		return fmt.Errorf("failed to parse progress.json: %w", err)
 	}
 
 	if features, ok := tracker["features"].([]interface{}); ok {
@@ -175,23 +172,21 @@ func checkAndApplyProgressUpdate() {
 			tracker["features"] = features
 		}
 	} else {
-		fmt.Println("⚠️ progress.json missing features array")
-		return
+		return fmt.Errorf("progress.json missing features array")
 	}
 
 	outData, err := json.MarshalIndent(tracker, "", "  ")
 	if err != nil {
-		fmt.Println("⚠️ Failed to encode updated progress.json:", err)
-		return
+		return fmt.Errorf("failed to encode updated progress.json: %w", err)
 	}
 
 	if err := os.WriteFile(targetFile, outData, 0644); err != nil {
-		fmt.Println("⚠️ Failed to save updated progress.json:", err)
-		return
+		return fmt.Errorf("failed to save updated progress.json: %w", err)
 	}
 
 	fmt.Println("✅ Successfully updated progress.json with new feature implementation!")
 	_ = os.Remove(updateFile)
+	return nil
 }
 
 func NewRootCmd() *cobra.Command {

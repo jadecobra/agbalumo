@@ -243,7 +243,10 @@
         "Verify internal/agent/verify.go test coverage for VerifyCoverage: Write tests covering profile parsing, threshold enforcement, and violation reporting",
         "Verify os.Exit(1) calls in root.go and init.go are replaced with proper RunE error returns to enable unit testing error paths",
         "Verify os.Exit(1) calls in gate.go, set_phase.go, and status.go are replaced with proper RunE error returns to enable unit testing error paths",
-        "Verify os.Exit(1) calls in verify.go, cost.go, and update_coverage.go are replaced with proper RunE error returns to enable unit testing error paths"
+        "Verify os.Exit(1) calls in verify.go, cost.go, and update_coverage.go are replaced with proper RunE error returns to enable unit testing error paths",
+        "Refactor summarizeProgress and checkAndApplyProgressUpdate to return errors",
+        "Update init.go and verify.go to handle errors",
+        "Add unit tests for error paths in root_test.go"
       ]
     }
   ]

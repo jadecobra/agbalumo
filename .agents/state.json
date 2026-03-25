@@ -1,7 +1,7 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "harness-error-handling",
-  "workflow_type": "refactor",
+  "feature": "Refactor os.Exit in root.go and init.go",
+  "workflow_type": "feature",
   "phase": "REFACTOR",
   "gates": {
     "red-test": "PASSED",
@@ -9,8 +9,8 @@
     "implementation": "PASSED",
     "lint": "PASSED",
     "coverage": "PASSED",
-    "browser-verification": "PENDING"
+    "browser-verification": "PASSED"
   },
-  "updated_at": "2026-03-25T04:31:17.680839Z",
-  "signature": "2112fb3891ff6e6c9782d9c024d3dc907aef1f74ad1f70df1a485acef70155c3"
+  "updated_at": "2026-03-25T04:48:16.217699Z",
+  "signature": "1f424c441425862e868e3ff7d3ce5081f0625a120d430b8379de08fda52bffe3"
 }

@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"os"
 	"testing"
 	"github.com/jadecobra/agbalumo/internal/agent"
 )
@@ -27,8 +28,26 @@ func TestCoverageHelpers(t *testing.T) {
 		WorkflowType: "feature",
 		Phase:        "IDLE",
 	})
-	summarizeProgress()
-	checkAndApplyProgressUpdate()
+	_ = summarizeProgress()
+	_ = checkAndApplyProgressUpdate()
+}
+
+func TestErrorPaths(t *testing.T) {
+	// Test summarizeProgress with missing file
+	origFile := ".tester/tasks/progress.json"
+	tempFile := ".tester/tasks/progress.json.bak"
+	_ = os.Rename(origFile, tempFile)
+	defer func() { _ = os.Rename(tempFile, origFile) }()
+
+	err := summarizeProgress()
+	if err == nil {
+		t.Errorf("expected error for missing progress.json, got nil")
+	}
+
+	err = checkAndApplyProgressUpdate()
+	if err != nil {
+		t.Logf("Note: checkAndApplyProgressUpdate returned: %v", err)
+	}
 }
 
 func TestHasPending(t *testing.T) {
