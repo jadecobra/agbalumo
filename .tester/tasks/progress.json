@@ -222,7 +222,7 @@
       "steps": [
         "Verify app.js HTMX event listeners are extracted into modular functions (Completed)",
         "Verify app.js Form Validation and map utilities are extracted into separate files (Completed)",
-        "Verify sqlite_test.go user repository tests are split into sqlite_user_test.go",
+        "Verify sqlite_test.go user repository tests are split into sqlite_user_test.go (Completed)",
         "Verify sqlite_test.go listing repository tests are split into sqlite_listing_test.go (Completed)",
         "Verify harness/main.go CLI command definitions are extracted into separate packages (e.g., cmd/harness/commands) (Completed)",
         "Verify auth/handler_test.go test cases are split by endpoint (login, register, logout) (Completed)",
