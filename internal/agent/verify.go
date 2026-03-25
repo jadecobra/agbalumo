@@ -12,6 +12,7 @@ import (
 
 // RunCommand is a helper to run commands and capture output
 var ExecCommand = exec.Command
+var LookPath = exec.LookPath
 
 func RunCommand(name string, args ...string) ([]byte, error) {
 	cmd := ExecCommand(name, args...)
@@ -225,7 +226,7 @@ func VerifyImplementation() bool {
 func VerifyLint() bool {
 	fmt.Println("Running linter...")
 
-	if _, err := exec.LookPath("golangci-lint"); err != nil {
+	if _, err := LookPath("golangci-lint"); err != nil {
 		fmt.Println("⚠️  golangci-lint not found, skipping...")
 		fmt.Println("✅ Gate PASS: lint passed.")
 		return true

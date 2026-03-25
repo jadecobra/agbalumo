@@ -7,8 +7,15 @@ import (
 	"testing"
 )
 
-// mockExecCommand creates a mock command that executes 'echo' instead of the real command.
+type commandRecord struct {
+	Name string
+	Args []string
+}
+
+var recordedCommands []commandRecord
+
 func mockExecCommand(command string, args ...string) *exec.Cmd {
+	recordedCommands = append(recordedCommands, commandRecord{Name: command, Args: args})
 	cs := []string{"-test.run=TestHelperProcess", "--", command}
 	cs = append(cs, args...)
 	cmd := exec.Command(os.Args[0], cs...)
@@ -29,21 +36,88 @@ func TestVerifyImplementation(t *testing.T) {
 	ExecCommand = mockExecCommand
 	defer func() { ExecCommand = orig }()
 
+	recordedCommands = nil
 	if !VerifyImplementation() {
-		t.Error("VerifyImplementation failed in mock")
+		t.Fatal("VerifyImplementation failed in mock")
+	}
+
+	expected := []struct {
+		Name string
+		Args []string
+	}{
+		{"go", []string{"vet", "./..."}},
+		{"go", []string{"build", "./..."}},
+		{"go", []string{"test", "-json", "-coverprofile=.tester/coverage/coverage.out", "./..."}},
+	}
+
+	if len(recordedCommands) != len(expected) {
+		t.Fatalf("expected %d commands, got %d", len(expected), len(recordedCommands))
+	}
+
+	for i, exp := range expected {
+		if recordedCommands[i].Name != exp.Name {
+			t.Errorf("cmd %d: expected name %s, got %s", i, exp.Name, recordedCommands[i].Name)
+		}
+		if len(recordedCommands[i].Args) != len(exp.Args) {
+			t.Errorf("cmd %d: expected %d args, got %d", i, len(exp.Args), len(recordedCommands[i].Args))
+			continue
+		}
+		for j, arg := range exp.Args {
+			if recordedCommands[i].Args[j] != arg {
+				t.Errorf("cmd %d, arg %d: expected %s, got %s", i, j, arg, recordedCommands[i].Args[j])
+			}
+		}
 	}
 }
 
 func TestVerifyLint(t *testing.T) {
-	orig := ExecCommand
+	origExec := ExecCommand
+	origLook := LookPath
 	ExecCommand = mockExecCommand
-	defer func() { ExecCommand = orig }()
+	LookPath = func(file string) (string, error) {
+		if file == "golangci-lint" {
+			return "/usr/local/bin/golangci-lint", nil
+		}
+		return "", fmt.Errorf("not found")
+	}
+	defer func() {
+		ExecCommand = origExec
+		LookPath = origLook
+	}()
 
-	// Even if it fails to find golangci-lint, it returns true
+	recordedCommands = nil
 	if !VerifyLint() {
-		t.Error("VerifyLint failed in mock")
+		t.Fatal("VerifyLint failed in mock")
+	}
+
+	expected := []struct {
+		Name string
+		Args []string
+	}{
+		{"golangci-lint", []string{"run", "-c", "scripts/.golangci.yml"}},
+	}
+
+	if len(recordedCommands) != len(expected) {
+		t.Fatalf("expected %d commands, got %d", len(expected), len(recordedCommands))
+	}
+
+	for i, exp := range expected {
+		if recordedCommands[i].Name != exp.Name {
+			t.Errorf("cmd %d: expected name %s, got %s", i, exp.Name, recordedCommands[i].Name)
+		}
+		if len(recordedCommands[i].Args) != len(exp.Args) {
+			t.Errorf("cmd %d: expected %d args, got %d", i, len(exp.Args), len(recordedCommands[i].Args))
+			continue
+		}
+		for j, arg := range exp.Args {
+			if recordedCommands[i].Args[j] != arg {
+				t.Errorf("cmd %d, arg %d: expected %s, got %s", i, j, arg, recordedCommands[i].Args[j])
+			}
+		}
 	}
 }
+
+
 
 func TestVerifyCoverage(t *testing.T) {
 	orig := ExecCommand
