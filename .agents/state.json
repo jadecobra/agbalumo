@@ -1,6 +1,6 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "security-cleanup",
+  "feature": "ci-local-rewrite",
   "workflow_type": "refactor",
   "phase": "REFACTOR",
   "gates": {
@@ -11,6 +11,6 @@
     "coverage": "PASSED",
     "browser-verification": "PASSED"
   },
-  "updated_at": "2026-03-25T17:35:55.625808Z",
-  "signature": "ff183cbfaac3267fc4d8f3586b2d2f49ce4eb7a7cdf7d9b8e830367c993d2c91"
+  "updated_at": "2026-03-25T17:48:38.629875Z",
+  "signature": "da592da7e72efcb5a32bfb121197bf78cdfea4b737839dc61a2349ab3288f62a"
 }

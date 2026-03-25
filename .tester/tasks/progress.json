@@ -290,7 +290,7 @@
         "Verify golangci-lint expansion: Add `gosec` and `bodyclose` linters to `scripts/.golangci.yml` under linters.enable list",
         "Verify GitHub Actions SHA pinning: Pin `actions/checkout`, `actions/setup-go`, and `actions/setup-node` in ci.yml to commit SHAs with version comments",
         "Verify ci-local.sh rewrite: Replace `act` delegation in ci-local.sh with native execution of lint, test, coverage, and security checks (matching pre-commit.sh gates) (Completed)",
-        "Verify restart removal from pre-commit: Remove `verify_restart.sh` task from pre-commit.sh:203 and add it as a standalone workflow in `.agents/workflows/restart-server.md`",
+        "Verify restart removal from pre-commit: Remove `verify_restart.sh` task from pre-commit.sh:203 and add it as a standalone workflow in `.agents/workflows/restart-server.md` (Completed)",
         "Verify CI security job split: Split the monolithic `security` job in ci.yml into `security_static` (govulncheck + pattern checks) and `security_dynamic` (live server audit) jobs"
       ]
     }
