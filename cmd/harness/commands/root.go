@@ -35,27 +35,25 @@ func printJSON(success bool, command string, output any, warnings []string) {
 	fmt.Println(string(b))
 }
 
-func getState() *agent.State {
+func getState() (*agent.State, error) {
 	state, err := agent.LoadState(stateFile)
 	if err != nil {
 		if agent.IsNotExist(err) {
-			return &agent.State{}
+			return &agent.State{}, nil
 		}
-		fmt.Fprintf(os.Stderr, "Error loading state: %v\n", err)
-		os.Exit(1)
+		return nil, fmt.Errorf("error loading state: %w", err)
 	}
-	return state
+	return state, nil
 }
 
-func saveState(state *agent.State) {
+func saveState(state *agent.State) error {
 	if err := os.MkdirAll(".agents", 0755); err != nil {
-		fmt.Fprintf(os.Stderr, "Error creating .agent directory: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("error creating .agent directory: %w", err)
 	}
 	if err := agent.SaveState(stateFile, state); err != nil {
-		fmt.Fprintf(os.Stderr, "Error saving state: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("error saving state: %w", err)
 	}
+	return nil
 }
 
 func hasPending(steps interface{}) bool {
@@ -198,8 +196,10 @@ func checkAndApplyProgressUpdate() {
 
 func NewRootCmd() *cobra.Command {
 	var rootCmd = &cobra.Command{
-		Use:   "harness",
-		Short: "agentic-harness is a robust CLI for 10x Engineer workflows",
+		Use:           "harness",
+		Short:         "agentic-harness is a robust CLI for 10x Engineer workflows",
+		SilenceErrors: true,
+		SilenceUsage:  true,
 	}
 
 	rootCmd.PersistentFlags().BoolVar(&flagText, "text", false, "Output in human-readable text format (JSON is default)")

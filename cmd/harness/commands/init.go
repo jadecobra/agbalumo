@@ -2,7 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/jadecobra/agbalumo/internal/agent"
 	"github.com/spf13/cobra"
@@ -13,15 +12,14 @@ func InitCmd() *cobra.Command {
 		Use:   "init <feature_name> [workflow_type]",
 		Short: "Initialize the harness tracking structure",
 		Args:  cobra.MinimumNArgs(1),
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			feature := args[0]
 			workflowType := "feature"
 			if len(args) > 1 {
 				workflowType = args[1]
 			}
 			if workflowType != "feature" && workflowType != "bugfix" && workflowType != "refactor" {
-				fmt.Fprintf(os.Stderr, "Error: invalid workflow type '%s'\n", workflowType)
-				os.Exit(1)
+				return fmt.Errorf("invalid workflow type '%s'", workflowType)
 			}
 
 			state := &agent.State{
@@ -37,7 +35,9 @@ func InitCmd() *cobra.Command {
 					BrowserVerification: agent.GatePending,
 				},
 			}
-			saveState(state)
+			if err := saveState(state); err != nil {
+				return err
+			}
 			if flagText {
 				fmt.Printf("Workflow initialized for %s: %s\n", workflowType, feature)
 				summarizeProgress()
@@ -49,6 +49,7 @@ func InitCmd() *cobra.Command {
 					"state":        state,
 				}, nil)
 			}
+			return nil
 		},
 	}
 }

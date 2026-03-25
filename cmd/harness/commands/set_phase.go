@@ -2,7 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -12,15 +11,19 @@ func SetPhaseCmd() *cobra.Command {
 		Use:   "set-phase <IDLE|RED|GREEN|REFACTOR>",
 		Short: "Set the current workflow phase",
 		Args:  cobra.ExactArgs(1),
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			phase := args[0]
 			if phase != "IDLE" && phase != "RED" && phase != "GREEN" && phase != "REFACTOR" {
-				fmt.Fprintf(os.Stderr, "Error: invalid phase '%s'\n", phase)
-				os.Exit(1)
+				return fmt.Errorf("invalid phase '%s'", phase)
 			}
-			state := getState()
+			state, err := getState()
+			if err != nil {
+				return err
+			}
 			state.Phase = phase
-			saveState(state)
+			if err := saveState(state); err != nil {
+				return err
+			}
 			if flagText {
 				fmt.Printf("Phase set to: %s\n", phase)
 			} else {
@@ -30,6 +33,7 @@ func SetPhaseCmd() *cobra.Command {
 					"state":   state,
 				}, nil)
 			}
+			return nil
 		},
 	}
 }

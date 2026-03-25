@@ -3,7 +3,6 @@ package commands
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"os/exec"
 
 	"github.com/jadecobra/agbalumo/internal/agent"
@@ -15,17 +14,19 @@ func VerifyCmd() *cobra.Command {
 		Use:   "verify <gate_id> [pattern]",
 		Short: "Run the validation gate for the current phase",
 		Args:  cobra.RangeArgs(1, 2),
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			gateID := args[0]
 			pattern := ""
 			if len(args) > 1 {
 				pattern = args[1]
 			}
-			state := getState()
+			state, err := getState()
+			if err != nil {
+				return err
+			}
 
 			if state.Feature == "" {
-				fmt.Fprintln(os.Stderr, "Error: No active feature found in state file")
-				os.Exit(1)
+				return fmt.Errorf("no active feature found in state file")
 			}
 
 			if flagText {
@@ -36,15 +37,11 @@ func VerifyCmd() *cobra.Command {
 			switch gateID {
 			case "implementation":
 				if state.Gates.RedTest != agent.GatePassed || state.Gates.ApiSpec != agent.GatePassed {
-					fmt.Fprintln(os.Stderr, "❌ Error: 'implementation' requires 'red-test' and 'api-spec' to be PASS.")
-					fmt.Fprintln(os.Stderr, "💡 HINT: If this is a UI layer change, use './scripts/agent-exec.sh verify red-test ui-bypass'.")
-					fmt.Fprintln(os.Stderr, "💡 HINT: Note that you MUST still pass the lint gate and verify the UI using the browser_subagent.")
-					os.Exit(1)
+					return fmt.Errorf("implementation requires red-test and api-spec to be PASS. 💡 HINT: If this is a UI layer change, use './scripts/agent-exec.sh verify red-test ui-bypass'. 💡 HINT: Note that you MUST still pass the lint gate and verify the UI using the browser_subagent")
 				}
 			case "lint", "coverage", "browser-verification":
 				if state.Gates.Implementation != agent.GatePassed {
-					fmt.Fprintf(os.Stderr, "❌ Error: '%s' requires 'implementation' to be PASS.\n", gateID)
-					os.Exit(1)
+					return fmt.Errorf("%s requires implementation to be PASS", gateID)
 				}
 			}
 
@@ -70,8 +67,7 @@ func VerifyCmd() *cobra.Command {
 					success = false
 				}
 			default:
-				fmt.Fprintf(os.Stderr, "Error: Unknown gate_id '%s'\n", gateID)
-				os.Exit(1)
+				return fmt.Errorf("unknown gate_id '%s'", gateID)
 			}
 
 			// Update gate status
@@ -101,7 +97,9 @@ func VerifyCmd() *cobra.Command {
 			}
 
 			if gateID != "browser-verification" {
-				saveState(state)
+				if err = saveState(state); err != nil {
+					return err
+				}
 			}
 			
 			// This matches update_gate in bash script
@@ -109,7 +107,10 @@ func VerifyCmd() *cobra.Command {
 			_ = c.Run()
 
 			// Auto transition
-			state = getState() // Reload as exec may have updated it
+			state, err = getState() // Reload as exec may have updated it
+			if err != nil {
+				return err
+			}
 			switch state.Phase {
 			case "RED":
 				if state.Gates.RedTest == agent.GatePassed && state.Gates.ApiSpec == agent.GatePassed {
@@ -129,7 +130,10 @@ func VerifyCmd() *cobra.Command {
 			}
 
 			// Print current status
-			state = getState()
+			state, err = getState()
+			if err != nil {
+				return err
+			}
 			if flagText {
 				fmt.Println("--- Current Workflow Status ---")
 				b, _ := json.Marshal(state.Gates)
@@ -143,8 +147,10 @@ func VerifyCmd() *cobra.Command {
 			}
 
 			if !success {
-				os.Exit(1)
+				return fmt.Errorf("gate verification failed: %s", gateID)
 			}
+
+			return nil
 		},
 	}
 }

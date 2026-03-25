@@ -67,9 +67,10 @@
     {
       "category": "Testing \u0026 CLI Harness",
       "description": "Comprehensive test metric improvements and testing tools",
-      "passes": true,
+      "passes": false,
       "steps": [
-        "Verify CLI testing harness (api-spec, cli-drift validations), baseline test coverage (\u003e90%), and module-specific coverage targets across the codebase"
+        "Verify CLI testing harness (api-spec, cli-drift validations), baseline test coverage (\u003e90%), and module-specific coverage targets across the codebase",
+        "Verify os.Exit(1) calls in gate.go, set_phase.go, and status.go are replaced with proper RunE error returns to enable unit testing error paths (Completed)"
       ]
     },
     {
@@ -156,10 +157,10 @@
         "Verify monolithic specs (OpenAPI, BRAND_GUIDELINES, CLI commands) are successfully extracted into granular modular files (Completed)",
         "Verify codebase documentation (AGENTS.md, Feature Workflows) is fully modularized into granular rules under `.agent/rules/` and `.agent/workflows/` (Completed)",
         "Verify feature-implementation workflows (refactor.md) enforce proactive Code Smell evaluation, safe continuous refactoring loops, and strict test preservation (Completed)",
-        "Verify Context Cost Math: Implement CalculateContextCost and RMS mathematical logic (Gemini 3 Flash Task) (Completed)",
-        "Verify Context Cost Tests: Implement unit tests in internal/agent/cost_test.go covering whitelist/blacklist file filtering and correct RMS output (Gemini 3 Flash Task) (Completed)",
-        "Verify Context Cost CLI: Integrate harness cost command into cmd/harness/main.go (Gemini 3 Flash Task) (Completed)",
-        "Verify Context Cost Execution: Run harness cost command and validate terminal output aesthetic (Gemini 3 Flash Task) (Completed)"
+        "Verify Context Cost Math: Implement CalculateContextCost and RMS mathematical logic  (Completed)",
+        "Verify Context Cost Tests: Implement unit tests in internal/agent/cost_test.go covering whitelist/blacklist file filtering and correct RMS output  (Completed)",
+        "Verify Context Cost CLI: Integrate harness cost command into cmd/harness/main.go  (Completed)",
+        "Verify Context Cost Execution: Run harness cost command and validate terminal output aesthetic  (Completed)"
       ]
     },
     {
@@ -218,24 +219,12 @@
     {
       "category": "Context Cost Reduction",
       "description": "Granular refactoring tasks to reduce the context cost of the top 10 most expensive files",
-      "passes": true,
+      "passes": false,
       "steps": [
-        "Verify app.js HTMX event listeners are extracted into modular functions (Completed)",
-        "Verify app.js Form Validation and map utilities are extracted into separate files (Completed)",
-        "Verify sqlite_test.go user repository tests are split into sqlite_user_test.go (Completed)",
-        "Verify sqlite_test.go listing repository tests are split into sqlite_listing_test.go (Completed)",
-        "Verify harness/main.go CLI command definitions are extracted into separate packages (e.g., cmd/harness/commands) (Completed)",
-        "Verify auth/handler_test.go test cases are split by endpoint (login, register, logout) (Completed)",
-        "Verify sqlite_listing.go write operations are split into sqlite_listing_write.go (Completed)",
-        "Verify listing_test.go validation tests are split from struct method tests (Completed)",
-        "Verify performance-audit.sh reporting functions are abstracted into scripts/utils/audit_helpers.sh (Completed)",
-        "Verify server_ui_test.go browser verification specs are split by user journey (Completed)",
-        "Verify listing_write_test.go create, update, and delete tests are split into isolated files (Completed)",
-        "Verify sqlite_listing.go read operations are split into sqlite_listing_read.go (Completed)",
-        "Verify image_test.go mock initialization and teardown are split into test helpers (Completed)",
-        "Verify listing_test.go only contains TestHoursOfOperationField struct method test (Completed)",
-        "Verify validation tests are housed in listing_validation_test.go, listing_job_test.go, and listing_event_test.go (Completed)",
-        "Verify all tests pass (Completed)"
+        "Verify monolithic test files (e.g., handler_test.go, sqlite_test.go, listing_write_test.go), frontend scripts (app.js), and CLI command definitions have been successfully extracted into modular, context-efficient files while maintaining test suite integrity (Completed)",
+        "Verify Interface Segregation (CQRS): Extract ListingStore into ListingReader and ListingWriter interfaces in internal/domain to eliminate sqlite_listing.go structural fragmentation",
+        "Verify Test Suite Isolation: Refactor residual large test files like sqlite_listing_test.go and listing_validation_test.go to use testify/suite or targeted sub-test groupings to further reduce context bloat",
+        "Verify Domain Map Documentation: Create a domain mapping reference in .agents/rules/ indicating where specific business validations (Create, Geocoding, Jobs) are physically located to prevent context discovery thrashing"
       ]
     },
     {
@@ -243,18 +232,18 @@
       "description": "Small, granular tasks suitable for Gemini 3 Flash execution to improve harness quality and testability.",
       "passes": false,
       "steps": [
-        "Verify normalizePath utility is extracted to a shared helper in internal/agent to eliminate duplication between drift.go and ast.go (Gemini 3 Flash Task)",
-        "Verify hardcoded gate strings (e.g. 'red-test', 'api-spec') are extracted into exported constants in internal/agent/state.go (Gemini 3 Flash Task)",
-        "Verify map[string]interface{} usage in checkAndApplyProgressUpdate (cmd/harness/commands/root.go) is replaced with strongly-typed structs (Gemini 3 Flash Task)",
-        "Verify internal/agent/state.go test coverage for LoadState: Write tests covering valid load, missing file, structural mismatch anti-cheat, and signature mismatch (Gemini 3 Flash Task)",
-        "Verify internal/agent/state.go test coverage for SaveState and calculateSignature: Write tests ensuring proper file creation, permissions, and valid SHA256 generation (Gemini 3 Flash Task)",
-        "Verify internal/agent/verify.go test coverage for VerifyRedTest: Write tests covering UI bypass logic, compilation failure, expected failure, and panic/exit evasion (Gemini 3 Flash Task)",
-        "Verify internal/agent/verify.go test coverage for VerifyApiSpec: Write tests covering CLI and API drift detection assertions (Gemini 3 Flash Task)",
-        "Verify internal/agent/verify.go test coverage for VerifyImplementation and VerifyLint: Write tests asserting correct mock execution of build, test, and vet commands (Gemini 3 Flash Task)",
-        "Verify internal/agent/verify.go test coverage for VerifyCoverage: Write tests covering profile parsing, threshold enforcement, and violation reporting (Gemini 3 Flash Task)",
-        "Verify os.Exit(1) calls in root.go and init.go are replaced with proper RunE error returns to enable unit testing error paths (Gemini 3 Flash Task)",
-        "Verify os.Exit(1) calls in gate.go, set_phase.go, and status.go are replaced with proper RunE error returns to enable unit testing error paths (Gemini 3 Flash Task)",
-        "Verify os.Exit(1) calls in verify.go, cost.go, and update_coverage.go are replaced with proper RunE error returns to enable unit testing error paths (Gemini 3 Flash Task)"
+        "Verify normalizePath utility is extracted to a shared helper in internal/agent to eliminate duplication between drift.go and ast.go",
+        "Verify hardcoded gate strings (e.g. 'red-test', 'api-spec') are extracted into exported constants in internal/agent/state.go",
+        "Verify map[string]interface{} usage in checkAndApplyProgressUpdate (cmd/harness/commands/root.go) is replaced with strongly-typed structs",
+        "Verify internal/agent/state.go test coverage for LoadState: Write tests covering valid load, missing file, structural mismatch anti-cheat, and signature mismatch",
+        "Verify internal/agent/state.go test coverage for SaveState and calculateSignature: Write tests ensuring proper file creation, permissions, and valid SHA256 generation",
+        "Verify internal/agent/verify.go test coverage for VerifyRedTest: Write tests covering UI bypass logic, compilation failure, expected failure, and panic/exit evasion",
+        "Verify internal/agent/verify.go test coverage for VerifyApiSpec: Write tests covering CLI and API drift detection assertions",
+        "Verify internal/agent/verify.go test coverage for VerifyImplementation and VerifyLint: Write tests asserting correct mock execution of build, test, and vet commands",
+        "Verify internal/agent/verify.go test coverage for VerifyCoverage: Write tests covering profile parsing, threshold enforcement, and violation reporting",
+        "Verify os.Exit(1) calls in root.go and init.go are replaced with proper RunE error returns to enable unit testing error paths",
+        "Verify os.Exit(1) calls in gate.go, set_phase.go, and status.go are replaced with proper RunE error returns to enable unit testing error paths",
+        "Verify os.Exit(1) calls in verify.go, cost.go, and update_coverage.go are replaced with proper RunE error returns to enable unit testing error paths"
       ]
     }
   ]

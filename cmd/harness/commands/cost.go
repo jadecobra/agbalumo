@@ -2,7 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/jadecobra/agbalumo/internal/agent"
 	"github.com/spf13/cobra"
@@ -13,15 +12,14 @@ func CostCmd() *cobra.Command {
 		Use:   "cost [dir]",
 		Short: "Audit the codebase to measure the agent context cost (RMS of LOC)",
 		Args:  cobra.MaximumNArgs(1),
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			dir := "."
 			if len(args) > 0 {
 				dir = args[0]
 			}
 			report, err := agent.CalculateContextCost(dir)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error calculating context cost: %v\n", err)
-				os.Exit(1)
+				return fmt.Errorf("calculating context cost: %w", err)
 			}
 			if flagText {
 				fmt.Printf("--- Context Cost Report ---\n")
@@ -42,6 +40,8 @@ func CostCmd() *cobra.Command {
 					"topFiles":   report.TopFiles,
 				}, nil)
 			}
+
+			return nil
 		},
 	}
 }
