@@ -184,9 +184,33 @@ jobs:
       - name: Run Dynamic Security Audit
         run: go run cmd/security-audit/main.go
 
+  drift_checks:
+    name: Drift Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup Node
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '20'
+
+      - name: Setup Go
+        uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
+        with:
+          go-version: '1.25.8'
+          cache: true
+
+      - name: API Drift Check
+        run: sh scripts/api-drift-check.sh --text
+
+      - name: Template Function Drift Check
+        run: sh scripts/template-func-drift-check.sh
+
   docker:
     name: Docker Build & Scan
-    needs: [quality_lint, security_static, test, security_dynamic]
+    needs: [quality_lint, security_static, test, security_dynamic, drift_checks]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
