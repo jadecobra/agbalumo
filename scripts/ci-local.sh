@@ -1,64 +1,74 @@
 #!/bin/bash
 # scripts/ci-local.sh
-# Helper script to run GitHub Actions locally using act
+# Helper script to run CI checks natively
 
-# Check for format flag
 FMT="json"
 if [ "$1" = "--text" ]; then 
     FMT="text"
-    shift # Remove the flag so it isn't passed to act
+    shift
 fi
 
 source "$(dirname "$0")/utils.sh"
+setup_path
+export GOCACHE=/tmp/gocache
+export GOTMPDIR=/tmp/gotmp
+mkdir -p "$GOCACHE" "$GOTMPDIR"
 
 # Ensure we are in the root directory
 cd "$(dirname "$0")/.."
 
-# Check if act is installed
-if ! command -v act &> /dev/null; then
-    if [ "$FMT" = "text" ]; then
-        echo "❌ act is not installed. Please install it with 'brew install act'."
-    else
-        output_json_envelope false "ci-local.sh" "act is not installed. Please install it with 'brew install act'."
-    fi
-    exit 1
+LOG_DIR=$(mktemp -d /tmp/ci-local-XXXXXX)
+trap 'rm -rf "$LOG_DIR"' EXIT
+
+if [ "$FMT" != "json" ]; then 
+    echo "${BLUE}${BOLD}🚀 Running Local CI...${NC}"
+    echo "   (matched to pre-commit gates: lint, test, coverage, security)"
 fi
 
-# Detect Apple M-series (arm64) and apply architecture flag
-ARCH_FLAG=()
-if [[ $(uname -m) == "arm64" ]]; then
-    if [ "$FMT" = "text" ]; then echo "Detected Apple M-series chip. Using --container-architecture linux/amd64"; fi
-    ARCH_FLAG=("--container-architecture" "linux/amd64")
-fi
+# Define tasks matching pre-commit logic
+# 1. Lint
+run_task "lint" "GolangCI-Lint" "$LOG_DIR" golangci-lint run -c scripts/.golangci.yml &
 
-# Run act
-if [ "$FMT" = "text" ]; then echo "🚀 Running local CI with act..."; fi
+# 2. Test & Coverage
+check_tests() {
+    go test -json -race -count=1 -coverprofile=/tmp/coverage.out ./...
+}
+run_task "test" "Tests & Coverage" "$LOG_DIR" check_tests &
 
-SUCCESS=true
-if [ "$FMT" = "text" ]; then
-    act "${ARCH_FLAG[@]}" "$@" || SUCCESS=false
-else
-    # Capture output for JSON but allow failure
-    ACT_OUT=$(act "${ARCH_FLAG[@]}" "$@" 2>&1) || SUCCESS=false
-fi
+# 3. Security
+run_task "security" "Security Check" "$LOG_DIR" sh scripts/security-check.sh &
 
-# Run full performance benchmarks
-if [ "$FMT" = "text" ]; then
-    echo ""
-    echo "📊 Running full search performance benchmarks (10,000 listings)..."
-    go test -json -v -bench=BenchmarkSearchPerformance ./internal/repository/sqlite/search_performance_test.go || SUCCESS=false
-else
-    BENCH_OUT=$(go test -json -v -bench=BenchmarkSearchPerformance ./internal/repository/sqlite/search_performance_test.go 2>&1) || SUCCESS=false
-fi
+# 4. Benchmarks (Legacy ci-local functionality)
+run_task "bench" "Benchmarks" "$LOG_DIR" \
+    go test -json -v -bench=BenchmarkSearchPerformance ./internal/repository/sqlite/search_performance_test.go &
+
+# Wait for all background tasks
+FAILURES=0
+for job in $(jobs -p); do
+    wait $job || FAILURES=$((FAILURES + 1))
+done
 
 if [ "$FMT" = "json" ]; then
-    if [ "$SUCCESS" = "true" ]; then
-        output_json_envelope true "ci-local.sh" "CI and benchmarks passed successfully."
-    else
-        # To avoid massive output in JSON, we just pass the captured streams 
-        COMBINED_OUT="ACT OUTPUT:\n$ACT_OUT\n\nBENCHMARK OUTPUT:\n$BENCH_OUT"
-        output_json_envelope false "ci-local.sh" "$COMBINED_OUT"
-    fi
+    SUCCESS=true
+    if [ $FAILURES -gt 0 ]; then SUCCESS=false; fi
+    
+    # Consolidate outputs for the envelope
+    COMBINED_OUT=""
+    for log in "$LOG_DIR"/*.log; do
+        [ -e "$log" ] || continue
+        COMBINED_OUT="$COMBINED_OUT\n--- $(basename "$log") ---\n$(cat "$log")"
+    done
+    
+    output_json_envelope "$SUCCESS" "ci-local.sh" "$COMBINED_OUT"
+    exit $FAILURES
 fi
 
-if [ "$SUCCESS" = "false" ]; then exit 1; fi
+if [ $FAILURES -eq 0 ]; then
+    echo ""
+    echo "${GREEN}${BOLD}✅ All CI checks passed!${NC}"
+    exit 0
+else
+    echo ""
+    echo "${RED}${BOLD}❌ CI failed with $FAILURES failures.${NC}"
+    exit 1
+fi
