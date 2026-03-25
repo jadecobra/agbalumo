@@ -239,14 +239,16 @@
         "Verify internal/agent/state.go test coverage for SaveState and calculateSignature: Write tests ensuring proper file creation, permissions, and valid SHA256 generation",
         "Verify internal/agent/verify.go test coverage for VerifyRedTest: Write tests covering UI bypass logic, compilation failure, expected failure, and panic/exit evasion",
         "Verify internal/agent/verify.go test coverage for VerifyApiSpec: Write tests covering CLI and API drift detection assertions",
-        "Verify internal/agent/verify.go test coverage for VerifyImplementation and VerifyLint: Write tests asserting correct mock execution of build, test, and vet commands",
+        "Verify internal/agent/verify.go test coverage for VerifyImplementation and VerifyLint: Write tests asserting correct mock execution of build, test, and vet commands (Completed)",
         "Verify internal/agent/verify.go test coverage for VerifyCoverage: Write tests covering profile parsing, threshold enforcement, and violation reporting (Completed)",
         "Verify os.Exit(1) calls in root.go and init.go are replaced with proper RunE error returns to enable unit testing error paths",
         "Verify os.Exit(1) calls in gate.go, set_phase.go, and status.go are replaced with proper RunE error returns to enable unit testing error paths",
         "Verify os.Exit(1) calls in verify.go, cost.go, and update_coverage.go are replaced with proper RunE error returns to enable unit testing error paths",
         "Refactor summarizeProgress and checkAndApplyProgressUpdate to return errors",
         "Update init.go and verify.go to handle errors",
-        "Add unit tests for error paths in root_test.go"
+        "Add unit tests for error paths in root_test.go",
+        "Created verify_apispec_test.go with 9 tests covering success, API drift, CLI drift, workflow-specific messages (refactor/bugfix), and error paths",
+        "Coverage improved from 61.9% to 85.7% for VerifyApiSpec"
       ]
     }
   ]
