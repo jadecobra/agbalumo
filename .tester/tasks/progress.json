@@ -250,7 +250,9 @@
         "Created verify_apispec_test.go with 9 tests covering success, API drift, CLI drift, workflow-specific messages (refactor/bugfix), and error paths",
         "Coverage improved from 61.9% to 85.7% for VerifyApiSpec",
         "Created 7 new test cases covering UI bypass (clean/rejected), compilation failure, compilation-failed-from-JSON, all-tests-pass gate rejection, pattern-matched, and pattern-not-matched branches",
-        "Refactored mock exec factories into reusable makeMockExec helper"
+        "Refactored mock exec factories into reusable makeMockExec helper",
+        "Verify internal/agent/state.go test coverage for LoadState: Write tests covering valid load, missing file, structural mismatch anti-cheat, and signature mismatch (Completed)",
+        "Verify internal/agent/state.go test coverage for SaveState and calculateSignature: Write tests ensuring proper file creation, permissions, and valid SHA256 generation (Completed)"
       ]
     },
     {

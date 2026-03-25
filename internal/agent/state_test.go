@@ -118,6 +118,34 @@ func TestStateSerialization(t *testing.T) {
 		}
 	})
 
+	t.Run("LoadState_InvalidJSON", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		statePath := filepath.Join(tmpDir, "invalid.json")
+		err := os.WriteFile(statePath, []byte(`{invalid json`), 0644)
+		if err != nil {
+			t.Fatalf("failed to write temp file: %v", err)
+		}
+
+		_, err = agent.LoadState(statePath)
+		if err == nil {
+			t.Fatal("expected error for invalid JSON, got none")
+		}
+	})
+
+	t.Run("LoadState_InvalidJSON", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		statePath := filepath.Join(tmpDir, "invalid.json")
+		err := os.WriteFile(statePath, []byte(`{invalid json`), 0644)
+		if err != nil {
+			t.Fatalf("failed to write temp file: %v", err)
+		}
+
+		_, err = agent.LoadState(statePath)
+		if err == nil {
+			t.Fatal("expected error for invalid JSON, got none")
+		}
+	})
+
 	t.Run("LoadState_InvalidCasingSignature", func(t *testing.T) {
 		// Valid signature for lower-case "feature"
 		content := `{
@@ -151,10 +179,69 @@ func TestStateSerialization(t *testing.T) {
 			t.Errorf("expected structural mismatch error, got: %v", err)
 		}
 	})
+
+	t.Run("LoadState_InvalidSignature", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		statePath := filepath.Join(tmpDir, "state.json")
+		state := &agent.State{Feature: "original"}
+		err := agent.SaveState(statePath, state)
+		if err != nil {
+			t.Fatalf("SaveState failed: %v", err)
+		}
+
+		// Read and tamper with value but keep signature
+		b, _ := os.ReadFile(statePath)
+		tampered := string(b)
+		tampered = replaceValue(tampered, `"feature": "original"`, `"feature": "tampered"`)
+		
+		err = os.WriteFile(statePath, []byte(tampered), 0644)
+		if err != nil {
+			t.Fatalf("failed to write tampered file: %v", err)
+		}
+
+		_, err = agent.LoadState(statePath)
+		if err == nil {
+			t.Fatal("expected error for tampered signature, got none")
+		}
+		if !contains(err.Error(), "ANTI-CHEAT TRIGGERED") || contains(err.Error(), "structural mismatch") {
+			t.Errorf("expected signature anti-cheat error, got: %v", err)
+		}
+	})
+
+	t.Run("SaveState_Permissions", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		statePath := filepath.Join(tmpDir, "state.json")
+		state := &agent.State{Feature: "perm-test"}
+
+		err := agent.SaveState(statePath, state)
+		if err != nil {
+			t.Fatalf("SaveState failed: %v", err)
+		}
+
+		info, err := os.Stat(statePath)
+		if err != nil {
+			t.Fatalf("Stat failed: %v", err)
+		}
+
+		if info.Mode().Perm() != 0644 {
+			t.Errorf("expected perm 0644, got %o", info.Mode().Perm())
+		}
+	})
+}
+
+func replaceValue(s, old, new string) string {
+	res := ""
+	for i := 0; i <= len(s)-len(old); i++ {
+		if s[i:i+len(old)] == old {
+			res = s[:i] + new + s[i+len(old):]
+			break
+		}
+	}
+	return res
 }
 
 func contains(s, substr string) bool {
-	return len(s) >= len(substr) && len(s)-len(substr) >= ind(s, substr)
+	return ind(s, substr) != -1
 }
 
 func ind(s, substr string) int {
