@@ -10,6 +10,7 @@ linters:
   enable:
     - gosec
     - bodyclose
+    - nolintlint
   settings:
     govet:
       enable:
@@ -21,6 +22,11 @@ linters:
     gosec:
       config:
         G306: "0600" # redundant but safe
+    nolintlint:
+      allow-unused: false
+      allow-no-explanation: []
+      require-explanation: true
+      require-specific: true
   exclusions:
     rules:
       - path: "(_test\\.go|scripts/)"

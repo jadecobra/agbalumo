@@ -304,6 +304,17 @@ if [ $FULL_SCAN -eq 1 ] || git diff --cached --name-only | grep -qE "Dockerfile|
 else
     echo "   Skipping container scan (no relevant changes detected)"
 fi
+# ============================================
+# CHECK 12: Gosec Rationale Enforcement
+# ============================================
+echo ""
+echo "12. Checking for mandatory rationale in Gosec suppressions..."
+
+if bash scripts/utils/check-gosec-rationale.sh; then
+    echo "${GREEN}✅ PASS: All Gosec suppressions have rationales${NC}"
+else
+    FAILED=1
+fi
 
 # ============================================
 # FINAL RESULT
