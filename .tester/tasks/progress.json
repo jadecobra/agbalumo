@@ -294,10 +294,11 @@
         "Verify CI test cache-busting: Add `-count=1` flag to `go test` in ci.yml:69 to match pre-commit.sh behavior and catch flaky tests (Completed)",
         "Verify format-handling logic and `output_json_envelope` call from `api-drift-check.sh` is used in template-func-drift-check.sh to standardize json output (Completed)",
         "Verify Go version alignment (Core): Update `go.mod` to Go version `1.26.1` and run `go mod tidy` to ensure toolchain consistency (Completed)",
-        "Verify Go version alignment (CI): Update all `actions/setup-go` steps in `.github/workflows/ci.yml` to reflect Go version `1.26.1`",
+        "Verify Go version alignment (CI): Update all actions/setup-go steps in .github/workflows/ci.yml to reflect Go version 1.26.1 (Completed)",
         "Verify Gosec tuning (Lint): Refactor `scripts/.golangci.yml` by moving global exclusions to granular `exclude-rules` targeting scripts and tests",
         "Verify Gosec audit: Resolve any newly surfaced `gosec` security findings in application code (`internal/`, `cmd/`) after linter tightening",
-        "Verify CI restart safety (Build): Update `scripts/pre-commit.sh` to include a required `go build` check to ensure the server compiles before every commit"
+        "Verify CI restart safety (Build): Update `scripts/pre-commit.sh` to include a required `go build` check to ensure the server compiles before every commit",
+        "Verify Go version alignment (CI): Update all actions/setup-go steps in .github/workflows/ci.yml to reflect Go version 1.26.1 (Completed)"
       ]
     }
   ]
