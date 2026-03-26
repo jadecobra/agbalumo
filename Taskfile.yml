@@ -1,0 +1,23 @@
+version: '3'
+
+vars:
+  STAGED_GO:
+    sh: git diff --cached --name-only --diff-filter=ACMR | grep '\.go$' || true
+  STAGED_HTML:
+    sh: git diff --cached --name-only --diff-filter=ACMR | grep '\.html$' || true
+  STAGED_SEC:
+    sh: git diff --cached --name-only --diff-filter=ACMR | grep -E '\.html$|\.go$|\.js$' || true
+  STAGED_CMD_DOCS:
+    sh: git diff --cached --name-only --diff-filter=ACMR | grep -E '^cmd/|^docs/api\.md$|^docs/openapi\.yaml$' || true
+  STAGED_CLI_DOCS:
+    sh: git diff --cached --name-only --diff-filter=ACMR | grep -E '^cmd/cli/|^docs/cli\.md$' || true
+  STAGED_PERF:
+    sh: git diff --cached --name-only --diff-filter=ACMR | grep -E '^ui/|^internal/handler/|^internal/repository/|^scripts/' || true
+  STAGED_BRAND:
+    sh: git diff --cached --name-only --diff-filter=ACMR | grep -E '\.agents/rules/brand\.toon$' || true
+  STAGED_AGENT:
+    sh: git diff --cached --name-only --diff-filter=ACMR | grep -E '\.agents/agent\.yaml$|docs/CODING_STANDARDS\.md$' || true
+  STAGED_ALL:
+    sh: git diff --cached --name-only || true
+
+tasks: {} # placeholder — tasks added in subsequent migration steps
