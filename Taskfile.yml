@@ -20,4 +20,11 @@ vars:
   STAGED_ALL:
     sh: git diff --cached --name-only || true
 
-tasks: {} # placeholder — tasks added in subsequent migration steps
+tasks:
+  lint:
+    desc: Run golangci-lint on staged files
+    preconditions:
+      - sh: '[ -n "{{.STAGED_GO}}" ]'
+        msg: "No Go files staged for linting. Skipping."
+    cmds:
+      - golangci-lint run -c scripts/.golangci.yml --new-from-rev=HEAD

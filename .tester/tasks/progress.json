@@ -317,7 +317,7 @@
       "steps": [
         "Verify go-task install: Run `brew install go-task` and confirm `task --version` outputs v3.x (Completed)",
         "Verify Taskfile.yml creation (vars): Create `Taskfile.yml` at project root with version '3' and dynamic `vars:` block defining STAGED_GO, STAGED_HTML, STAGED_SEC, STAGED_CMD_DOCS, STAGED_CLI_DOCS, STAGED_PERF, STAGED_BRAND, STAGED_AGENT, STAGED_ALL using `git diff --cached --name-only --diff-filter=ACMR | grep` patterns matching current pre-commit.sh classifications (Completed)",
-        "Verify Taskfile.yml creation (lint task): Add `lint` task with precondition `[ -n \"{{.STAGED_GO}}\" ]` that runs `golangci-lint run -c scripts/.golangci.yml --new-from-rev=HEAD` and confirm `task lint --dry` outputs precondition skip when no Go files are staged",
+        "Verify Taskfile.yml creation (lint task): Add `lint` task with precondition `[ -n \"{{.STAGED_GO}}\" ]` that runs `golangci-lint run -c scripts/.golangci.yml --new-from-rev=HEAD` and confirm `task lint --dry` outputs precondition skip when no Go files are staged (Completed)",
         "Verify Taskfile.yml creation (mod-tidy task): Add `mod-tidy` task with precondition on STAGED_GO that runs `go mod tidy && git diff --exit-code go.mod go.sum`",
         "Verify Taskfile.yml creation (build task): Add `build` task with precondition on STAGED_GO that runs `go build -o /dev/null .`",
         "Verify Taskfile.yml creation (test task): Add `test` task with precondition on STAGED_GO that runs `bash scripts/test.sh`",
