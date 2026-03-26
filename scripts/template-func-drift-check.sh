@@ -8,20 +8,36 @@ BLUE=$(printf '\033[0;34m')
 YELLOW=$(printf '\033[1;33m')
 NC=$(printf '\033[0m')
 
-printf "${BLUE}Running Template Function Drift Check...${NC}\n"
+# Check for format flag
+FMT="json"
+if [ "$1" = "--text" ]; then FMT="text"; fi
+
+source "$(dirname "$0")/utils.sh"
+
+if [ "$FMT" = "text" ]; then
+    printf "${BLUE}Running Template Function Drift Check...${NC}\n"
+fi
 
 # 1. Extract function names from ui/renderer.go
 # We look for keys in the template.FuncMap
 RENDERER_FILE="internal/ui/renderer.go"
 if [ ! -f "$RENDERER_FILE" ]; then
-    printf "${RED}❌ Renderer file mot found: %s${NC}\n" "$RENDERER_FILE"
+    if [ "$FMT" = "text" ]; then
+        printf "${RED}❌ Renderer file mot found: %s${NC}\n" "$RENDERER_FILE"
+    else
+        output_json_envelope false "template-func-drift-check.sh" "Renderer file not found: $RENDERER_FILE" "[]"
+    fi
     exit 1
 fi
 
 DEFINED_FUNCS=$(grep -E '^		"[a-zA-Z0-9]+":' "$RENDERER_FILE" | sed -E 's/.*"([a-zA-Z0-9]+)".*/\1/' | sort -u)
 
 if [ -z "$DEFINED_FUNCS" ]; then
-    printf "${RED}❌ Could not extract function names from %s${NC}\n" "$RENDERER_FILE"
+    if [ "$FMT" = "text" ]; then
+        printf "${RED}❌ Could not extract function names from %s${NC}\n" "$RENDERER_FILE"
+    else
+        output_json_envelope false "template-func-drift-check.sh" "Could not extract function names from $RENDERER_FILE" "[]"
+    fi
     exit 1
 fi
 
@@ -46,6 +62,7 @@ FILTERED_USED_FUNCS=$(sort -u "$USED_FUNCS_FILE" | grep -vE '^(if|else|end|range
 rm "$USED_FUNCS_FILE"
 
 DRIFT_DETECTED=0
+COLLECTED_WARNINGS=()
 
 # 3. Check if all USED functions are DEFINED
 for func in $FILTERED_USED_FUNCS; do
@@ -59,15 +76,32 @@ for func in $FILTERED_USED_FUNCS; do
             continue
         fi
         
-        printf "${RED}❌ Undefined template function used: '%s'${NC}\n" "$func"
+        warn_msg="Undefined template function used: '$func'"
+        COLLECTED_WARNINGS+=("$warn_msg")
+        if [ "$FMT" = "text" ]; then
+            printf "${RED}❌ %s${NC}\n" "$warn_msg"
+        fi
         DRIFT_DETECTED=1
     fi
 done
 
+DRIFT_WARNINGS="[]"
+if [ ${#COLLECTED_WARNINGS[@]} -gt 0 ]; then
+    DRIFT_WARNINGS=$(printf '%s\n' "${COLLECTED_WARNINGS[@]}" | jq -R . | jq -s .)
+fi
+
 if [ $DRIFT_DETECTED -eq 1 ]; then
-    printf "\n${RED}❌ Template Function Drift Detected! Please add missing functions to %s${NC}\n" "$RENDERER_FILE"
+    if [ "$FMT" = "text" ]; then
+        printf "\n${RED}❌ Template Function Drift Detected! Please add missing functions to %s${NC}\n" "$RENDERER_FILE"
+    else
+        output_json_envelope false "template-func-drift-check.sh" "Template Function Drift Detected! Please add missing functions to $RENDERER_FILE" "$DRIFT_WARNINGS"
+    fi
     exit 1
 else
-    printf "\n${GREEN}✅ All template functions are in sync.${NC}\n"
+    if [ "$FMT" = "text" ]; then
+        printf "\n${GREEN}✅ All template functions are in sync.${NC}\n"
+    else
+        output_json_envelope true "template-func-drift-check.sh" "All template functions are in sync." "[]"
+    fi
     exit 0
 fi

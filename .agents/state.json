@@ -1,8 +1,8 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "ci-security-split",
-  "workflow_type": "feature",
-  "phase": "REFACTOR",
+  "feature": "ci_json_standardization",
+  "workflow_type": "refactor",
+  "phase": "IDLE",
   "gates": {
     "red-test": "PASSED",
     "api-spec": "PASSED",
@@ -11,6 +11,6 @@
     "coverage": "PASSED",
     "browser-verification": "PASSED"
   },
-  "updated_at": "2026-03-25T19:49:15.74775Z",
-  "signature": "b1176785b9c8286496954d200484c50b95890a6c3ddb3e9f5641e7a10003003d"
+  "updated_at": "2026-03-26T01:08:25.802288Z",
+  "signature": "2e56b13a2f4b63174e7209890ecfa553e8768df2d4ea569d616ba57baa924bba"
 }
