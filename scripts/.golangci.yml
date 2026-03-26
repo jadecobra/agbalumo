@@ -19,52 +19,64 @@ linters:
         - name: exported
           disabled: true
     gosec:
-      excludes:
-        - G301
-        - G302
-        - G306
-        - G204
-        - G304
-        - G404
-        - G203
-        - G402
-        - G101
-        - G122
-        - G702
-        - G703
       config:
         G306: "0600" # redundant but safe
+  exclusions:
+    rules:
+      - path: "(_test\\.go|scripts/|cmd/harness/|internal/agent/|internal/seeder/|cmd/security-audit/)"
+        linters:
+          - gosec
+          - bodyclose
+          - errcheck
+      - linters:
+          - gosec
+        text: "G301:"
+        path: "(_test\\.go|scripts/|cmd/harness/|internal/agent/|internal/seeder/|cmd/security-audit/|internal/service/image.go)"
+      - linters:
+          - gosec
+        text: "G302:"
+        path: "(_test\\.go|scripts/|cmd/harness/|internal/agent/|internal/seeder/|cmd/security-audit/)"
+      - linters:
+          - gosec
+        text: "G306:"
+        path: "(_test\\.go|scripts/|cmd/harness/|internal/agent/|internal/seeder/|cmd/security-audit/)"
+      - linters:
+          - gosec
+        text: "G204:"
+        path: "(_test\\.go|scripts/|cmd/harness/|internal/agent/|internal/seeder/|cmd/security-audit/)"
+      - linters:
+          - gosec
+        text: "G304:"
+        path: "(_test\\.go|scripts/|cmd/harness/|internal/agent/|internal/seeder/|cmd/security-audit/|internal/service/image.go)"
+      - linters:
+          - gosec
+        text: "G404:"
+        path: "(_test\\.go|scripts/|cmd/harness/|internal/agent/|internal/seeder/|cmd/security-audit/)"
+      - linters:
+          - gosec
+        text: "G203:"
+        path: "(_test\\.go|scripts/|cmd/harness/|internal/agent/|internal/seeder/|cmd/security-audit/|internal/ui/renderer.go)"
+      - linters:
+          - gosec
+        text: "G402:"
+        path: "(_test\\.go|scripts/|cmd/harness/|internal/agent/|internal/seeder/|cmd/security-audit/)"
+      - linters:
+          - gosec
+        text: "G101:"
+        path: "(_test\\.go|scripts/|cmd/harness/|internal/agent/|internal/seeder/|cmd/security-audit/|cmd/server.go)"
+      - linters:
+          - gosec
+        text: "G122:"
+        path: "(_test\\.go|scripts/|cmd/harness/|internal/agent/|internal/seeder/|cmd/security-audit/)"
+      - linters:
+          - gosec
+        text: "G702:"
+        path: "(_test\\.go|scripts/|cmd/harness/|internal/agent/|internal/seeder/|cmd/security-audit/)"
+      - linters:
+          - gosec
+        text: "G703:"
+        path: "(_test\\.go|scripts/|cmd/harness/|internal/agent/|internal/seeder/|cmd/security-audit/)"
 
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
-  exclude-rules:
-    - path: ".*_test\\.go"
-      linters:
-        - gosec
-        - bodyclose
-        - errcheck
-    - linters:
-        - gosec
-      text: "G301:"
-    - linters:
-        - gosec
-      text: "G306:"
-    - linters:
-        - gosec
-      text: "G204:"
-    - linters:
-        - gosec
-      text: "G304:"
-    - linters:
-        - gosec
-      text: "G404:"
-    - linters:
-        - gosec
-      text: "G203:"
-    - linters:
-        - gosec
-      text: "G402:"
-    - linters:
-        - gosec
-      text: "G101:"
