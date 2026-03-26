@@ -1,7 +1,0 @@
-{
-  "category": "CI/CD Pipeline Improvements",
-  "description": "Security audit and gosec finding resolution",
-  "steps": [
-    "Verify Gosec audit: Resolve any newly surfaced `gosec` security findings in application code (`internal/`, `cmd/`) after linter tightening (Completed)"
-  ]
-}

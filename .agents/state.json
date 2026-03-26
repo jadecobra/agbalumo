@@ -1,7 +1,7 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "verify-gosec-audit",
-  "workflow_type": "refactor",
+  "feature": "verify_ci_restart_safety",
+  "workflow_type": "feature",
   "phase": "IDLE",
   "gates": {
     "red-test": "PASSED",
@@ -11,6 +11,6 @@
     "coverage": "PASSED",
     "browser-verification": "PASSED"
   },
-  "updated_at": "2026-03-26T03:58:11.656085Z",
-  "signature": "84df542037eb8a6b5ce59498e73acac537917c0127f959e943de9202a2fb6836"
+  "updated_at": "2026-03-26T04:41:45.64332Z",
+  "signature": "6f6072349b391ddfb7faa70654790105e8284475f64cf04893d71c931f97d1ba"
 }

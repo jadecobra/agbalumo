@@ -1,0 +1,16 @@
+{
+  "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
+  "feature": "test-feature",
+  "workflow_type": "bugfix",
+  "phase": "REFACTOR",
+  "gates": {
+    "red-test": "PENDING",
+    "api-spec": "PENDING",
+    "implementation": "PENDING",
+    "lint": "PENDING",
+    "coverage": "PASSED",
+    "browser-verification": "PASSED"
+  },
+  "updated_at": "2026-03-26T04:40:12.265768Z",
+  "signature": "f95831123247c6a9b9c1b7dbe4705eb7252ce2d421ebc764a3c95e3f1fb264b8"
+}

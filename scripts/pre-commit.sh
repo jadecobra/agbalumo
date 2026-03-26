@@ -109,6 +109,13 @@ else
     if [ "$FMT" != "json" ]; then echo "  ${YELLOW}skipping Template Draft (no relevant changes)${NC}"; fi
 fi
 
+# 3.3 Build Check (Safety)
+if [ -n "$STAGED_GO_FILES" ]; then
+    run_task "build" "Server Build" "$LOG_DIR" go build -o /dev/null . &
+else
+    if [ "$FMT" != "json" ]; then echo "  ${YELLOW}skipping Build Check (no staged Go files)${NC}"; fi
+fi
+
 # 4. Performance Audit
 if [ -n "$STAGED_PERF_FILES" ]; then
     run_task "perf" "Performance Audit" "$LOG_DIR" sh scripts/performance-audit.sh &
