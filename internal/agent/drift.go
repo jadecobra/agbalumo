@@ -143,6 +143,7 @@ func ExtractCLICodeCommands(dir string) ([]string, error) {
 			return err
 		}
 		if !info.IsDir() && filepath.Ext(path) == ".go" {
+			// #nosec G304 G122 - Internal harness tool reading project files
 			data, err := os.ReadFile(path)
 			if err != nil {
 				return err
@@ -190,6 +191,7 @@ func ExtractCLIMarkdownCommands(paths ...string) ([]string, error) {
 		if info.IsDir() {
 			_ = filepath.Walk(path, func(p string, i os.FileInfo, e error) error {
 				if e == nil && !i.IsDir() && filepath.Ext(p) == ".md" {
+					// #nosec G304 G122 - Internal harness tool reading project files
 					data, _ := os.ReadFile(p)
 					matches := headerRe.FindAllStringSubmatch(string(data), -1)
 					for _, match := range matches {
@@ -204,6 +206,7 @@ func ExtractCLIMarkdownCommands(paths ...string) ([]string, error) {
 				return nil
 			})
 		} else if filepath.Ext(path) == ".md" {
+			// #nosec G304 - Internal harness tool reading project files
 			data, err := os.ReadFile(path)
 			if err == nil {
 				matches := headerRe.FindAllStringSubmatch(string(data), -1)
@@ -249,4 +252,3 @@ func CheckCLIDrift(codeCmds, mdCmds []string) []string {
 	sort.Strings(diffs)
 	return diffs
 }
-

@@ -18,6 +18,7 @@ type CommandRunner interface {
 type RealRunner struct{}
 
 func (r *RealRunner) Run(dir string, name string, args ...string) (string, error) {
+	// #nosec G204 - Internal security audit tool executing subprocesses
 	cmd := exec.Command(name, args...)
 	cmd.Dir = dir
 	out, err := cmd.CombinedOutput()
@@ -28,6 +29,7 @@ func main() {
 	// Initialize Config
 	client := &http.Client{
 		Transport: &http.Transport{
+			// #nosec G402 - Auditing local dev server which may use self-signed certs
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		},
 		Timeout: 2 * time.Second,

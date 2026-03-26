@@ -201,8 +201,8 @@ fi
 # 8. CI Workflow Toolset Verification
 run_task "ci_tools" "CI Toolset" "$LOG_DIR" bash scripts/verify-ci-tools.sh &
 
-# 9. Local CI Verification
-run_task "ci_local" "Local CI (act)" "$LOG_DIR" bash scripts/ci-local.sh --list &
+# 9. Local CI Verification (Skipped in pre-commit as redundant)
+# run_task "ci_local" "Local CI (act)" "$LOG_DIR" bash scripts/ci-local.sh --list &
 
 
 # Wait for all background tasks

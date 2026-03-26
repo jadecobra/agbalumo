@@ -137,7 +137,7 @@ func SaveThresholds(path string, thresholds map[string]float64) error {
 		return err
 	}
 	b = append(b, '\n')
-	return os.WriteFile(path, b, 0644)
+	return os.WriteFile(path, b, 0600)
 }
 // EnforceCoverage checks the measured coverage against expected thresholds.
 // Returns a list of formatted violation strings, sorted alphabetically.

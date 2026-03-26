@@ -58,7 +58,7 @@ func getState() (*agent.State, error) {
 }
 
 func saveState(state *agent.State) error {
-	if err := os.MkdirAll(".agents", 0755); err != nil {
+	if err := os.MkdirAll(".agents", 0750); err != nil {
 		return fmt.Errorf("error creating .agent directory: %w", err)
 	}
 	if err := agent.SaveState(stateFile, state); err != nil {
@@ -166,8 +166,9 @@ func checkAndApplyProgressUpdate() error {
 	if err != nil {
 		return fmt.Errorf("failed to encode updated progress.json: %w", err)
 	}
+	newFeature.Passes = !hasPending(newFeature.Steps)
 
-	if err := os.WriteFile(targetFile, outData, 0644); err != nil {
+	if err := os.WriteFile(targetFile, outData, 0600); err != nil {
 		return fmt.Errorf("failed to save updated progress.json: %w", err)
 	}
 

@@ -68,6 +68,7 @@ func calculateSignature(s *State) string {
 
 // LoadState reads and parses the JSON state file.
 func LoadState(path string) (*State, error) {
+	// #nosec G304 - Internal harness state file
 	b, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -113,7 +114,7 @@ func SaveState(path string, state *State) error {
 	// Make sure we end with a newline for consistency.
 	b = append(b, '\n')
 
-	return os.WriteFile(path, b, 0644)
+	return os.WriteFile(path, b, 0600)
 }
 
 // IsNotExist is a helper utility mapped to os.IsNotExist

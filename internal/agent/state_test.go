@@ -224,8 +224,8 @@ func TestStateSerialization(t *testing.T) {
 			t.Fatalf("Stat failed: %v", err)
 		}
 
-		if info.Mode().Perm() != 0644 {
-			t.Errorf("expected perm 0644, got %o", info.Mode().Perm())
+		if info.Mode().Perm() != 0600 {
+			t.Errorf("expected perm 0600, got %o", info.Mode().Perm())
 		}
 	})
 

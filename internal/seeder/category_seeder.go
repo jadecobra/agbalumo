@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
@@ -14,8 +15,9 @@ import (
 // EnsureCategoriesSeeded reads config/categories.json and upserts into the database.
 func EnsureCategoriesSeeded(ctx context.Context, repo *sqlite.SQLiteRepository, configPath string) error {
 	slog.Info("Starting category seed from config", "path", configPath)
-
-	data, err := os.ReadFile(configPath)
+	
+	// #nosec G304 - Config path is controlled by application startup logic
+	data, err := os.ReadFile(filepath.Clean(configPath))
 	if err != nil {
 		if os.IsNotExist(err) {
 			slog.Warn("Categories config file not found, skipping category seed", "path", configPath)

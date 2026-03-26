@@ -107,6 +107,7 @@ func VerifyCmd() *cobra.Command {
 			}
 			
 			// This matches update_gate in bash script
+			// #nosec G204 - Internal harness tool calling itself
 			c := exec.Command("scripts/agent-exec.sh", "workflow", "gate", gateID, statusStr)
 			_ = c.Run()
 
@@ -121,6 +122,7 @@ func VerifyCmd() *cobra.Command {
 				if flagText {
 					fmt.Println("✨ All RED gates passed. Transitioning to GREEN phase.")
 				}
+					// #nosec G204 - Internal harness tool calling itself
 					_ = exec.Command("scripts/agent-exec.sh", "workflow", "set-phase", "GREEN").Run()
 				}
 			case "GREEN":
@@ -128,6 +130,7 @@ func VerifyCmd() *cobra.Command {
 				if flagText {
 					fmt.Println("✨ Implementation passed. Transitioning to REFACTOR phase.")
 				}
+					// #nosec G204 - Internal harness tool calling itself
 					_ = exec.Command("scripts/agent-exec.sh", "workflow", "set-phase", "REFACTOR").Run()
 					if uErr := checkAndApplyProgressUpdate(); uErr != nil {
 						return fmt.Errorf("failed to update progress: %w", uErr)

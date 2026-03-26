@@ -77,6 +77,7 @@ func CalculateContextCost(dir string) (*CostReport, error) {
 			return nil
 		}
 
+		// #nosec G304 G122 - Internal harness tool reading project files
 		content, err := os.ReadFile(path)
 		if err != nil {
 			return nil

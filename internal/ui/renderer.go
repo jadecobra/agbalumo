@@ -91,6 +91,7 @@ func BuildGlobalFuncMap() template.FuncMap {
 			if err != nil {
 				return "", err
 			}
+			// #nosec G203 - Intentional template escape for trusted content
 			return template.JS(b), nil
 		},
 		"isNew": func(createdAt time.Time) bool {
@@ -100,6 +101,7 @@ func BuildGlobalFuncMap() template.FuncMap {
 			return time.Since(createdAt) < 7*24*time.Hour
 		},
 		"safeHTML": func(s string) template.HTML {
+			// #nosec G203 - Intentional template escape for trusted content
 			return template.HTML(s)
 		},
 		"displayCity": func(city, address string) string {

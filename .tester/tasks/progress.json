@@ -296,8 +296,12 @@
         "Verify Go version alignment (Core): Update `go.mod` to Go version `1.26.1` and run `go mod tidy` to ensure toolchain consistency (Completed)",
         "Verify Go version alignment (CI): Update all actions/setup-go steps in .github/workflows/ci.yml to reflect Go version 1.26.1 (Completed)",
         "Verify Gosec tuning (Lint): Refactor `scripts/.golangci.yml` by moving global exclusions to granular `exclude-rules` targeting scripts and tests (Completed)",
-        "Verify Gosec audit: Resolve any newly surfaced `gosec` security findings in application code (`internal/`, `cmd/`) after linter tightening",
-        "Verify CI restart safety (Build): Update `scripts/pre-commit.sh` to include a required `go build` check to ensure the server compiles before every commit"
+        "Verify Gosec audit: Resolve any newly surfaced `gosec` security findings in application code (`internal/`, `cmd/`) after linter tightening (Completed)",
+        "Verify CI restart safety (Build): Update `scripts/pre-commit.sh` to include a required `go build` check to ensure the server compiles before every commit",
+        "Verify secure-by-default wrappers: Create `internal/util/fs.go` with `SafeMkdir` (0750) and `SafeWriteFile` (0600) and migrate sensitive `os` calls",
+        "Verify mandatory inline gosec justification: Update `scripts/.golangci.yml` to enforce that `// #nosec` directives include a mandatory rationale comment",
+        "Verify pre-commit secret scanning: Integrate `gitleaks` into `scripts/pre-commit.sh` to detect and block commits containing potential credentials",
+        "Verify containerized test isolation: Update `scripts/pre-commit.sh` to support executing high-risk tests and scripts within an ephemeral Docker container"
       ]
     }
   ]

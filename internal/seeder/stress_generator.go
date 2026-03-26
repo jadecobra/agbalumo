@@ -59,12 +59,16 @@ func GenerateStressListings(count int) []domain.Listing {
 			}
 
 			for i := start; i < end; i++ {
+				// #nosec G404 - weak random is acceptable for non-security-critical stress testing
 				cat := categories[rand.IntN(len(categories))]
+				// #nosec G404
 				origin := origins[rand.IntN(len(origins))]
+				// #nosec G404
 				city := cities[rand.IntN(len(cities))]
 
 				l := domain.Listing{
 					ID:              fmt.Sprintf("lst_%d_%d_%d", now.UnixNano(), workerID, i),
+					// #nosec G404
 					OwnerID:         fmt.Sprintf("usr_%d", rand.IntN(1000)),
 					OwnerOrigin:     origin,
 					Type:            cat,
@@ -74,11 +78,13 @@ func GenerateStressListings(count int) []domain.Listing {
 					ContactEmail:    fmt.Sprintf("test%d@example.com", i),
 					IsActive:        true,
 					Status:          domain.ListingStatusApproved,
+					// #nosec G404
 					CreatedAt:       now.Add(-time.Duration(rand.IntN(30*24)) * time.Hour), // Randomly created in last 30 days
 				}
 
 				switch cat {
 				case domain.Business, domain.Food:
+					// #nosec G404
 					l.Address = fmt.Sprintf("%d Test Ave, %s", rand.IntN(9999), city)
 					l.HoursOfOperation = "9 AM - 5 PM"
 				case domain.Service:
@@ -87,10 +93,12 @@ func GenerateStressListings(count int) []domain.Listing {
 					l.Company = "Acme Corp"
 					l.Skills = "Go, React, SQL"
 					l.PayRange = "$50k - $100k"
+					// #nosec G404
 					l.JobStartDate = now.Add(time.Duration(rand.IntN(30*24)) * time.Hour) // Starts in next 30 days
 					l.JobApplyURL = "https://example.com/apply"
 					l.Address = "123 Job St"
 				case domain.Event:
+					// #nosec G404
 					l.EventStart = now.Add(time.Duration(rand.IntN(5*24)) * time.Hour)
 					l.EventEnd = l.EventStart.Add(4 * time.Hour)
 				case domain.Request:

@@ -48,11 +48,11 @@ func VerifyRedTest(pattern string) bool {
 	fmt.Println("Running tests expecting failure...")
 
 	// 1. Verify code compiles first.
-	_ = os.MkdirAll(".tester", 0755)
+	_ = os.MkdirAll(".tester", 0750)
 	compileOut, err := RunCommand("go", "test", "-run=^$", "./internal/agent/...")
 	if err != nil {
 		fmt.Println("FAIL: Code does not compile. Fixed syntax/imports before running red-test.")
-		_ = os.WriteFile(filepath.Join(".tester", "red-test-compile.log"), compileOut, 0644)
+		_ = os.WriteFile(filepath.Join(".tester", "red-test-compile.log"), compileOut, 0600)
 		fmt.Println(string(compileOut))
 		return false
 	}
@@ -133,7 +133,8 @@ func VerifyApiSpec(workflowType string) bool {
 		fmt.Println("Error extracting openapi routes:", err)
 		return false
 	}
-
+	
+	// #nosec G304 - Internal harness tool reading project docs
 	mdData, err := os.ReadFile("docs/api.md")
 	if err != nil {
 		fmt.Println("Error reading docs/api.md:", err)
@@ -200,7 +201,7 @@ func VerifyImplementation() bool {
 	}
 
 	fmt.Println("Running tests...")
-	_ = os.MkdirAll(filepath.Join(".tester", "coverage"), 0755)
+	_ = os.MkdirAll(filepath.Join(".tester", "coverage"), 0750)
 	covFile := filepath.Join(".tester", "coverage", "coverage.out")
 	testOut, err := RunCommand("go", "test", "-json", "-coverprofile="+covFile, "./cmd/...", "./internal/...")
 	if err != nil {
@@ -253,7 +254,8 @@ func VerifyCoverage() bool {
 		fmt.Println("❌ Gate FAIL: coverage profile not generated.")
 		return false
 	}
-
+	
+	// #nosec G304 - Internal harness tool reading coverage profile
 	f, err := os.Open(covFile)
 	if err != nil {
 		fmt.Println("❌ Gate FAIL: unable to read coverage profile.")
@@ -266,7 +268,8 @@ func VerifyCoverage() bool {
 		fmt.Println("❌ Gate FAIL: unable to parse coverage profile.")
 		return false
 	}
-
+	
+	// #nosec G304 - Internal harness tool reading thresholds
 	thresholdsData, err := os.ReadFile(filepath.Join(".agents", "coverage-thresholds.json"))
 	var thresholds map[string]float64
 	if err == nil {
@@ -278,6 +281,7 @@ func VerifyCoverage() bool {
 		}
 	} else {
 		globalThreshold := 90.0
+		// #nosec G304 - Internal harness tool reading threshold
 		legacyData, err := os.ReadFile(filepath.Join(".agents", "coverage-threshold"))
 		if err == nil {
 			parsed, err := strconv.ParseFloat(strings.TrimSpace(string(legacyData)), 64)
@@ -290,9 +294,9 @@ func VerifyCoverage() bool {
 
 	violations := EnforceCoverage(coverage, thresholds)
 
-	// Since we don't have total coverage computed from the map easily here without reimplementing the total count from output, Let's just output the violations.
 	// We'll calculate a crude overall coverage if there are violations. But the violations list is fine.
 	if len(violations) > 0 {
+		// #nosec G204 - Internal harness tool executing cover tool
 		out, _ := exec.Command("go", "tool", "cover", "-func="+covFile).CombinedOutput()
 		totalLine := ""
 		for _, line := range strings.Split(string(out), "\n") {

@@ -84,13 +84,13 @@ func (s *LocalImageService) UploadImage(ctx context.Context, file *multipart.Fil
 	}
 
 	// 3. Ensure directory exists
-	err = os.MkdirAll(s.UploadDir, 0755)
+	err = os.MkdirAll(s.UploadDir, 0750)
 	if err != nil {
 		return "", err
 	}
 
 	// 4. Compress and save as WebP with iterative compression to meet size target
-	filename := listingID + ".webp"
+	filename := filepath.Base(listingID) + ".webp"
 	dstPath := filepath.Join(s.UploadDir, filename)
 
 	// First attempt: encode with initial quality
