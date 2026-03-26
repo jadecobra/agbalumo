@@ -6,10 +6,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"os"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/jadecobra/agbalumo/internal/util"
 )
 
 // ParseCoverageProfile reads a standard go test -coverprofile output
@@ -137,7 +138,7 @@ func SaveThresholds(path string, thresholds map[string]float64) error {
 		return err
 	}
 	b = append(b, '\n')
-	return os.WriteFile(path, b, 0600)
+	return util.SafeWriteFile(path, b)
 }
 // EnforceCoverage checks the measured coverage against expected thresholds.
 // Returns a list of formatted violation strings, sorted alphabetically.

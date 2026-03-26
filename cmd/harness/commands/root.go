@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/jadecobra/agbalumo/internal/agent"
+	"github.com/jadecobra/agbalumo/internal/util"
 	"github.com/spf13/cobra"
 )
 
@@ -58,7 +59,7 @@ func getState() (*agent.State, error) {
 }
 
 func saveState(state *agent.State) error {
-	if err := os.MkdirAll(".agents", 0750); err != nil {
+	if err := util.SafeMkdir(".agents"); err != nil {
 		return fmt.Errorf("error creating .agent directory: %w", err)
 	}
 	if err := agent.SaveState(stateFile, state); err != nil {
@@ -168,7 +169,7 @@ func checkAndApplyProgressUpdate() error {
 	}
 	newFeature.Passes = !hasPending(newFeature.Steps)
 
-	if err := os.WriteFile(targetFile, outData, 0600); err != nil {
+	if err := util.SafeWriteFile(targetFile, outData); err != nil {
 		return fmt.Errorf("failed to save updated progress.json: %w", err)
 	}
 

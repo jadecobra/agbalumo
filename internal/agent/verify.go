@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/jadecobra/agbalumo/internal/util"
 )
 
 // RunCommand is a helper to run commands and capture output
@@ -45,20 +47,28 @@ func VerifyRedTest(pattern string) bool {
 		return true
 	}
 
-	fmt.Println("Running tests expecting failure...")
+	pkgPath := "./internal/agent/..."
+	outputPattern := ""
+	if strings.HasPrefix(pattern, "./") {
+		pkgPath = pattern
+	} else {
+		outputPattern = pattern
+	}
+
+	fmt.Printf("Running tests in %s expecting failure...\n", pkgPath)
 
 	// 1. Verify code compiles first.
-	_ = os.MkdirAll(".tester", 0750)
-	compileOut, err := RunCommand("go", "test", "-run=^$", "./internal/agent/...")
+	_ = util.SafeMkdir(".tester")
+	compileOut, err := RunCommand("go", "test", "-run=^$", pkgPath)
 	if err != nil {
 		fmt.Println("FAIL: Code does not compile. Fixed syntax/imports before running red-test.")
-		_ = os.WriteFile(filepath.Join(".tester", "red-test-compile.log"), compileOut, 0600)
+		_ = util.SafeWriteFile(filepath.Join(".tester", "red-test-compile.log"), compileOut)
 		fmt.Println(string(compileOut))
 		return false
 	}
 
 	// 2. Run tests and capture JSON output.
-	testOut, _ := RunCommand("go", "test", "-json", "./internal/agent/...")
+	testOut, _ := RunCommand("go", "test", "-json", pkgPath)
 
 	res, err := ParseTestJSON(bytes.NewReader(testOut))
 	if err != nil {
@@ -88,19 +98,19 @@ func VerifyRedTest(pattern string) bool {
 		return false
 	}
 
-	if pattern != "" {
+	if outputPattern != "" {
 		patternFound := false
 		for _, fail := range res.Failures {
-			if strings.Contains(fail.Output, pattern) {
+			if strings.Contains(fail.Output, outputPattern) {
 				patternFound = true
 				break
 			}
 		}
 		if patternFound {
-			fmt.Printf("Gate PASS: %s failed with expected pattern '%s'.\n", GateRedTest, pattern)
+			fmt.Printf("Gate PASS: %s failed with expected pattern '%s'.\n", GateRedTest, outputPattern)
 			return true
 		} else {
-			fmt.Printf("Gate FAIL: %s failed but pattern '%s' not found in output.\n", GateRedTest, pattern)
+			fmt.Printf("Gate FAIL: %s failed but pattern '%s' not found in output.\n", GateRedTest, outputPattern)
 			fmt.Println("--- TEST FAILURES ---")
 			for _, fail := range res.Failures {
 				fmt.Println(fail.TestName, ":")
@@ -201,7 +211,7 @@ func VerifyImplementation() bool {
 	}
 
 	fmt.Println("Running tests...")
-	_ = os.MkdirAll(filepath.Join(".tester", "coverage"), 0750)
+	_ = util.SafeMkdir(filepath.Join(".tester", "coverage"))
 	covFile := filepath.Join(".tester", "coverage", "coverage.out")
 	testOut, err := RunCommand("go", "test", "-json", "-coverprofile="+covFile, "./cmd/...", "./internal/...")
 	if err != nil {

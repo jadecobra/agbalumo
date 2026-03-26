@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/jadecobra/agbalumo/internal/util"
 	"github.com/gen2brain/webp"
 	"github.com/labstack/echo/v4"
 	_ "golang.org/x/image/webp"
@@ -84,7 +85,7 @@ func (s *LocalImageService) UploadImage(ctx context.Context, file *multipart.Fil
 	}
 
 	// 3. Ensure directory exists
-	err = os.MkdirAll(s.UploadDir, 0750)
+	err = util.SafeMkdir(s.UploadDir)
 	if err != nil {
 		return "", err
 	}
@@ -151,14 +152,8 @@ func (s *LocalImageService) UploadImage(ctx context.Context, file *multipart.Fil
 		}
 	}
 
-	// Write final compressed image to file
-	dst, err := os.Create(dstPath)
-	if err != nil {
-		return "", err
-	}
-	defer func() { _ = dst.Close() }()
-
-	_, err = buf.WriteTo(dst)
+	// Write final compressed image to file using secure permissions
+	err = util.SafeWriteFile(dstPath, buf.Bytes())
 	if err != nil {
 		return "", err
 	}

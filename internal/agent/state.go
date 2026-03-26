@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"os"
 	"time"
+
+	"github.com/jadecobra/agbalumo/internal/util"
 )
 
 type GateStatus string
@@ -114,7 +116,7 @@ func SaveState(path string, state *State) error {
 	// Make sure we end with a newline for consistency.
 	b = append(b, '\n')
 
-	return os.WriteFile(path, b, 0600)
+	return util.SafeWriteFile(path, b)
 }
 
 // IsNotExist is a helper utility mapped to os.IsNotExist
