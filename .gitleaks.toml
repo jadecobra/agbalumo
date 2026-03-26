@@ -1,0 +1,18 @@
+[allowlist]
+description = "Global allowlist"
+paths = [
+    '''vendor/''',
+    '''node_modules/'''
+]
+
+[[rules]]
+id = "mock-aws-key"
+description = "Mock AWS Access Key ID"
+regex = '''AKIA[0-9A-Z]{16}'''
+keywords = ["akia"]
+
+[[rules]]
+id = "mock-antigravity-secret"
+description = "Mock Antigravity Secret"
+regex = '''sk-antigravity[a-zA-Z0-9]{20,}'''
+keywords = ["antigravity"]

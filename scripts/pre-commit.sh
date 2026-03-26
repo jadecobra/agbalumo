@@ -179,8 +179,38 @@ if [ -n "$STAGED_ALL" ]; then
     run_task "threshold" "Coverage Threshold Check" "$LOG_DIR" check_threshold &
 fi
 
-# 6. Security Check
+# 6. Security & Secret Checks
 if [ -n "$STAGED_ALL" ]; then
+    check_gitleaks() {
+        if ! command -v gitleaks >/dev/null 2>&1; then
+            if [ "$FMT" != "json" ]; then echo "  ${YELLOW}Installing gitleaks...${NC}"; fi
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                if command -v brew >/dev/null 2>&1; then
+                    brew install gitleaks > /dev/null 2>&1
+                else
+                    # Fallback for macOS without brew: download binary
+                    local VERSION="8.18.2"
+                    curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_darwin_x64.tar.gz" | tar -xz -C /tmp gitleaks
+                    export PATH="$PATH:/tmp"
+                fi
+            else
+                # Linux fallback
+                local VERSION="8.18.2"
+                curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_x64.tar.gz" | tar -xz -C /tmp gitleaks
+                export PATH="$PATH:/tmp"
+            fi
+        fi
+        
+        # Final check if gitleaks is finally available
+        if ! command -v gitleaks >/dev/null 2>&1; then
+             echo "  ${RED}❌ Error: gitleaks is required but could not be installed.${NC}"
+             return 1
+        fi
+
+        gitleaks protect --staged --verbose --redact
+    }
+    run_task "gitleaks" "Gitleaks Scan" "$LOG_DIR" check_gitleaks &
+    run_task "security_rationale" "Gosec Justification" "$LOG_DIR" bash scripts/utils/check-gosec-rationale.sh &
     run_task "security" "Security Check" "$LOG_DIR" sh scripts/security-check.sh &
 else
     if [ "$FMT" != "json" ]; then echo "  ${YELLOW}skipping Security Check (no staged files)${NC}"; fi
