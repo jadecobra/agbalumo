@@ -1,9 +1,15 @@
 # Check for format flag
 FMT="json"
-if [ "$1" = "--text" ]; then 
-    FMT="text"
+USE_CONTAINER="false"
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --text) FMT="text" ;;
+        --container) USE_CONTAINER="true" ;;
+        *) break ;;
+    esac
     shift
-fi
+done
+export USE_CONTAINER
 
 # Robust PATH discovery
 source "$(dirname "$0")/utils.sh"
@@ -132,27 +138,9 @@ fi
 
 # 5. Tests & Coverage
 if [ -n "$STAGED_GO_FILES" ]; then
-    check_tests() {
-        mkdir -p /tmp/.tester/coverage
-        go test -json -race -count=1 -coverprofile=/tmp/.tester/coverage/coverage.out ./... > /dev/null
-        COVERAGE=$(go tool cover -func=/tmp/.tester/coverage/coverage.out | awk '/^total:/ {print substr($3, 1, length($3)-1)}')
-        THRESHOLD_FILE=".agents/coverage-threshold"
-        THRESHOLD=90.0
-        if [ -f "$THRESHOLD_FILE" ]; then
-            THRESHOLD=$(cat "$THRESHOLD_FILE")
-        fi
-        if awk "BEGIN {exit !($COVERAGE < $THRESHOLD)}"; then
-            if [ "$FMT" != "json" ]; then
-                echo "  ${RED}❌ Error: Coverage is below threshold: $COVERAGE% < $THRESHOLD%${NC}"
-                echo "  ${YELLOW}Top 5 lowest coverage files:${NC}"
-                go tool cover -func=/tmp/.tester/coverage/coverage.out | grep -v "100.0%" | sort -k 3 -n | head -5 | sed 's/^/    /'
-                echo "  ${BLUE}See: $DOC_WORKFLOW (Gate: coverage)${NC}"
-            fi
-            return 2
-        fi
-        if [ "$FMT" != "json" ]; then echo "Coverage: $COVERAGE%"; fi
-    }
-    run_task "test" "Tests & Coverage" "$LOG_DIR" check_tests &
+    # Export environment markers for containerized tests
+    export HOST_SECRET_MARKER="${HOST_SECRET_MARKER:-}"
+    run_containerized "test" "Tests & Coverage" "$LOG_DIR" bash scripts/test.sh &
 else
     if [ "$FMT" != "json" ]; then echo "  ${YELLOW}skipping Tests & Coverage (no staged Go files)${NC}"; fi
 fi
@@ -181,37 +169,9 @@ fi
 
 # 6. Security & Secret Checks
 if [ -n "$STAGED_ALL" ]; then
-    check_gitleaks() {
-        if ! command -v gitleaks >/dev/null 2>&1; then
-            if [ "$FMT" != "json" ]; then echo "  ${YELLOW}Installing gitleaks...${NC}"; fi
-            if [[ "$OSTYPE" == "darwin"* ]]; then
-                if command -v brew >/dev/null 2>&1; then
-                    brew install gitleaks > /dev/null 2>&1
-                else
-                    # Fallback for macOS without brew: download binary
-                    local VERSION="8.18.2"
-                    curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_darwin_x64.tar.gz" | tar -xz -C /tmp gitleaks
-                    export PATH="$PATH:/tmp"
-                fi
-            else
-                # Linux fallback
-                local VERSION="8.18.2"
-                curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_x64.tar.gz" | tar -xz -C /tmp gitleaks
-                export PATH="$PATH:/tmp"
-            fi
-        fi
-        
-        # Final check if gitleaks is finally available
-        if ! command -v gitleaks >/dev/null 2>&1; then
-             echo "  ${RED}❌ Error: gitleaks is required but could not be installed.${NC}"
-             return 1
-        fi
-
-        gitleaks protect --staged --verbose --redact
-    }
-    run_task "gitleaks" "Gitleaks Scan" "$LOG_DIR" check_gitleaks &
-    run_task "security_rationale" "Gosec Justification" "$LOG_DIR" bash scripts/utils/check-gosec-rationale.sh &
-    run_task "security" "Security Check" "$LOG_DIR" sh scripts/security-check.sh &
+    run_containerized "gitleaks" "Gitleaks Scan" "$LOG_DIR" bash scripts/gitleaks-scan.sh &
+    run_containerized "security_rationale" "Gosec Justification" "$LOG_DIR" bash scripts/utils/check-gosec-rationale.sh &
+    run_containerized "security" "Security Check" "$LOG_DIR" sh scripts/security-check.sh &
 else
     if [ "$FMT" != "json" ]; then echo "  ${YELLOW}skipping Security Check (no staged files)${NC}"; fi
 fi
