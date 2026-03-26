@@ -69,7 +69,7 @@
       "description": "Comprehensive test metric improvements and testing tools",
       "passes": false,
       "steps": [
-        "Verify CLI testing harness (api-spec, cli-drift validations), baseline test coverage (>90%), and module-specific coverage targets across the codebase",
+        "Verify CLI testing harness (api-spec, cli-drift validations), baseline test coverage (\u003e90%), and module-specific coverage targets across the codebase",
         "Verify os.Exit(1) calls in gate.go, set_phase.go, and status.go are replaced with proper RunE error returns to enable unit testing error paths (Completed)"
       ]
     },
@@ -282,7 +282,7 @@
       "passes": false,
       "steps": [
         "Verify coverage threshold path: Fix .agents/coverage-threshold in ci.yml to match pre-commit.sh (Completed)",
-        "Verify duplicate security-check removal: Remove `./scripts/security-check.sh &&` from git hook in scripts/setup-hooks.sh:43 since pre-commit.sh already runs security-check.sh (Completed)",
+        "Verify duplicate security-check removal: Remove `./scripts/security-check.sh \u0026\u0026` from git hook in scripts/setup-hooks.sh:43 since pre-commit.sh already runs security-check.sh (Completed)",
         "Verify CI drift check parity: Add a new `drift_checks` job to ci.yml that runs `scripts/api-drift-check.sh` and `scripts/template-func-drift-check.sh` (Completed)",
         "Verify CI coverage anti-degradation: Add a step in the ci.yml `test` job that checks `.agents/coverage-threshold` cannot be lowered (Completed)",
         "Verify CI coverage artifact upload: Add `actions/upload-artifact@v4` step in ci.yml to upload `.tester/coverage/coverage.out` as a build artifact (Completed)",
@@ -293,7 +293,7 @@
         "Verify GitHub Actions SHA pinning: Pin `actions/checkout`, `actions/setup-go`, and `actions/setup-node` in ci.yml to commit SHAs with version comments (Completed)",
         "Verify CI test cache-busting: Add `-count=1` flag to `go test` in ci.yml:69 to match pre-commit.sh behavior and catch flaky tests (Completed)",
         "Verify format-handling logic and `output_json_envelope` call from `api-drift-check.sh` is used in template-func-drift-check.sh to standardize json output (Completed)",
-        "Verify Go version alignment (Core): Update `go.mod` to Go version `1.26.1` and run `go mod tidy` to ensure toolchain consistency",
+        "Verify Go version alignment (Core): Update `go.mod` to Go version `1.26.1` and run `go mod tidy` to ensure toolchain consistency (Completed)",
         "Verify Go version alignment (CI): Update all `actions/setup-go` steps in `.github/workflows/ci.yml` to reflect Go version `1.26.1`",
         "Verify Gosec tuning (Lint): Refactor `scripts/.golangci.yml` by moving global exclusions to granular `exclude-rules` targeting scripts and tests",
         "Verify Gosec audit: Resolve any newly surfaced `gosec` security findings in application code (`internal/`, `cmd/`) after linter tightening",
