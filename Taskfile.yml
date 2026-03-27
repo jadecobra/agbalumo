@@ -101,3 +101,61 @@ tasks:
         msg: "No files staged for security checks. Skipping."
     cmds:
       - sh scripts/security-check.sh
+
+
+  perf:
+    desc: Run performance audit on staged performance-sensitive files
+    preconditions:
+      - sh: '[ -n "{{.STAGED_PERF}}" ]'
+        msg: "No performance-sensitive files staged. Skipping performance-audit."
+    cmds:
+      - sh scripts/performance-audit.sh
+
+  brand:
+    desc: Generate brand juice from staged brand files
+    preconditions:
+      - sh: '[ -n "{{.STAGED_BRAND}}" ]'
+        msg: "No brand files staged. Skipping brand juice generation."
+    cmds:
+      - bash scripts/generate-juice.sh
+
+  threshold:
+    desc: Verify coverage threshold anti-degradation
+    preconditions:
+      - sh: '[ -n "{{.STAGED_ALL}}" ]'
+        msg: "No files staged. Skipping threshold check."
+    cmds:
+      - |
+        THRESHOLD_FILE=".agents/coverage-threshold"
+        if [ -f "$THRESHOLD_FILE" ] && git ls-files --error-unmatch "$THRESHOLD_FILE" >/dev/null 2>&1; then
+            if git diff --cached --name-only | grep -q "^$THRESHOLD_FILE$"; then
+                OLD_THRESHOLD=$(git show HEAD:$THRESHOLD_FILE 2>/dev/null || echo "0.0")
+                NEW_THRESHOLD=$(cat "$THRESHOLD_FILE")
+                if awk "BEGIN {exit !($NEW_THRESHOLD < $OLD_THRESHOLD)}"; then
+                    echo "Error: Coverage threshold cannot be lowered ($NEW_THRESHOLD < $OLD_THRESHOLD)"
+                    exit 1
+                fi
+            fi
+        fi
+
+  ci-tools:
+    desc: Verify CI toolset availability
+    cmds:
+      - bash scripts/verify-ci-tools.sh
+
+  ignored-files:
+    desc: Check for ignored files staged for commit
+    preconditions:
+      - sh: '[ -n "{{.STAGED_ALL}}" ]'
+        msg: "No files staged. Skipping ignored-files check."
+    cmds:
+      - |
+        STAGED_NEW_OR_MOD=$(git diff --cached --name-only --diff-filter=ACMR || true)
+        if [ -n "$STAGED_NEW_OR_MOD" ]; then
+            IGNORED_STAGED=$(echo "$STAGED_NEW_OR_MOD" | git check-ignore --no-index --stdin || true)
+            if [ -n "$IGNORED_STAGED" ]; then
+                echo "Error: The following ignored files are staged for commit:"
+                echo "$IGNORED_STAGED" | sed 's/^/    /'
+                exit 1
+            fi
+        fi
