@@ -23,107 +23,94 @@ vars:
 tasks:
   lint:
     desc: Run golangci-lint on staged files
-    preconditions:
-      - sh: '[ -n "{{.STAGED_GO}}" ]'
-        msg: "No Go files staged for linting. Skipping."
+    status:
+      - '[ -z "{{.STAGED_GO}}" ]'
     cmds:
       - golangci-lint run -c scripts/.golangci.yml --new-from-rev=HEAD
 
   mod-tidy:
     desc: Run go mod tidy and check for drift
-    preconditions:
-      - sh: '[ -n "{{.STAGED_GO}}" ]'
-        msg: "No Go files staged. Skipping mod-tidy."
+    status:
+      - '[ -z "{{.STAGED_GO}}" ]'
     cmds:
       - go mod tidy
       - git diff --exit-code go.mod go.sum
 
   build:
     desc: Run a safety build check on staged Go files
-    preconditions:
-      - sh: '[ -n "{{.STAGED_GO}}" ]'
-        msg: "No Go files staged for build check. Skipping."
+    status:
+      - '[ -z "{{.STAGED_GO}}" ]'
     cmds:
       - go build -o /dev/null .
 
   test:
     desc: Run tests on staged Go files
-    preconditions:
-      - sh: '[ -n "{{.STAGED_GO}}" ]'
-        msg: "No Go files staged for tests. Skipping."
+    status:
+      - '[ -z "{{.STAGED_GO}}" ]'
     cmds:
       - bash scripts/test.sh
 
   api-drift:
     desc: Run API drift check on staged command docs
-    preconditions:
-      - sh: '[ -n "{{.STAGED_CMD_DOCS}}" ]'
-        msg: "No API docs or command files staged. Skipping api-drift."
+    status:
+      - '[ -z "{{.STAGED_CMD_DOCS}}" ]'
     cmds:
       - bash scripts/api-drift-check.sh
 
   template-drift:
     desc: Run template function drift check on staged security-sensitive files
-    preconditions:
-      - sh: '[ -n "{{.STAGED_SEC}}" ]'
-        msg: "No HTML, Go, or JS files staged. Skipping template-drift."
+    status:
+      - '[ -z "{{.STAGED_SEC}}" ]'
     cmds:
       - bash scripts/template-func-drift-check.sh
 
   agent-drift:
     desc: Run agent rules drift check on staged agent files
-    preconditions:
-      - sh: '[ -n "{{.STAGED_AGENT}}" ]'
-        msg: "No agent rules or coding standards staged. Skipping agent-drift."
+    status:
+      - '[ -z "{{.STAGED_AGENT}}" ]'
     cmds:
       - bash scripts/agent-drift-check.sh
 
   gitleaks:
     desc: Run gitleaks secret scan on staged files
-    preconditions:
-      - sh: '[ -n "{{.STAGED_ALL}}" ]'
-        msg: "No files staged for secret scan. Skipping."
+    status:
+      - '[ -z "{{.STAGED_ALL}}" ]'
     cmds:
       - bash scripts/gitleaks-scan.sh
 
   gosec-rationale:
     desc: Verify mandatory inline gosec justification
-    preconditions:
-      - sh: '[ -n "{{.STAGED_ALL}}" ]'
-        msg: "No files staged for gosec rationale check. Skipping."
+    status:
+      - '[ -z "{{.STAGED_ALL}}" ]'
     cmds:
       - bash scripts/utils/check-gosec-rationale.sh
 
   security:
     desc: Run security checks on staged files
-    preconditions:
-      - sh: '[ -n "{{.STAGED_ALL}}" ]'
-        msg: "No files staged for security checks. Skipping."
+    status:
+      - '[ -z "{{.STAGED_ALL}}" ]'
     cmds:
       - sh scripts/security-check.sh
 
 
   perf:
     desc: Run performance audit on staged performance-sensitive files
-    preconditions:
-      - sh: '[ -n "{{.STAGED_PERF}}" ]'
-        msg: "No performance-sensitive files staged. Skipping performance-audit."
+    status:
+      - '[ -z "{{.STAGED_PERF}}" ]'
     cmds:
       - sh scripts/performance-audit.sh
 
   brand:
     desc: Generate brand juice from staged brand files
-    preconditions:
-      - sh: '[ -n "{{.STAGED_BRAND}}" ]'
-        msg: "No brand files staged. Skipping brand juice generation."
+    status:
+      - '[ -z "{{.STAGED_BRAND}}" ]'
     cmds:
       - bash scripts/generate-juice.sh
 
   threshold:
     desc: Verify coverage threshold anti-degradation
-    preconditions:
-      - sh: '[ -n "{{.STAGED_ALL}}" ]'
-        msg: "No files staged. Skipping threshold check."
+    status:
+      - '[ -z "{{.STAGED_ALL}}" ]'
     cmds:
       - |
         THRESHOLD_FILE=".agents/coverage-threshold"
@@ -150,9 +137,8 @@ tasks:
 
   ignored-files:
     desc: Check for ignored files staged for commit
-    preconditions:
-      - sh: '[ -n "{{.STAGED_ALL}}" ]'
-        msg: "No files staged. Skipping ignored-files check."
+    status:
+      - '[ -z "{{.STAGED_ALL}}" ]'
     cmds:
       - |
         STAGED_NEW_OR_MOD=$(git diff --cached --name-only --diff-filter=ACMR || true)

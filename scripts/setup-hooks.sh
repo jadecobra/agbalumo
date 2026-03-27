@@ -25,10 +25,11 @@ check_dep "npm"
 check_dep "git"
 check_dep "bc"
 check_dep "lsof"
+check_dep "task"
 
 # Backup existing hook if it's not ours
 if [ -f "$PRE_COMMIT_HOOK" ]; then
-    if ! grep -q "security-check.sh" "$PRE_COMMIT_HOOK"; then
+    if ! grep -q "task pre-commit" "$PRE_COMMIT_HOOK"; then
         echo "📦 Backing up existing pre-commit hook to $PRE_COMMIT_HOOK.bak"
         cp "$PRE_COMMIT_HOOK" "$PRE_COMMIT_HOOK.bak"
     fi
@@ -38,9 +39,9 @@ fi
 cat > "$PRE_COMMIT_HOOK" <<EOF
 #!/bin/sh
 # agbalumo 10x Engineer Pre-commit Hook
-# Runs security checks and quality checks before commit
+# Runs security checks and quality checks before commit via go-task
 
-./scripts/pre-commit.sh
+task pre-commit
 EOF
 
 chmod +x "$PRE_COMMIT_HOOK"
