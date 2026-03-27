@@ -145,7 +145,7 @@ func VerifyApiSpec(workflowType string) bool {
 	}
 	
 	// #nosec G304 - Internal harness tool reading project docs
-	mdData, err := os.ReadFile("docs/api.md")
+	mdData, err := util.SafeReadFile("docs/api.md")
 	if err != nil {
 		fmt.Println("Error reading docs/api.md:", err)
 		return false
@@ -260,13 +260,13 @@ func VerifyCoverage() bool {
 
 	covFile := filepath.Join(".tester", "coverage", "coverage.out")
 
-	if _, statErr := os.Stat(covFile); os.IsNotExist(statErr) {
+	if _, statErr := util.SafeStat(covFile); util.SafeIsNotExist(statErr) {
 		fmt.Println("❌ Gate FAIL: coverage profile not generated.")
 		return false
 	}
 	
 	// #nosec G304 - Internal harness tool reading coverage profile
-	f, err := os.Open(covFile)
+	f, err := util.SafeOpen(covFile)
 	if err != nil {
 		fmt.Println("❌ Gate FAIL: unable to read coverage profile.")
 		return false
@@ -280,7 +280,7 @@ func VerifyCoverage() bool {
 	}
 	
 	// #nosec G304 - Internal harness tool reading thresholds
-	thresholdsData, err := os.ReadFile(filepath.Join(".agents", "coverage-thresholds.json"))
+	thresholdsData, err := util.SafeReadFile(filepath.Join(".agents", "coverage-thresholds.json"))
 	var thresholds map[string]float64
 	if err == nil {
 		var parseErr error
@@ -292,7 +292,7 @@ func VerifyCoverage() bool {
 	} else {
 		globalThreshold := 90.0
 		// #nosec G304 - Internal harness tool reading threshold
-		legacyData, err := os.ReadFile(filepath.Join(".agents", "coverage-threshold"))
+		legacyData, err := util.SafeReadFile(filepath.Join(".agents", "coverage-threshold"))
 		if err == nil {
 			parsed, err := strconv.ParseFloat(strings.TrimSpace(string(legacyData)), 64)
 			if err == nil {
