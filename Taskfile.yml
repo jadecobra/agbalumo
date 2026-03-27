@@ -28,3 +28,12 @@ tasks:
         msg: "No Go files staged for linting. Skipping."
     cmds:
       - golangci-lint run -c scripts/.golangci.yml --new-from-rev=HEAD
+
+  mod-tidy:
+    desc: Run go mod tidy and check for drift
+    preconditions:
+      - sh: '[ -n "{{.STAGED_GO}}" ]'
+        msg: "No Go files staged. Skipping mod-tidy."
+    cmds:
+      - go mod tidy
+      - git diff --exit-code go.mod go.sum
