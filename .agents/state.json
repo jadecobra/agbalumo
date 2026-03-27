@@ -1,6 +1,6 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "secure_wrappers",
+  "feature": "safe-read-file",
   "workflow_type": "feature",
   "phase": "REFACTOR",
   "gates": {
@@ -11,6 +11,6 @@
     "coverage": "PASSED",
     "browser-verification": "PASSED"
   },
-  "updated_at": "2026-03-27T14:57:35.956032Z",
-  "signature": "7e72af978ba2db675cfff618af1514f92dedea3718b572da43da63fc76d42fa3"
+  "updated_at": "2026-03-27T16:01:34.113657Z",
+  "signature": "d5dc543daea7e067aa3c12c28465c6bdaaec7fe41458353ea45a45517bcff8fd"
 }

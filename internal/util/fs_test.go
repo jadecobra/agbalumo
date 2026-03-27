@@ -58,3 +58,60 @@ func TestSafeWriteFile(t *testing.T) {
 		t.Errorf("Expected content %s, got %s", string(data), string(content))
 	}
 }
+
+func TestSafeReadFile(t *testing.T) {
+	filename := "testreadfile"
+	data := []byte("safe read content")
+	err := os.WriteFile(filename, data, 0600)
+	if err != nil {
+		t.Fatalf("os.WriteFile failed: %v", err)
+	}
+	defer os.Remove(filename)
+
+	content, err := SafeReadFile(filename)
+	if err != nil {
+		t.Fatalf("SafeReadFile failed: %v", err)
+	}
+
+	if string(content) != string(data) {
+		t.Errorf("Expected content %s, got %s", string(data), string(content))
+	}
+}
+
+func TestSafeRemove(t *testing.T) {
+	filename := "testremove"
+	data := []byte("remove content")
+	err := os.WriteFile(filename, data, 0600)
+	if err != nil {
+		t.Fatalf("os.WriteFile failed: %v", err)
+	}
+
+	err = SafeRemove(filename)
+	if err != nil {
+		t.Fatalf("SafeRemove failed: %v", err)
+	}
+
+	_, err = os.Stat(filename)
+	if !os.IsNotExist(err) {
+		t.Errorf("Expected file to be removed, got error: %v", err)
+	}
+}
+
+func TestSafeStat(t *testing.T) {
+	filename := "teststat"
+	data := []byte("stat content")
+	err := os.WriteFile(filename, data, 0600)
+	if err != nil {
+		t.Fatalf("os.WriteFile failed: %v", err)
+	}
+	defer os.Remove(filename)
+
+	info, err := SafeStat(filename)
+	if err != nil {
+		t.Fatalf("SafeStat failed: %v", err)
+	}
+
+	if info.Name() != filename {
+		t.Errorf("Expected filename %s, got %s", filename, info.Name())
+	}
+}
