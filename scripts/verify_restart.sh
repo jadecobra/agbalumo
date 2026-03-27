@@ -12,7 +12,7 @@ done
 # 1. Run Quality Checks (Tests + Coverage)
 if [ "$SKIP_PRE_COMMIT" != "true" ]; then
     echo "🔍 Running Quality Checks..."
-    ./scripts/pre-commit.sh
+    task pre-commit
 else
     echo "🔍 Skipping pre-commit checks (called from pre-commit.sh)..."
 fi
