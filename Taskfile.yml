@@ -53,3 +53,27 @@ tasks:
         msg: "No Go files staged for tests. Skipping."
     cmds:
       - bash scripts/test.sh
+
+  api-drift:
+    desc: Run API drift check on staged command docs
+    preconditions:
+      - sh: '[ -n "{{.STAGED_CMD_DOCS}}" ]'
+        msg: "No API docs or command files staged. Skipping api-drift."
+    cmds:
+      - bash scripts/api-drift-check.sh
+
+  template-drift:
+    desc: Run template function drift check on staged security-sensitive files
+    preconditions:
+      - sh: '[ -n "{{.STAGED_SEC}}" ]'
+        msg: "No HTML, Go, or JS files staged. Skipping template-drift."
+    cmds:
+      - bash scripts/template-func-drift-check.sh
+
+  agent-drift:
+    desc: Run agent rules drift check on staged agent files
+    preconditions:
+      - sh: '[ -n "{{.STAGED_AGENT}}" ]'
+        msg: "No agent rules or coding standards staged. Skipping agent-drift."
+    cmds:
+      - bash scripts/agent-drift-check.sh
