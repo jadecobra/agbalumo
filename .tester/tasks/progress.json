@@ -332,7 +332,7 @@
         "Verify verify_restart.sh update: Change `./scripts/pre-commit.sh` to `task pre-commit` in `scripts/verify_restart.sh` (Completed)",
         "Verify documentation updates: Update all references from `./scripts/pre-commit.sh` to `task pre-commit` in `README.md`, `CONTRIBUTING.md`, `docs/DEVELOPMENT.md`, `docs/architecture-overview.md`, `.agents/rules/commands.md`, and `.agents/workflows/feature-implementation.md` (Completed)",
         "Verify ci-local.sh removal: Delete `scripts/ci-local.sh` and rename `scripts/pre-commit.sh` to `scripts/pre-commit.sh.bak` (Completed)",
-        "Verify full integration: Run `task pre-commit` with a staged Go file change and confirm all gates execute and pass, then run `task ci` and confirm lint/test/security/build complete successfully (Pending)",
+        "Verify full integration: Run `task pre-commit` with a staged Go file change and confirm all gates execute and pass, then run `task ci` and confirm lint/test/security/build complete successfully (Completed)",
         "Add `ci:lint`, `ci:test`, `ci:security`, `ci:build` tasks to `Taskfile.yml` without staging preconditions (Completed)",
         "Add `ci` composite task to orchestrate full CI suite (Completed)",
         "Verify task registration via `task --list` and execution via `task ci` (Completed)",
