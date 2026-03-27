@@ -1,8 +1,8 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "secret_scanning",
-  "workflow_type": "feature",
-  "phase": "IDLE",
+  "feature": "task-migration-security",
+  "workflow_type": "refactor",
+  "phase": "REFACTOR",
   "gates": {
     "red-test": "PASSED",
     "api-spec": "PASSED",
@@ -11,6 +11,6 @@
     "coverage": "PASSED",
     "browser-verification": "PASSED"
   },
-  "updated_at": "2026-03-26T15:41:15.504988Z",
-  "signature": "91980acee510053d2405c64ca5698d313ac6c82a0b7a22c020dacbc84e4daf36"
+  "updated_at": "2026-03-27T01:19:35.773688Z",
+  "signature": "d13058d12d6e71c7b925a14f90a8523410831a7b605abece2cf7354c6e07e8fc"
 }

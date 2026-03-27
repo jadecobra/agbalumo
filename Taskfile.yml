@@ -77,3 +77,27 @@ tasks:
         msg: "No agent rules or coding standards staged. Skipping agent-drift."
     cmds:
       - bash scripts/agent-drift-check.sh
+
+  gitleaks:
+    desc: Run gitleaks secret scan on staged files
+    preconditions:
+      - sh: '[ -n "{{.STAGED_ALL}}" ]'
+        msg: "No files staged for secret scan. Skipping."
+    cmds:
+      - bash scripts/gitleaks-scan.sh
+
+  gosec-rationale:
+    desc: Verify mandatory inline gosec justification
+    preconditions:
+      - sh: '[ -n "{{.STAGED_ALL}}" ]'
+        msg: "No files staged for gosec rationale check. Skipping."
+    cmds:
+      - bash scripts/utils/check-gosec-rationale.sh
+
+  security:
+    desc: Run security checks on staged files
+    preconditions:
+      - sh: '[ -n "{{.STAGED_ALL}}" ]'
+        msg: "No files staged for security checks. Skipping."
+    cmds:
+      - sh scripts/security-check.sh
