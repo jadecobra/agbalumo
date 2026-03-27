@@ -8,7 +8,7 @@
     1.  **RED:** Write the failing test FIRST. Ensure it fails for the right reason. Run tests in a loop
     2.  **GREEN:** Write the minimal code implementation to pass the test.
     3.  **REFACTOR:** Optimize and clean up without breaking tests.
-*   **Mandatory Check:** You must verify your work. If a `pre-commit.sh` or validation script exists, it MUST be run before submitting.
+*   **Mandatory Check:** You must verify your work. If a `task pre-commit` or validation script exists, it MUST be run before submitting.
 *   **No "Flaky" Tests:** Tests must be deterministic and indempotent.
 
 ## 2. Workflow Integration

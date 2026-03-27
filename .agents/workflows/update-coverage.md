@@ -20,7 +20,7 @@ export PATH=/opt/homebrew/bin:/usr/local/go/bin:$PATH && go test -race -coverpro
 // turbo
 3. Run the pre-commit script to verify the threshold is correctly set and all tests pass:
 ```sh
-export PATH=/opt/homebrew/bin:/usr/local/go/bin:$PATH && ./scripts/pre-commit.sh
+export PATH=/opt/homebrew/bin:/usr/local/go/bin:$PATH && task pre-commit
 ```
 
 // turbo

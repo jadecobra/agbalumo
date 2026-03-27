@@ -109,8 +109,8 @@ A feature is **DONE** when ALL boxes are checked:
 - [ ] **Gate: `implementation` (CLI)** - Verified via `agbalumo` CLI as user/admin.
 - [ ] Programmatic UI tests as user/admin verify it can be used from the UI.
 - [ ] `go test -race ./...` passes (no regressions).
-- [ ] **Gate: `lint`** - `./scripts/pre-commit.sh` linting passed.
-- [ ] **Gate: `coverage`** - `./scripts/pre-commit.sh` coverage threshold met.
+- [ ] **Gate: `lint`** - `task pre-commit` linting passed.
+- [ ] **Gate: `coverage`** - `task pre-commit` coverage threshold met.
 - [ ] `./scripts/verify_restart.sh` executed successfully (server running).
 - [ ] **Gate: `browser-verification`** - Browser subagent verified feature natives UI.
 - [ ] Recording artifact saved with descriptive name.

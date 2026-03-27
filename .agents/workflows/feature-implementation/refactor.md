@@ -23,7 +23,7 @@
 ### 2d. Pre-Commit Quality Gate
 - *Run*:
   ```bash
-  ./scripts/pre-commit.sh
+  task pre-commit
   ```
 - **Gate: `lint`**
   - **PASS**: Output contains `✅ GolangCI-Lint passed` and exit code is 0.

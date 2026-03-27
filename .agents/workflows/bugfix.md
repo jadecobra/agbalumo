@@ -75,7 +75,7 @@ Implement the minimal fix.
 ### 2c. Quality Gate
 - *Run*:
   ```bash
-  ./scripts/pre-commit.sh
+  task pre-commit
   ```
 - **Gate: `lint`**
 - **Gate: `coverage`**
@@ -108,7 +108,7 @@ Implement the minimal fix.
 - [ ] **Gate: `api-spec`** - Drift checks PASSED.
 - [ ] **Gate: `implementation`** - Bug fixed and tests pass.
 - [ ] `go test -race ./...` passes.
-- [ ] **Gate: `lint`** - `./scripts/pre-commit.sh` passed.
+- [ ] **Gate: `lint`** - `task pre-commit` passed.
 - [ ] **Gate: `coverage`** - Threshold met.
 - [ ] `task.md` updated.
 - [ ] **AUTO-COMMIT**: Execute git commit automatically with a short, imperative message (e.g., "Fix: resolve nil pointer in listing handler"). DO NOT wait for the user to explicitly tell you to commit.

@@ -38,5 +38,5 @@ Agbalumo uses a single-file SQLite database with Write-Ahead Logging (WAL) enabl
 
 ## 5. Security Gates
 - Rate Limiting implemented globally in Echo Config.
-- Secret parsing checks done via shell validation in `scripts/pre-commit.sh`.
+- Secret parsing checks done via shell validation in `task pre-commit`.
 - CSRF verification middleware runs on specific POST operations.

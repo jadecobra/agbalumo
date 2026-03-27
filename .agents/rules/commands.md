@@ -18,7 +18,7 @@ go test -json -race ./...
 
 ### Pre-Commit Quality Gate
 ```bash
-./scripts/pre-commit.sh
+task pre-commit
 ```
 Runs: `gofmt`, `go mod tidy`, `go vet`, race tests, coverage (threshold in `.agent/coverage-threshold`), secret scanning.
 

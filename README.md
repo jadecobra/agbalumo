@@ -34,7 +34,7 @@ The development server runs securely on **HTTPS Port 8443**: `https://localhost:
 ### Scripts
 Reference the `scripts/` directory for standard operations:
 - `scripts/verify_restart.sh`: Rebuilds and restarts the server safely, handling process cleanup and environment variables.
-- `scripts/pre-commit.sh`: Runs tests, coverage checks, and linting.
+- `task pre-commit`: Runs tests, coverage checks, and linting.
 
 ### Database
 - Uses SQLite with `.tester/data/agbalumo.db`.

@@ -35,7 +35,7 @@ go tool cover -html=.tester/coverage/coverage.out -o .tester/coverage/coverage.h
 ```
 
 ### Coverage Threshold
-A minimum test coverage threshold is required, enforced from `.agents/coverage-threshold`. This is checked by `scripts/pre-commit.sh`.
+A minimum test coverage threshold is required, enforced from `.agents/coverage-threshold`. This is checked by `task pre-commit`.
 
 ---
 
@@ -44,7 +44,7 @@ A minimum test coverage threshold is required, enforced from `.agents/coverage-t
 ### Pre-commit Hooks
 Before committing any code, run the pre-commit script to ensure all gates pass:
 ```bash
-./scripts/pre-commit.sh
+task pre-commit
 ```
 This script performs:
 1. Linting (`golangci-lint`)

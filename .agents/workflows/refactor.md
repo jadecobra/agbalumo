@@ -74,7 +74,7 @@ Modify the code while keeping tests green.
 ### 2c. Quality Gate
 - *Run*:
   ```bash
-  ./scripts/pre-commit.sh
+  task pre-commit
   ```
 - **Gate: `lint`**
 - **Gate: `coverage`** (Coverage MUST NOT drop).
@@ -108,7 +108,7 @@ Modify the code while keeping tests green.
 - [ ] **Gate: `api-spec`** - Drift checks PASSED (Contracts preserved).
 - [ ] **Gate: `implementation`** - Refactor complete and tests pass.
 - [ ] `go test -race ./...` passes.
-- [ ] **Gate: `lint`** - `./scripts/pre-commit.sh` passed.
+- [ ] **Gate: `lint`** - `task pre-commit` passed.
 - [ ] **Gate: `coverage`** - No coverage drop.
 - [ ] `task.md` updated.
 - [ ] **AUTO-COMMIT**: Execute git commit automatically with a short, imperative message (e.g., "Refactor: extract helper function"). DO NOT wait for the user to explicitly tell you to commit.
