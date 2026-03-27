@@ -19,6 +19,7 @@ vars:
     sh: git diff --cached --name-only --diff-filter=ACMR | grep -E '\.agents/agent\.yaml$|docs/CODING_STANDARDS\.md$' || true
   STAGED_ALL:
     sh: git diff --cached --name-only || true
+  CONTAINER: '{{default "false" .USE_CONTAINER}}'
 
 tasks:
   lint:
@@ -47,6 +48,8 @@ tasks:
     desc: Run tests on staged Go files
     status:
       - '[ -z "{{.STAGED_GO}}" ]'
+    env:
+      USE_CONTAINER: '{{.CONTAINER}}'
     cmds:
       - bash scripts/test.sh
 
@@ -75,6 +78,8 @@ tasks:
     desc: Run gitleaks secret scan on staged files
     status:
       - '[ -z "{{.STAGED_ALL}}" ]'
+    env:
+      USE_CONTAINER: '{{.CONTAINER}}'
     cmds:
       - bash scripts/gitleaks-scan.sh
 
@@ -82,6 +87,8 @@ tasks:
     desc: Verify mandatory inline gosec justification
     status:
       - '[ -z "{{.STAGED_ALL}}" ]'
+    env:
+      USE_CONTAINER: '{{.CONTAINER}}'
     cmds:
       - bash scripts/utils/check-gosec-rationale.sh
 
@@ -89,6 +96,8 @@ tasks:
     desc: Run security checks on staged files
     status:
       - '[ -z "{{.STAGED_ALL}}" ]'
+    env:
+      USE_CONTAINER: '{{.CONTAINER}}'
     cmds:
       - sh scripts/security-check.sh
 
@@ -97,9 +106,8 @@ tasks:
     status:
       - '[ -z "{{.STAGED_GO}}" ]'
     cmds:
-      - go install golang.org/x/vuln/cmd/govulncheck@latest
+      - command -v govulncheck >/dev/null 2>&1 || go install golang.org/x/vuln/cmd/govulncheck@latest
       - $(go env GOPATH)/bin/govulncheck ./...
-
 
   perf:
     desc: Run performance audit on staged performance-sensitive files
@@ -120,18 +128,7 @@ tasks:
     status:
       - '[ -z "{{.STAGED_ALL}}" ]'
     cmds:
-      - |
-        THRESHOLD_FILE=".agents/coverage-threshold"
-        if [ -f "$THRESHOLD_FILE" ] && git ls-files --error-unmatch "$THRESHOLD_FILE" >/dev/null 2>&1; then
-            if git diff --cached --name-only | grep -q "^$THRESHOLD_FILE$"; then
-                OLD_THRESHOLD=$(git show HEAD:$THRESHOLD_FILE 2>/dev/null || echo "0.0")
-                NEW_THRESHOLD=$(cat "$THRESHOLD_FILE")
-                if awk "BEGIN {exit !($NEW_THRESHOLD < $OLD_THRESHOLD)}"; then
-                    echo "Error: Coverage threshold cannot be lowered ($NEW_THRESHOLD < $OLD_THRESHOLD)"
-                    exit 1
-                fi
-            fi
-        fi
+      - bash scripts/verify-threshold.sh
 
   gates:
     desc: Check workflow gate enforcement
@@ -148,16 +145,7 @@ tasks:
     status:
       - '[ -z "{{.STAGED_ALL}}" ]'
     cmds:
-      - |
-        STAGED_NEW_OR_MOD=$(git diff --cached --name-only --diff-filter=ACMR || true)
-        if [ -n "$STAGED_NEW_OR_MOD" ]; then
-            IGNORED_STAGED=$(echo "$STAGED_NEW_OR_MOD" | git check-ignore --no-index --stdin || true)
-            if [ -n "$IGNORED_STAGED" ]; then
-                echo "Error: The following ignored files are staged for commit:"
-                echo "$IGNORED_STAGED" | sed 's/^/    /'
-                exit 1
-            fi
-        fi
+      - bash scripts/check-ignored.sh
 
   security-audit:
     desc: Run dynamic security audit
@@ -184,7 +172,7 @@ tasks:
   ci:vulncheck:
     desc: Run full govulncheck vulnerability scan
     cmds:
-      - go install golang.org/x/vuln/cmd/govulncheck@latest
+      - command -v govulncheck >/dev/null 2>&1 || go install golang.org/x/vuln/cmd/govulncheck@latest
       - $(go env GOPATH)/bin/govulncheck ./...
 
   ci:api-drift:
@@ -223,6 +211,10 @@ tasks:
     desc: Run all pre-commit gate tasks in parallel after checking workflow gates
     cmds:
       - task: gates
+      - task: _pre-commit-parallel
+
+  _pre-commit-parallel:
+    internal: true
     deps:
       - lint
       - mod-tidy
