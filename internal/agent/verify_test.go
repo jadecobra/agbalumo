@@ -443,3 +443,45 @@ paths:
 		t.Error("VerifyApiSpec should have failed due to drift violations")
 	}
 }
+
+func TestVerifyTemplateDrift(t *testing.T) {
+	tmpDir := t.TempDir()
+	
+	err := os.MkdirAll(tmpDir+"/internal/ui", 0755)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = os.MkdirAll(tmpDir+"/ui/templates", 0755)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rendererContent := `package ui
+func NewRenderer() {
+	funcMap := template.FuncMap{
+		"func1": func() {},
+		"func2": func() {},
+	}
+}`
+	_ = os.WriteFile(tmpDir+"/internal/ui/renderer.go", []byte(rendererContent), 0644)
+
+	templateContent := `<div>{{ func1 . }}</div>`
+	_ = os.WriteFile(tmpDir+"/ui/templates/index.html", []byte(templateContent), 0644)
+
+	// Change dir to TempDir
+	origWd, _ := os.Getwd()
+	_ = os.Chdir(tmpDir)
+	defer func() { _ = os.Chdir(origWd) }()
+
+	// Case 1: Success
+	if !VerifyTemplateDrift() {
+		t.Error("VerifyTemplateDrift failed on valid sync")
+	}
+
+	// Case 2: Drift
+	templateContentDrift := `<div>{{ unknownFunc . }}</div>`
+	_ = os.WriteFile(tmpDir+"/ui/templates/index.html", []byte(templateContentDrift), 0644)
+	if VerifyTemplateDrift() {
+		t.Error("VerifyTemplateDrift passed on drift")
+	}
+}

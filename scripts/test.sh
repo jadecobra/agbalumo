@@ -4,9 +4,9 @@ set -e
 source "$(dirname "$0")/utils.sh"
 setup_path
 
-mkdir -p /tmp/.tester/coverage
-go test -json -race -count=1 -coverprofile=/tmp/.tester/coverage/coverage.out ./... > /dev/null
-COVERAGE=$(go tool cover -func=/tmp/.tester/coverage/coverage.out | awk '/^total:/ {print substr($3, 1, length($3)-1)}')
+mkdir -p .tester/coverage
+go test -json -race -count=1 -coverprofile=.tester/coverage/coverage.out ./... > /dev/null
+COVERAGE=$(go tool cover -func=.tester/coverage/coverage.out | awk '/^total:/ {print substr($3, 1, length($3)-1)}')
 THRESHOLD_FILE=".agents/coverage-threshold"
 THRESHOLD=90.0
 if [ -f "$THRESHOLD_FILE" ]; then

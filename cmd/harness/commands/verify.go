@@ -61,6 +61,8 @@ func VerifyCmd() *cobra.Command {
 				success = agent.VerifyLint()
 			case agent.GateCoverage:
 				success = agent.VerifyCoverage()
+			case agent.GateTemplateDrift:
+				success = agent.VerifyTemplateDrift()
 			case agent.GateBrowserVerification:
 				fmt.Println("⚠️  AGENT INSTRUCTION: You must use the browser_subagent tool to verify the UI. Once the subagent finishes and the UI is verified, run: ./scripts/agent-exec.sh workflow gate browser-verification PASS")
 				if state.Gates.BrowserVerification == agent.GatePassed {
@@ -96,6 +98,8 @@ func VerifyCmd() *cobra.Command {
 				state.Gates.Lint = status
 			case agent.GateCoverage:
 				state.Gates.Coverage = status
+			case agent.GateTemplateDrift:
+				state.Gates.TemplateDrift = status
 			case agent.GateBrowserVerification:
 				// Already handled above
 			}

@@ -197,3 +197,46 @@ func TestSafeOpen(t *testing.T) {
 		t.Errorf("Expected filename %s, got %s", filename, info.Name())
 	}
 }
+
+func TestUniqueStrings(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    []string
+		expected []string
+	}{
+		{
+			name:     "EmptyInput",
+			input:    []string{},
+			expected: []string{},
+		},
+		{
+			name:     "NilInput",
+			input:    nil,
+			expected: nil,
+		},
+		{
+			name:     "NoDuplicates",
+			input:    []string{"a", "b", "c"},
+			expected: []string{"a", "b", "c"},
+		},
+		{
+			name:     "WithDuplicates",
+			input:    []string{"c", "a", "b", "a", "c"},
+			expected: []string{"a", "b", "c"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := UniqueStrings(tt.input)
+			if len(got) != len(tt.expected) {
+				t.Fatalf("Expected length %d, got %d", len(tt.expected), len(got))
+			}
+			for i := range got {
+				if got[i] != tt.expected[i] {
+					t.Errorf("At index %d: expected %s, got %s", i, tt.expected[i], got[i])
+				}
+			}
+		})
+	}
+}

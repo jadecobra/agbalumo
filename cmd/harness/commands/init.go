@@ -33,6 +33,7 @@ func InitCmd() *cobra.Command {
 					Lint:                agent.GatePending,
 					Coverage:            agent.GatePending,
 					BrowserVerification: agent.GatePending,
+					TemplateDrift:       agent.GatePending,
 				},
 			}
 			if err := saveState(state); err != nil {

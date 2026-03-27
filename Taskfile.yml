@@ -54,18 +54,18 @@ tasks:
       - bash scripts/test.sh
 
   api-drift:
-    desc: Run API drift check on staged command docs
+    desc: Run API drift check via harness
     status:
       - '[ -z "{{.STAGED_CMD_DOCS}}" ]'
     cmds:
-      - bash scripts/api-drift-check.sh
+      - ./scripts/agent-exec.sh verify api-spec
 
   template-drift:
-    desc: Run template function drift check on staged security-sensitive files
+    desc: Run template function drift check via harness
     status:
       - '[ -z "{{.STAGED_SEC}}" ]'
     cmds:
-      - bash scripts/template-func-drift-check.sh
+      - ./scripts/agent-exec.sh verify template-drift
 
   agent-drift:
     desc: Run agent rules drift check on staged agent files
@@ -176,14 +176,14 @@ tasks:
       - $(go env GOPATH)/bin/govulncheck ./...
 
   ci:api-drift:
-    desc: Run full API drift check
+    desc: Run full API drift check via harness
     cmds:
-      - bash scripts/api-drift-check.sh
+      - ./scripts/agent-exec.sh verify api-spec
 
   ci:template-drift:
-    desc: Run full template function drift check
+    desc: Run full template function drift check via harness
     cmds:
-      - bash scripts/template-func-drift-check.sh
+      - ./scripts/agent-exec.sh verify template-drift
 
   ci:agent-drift:
     desc: Run full agent rules drift check

@@ -2,6 +2,7 @@ package util
 
 import (
 	"os"
+	"sort"
 )
 
 // SafeMkdir creates a directory with 0750 permissions.
@@ -44,4 +45,21 @@ func SafeOpen(name string) (*os.File, error) {
 // SafeIsNotExist checks if an error indicates that a file does not exist.
 func SafeIsNotExist(err error) bool {
 	return os.IsNotExist(err)
+}
+
+// UniqueStrings returns a sorted slice of unique strings.
+func UniqueStrings(input []string) []string {
+	if len(input) == 0 {
+		return input
+	}
+	m := make(map[string]bool)
+	var result []string
+	for _, s := range input {
+		if !m[s] {
+			m[s] = true
+			result = append(result, s)
+		}
+	}
+	sort.Strings(result)
+	return result
 }
