@@ -115,3 +115,33 @@ func TestSafeStat(t *testing.T) {
 		t.Errorf("Expected filename %s, got %s", filename, info.Name())
 	}
 }
+
+func TestSafeIsNotExist(t *testing.T) {
+	t.Run("ExistingFile", func(t *testing.T) {
+		filename := "existing_test"
+		err := os.WriteFile(filename, []byte("data"), 0600)
+		if err != nil {
+			t.Fatalf("os.WriteFile failed: %v", err)
+		}
+		defer os.Remove(filename)
+
+		_, err = os.Stat(filename)
+		if SafeIsNotExist(err) {
+			t.Error("Expected SafeIsNotExist to be false for existing file")
+		}
+	})
+
+	t.Run("NonExistentFile", func(t *testing.T) {
+		filename := "non_existent_test"
+		_, err := os.Stat(filename)
+		if !SafeIsNotExist(err) {
+			t.Error("Expected SafeIsNotExist to be true for non-existent file")
+		}
+	})
+
+	t.Run("NilError", func(t *testing.T) {
+		if SafeIsNotExist(nil) {
+			t.Error("Expected SafeIsNotExist to be false for nil error")
+		}
+	})
+}

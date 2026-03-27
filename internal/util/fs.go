@@ -29,3 +29,14 @@ func SafeReadFile(filename string) ([]byte, error) {
 	// #nosec G304 - Secure wrapper for file reading in domain utility
 	return os.ReadFile(filename)
 }
+
+// SafeOpen opens a file safely.
+func SafeOpen(name string) (*os.File, error) {
+	// #nosec G304 - Secure wrapper for file opening in domain utility
+	return os.Open(name)
+}
+
+// SafeIsNotExist checks if an error indicates that a file does not exist.
+func SafeIsNotExist(err error) bool {
+	return os.IsNotExist(err)
+}

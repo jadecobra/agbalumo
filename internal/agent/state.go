@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/jadecobra/agbalumo/internal/util"
@@ -71,7 +70,7 @@ func calculateSignature(s *State) string {
 // LoadState reads and parses the JSON state file.
 func LoadState(path string) (*State, error) {
 	// #nosec G304 - Internal harness state file
-	b, err := os.ReadFile(path)
+	b, err := util.SafeReadFile(path)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +118,7 @@ func SaveState(path string, state *State) error {
 	return util.SafeWriteFile(path, b)
 }
 
-// IsNotExist is a helper utility mapped to os.IsNotExist
+// IsNotExist is a helper utility mapped to util.SafeIsNotExist
 func IsNotExist(err error) bool {
-	return os.IsNotExist(err)
+	return util.SafeIsNotExist(err)
 }
