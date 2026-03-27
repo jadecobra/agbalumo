@@ -145,3 +145,55 @@ func TestSafeIsNotExist(t *testing.T) {
 		}
 	})
 }
+
+func TestSafeRename(t *testing.T) {
+	oldFile := "rename_old"
+	newFile := "rename_new"
+	data := []byte("rename test")
+
+	err := os.WriteFile(oldFile, data, 0600)
+	if err != nil {
+		t.Fatalf("os.WriteFile failed: %v", err)
+	}
+	defer func() {
+		_ = os.Remove(oldFile)
+		_ = os.Remove(newFile)
+	}()
+
+	err = SafeRename(oldFile, newFile)
+	if err != nil {
+		t.Fatalf("SafeRename failed: %v", err)
+	}
+
+	if _, err := os.Stat(newFile); err != nil {
+		t.Errorf("Expected new file to exist, got error: %v", err)
+	}
+	if _, err := os.Stat(oldFile); !os.IsNotExist(err) {
+		t.Errorf("Expected old file to be gone, got error: %v", err)
+	}
+}
+
+func TestSafeOpen(t *testing.T) {
+	filename := "open_test"
+	data := []byte("open test content")
+
+	err := os.WriteFile(filename, data, 0600)
+	if err != nil {
+		t.Fatalf("os.WriteFile failed: %v", err)
+	}
+	defer os.Remove(filename)
+
+	f, err := SafeOpen(filename)
+	if err != nil {
+		t.Fatalf("SafeOpen failed: %v", err)
+	}
+	defer f.Close()
+
+	info, err := f.Stat()
+	if err != nil {
+		t.Fatalf("f.Stat failed: %v", err)
+	}
+	if info.Name() != filename {
+		t.Errorf("Expected filename %s, got %s", filename, info.Name())
+	}
+}

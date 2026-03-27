@@ -2,10 +2,10 @@ package commands
 
 import (
 	"encoding/json"
-	"os"
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/agent"
+	"github.com/jadecobra/agbalumo/internal/util"
 )
 
 func TestNewRootCmd(t *testing.T) {
@@ -38,8 +38,8 @@ func TestErrorPaths(t *testing.T) {
 	// Test summarizeProgress with missing file
 	origFile := ".tester/tasks/progress.json"
 	tempFile := ".tester/tasks/progress.json.bak"
-	_ = os.Rename(origFile, tempFile)
-	defer func() { _ = os.Rename(tempFile, origFile) }()
+	_ = util.SafeRename(origFile, tempFile)
+	defer func() { _ = util.SafeRename(tempFile, origFile) }()
 
 	err := summarizeProgress()
 	if err == nil {
@@ -107,11 +107,11 @@ func TestCheckAndApplyProgressUpdate(t *testing.T) {
 
 	// Backup original progress.json
 	backupFile := progressFile + ".bak"
-	if _, err := os.Stat(progressFile); err == nil {
-		_ = os.Rename(progressFile, backupFile)
+	if _, err := util.SafeStat(progressFile); err == nil {
+		_ = util.SafeRename(progressFile, backupFile)
 		defer func() {
-			_ = os.Remove(progressFile)
-			_ = os.Rename(backupFile, progressFile)
+			_ = util.SafeRemove(progressFile)
+			_ = util.SafeRename(backupFile, progressFile)
 		}()
 	}
 
@@ -125,15 +125,15 @@ func TestCheckAndApplyProgressUpdate(t *testing.T) {
     }
   ]
 }`
-	_ = os.MkdirAll(".tester/tasks", 0755)
-	_ = os.WriteFile(progressFile, []byte(initialProgress), 0644)
+	_ = util.SafeMkdir(".tester/tasks")
+	_ = util.SafeWriteFile(progressFile, []byte(initialProgress))
 
 	pendingUpdate := `{
   "category": "Test Category",
   "steps": ["Step 2 (Completed)"]
 }`
-	_ = os.WriteFile(updateFile, []byte(pendingUpdate), 0644)
-	defer func() { _ = os.Remove(updateFile) }()
+	_ = util.SafeWriteFile(updateFile, []byte(pendingUpdate))
+	defer func() { _ = util.SafeRemove(updateFile) }()
 
 	err := checkAndApplyProgressUpdate()
 	if err != nil {
@@ -141,7 +141,7 @@ func TestCheckAndApplyProgressUpdate(t *testing.T) {
 	}
 
 	// Verify the result
-	data, err := os.ReadFile(progressFile)
+	data, err := util.SafeReadFile(progressFile)
 	if err != nil {
 		t.Fatalf("failed to read updated progress.json: %v", err)
 	}

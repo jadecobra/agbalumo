@@ -9,6 +9,11 @@ func SafeMkdir(path string) error {
 	return os.MkdirAll(path, 0750)
 }
 
+// SafeRename renames a file safely.
+func SafeRename(oldpath, newpath string) error {
+	return os.Rename(oldpath, newpath)
+}
+
 // SafeWriteFile writes a file with 0600 permissions.
 func SafeWriteFile(filename string, data []byte) error {
 	return os.WriteFile(filename, data, 0600)

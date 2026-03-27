@@ -3,7 +3,6 @@ package commands
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/jadecobra/agbalumo/internal/agent"
@@ -78,7 +77,7 @@ func hasPending(steps []string) bool {
 }
 
 func summarizeProgress() error {
-	data, err := os.ReadFile(".tester/tasks/progress.json")
+	data, err := util.SafeReadFile(".tester/tasks/progress.json")
 	if err != nil {
 		return err
 	}
@@ -119,12 +118,12 @@ func checkAndApplyProgressUpdate() error {
 	updateFile := ".tester/tasks/pending_update.json"
 	targetFile := ".tester/tasks/progress.json"
 
-	if _, err := os.Stat(updateFile); os.IsNotExist(err) {
+	if _, err := util.SafeStat(updateFile); util.SafeIsNotExist(err) {
 		return nil // No update file provided
 	}
 
 	fmt.Println("📦 Found pending_update.json. Triggering automatic progress tracker update...")
-	updateData, err := os.ReadFile(updateFile)
+	updateData, err := util.SafeReadFile(updateFile)
 	if err != nil {
 		return fmt.Errorf("failed to read pending update: %w", err)
 	}
@@ -136,7 +135,7 @@ func checkAndApplyProgressUpdate() error {
 	}
 	newFeature.Passes = !hasPending(newFeature.Steps)
 
-	targetData, err := os.ReadFile(targetFile)
+	targetData, err := util.SafeReadFile(targetFile)
 	if err != nil {
 		return fmt.Errorf("failed to read progress.json: %w", err)
 	}
@@ -174,7 +173,7 @@ func checkAndApplyProgressUpdate() error {
 	}
 
 	fmt.Println("✅ Successfully updated progress.json with new feature implementation!")
-	_ = os.Remove(updateFile)
+	_ = util.SafeRemove(updateFile)
 	return nil
 }
 

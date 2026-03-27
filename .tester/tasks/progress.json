@@ -319,7 +319,7 @@
         "Verify SafeReadFile implementation: Add `SafeReadFile` (wrapped `os.ReadFile`) to `internal/util/fs.go` (Completed)",
         "Verify State migration: Migrate `os.ReadFile` and `os.IsNotExist` to `util.Safe*` wrappers in `internal/agent/state.go` (Completed)",
         "Verify Coverage migration: Migrate remaining `os` calls to `util.Safe*` wrappers in `internal/agent/coverage.go` (Completed)",
-        "Verify Harness Root migration: Migrate `os.ReadFile`, `os.Stat`, and `os.Remove` to `util.Safe*` wrappers in `cmd/harness/commands/root.go` (Pending)",
+        "Verify Harness Root migration: Migrate `os.ReadFile`, `os.Stat`, and `os.Remove` to `util.Safe*` wrappers in `cmd/harness/commands/root.go` (Completed)",
         "Verify Taskfile Consolidation: Update `api-drift` and `template-drift` tasks to call `harness verify` CLI instead of shell scripts (Pending)",
         "Verify Deprecated Script Removal: Delete `scripts/api-drift-check.sh` and `scripts/template-func-drift-check.sh` once fully ported to harness (Pending)",
         "Verify VerifyApiSpec migration: Migrate `os.ReadFile`, `os.Stat`, and `os.Open` to `util.Safe*` wrappers in `internal/agent/verify.go` (Completed)"
