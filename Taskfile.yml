@@ -138,6 +138,11 @@ tasks:
             fi
         fi
 
+  gates:
+    desc: Check workflow gate enforcement
+    cmds:
+      - bash scripts/check-gates.sh
+
   ci-tools:
     desc: Verify CI toolset availability
     cmds:
