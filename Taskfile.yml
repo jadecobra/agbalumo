@@ -37,3 +37,11 @@ tasks:
     cmds:
       - go mod tidy
       - git diff --exit-code go.mod go.sum
+
+  build:
+    desc: Run a safety build check on staged Go files
+    preconditions:
+      - sh: '[ -n "{{.STAGED_GO}}" ]'
+        msg: "No Go files staged for build check. Skipping."
+    cmds:
+      - go build -o /dev/null .
