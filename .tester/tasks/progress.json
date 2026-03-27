@@ -313,7 +313,7 @@
     {
       "category": "Go-Task Migration",
       "description": "Replace the 244-line pre-commit.sh shell orchestrator with a declarative Taskfile.yml using go-task, reducing agent context cost from 476 lines to ~80 lines.",
-      "passes": false,
+      "passes": true,
       "steps": [
         "Verify go-task install: Run `brew install go-task` and confirm `task --version` outputs v3.x (Completed)",
         "Verify Taskfile.yml creation (vars): Create `Taskfile.yml` at project root with version '3' and dynamic `vars:` block defining STAGED_GO, STAGED_HTML, STAGED_SEC, STAGED_CMD_DOCS, STAGED_CLI_DOCS, STAGED_PERF, STAGED_BRAND, STAGED_AGENT, STAGED_ALL using `git diff --cached --name-only --diff-filter=ACMR | grep` patterns matching current pre-commit.sh classifications (Completed)",
