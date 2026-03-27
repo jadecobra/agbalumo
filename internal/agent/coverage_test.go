@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/jadecobra/agbalumo/internal/util"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -107,4 +108,22 @@ func TestParseThresholds_SignatureValidation(t *testing.T) {
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "ANTI-CHEAT TRIGGERED: Manual modification of .agents/coverage-thresholds.json detected")
 	})
+}
+
+func TestSaveThresholds(t *testing.T) {
+	tmpDir := t.TempDir()
+	path := tmpDir + "/thresholds.json"
+	thresholds := map[string]float64{"default": 85.0}
+
+	err := SaveThresholds(path, thresholds)
+	require.NoError(t, err)
+
+	// Verify file was written
+	data, err := util.SafeReadFile(path)
+	require.NoError(t, err)
+
+	// Verify content is signed
+	parsed, err := ParseThresholds(data)
+	require.NoError(t, err)
+	assert.Equal(t, 85.0, parsed["default"])
 }

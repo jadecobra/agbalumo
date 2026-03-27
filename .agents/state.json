@@ -1,7 +1,7 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "verify_apispec_migration",
-  "workflow_type": "feature",
+  "feature": "coverage-migration",
+  "workflow_type": "refactor",
   "phase": "REFACTOR",
   "gates": {
     "red-test": "PASSED",
@@ -11,6 +11,6 @@
     "coverage": "PASSED",
     "browser-verification": "PASSED"
   },
-  "updated_at": "2026-03-27T20:13:47.850384Z",
-  "signature": "120320933815b373666e374284c90a7687fde29fc37efec4201d6b5b8eed6e3a"
+  "updated_at": "2026-03-27T20:49:07.453171Z",
+  "signature": "d3e4510065c3f1632e51a9da0d6d67dafe5a7a04f9616b5dc59fe1fa4250a48b"
 }
