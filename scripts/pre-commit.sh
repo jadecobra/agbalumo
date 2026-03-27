@@ -30,7 +30,7 @@ if [ "$FMT" != "json" ]; then echo "${BLUE}Running 10x Engineer Quality Checks..
 # 0. Workflow Gate Enforcement (phase-aware)
 STATE_FILE=".agents/state.json"
 if [ -f "$STATE_FILE" ]; then
-    if ! check_workflow_gates "$STATE_FILE"; then
+    if ! bash scripts/check-gates.sh; then
         if [ "$FMT" = "json" ]; then output_json_envelope false "pre-commit.sh" "Workflow gate enforcement failed."; fi
         exit 1
     fi

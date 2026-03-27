@@ -1,6 +1,6 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "task-migration-security",
+  "feature": "task-gates-migration",
   "workflow_type": "refactor",
   "phase": "REFACTOR",
   "gates": {
@@ -11,6 +11,6 @@
     "coverage": "PASSED",
     "browser-verification": "PASSED"
   },
-  "updated_at": "2026-03-27T01:19:35.773688Z",
-  "signature": "d13058d12d6e71c7b925a14f90a8523410831a7b605abece2cf7354c6e07e8fc"
+  "updated_at": "2026-03-27T04:12:34.246822Z",
+  "signature": "94ebe469b06e5c078f36570d0ba523b1fd208b552e54cea9fb837cf70d75edbb"
 }

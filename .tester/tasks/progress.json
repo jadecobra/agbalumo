@@ -324,7 +324,7 @@
         "Verify Taskfile.yml creation (drift tasks): Add `api-drift`, `template-drift`, and `agent-drift` tasks with appropriate preconditions on STAGED_CMD_DOCS, STAGED_SEC, and STAGED_AGENT that run their respective scripts from scripts/ (Completed)",
         "Verify Taskfile.yml creation (security tasks): Add `gitleaks`, `gosec-rationale`, and `security` tasks with precondition on STAGED_ALL that run `bash scripts/gitleaks-scan.sh`, `bash scripts/utils/check-gosec-rationale.sh`, and `sh scripts/security-check.sh` respectively (Completed)",
         "Verify Taskfile.yml creation (auxiliary tasks): Add `perf`, `brand`, `threshold`, `ci-tools`, and `ignored-files` tasks with appropriate preconditions matching current pre-commit.sh logic (Completed)",
-        "Verify Taskfile.yml creation (gates task): Add `gates` task that checks `.agents/state.json` workflow gate enforcement (extract check_workflow_gates logic into a standalone `scripts/check-gates.sh` script, \u003c30 lines)",
+        "Verify Taskfile.yml creation (gates task): Add `gates` task that checks `.agents/state.json` workflow gate enforcement (extract check_workflow_gates logic into a standalone `scripts/check-gates.sh` script, \u003c30 lines) (Completed)",
         "Verify Taskfile.yml creation (pre-commit composite): Add `pre-commit` task with `cmds: [task: gates]` followed by `deps:` listing all parallel gate tasks (lint, mod-tidy, build, test, api-drift, template-drift, agent-drift, gitleaks, gosec-rationale, security, perf, brand, threshold, ci-tools, ignored-files) and confirm `task --list` shows all tasks",
         "Verify Taskfile.yml creation (ci composite): Add `ci` task without staging preconditions that runs lint, test, security, and build directly (replaces ci-local.sh)",
         "Verify utils.sh cleanup: Remove `run_task()`, `run_containerized()`, and `check_workflow_gates()` functions from `scripts/utils.sh`, keeping only colors, `setup_path()`, `pass()/fail()/warn()/info()`, and `output_json_envelope()`, and confirm file is under 70 lines",
@@ -333,9 +333,6 @@
         "Verify documentation updates: Update all references from `./scripts/pre-commit.sh` to `task pre-commit` in `README.md`, `CONTRIBUTING.md`, `docs/DEVELOPMENT.md`, `docs/architecture-overview.md`, `.agents/rules/commands.md`, and `.agents/workflows/feature-implementation.md`",
         "Verify ci-local.sh removal: Delete `scripts/ci-local.sh` and rename `scripts/pre-commit.sh` to `scripts/pre-commit.sh.bak`",
         "Verify full integration: Run `task pre-commit` with a staged Go file change and confirm all gates execute and pass, then run `task ci` and confirm lint/test/security/build complete successfully",
-        "Verify Taskfile.yml creation (mod-tidy task): Add `mod-tidy` task with precondition on STAGED_GO that runs `go mod tidy \u0026\u0026 git diff --exit-code go.mod go.sum` (Completed)",
-        "Verify Taskfile.yml creation (build task): Add `build` task with precondition on STAGED_GO that runs `go build -o /dev/null .` (Completed)",
-        "Verify Taskfile.yml creation (gates task): Add gates task that checks .agents/state.json workflow gate enforcement (extract check_workflow_gates logic into a standalone scripts/check-gates.sh script, \u003c30 lines) (Completed)"
       ]
     }
   ]
