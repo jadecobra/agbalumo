@@ -165,6 +165,34 @@ tasks:
             fi
         fi
 
+  ci:lint:
+    desc: Run full lint on the entire codebase
+    cmds:
+      - golangci-lint run -c scripts/.golangci.yml
+
+  ci:test:
+    desc: Run full test suite with coverage
+    cmds:
+      - bash scripts/test.sh
+
+  ci:security:
+    desc: Run full security audit
+    cmds:
+      - sh scripts/security-check.sh
+
+  ci:build:
+    desc: Run full safety build
+    cmds:
+      - go build -o /dev/null .
+
+  ci:
+    desc: Run all CI checks (lint, test, security, build)
+    deps:
+      - task: ci:lint
+      - task: ci:test
+      - task: ci:security
+      - task: ci:build
+
   pre-commit:
     desc: Run all pre-commit gate tasks in parallel after checking workflow gates
     cmds:
