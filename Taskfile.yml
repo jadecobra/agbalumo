@@ -164,3 +164,24 @@ tasks:
                 exit 1
             fi
         fi
+
+  pre-commit:
+    desc: Run all pre-commit gate tasks in parallel after checking workflow gates
+    cmds:
+      - task: gates
+    deps:
+      - lint
+      - mod-tidy
+      - build
+      - test
+      - api-drift
+      - template-drift
+      - agent-drift
+      - gitleaks
+      - gosec-rationale
+      - security
+      - perf
+      - brand
+      - threshold
+      - ci-tools
+      - ignored-files

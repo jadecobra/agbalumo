@@ -325,14 +325,14 @@
         "Verify Taskfile.yml creation (security tasks): Add `gitleaks`, `gosec-rationale`, and `security` tasks with precondition on STAGED_ALL that run `bash scripts/gitleaks-scan.sh`, `bash scripts/utils/check-gosec-rationale.sh`, and `sh scripts/security-check.sh` respectively (Completed)",
         "Verify Taskfile.yml creation (auxiliary tasks): Add `perf`, `brand`, `threshold`, `ci-tools`, and `ignored-files` tasks with appropriate preconditions matching current pre-commit.sh logic (Completed)",
         "Verify Taskfile.yml creation (gates task): Add `gates` task that checks `.agents/state.json` workflow gate enforcement (extract check_workflow_gates logic into a standalone `scripts/check-gates.sh` script, \u003c30 lines) (Completed)",
-        "Verify Taskfile.yml creation (pre-commit composite): Add `pre-commit` task with `cmds: [task: gates]` followed by `deps:` listing all parallel gate tasks (lint, mod-tidy, build, test, api-drift, template-drift, agent-drift, gitleaks, gosec-rationale, security, perf, brand, threshold, ci-tools, ignored-files) and confirm `task --list` shows all tasks",
+        "Verify Taskfile.yml creation (pre-commit composite): Add `pre-commit` task with `cmds: [task: gates]` followed by `deps:` listing all parallel gate tasks (lint, mod-tidy, build, test, api-drift, template-drift, agent-drift, gitleaks, gosec-rationale, security, perf, brand, threshold, ci-tools, ignored-files) and confirm `task --list` shows all tasks (Completed)",
         "Verify Taskfile.yml creation (ci composite): Add `ci` task without staging preconditions that runs lint, test, security, and build directly (replaces ci-local.sh)",
         "Verify utils.sh cleanup: Remove `run_task()`, `run_containerized()`, and `check_workflow_gates()` functions from `scripts/utils.sh`, keeping only colors, `setup_path()`, `pass()/fail()/warn()/info()`, and `output_json_envelope()`, and confirm file is under 70 lines",
         "Verify setup-hooks.sh update: Change git hook body from `./scripts/pre-commit.sh` to `task pre-commit`, add `task` to dependency checks, and update backup detection grep from `security-check.sh` to `task pre-commit`",
         "Verify verify_restart.sh update: Change `./scripts/pre-commit.sh` to `task pre-commit` in `scripts/verify_restart.sh`",
         "Verify documentation updates: Update all references from `./scripts/pre-commit.sh` to `task pre-commit` in `README.md`, `CONTRIBUTING.md`, `docs/DEVELOPMENT.md`, `docs/architecture-overview.md`, `.agents/rules/commands.md`, and `.agents/workflows/feature-implementation.md`",
         "Verify ci-local.sh removal: Delete `scripts/ci-local.sh` and rename `scripts/pre-commit.sh` to `scripts/pre-commit.sh.bak`",
-        "Verify full integration: Run `task pre-commit` with a staged Go file change and confirm all gates execute and pass, then run `task ci` and confirm lint/test/security/build complete successfully",
+        "Verify full integration: Run `task pre-commit` with a staged Go file change and confirm all gates execute and pass, then run `task ci` and confirm lint/test/security/build complete successfully"
       ]
     }
   ]
