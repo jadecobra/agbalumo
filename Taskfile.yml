@@ -92,6 +92,14 @@ tasks:
     cmds:
       - sh scripts/security-check.sh
 
+  vulncheck:
+    desc: Run govulncheck vulnerability scan on staged Go files
+    status:
+      - '[ -z "{{.STAGED_GO}}" ]'
+    cmds:
+      - go install golang.org/x/vuln/cmd/govulncheck@latest
+      - $(go env GOPATH)/bin/govulncheck ./...
+
 
   perf:
     desc: Run performance audit on staged performance-sensitive files
@@ -151,6 +159,11 @@ tasks:
             fi
         fi
 
+  security-audit:
+    desc: Run dynamic security audit
+    cmds:
+      - go run cmd/security-audit/main.go
+
   ci:lint:
     desc: Run full lint on the entire codebase
     cmds:
@@ -163,8 +176,31 @@ tasks:
 
   ci:security:
     desc: Run full security audit
+    deps:
+      - task: ci:vulncheck
     cmds:
       - sh scripts/security-check.sh
+
+  ci:vulncheck:
+    desc: Run full govulncheck vulnerability scan
+    cmds:
+      - go install golang.org/x/vuln/cmd/govulncheck@latest
+      - $(go env GOPATH)/bin/govulncheck ./...
+
+  ci:api-drift:
+    desc: Run full API drift check
+    cmds:
+      - bash scripts/api-drift-check.sh
+
+  ci:template-drift:
+    desc: Run full template function drift check
+    cmds:
+      - bash scripts/template-func-drift-check.sh
+
+  ci:agent-drift:
+    desc: Run full agent rules drift check
+    cmds:
+      - bash scripts/agent-drift-check.sh
 
   ci:build:
     desc: Run full safety build
@@ -172,12 +208,16 @@ tasks:
       - go build -o /dev/null .
 
   ci:
-    desc: Run all CI checks (lint, test, security, build)
+    desc: Run all CI checks (lint, test, security, build, drift, audit)
     deps:
       - task: ci:lint
       - task: ci:test
       - task: ci:security
       - task: ci:build
+      - task: ci:api-drift
+      - task: ci:template-drift
+      - task: ci:agent-drift
+      - task: security-audit
 
   pre-commit:
     desc: Run all pre-commit gate tasks in parallel after checking workflow gates
@@ -191,6 +231,7 @@ tasks:
       - api-drift
       - template-drift
       - agent-drift
+      - vulncheck
       - gitleaks
       - gosec-rationale
       - security
