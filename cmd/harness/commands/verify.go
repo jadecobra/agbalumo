@@ -26,12 +26,15 @@ func VerifyCmd() *cobra.Command {
 			}
 
 
-			if state.Feature == "" {
-				return fmt.Errorf("no active feature found in state file")
-			}
-			if state.WorkflowType == "" {
-				state.WorkflowType = agent.WorkflowFeature
-			}
+	// Allow drift checks to run without an active feature (useful for CI)
+	isDriftCheck := gateID == agent.GateApiSpec || gateID == agent.GateTemplateDrift
+
+	if state.Feature == "" && !isDriftCheck {
+		return fmt.Errorf("no active feature found in state file")
+	}
+	if state.WorkflowType == "" {
+		state.WorkflowType = agent.WorkflowFeature
+	}
 
 			if flagText {
 				fmt.Printf("Verifying gate: %s for feature: %s (%s) [%s]\n", gateID, state.Feature, state.Phase, state.WorkflowType)

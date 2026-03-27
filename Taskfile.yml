@@ -178,12 +178,12 @@ tasks:
   ci:api-drift:
     desc: Run full API drift check via harness
     cmds:
-      - ./scripts/agent-exec.sh verify api-spec
+      - ./scripts/agent-exec.sh verify api-spec --text
 
   ci:template-drift:
     desc: Run full template function drift check via harness
     cmds:
-      - ./scripts/agent-exec.sh verify template-drift
+      - ./scripts/agent-exec.sh verify template-drift --text
 
   ci:agent-drift:
     desc: Run full agent rules drift check

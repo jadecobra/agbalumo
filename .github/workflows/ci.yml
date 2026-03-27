@@ -202,11 +202,14 @@ jobs:
           go-version: '1.26.1'
           cache: true
 
+      - name: Install Task
+        uses: arduino/setup-task@b9ed8b34f8a84c3563456885eb0515156a6451df # v2.1.0
+
       - name: API Drift Check
-        run: sh scripts/api-drift-check.sh --text
+        run: task ci:api-drift
 
       - name: Template Function Drift Check
-        run: sh scripts/template-func-drift-check.sh
+        run: task ci:template-drift
 
   docker:
     name: Docker Build & Scan

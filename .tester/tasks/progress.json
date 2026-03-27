@@ -283,7 +283,7 @@
       "steps": [
         "Verify coverage threshold path: Fix .agents/coverage-threshold in ci.yml to match pre-commit.sh (Completed)",
         "Verify duplicate security-check removal: Remove `./scripts/security-check.sh \u0026\u0026` from git hook in scripts/setup-hooks.sh:43 since pre-commit.sh already runs security-check.sh (Completed)",
-        "Verify CI drift check parity: Add a new `drift_checks` job to ci.yml that runs `scripts/api-drift-check.sh` and `scripts/template-func-drift-check.sh` (Completed)",
+        "Verify CI drift check parity: Add `drift_checks` job to ci.yml and migrate to `task ci:api-drift` and `task ci:template-drift` (Completed)",
         "Verify CI coverage anti-degradation: Add a step in the ci.yml `test` job that checks `.agents/coverage-threshold` cannot be lowered (Completed)",
         "Verify CI coverage artifact upload: Add `actions/upload-artifact@v4` step in ci.yml to upload `.tester/coverage/coverage.out` as a build artifact (Completed)",
         "Verify golangci-lint expansion: Add `gosec` and `bodyclose` linters to `scripts/.golangci.yml` under linters.enable list (Completed)",
@@ -314,7 +314,8 @@
         "Verify Harness Root migration: Migrate `os.ReadFile`, `os.Stat`, and `os.Remove` to `util.Safe*` wrappers in `cmd/harness/commands/root.go` (Completed)",
         "Verify Taskfile Consolidation: Update `api-drift` and `template-drift` tasks to call `harness verify` CLI instead of shell scripts (Completed)",
         "Verify Deprecated Script Removal: Delete `scripts/api-drift-check.sh` and `scripts/template-func-drift-check.sh` once fully ported to harness (Completed)",
-        "Verify VerifyApiSpec migration: Migrate `os.ReadFile`, `os.Stat`, and `os.Open` to `util.Safe*` wrappers in `internal/agent/verify.go` (Completed)"
+        "Verify VerifyApiSpec migration: Migrate `os.ReadFile`, `os.Stat`, and `os.Open` to `util.Safe*` wrappers in `internal/agent/verify.go` (Completed)",
+        "Verify Harness CI Isolation: Relax feature requirement in `verify` command to allow isolated drift checks in CI (Completed)"
       ]
     },
     {
