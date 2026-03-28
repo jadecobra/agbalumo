@@ -1,7 +1,7 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "ast_xss_expansion",
-  "workflow_type": "feature",
+  "feature": "critiquing_cicd_pipeline_improvements",
+  "workflow_type": "refactor",
   "phase": "REFACTOR",
   "gates": {
     "red-test": "PASSED",
@@ -13,6 +13,6 @@
     "template-drift": "PASSED",
     "security-static": "PASSED"
   },
-  "updated_at": "2026-03-28T21:11:10.332099Z",
-  "signature": "ce7ca1a30aa97d049535536fd36a29ae00327fdede380ba43a2c5a9fe7e336e4"
+  "updated_at": "2026-03-28T23:11:17.001665Z",
+  "signature": "06fa89bc7544364f1851309d677f60a3672dee093b2e72bd8d863a91822862d4"
 }

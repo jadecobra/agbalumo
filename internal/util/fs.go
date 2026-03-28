@@ -6,6 +6,7 @@ import (
 
 // SafeMkdir creates a directory with 0755 permissions.
 func SafeMkdir(path string) error {
+	// #nosec G301 - 0755 is intentional to allow web server read access
 	return os.MkdirAll(path, 0755)
 }
 
@@ -16,6 +17,7 @@ func SafeRename(oldpath, newpath string) error {
 
 // SafeWriteFile writes a file with 0644 permissions.
 func SafeWriteFile(filename string, data []byte) error {
+	// #nosec G306 - 0644 is intentional to allow web server read access
 	return os.WriteFile(filename, data, 0644)
 }
 

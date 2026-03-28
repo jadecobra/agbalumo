@@ -3,7 +3,6 @@ version: '3'
 env:
   GOPATH: '{{.TASKFILE_DIR}}/.tester/tmp/go'
   GOCACHE: '{{.TASKFILE_DIR}}/.tester/tmp/gocache'
-
 vars:
   STAGED_GO:
     sh: git diff --cached --name-only --diff-filter=ACMR | grep '\.go$' || true
@@ -46,7 +45,7 @@ tasks:
     status:
       - '[ -z "{{.STAGED_GO}}" ]'
     cmds:
-      - go build -o /dev/null .
+      - go build -o /dev/null ./...
 
   test:
     desc: Run tests on staged Go files
@@ -109,6 +108,9 @@ tasks:
     desc: Run govulncheck vulnerability scan on staged Go files
     status:
       - '[ -z "{{.STAGED_GO}}" ]'
+    env:
+      GOPATH: '{{.TASKFILE_DIR}}/.tester/tmp/go'
+      GOCACHE: '{{.TASKFILE_DIR}}/.tester/tmp/gocache'
     cmds:
       - go install golang.org/x/vuln/cmd/govulncheck@latest
       - ./.tester/tmp/go/bin/govulncheck ./...
@@ -153,6 +155,9 @@ tasks:
 
   security-audit:
     desc: Run dynamic security audit
+    env:
+      GOPATH: '{{.TASKFILE_DIR}}/.tester/tmp/go'
+      GOCACHE: '{{.TASKFILE_DIR}}/.tester/tmp/gocache'
     cmds:
       - go run cmd/security-audit/main.go
 
@@ -175,9 +180,11 @@ tasks:
 
   ci:vulncheck:
     desc: Run full govulncheck vulnerability scan
+    env:
+      GOPATH: '{{.TASKFILE_DIR}}/.tester/tmp/go'
+      GOCACHE: '{{.TASKFILE_DIR}}/.tester/tmp/gocache'
     cmds:
-      - go install golang.org/x/vuln/cmd/govulncheck@latest
-      - ./.tester/tmp/go/bin/govulncheck ./...
+      - go run golang.org/x/vuln/cmd/govulncheck@latest ./...
 
   ci:api-drift:
     desc: Run full API drift check via harness
@@ -197,7 +204,7 @@ tasks:
   ci:build:
     desc: Run full safety build
     cmds:
-      - go build -o /dev/null .
+      - go build -o /dev/null ./...
 
   ci:
     desc: Run all CI checks (lint, test, security, build, drift, audit)

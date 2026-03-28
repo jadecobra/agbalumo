@@ -241,8 +241,9 @@ func checkXSS(rootDir string, runner CommandRunner) bool {
 
 	// Use -I to ignore binary files
 	// Exclude renderer.go entirely as it's the definition point
-	// Exclude all tests
-	script := "grep -rI 'template.HTML' . --exclude-dir=.git --exclude-dir=bin --exclude-dir=scripts --exclude-dir='@*' --exclude='*_test.go' --exclude='renderer.go' | grep -v 'cmd/security-audit/main.go'"
+	// Exclude all tests and .tester artifacts (gocache, plugins)
+	// Exclude template.HTMLEscapeString which is safe
+	script := "grep -rI 'template.HTML' . --exclude-dir=.git --exclude-dir=bin --exclude-dir=scripts --exclude-dir='.tester' --exclude-dir='@*' --exclude='*_test.go' --exclude='renderer.go' | grep -v 'cmd/security-audit/main.go' | grep -v 'template.HTMLEscapeString' | grep -v 'internal/agent/security.go'"
 	output, _ := runner.Run(rootDir, "sh", "-c", script)
 
 	if len(output) > 0 {

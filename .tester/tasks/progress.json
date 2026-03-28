@@ -279,7 +279,7 @@
     {
       "category": "CI/CD Pipeline Improvements",
       "description": "Fix parity gaps, redundancies, and reliability issues between GitHub Actions CI and local pre-commit pipeline.",
-      "passes": true,
+      "passes": false,
       "steps": [
         "Verify coverage threshold path: Fix .agents/coverage-threshold in ci.yml to match pre-commit.sh (Completed)",
         "Verify duplicate security-check removal: Remove `./scripts/security-check.sh \u0026\u0026` from git hook in scripts/setup-hooks.sh:43 since pre-commit.sh already runs security-check.sh (Completed)",
@@ -322,7 +322,10 @@
         "Verify Taskfile Security Delegation: Update `Taskfile.yml` security task to call `harness verify security-static` and remove `scripts/security-check.sh` (Completed)",
         "Verify CI Lint Parity: Update `ci.yml` `quality_lint` job to use `task ci:lint` (Completed)",
         "Verify CI Test Parity: Update `ci.yml` `test` job to use `task ci:test` and `task threshold` (Completed)",
-        "Verify CI Security Parity: Update `ci.yml` security jobs to use `task ci:security` and `task security-audit` (Completed)"
+        "Verify CI Security Parity: Update `ci.yml` security jobs to use `task ci:security` and `task security-audit` (Completed)",
+        "Verify security-audit permissions: Updated Taskfile.yml to use explicit GOPATH/GOCACHE for security-audit tasks",
+        "Verify govulncheck config: Moved module path resolution to local environment variable scope to sidestep permission conflicts",
+        "Verify false-positives masking: Add whitelist exceptions to security audit for explicitly safe internal tool variables"
       ]
     },
     {
