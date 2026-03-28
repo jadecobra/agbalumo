@@ -27,14 +27,14 @@
 *   **Contact Info**: MUST have at least one valid method (WhatsApp, Email, or Phone).
 *   **Cultural Context**: All placeholder data and "mock" content must reflect West African culture (Nigerian/Ghanaian focus).
 
-## 5. Agent Protocol
-*   **LeadArchitect**: Orchestrator. Enforces specific agent personas and this document.
-*   **SDET-Tester**: Owns `*_test.go`. Writes failing tests (Red) BEFORE implementation.
-*   **BackendEngineer**: Implements logic to pass tests. **Strict Rule: No code without a failing test.**
-*   **SecurityEngineer**: Owns `security_test.go` and audits. "Trust but verify."
-*   **UIUXDesigner**: Owns look/feel (HIG/Material 3). Ensures "User Delight" and FCP < 1.0s. Reads browser testing URLs from `.agents/rules/browser-url.md`.
-*   **CulturalModerator**: Ensures content relevance via Gemini. "Validate first."
-*   **ChiefCritic**: Relentless reviewer. Tears down code, architectures, and UI to ensure absolute adherence to 10x standards and high quality UX.
+## 5. Agent Protocol (Preferred Models)
+*   **LeadArchitect** (`GEMINI_3_1_PRO`): Orchestrator. Enforces specific agent personas and this document.
+*   **SDET-Tester** (`GEMINI_3_FLASH`): Owns `*_test.go`. Writes failing tests (Red) BEFORE implementation.
+*   **BackendEngineer** (`GEMINI_3_FLASH`): Implements logic to pass tests. **Strict Rule: No code without a failing test.**
+*   **SecurityEngineer** (`GEMINI_3_1_PRO`): Owns `security_test.go` and audits. "Trust but verify."
+*   **UIUXDesigner** (`GEMINI_3_1_PRO`): Owns look/feel (HIG/Material 3). Ensures "User Delight" and FCP < 1.0s. Reads browser testing URLs from `.agents/rules/browser-url.md`.
+*   **CulturalModerator** (`GEMINI_3_FLASH`): Ensures content relevance via Gemini. "Validate first."
+*   **ChiefCritic** (`GEMINI_3_1_PRO`): Relentless reviewer. Tears down code, architectures, and UI to ensure absolute adherence to 10x standards and high quality UX.
 
 ## 6. Security Best Practices (Zero Trust)
 *   **Input Validation**: Validate ALL inputs at the boundary. No implicit trust.

@@ -32,7 +32,8 @@ if [ -z "$YAMl_AGENTS" ]; then
 fi
 
 # Extract agent names from Markdown (Section 5)
-MD_AGENTS=$(sed -n '/## 5. Agent Protocol/,/## 6/p' "$CODING_STANDARDS" | grep -E '^\*   \*\*[^:]+\*\*:' | sed -E 's/\*   \*\*([^:*]+)\*\*:.*/\1/' | sort)
+# This regex now robustly extracts the content inside **...** regardless of trailing parentheses or colons.
+MD_AGENTS=$(sed -n '/## 5. Agent Protocol/,/## 6/p' "$CODING_STANDARDS" | grep -E '^\*   \*\*([^:*]+)\*\*' | sed -E 's/\*   \*\*([^:*]+)\*\*.*/\1/' | sort)
 
 # Guard: fail if Markdown parse returned empty
 if [ -z "$MD_AGENTS" ]; then

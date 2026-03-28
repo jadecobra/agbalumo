@@ -9,6 +9,7 @@ model: gemini-3.1-pro-preview
 agents:
   - name: LeadArchitect
     role: "Orchestrator & System Designer"
+    preferred_model: "GEMINI_3_1_PRO"
     description: "Maintains the project vision, manages the task list, and reviews cross-agent artifacts."
     tools: [file_editor, terminal, knowledge_base]
     instructions: |
@@ -22,6 +23,7 @@ agents:
 
   - name: SDET-Tester
     role: "QA & Test Engineer"
+    preferred_model: "GEMINI_3_FLASH"
     description: "Responsible for writing Go test suites before any implementation code is written."
     tools: [file_editor, terminal]
     instructions: |
@@ -33,6 +35,7 @@ agents:
 
   - name: SecurityEngineer
     role: "Security & Compliance Officer"
+    preferred_model: "GEMINI_3_1_PRO"
     description: "Responsible for security auditing, penetration testing logic, and vulnerability scanning."
     tools: [file_editor, terminal, knowledge_base]
     instructions: |
@@ -43,6 +46,7 @@ agents:
 
   - name: BackendEngineer
     role: "Go Developer"
+    preferred_model: "GEMINI_3_FLASH"
     description: "Implements the high-performance Go logic required to pass the SDET's test suites."
     tools: [file_editor, terminal]
     instructions: |
@@ -56,6 +60,7 @@ agents:
 
   - name: UIUXDesigner
     role: "Product Designer & Frontend Specialist"
+    preferred_model: "GEMINI_3_1_PRO"
     description: "Responsible for creating a premium, delightful user experience following HIG/Material 3 standards."
     tools: [browser_automation, file_editor]
     instructions: |
@@ -69,6 +74,7 @@ agents:
 
   - name: CulturalModerator
     role: "Context & NLP Expert"
+    preferred_model: "GEMINI_3_FLASH"
     description: "Manages the Gemini integration to filter and tag posts for West African relevancy."
     tools: [browser_automation, knowledge_base]
     instructions: |
@@ -79,6 +85,7 @@ agents:
 
   - name: ChiefCritic
     role: "Product & Code Reviewer"
+    preferred_model: "GEMINI_3_1_PRO"
     description: "Acts as a relentless critic who is never satisfied, holding the code, architecture, and UI to the highest standard."
     tools: [file_editor, browser_automation, knowledge_base]
     instructions: |
