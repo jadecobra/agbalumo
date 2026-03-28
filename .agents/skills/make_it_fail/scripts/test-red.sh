@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# Placeholder script for make_it_fail
-# TODO: Migrate actual logic here after CI/CD Improvements.
+set -e
+TEST_PATH="${1:-./internal/...}"
+
 echo "[SDET-Tester] Executing make_it_fail skill..."
-exit 0
+./scripts/agent-exec.sh workflow set-phase RED
+go test -v $TEST_PATH || true
+./scripts/agent-exec.sh verify red-test

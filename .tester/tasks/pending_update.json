@@ -1,10 +1,10 @@
 {
   "category": "Architecture & Workflows",
-  "description": "Implemented autonomous developer pipeline with Codelab-inspired skills",
+  "description": "Migrated legacy feature-implementation gates into individual Codelab skill scripts.",
   "steps": [
-    "Added ChiefCritic persona to agent.yaml",
-    "Created .agents/skills/ folders for design_architecture, make_it_fail, make_it_pass, make_it_better, audit_security, and critique_product",
-    "Generated /build-feature workflow macro to orchestrate the TDD loop",
-    "Added placeholder execution scripts for each new skill module"
+    "Replaced generic placeholder scripts with agent-exec.sh verification gates.",
+    "Deleted legacy .agents/workflows/feature-implementation files to remove duplication.",
+    "Integrated Red, Green, Refactor, and Audit gates into make_it_fail, make_it_pass, make_it_better, and audit_security.",
+    "Mapped ChiefCritic's critique.sh script to browser-verification and UI journey checks."
   ]
 }

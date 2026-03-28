@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# Placeholder script for make_it_pass
-# TODO: Migrate actual logic here after CI/CD Improvements.
+set -e
+TEST_PATH="${1:-./internal/...}"
+
 echo "[BackendEngineer] Executing make_it_pass skill..."
-exit 0
+go test -v $TEST_PATH
+go test -v ./cmd/...
+./scripts/agent-exec.sh verify implementation

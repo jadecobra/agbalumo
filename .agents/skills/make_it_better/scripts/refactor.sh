@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Placeholder script for make_it_better
-# TODO: Migrate actual logic here after CI/CD Improvements.
+set -e
+
 echo "[BackendEngineer] Executing make_it_better skill..."
-exit 0
+go test -race ./...
+task pre-commit

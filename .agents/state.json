@@ -5,7 +5,7 @@
   "phase": "IDLE",
   "gates": {
     "red-test": "PENDING",
-    "api-spec": "PENDING",
+    "api-spec": "PASSED",
     "implementation": "PENDING",
     "lint": "PENDING",
     "coverage": "PENDING",
@@ -13,6 +13,6 @@
     "template-drift": "PENDING",
     "security-static": "PASSED"
   },
-  "updated_at": "2026-03-28T18:02:44.462249Z",
-  "signature": "3357bc79b32e3d7a29deb9312c085e48cef6d30e3276ca31619cc938789e347b"
+  "updated_at": "2026-03-28T18:06:25.713379Z",
+  "signature": "c0e7cdbec2694c1cf23f233bab2cf5e53f69efca0c428d5a16e3c9190255822b"
 }

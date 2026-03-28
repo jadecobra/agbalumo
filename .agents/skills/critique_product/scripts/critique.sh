@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
-# Placeholder script for critique_product
-# TODO: Migrate actual logic here after CI/CD Improvements.
+set -e
+
 echo "[ChiefCritic] Executing critique_product skill..."
-exit 0
+./scripts/verify_restart.sh
+
+echo "Note: Before verifying the browser gate, ensure browser_subagent has tested the specific feature AND all existing user journeys in the UI."
+./scripts/agent-exec.sh verify browser-verification
+
+./scripts/agent-exec.sh workflow set-phase IDLE
+./scripts/agent-exec.sh workflow init none
