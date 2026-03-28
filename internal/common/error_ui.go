@@ -2,6 +2,7 @@ package common
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 	"strings"
 
@@ -32,6 +33,7 @@ func RenderImageErrorToast(c echo.Context, err error) error {
 	c.Response().Header().Set("HX-Reswap", "none")
 	c.Response().Header().Set("Content-Type", "text/html")
 
+	// #nosec - toastID and msg are manually escaped below
 	return c.HTML(http.StatusBadRequest, fmt.Sprintf(`
 	<div id="toast-%s" 
 	     class="fixed top-4 right-4 z-50 max-w-sm w-full bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl shadow-lg p-4 flex items-start gap-3 animate-in slide-in-from-top-2 fade-in"
@@ -45,5 +47,9 @@ func RenderImageErrorToast(c echo.Context, err error) error {
 	    <button hx-on:click="this.parentElement.remove()" 
 	            class="text-red-400 hover:text-red-600 dark:hover:text-red-200 transition-colors">
 	        <span class="material-symbols-outlined text-[18px]">close</span>
-	    </div>`, toastID, toastID, msg))
+	    </button>
+	</div>`, 
+	template.HTMLEscapeString(toastID), 
+	template.HTMLEscapeString(toastID), 
+	template.HTMLEscapeString(msg)))
 }

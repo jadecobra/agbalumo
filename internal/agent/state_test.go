@@ -24,7 +24,8 @@ func TestStateSerialization(t *testing.T) {
     "lint": "PENDING",
     "coverage": "PENDING",
     "browser-verification": "PENDING",
-    "template-drift": "PENDING"
+    "template-drift": "PENDING",
+    "security-static": "PENDING"
   },
   "updated_at": "2026-03-15T13:47:32Z",
   "signature": ""
@@ -72,6 +73,7 @@ func TestStateSerialization(t *testing.T) {
 				Coverage:            agent.GatePending,
 				BrowserVerification: agent.GatePending,
 				TemplateDrift:       agent.GatePending,
+				SecurityStatic:      agent.GatePending,
 			},
 			UpdatedAt: time.Date(2026, 3, 16, 12, 0, 0, 0, time.UTC),
 		}
@@ -163,7 +165,8 @@ func TestStateSerialization(t *testing.T) {
     "lint": "PENDING",
     "coverage": "PENDING",
     "browser-verification": "PENDING",
-    "template-drift": "PENDING"
+    "template-drift": "PENDING",
+    "security-static": "PENDING"
   },
   "updated_at": "2026-03-15T13:47:32Z",
   "signature": "ce73463aee24cd8c2ba43dc759bc65bcba172b8c9d0b674bfa0e6f3b55c6ce8e"

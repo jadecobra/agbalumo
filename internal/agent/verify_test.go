@@ -32,9 +32,21 @@ func TestHelperProcess(t *testing.T) {
 }
 
 func TestVerifyImplementation(t *testing.T) {
-	orig := ExecCommand
+	origExec := ExecCommand
+	origLook := LookPath
+	origStat := OSStat
 	ExecCommand = mockExecCommand
-	defer func() { ExecCommand = orig }()
+	LookPath = func(file string) (string, error) {
+		return "golangci-lint", nil
+	}
+	OSStat = func(name string) (os.FileInfo, error) {
+		return nil, os.ErrNotExist
+	}
+	defer func() {
+		ExecCommand = origExec
+		LookPath = origLook
+		OSStat = origStat
+	}()
 
 	recordedCommands = nil
 	if !VerifyImplementation() {
@@ -45,9 +57,9 @@ func TestVerifyImplementation(t *testing.T) {
 		Name string
 		Args []string
 	}{
-		{"go", []string{"vet", "./cmd/...", "./internal/..."}},
-		{"go", []string{"build", "./cmd/...", "./internal/..."}},
-		{"go", []string{"test", "-json", "-coverprofile=.tester/coverage/coverage.out", "./cmd/...", "./internal/..."}},
+		{"golangci-lint", []string{"run", "-c", "scripts/.golangci.yml"}},
+		{"go", []string{"build", "-buildvcs=false", "./cmd/...", "./internal/..."}},
+		{"go", []string{"test", "-buildvcs=false", "-json", "-coverprofile=.tester/coverage/coverage.out", "./internal/agent/..."}},
 	}
 
 	if len(recordedCommands) != len(expected) {
@@ -73,16 +85,21 @@ func TestVerifyImplementation(t *testing.T) {
 func TestVerifyLint(t *testing.T) {
 	origExec := ExecCommand
 	origLook := LookPath
+	origStat := OSStat
 	ExecCommand = mockExecCommand
 	LookPath = func(file string) (string, error) {
 		if file == "golangci-lint" {
-			return "/usr/local/bin/golangci-lint", nil
+			return "golangci-lint", nil
 		}
 		return "", fmt.Errorf("not found")
+	}
+	OSStat = func(name string) (os.FileInfo, error) {
+		return nil, os.ErrNotExist
 	}
 	defer func() {
 		ExecCommand = origExec
 		LookPath = origLook
+		OSStat = origStat
 	}()
 
 	recordedCommands = nil
@@ -117,15 +134,13 @@ func TestVerifyLint(t *testing.T) {
 	}
 }
 
-
-
 func TestVerifyCoverage(t *testing.T) {
 	orig := ExecCommand
 	ExecCommand = mockExecCommand
 	defer func() { ExecCommand = orig }()
 
 	// We just want to call it to increase coverage
-    oldCov := ".tester/coverage/coverage.out"
+	oldCov := ".tester/coverage/coverage.out"
 	// Write a fake coverage file for parsing failure test or pass
 	_ = os.MkdirAll(".tester/coverage", 0755)
 	_ = os.WriteFile(oldCov, []byte("mode: set\n"), 0644)
@@ -133,7 +148,7 @@ func TestVerifyCoverage(t *testing.T) {
 
 	// Since we wrote an empty coverage profile, it will probably fail the threshold check
 	success := VerifyCoverage()
-    fmt.Printf("Coverage result: %v\n", success)
+	fmt.Printf("Coverage result: %v\n", success)
 }
 
 // --- Helper process factories ---

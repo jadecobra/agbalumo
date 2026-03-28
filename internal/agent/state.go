@@ -27,6 +27,7 @@ const (
 	GateCoverage            = "coverage"
 	GateBrowserVerification  = "browser-verification"
 	GateTemplateDrift       = "template-drift"
+	GateSecurityStatic      = "security-static"
 )
 
 
@@ -46,6 +47,7 @@ type Gates struct {
 	Coverage            GateStatus `json:"coverage"`
 	BrowserVerification GateStatus `json:"browser-verification"`
 	TemplateDrift       GateStatus `json:"template-drift"`
+	SecurityStatic      GateStatus `json:"security-static"`
 }
 
 // State represents the contents of .agents/state.json

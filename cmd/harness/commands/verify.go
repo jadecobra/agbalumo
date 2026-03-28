@@ -27,7 +27,7 @@ func VerifyCmd() *cobra.Command {
 
 
 	// Allow drift checks to run without an active feature (useful for CI)
-	isDriftCheck := gateID == agent.GateApiSpec || gateID == agent.GateTemplateDrift
+	isDriftCheck := gateID == agent.GateApiSpec || gateID == agent.GateTemplateDrift || gateID == agent.GateSecurityStatic
 
 	if state.Feature == "" && !isDriftCheck {
 		return fmt.Errorf("no active feature found in state file")
@@ -66,6 +66,8 @@ func VerifyCmd() *cobra.Command {
 				success = agent.VerifyCoverage()
 			case agent.GateTemplateDrift:
 				success = agent.VerifyTemplateDrift()
+			case agent.GateSecurityStatic:
+				success = agent.VerifySecurityStaticGate("cmd", "internal")
 			case agent.GateBrowserVerification:
 				fmt.Println("⚠️  AGENT INSTRUCTION: You must use the browser_subagent tool to verify the UI. Once the subagent finishes and the UI is verified, run: ./scripts/agent-exec.sh workflow gate browser-verification PASS")
 				if state.Gates.BrowserVerification == agent.GatePassed {
@@ -103,6 +105,8 @@ func VerifyCmd() *cobra.Command {
 				state.Gates.Coverage = status
 			case agent.GateTemplateDrift:
 				state.Gates.TemplateDrift = status
+			case agent.GateSecurityStatic:
+				state.Gates.SecurityStatic = status
 			case agent.GateBrowserVerification:
 				// Already handled above
 			}

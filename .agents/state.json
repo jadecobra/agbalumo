@@ -1,8 +1,8 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "go_task_migration_verify_drift",
-  "workflow_type": "refactor",
-  "phase": "IDLE",
+  "feature": "security-static",
+  "workflow_type": "feature",
+  "phase": "REFACTOR",
   "gates": {
     "red-test": "PASSED",
     "api-spec": "PASSED",
@@ -10,8 +10,9 @@
     "lint": "PASSED",
     "coverage": "PASSED",
     "browser-verification": "PASSED",
-    "template-drift": "PASSED"
+    "template-drift": "PASSED",
+    "security-static": "PASSED"
   },
-  "updated_at": "2026-03-27T22:34:56.356448Z",
-  "signature": "9f5aa38a819819b6ef38bca0a7891fcb78835d892fa14e8fa10f578901f3f93c"
+  "updated_at": "2026-03-27T23:42:20.562695Z",
+  "signature": "074d497f12248b8805fa84d340e24a36c49cc8f799c4196338560b5e3a79ddcb"
 }
