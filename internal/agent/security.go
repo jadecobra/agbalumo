@@ -15,6 +15,11 @@ import (
 	"github.com/jadecobra/agbalumo/internal/util"
 )
 
+var (
+	// internalOpen is a hook for testing file operations.
+	internalOpen = util.SafeOpen
+)
+
 // SecurityViolation represents a potential security issue found in the code.
 type SecurityViolation struct {
 	File    string
@@ -127,7 +132,13 @@ func checkFile(path string) ([]SecurityViolation, error) {
 	// For Go files, run AST-based checks
 	if strings.HasSuffix(path, ".go") && !strings.HasSuffix(path, "_test.go") {
 		fset := token.NewFileSet()
-		node, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
+		f, err := internalOpen(path)
+		if err != nil {
+			return violations, err
+		}
+		defer func() { _ = f.Close() }()
+
+		node, err := parser.ParseFile(fset, path, f, parser.ParseComments)
 		if err != nil {
 			return violations, err // Return what we found + error
 		}
@@ -165,11 +176,11 @@ func deduplicateViolations(violations []SecurityViolation) []SecurityViolation {
 
 // checkSecretsRaw scans a file's raw content for regex-based secrets.
 func checkSecretsRaw(path string) ([]SecurityViolation, error) {
-	file, err := util.SafeOpen(path)
+	file, err := internalOpen(path)
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	var violations []SecurityViolation
 	scanner := bufio.NewScanner(file)
@@ -432,11 +443,11 @@ func checkInsecurePatternsGo(node *ast.File, fset *token.FileSet) []SecurityViol
 
 // checkStructuralRaw scans a file for structural security issues using patterns.
 func checkStructuralRaw(path string) ([]SecurityViolation, error) {
-	file, err := util.SafeOpen(path)
+	file, err := internalOpen(path)
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	var violations []SecurityViolation
 	scanner := bufio.NewScanner(file)

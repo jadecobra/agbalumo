@@ -341,7 +341,8 @@
         "Implemented checkInsecurePatternsGo to scan Go string literals for onclick, eval, Function, innerHTML, and Forbidden CDNs",
         "Updated checkFile to integrate AST-based structural checks for Go files",
         "Refactored checkStructuralRaw to delegate to AST for Go files, preventing duplicate reports",
-        "Added modular unit tests in security_ast_test.go covering multiple XSS and JS injection scenarios"
+        "Added modular unit tests in security_ast_test.go covering multiple XSS and JS injection scenarios",
+        "Verify Security.go Migration: Replace all `os.Open` and `os.Read*` calls in internal/agent/security.go with `util.Safe*` equivalents (Completed)"
       ]
     },
     {

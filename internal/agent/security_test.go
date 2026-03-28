@@ -256,3 +256,19 @@ func TestCheckStructuralRaw(t *testing.T) {
 		})
 	}
 }
+func TestCheckFile_UsesSafeOpen(t *testing.T) {
+	called := false
+	orig := internalOpen
+	internalOpen = func(path string) (*os.File, error) {
+		called = true
+		return os.Open(path)
+	}
+	defer func() { internalOpen = orig }()
+
+	tmpDir := t.TempDir()
+	path := filepath.Join(tmpDir, "test.go")
+	_ = os.WriteFile(path, []byte("package main"), 0600)
+
+	_, _ = checkFile(path)
+	assert.True(t, called, "Expected checkFile to use internalOpen hook for Go files")
+}
