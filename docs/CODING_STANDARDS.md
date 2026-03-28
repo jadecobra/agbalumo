@@ -34,6 +34,7 @@
 *   **SecurityEngineer**: Owns `security_test.go` and audits. "Trust but verify."
 *   **UIUXDesigner**: Owns look/feel (HIG/Material 3). Ensures "User Delight" and FCP < 1.0s. Reads browser testing URLs from `.agents/rules/browser-url.md`.
 *   **CulturalModerator**: Ensures content relevance via Gemini. "Validate first."
+*   **ChiefCritic**: Relentless reviewer. Tears down code, architectures, and UI to ensure absolute adherence to 10x standards and high quality UX.
 
 ## 6. Security Best Practices (Zero Trust)
 *   **Input Validation**: Validate ALL inputs at the boundary. No implicit trust.

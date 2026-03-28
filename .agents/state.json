@@ -1,18 +1,18 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "go-task-migration",
+  "feature": "none",
   "workflow_type": "feature",
-  "phase": "REFACTOR",
+  "phase": "IDLE",
   "gates": {
-    "red-test": "PASSED",
-    "api-spec": "PASSED",
-    "implementation": "PASSED",
-    "lint": "PASSED",
-    "coverage": "PASSED",
+    "red-test": "PENDING",
+    "api-spec": "PENDING",
+    "implementation": "PENDING",
+    "lint": "PENDING",
+    "coverage": "PENDING",
     "browser-verification": "PENDING",
     "template-drift": "PENDING",
     "security-static": "PASSED"
   },
-  "updated_at": "2026-03-28T17:23:47.702875Z",
-  "signature": "246401e1f35c202d6d0511662f69d9f0b6950ef7ea33abb7e0d6b6719265e02d"
+  "updated_at": "2026-03-28T18:02:44.462249Z",
+  "signature": "3357bc79b32e3d7a29deb9312c085e48cef6d30e3276ca31619cc938789e347b"
 }

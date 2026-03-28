@@ -328,7 +328,7 @@
     {
       "category": "Go-Task Migration",
       "description": "Replace the 244-line pre-commit.sh shell orchestrator with a declarative Taskfile.yml using go-task, reducing agent context cost from 476 lines to ~80 lines.",
-      "passes": true,
+      "passes": false,
       "steps": [
         "Verify declarative Go-Task orchestration: Ensure Taskfile.yml encapsulates all CI/CD gates, auxiliary tasks, and workflow orchestrations, replaces legacy pre-commit.sh/ci-local.sh scripts, and is verified via `task pre-commit` and `task ci` execution. (Completed)",
         "Verify CI Vulncheck fix: Update `ci:vulncheck` in Taskfile.yml to use a workspace-local GOPATH or temporary writeable cache (Completed)",
@@ -336,7 +336,8 @@
         "Verify Security.go Migration: Replace all `os.Open` and `os.Read*` calls in internal/agent/security.go with `util.Safe*` equivalents (Pending)",
         "Verify Agent Integrity: Run full unit test suite for internal/agent to ensure no regressions in I/O or security scanning (Pending)",
         "Verify AST XSS Expansion: Migrate 'onclick' and 'Dangerous JS' regex checks into AST-based logic in security.go (Pending)",
-        "Verify AST Documentation: Add granular unit tests to security_test.go specifically targeting the newly ported AST-based XSS cases (Pending)"
+        "Verify AST Documentation: Add granular unit tests to security_test.go specifically targeting the newly ported AST-based XSS cases (Pending)",
+        "Verify Security.go Migration: Replace all `os.Open` and `os.Read*` calls in internal/agent/security.go with `util.Safe*` equivalents (Completed)"
       ]
     },
     {

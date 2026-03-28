@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/jadecobra/agbalumo/internal/util"
 )
 
 // SecurityViolation represents a potential security issue found in the code.
@@ -154,7 +156,7 @@ func deduplicateViolations(violations []SecurityViolation) []SecurityViolation {
 
 // checkSecretsRaw scans a file's raw content for regex-based secrets.
 func checkSecretsRaw(path string) ([]SecurityViolation, error) {
-	file, err := os.Open(path)
+	file, err := util.SafeOpen(path)
 	if err != nil {
 		return nil, err
 	}
@@ -385,7 +387,7 @@ func isIgnoredRaw(line string) bool {
 
 // checkStructuralRaw scans a file for structural security issues using patterns.
 func checkStructuralRaw(path string) ([]SecurityViolation, error) {
-	file, err := os.Open(path)
+	file, err := util.SafeOpen(path)
 	if err != nil {
 		return nil, err
 	}

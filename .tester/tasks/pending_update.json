@@ -1,0 +1,10 @@
+{
+  "category": "Architecture & Workflows",
+  "description": "Implemented autonomous developer pipeline with Codelab-inspired skills",
+  "steps": [
+    "Added ChiefCritic persona to agent.yaml",
+    "Created .agents/skills/ folders for design_architecture, make_it_fail, make_it_pass, make_it_better, audit_security, and critique_product",
+    "Generated /build-feature workflow macro to orchestrate the TDD loop",
+    "Added placeholder execution scripts for each new skill module"
+  ]
+}
