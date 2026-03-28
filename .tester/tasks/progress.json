@@ -335,9 +335,13 @@
         "Verify Task ci:security: Run `task ci:security` and ensure it passes all dependencies (vulncheck + harness) in the current environment (Completed)",
         "Verify Security.go Migration: Replace all `os.Open` and `os.Read*` calls in internal/agent/security.go with `util.Safe*` equivalents (Pending)",
         "Verify Agent Integrity: Run full unit test suite for internal/agent to ensure no regressions in I/O or security scanning (Pending)",
-        "Verify AST XSS Expansion: Migrate 'onclick' and 'Dangerous JS' regex checks into AST-based logic in security.go (Pending)",
+        "Verify AST XSS Expansion: Migrate 'onclick', 'Dangerous JS', and 'Forbidden CDN' regex checks into AST-based logic in security.go (Pending)",
         "Verify AST Documentation: Add granular unit tests to security_test.go specifically targeting the newly ported AST-based XSS cases (Pending)",
-        "Verify Security.go Migration: Replace all `os.Open` and `os.Read*` calls in internal/agent/security.go with `util.Safe*` equivalents (Completed)"
+        "Verify Security.go Migration: Replace all `os.Open` and `os.Read*` calls in internal/agent/security.go with `util.Safe*` equivalents (Completed)",
+        "Implemented checkInsecurePatternsGo to scan Go string literals for onclick, eval, Function, innerHTML, and Forbidden CDNs",
+        "Updated checkFile to integrate AST-based structural checks for Go files",
+        "Refactored checkStructuralRaw to delegate to AST for Go files, preventing duplicate reports",
+        "Added modular unit tests in security_ast_test.go covering multiple XSS and JS injection scenarios"
       ]
     },
     {

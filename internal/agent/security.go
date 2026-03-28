@@ -39,12 +39,20 @@ var (
 	}
 
 	// Structural security patterns (Check for insecure coding practices)
+	// Some of these are split into AST-based checks for .go files to improve precision.
 	structuralPatterns = map[string]*regexp.Regexp{
 		"Insecure Handler":   regexp.MustCompile(`onclick\s*=`),
 		"Dangerous JS":      regexp.MustCompile(`(eval\(|Function\(|innerHTML\s*=)`),
 		"Forbidden CDN":     regexp.MustCompile(`https?://(unpkg\.com|cdn\.jsdelivr\.net|cdn\.tailwindcss\.com|jsdelivr\.net)`),
 		"Hardcoded OAuth":   regexp.MustCompile(`GetAuthCodeURL\(["'][^"']+["']`),
 		"Gosec NoRationale": regexp.MustCompile(`//\s*#nosec\s*($|\n|[^a-zA-Z0-9 ])`),
+	}
+
+	// patterns for AST-based checks in Go string literals
+	insecureGoPatterns = map[string]*regexp.Regexp{
+		"Insecure Handler": regexp.MustCompile(`onclick\s*=`),
+		"Dangerous JS":     regexp.MustCompile(`(eval\(|Function\(|innerHTML\s*=)`),
+		"Forbidden CDN":    regexp.MustCompile(`https?://(unpkg\.com|cdn\.jsdelivr\.net|cdn\.tailwindcss\.com|jsdelivr\.net)`),
 	}
 
 	// File-type specific patterns
@@ -126,6 +134,7 @@ func checkFile(path string) ([]SecurityViolation, error) {
 
 		violations = append(violations, checkSQLi(node, fset)...)
 		violations = append(violations, checkXSS(node, fset)...)
+		violations = append(violations, checkInsecurePatternsGo(node, fset)...)
 		violations = append(violations, checkEntropyGo(node, fset)...)
 	}
 
@@ -385,6 +394,42 @@ func isIgnoredRaw(line string) bool {
 	return strings.Contains(line, "#nosec") || strings.Contains(line, "antigravity:allow")
 }
 
+// checkInsecurePatternsGo scans Go string literals for insecure patterns using AST.
+func checkInsecurePatternsGo(node *ast.File, fset *token.FileSet) []SecurityViolation {
+	var violations []SecurityViolation
+
+	ast.Inspect(node, func(n ast.Node) bool {
+		lit, ok := n.(*ast.BasicLit)
+		if !ok || lit.Kind != token.STRING {
+			return true
+		}
+
+		// Clean string literal (handle both regular and backticks)
+		val := lit.Value
+		if len(val) >= 2 {
+			if (val[0] == '"' && val[len(val)-1] == '"') || (val[0] == '`' && val[len(val)-1] == '`') {
+				val = val[1 : len(val)-1]
+			}
+		}
+
+		for name, re := range insecureGoPatterns {
+			if re.MatchString(val) && !isIgnored(n, node, fset) {
+				pos := fset.Position(lit.Pos())
+				violations = append(violations, SecurityViolation{
+					File:    pos.Filename,
+					Line:    pos.Line,
+					Column:  pos.Column,
+					Type:    "Structural",
+					Message: fmt.Sprintf("Insecure pattern found in Go string: %s", name),
+				})
+			}
+		}
+		return true
+	})
+
+	return violations
+}
+
 // checkStructuralRaw scans a file for structural security issues using patterns.
 func checkStructuralRaw(path string) ([]SecurityViolation, error) {
 	file, err := util.SafeOpen(path)
@@ -407,6 +452,13 @@ func checkStructuralRaw(path string) ([]SecurityViolation, error) {
 
 		// Check global structural patterns
 		for name, re := range structuralPatterns {
+			// Skip specific checks for .go files if they are handled by AST
+			if ext == ".go" {
+				if _, exists := insecureGoPatterns[name]; exists {
+					continue
+				}
+			}
+
 			if re.MatchString(line) {
 				violations = append(violations, SecurityViolation{
 					File:    path,
