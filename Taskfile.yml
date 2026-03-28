@@ -1,5 +1,9 @@
 version: '3'
 
+env:
+  GOPATH: '{{.TASKFILE_DIR}}/.tester/tmp/go'
+  GOCACHE: '{{.TASKFILE_DIR}}/.tester/tmp/gocache'
+
 vars:
   STAGED_GO:
     sh: git diff --cached --name-only --diff-filter=ACMR | grep '\.go$' || true
@@ -105,9 +109,6 @@ tasks:
     desc: Run govulncheck vulnerability scan on staged Go files
     status:
       - '[ -z "{{.STAGED_GO}}" ]'
-    env:
-      GOPATH: '{{.USER_WORKING_DIR}}/.tester/tmp/go'
-      GOCACHE: '{{.USER_WORKING_DIR}}/.tester/tmp/gocache'
     cmds:
       - go install golang.org/x/vuln/cmd/govulncheck@latest
       - ./.tester/tmp/go/bin/govulncheck ./...
@@ -174,9 +175,6 @@ tasks:
 
   ci:vulncheck:
     desc: Run full govulncheck vulnerability scan
-    env:
-      GOPATH: '{{.TASKFILE_DIR}}/.tester/tmp/go'
-      GOCACHE: '{{.TASKFILE_DIR}}/.tester/tmp/gocache'
     cmds:
       - go install golang.org/x/vuln/cmd/govulncheck@latest
       - ./.tester/tmp/go/bin/govulncheck ./...

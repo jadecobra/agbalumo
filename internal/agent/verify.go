@@ -33,7 +33,7 @@ func VerifySecurityStaticGate(paths ...string) bool {
 		return true
 	}
 
-	limit := 5
+	limit := 1
 	fmt.Printf("❌ Gate FAIL: %d security violations detected (showing first %d).\n", len(allViolations), limit)
 	for i, v := range allViolations {
 		if i >= limit {
@@ -163,7 +163,16 @@ func VerifyApiSpec(workflowType string) bool {
 		return false
 	}
 
-	openapiData, err := RunCommand("npx", "-y", "swagger-cli", "bundle", "docs/openapi.yaml", "-r", "-t", "yaml")
+	// Use a local npm cache to avoid permission issues in CI/CD or restricted environments
+	npmCache := filepath.Join(".tester", "tmp", "npm_cache")
+	_ = util.SafeMkdir(npmCache)
+	
+	cmd := ExecCommand("npx", "-y", "swagger-cli", "bundle", "docs/openapi.yaml", "-r", "-t", "yaml")
+	if cmd.Env == nil {
+		cmd.Env = os.Environ()
+	}
+	cmd.Env = append(cmd.Env, "NPM_CONFIG_CACHE="+npmCache)
+	openapiData, err := cmd.CombinedOutput()
 	if err != nil {
 		fmt.Println("Error bundling docs/openapi.yaml:", err)
 		return false
@@ -244,7 +253,7 @@ func VerifyImplementation() bool {
 		fmt.Println("❌ Gate FAIL: implementation tests failed.")
 		res, parseErr := ParseTestJSON(bytes.NewReader(testOut))
 		if parseErr == nil && len(res.Failures) > 0 {
-			SummarizeTestFailures(res.Failures, 3)
+			SummarizeTestFailures(res.Failures, 1)
 		} else if len(testOut) > 0 {
 			fmt.Println("--- RAW TEST OUTPUT (TRUNCATED) ---")
 			lines := strings.Split(string(testOut), "\n")
