@@ -20,6 +20,7 @@ certs/
 *.out
 .idea/
 .vscode/
+.npm/
 # Node
 node_modules/
 *.log
@@ -36,6 +37,7 @@ pnpm-lock.yaml
 .sisyphus/
 logs/
 .cache/
+.tester/tmp/
 .tester/servers
 .tester/samples
 .tester/data

@@ -25,7 +25,7 @@ echo "Checking for mandatory rationale in // #nosec directives..."
 # We also want to catch ones that have something after but no hyphen
 # So we search for all #nosec and then filter out those that have a hyphen
 
-INVALID_DIRECTIVES=$(grep -rE "//\s*#nosec" "$SEARCH_PATH" --include="*.go" --exclude-dir=".tester" | grep -vE " - | -- " || true)
+INVALID_DIRECTIVES=$(grep -rE "//\s*#nosec" "$SEARCH_PATH" --include="*.go" --exclude-dir=".tester" --exclude-dir=".go" --exclude-dir="tmp" --exclude-dir="vendor" | grep -vE " - | -- " || true)
 
 if [ -n "$INVALID_DIRECTIVES" ]; then
     echo -e "${RED}❌ Error: Found // #nosec directives without a mandatory rationale comment.${NC}"

@@ -99,15 +99,18 @@ tasks:
     env:
       USE_CONTAINER: '{{.CONTAINER}}'
     cmds:
-      - sh scripts/security-check.sh
+      - ./scripts/agent-exec.sh verify security-static
 
   vulncheck:
     desc: Run govulncheck vulnerability scan on staged Go files
     status:
       - '[ -z "{{.STAGED_GO}}" ]'
+    env:
+      GOPATH: '{{.USER_WORKING_DIR}}/.tester/tmp/go'
+      GOCACHE: '{{.USER_WORKING_DIR}}/.tester/tmp/gocache'
     cmds:
-      - command -v govulncheck >/dev/null 2>&1 || go install golang.org/x/vuln/cmd/govulncheck@latest
-      - $(go env GOPATH)/bin/govulncheck ./...
+      - go install golang.org/x/vuln/cmd/govulncheck@latest
+      - ./.tester/tmp/go/bin/govulncheck ./...
 
   perf:
     desc: Run performance audit on staged performance-sensitive files
@@ -167,13 +170,16 @@ tasks:
     deps:
       - task: ci:vulncheck
     cmds:
-      - sh scripts/security-check.sh
+      - ./scripts/agent-exec.sh verify security-static --text
 
   ci:vulncheck:
     desc: Run full govulncheck vulnerability scan
+    env:
+      GOPATH: '{{.TASKFILE_DIR}}/.tester/tmp/go'
+      GOCACHE: '{{.TASKFILE_DIR}}/.tester/tmp/gocache'
     cmds:
-      - command -v govulncheck >/dev/null 2>&1 || go install golang.org/x/vuln/cmd/govulncheck@latest
-      - $(go env GOPATH)/bin/govulncheck ./...
+      - go install golang.org/x/vuln/cmd/govulncheck@latest
+      - ./.tester/tmp/go/bin/govulncheck ./...
 
   ci:api-drift:
     desc: Run full API drift check via harness

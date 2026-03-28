@@ -50,8 +50,11 @@ jobs:
         with:
           go-version-file: go.mod
 
-      - name: Pattern Checks (security-check.sh)
-        run: sh scripts/security-check.sh --full
+      - name: Install Task
+        uses: arduino/setup-task@b9ed8b34f8a84c3563456885eb0515156a6451df # v2.1.0
+
+      - name: Pattern Checks (verify security-static)
+        run: task ci:security
 
   test:
     name: Tests & Coverage
@@ -68,26 +71,14 @@ jobs:
           go-version: '1.26.1'
           cache: true
 
+      - name: Install Task
+        uses: arduino/setup-task@b9ed8b34f8a84c3563456885eb0515156a6451df # v2.1.0
+
       - name: Run Tests with Coverage
-        run: |
-          mkdir -p .tester/data .tester/coverage
-          go test -race -count=1 -coverprofile=.tester/coverage/coverage.out ./...
-          go tool cover -func=.tester/coverage/coverage.out
+        run: task ci:test
 
       - name: Enforce Coverage Threshold
-        run: |
-          COVERAGE=$(go tool cover -func=.tester/coverage/coverage.out | awk '/^total:/ {print substr($3, 1, length($3)-1)}')
-          THRESHOLD_FILE=".agents/coverage-threshold"
-          THRESHOLD=90.0
-          if [ -f "$THRESHOLD_FILE" ]; then
-            THRESHOLD=$(cat "$THRESHOLD_FILE")
-          fi
-          echo "Coverage: $COVERAGE%, Required: $THRESHOLD%"
-          if awk "BEGIN {exit !($COVERAGE < $THRESHOLD)}"; then
-            echo "❌ Coverage is below $THRESHOLD%"
-            exit 1
-          fi
-          echo "✅ Coverage check passed"
+        run: task threshold
 
       - name: Verify Coverage Threshold Anti-Degradation
         run: |

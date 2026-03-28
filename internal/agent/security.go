@@ -1,12 +1,15 @@
 package agent
 
 import (
+	"bufio"
 	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"math"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -23,6 +26,31 @@ func (v SecurityViolation) String() string {
 	return fmt.Sprintf("%s:%d:%d: [%s] %s", v.File, v.Line, v.Column, v.Type, v.Message)
 }
 
+var (
+	// Common secret patterns
+	secretPatterns = map[string]*regexp.Regexp{
+		"AWS Access Key": regexp.MustCompile(`AKIA[0-9A-Z]{16}`),
+		"AWS Secret Key": regexp.MustCompile(`(?i)aws(.{0,20})?['"][0-9a-zA-Z/+]{40}['"]`),
+		"Slack Webhook":  regexp.MustCompile(`https://hooks\.slack\.com/services/T[a-zA-Z0-9_]+/B[a-zA-Z0-9_]+/[a-zA-Z0-9_]+`),
+		"Private Key":    regexp.MustCompile(`-----BEGIN [A-Z ]+ PRIVATE KEY-----`),
+		"Generic Secret": regexp.MustCompile(`(?i)(password|secret|key|token|access_token|authorization|auth)\s*[:=]\s*["'][^"']{4,}["']`),
+	}
+
+	// Structural security patterns (Check for insecure coding practices)
+	structuralPatterns = map[string]*regexp.Regexp{
+		"Insecure Handler":   regexp.MustCompile(`onclick\s*=`),
+		"Dangerous JS":      regexp.MustCompile(`(eval\(|Function\(|innerHTML\s*=)`),
+		"Forbidden CDN":     regexp.MustCompile(`https?://(unpkg\.com|cdn\.jsdelivr\.net|cdn\.tailwindcss\.com|jsdelivr\.net)`),
+		"Hardcoded OAuth":   regexp.MustCompile(`GetAuthCodeURL\(["'][^"']+["']`),
+		"Gosec NoRationale": regexp.MustCompile(`//\s*#nosec\s*($|\n|[^a-zA-Z0-9 ])`),
+	}
+
+	// File-type specific patterns
+	htmlPatterns = map[string]*regexp.Regexp{
+		"Inline Script": regexp.MustCompile(`(?i)<script`),
+	}
+)
+
 // VerifySecurityStatic runs static analysis checkers for security vulnerabilities.
 func VerifySecurityStatic(root string) ([]SecurityViolation, error) {
 	var allViolations []SecurityViolation
@@ -32,18 +60,36 @@ func VerifySecurityStatic(root string) ([]SecurityViolation, error) {
 			return err
 		}
 
-		// Skip directories, non-Go files, and hidden files/vendor
-		if info.IsDir() || !strings.HasSuffix(path, ".go") || strings.Contains(path, "/.") || strings.Contains(path, "/vendor/") {
+		// Skip directories, vendor, node_modules. 
+		// Skip hidden directories but allow hidden files like .env.
+		// Skip test files to avoid false positives from dummy credentials.
+		if info.IsDir() {
+			if strings.HasPrefix(info.Name(), ".") && info.Name() != "." {
+				return filepath.SkipDir
+			}
 			return nil
 		}
 
-		// Skip tests
-		if strings.HasSuffix(path, "_test.go") {
+		if strings.Contains(path, "/vendor/") || strings.Contains(path, "/node_modules/") || strings.HasSuffix(path, "_test.go") {
 			return nil
 		}
+
+		// Skip binary files and large assets
+		ext := strings.ToLower(filepath.Ext(path))
+		if ext == ".png" || ext == ".jpg" || ext == ".jpeg" || ext == ".gif" || ext == ".pdf" || ext == ".exe" || ext == ".bin" {
+			return nil
+		}
+
+		// Skip tests for structural checks, but scan them for secrets?
+		// Usually we skip tests to avoid false positives in code patterns, but secrets in tests are still bad.
+		// However, to keep it consistent with existing checkFile, we'll handle tests there.
 
 		violations, err := checkFile(path)
 		if err != nil {
+			// If it's not a Go file and failed to check, just continue (e.g. binary we missed)
+			if !strings.HasSuffix(path, ".go") {
+				return nil
+			}
 			return fmt.Errorf("failed to check file %s: %w", path, err)
 		}
 
@@ -55,17 +101,155 @@ func VerifySecurityStatic(root string) ([]SecurityViolation, error) {
 }
 
 func checkFile(path string) ([]SecurityViolation, error) {
-	fset := token.NewFileSet()
-	node, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
+	var violations []SecurityViolation
+
+	// Always run secret and structural scanning on raw text first
+	rawViolations, err := checkSecretsRaw(path)
+	if err == nil {
+		violations = append(violations, rawViolations...)
+	}
+
+	structuralViolations, err := checkStructuralRaw(path)
+	if err == nil {
+		violations = append(violations, structuralViolations...)
+	}
+
+	// For Go files, run AST-based checks
+	if strings.HasSuffix(path, ".go") && !strings.HasSuffix(path, "_test.go") {
+		fset := token.NewFileSet()
+		node, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
+		if err != nil {
+			return violations, err // Return what we found + error
+		}
+
+		violations = append(violations, checkSQLi(node, fset)...)
+		violations = append(violations, checkXSS(node, fset)...)
+		violations = append(violations, checkEntropyGo(node, fset)...)
+	}
+
+	// Deduplicate violations on the same line and file
+	return deduplicateViolations(violations), nil
+}
+
+func deduplicateViolations(violations []SecurityViolation) []SecurityViolation {
+	seen := make(map[string]SecurityViolation)
+	var lines []string
+	for _, v := range violations {
+		key := fmt.Sprintf("%s:%d", v.File, v.Line)
+		existing, ok := seen[key]
+		if !ok {
+			seen[key] = v
+			lines = append(lines, key)
+		} else if existing.Type == "Entropy" && v.Type == "Secret" {
+			// Prioritize "Secret" over "Entropy" for the same line
+			seen[key] = v
+		}
+	}
+	var unique []SecurityViolation
+	for _, key := range lines {
+		unique = append(unique, seen[key])
+	}
+	return unique
+}
+
+// checkSecretsRaw scans a file's raw content for regex-based secrets.
+func checkSecretsRaw(path string) ([]SecurityViolation, error) {
+	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
+	defer file.Close()
 
 	var violations []SecurityViolation
-	violations = append(violations, checkSQLi(node, fset)...)
-	violations = append(violations, checkXSS(node, fset)...)
+	scanner := bufio.NewScanner(file)
+	lineNum := 1
+	for scanner.Scan() {
+		line := scanner.Text()
+		if isIgnoredRaw(line) {
+			lineNum++
+			continue
+		}
 
-	return violations, nil
+		for name, re := range secretPatterns {
+			if re.MatchString(line) {
+				violations = append(violations, SecurityViolation{
+					File:    path,
+					Line:    lineNum,
+					Column:  1,
+					Type:    "Secret",
+					Message: fmt.Sprintf("Potential secret found (%s)", name),
+				})
+			}
+		}
+		lineNum++
+	}
+
+	return violations, scanner.Err()
+}
+
+// checkEntropyGo scans AST string literals for high entropy.
+func checkEntropyGo(node *ast.File, fset *token.FileSet) []SecurityViolation {
+	var violations []SecurityViolation
+
+	ast.Inspect(node, func(n ast.Node) bool {
+		lit, ok := n.(*ast.BasicLit)
+		if !ok || lit.Kind != token.STRING {
+			return true
+		}
+
+		val := strings.Trim(lit.Value, "\"`")
+		trimmed := strings.TrimSpace(val)
+		upper := strings.ToUpper(trimmed)
+		isSQL := strings.HasPrefix(upper, "SELECT") ||
+			strings.HasPrefix(upper, "INSERT") ||
+			strings.HasPrefix(upper, "UPDATE") ||
+			strings.HasPrefix(upper, "DELETE") ||
+			strings.HasPrefix(upper, "CREATE") ||
+			strings.HasPrefix(upper, "DROP") ||
+			strings.HasPrefix(upper, "ALTER") ||
+			strings.HasPrefix(upper, "WITH") ||
+			strings.HasPrefix(upper, "PRAGMA") ||
+			strings.Contains(upper, "TABLE") ||
+			strings.Contains(upper, "JOIN") ||
+			strings.Contains(upper, "GROUP BY")
+		isURL := strings.HasPrefix(trimmed, "http://") || strings.HasPrefix(trimmed, "https://")
+		isSentence := strings.Count(trimmed, " ") > 5
+		if len(val) >= 40 && calculateEntropy(val) > 5.0 && !isSQL && !isURL && !isSentence {
+			if !isIgnored(n, node, fset) {
+				pos := fset.Position(lit.Pos())
+				violations = append(violations, SecurityViolation{
+					File:    pos.Filename,
+					Line:    pos.Line,
+					Column:  pos.Column,
+					Type:    "Entropy",
+					Message: "High entropy string detected (potential secret)",
+				})
+			}
+		}
+		return true
+	})
+
+	return violations
+}
+
+// calculateEntropy returns the Shannon entropy of a string.
+func calculateEntropy(s string) float64 {
+	if len(s) == 0 {
+		return 0
+	}
+
+	counts := make(map[rune]int)
+	for _, r := range s {
+		counts[r]++
+	}
+
+	var entropy float64
+	for _, count := range counts {
+		p := float64(count) / float64(len(s))
+		entropy -= p * math.Log2(p)
+	}
+
+	return entropy
 }
 
 // checkSQLi inspects a file for potential SQL injection vulnerabilities.
@@ -193,4 +377,68 @@ func isIgnored(n ast.Node, file *ast.File, fset *token.FileSet) bool {
 		}
 	}
 	return false
+}
+
+func isIgnoredRaw(line string) bool {
+	return strings.Contains(line, "#nosec") || strings.Contains(line, "antigravity:allow")
+}
+
+// checkStructuralRaw scans a file for structural security issues using patterns.
+func checkStructuralRaw(path string) ([]SecurityViolation, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	var violations []SecurityViolation
+	scanner := bufio.NewScanner(file)
+	lineNum := 1
+	ext := strings.ToLower(filepath.Ext(path))
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if isIgnoredRaw(line) {
+			lineNum++
+			continue
+		}
+
+		// Check global structural patterns
+		for name, re := range structuralPatterns {
+			if re.MatchString(line) {
+				violations = append(violations, SecurityViolation{
+					File:    path,
+					Line:    lineNum,
+					Column:  1,
+					Type:    "Structural",
+					Message: fmt.Sprintf("Insecure pattern found: %s", name),
+				})
+			}
+		}
+
+		// Check HTML-specific patterns
+		if ext == ".html" {
+			for name, re := range htmlPatterns {
+				if re.MatchString(line) {
+					// Special handling for Inline Script: Check if it's NOT an external script
+					if name == "Inline Script" {
+						if strings.Contains(strings.ToLower(line), "src=") {
+							continue
+						}
+					}
+					violations = append(violations, SecurityViolation{
+						File:    path,
+						Line:    lineNum,
+						Column:  1,
+						Type:    "Structural",
+						Message: fmt.Sprintf("HTML security issue: %s", name),
+					})
+				}
+			}
+		}
+
+		lineNum++
+	}
+
+	return violations, scanner.Err()
 }

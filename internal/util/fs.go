@@ -4,9 +4,9 @@ import (
 	"os"
 )
 
-// SafeMkdir creates a directory with 0750 permissions.
+// SafeMkdir creates a directory with 0755 permissions.
 func SafeMkdir(path string) error {
-	return os.MkdirAll(path, 0750)
+	return os.MkdirAll(path, 0755)
 }
 
 // SafeRename renames a file safely.
@@ -14,9 +14,9 @@ func SafeRename(oldpath, newpath string) error {
 	return os.Rename(oldpath, newpath)
 }
 
-// SafeWriteFile writes a file with 0600 permissions.
+// SafeWriteFile writes a file with 0644 permissions.
 func SafeWriteFile(filename string, data []byte) error {
-	return os.WriteFile(filename, data, 0600)
+	return os.WriteFile(filename, data, 0644)
 }
 
 // SafeRemove removes a file safely.

@@ -24,8 +24,8 @@ func TestSafeMkdir(t *testing.T) {
 	}
 
 	mode := info.Mode().Perm()
-	if mode != 0750 {
-		t.Errorf("Expected mode 0750, got %v", mode)
+	if mode != 0755 {
+		t.Errorf("Expected mode 0755, got %v", mode)
 	}
 }
 
@@ -45,8 +45,8 @@ func TestSafeWriteFile(t *testing.T) {
 	}
 
 	mode := info.Mode().Perm()
-	if mode != 0600 {
-		t.Errorf("Expected mode 0600, got %v", mode)
+	if mode != 0644 {
+		t.Errorf("Expected mode 0644, got %v", mode)
 	}
 
 	content, err := os.ReadFile(filename)

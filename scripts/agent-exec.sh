@@ -9,4 +9,4 @@ if [ "$1" == "workflow" ]; then
     shift
 fi
 
-go run cmd/harness/main.go "$@"
+GOPATH="${PWD}/.tester/tmp/go" GOCACHE="${PWD}/.tester/tmp/gocache" go run cmd/harness/main.go "$@"

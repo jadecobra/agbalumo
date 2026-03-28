@@ -33,8 +33,13 @@ func VerifySecurityStaticGate(paths ...string) bool {
 		return true
 	}
 
-	fmt.Printf("❌ Gate FAIL: %d security violations detected.\n", len(allViolations))
-	for _, v := range allViolations {
+	limit := 5
+	fmt.Printf("❌ Gate FAIL: %d security violations detected (showing first %d).\n", len(allViolations), limit)
+	for i, v := range allViolations {
+		if i >= limit {
+			fmt.Printf("... and %d more violations.\n", len(allViolations)-limit)
+			break
+		}
 		fmt.Printf("  [%s] %s:%d:%d: %s\n", v.Type, v.File, v.Line, v.Column, v.Message)
 	}
 	return false
@@ -140,11 +145,7 @@ func VerifyRedTest(pattern string) bool {
 			return true
 		} else {
 			fmt.Printf("Gate FAIL: %s failed but pattern '%s' not found in output.\n", GateRedTest, outputPattern)
-			fmt.Println("--- TEST FAILURES ---")
-			for _, fail := range res.Failures {
-				fmt.Println(fail.TestName, ":")
-				fmt.Println(fail.Output)
-			}
+			SummarizeTestFailures(res.Failures, 1) // Only show 1 for red-test
 			return false
 		}
 	}
@@ -238,19 +239,21 @@ func VerifyImplementation() bool {
 	fmt.Println("Running tests...")
 	_ = util.SafeMkdir(filepath.Join(".tester", "coverage"))
 	covFile := filepath.Join(".tester", "coverage", "coverage.out")
-	testOut, err := RunCommand("go", "test", "-buildvcs=false", "-json", "-coverprofile="+covFile, "./internal/agent/...")
-	if err != nil {
+	testOut, testErr := RunCommand("go", "test", "-buildvcs=false", "-json", "-coverprofile="+covFile, "./internal/agent/...")
+	if testErr != nil {
 		fmt.Println("❌ Gate FAIL: implementation tests failed.")
 		res, parseErr := ParseTestJSON(bytes.NewReader(testOut))
 		if parseErr == nil && len(res.Failures) > 0 {
-			fmt.Println("--- TEST FAILURES ---")
-			for _, fail := range res.Failures {
-				fmt.Println(fail.TestName, ":")
-				fmt.Println(fail.Output)
+			SummarizeTestFailures(res.Failures, 3)
+		} else if len(testOut) > 0 {
+			fmt.Println("--- RAW TEST OUTPUT (TRUNCATED) ---")
+			lines := strings.Split(string(testOut), "\n")
+			if len(lines) > 20 {
+				fmt.Println(strings.Join(lines[:20], "\n"))
+				fmt.Printf("... truncated %d lines ...\n", len(lines)-20)
+			} else {
+				fmt.Println(string(testOut))
 			}
-		} else {
-			fmt.Println("--- RAW TEST OUTPUT ---")
-			fmt.Println(string(testOut))
 		}
 		return false
 	}
@@ -511,4 +514,20 @@ func CheckTemplateDrift(defined, used []string) []string {
 		}
 	}
 	return drifts
+}
+func SummarizeTestFailures(failures []TestFailure, max int) {
+	if len(failures) == 0 {
+		return
+	}
+	fmt.Println("--- TEST FAILURES ---")
+	limit := len(failures)
+	if limit > max {
+		limit = max
+	}
+	for i := 0; i < limit; i++ {
+		fmt.Printf("❌ %s:\n%s\n", failures[i].TestName, failures[i].Output)
+	}
+	if len(failures) > max {
+		fmt.Printf("... and %d more failures.\n", len(failures)-max)
+	}
 }

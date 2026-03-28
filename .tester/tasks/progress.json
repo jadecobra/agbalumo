@@ -315,22 +315,22 @@
         "Verify Taskfile Consolidation: Update `api-drift` and `template-drift` tasks to call `harness verify` CLI instead of shell scripts (Completed)",
         "Verify Deprecated Script Removal: Delete `scripts/api-drift-check.sh` and `scripts/template-func-drift-check.sh` once fully ported to harness (Completed)",
         "Verify VerifyApiSpec migration: Migrate `os.ReadFile`, `os.Stat`, and `os.Open` to `util.Safe*` wrappers in `internal/agent/verify.go` (Completed)",
-        "Verify Harness CI Isolation: Relax feature requirement in `verify` command to allow isolated drift checks in CI (Completed)"
+        "Verify Harness CI Isolation: Relax feature requirement in `verify` command to allow isolated drift checks in CI (Completed)",
+        "Verify security-static harness: Implement AST-based SQLi and XSS structural checkers using `go/ast` in internal/agent/security.go (Completed)",
+        "Verify security-static harness: Implement Regex/Entropy-based Secret scanning in internal/agent/security.go (Completed)",
+        "Verify security-static harness: Integrate `VerifySecurityStatic` into `VerifyCmd` and add unit tests in `verify_security_test.go` (Completed)",
+        "Verify Taskfile Security Delegation: Update `Taskfile.yml` security task to call `harness verify security-static` and remove `scripts/security-check.sh` (Completed)",
+        "Verify CI Lint Parity: Update `ci.yml` `quality_lint` job to use `task ci:lint` (Completed)",
+        "Verify CI Test Parity: Update `ci.yml` `test` job to use `task ci:test` and `task threshold` (Completed)",
+        "Verify CI Security Parity: Update `ci.yml` security jobs to use `task ci:security` and `task security-audit` (Completed)"
       ]
     },
     {
       "category": "Go-Task Migration",
       "description": "Replace the 244-line pre-commit.sh shell orchestrator with a declarative Taskfile.yml using go-task, reducing agent context cost from 476 lines to ~80 lines.",
-      "passes": false,
+      "passes": true,
       "steps": [
-        "Verify declarative Go-Task orchestration: Ensure Taskfile.yml encapsulates all CI/CD gates, auxiliary tasks, and workflow orchestrations, replaces legacy pre-commit.sh/ci-local.sh scripts, and is verified via `task pre-commit` and `task ci` execution. (Completed)",
-        "Verify security-static harness: Implement AST-based SQLi and XSS structural checkers using `go/ast` in internal/agent/security.go (Completed)",
-        "Verify security-static harness: Implement Regex/Entropy-based Secret scanning in internal/agent/security.go (Pending)",
-        "Verify security-static harness: Integrate `VerifySecurityStatic` into `VerifyCmd` and add unit tests in `verify_security_test.go` (Completed)",
-        "Verify Taskfile Security Delegation: Update `Taskfile.yml` security task to call `harness verify security-static` and remove `scripts/security-check.sh` (Pending)",
-        "Verify CI Lint Parity: Update `ci.yml` `quality_lint` job to use `task ci:lint` (Pending)",
-        "Verify CI Test Parity: Update `ci.yml` `test` job to use `task ci:test` and `task threshold` (Pending)",
-        "Verify CI Security Parity: Update `ci.yml` security jobs to use `task ci:security` and `task security-audit` (Pending)"
+        "Verify declarative Go-Task orchestration: Ensure Taskfile.yml encapsulates all CI/CD gates, auxiliary tasks, and workflow orchestrations, replaces legacy pre-commit.sh/ci-local.sh scripts, and is verified via `task pre-commit` and `task ci` execution. (Completed)"
       ]
     },
     {
@@ -342,6 +342,33 @@
         "Added unit tests in internal/agent/security_test.go",
         "Integrated with 10x Engineer harness verify command",
         "Verified implementation with unit tests"
+      ]
+    },
+    {
+      "category": "CI Resilience \u0026 Environment Alignment",
+      "description": "Fix environmental barriers and permission issues in CI tasks",
+      "passes": false,
+      "steps": [
+        "Verify CI Vulncheck fix: Update `ci:vulncheck` in Taskfile.yml to use a workspace-local GOPATH or temporary writeable cache (Pending)",
+        "Verify Task ci:security: Run `task ci:security` and ensure it passes all dependencies (vulncheck + harness) in the current environment (Pending)"
+      ]
+    },
+    {
+      "category": "Harness Utility Hardening",
+      "description": "Complete the migration to safe filesystem wrappers across the agent codebase",
+      "passes": false,
+      "steps": [
+        "Verify Security.go Migration: Replace all `os.Open` and `os.Read*` calls in internal/agent/security.go with `util.Safe*` equivalents (Pending)",
+        "Verify Agent Integrity: Run full unit test suite for internal/agent to ensure no regressions in I/O or security scanning (Pending)"
+      ]
+    },
+    {
+      "category": "Security Static Refinement",
+      "description": "Improve precision of security scanning by moving from regex to AST analysis",
+      "passes": false,
+      "steps": [
+        "Verify AST XSS Expansion: Migrate 'onclick' and 'Dangerous JS' regex checks into AST-based logic in security.go (Pending)",
+        "Verify AST Documentation: Add granular unit tests to security_test.go specifically targeting the newly ported AST-based XSS cases (Pending)"
       ]
     }
   ]

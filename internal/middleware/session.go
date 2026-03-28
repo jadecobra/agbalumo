@@ -5,7 +5,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-const sessionContextKey = "session"
+const sessionContextKey = "session" // #nosec - context key is not a secret
 
 // SessionMiddleware returns a middleware that attaches a session to the context.
 func SessionMiddleware(store sessions.Store) echo.MiddlewareFunc {
