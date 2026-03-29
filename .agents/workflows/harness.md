@@ -43,5 +43,5 @@ Every command should be run via the wrapper script to ensure correct environment
 
 - **Strict Sequence**: You cannot verify `implementation` until `red-test` and `api-spec` are `PASS`.
 - **Auto-Transition**: Successfully passing all gates in a phase will automatically transition the state to the next phase.
-- **Progress Tracking**: Before verifying `implementation`, you MUST create `.tester/tasks/pending_update.json` to update the project's global `progress.json`.
+- **Progress Tracking**: Before verifying `implementation`, you MUST create `.tester/tasks/pending_update.md` to update the project's global `progress.md`.
 - **Unsure?**: If you are uncertain about subcommands or arguments, ALWAYS run `./scripts/agent-exec.sh --help`.

@@ -1,7 +1,6 @@
 package agent
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -109,18 +108,9 @@ func ArchivePassedCategories(progressPath, archivePath string, threshold int) er
 		return err
 	}
 
-	var pTracker ProgressTracker
-	isMarkdown := strings.HasSuffix(progressPath, ".md")
-
-	if isMarkdown {
-		pTracker, err = ParseMarkdownTracker(string(data))
-		if err != nil {
-			return err
-		}
-	} else {
-		if err = json.Unmarshal(data, &pTracker); err != nil {
-			return err
-		}
+	pTracker, err := ParseMarkdownTracker(string(data))
+	if err != nil {
+		return err
 	}
 
 	// 2. Check if we need to archive
@@ -149,38 +139,18 @@ func ArchivePassedCategories(progressPath, archivePath string, threshold int) er
 	var archivedTracker ProgressTracker
 	archiveData, err := util.SafeReadFile(archivePath)
 	if err == nil {
-		if strings.HasSuffix(archivePath, ".md") {
-			archivedTracker, _ = ParseMarkdownTracker(string(archiveData))
-		} else {
-			_ = json.Unmarshal(archiveData, &archivedTracker)
-		}
+		archivedTracker, _ = ParseMarkdownTracker(string(archiveData))
 	}
 	archivedTracker.Features = append(archivedTracker.Features, passed...)
 
-	var newArchiveData []byte
-	if strings.HasSuffix(archivePath, ".md") {
-		newArchiveData = []byte(ToMarkdown(archivedTracker))
-	} else {
-		newArchiveData, err = json.MarshalIndent(archivedTracker, "", "  ")
-		if err != nil {
-			return err
-		}
-	}
+	newArchiveData := []byte(ToMarkdown(archivedTracker))
 	if err = util.SafeWriteFile(archivePath, newArchiveData); err != nil {
 		return err
 	}
 
 	// 5. Update progress file
 	pTracker.Features = pending
-	var newProgressData []byte
-	if isMarkdown {
-		newProgressData = []byte(ToMarkdown(pTracker))
-	} else {
-		newProgressData, err = json.MarshalIndent(pTracker, "", "  ")
-		if err != nil {
-			return err
-		}
-	}
+	newProgressData := []byte(ToMarkdown(pTracker))
 	if err := util.SafeWriteFile(progressPath, newProgressData); err != nil {
 		return err
 	}

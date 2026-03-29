@@ -21,5 +21,17 @@ For detailed rules and development process, run or refer to these workflows:
 - Verify and pass gates using `./scripts/agent-exec.sh verify <gate_id>`.
 - **CLI DRIFT**: If you are unsure of subcommand arguments (e.g., `init` vs `start`), ALWAYS run `./scripts/agent-exec.sh --help` to verify usage.
 - **ANTI-CHEAT**: NEVER manually edit `.agents/state.json`. The file is protected by a cryptographic signature. Note: manual bypassing of `red-test` via `gate red-test PASS` is explicitly blocked. If you must bypass validation gates for UI/HTML layout changes, use `./scripts/agent-exec.sh verify red-test ui-bypass` directly. **WARNING**: The **ChaosMonkey** persona actively tests these gates via fault injection; any successful bypass without a rejection is a system failure. 
-- **UPDATE PROGRESS**: Before verifying the `implementation` gate, you MUST create `.tester/tasks/pending_update.md` containing `# Category \n Description \n - [x] Step` markdown content. The harness will automatically append this to `progress.md` upon Green phase transition.
-- **FINALIZE**: After completing a task and all gates are passed, instruct the agent to **ALWAYS** use the `mcp_mcp-memory-service_memory_store` tool to save a **"Squad-Decision-Summary"** including architectural decisions made by the **SystemsArchitect** and product strategy from the **ProductOwner**.
+- **UPDATE PROGRESS**: Before verifying the `implementation` gate, you MUST create `.tester/tasks/pending_update.md` containing exactly one `# Category` and its details. The harness will automatically merge this into `progress.md` upon Green phase transition.
+  ```bash
+  # Formal Merging Syntax:
+  cat <<EOF > .tester/tasks/pending_update.md
+  # <Category Name>
+  <Detailed Description of Changes>
+  - [x] <Specific Task 1>
+  - [x] <Specific Task 2>
+  EOF
+  ```
+- **FINALIZE**: After all gates pass and before completing the conversation, you MUST use `mcp_mcp-memory-service_memory_store` to save a **"Squad-Decision-Summary"**. Include:
+  - **SystemsArchitect**: Key architectural decisions and patterns used.
+  - **ProductOwner**: Why this change was made and the user value delivered.
+  - **SDET**: Final verification results and any known edge cases.
