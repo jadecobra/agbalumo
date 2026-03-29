@@ -25,12 +25,21 @@ vars:
   CONTAINER: '{{default "false" .USE_CONTAINER}}'
 
 tasks:
+  lint:install:
+    internal: true
+    status:
+      - test -f ./.tester/tmp/go/bin/golangci-lint
+    cmds:
+      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.5
+
   lint:
     desc: Run golangci-lint on staged files
     status:
       - '[ -z "{{.STAGED_GO}}" ]'
+    deps:
+      - task: lint:install
     cmds:
-      - golangci-lint run -c scripts/.golangci.yml --new-from-rev=HEAD
+      - ./.tester/tmp/go/bin/golangci-lint run -c scripts/.golangci.yml --new-from-rev=HEAD
 
   mod-tidy:
     desc: Run go mod tidy and check for drift
@@ -77,12 +86,21 @@ tasks:
     cmds:
       - bash scripts/agent-drift-check.sh
 
+  gitleaks:install:
+    internal: true
+    status:
+      - test -f ./.tester/tmp/go/bin/gitleaks
+    cmds:
+      - go install github.com/zricethezav/gitleaks/v8@v8.21.2
+
   gitleaks:
     desc: Run gitleaks secret scan on staged files
     status:
       - '[ -z "{{.STAGED_ALL}}" ]'
     env:
       USE_CONTAINER: '{{.CONTAINER}}'
+    deps:
+      - task: gitleaks:install
     cmds:
       - bash scripts/gitleaks-scan.sh
 
@@ -170,8 +188,10 @@ tasks:
 
   ci:lint:
     desc: Run full lint on the entire codebase
+    deps:
+      - task: lint:install
     cmds:
-      - golangci-lint run -c scripts/.golangci.yml
+      - ./.tester/tmp/go/bin/golangci-lint run -c scripts/.golangci.yml
 
   ci:test:
     desc: Run full test suite with coverage
