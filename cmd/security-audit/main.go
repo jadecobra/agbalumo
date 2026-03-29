@@ -35,8 +35,21 @@ func main() {
 		Timeout: 2 * time.Second,
 	}
 
+	targetURL := os.Getenv("SECURITY_AUDIT_URL")
+	if targetURL == "" {
+		targetURL = os.Getenv("APP_URL")
+	}
+	if targetURL == "" {
+		targetURL = "https://localhost:8443"
+	}
+
+	if !isValidTarget(targetURL) {
+		fmt.Printf("❌ Error: Target URL %q is not an approved destination (localhost or nip.io).\n", targetURL)
+		os.Exit(1)
+	}
+
 	config := AuditConfig{
-		TargetURL:  "https://localhost:8443",
+		TargetURL:  targetURL,
 		HTTPClient: client,
 		RootDir:    ".",
 		Runner:     &RealRunner{},
@@ -47,6 +60,28 @@ func main() {
 		os.Exit(1)
 	}
 }
+
+func isValidTarget(url string) bool {
+	if url == "" {
+		return false
+	}
+	// Approved patterns: localhost, 127.0.0.1, or the specific nip.io address
+	approved := []string{
+		"localhost",
+		"127.0.0.1",
+		"192.168.68.69.nip.io",
+	}
+	for _, a := range approved {
+		if strings.Contains(url, a) {
+			return true
+		}
+	}
+	return false
+}
+
+
+
+
 
 type AuditConfig struct {
 	TargetURL  string

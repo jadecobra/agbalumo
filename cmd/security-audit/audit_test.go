@@ -356,3 +356,29 @@ func TestCheckHeadersConnectionFailure(t *testing.T) {
 		t.Errorf("Expected skipped=true for connection failure, got %v", skipped)
 	}
 }
+
+func TestIsValidTarget(t *testing.T) {
+	tests := []struct {
+		url      string
+		expected bool
+	}{
+		{"https://localhost:8443", true},
+		{"http://localhost:8080", true},
+		{"https://127.0.0.1:8443", true},
+		{"https://192.168.68.69.nip.io:8443", true},
+		{"https://192.168.68.69.nip.io:8443/", true},
+		{"https://google.com", false},
+		{"https://malicious.com", false},
+		{"http://192.168.1.1", false},
+		{"", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.url, func(t *testing.T) {
+			if got := isValidTarget(tt.url); got != tt.expected {
+				t.Errorf("isValidTarget(%q) = %v, want %v", tt.url, got, tt.expected)
+			}
+		})
+	}
+}
+

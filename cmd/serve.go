@@ -3,10 +3,12 @@ package cmd
 import (
 	"log/slog"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 )
+
 
 // ServerConfig holds the configuration for starting the server
 type ServerConfig struct {
@@ -23,12 +25,25 @@ func ResolveServerConfig(env, port string, fileExists func(string) bool) ServerC
 	hasCerts := fileExists(certFile) && fileExists(keyFile)
 
 	if port == "" {
+		// Try to extract port from APP_URL if available
+		if appURL := os.Getenv("APP_URL"); appURL != "" {
+			if strings.Contains(appURL, ":") {
+				parts := strings.Split(appURL, ":")
+				port = parts[len(parts)-1]
+				// Remove trailing slash if present
+				port = strings.TrimSuffix(port, "/")
+			}
+		}
+	}
+
+	if port == "" {
 		if hasCerts && env != "production" {
 			port = "8443"
 		} else {
 			port = "8080"
 		}
 	}
+
 
 	// In production (Fly.io), TLS is handled by the proxy. We just listen on PORT.
 	if env == "production" {

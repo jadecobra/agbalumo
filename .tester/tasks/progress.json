@@ -278,54 +278,14 @@
     },
     {
       "category": "CI/CD Pipeline Improvements",
-      "description": "Fix parity gaps, redundancies, and reliability issues between GitHub Actions CI and local pre-commit pipeline.",
+      "description": "Unified CI/CD pipeline using Go-Task with security-first patterns, coverage anti-degradation, and deep local-to-cloud parity.",
       "passes": false,
       "steps": [
-        "Verify coverage threshold path: Fix .agents/coverage-threshold in ci.yml to match pre-commit.sh (Completed)",
-        "Verify duplicate security-check removal: Remove `./scripts/security-check.sh \u0026\u0026` from git hook in scripts/setup-hooks.sh:43 since pre-commit.sh already runs security-check.sh (Completed)",
-        "Verify CI drift check parity: Add `drift_checks` job to ci.yml and migrate to `task ci:api-drift` and `task ci:template-drift` (Completed)",
-        "Verify CI coverage anti-degradation: Add a step in the ci.yml `test` job that checks `.agents/coverage-threshold` cannot be lowered (Completed)",
-        "Verify CI coverage artifact upload: Add `actions/upload-artifact@v4` step in ci.yml to upload `.tester/coverage/coverage.out` as a build artifact (Completed)",
-        "Verify golangci-lint expansion: Add `gosec` and `bodyclose` linters to `scripts/.golangci.yml` under linters.enable list (Completed)",
-        "Verify ci-local.sh rewrite: Replace `act` delegation in ci-local.sh with native execution of lint, test, coverage, and security checks (matching pre-commit.sh gates) (Completed)",
-        "Verify restart removal from pre-commit: Remove `verify_restart.sh` task from pre-commit.sh:203 and add it as a standalone workflow in `.agents/workflows/restart-server.md` (Completed)",
-        "Verify CI security job split: Split the monolithic `security` job in ci.yml into `security_static` (govulncheck + pattern checks) and `security_dynamic` (live server audit) jobs (Completed)",
-        "Verify GitHub Actions SHA pinning: Pin `actions/checkout`, `actions/setup-go`, and `actions/setup-node` in ci.yml to commit SHAs with version comments (Completed)",
-        "Verify CI test cache-busting: Add `-count=1` flag to `go test` in ci.yml:69 to match pre-commit.sh behavior and catch flaky tests (Completed)",
-        "Verify format-handling logic and `output_json_envelope` call from `api-drift-check.sh` is used in template-func-drift-check.sh to standardize json output (Completed)",
-        "Verify Go version alignment (Core): Update `go.mod` to Go version `1.26.1` and run `go mod tidy` to ensure toolchain consistency (Completed)",
-        "Verify Go version alignment (CI): Update all actions/setup-go steps in .github/workflows/ci.yml to reflect Go version 1.26.1 (Completed)",
-        "Verify Gosec tuning (Lint): Refactor `scripts/.golangci.yml` by moving global exclusions to granular `exclude-rules` targeting scripts and tests (Completed)",
-        "Verify Gosec audit: Resolve any newly surfaced `gosec` security findings in application code (`internal/`, `cmd/`) after linter tightening (Completed)",
-        "Verify CI restart safety (Build): Update `scripts/pre-commit.sh` to include a required `go build` check to ensure the server compiles before every commit (Completed)",
-        "Verify secure-by-default wrappers: Create `internal/util/fs.go` with `SafeMkdir` (0750) and `SafeWriteFile` (0600) and migrate sensitive `os` calls (Completed)",
-        "Verify mandatory inline gosec justification: Update `scripts/.golangci.yml` to enforce that `// #nosec` directives include a mandatory rationale comment (Completed)",
-        "Verify pre-commit secret scanning: Integrate `gitleaks` into `scripts/pre-commit.sh` to detect and block commits containing potential credentials (Completed)",
-        "Verify containerized test isolation: Update `scripts/pre-commit.sh` to support executing high-risk tests and scripts within an ephemeral Docker or Apple container (if running on MacOS) (Completed)",
-        "Create internal/util/fs.go with SafeMkdir (0750) and SafeWriteFile (0600) (Completed)",
-        "Migrate sensitive os calls in internal/service/image.go (Completed)",
-        "Migrate sensitive os calls in internal/agent/state.go (Completed)",
-        "Migrate sensitive os calls in internal/agent/coverage.go (Completed)",
-        "Migrate sensitive os calls in internal/agent/verify.go (Completed)",
-        "Migrate sensitive os calls in cmd/harness/commands/root.go (Completed)",
-        "Verify SafeReadFile implementation: Add `SafeReadFile` (wrapped `os.ReadFile`) to `internal/util/fs.go` (Completed)",
-        "Verify State migration: Migrate `os.ReadFile` and `os.IsNotExist` to `util.Safe*` wrappers in `internal/agent/state.go` (Completed)",
-        "Verify Coverage migration: Migrate remaining `os` calls to `util.Safe*` wrappers in `internal/agent/coverage.go` (Completed)",
-        "Verify Harness Root migration: Migrate `os.ReadFile`, `os.Stat`, and `os.Remove` to `util.Safe*` wrappers in `cmd/harness/commands/root.go` (Completed)",
-        "Verify Taskfile Consolidation: Update `api-drift` and `template-drift` tasks to call `harness verify` CLI instead of shell scripts (Completed)",
-        "Verify Deprecated Script Removal: Delete `scripts/api-drift-check.sh` and `scripts/template-func-drift-check.sh` once fully ported to harness (Completed)",
-        "Verify VerifyApiSpec migration: Migrate `os.ReadFile`, `os.Stat`, and `os.Open` to `util.Safe*` wrappers in `internal/agent/verify.go` (Completed)",
-        "Verify Harness CI Isolation: Relax feature requirement in `verify` command to allow isolated drift checks in CI (Completed)",
-        "Verify security-static harness: Implement AST-based SQLi and XSS structural checkers using `go/ast` in internal/agent/security.go (Completed)",
-        "Verify security-static harness: Implement Regex/Entropy-based Secret scanning in internal/agent/security.go (Completed)",
-        "Verify security-static harness: Integrate `VerifySecurityStatic` into `VerifyCmd` and add unit tests in `verify_security_test.go` (Completed)",
-        "Verify Taskfile Security Delegation: Update `Taskfile.yml` security task to call `harness verify security-static` and remove `scripts/security-check.sh` (Completed)",
-        "Verify CI Lint Parity: Update `ci.yml` `quality_lint` job to use `task ci:lint` (Completed)",
-        "Verify CI Test Parity: Update `ci.yml` `test` job to use `task ci:test` and `task threshold` (Completed)",
-        "Verify CI Security Parity: Update `ci.yml` security jobs to use `task ci:security` and `task security-audit` (Completed)",
-        "Verify security-audit permissions: Updated Taskfile.yml to use explicit GOPATH/GOCACHE for security-audit tasks",
-        "Verify govulncheck config: Moved module path resolution to local environment variable scope to sidestep permission conflicts",
-        "Verify false-positives masking: Add whitelist exceptions to security audit for explicitly safe internal tool variables"
+        "Verify the orchestrated CI/CD lifecycle by executing 'task pre-commit' and 'task ci', confirming all quality (lint, build, test), security (static, dynamic, vulncheck), and drift gates pass across environments.",
+        "Optimize 'vulncheck' in Taskfile.yml by adding a binary existence check to skip 'go install' and reduce local overhead. (Completed)",
+        "Extract coverage anti-degradation logic from .github/workflows/ci.yml into scripts/ci/check-coverage-drift.sh for better reuse. (Pending)",
+        "Update .github/workflows/ci.yml to use the distilled check-coverage-drift.sh script and consolidate redundant Node setup jobs. (Pending)",
+        "Refactor Taskfile.yml to make GOPATH isolation optional via an 'ISOLATE_GO' flag, defaulting to 'true' for security. (Pending)"
       ]
     },
     {
@@ -333,6 +293,9 @@
       "description": "Replace the 244-line pre-commit.sh shell orchestrator with a declarative Taskfile.yml using go-task, reducing agent context cost from 476 lines to ~80 lines.",
       "passes": false,
       "steps": [
+        "Verify security-audit permissions: Updated Taskfile.yml to use explicit GOPATH/GOCACHE for security-audit tasks",
+        "Verify govulncheck config: Moved module path resolution to local environment variable scope to sidestep permission conflicts",
+        "Verify false-positives masking: Add whitelist exceptions to security audit for explicitly safe internal tool variables",
         "Verify declarative Go-Task orchestration: Ensure Taskfile.yml encapsulates all CI/CD gates, auxiliary tasks, and workflow orchestrations, replaces legacy pre-commit.sh/ci-local.sh scripts, and is verified via `task pre-commit` and `task ci` execution. (Completed)",
         "Verify CI Vulncheck fix: Update `ci:vulncheck` in Taskfile.yml to use a workspace-local GOPATH or temporary writeable cache (Completed)",
         "Verify Task ci:security: Run `task ci:security` and ensure it passes all dependencies (vulncheck + harness) in the current environment (Completed)",
@@ -351,6 +314,18 @@
         "Added unit tests in internal/agent/security_test.go",
         "Integrated with 10x Engineer harness verify command",
         "Verified implementation with unit tests"
+      ]
+    },
+    {
+      "category": "refactor",
+      "description": "Align all hardcoded server URLs with browser-url.md rules and make them configurable via environment variables.",
+      "passes": false,
+      "steps": [
+        "Implemented isValidTarget validation in security-audit tool",
+        "Updated security-audit to support APP_URL environment variable",
+        "Updated serve.go to support APP_URL for port extraction",
+        "Updated Taskfile.yml with default APP_URL pointing to nip.io",
+        "Verified changes with unit tests and full CI audit"
       ]
     }
   ]
