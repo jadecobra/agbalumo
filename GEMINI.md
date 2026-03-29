@@ -1,6 +1,6 @@
 ## AGENT WORKFLOWS
 For detailed rules and development process, run or refer to these workflows:
-- `/feature-implementation`: Building out new features with strict TDD.
+- `/build-feature`: Building out new features with strict TDD.
 - `/coding-standards`: specific edge cases regarding Go style, testing patterns, and file structure.
 - `/audit`: Performance, Auth, and Security gates.
 - `/restart-server`: Commands to rebuild CSS and binary.
@@ -15,6 +15,6 @@ For detailed rules and development process, run or refer to these workflows:
 - **ALWAYS** initialize the 10x Engineer harness when starting a new task (feature, bugfix, or refactor) by running `./scripts/agent-exec.sh init <feature_name> <workflow_type>`.
 - Transition phases (RED, GREEN, REFACTOR) using `./scripts/agent-exec.sh set-phase <phase>`.
 - Verify and pass gates using `./scripts/agent-exec.sh verify <gate_id>`.
-- **ANTI-CHEAT**: NEVER manually edit `.agents/state.json`. The file is protected by a cryptographic signature. Note: manual bypassing of `red-test` via `gate red-test PASS` is explicitly blocked. If you must bypass validation gates for UI/HTML layout changes, use `./scripts/agent-exec.sh verify red-test ui-bypass` directly. NOTE: Even if `red-test` is bypassed, you are strictly required to pass the `lint` gate and manually verify the UI changes using the `browser_subagent` (read the testing URL from `.agents/rules/browser-url.md`) before passing the `browser-verification` gate. Bypass will be rejected if non-test `.go` files are modified.
+- **ANTI-CHEAT**: NEVER manually edit `.agents/state.json`. The file is protected by a cryptographic signature. Note: manual bypassing of `red-test` via `gate red-test PASS` is explicitly blocked. If you must bypass validation gates for UI/HTML layout changes, use `./scripts/agent-exec.sh verify red-test ui-bypass` directly. **WARNING**: The **ChaosMonkey** persona actively tests these gates via fault injection; any successful bypass without a rejection is a system failure. 
 - **UPDATE PROGRESS**: Before verifying the `implementation` gate, you MUST create `.tester/tasks/pending_update.json` containing `{"category": "...", "description": "...", "steps": ["..."]}`. The harness will automatically append this to `progress.json` upon Green phase transition.
-- **FINALIZE**: After completing a task and all gates are passed, instruct the agent to **ALWAYS** use the `mcp_mcp-memory-service_memory_store` tool to save a summary of the completed feature/bugfix and architectural decisions.
+- **FINALIZE**: After completing a task and all gates are passed, instruct the agent to **ALWAYS** use the `mcp_mcp-memory-service_memory_store` tool to save a **"Squad-Decision-Summary"** including architectural decisions made by the **SystemsArchitect** and product strategy from the **ProductOwner**.

@@ -26,8 +26,11 @@ mkdir -p /tmp/.tester/servers
 mkdir -p /tmp/.tester/data
 
 # Use workspace-local Go paths to avoid permission issues
-export GOPATH="$(pwd)/.tester/tmp/go"
-export GOCACHE="$(pwd)/.tester/tmp/gocache"
+ISOLATE_GO="${ISOLATE_GO:-true}"
+if [ "$ISOLATE_GO" == "true" ]; then
+    export GOPATH="$(pwd)/.tester/tmp/go"
+    export GOCACHE="$(pwd)/.tester/tmp/gocache"
+fi
 go build -o /tmp/.tester/servers/agbalumo main.go
 
 # 3. Restart the Server

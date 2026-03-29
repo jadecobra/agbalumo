@@ -8,8 +8,14 @@ setup_path
 
 printf "${BLUE}Running Modular Agent Drift Check (10x Standard)...${NC}\n"
 
+ISOLATE_GO="${ISOLATE_GO:-true}"
+if [ "$ISOLATE_GO" == "true" ]; then
+    export GOPATH="${PWD}/.tester/tmp/go"
+    export GOCACHE="${PWD}/.tester/tmp/gocache"
+fi
+
 # Run the Go-based validation script
-GOPATH="${PWD}/.tester/tmp/go" GOCACHE="${PWD}/.tester/tmp/gocache" go run scripts/verify-persona.go
+go run scripts/verify-persona.go
 
 printf "${GREEN}✅ Squad configuration is consistent and in sync with documentation.${NC}\n"
 exit 0

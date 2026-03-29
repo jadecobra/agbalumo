@@ -9,4 +9,10 @@ if [ "$1" == "workflow" ]; then
     shift
 fi
 
-GOPATH="${PWD}/.tester/tmp/go" GOCACHE="${PWD}/.tester/tmp/gocache" go run cmd/harness/main.go "$@"
+ISOLATE_GO="${ISOLATE_GO:-true}"
+if [ "$ISOLATE_GO" == "true" ]; then
+    export GOPATH="${PWD}/.tester/tmp/go"
+    export GOCACHE="${PWD}/.tester/tmp/gocache"
+fi
+
+go run cmd/harness/main.go "$@"

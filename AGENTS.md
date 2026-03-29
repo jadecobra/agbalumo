@@ -1,23 +1,35 @@
-# agbalumo - Agent Guidelines
+# agbalumo - agbalumo-Squad Guidelines
 
 ## Project Overview
 
-agbalumo is a Go web application for the West African diaspora community, featuring a business directory, job board, event listings, and community requests. Built with Echo framework, SQLite, HTMX, and Tailwind CSS.
+agbalumo is a Go web application for the West African diaspora community. It is built and maintained by the **agbalumo-Squad**, a modular multi-agent system designed for high-governance, 10x engineering.
 
 ---
 
-## Build/Lint/Test Commands
+## 1. Modular Persona System
+The squad's configuration is managed via **[.agents/config.yaml](file:///Users/johnnyblase/gym/agbalumo/.agents/config.yaml)**. This registry maps specialized personas to their respective instruction sets in `.agents/personas/`.
 
-See `.agents/rules/commands.md` for testing, linting, and build instructions.
-
----
-
-## Specialized Workflows
-
-See `.agents/rules/workflows.md` for the available workflow registry and deep-dive guidelines.
+### Core Governance Roles
+- **[ProductOwner](file:///Users/johnnyblase/gym/agbalumo/.agents/personas/product_owner.yaml)**: Owns the **"Why"**. Final authority on user value, cultural context, and reversible (Two-Way Door) decisions.
+- **[SystemsArchitect](file:///Users/johnnyblase/gym/agbalumo/.agents/personas/systems_architect.yaml)**: Owns the **"How"**. Final authority on technical integrity, security, and irreversible (One-Way Door) decisions.
 
 ---
 
-## Architecture
+## 2. Build/Lint/Test Commands
+See **[.agents/rules/commands.md](file:///Users/johnnyblase/gym/agbalumo/.agents/rules/commands.md)** for testing, linting, and build instructions.
+Mandatory verification via **`scripts/verify-persona.go`** must pass before any squad-level changes are finalized.
 
-See `.agents/rules/architecture.md` for the project's directory structure and component layout.
+---
+
+## 3. Specialized Workflows
+See **[.agents/rules/workflows.md](file:///Users/johnnyblase/gym/agbalumo/.agents/rules/workflows.md)** for the available workflow registry and deep-dive guidelines.
+All feature work MUST follow the **`/build-feature`** sequence.
+
+---
+
+## 4. Architecture
+See **[.agents/rules/architecture.md](file:///Users/johnnyblase/gym/agbalumo/.agents/rules/architecture.md)** for the project's directory structure and component layout.
+- **cmd/**: Application entry points.
+- **internal/domain/**: Core business logic and interfaces.
+- **internal/handler/**: HTTP/Echo handlers and boundary validation.
+- **internal/repository/**: SQLite/Persistence logic.

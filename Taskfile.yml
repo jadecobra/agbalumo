@@ -1,9 +1,15 @@
 version: '3'
 
 env:
-  GOPATH: '{{.TASKFILE_DIR}}/.tester/tmp/go'
-  GOCACHE: '{{.TASKFILE_DIR}}/.tester/tmp/gocache'
+  GOPATH: '{{if eq .ISOLATE_GO "true"}}{{.TASKFILE_DIR}}/.tester/tmp/go{{else}}{{.SYSTEM_GOPATH}}{{end}}'
+  GOCACHE: '{{if eq .ISOLATE_GO "true"}}{{.TASKFILE_DIR}}/.tester/tmp/gocache{{else}}{{.SYSTEM_GOCACHE}}{{end}}'
+  ISOLATE_GO: '{{.ISOLATE_GO}}'
 vars:
+  ISOLATE_GO: '{{default "true" .ISOLATE_GO}}'
+  SYSTEM_GOPATH:
+    sh: go env GOPATH
+  SYSTEM_GOCACHE:
+    sh: go env GOCACHE
   STAGED_GO:
     sh: git diff --cached --name-only --diff-filter=ACMR | grep '\.go$' || true
   STAGED_HTML:
@@ -212,8 +218,8 @@ tasks:
     status:
       - '[ -z "{{.STAGED_SEC_AUDIT}}" ]'
     env:
-      GOPATH: '{{.TASKFILE_DIR}}/.tester/tmp/go'
-      GOCACHE: '{{.TASKFILE_DIR}}/.tester/tmp/gocache'
+      GOPATH: '{{if eq .ISOLATE_GO "true"}}{{.TASKFILE_DIR}}/.tester/tmp/go{{else}}{{.SYSTEM_GOPATH}}{{end}}'
+      GOCACHE: '{{if eq .ISOLATE_GO "true"}}{{.TASKFILE_DIR}}/.tester/tmp/gocache{{else}}{{.SYSTEM_GOCACHE}}{{end}}'
       APP_URL: '{{default "https://192.168.68.69.nip.io:8443" .APP_URL}}'
     cmds:
       - go run cmd/security-audit/main.go
@@ -304,3 +310,4 @@ tasks:
       - threshold
       - ci-tools
       - ignored-files
+

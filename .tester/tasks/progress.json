@@ -122,7 +122,9 @@
         "Refactor Taskfile.yml to make GOPATH isolation optional via an 'ISOLATE_GO' flag, defaulting to 'true' for security. (Pending)",
         "Implemented vulncheck:install task with status check to skip go install if binary exists",
         "Refactored vulncheck and ci:vulncheck to use the local binary and shared dependency",
-        "Removed redundant environment variable definitions from Taskfile.yml"
+        "Removed redundant environment variable definitions from Taskfile.yml",
+        "Refactor Taskfile.yml to make GOPATH isolation optional via an 'ISOLATE_GO' flag, defaulting to 'true' for security. (Completed)",
+        "Updated agent-exec.sh, agent-drift-check.sh, and verify_restart.sh to respect the ISOLATE_GO environment variable."
       ]
     },
     {
