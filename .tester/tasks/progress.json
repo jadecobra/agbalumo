@@ -176,9 +176,7 @@
       "description": "Implemented harness context optimization and progress archiving.",
       "passes": true,
       "steps": [
-        "Truncate verbose verification outputs (Completed)",
-        "Implement automatic progress archiving (Completed)",
-        "Silence Taskfile and script noise (Completed)"
+        "Verify Architectural Compliance: Truncated verification outputs, automated progress archiving, and silenced Taskfile/script noise implemented (Completed)"
       ]
     },
     {
@@ -186,7 +184,7 @@
       "description": "Sequential dev loop with auto-formatting, watch mode, and agent protocols.",
       "passes": true,
       "steps": [
-        "Verify 10x Feedback Loop: Executing 'task fmt', 'task pre-commit', and './scripts/watch.sh' confirms sequential 'Fast' vs 'Heavy' orchestration and agent command rules in GEMINI.md (Completed)"
+        "Verify 10x Feedback Loop: Executing 'task fmt', 'task pre-commit', and './scripts/watch.sh' confirms sequential Fast vs Heavy orchestration and agent protocols in GEMINI.md (Completed)"
       ]
     }
   ]
