@@ -4,12 +4,14 @@ env:
   GOPATH: '{{if eq .ISOLATE_GO "true"}}{{.TASKFILE_DIR}}/.tester/tmp/go{{else}}{{.SYSTEM_GOPATH}}{{end}}'
   GOCACHE: '{{if eq .ISOLATE_GO "true"}}{{.TASKFILE_DIR}}/.tester/tmp/gocache{{else}}{{.SYSTEM_GOCACHE}}{{end}}'
   ISOLATE_GO: '{{.ISOLATE_GO}}'
+
 vars:
   ISOLATE_GO: '{{default "true" .ISOLATE_GO}}'
   SYSTEM_GOPATH:
-    sh: go env GOPATH
+    sh: '{{if ne .ISOLATE_GO "true"}}go env GOPATH{{else}}echo .tester/tmp/go{{end}}'
   SYSTEM_GOCACHE:
-    sh: go env GOCACHE
+    sh: '{{if ne .ISOLATE_GO "true"}}go env GOCACHE{{else}}echo .tester/tmp/gocache{{end}}'
+  GOBIN: '{{if eq .ISOLATE_GO "true"}}{{.TASKFILE_DIR}}/.tester/tmp/go/bin{{else}}{{.SYSTEM_GOPATH}}/bin{{end}}'
   STAGED_GO:
     sh: git diff --cached --name-only --diff-filter=ACMR | grep '\.go$' || true
   STAGED_HTML:
@@ -38,7 +40,7 @@ tasks:
   lint:install:
     internal: true
     status:
-      - test -f ./.tester/tmp/go/bin/golangci-lint
+      - test -f '{{.GOBIN}}/golangci-lint'
     cmds:
       - go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.5
 
@@ -50,7 +52,7 @@ tasks:
     deps:
       - task: lint:install
     cmds:
-      - ./.tester/tmp/go/bin/golangci-lint run -c scripts/.golangci.yml --new-from-rev=HEAD
+      - '{{.GOBIN}}/golangci-lint run -c scripts/.golangci.yml --new-from-rev=HEAD'
 
   mod-tidy:
     desc: Run go mod tidy and check for drift
@@ -116,7 +118,7 @@ tasks:
   gitleaks:install:
     internal: true
     status:
-      - test -f ./.tester/tmp/go/bin/gitleaks
+      - test -f '{{.GOBIN}}/gitleaks'
     cmds:
       - go install github.com/zricethezav/gitleaks/v8@v8.21.2
 
@@ -155,7 +157,7 @@ tasks:
   vulncheck:install:
     internal: true
     status:
-      - test -f ./.tester/tmp/go/bin/govulncheck
+      - test -f '{{.GOBIN}}/govulncheck'
     cmds:
       - go install golang.org/x/vuln/cmd/govulncheck@latest
 
@@ -167,7 +169,7 @@ tasks:
     deps:
       - task: vulncheck:install
     cmds:
-      - ./.tester/tmp/go/bin/govulncheck ./...
+      - '{{.GOBIN}}/govulncheck ./...'
 
   perf:
     desc: Run performance audit on staged performance-sensitive files
@@ -191,7 +193,7 @@ tasks:
     status:
       - '[ -z "{{.STAGED_ALL}}" ]'
     cmds:
-      - bash scripts/verify-threshold.sh
+      - bash scripts/ci/check-coverage-drift.sh --local
 
   gates:
     desc: Check workflow gate enforcement
@@ -218,8 +220,6 @@ tasks:
     status:
       - '[ -z "{{.STAGED_SEC_AUDIT}}" ]'
     env:
-      GOPATH: '{{if eq .ISOLATE_GO "true"}}{{.TASKFILE_DIR}}/.tester/tmp/go{{else}}{{.SYSTEM_GOPATH}}{{end}}'
-      GOCACHE: '{{if eq .ISOLATE_GO "true"}}{{.TASKFILE_DIR}}/.tester/tmp/gocache{{else}}{{.SYSTEM_GOCACHE}}{{end}}'
       APP_URL: '{{default "https://192.168.68.69.nip.io:8443" .APP_URL}}'
     cmds:
       - go run cmd/security-audit/main.go
@@ -230,7 +230,7 @@ tasks:
     deps:
       - task: lint:install
     cmds:
-      - ./.tester/tmp/go/bin/golangci-lint run -c scripts/.golangci.yml
+      - '{{.GOBIN}}/golangci-lint run -c scripts/.golangci.yml'
 
   ci:test:
     desc: Run full test suite with coverage and race detector (strict)
@@ -251,7 +251,7 @@ tasks:
     deps:
       - task: vulncheck:install
     cmds:
-      - ./.tester/tmp/go/bin/govulncheck ./...
+      - '{{.GOBIN}}/govulncheck ./...'
 
   ci:api-drift:
     desc: Run full API drift check via harness
@@ -310,4 +310,3 @@ tasks:
       - threshold
       - ci-tools
       - ignored-files
-

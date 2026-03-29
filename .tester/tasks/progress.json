@@ -119,12 +119,16 @@
         "Extract coverage anti-degradation logic from .github/workflows/ci.yml into scripts/ci/check-coverage-drift.sh for better reuse. (Completed)",
         "Update .github/workflows/ci.yml to use the distilled check-coverage-drift.sh script (Completed)",
         "Fixed pre-existing gosec-rationale issue in security_test.go discovered during verification (Completed)",
-        "Refactor Taskfile.yml to make GOPATH isolation optional via an 'ISOLATE_GO' flag, defaulting to 'true' for security. (Pending)",
+        "Refactor Taskfile.yml to make GOPATH isolation optional via an 'ISOLATE_GO' flag, defaulting to 'true' for security. (Completed)",
         "Implemented vulncheck:install task with status check to skip go install if binary exists",
         "Refactored vulncheck and ci:vulncheck to use the local binary and shared dependency",
         "Removed redundant environment variable definitions from Taskfile.yml",
         "Refactor Taskfile.yml to make GOPATH isolation optional via an 'ISOLATE_GO' flag, defaulting to 'true' for security. (Completed)",
-        "Updated agent-exec.sh, agent-drift-check.sh, and verify_restart.sh to respect the ISOLATE_GO environment variable."
+        "Updated agent-exec.sh, agent-drift-check.sh, and verify_restart.sh to respect the ISOLATE_GO environment variable.",
+        "Completed: Refactor Taskfile.yml for dynamic GOBIN resolution (ISOLATE_GO respect)",
+        "Completed: Optimize Taskfile vars with conditional go env execution",
+        "Completed: Unified coverage anti-degradation logic in scripts/ci/check-coverage-drift.sh",
+        "Completed: Replaced verify-threshold.sh with unified script across local and CI"
       ]
     },
     {

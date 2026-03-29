@@ -1,6 +1,6 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "Taskfile_GOPATH_Isolation",
+  "feature": "CI-CD_Hardening",
   "workflow_type": "refactor",
   "phase": "REFACTOR",
   "gates": {
@@ -13,6 +13,6 @@
     "template-drift": "PASSED",
     "security-static": "PASSED"
   },
-  "updated_at": "2026-03-29T07:13:06.904255Z",
-  "signature": "8a7466909318a6e7e8af98452e4da001d0dd9d90735188287e24988508b78742"
+  "updated_at": "2026-03-29T16:24:03.027533Z",
+  "signature": "08038756bcd2cff1fd3e01ba1191f41b96ac91ee69147872b1db2f28971808b7"
 }
