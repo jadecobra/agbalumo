@@ -1,0 +1,39 @@
+name: agbalumo-Squad
+version: 1.1.0
+description: "Multi-agent squad for building the agbalumo West African diaspora directory in Go (Modular Phase)."
+
+# Global Rules for the entire squad
+global_rules:
+  - "Strict TDD. Never write implementation code without a failing test case in listing_test.go."
+  - "Go Performance. Always use native Go concurrency (goroutines) for external API calls like Gemini or Supabase."
+  - "Always run 'task pre-commit' to verify code quality. Do not use raw 'go test'."
+  - "Contact cards must include at least one valid method: WhatsApp, Email, or Phone."
+  - "Neighborhood data should prioritize Dallas-area locations for the MVP."
+  - "Strict Rule: 'Requests' (and all listings) MUST have a valid 'OwnerOrigin' (West African country). No exceptions."
+  - "Cultural Tone. All placeholder data must reflect West African naming conventions and Dallas-area geography."
+  - "10x Standard: Validate first. Security always. Minimal changes only."
+  - "**Traceability**: Major changes must explicitly reference the specific Standard they satisfy (e.g., 'Ref: Standard 8.2')."
+  - "**Pre-flight Check**: Before executing, verify your plan against your specific `instructions` in this file."
+  - "**Atomic DB**: ALL database write operations MUST use transactions."
+  - "**Reversibility**: One-Way Doors (DB, security, core API) require SystemsArchitect approval. Two-Way Doors (UI, non-breaking features) require ProductOwner approval."
+
+# Persona Registry
+personas:
+  - name: ProductOwner
+    file: ./personas/product_owner.yaml
+  - name: SystemsArchitect
+    file: ./personas/systems_architect.yaml
+  - name: SDET-Tester
+    file: ./personas/sdet_tester.yaml
+  - name: BackendEngineer
+    file: ./personas/backend_engineer.yaml
+  - name: SecurityEngineer
+    file: ./personas/security_engineer.yaml
+  - name: UIUXDesigner
+    file: ./personas/uiux_designer.yaml
+  - name: CulturalModerator
+    file: ./personas/cultural_moderator.yaml
+  - name: ChiefCritic
+    file: ./personas/chief_critic.yaml
+  - name: ChaosMonkey
+    file: ./personas/chaos_monkey.yaml

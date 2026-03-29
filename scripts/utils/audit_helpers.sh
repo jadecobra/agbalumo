@@ -11,7 +11,7 @@ FAILURES=0
 COLLECTED_WARNINGS=()
 COLLECTED_FAILURES=()
 
-pass() { if [ "$FMT" != "json" ]; then echo "${GREEN}  ✅ PASS:${NC} $1"; fi; }
+pass() { if [ "$FMT" != "json" ] && [ "${VERBOSE:-0}" -eq 1 ]; then echo "${GREEN}  ✅ PASS:${NC} $1"; fi; }
 warn() { 
     if [ "$FMT" != "json" ]; then echo "${YELLOW}  ⚠️  WARN:${NC} $1"; fi
     WARNINGS=$((WARNINGS + 1))

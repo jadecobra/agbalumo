@@ -40,11 +40,11 @@ Prove the bug exists.
 
 ### 1b. Verify Contract Stability
 
-> **Persona: Lead Architect** — Ensure the fix doesn't break external contracts.
+> **Persona: SystemsArchitect** — Ensure the fix doesn't break external contracts (One-Way Door).
 
 - **Gate: `api-spec`**
   - **PASS**: `./scripts/agent-gate.sh api-spec` passes.
-  - **FAIL**: Fix requires contract change (must be justified).
+  - **FAIL**: Fix requires contract change (must be justified to the SystemsArchitect and documented).
 
 ---
 

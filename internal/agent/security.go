@@ -66,53 +66,72 @@ var (
 	}
 )
 
-// VerifySecurityStatic runs static analysis checkers for security vulnerabilities.
-func VerifySecurityStatic(root string) ([]SecurityViolation, error) {
+// VerifySecurityStatic runs static analysis checkers for security vulnerabilities on multiple targets.
+func VerifySecurityStatic(targets ...string) ([]SecurityViolation, error) {
 	var allViolations []SecurityViolation
 
-	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+	for _, target := range targets {
+		info, err := util.SafeStat(target)
 		if err != nil {
-			return err
-		}
-
-		// Skip directories, vendor, node_modules. 
-		// Skip hidden directories but allow hidden files like .env.
-		// Skip test files to avoid false positives from dummy credentials.
-		if info.IsDir() {
-			if strings.HasPrefix(info.Name(), ".") && info.Name() != "." {
-				return filepath.SkipDir
+			// If target doesn't exist, just skip it (might happen with deleted files in staged list)
+			if os.IsNotExist(err) {
+				continue
 			}
-			return nil
+			return nil, fmt.Errorf("failed to stat target %s: %w", target, err)
 		}
 
-		if strings.Contains(path, "/vendor/") || strings.Contains(path, "/node_modules/") || strings.HasSuffix(path, "_test.go") {
-			return nil
+		// If it's a file, check it directly and skip walking
+		if !info.IsDir() {
+			violations, err := checkFile(target)
+			if err != nil {
+				return nil, fmt.Errorf("failed to check file %s: %w", target, err)
+			}
+			allViolations = append(allViolations, violations...)
+			continue
 		}
 
-		// Skip binary files and large assets
-		ext := strings.ToLower(filepath.Ext(path))
-		if ext == ".png" || ext == ".jpg" || ext == ".jpeg" || ext == ".gif" || ext == ".pdf" || ext == ".exe" || ext == ".bin" {
-			return nil
-		}
+		// If it's a directory, walk it
+		err = filepath.Walk(target, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
 
-		// Skip tests for structural checks, but scan them for secrets?
-		// Usually we skip tests to avoid false positives in code patterns, but secrets in tests are still bad.
-		// However, to keep it consistent with existing checkFile, we'll handle tests there.
-
-		violations, err := checkFile(path)
-		if err != nil {
-			// If it's not a Go file and failed to check, just continue (e.g. binary we missed)
-			if !strings.HasSuffix(path, ".go") {
+			// Skip directories, vendor, node_modules, and hidden dirs (except .)
+			if info.IsDir() {
+				if strings.HasPrefix(info.Name(), ".") && info.Name() != "." && info.Name() != target {
+					return filepath.SkipDir
+				}
 				return nil
 			}
-			return fmt.Errorf("failed to check file %s: %w", path, err)
+
+			if strings.Contains(path, "/vendor/") || strings.Contains(path, "/node_modules/") || strings.HasSuffix(path, "_test.go") {
+				return nil
+			}
+
+			// Skip binary files and large assets
+			ext := strings.ToLower(filepath.Ext(path))
+			if ext == ".png" || ext == ".jpg" || ext == ".jpeg" || ext == ".gif" || ext == ".pdf" || ext == ".exe" || ext == ".bin" {
+				return nil
+			}
+
+			violations, err := checkFile(path)
+			if err != nil {
+				// If it's not a Go file and failed to check, just continue
+				if !strings.HasSuffix(path, ".go") {
+					return nil
+				}
+				return fmt.Errorf("failed to check file %s: %w", path, err)
+			}
+
+			allViolations = append(allViolations, violations...)
+			return nil
+		})
+		if err != nil {
+			return nil, err
 		}
+	}
 
-		allViolations = append(allViolations, violations...)
-		return nil
-	})
-
-	return allViolations, err
+	return deduplicateViolations(allViolations), nil
 }
 
 func checkFile(path string) ([]SecurityViolation, error) {

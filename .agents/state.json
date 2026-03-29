@@ -1,6 +1,6 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "align_server_urls_with_browser_rules",
+  "feature": "context-optimization",
   "workflow_type": "refactor",
   "phase": "REFACTOR",
   "gates": {
@@ -13,6 +13,6 @@
     "template-drift": "PASSED",
     "security-static": "PASSED"
   },
-  "updated_at": "2026-03-28T23:50:10.249091Z",
-  "signature": "491ae3a0428c311db60fb0f97caf19ace640064b12caea7afdf6dedf6bbb39ba"
+  "updated_at": "2026-03-29T06:15:13.946682Z",
+  "signature": "716f865d10d61dc9d36a342393173849d60a623965b9c064f4dd8d488d18ebc1"
 }

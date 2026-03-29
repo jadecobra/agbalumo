@@ -500,3 +500,70 @@ func NewRenderer() {
 		t.Error("VerifyTemplateDrift passed on drift")
 	}
 }
+
+func TestVerifyLint_NotFound(t *testing.T) {
+	origLook := LookPath
+	origStat := OSStat
+	LookPath = func(file string) (string, error) { return "", fmt.Errorf("not found") }
+	OSStat = func(name string) (os.FileInfo, error) { return nil, os.ErrNotExist }
+	defer func() { LookPath = origLook; OSStat = origStat }()
+
+	if !VerifyLint() {
+		t.Error("VerifyLint should return true (pass skipped) when golangci-lint not found")
+	}
+}
+
+func TestVerifyImplementation_BuildError(t *testing.T) {
+	orig := ExecCommand
+	ExecCommand = makeMockExec("TestHelperProcessCompileFail")
+	defer func() { ExecCommand = orig }()
+
+	if VerifyImplementation() {
+		t.Error("VerifyImplementation should return false on build error")
+	}
+}
+
+func TestVerifyImplementation_Success(t *testing.T) {
+	orig := ExecCommand
+	// Mock all commands to succeed
+	ExecCommand = func(name string, args ...string) *exec.Cmd {
+		return exec.Command("true")
+	}
+	defer func() { ExecCommand = orig }()
+
+	// We need to pass the lint and api-spec check inside VerifyImplementation
+	// but those are calling other functions.
+	// Actually, VerifyImplementation runs 'task pre-commit'.
+	if !VerifyImplementation() {
+		t.Error("VerifyImplementation should return true on success")
+	}
+}
+
+func TestExtractTemplateFunctionCalls_Complex(t *testing.T) {
+	tmpDir := t.TempDir()
+	content := "\n\t\t<div>{{ upper .Name }}</div>\n\t\t<div>{{ lower (trim .Value) }}</div>\n\t\t<div>{{ unknown . }}</div>\n\t"
+	_ = os.WriteFile(tmpDir+"/test.html", []byte(content), 0644)
+	
+	calls, err := ExtractTemplateFunctionCalls(tmpDir)
+	if err != nil {
+		t.Fatalf("ExtractTemplateFunctionCalls failed: %v", err)
+	}
+	
+	expected := map[string]bool{
+		"upper": true,
+		"lower": true,
+		"unknown": true,
+	}
+	
+	// Check that we found at least these
+	found := make(map[string]bool)
+	for _, c := range calls {
+		found[c] = true
+	}
+	
+	for exp := range expected {
+		if !found[exp] {
+			t.Errorf("expected call %s not found", exp)
+		}
+	}
+}

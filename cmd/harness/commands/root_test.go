@@ -55,19 +55,19 @@ func TestErrorPaths(t *testing.T) {
 func TestHasPending(t *testing.T) {
 	// A strictly complete list
 	stepsWithCompleted := []string{"Task 1 (Completed)", "Task 2 (Completed)", "Task 3 (Completed)"}
-	if hasPending(stepsWithCompleted) {
+	if agent.HasPending(stepsWithCompleted) {
 		t.Errorf("Expected hasPending to return false for fully completed steps")
 	}
 
 	// Contains an unmarked step, implicitly pending
 	stepsWithoutPending := []string{"Task 1 (Completed)", "Task 2"}
-	if !hasPending(stepsWithoutPending) {
+	if !agent.HasPending(stepsWithoutPending) {
 		t.Errorf("Expected hasPending to return true due to unmarked step 'Task 2'")
 	}
 
 	// Contains an explicitly pending step
 	stepsWithPending := []string{"Task 1 (Completed)", "Task 2 (Pending)"}
-	if !hasPending(stepsWithPending) {
+	if !agent.HasPending(stepsWithPending) {
 		t.Errorf("Expected hasPending to return true due to 'Task 2 (Pending)'")
 	}
 }

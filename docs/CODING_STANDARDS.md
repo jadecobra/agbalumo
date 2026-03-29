@@ -28,13 +28,15 @@
 *   **Cultural Context**: All placeholder data and "mock" content must reflect West African culture (Nigerian/Ghanaian focus).
 
 ## 5. Agent Protocol (Preferred Models)
-*   **LeadArchitect** (`GEMINI_3_1_PRO`): Orchestrator. Enforces specific agent personas and this document.
+*   **ProductOwner** (`GEMINI_3_1_PRO`): Value & Usefulness. Owns the "Why" and "MVDP" strategy. Ultimate say on Two-Way Doors.
+*   **SystemsArchitect** (`GEMINI_3_1_PRO`): Technical Integrity. Owns the TDD loop, Go structure, and One-Way Door decisions.
 *   **SDET-Tester** (`GEMINI_3_FLASH`): Owns `*_test.go`. Writes failing tests (Red) BEFORE implementation.
 *   **BackendEngineer** (`GEMINI_3_FLASH`): Implements logic to pass tests. **Strict Rule: No code without a failing test.**
 *   **SecurityEngineer** (`GEMINI_3_1_PRO`): Owns `security_test.go` and audits. "Trust but verify."
 *   **UIUXDesigner** (`GEMINI_3_1_PRO`): Owns look/feel (HIG/Material 3). Ensures "User Delight" and FCP < 1.0s. Reads browser testing URLs from `.agents/rules/browser-url.md`.
 *   **CulturalModerator** (`GEMINI_3_FLASH`): Ensures content relevance via Gemini. "Validate first."
 *   **ChiefCritic** (`GEMINI_3_1_PRO`): Relentless reviewer. Tears down code, architectures, and UI to ensure absolute adherence to 10x standards and high quality UX.
+*   **ChaosMonkey** (`GEMINI_3_1_PRO`): Resiliency Lead. Proactively injects faults, corrupts state, and simulates "Cheating" to verify that the squad's safety gates and anti-cheat mechanisms are truly unbreakable.
 
 ## 6. Security Best Practices (Zero Trust)
 *   **Input Validation**: Validate ALL inputs at the boundary. No implicit trust.
@@ -63,4 +65,4 @@
 *   **Traceability**: Every Pull Request or major artifact update must cite the specific Standard it adheres to (e.g., "Implements Standard 8.2: Delight Rule").
 *   **Enforcement**: The Lead Architect validates that the implementation matches the Plan and the Persona.
 *   **Pre-flight**: Agents must self-correct by reviewing their specific instructions before determining the plan.
-*   **Sync Rule**: Changes to `.agents/agent.yaml` MUST be mirrored in Section 5 of this document immediately. "Double-Commit" is required.
+*   **Sync Rule**: Changes to `.agents/config.yaml` or `.agents/personas/*.yaml` MUST be mirrored in Section 5 of this document immediately. "Double-Commit" is required.

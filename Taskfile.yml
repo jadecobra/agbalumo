@@ -20,6 +20,10 @@ vars:
     sh: git diff --cached --name-only --diff-filter=ACMR | grep -E '\.agents/rules/brand\.toon$' || true
   STAGED_AGENT:
     sh: git diff --cached --name-only --diff-filter=ACMR | grep -E '\.agents/agent\.yaml$|docs/CODING_STANDARDS\.md$' || true
+  STAGED_PKGS:
+    sh: git diff --cached --name-only --diff-filter=ACMR | grep '\.go$' | xargs -I {} dirname {} | sort | uniq | sed 's|^|./|' | tr '\n' ' ' || true
+  STAGED_SEC_AUDIT:
+    sh: git diff --cached --name-only --diff-filter=ACMR | grep -E '^ui/|^internal/handler/|^internal/ui/' || true
   STAGED_ALL:
     sh: git diff --cached --name-only || true
   CONTAINER: '{{default "false" .USE_CONTAINER}}'
@@ -34,6 +38,7 @@ tasks:
 
   lint:
     desc: Run golangci-lint on staged files
+    silent: true
     status:
       - '[ -z "{{.STAGED_GO}}" ]'
     deps:
@@ -43,6 +48,7 @@ tasks:
 
   mod-tidy:
     desc: Run go mod tidy and check for drift
+    silent: true
     status:
       - '[ -z "{{.STAGED_GO}}" ]'
     cmds:
@@ -51,22 +57,35 @@ tasks:
 
   build:
     desc: Run a safety build check on staged Go files
+    silent: true
     status:
       - '[ -z "{{.STAGED_GO}}" ]'
     cmds:
       - go build -o /dev/null ./...
 
   test:
-    desc: Run tests on staged Go files
+    desc: Run optimized tests on staged Go packages
+    silent: true
+    status:
+      - '[ -z "{{.STAGED_GO}}" ]'
+    env:
+      USE_CONTAINER: '{{.CONTAINER}}'
+      SKIP_RACE: 'true'
+    cmds:
+      - bash scripts/test.sh "{{.STAGED_PKGS}}"
+
+  test:race:
+    desc: Run tests with race detector on staged Go packages
     status:
       - '[ -z "{{.STAGED_GO}}" ]'
     env:
       USE_CONTAINER: '{{.CONTAINER}}'
     cmds:
-      - bash scripts/test.sh
+      - bash scripts/test.sh "{{.STAGED_PKGS}}"
 
   api-drift:
     desc: Run API drift check via harness
+    silent: true
     status:
       - '[ -z "{{.STAGED_CMD_DOCS}}" ]'
     cmds:
@@ -74,6 +93,7 @@ tasks:
 
   template-drift:
     desc: Run template function drift check via harness
+    silent: true
     status:
       - '[ -z "{{.STAGED_SEC}}" ]'
     cmds:
@@ -81,6 +101,7 @@ tasks:
 
   agent-drift:
     desc: Run agent rules drift check on staged agent files
+    silent: true
     status:
       - '[ -z "{{.STAGED_AGENT}}" ]'
     cmds:
@@ -95,6 +116,7 @@ tasks:
 
   gitleaks:
     desc: Run gitleaks secret scan on staged files
+    silent: true
     status:
       - '[ -z "{{.STAGED_ALL}}" ]'
     env:
@@ -106,6 +128,7 @@ tasks:
 
   gosec-rationale:
     desc: Verify mandatory inline gosec justification
+    silent: true
     status:
       - '[ -z "{{.STAGED_ALL}}" ]'
     env:
@@ -115,12 +138,13 @@ tasks:
 
   security:
     desc: Run security checks on staged files
+    silent: true
     status:
       - '[ -z "{{.STAGED_ALL}}" ]'
     env:
       USE_CONTAINER: '{{.CONTAINER}}'
     cmds:
-      - ./scripts/agent-exec.sh verify security-static
+      - ./scripts/agent-exec.sh verify security-static "{{.STAGED_ALL}}"
 
   vulncheck:install:
     internal: true
@@ -131,6 +155,7 @@ tasks:
 
   vulncheck:
     desc: Run govulncheck vulnerability scan on staged Go files
+    silent: true
     status:
       - '[ -z "{{.STAGED_GO}}" ]'
     deps:
@@ -140,6 +165,7 @@ tasks:
 
   perf:
     desc: Run performance audit on staged performance-sensitive files
+    silent: true
     status:
       - '[ -z "{{.STAGED_PERF}}" ]'
     cmds:
@@ -147,6 +173,7 @@ tasks:
 
   brand:
     desc: Generate brand juice from staged brand files
+    silent: true
     status:
       - '[ -z "{{.STAGED_BRAND}}" ]'
     cmds:
@@ -154,6 +181,7 @@ tasks:
 
   threshold:
     desc: Verify coverage threshold anti-degradation
+    silent: true
     status:
       - '[ -z "{{.STAGED_ALL}}" ]'
     cmds:
@@ -161,23 +189,28 @@ tasks:
 
   gates:
     desc: Check workflow gate enforcement
+    silent: true
     cmds:
       - bash scripts/check-gates.sh
 
   ci-tools:
     desc: Verify CI toolset availability
+    silent: true
     cmds:
       - bash scripts/verify-ci-tools.sh
 
   ignored-files:
     desc: Check for ignored files staged for commit
+    silent: true
     status:
       - '[ -z "{{.STAGED_ALL}}" ]'
     cmds:
       - bash scripts/check-ignored.sh
 
   security-audit:
-    desc: Run dynamic security audit
+    desc: Run dynamic security audit (DAST) on demand or UI changes
+    status:
+      - '[ -z "{{.STAGED_SEC_AUDIT}}" ]'
     env:
       GOPATH: '{{.TASKFILE_DIR}}/.tester/tmp/go'
       GOCACHE: '{{.TASKFILE_DIR}}/.tester/tmp/gocache'
@@ -194,7 +227,9 @@ tasks:
       - ./.tester/tmp/go/bin/golangci-lint run -c scripts/.golangci.yml
 
   ci:test:
-    desc: Run full test suite with coverage
+    desc: Run full test suite with coverage and race detector (strict)
+    env:
+      STRICT_MODE: 'true'
     cmds:
       - bash scripts/test.sh
 

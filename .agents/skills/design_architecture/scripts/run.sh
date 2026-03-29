@@ -2,7 +2,7 @@
 set -e
 FEATURE_NAME="${1:-new-feature}"
 
-echo "[LeadArchitect] Executing design_architecture skill..."
+echo "[ProductOwner/SystemsArchitect] Executing design_architecture skill..."
 ./scripts/agent-exec.sh workflow init "$FEATURE_NAME"
 swagger-cli validate docs/openapi.yaml || echo "Warning: Spec validation failed"
 ./scripts/agent-exec.sh verify api-spec

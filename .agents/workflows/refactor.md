@@ -39,11 +39,11 @@ Define the scope and ensure the current codebase is stable.
 
 ### 1b. Verify Contract Stability
 
-> **Persona: Lead Architect** — Ensure the refactor doesn't accidentally change the API or CLI.
+> **Persona: [SystemsArchitect](file:///Users/johnnyblase/gym/agbalumo/.agents/personas/systems_architect.yaml)** — Ensure the refactor doesn't accidentally change the API or CLI (One-Way Door).
 
 - **Gate: `api-spec`**
   - **PASS**: `./scripts/agent-gate.sh api-spec` passes (no drift in `docs/api.md` or CLI contracts).
-  - **FAIL**: Drift detected. You MUST either revert the contract change or justify why it's necessary (which might turn this into a `feature` workflow).
+  - **FAIL**: Drift detected. You MUST either revert the contract change or justify why it's necessary to the SystemsArchitect and ProductOwner (which might turn this into a `feature` workflow).
 
 ---
 
@@ -91,6 +91,9 @@ Modify the code while keeping tests green.
 @[.agents/rules/browser-url.md]
 - **Gate: `browser-verification`** (Optional, but recommended if UI logic was touched).
 
+### 3b. Chaos Contract Audit
+> **Persona: [ChaosMonkey](file:///Users/johnnyblase/gym/agbalumo/.agents/personas/chaos_monkey.yaml)** — Attempt to silently modify a contract (API/CLI) without updating documentation. Verify that the `api-spec` gate correctly identifies and blocks the change.
+
 ---
 
 ## 6. Final Reset
@@ -110,6 +113,7 @@ Modify the code while keeping tests green.
 - [ ] `go test -race ./...` passes.
 - [ ] **Gate: `lint`** - `task pre-commit` passed.
 - [ ] **Gate: `coverage`** - No coverage drop.
+- [ ] **Gate: `chaos-verify`** - Refactor survived fault injection.
 - [ ] `task.md` updated.
 - [ ] **AUTO-COMMIT**: Execute git commit automatically with a short, imperative message (e.g., "Refactor: extract helper function"). DO NOT wait for the user to explicitly tell you to commit.
 - [ ] **FINALIZE**: Instruct the agent to use the `mcp_mcp-memory-service_memory_store` tool to save the refactor completion and context.

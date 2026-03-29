@@ -1,24 +1,2 @@
-# github.com/jadecobra/agbalumo/internal/agent [github.com/jadecobra/agbalumo/internal/agent.test]
-internal/agent/verify_coverage_test.go:11:6: TestParseCoverageProfile redeclared in this block
-	internal/agent/coverage_test.go:12:6: other declaration of TestParseCoverageProfile
-?   	github.com/jadecobra/agbalumo	[no test files]
-ok  	github.com/jadecobra/agbalumo/cmd	(cached) [no tests to run]
-?   	github.com/jadecobra/agbalumo/cmd/harness	[no test files]
-ok  	github.com/jadecobra/agbalumo/cmd/harness/commands	0.281s [no tests to run]
-ok  	github.com/jadecobra/agbalumo/cmd/security-audit	(cached) [no tests to run]
-FAIL	github.com/jadecobra/agbalumo/internal/agent [build failed]
-ok  	github.com/jadecobra/agbalumo/internal/common	(cached) [no tests to run]
-ok  	github.com/jadecobra/agbalumo/internal/config	(cached) [no tests to run]
-ok  	github.com/jadecobra/agbalumo/internal/domain	(cached) [no tests to run]
-ok  	github.com/jadecobra/agbalumo/internal/handler	(cached) [no tests to run]
-ok  	github.com/jadecobra/agbalumo/internal/middleware	(cached) [no tests to run]
-ok  	github.com/jadecobra/agbalumo/internal/module/admin	(cached) [no tests to run]
-ok  	github.com/jadecobra/agbalumo/internal/module/auth	(cached) [no tests to run]
-ok  	github.com/jadecobra/agbalumo/internal/module/listing	(cached) [no tests to run]
-ok  	github.com/jadecobra/agbalumo/internal/repository/cached	(cached) [no tests to run]
-ok  	github.com/jadecobra/agbalumo/internal/repository/sqlite	(cached) [no tests to run]
-ok  	github.com/jadecobra/agbalumo/internal/security	(cached) [no tests to run]
-ok  	github.com/jadecobra/agbalumo/internal/seeder	(cached) [no tests to run]
-ok  	github.com/jadecobra/agbalumo/internal/service	(cached) [no tests to run]
-ok  	github.com/jadecobra/agbalumo/internal/ui	(cached) [no tests to run]
-FAIL
+go: warning: "./cmd/security-audit/... undefined: isValidTarget" matched no packages
+no packages to test

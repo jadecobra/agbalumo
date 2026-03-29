@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
+	"strings"
 
 	"github.com/jadecobra/agbalumo/internal/agent"
 	"github.com/spf13/cobra"
@@ -67,7 +68,11 @@ func VerifyCmd() *cobra.Command {
 			case agent.GateTemplateDrift:
 				success = agent.VerifyTemplateDrift()
 			case agent.GateSecurityStatic:
-				success = agent.VerifySecurityStaticGate("cmd", "internal")
+				targets := []string{"cmd", "internal"}
+				if pattern != "" {
+					targets = strings.Fields(pattern)
+				}
+				success = agent.VerifySecurityStaticGate(targets...)
 			case agent.GateBrowserVerification:
 				fmt.Println("⚠️  AGENT INSTRUCTION: You must use the browser_subagent tool to verify the UI. Once the subagent finishes and the UI is verified, run: ./scripts/agent-exec.sh workflow gate browser-verification PASS")
 				if state.Gates.BrowserVerification == agent.GatePassed {
@@ -168,6 +173,10 @@ func VerifyCmd() *cobra.Command {
 
 			if !success {
 				return fmt.Errorf("gate verification failed: %s", gateID)
+			}
+
+			if err = agent.ArchivePassedCategories(".tester/tasks/progress.json", ".tester/tasks/progress_archive.json", 20); err != nil {
+				fmt.Printf("⚠️  Warning: failed to archive progress: %v\n", err)
 			}
 
 			return nil

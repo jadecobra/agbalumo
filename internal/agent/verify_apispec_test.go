@@ -520,20 +520,13 @@ var cmd = &cobra.Command{ Use: "code-cmd" }
 		}
 	})
 
-	// Assertions for specific drift messages
-	expectedDrifts := []string{
-		"Missing in OpenAPI (docs/openapi.yaml): GET /code-only",
-		"❌ Missing in Code (cmd/server.go): GET /openapi-only",
-		"Missing in API Docs (docs/api.md): GET /code-only",
-		"❌ Missing in Code (cmd/server.go): GET /md-only",
-		"❌ Missing in CLI Docs: code-cmd (found in Code)",
-		"❌ Missing in Code: md-cmd (found in CLI Docs)",
+	// Assertions for truncated drift reporting
+	if !strings.Contains(output, "❌ Drift detected (showing first):") {
+		t.Errorf("expected output to contain '❌ Drift detected (showing first):', got: %s", output)
 	}
-
-	for _, exp := range expectedDrifts {
-		if !strings.Contains(output, exp) {
-			t.Errorf("missing expected drift message: %s\nFull output:\n%s", exp, output)
-		}
+	// It should show at least the first one, and then a count of the rest
+	if !strings.Contains(output, "... and 7 more drifts.") {
+		t.Errorf("expected output to contain '... and 7 more drifts.', got: %s", output)
 	}
 }
 

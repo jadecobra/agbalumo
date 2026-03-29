@@ -23,6 +23,11 @@ if [ "$1" = "--text" ]; then
 fi
 
 # Robust PATH discovery
+VERBOSE=0
+for arg in "$@"; do
+    if [ "$arg" = "--verbose" ]; then VERBOSE=1; fi
+done
+
 source "$(dirname "$0")/utils.sh"
 setup_path
 

@@ -52,6 +52,7 @@ Use `github.com/stretchr/testify/mock`. Place mocks in `internal/mock/`.
 
 ### Coverage & Rules
 - **TDD:** Write tests first. A feature isn't done until tests pass.
-- **Coverage:** Threshold is enforced from `.agent/coverage-threshold`. NEVER lower this value — write more tests instead.
+- **Coverage:** Threshold is enforced from `.agents/coverage-threshold`. NEVER lower this value — write more tests instead.
+- **Persona Sync:** Changes to `.agents/config.yaml` or `.agents/personas/*.yaml` MUST be mirrored in `docs/CODING_STANDARDS.md` (Section 5). "Double-Commit" is required. **Chaos Verification** will proactively inject drift to ensure these rules are strictly followed.
 - **Functions:** Keep functions small and single-purpose (SRP).
 - **Comments:** Code should be self-documenting; avoid unnecessary comments.

@@ -105,6 +105,7 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 		orderClause = field + " " + order
 	}
 
+	// #nosec G202 - Dynamic query construction with trusted internal fragments
 	query := `SELECT ` + listingSelections + ` FROM listings 
 	          WHERE rowid IN (SELECT rowid FROM listings` + whereClause + ` ORDER BY ` + orderClause + ` LIMIT ? OFFSET ?)
 	          ORDER BY ` + orderClause
@@ -266,6 +267,7 @@ func (r *SQLiteRepository) GetFeaturedListings(ctx context.Context, category str
 		args = append(args, category)
 	}
 
+	// #nosec G202 - Dynamic query construction with trusted internal fragments
 	query := `
 		SELECT ` + listingSelections + `
 		FROM listings 

@@ -3,7 +3,6 @@ package commands
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/jadecobra/agbalumo/internal/agent"
 	"github.com/jadecobra/agbalumo/internal/util"
@@ -21,16 +20,6 @@ type CommandOutput struct {
 	Warnings []string `json:"warnings"`
 }
 
-type Feature struct {
-	Category    string   `json:"category"`
-	Description string   `json:"description"`
-	Passes      bool     `json:"passes"`
-	Steps       []string `json:"steps"`
-}
-
-type ProgressTracker struct {
-	Features []Feature `json:"features"`
-}
 
 func printJSON(success bool, command string, output any, warnings []string) {
 	if warnings == nil {
@@ -67,21 +56,13 @@ func saveState(state *agent.State) error {
 	return nil
 }
 
-func hasPending(steps []string) bool {
-	for _, step := range steps {
-		if !strings.Contains(step, "(Completed)") {
-			return true
-		}
-	}
-	return false
-}
 
 func summarizeProgress() error {
 	data, err := util.SafeReadFile(".tester/tasks/progress.json")
 	if err != nil {
 		return err
 	}
-	var tracker ProgressTracker
+	var tracker agent.ProgressTracker
 	if err := json.Unmarshal(data, &tracker); err != nil {
 		return err
 	}
@@ -128,19 +109,19 @@ func checkAndApplyProgressUpdate() error {
 		return fmt.Errorf("failed to read pending update: %w", err)
 	}
 
-	var newFeature Feature
+	var newFeature agent.Feature
 	err = json.Unmarshal(updateData, &newFeature)
 	if err != nil {
 		return fmt.Errorf("failed to parse pending update JSON: %w", err)
 	}
-	newFeature.Passes = !hasPending(newFeature.Steps)
+	newFeature.Passes = !agent.HasPending(newFeature.Steps)
 
 	targetData, err := util.SafeReadFile(targetFile)
 	if err != nil {
 		return fmt.Errorf("failed to read progress.json: %w", err)
 	}
 
-	var tracker ProgressTracker
+	var tracker agent.ProgressTracker
 	err = json.Unmarshal(targetData, &tracker)
 	if err != nil {
 		return fmt.Errorf("failed to parse progress.json: %w", err)
@@ -151,7 +132,7 @@ func checkAndApplyProgressUpdate() error {
 		if f.Category == newFeature.Category && newFeature.Category != "" {
 			// Merge steps
 			f.Steps = append(f.Steps, newFeature.Steps...)
-			f.Passes = !hasPending(f.Steps)
+			f.Passes = !agent.HasPending(f.Steps)
 			tracker.Features[i] = f
 			merged = true
 			break
@@ -166,7 +147,7 @@ func checkAndApplyProgressUpdate() error {
 	if err != nil {
 		return fmt.Errorf("failed to encode updated progress.json: %w", err)
 	}
-	newFeature.Passes = !hasPending(newFeature.Steps)
+	newFeature.Passes = !agent.HasPending(newFeature.Steps)
 
 	if err := util.SafeWriteFile(targetFile, outData); err != nil {
 		return fmt.Errorf("failed to save updated progress.json: %w", err)

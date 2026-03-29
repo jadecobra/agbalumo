@@ -8,7 +8,7 @@ As the BackendEngineer, write the smallest, ugliest code necessary to pass the S
 ## Rules of Engagement
 - **Zero Gold Plating**: Do NOT optimize. Do NOT add extra features. 
 - **Target**: Run the test suite until it passes. 
-- **Escalation**: If you cannot pass the tests after a few tries, halt and involve the LeadArchitect.
+- **Escalation**: If you cannot pass the tests after a few tries, halt and involve the **SystemsArchitect**.
 
 ## Scripts
 - Default execution script: `scripts/test-green.sh` (Placeholder)

@@ -37,7 +37,6 @@ func VerifySecurityStaticGate(paths ...string) bool {
 	fmt.Printf("❌ Gate FAIL: %d security violations detected (showing first %d).\n", len(allViolations), limit)
 	for i, v := range allViolations {
 		if i >= limit {
-			fmt.Printf("... and %d more violations.\n", len(allViolations)-limit)
 			break
 		}
 		fmt.Printf("  [%s] %s:%d:%d: %s\n", v.Type, v.File, v.Line, v.Column, v.Message)
@@ -218,8 +217,12 @@ func VerifyApiSpec(workflowType string) bool {
 		return true
 	}
 
-	for _, drift := range drifts {
-		fmt.Println(drift)
+	if len(drifts) > 0 {
+		fmt.Println("❌ Drift detected (showing first):")
+		fmt.Println(drifts[0])
+		if len(drifts) > 1 {
+			fmt.Printf("... and %d more drifts.\n", len(drifts)-1)
+		}
 	}
 
 	if workflowType == WorkflowRefactor || workflowType == WorkflowBugfix {
@@ -359,8 +362,11 @@ func VerifyCoverage() bool {
 		}
 		
 		fmt.Printf("❌ Gate FAIL: %s. Thresholds not met.\n", totalLine)
-		for _, v := range violations {
-			fmt.Println("  " + v)
+		if len(violations) > 0 {
+			fmt.Println("  " + violations[0])
+			if len(violations) > 1 {
+				fmt.Printf("  ... and %d more violations.\n", len(violations)-1)
+			}
 		}
 		return false
 	}

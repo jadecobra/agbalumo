@@ -14,7 +14,7 @@ description: comprehensive project audit (tests, security, ui, performance)
 
 2. **Security Audit**
 
-    > **Persona: Security** — Audit for OWASP Top 10 vulnerabilities. Enforce input validation and secure headers at the boundary. Audit all dependencies. Assume all input is malicious until proven otherwise.
+    > **Persona: [SecurityEngineer](file:///Users/johnnyblase/gym/agbalumo/.agents/personas/security_engineer.yaml)** — Audit for OWASP Top 10 vulnerabilities. Enforce input validation and secure headers at the boundary. Audit all dependencies. Assume all input is malicious until proven otherwise.
 
     - **Custom Security Tool**:
       ```bash
@@ -34,7 +34,7 @@ description: comprehensive project audit (tests, security, ui, performance)
 
 3. **UI & UX Review**
 
-    > **Persona: UI/UX** — Ensure premium feel: perfect alignment, consistent spacing, modern typography. Maintain agbalumo brand (Orange `#FF5E0E`, Green `#2D5A27`). Verify micro-interactions and smooth transitions. Target FCP < 1.0s.
+    > **Persona: [UIUXDesigner](file:///Users/johnnyblase/gym/agbalumo/.agents/personas/uiux_designer.yaml)** — Ensure premium feel: perfect alignment, consistent spacing, modern typography. Maintain agbalumo brand (Orange `#FF5E0E`, Green `#2D5A27`). Verify micro-interactions and smooth transitions. Target FCP < 1.0s.
 
     - Start the server if not running:
       ```bash
@@ -55,3 +55,17 @@ description: comprehensive project audit (tests, security, ui, performance)
 5. **Reporting**
     - Compile findings into a markdown report (e.g., `audit_report.md`).
     - Create tasks for any regressions or failures found.
+
+6. **Chaos Audit (Fault Injection)**
+
+    > **Persona: [ChaosMonkey](file:///Users/johnnyblase/gym/agbalumo/.agents/personas/chaos_monkey.yaml)** — Perform "Active Sabotage" to verify squad resiliency.
+
+    - **Fault Injection**:
+      - Corrupt the `.agents/state.json` file (e.g., change a signature or persona name).
+      - Verify that `verify-persona.go` and `agent-drift-check.sh` correctly detect the corruption.
+    - **State Recovery**:
+      - Delete the `.tester/tmp/` directory during a background task.
+      - Verify that the **SystemsArchitect** successfully recreates the environment and continues without manual intervention.
+    - ** Sabotage**:
+      - Modify an existing test case to pass erroneously (False Positive).
+      - Verify that the **SDET-Tester**'s regression shield catches the logic failure.
