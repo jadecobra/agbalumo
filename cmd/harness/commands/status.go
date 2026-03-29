@@ -18,11 +18,14 @@ func StatusCmd() *cobra.Command {
 				return err
 			}
 			if flagText {
-				b, err := json.MarshalIndent(state, "", "  ")
-				if err != nil {
-					return fmt.Errorf("error marshaling state: %w", err)
-				}
-				fmt.Println(string(b))
+				fmt.Printf("--- Current Workflow Status ---\n")
+				fmt.Printf("Feature: %s\n", state.Feature)
+				fmt.Printf("Phase: %s\n", state.Phase)
+				fmt.Printf("Workflow: %s\n", state.WorkflowType)
+				fmt.Printf("Updated: %s\n", state.UpdatedAt)
+				fmt.Printf("-------------------------------\n")
+				b, _ := json.MarshalIndent(state.Gates, "", "  ")
+				fmt.Printf("Gates:\n%s\n", string(b))
 			} else {
 				printJSON(true, "status", map[string]any{"state": state}, nil)
 			}

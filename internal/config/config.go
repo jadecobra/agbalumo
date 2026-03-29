@@ -18,6 +18,7 @@ type Config struct {
 	UploadDir        string
 	GoogleMapsAPIKey     string
 	HasGoogleAuth        bool
+	MockAuth             bool
 	SlowQueryThresholdMs int
 }
 
@@ -45,7 +46,8 @@ func LoadConfig() *Config {
 		RateLimitBurst:   getEnvAsInt("RATE_LIMIT_BURST", 40),
 		UploadDir:            uploadDir,
 		GoogleMapsAPIKey:     getEnv("GOOGLE_MAPS_API_KEY", ""),
-		HasGoogleAuth:        hasGoogleAuth,
+		HasGoogleAuth:        hasGoogleAuth || os.Getenv("MOCK_AUTH") == "true",
+		MockAuth:             os.Getenv("MOCK_AUTH") == "true",
 		SlowQueryThresholdMs: getEnvAsInt("SLOW_QUERY_THRESHOLD_MS", 50),
 	}
 }

@@ -123,6 +123,34 @@ func (p *RealGoogleProvider) GetUserInfo(ctx context.Context, token *oauth2.Toke
 	return &gUser, nil
 }
 
+// -- Mock Google Provider for Browser Audits --
+
+type MockGoogleProvider struct {
+	Email string
+	Name  string
+}
+
+func (p *MockGoogleProvider) GetAuthCodeURL(state string, scheme string, host string) string {
+	if scheme == "" {
+		scheme = "http"
+	}
+	// Pure redirect to callback to simulate the flow
+	return fmt.Sprintf("%s://%s/auth/google/callback?state=%s&code=mock-code", scheme, host, state)
+}
+
+func (p *MockGoogleProvider) Exchange(ctx context.Context, code string, scheme string, host string) (*oauth2.Token, error) {
+	return &oauth2.Token{AccessToken: "mock-token"}, nil
+}
+
+func (p *MockGoogleProvider) GetUserInfo(ctx context.Context, token *oauth2.Token) (*GoogleUser, error) {
+	return &GoogleUser{
+		ID:      "mock-" + p.Email,
+		Email:   p.Email,
+		Name:    p.Name,
+		Picture: "https://ui-avatars.com/api/?name=Mock+User",
+	}, nil
+}
+
 // -- Auth Handler --
 
 type AuthHandler struct {

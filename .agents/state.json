@@ -2,7 +2,7 @@
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
   "feature": "CI-CD_Hardening",
   "workflow_type": "refactor",
-  "phase": "REFACTOR",
+  "phase": "RED",
   "gates": {
     "red-test": "PASSED",
     "api-spec": "PASSED",
@@ -13,6 +13,6 @@
     "template-drift": "PASSED",
     "security-static": "PASSED"
   },
-  "updated_at": "2026-03-29T16:24:54.664332Z",
-  "signature": "908dc95beb5a16e7520264d10da20416b07685d85aee4c5b67b905c1e70eddab"
+  "updated_at": "2026-03-29T17:04:32.428025Z",
+  "signature": "9cc1db0509f9fb082e1f3879d68c929184eebcaa369e282fe4ba2e649c1d5621"
 }

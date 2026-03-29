@@ -3,6 +3,7 @@ package commands
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/jadecobra/agbalumo/internal/agent"
 	"github.com/jadecobra/agbalumo/internal/util"
@@ -19,7 +20,6 @@ type CommandOutput struct {
 	Output   any      `json:"output"`
 	Warnings []string `json:"warnings"`
 }
-
 
 func printJSON(success bool, command string, output any, warnings []string) {
 	if warnings == nil {
@@ -55,7 +55,6 @@ func saveState(state *agent.State) error {
 	}
 	return nil
 }
-
 
 func summarizeProgress() error {
 	data, err := util.SafeReadFile(".tester/tasks/progress.json")
@@ -166,8 +165,8 @@ func NewRootCmd() *cobra.Command {
 		SilenceUsage:  true,
 	}
 
-	rootCmd.PersistentFlags().BoolVar(&flagText, "text", false, "Output in human-readable text format (JSON is default)")
-	
+	rootCmd.PersistentFlags().BoolVar(&flagText, "text", os.Getenv("HARNESS_TEXT") == "true", "Output in human-readable text format (JSON is default)")
+
 	rootCmd.AddCommand(InitCmd())
 	rootCmd.AddCommand(SetPhaseCmd())
 	rootCmd.AddCommand(GateCmd())

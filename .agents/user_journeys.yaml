@@ -1,0 +1,48 @@
+journeys:
+  - name: "Visitor: Search & Discover"
+    description: "Unauthenticated user searches for a listing and views details."
+    steps:
+      - path: "/"
+        action: "navigate"
+        verify: "selectorExists('.listing-card')"
+      - path: "/listings/fragment?q=test"
+        action: "navigate"
+        verify: "selectorExists('.listing-card')"
+      - path: "/listings/1" # Assuming ID 1 exists from seed
+        action: "navigate"
+        verify: "selectorExists('.modal-content')"
+
+  - name: "Authenticated User: List & Manage"
+    description: "Logged in user creates and edits their own listing."
+    auth_required: true
+    steps:
+      - path: "/auth/google/login"
+        action: "mock_auth"
+        verify: "pathIs('/')"
+      - path: "/profile"
+        action: "navigate"
+        verify: "textExists('Your Listings')"
+      - path: "/listings/1/edit"
+        action: "navigate"
+        verify: "selectorExists('form[action^=\"/listings/1\"]')"
+
+  - name: "Admin: Audit & Governance"
+    description: "Admin user reviews dashboard and manages users."
+    admin_required: true
+    steps:
+      - path: "/admin/login"
+        action: "navigate"
+        verify: "selectorExists('input[name=\"code\"]')"
+      - path: "/admin/login"
+        action: "form_submit"
+        data:
+          code: "${ADMIN_CODE}"
+        verify: "pathIs('/admin')"
+      - path: "/admin/users"
+        action: "navigate"
+        verify: "selectorExists('table')"
+
+friction_thresholds:
+  layout_shift: 5 # pixels
+  interaction_delay: 100 # ms
+  max_steps_to_value: 3 # e.g. Home -> Search -> Detail

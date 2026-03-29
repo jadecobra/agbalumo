@@ -172,9 +172,18 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 		CSVService:        csvService,
 		Cfg:               cfg,
 	})
+	var googleProvider auth.GoogleProvider
+	if cfg.MockAuth {
+		googleProvider = &auth.MockGoogleProvider{
+			Email: "test@agbalumo.com",
+			Name:  "Test User",
+		}
+	}
+
 	authHandler := auth.NewAuthHandler(auth.AuthDependencies{
-		UserStore: domain.UserStore(repo),
-		Config:    cfg,
+		UserStore:      domain.UserStore(repo),
+		Config:         cfg,
+		GoogleProvider: googleProvider,
 	})
 	authMw := auth.NewAuthMiddleware(domain.UserStore(repo))
 	pageHandler := common.NewPageHandler(domain.CategoryStore(cachedRepo), cfg)

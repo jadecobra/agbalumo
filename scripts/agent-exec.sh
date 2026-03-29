@@ -15,4 +15,7 @@ if [ "$ISOLATE_GO" == "true" ]; then
     export GOCACHE="${PWD}/.tester/tmp/gocache"
 fi
 
+# HARNESS_TEXT: Set to true to output human-readable text by default (preferred for agents)
+export HARNESS_TEXT="${HARNESS_TEXT:-true}"
+
 go run cmd/harness/main.go "$@"
