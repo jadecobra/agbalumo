@@ -38,7 +38,7 @@ func TestCalculateEntropy(t *testing.T) {
 }
 
 func TestIsIgnoredRaw(t *testing.T) {
-	if !isIgnoredRaw("var x = 1 // #nosec") {
+	if !isIgnoredRaw("var x = 1 // #nosec - testing ignore logic") {
 		t.Error("expected #nosec to be ignored")
 	}
 	if !isIgnoredRaw("secret := \"abc\" // antigravity:allow") {

@@ -81,42 +81,9 @@ jobs:
         run: task threshold
 
       - name: Verify Coverage Threshold Anti-Degradation
-        run: |
-          THRESHOLD_FILE=".agents/coverage-threshold"
-          if [ ! -f "$THRESHOLD_FILE" ]; then
-            echo "No threshold file found, skipping anti-degradation check"
-            exit 0
-          fi
-          
-          # Determine base branch/commit
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-             # For PRs, compare with the merge base of the base branch
-             BASE="origin/${{ github.base_ref }}"
-          else
-             # For pushes, compare with the previous commit
-             # git fetch depth 0 ensures we have the history
-             BASE="${{ github.event.before }}"
-             # Fallback if first push or no before SHA
-             if [ -z "$BASE" ] || [ "$BASE" == "0000000000000000000000000000000000000000" ]; then
-               BASE="HEAD^1"
-             fi
-          fi
-          
-          echo "Comparing current with BASE: $BASE"
-          
-          if git diff --name-only "$BASE" HEAD | grep -q "^$THRESHOLD_FILE$"; then
-            OLD_THRESHOLD=$(git show "$BASE:$THRESHOLD_FILE" 2>/dev/null || echo "0.0")
-            NEW_THRESHOLD=$(cat "$THRESHOLD_FILE")
-            echo "New Threshold: $NEW_THRESHOLD, Old Threshold: $OLD_THRESHOLD"
-            if awk "BEGIN {exit !($NEW_THRESHOLD < $OLD_THRESHOLD)}"; then
-              echo "❌ Error: Coverage threshold cannot be lowered ($NEW_THRESHOLD < $OLD_THRESHOLD)"
-              echo "You must write tests to maintain or improve coverage, not lower the threshold!"
-              exit 1
-            fi
-            echo "✅ Coverage threshold anti-degradation check passed"
-          else
-            echo "Skipping check: $THRESHOLD_FILE not modified in this change"
-          fi
+        run: ./scripts/ci/check-coverage-drift.sh
+        env:
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
 
       - name: Upload Coverage Artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
