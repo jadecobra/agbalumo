@@ -71,6 +71,14 @@ tasks:
     cmds:
       - go build -o /dev/null ./...
 
+  fmt:
+    desc: Run go fmt on staged Go files
+    silent: true
+    status:
+      - '[ -z "{{.STAGED_GO}}" ]'
+    cmds:
+      - gofmt -w {{.STAGED_GO}}
+
   test:
     desc: Run optimized tests on staged Go packages
     silent: true
@@ -224,6 +232,16 @@ tasks:
     cmds:
       - go run cmd/security-audit/main.go
 
+  watch:
+    desc: Watch Go files and run fast checks + tests on change
+    cmds:
+      - task: _pre-commit-fast
+      - task: test
+    watch: true
+    sources:
+      - '**/*.go'
+      - 'Taskfile.yml'
+
 
   ci:lint:
     desc: Run full lint on the entire codebase
@@ -286,17 +304,23 @@ tasks:
       - task: security-audit
 
   pre-commit:
-    desc: Run all pre-commit gate tasks in parallel after checking workflow gates
+    desc: Run all pre-commit gates (Fast Sequential -> Heavy Parallel)
     cmds:
       - task: gates
-      - task: _pre-commit-parallel
+      - task: _pre-commit-fast
+      - task: _pre-commit-heavy
 
-  _pre-commit-parallel:
+  _pre-commit-fast:
+    internal: true
+    cmds:
+      - task: mod-tidy
+      - task: fmt
+      - task: lint
+      - task: build
+
+  _pre-commit-heavy:
     internal: true
     deps:
-      - lint
-      - mod-tidy
-      - build
       - test
       - api-drift
       - template-drift

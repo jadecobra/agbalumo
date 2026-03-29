@@ -180,6 +180,17 @@
         "Implement automatic progress archiving (Completed)",
         "Silence Taskfile and script noise (Completed)"
       ]
+    },
+    {
+      "category": "Feedback Loop Optimization",
+      "description": "Optimized the lint/test feedback loop with sequential phases and automated formatting.",
+      "passes": true,
+      "steps": [
+        "Implemented `task fmt` for automated Go formatting (Completed)",
+        "Refactored `task pre-commit` to use sequential fast-checks (lint, fmt, build) before parallel heavy-checks (Completed)",
+        "Implemented `task watch` and `scripts/watch.sh` for immediate development feedback (Completed)",
+        "Updated `GEMINI.md` to mandate the new feedback loop protocol for AI agents (Completed)"
+      ]
     }
   ]
 }

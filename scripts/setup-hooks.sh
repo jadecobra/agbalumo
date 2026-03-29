@@ -35,11 +35,11 @@ if [ -f "$PRE_COMMIT_HOOK" ]; then
     fi
 fi
 
-# Create pre-commit hook
+# Creates pre-commit hook with sequential fast-checks
 cat > "$PRE_COMMIT_HOOK" <<EOF
 #!/bin/sh
 # agbalumo 10x Engineer Pre-commit Hook
-# Runs security checks and quality checks before commit via go-task
+# 1. Fast Checks (Fmt/Lint/Build) -> 2. Heavy Checks (Tests/Audit)
 
 task pre-commit
 EOF

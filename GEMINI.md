@@ -13,6 +13,7 @@ For detailed rules and development process, run or refer to these workflows:
 
 ## Harness Integration
 - **ALWAYS** initialize the 10x Engineer harness when starting a new task (feature, bugfix, or refactor) by running `./scripts/agent-exec.sh init <feature_name> <workflow_type>`.
+- **FEEDBACK LOOP PROTOCOL**: Catch errors immediately. **ALWAYS** run `task fmt` and `task lint` *before* attempting `task test`. If automated formatting or linting fails, fix syntax errors *immediately* before proceeding to tests.
 - Transition phases (RED, GREEN, REFACTOR) using `./scripts/agent-exec.sh set-phase <phase>`.
 - Verify and pass gates using `./scripts/agent-exec.sh verify <gate_id>`.
 - **ANTI-CHEAT**: NEVER manually edit `.agents/state.json`. The file is protected by a cryptographic signature. Note: manual bypassing of `red-test` via `gate red-test PASS` is explicitly blocked. If you must bypass validation gates for UI/HTML layout changes, use `./scripts/agent-exec.sh verify red-test ui-bypass` directly. **WARNING**: The **ChaosMonkey** persona actively tests these gates via fault injection; any successful bypass without a rejection is a system failure. 
