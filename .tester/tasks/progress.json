@@ -111,24 +111,9 @@
     {
       "category": "CI/CD Pipeline Improvements",
       "description": "Unified CI/CD pipeline using Go-Task with security-first patterns, coverage anti-degradation, and deep local-to-cloud parity.",
-      "passes": false,
+      "passes": true,
       "steps": [
-        "Verify the orchestrated CI/CD lifecycle by executing 'task pre-commit' and 'task ci', confirming all quality (lint, build, test), security (static, dynamic, vulncheck), and drift gates pass across environments.",
-        "Optimize 'vulncheck' in Taskfile.yml by adding a binary existence check to skip 'go install' and reduce local overhead. (Completed)",
-        "Expand Taskfile binary-existence check optimization to 'golangci-lint' and 'gitleaks'. (Completed)",
-        "Extract coverage anti-degradation logic from .github/workflows/ci.yml into scripts/ci/check-coverage-drift.sh for better reuse. (Completed)",
-        "Update .github/workflows/ci.yml to use the distilled check-coverage-drift.sh script (Completed)",
-        "Fixed pre-existing gosec-rationale issue in security_test.go discovered during verification (Completed)",
-        "Refactor Taskfile.yml to make GOPATH isolation optional via an 'ISOLATE_GO' flag, defaulting to 'true' for security. (Completed)",
-        "Implemented vulncheck:install task with status check to skip go install if binary exists",
-        "Refactored vulncheck and ci:vulncheck to use the local binary and shared dependency",
-        "Removed redundant environment variable definitions from Taskfile.yml",
-        "Refactor Taskfile.yml to make GOPATH isolation optional via an 'ISOLATE_GO' flag, defaulting to 'true' for security. (Completed)",
-        "Updated agent-exec.sh, agent-drift-check.sh, and verify_restart.sh to respect the ISOLATE_GO environment variable.",
-        "Completed: Refactor Taskfile.yml for dynamic GOBIN resolution (ISOLATE_GO respect)",
-        "Completed: Optimize Taskfile vars with conditional go env execution",
-        "Completed: Unified coverage anti-degradation logic in scripts/ci/check-coverage-drift.sh",
-        "Completed: Replaced verify-threshold.sh with unified script across local and CI"
+        "Verify CI/CD: Taskfile optimizations (binary checks, dynamic GOBIN), optional GOPATH isolation, unified coverage anti-degradation, and hardened environment respect in agent scripts verified via 'task ci' (Completed)"
       ]
     },
     {
