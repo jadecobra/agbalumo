@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/jadecobra/agbalumo/internal/agent"
 	"github.com/jadecobra/agbalumo/internal/util"
@@ -57,13 +58,27 @@ func saveState(state *agent.State) error {
 }
 
 func summarizeProgress() error {
-	data, err := util.SafeReadFile(".tester/tasks/progress.json")
+	progressPath := ".tester/tasks/progress.md"
+	if _, err := util.SafeStat(progressPath); util.SafeIsNotExist(err) {
+		// Fallback to JSON during migration
+		progressPath = ".tester/tasks/progress.json"
+	}
+
+	data, err := util.SafeReadFile(progressPath)
 	if err != nil {
 		return err
 	}
+
 	var tracker agent.ProgressTracker
-	if err := json.Unmarshal(data, &tracker); err != nil {
-		return err
+	if strings.HasSuffix(progressPath, ".md") {
+		tracker, err = agent.ParseMarkdownTracker(string(data))
+		if err != nil {
+			return err
+		}
+	} else {
+		if err := json.Unmarshal(data, &tracker); err != nil {
+			return err
+		}
 	}
 
 	passed, pending := 0, 0
@@ -95,35 +110,65 @@ func summarizeProgress() error {
 }
 
 func checkAndApplyProgressUpdate() error {
-	updateFile := ".tester/tasks/pending_update.json"
-	targetFile := ".tester/tasks/progress.json"
+	updateFileMD := ".tester/tasks/pending_update.md"
+	updateFileJSON := ".tester/tasks/pending_update.json"
+	targetFileMD := ".tester/tasks/progress.md"
+	targetFileJSON := ".tester/tasks/progress.json"
 
-	if _, err := util.SafeStat(updateFile); util.SafeIsNotExist(err) {
+	var updateFile string
+	if _, err := util.SafeStat(updateFileMD); err == nil {
+		updateFile = updateFileMD
+	} else if _, err := util.SafeStat(updateFileJSON); err == nil {
+		updateFile = updateFileJSON
+	} else {
 		return nil // No update file provided
 	}
 
-	fmt.Println("📦 Found pending_update.json. Triggering automatic progress tracker update...")
+	fmt.Printf("📦 Found %s. Triggering automatic progress tracker update...\n", updateFile)
 	updateData, err := util.SafeReadFile(updateFile)
 	if err != nil {
 		return fmt.Errorf("failed to read pending update: %w", err)
 	}
 
 	var newFeature agent.Feature
-	err = json.Unmarshal(updateData, &newFeature)
-	if err != nil {
-		return fmt.Errorf("failed to parse pending update JSON: %w", err)
+	if strings.HasSuffix(updateFile, ".md") {
+		tempTracker, tErr := agent.ParseMarkdownTracker(string(updateData))
+		if tErr != nil || len(tempTracker.Features) == 0 {
+			return fmt.Errorf("failed to parse pending update Markdown: %w", tErr)
+		}
+		newFeature = tempTracker.Features[0]
+	} else {
+		err = json.Unmarshal(updateData, &newFeature)
+		if err != nil {
+			return fmt.Errorf("failed to parse pending update JSON: %w", err)
+		}
 	}
 	newFeature.Passes = !agent.HasPending(newFeature.Steps)
 
+	// Determine target file
+	targetFile := targetFileMD
+	if _, sErr := util.SafeStat(targetFileMD); util.SafeIsNotExist(sErr) {
+		if _, sErr := util.SafeStat(targetFileJSON); sErr == nil {
+			targetFile = targetFileJSON
+		}
+	}
+
 	targetData, err := util.SafeReadFile(targetFile)
 	if err != nil {
-		return fmt.Errorf("failed to read progress.json: %w", err)
+		return fmt.Errorf("failed to read target progress file: %w", err)
 	}
 
 	var tracker agent.ProgressTracker
-	err = json.Unmarshal(targetData, &tracker)
-	if err != nil {
-		return fmt.Errorf("failed to parse progress.json: %w", err)
+	if strings.HasSuffix(targetFile, ".md") {
+		tracker, err = agent.ParseMarkdownTracker(string(targetData))
+		if err != nil {
+			return fmt.Errorf("failed to parse progress Markdown: %w", err)
+		}
+	} else {
+		err = json.Unmarshal(targetData, &tracker)
+		if err != nil {
+			return fmt.Errorf("failed to parse progress JSON: %w", err)
+		}
 	}
 
 	merged := false
@@ -142,17 +187,21 @@ func checkAndApplyProgressUpdate() error {
 		tracker.Features = append(tracker.Features, newFeature)
 	}
 
-	outData, err := json.MarshalIndent(tracker, "", "  ")
-	if err != nil {
-		return fmt.Errorf("failed to encode updated progress.json: %w", err)
+	var outData []byte
+	if strings.HasSuffix(targetFile, ".md") {
+		outData = []byte(agent.ToMarkdown(tracker))
+	} else {
+		outData, err = json.MarshalIndent(tracker, "", "  ")
+		if err != nil {
+			return fmt.Errorf("failed to encode updated progress file: %w", err)
+		}
 	}
-	newFeature.Passes = !agent.HasPending(newFeature.Steps)
 
 	if err := util.SafeWriteFile(targetFile, outData); err != nil {
-		return fmt.Errorf("failed to save updated progress.json: %w", err)
+		return fmt.Errorf("failed to save updated progress file: %w", err)
 	}
 
-	fmt.Println("✅ Successfully updated progress.json with new feature implementation!")
+	fmt.Printf("✅ Successfully updated %s with new implementation!\n", targetFile)
 	_ = util.SafeRemove(updateFile)
 	return nil
 }

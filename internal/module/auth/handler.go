@@ -139,7 +139,7 @@ func (p *MockGoogleProvider) GetAuthCodeURL(state string, scheme string, host st
 }
 
 func (p *MockGoogleProvider) Exchange(ctx context.Context, code string, scheme string, host string) (*oauth2.Token, error) {
-	return &oauth2.Token{AccessToken: "mock-token"}, nil
+	return &oauth2.Token{AccessToken: "mock-token"}, nil // #nosec G101 - Rationale: Mock provider for testing/audits. Mock token is intentional and non-sensitive.
 }
 
 func (p *MockGoogleProvider) GetUserInfo(ctx context.Context, token *oauth2.Token) (*GoogleUser, error) {

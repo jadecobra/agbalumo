@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"encoding/json"
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/agent"
@@ -35,20 +34,81 @@ func TestCoverageHelpers(t *testing.T) {
 }
 
 func TestErrorPaths(t *testing.T) {
-	// Test summarizeProgress with missing file
-	origFile := ".tester/tasks/progress.json"
-	tempFile := ".tester/tasks/progress.json.bak"
-	_ = util.SafeRename(origFile, tempFile)
-	defer func() { _ = util.SafeRename(tempFile, origFile) }()
+	// Test summarizeProgress with missing files
+	origFileMD := ".tester/tasks/progress.md"
+	tempFileMD := ".tester/tasks/progress.md.bak"
+
+	_ = util.SafeRename(origFileMD, tempFileMD)
+	defer func() {
+		_ = util.SafeRename(tempFileMD, origFileMD)
+	}()
 
 	err := summarizeProgress()
 	if err == nil {
-		t.Errorf("expected error for missing progress.json, got nil")
+		t.Errorf("expected error for missing progress files, got nil")
 	}
 
 	err = checkAndApplyProgressUpdate()
 	if err != nil {
 		t.Logf("Note: checkAndApplyProgressUpdate returned: %v", err)
+	}
+}
+
+func TestCheckAndApplyProgressUpdateMD(t *testing.T) {
+	// Create mock progress.md
+	progressFile := ".tester/tasks/progress.md"
+	updateFile := ".tester/tasks/pending_update.md"
+
+	// Backup original progress.md
+	backupFile := progressFile + ".bak"
+	if _, err := util.SafeStat(progressFile); err == nil {
+		_ = util.SafeRename(progressFile, backupFile)
+		defer func() {
+			_ = util.SafeRemove(progressFile)
+			_ = util.SafeRename(backupFile, progressFile)
+		}()
+	}
+
+	initialProgress := `# Test Category
+Test Description
+- [x] Step 1
+`
+	_ = util.SafeMkdir(".tester/tasks")
+	_ = util.SafeWriteFile(progressFile, []byte(initialProgress))
+
+	pendingUpdate := `# Test Category
+- [x] Step 2
+`
+	_ = util.SafeWriteFile(updateFile, []byte(pendingUpdate))
+	defer func() { _ = util.SafeRemove(updateFile) }()
+
+	err := checkAndApplyProgressUpdate()
+	if err != nil {
+		t.Fatalf("checkAndApplyProgressUpdate failed: %v", err)
+	}
+
+	// Verify the result
+	data, err := util.SafeReadFile(progressFile)
+	if err != nil {
+		t.Fatalf("failed to read updated progress.md: %v", err)
+	}
+
+	tracker, err := agent.ParseMarkdownTracker(string(data))
+	if err != nil {
+		t.Fatalf("failed to parse updated progress.md: %v", err)
+	}
+
+	if len(tracker.Features) > 0 {
+		f := tracker.Features[0]
+		if f.Category != "Test Category" {
+			t.Errorf("expected category 'Test Category', got '%s'", f.Category)
+		}
+		if len(f.Steps) != 2 {
+			t.Errorf("expected 2 steps, got %d", len(f.Steps))
+		}
+		if !f.Passes {
+			t.Errorf("expected passes to be true")
+		}
 	}
 }
 
@@ -80,10 +140,10 @@ func TestPrintJSON(t *testing.T) {
 
 func TestInitCmdCoverage(t *testing.T) {
 	cmd := NewRootCmd()
-    flagText = true
+	flagText = true
 	cmd.SetArgs([]string{"init", "test-feature", "bugfix"})
 	_ = cmd.Execute()
-	
+
 	cmd.SetArgs([]string{"set-phase", "RED"})
 	_ = cmd.Execute()
 }
@@ -98,78 +158,5 @@ func TestBypassGates(t *testing.T) {
 	state.Phase = "REFACTOR"
 	if err := saveState(state); err != nil {
 		t.Fatalf("failed to save state: %v", err)
-	}
-}
-func TestCheckAndApplyProgressUpdate(t *testing.T) {
-	// Create mock progress.json
-	progressFile := ".tester/tasks/progress.json"
-	updateFile := ".tester/tasks/pending_update.json"
-
-	// Backup original progress.json
-	backupFile := progressFile + ".bak"
-	if _, err := util.SafeStat(progressFile); err == nil {
-		_ = util.SafeRename(progressFile, backupFile)
-		defer func() {
-			_ = util.SafeRemove(progressFile)
-			_ = util.SafeRename(backupFile, progressFile)
-		}()
-	}
-
-	initialProgress := `{
-  "features": [
-    {
-      "category": "Test Category",
-      "description": "Test Description",
-      "passes": false,
-      "steps": ["Step 1 (Completed)"]
-    }
-  ]
-}`
-	_ = util.SafeMkdir(".tester/tasks")
-	_ = util.SafeWriteFile(progressFile, []byte(initialProgress))
-
-	pendingUpdate := `{
-  "category": "Test Category",
-  "steps": ["Step 2 (Completed)"]
-}`
-	_ = util.SafeWriteFile(updateFile, []byte(pendingUpdate))
-	defer func() { _ = util.SafeRemove(updateFile) }()
-
-	err := checkAndApplyProgressUpdate()
-	if err != nil {
-		t.Fatalf("checkAndApplyProgressUpdate failed: %v", err)
-	}
-
-	// Verify the result
-	data, err := util.SafeReadFile(progressFile)
-	if err != nil {
-		t.Fatalf("failed to read updated progress.json: %v", err)
-	}
-
-	var tracker struct {
-		Features []struct {
-			Category string   `json:"category"`
-			Passes   bool     `json:"passes"`
-			Steps    []string `json:"steps"`
-		} `json:"features"`
-	}
-	if err := json.Unmarshal(data, &tracker); err != nil {
-		t.Fatalf("failed to unmarshal updated progress.json: %v", err)
-	}
-
-	if len(tracker.Features) != 1 {
-		t.Errorf("expected 1 feature, got %d", len(tracker.Features))
-	}
-	if len(tracker.Features) > 0 {
-		f := tracker.Features[0]
-		if f.Category != "Test Category" {
-			t.Errorf("expected category 'Test Category', got '%s'", f.Category)
-		}
-		if len(f.Steps) != 2 {
-			t.Errorf("expected 2 steps, got %d", len(f.Steps))
-		}
-		if !f.Passes {
-			t.Errorf("expected passes to be true")
-		}
 	}
 }

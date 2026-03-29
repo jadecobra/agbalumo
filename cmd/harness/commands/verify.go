@@ -175,7 +175,7 @@ func VerifyCmd() *cobra.Command {
 				return fmt.Errorf("gate verification failed: %s", gateID)
 			}
 
-			if err = agent.ArchivePassedCategories(".tester/tasks/progress.json", ".tester/tasks/progress_archive.json", 20); err != nil {
+			if err = agent.ArchivePassedCategories(".tester/tasks/progress.md", ".tester/tasks/progress_archive.md", 20); err != nil {
 				fmt.Printf("⚠️  Warning: failed to archive progress: %v\n", err)
 			}
 

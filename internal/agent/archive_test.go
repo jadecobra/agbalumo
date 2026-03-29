@@ -1,7 +1,7 @@
 package agent
 
 import (
-	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -9,14 +9,14 @@ import (
 
 func TestArchivePassedCategories(t *testing.T) {
 	tmpDir := t.TempDir()
-	progressPath := filepath.Join(tmpDir, "progress.json")
-	archivePath := filepath.Join(tmpDir, "progress_archive.json")
+	progressPath := filepath.Join(tmpDir, "progress.md")
+	archivePath := filepath.Join(tmpDir, "progress_archive.md")
 
-	// Setup: Create a progress.json with many passed features and some pending ones
+	// Setup: Create a progress.md with many passed features and some pending ones
 	features := []Feature{}
 	for i := 1; i <= 25; i++ {
 		features = append(features, Feature{
-			Category:    "Passed Cat",
+			Category:    fmt.Sprintf("Passed Cat %d", i),
 			Description: "Description",
 			Passes:      true,
 			Steps:       []string{"Step (Completed)"},
@@ -30,7 +30,7 @@ func TestArchivePassedCategories(t *testing.T) {
 	})
 
 	tracker := ProgressTracker{Features: features}
-	data, _ := json.MarshalIndent(tracker, "", "  ")
+	data := []byte(ToMarkdown(tracker))
 	_ = os.WriteFile(progressPath, data, 0644)
 
 	// Threshold is 20 features
@@ -39,20 +39,24 @@ func TestArchivePassedCategories(t *testing.T) {
 		t.Fatalf("ArchivePassedCategories failed: %v", err)
 	}
 
-	// Verify progress.json
+	// Verify progress.md
 	newData, _ := os.ReadFile(progressPath)
-	var newTracker ProgressTracker
-	_ = json.Unmarshal(newData, &newTracker)
+	newTracker, err := ParseMarkdownTracker(string(newData))
+	if err != nil {
+		t.Fatalf("ParseMarkdownTracker failed for progress.md: %v", err)
+	}
 
 	// Should have moved enough to get under/equal to 20
 	if len(newTracker.Features) != 1 {
-		t.Errorf("expected 1 feature in progress.json (pending), got %d", len(newTracker.Features))
+		t.Errorf("expected 1 feature in progress.md (pending), got %d", len(newTracker.Features))
 	}
 
 	// Verify archive exists and contains the passed features
 	archiveData, _ := os.ReadFile(archivePath)
-	var archivedTracker ProgressTracker
-	_ = json.Unmarshal(archiveData, &archivedTracker)
+	archivedTracker, err := ParseMarkdownTracker(string(archiveData))
+	if err != nil {
+		t.Fatalf("ParseMarkdownTracker failed for archive.md: %v", err)
+	}
 	if len(archivedTracker.Features) != 25 {
 		t.Errorf("expected 25 features in archive, got %d", len(archivedTracker.Features))
 	}
@@ -64,13 +68,13 @@ func TestArchivePassedCategories(t *testing.T) {
 	}
 
 	// Test: No progress file (should not error)
-	err = ArchivePassedCategories("non_existent.json", archivePath, 0)
+	err = ArchivePassedCategories("non_existent.md", archivePath, 0)
 	if err != nil {
 		t.Errorf("ArchivePassedCategories failed on missing file: %v", err)
 	}
 
 	// Test: No passed features (should not archive)
-	_ = os.WriteFile(progressPath, []byte(`{"features":[{"category":"A"}]}`), 0644)
+	_ = os.WriteFile(progressPath, []byte("# A\n- [ ] Step\n"), 0644)
 	err = ArchivePassedCategories(progressPath, archivePath, 0)
 	if err != nil {
 		t.Errorf("ArchivePassedCategories failed on no passes: %v", err)
