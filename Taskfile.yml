@@ -179,6 +179,30 @@ tasks:
     cmds:
       - '{{.GOBIN}}/govulncheck ./...'
 
+  gocognit:install:
+    desc: Install gocognit (internal)
+    status:
+      - test -f '{{.GOBIN}}/gocognit'
+    cmds:
+      - go install github.com/uudashr/gocognit/cmd/gocognit@latest
+
+  dupl:install:
+    desc: Install dupl (internal)
+    status:
+      - test -f '{{.GOBIN}}/dupl'
+    cmds:
+      - go install github.com/mibk/dupl@latest
+
+  complexity:
+    desc: Run cognitive complexity check on staged Go files
+    silent: true
+    status:
+      - '[ -z "{{.STAGED_GO}}" ]'
+    deps:
+      - task: gocognit:install
+    cmds:
+      - '{{.GOBIN}}/gocognit -over 12 {{.STAGED_GO}}'
+
   perf:
     desc: Run performance audit on staged performance-sensitive files
     silent: true
