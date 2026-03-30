@@ -105,3 +105,8 @@ Validated and excluded G117 struct-secret-pattern linter warnings for configurat
 - [x] Verified mandatory rationale comments with hyphen separator
 - [x] Passed all security static analysis and internal scanners
 - [x] Verified zero regressions in build and test suite
+# Audit Security Hardening
+Implemented a 10x Security Reasoning Framework for the audit_security skill.
+- [x] Hardened audit_security skill with STRIDE and Chaos Injection mandates.
+- [x] Implemented mandatory security_audit.md artifact and compliance archiving.
+- [x] Verified skill compliance via automated TDD-driven validation.
