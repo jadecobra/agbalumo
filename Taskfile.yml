@@ -1,9 +1,9 @@
 version: '3'
 
 env:
-  GOPATH: '{{if eq .ISOLATE_GO "true"}}{{.TASKFILE_DIR}}/.tester/tmp/go{{else}}{{.SYSTEM_GOPATH}}{{end}}'
-  GOCACHE: '{{if eq .ISOLATE_GO "true"}}{{.TASKFILE_DIR}}/.tester/tmp/gocache{{else}}{{.SYSTEM_GOCACHE}}{{end}}'
-  ISOLATE_GO: '{{.ISOLATE_GO}}'
+  GOPATH: '{{if eq .ISOLATE_GO "true"}}{{.TASKFILE_DIR}}/.tester/tmp/go{{else}}{{default (printf "%s/.tester/tmp/go" .TASKFILE_DIR) .SYSTEM_GOPATH}}{{end}}'
+  GOCACHE: '{{if eq .ISOLATE_GO "true"}}{{.TASKFILE_DIR}}/.tester/tmp/go/cache{{else}}{{default (printf "%s/.tester/tmp/go/cache" .TASKFILE_DIR) .SYSTEM_GOCACHE}}{{end}}'
+  ISOLATE_GO: '{{default "true" .ISOLATE_GO}}'
 
 vars:
   ISOLATE_GO: '{{default "true" .ISOLATE_GO}}'
@@ -241,6 +241,11 @@ tasks:
     sources:
       - '**/*.go'
       - 'Taskfile.yml'
+
+  sandbox:setup:
+    desc: Initialize Sandboxed Workspace (use if hitting macOS permission errors)
+    cmds:
+      - bash scripts/sandbox-setup.sh
 
 
   ci:lint:

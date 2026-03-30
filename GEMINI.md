@@ -16,6 +16,10 @@ For detailed rules and development process, run or refer to these workflows:
 - **ALWAYS** initialize the 10x Engineer harness when starting a new task (feature, bugfix, or refactor) by running `./scripts/agent-exec.sh init <feature_name> <workflow_type>`.
 - **MANDATORY REFERENCE**: Refer to the `/harness` workflow for all available commands, gate IDs, and phase transition logic.
 - **CONTEXT PROTOCOL**: Before starting any task in the `GREEN` or `REFACTOR` phases, you **MUST** locate and read the active `implementation_plan.md` (linked in `progress.md`) to verify the technical details (thresholds, contracts, and patterns) of the feature.
+- **SANDBOX PROTOCOL**: If hitting macOS "Operation not permitted" (EPERM) errors due to App Sandboxing, use the **Sandboxed Workspace Mode**:
+  1. Run `task sandbox:setup` to initialize local tool directories.
+  2. Run `source scripts/sandbox.env` in your terminal to redirect `go`, `gh`, and other tools.
+  3. Re-authenticate (`gh auth login`) if necessary within the sandboxed session.
 - **FEEDBACK LOOP PROTOCOL**: Catch errors immediately. **ALWAYS** run `task fmt` and `task lint` *before* attempting `task test`. If automated formatting or linting fails, fix syntax errors *immediately* before proceeding to tests.
 - Transition phases (RED, GREEN, REFACTOR) using `./scripts/agent-exec.sh set-phase <phase>`.
 - Verify and pass gates using `./scripts/agent-exec.sh verify <gate_id>`.
