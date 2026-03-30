@@ -182,10 +182,10 @@ func TestAuthHandler_GoogleCallback_CrossSiteCallback(t *testing.T) {
 	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 
 	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
-	
+
 	// ONLY set the oauth_state cookie, NOT the main session cookie
 	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "random-state"})
-	
+
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 

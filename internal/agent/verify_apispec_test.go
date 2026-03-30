@@ -620,14 +620,20 @@ func TestVerifyApiSpec_ExtractMarkdownRoutes_Direct(t *testing.T) {
 	if len(routes) != 3 { // GET /users, POST /users, PUT /users
 		t.Errorf("expected 3 unique routes, got %d", len(routes))
 	}
-	
+
 	foundGet := false
 	foundPost := false
 	foundPut := false
 	for _, r := range routes {
-		if r.Method == "GET" && r.Path == "/users" { foundGet = true }
-		if r.Method == "POST" && r.Path == "/users" { foundPost = true }
-		if r.Method == "PUT" && r.Path == "/users" { foundPut = true }
+		if r.Method == "GET" && r.Path == "/users" {
+			foundGet = true
+		}
+		if r.Method == "POST" && r.Path == "/users" {
+			foundPost = true
+		}
+		if r.Method == "PUT" && r.Path == "/users" {
+			foundPut = true
+		}
 	}
 	if !foundGet || !foundPost || !foundPut {
 		t.Errorf("missing expected routes: GET (/users): %v, POST (/users): %v, PUT (/users): %v", foundGet, foundPost, foundPut)

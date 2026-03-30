@@ -12,6 +12,7 @@ import (
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/stretchr/testify/assert"
 )
+
 func TestHandleClaim(t *testing.T) {
 	repo := handler.SetupTestRepository(t)
 	_ = repo.Save(context.Background(), domain.Listing{ID: "1", Title: "Biz", Type: domain.Business, Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", City: "Lagos", Address: "123 St"})
@@ -26,12 +27,12 @@ func TestHandleClaim(t *testing.T) {
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
 	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:     repo,
-		CategoryStore:    repo,
-		ListingSvc:       listingSvc,
-		ImageService:     nil,
-		GeocodingSvc:     &MockGeocodingService{},
-		Config:           &config.Config{},
+		ListingStore:  repo,
+		CategoryStore: repo,
+		ListingSvc:    listingSvc,
+		ImageService:  nil,
+		GeocodingSvc:  &MockGeocodingService{},
+		Config:        &config.Config{},
 	})
 	_ = h.HandleClaim(c)
 

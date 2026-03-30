@@ -30,7 +30,7 @@ func BenchmarkSearchPerformance(b *testing.B) {
 			numListings = n
 		}
 	}
-	
+
 	b.Logf("Seeding %d listings...", numListings)
 	for i := 0; i < numListings; i++ {
 		l := domain.Listing{

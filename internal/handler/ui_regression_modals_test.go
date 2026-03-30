@@ -67,4 +67,3 @@ func TestModalBaseTheme(t *testing.T) {
 		t.Error("modal_base expected close button with attribute data-modal-action=\"close\", not found")
 	}
 }
-

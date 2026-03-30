@@ -43,12 +43,12 @@ func TestHandleUpdate_ImageRemoval(t *testing.T) {
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
 	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:     repo,
-		CategoryStore:    repo,
-		ListingSvc:       listingSvc,
-		ImageService:     mockImageService,
-		GeocodingSvc:     &MockGeocodingService{},
-		Config:           &config.Config{},
+		ListingStore:  repo,
+		CategoryStore: repo,
+		ListingSvc:    listingSvc,
+		ImageService:  mockImageService,
+		GeocodingSvc:  &MockGeocodingService{},
+		Config:        &config.Config{},
 	})
 
 	// Body with remove_image=true and required fields

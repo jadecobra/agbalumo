@@ -20,9 +20,9 @@ func TestSecurityViolation_String(t *testing.T) {
 
 func TestCalculateEntropy(t *testing.T) {
 	tests := []struct {
-		input    string
-		min      float64
-		max      float64
+		input string
+		min   float64
+		max   float64
 	}{
 		{"aaaaa", 0.0, 0.1},
 		{"abcdef", 2.0, 3.0},

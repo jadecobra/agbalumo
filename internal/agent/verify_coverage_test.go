@@ -10,7 +10,7 @@ import (
 func TestVerifyCoverageOrchestration(t *testing.T) {
 	// Since VerifyCoverage is highly coupled with hardcoded paths,
 	// we use a temporary directory and change working directory.
-	
+
 	tmpDir := t.TempDir()
 	origWd, _ := os.Getwd()
 	if err := os.Chdir(tmpDir); err != nil {
@@ -36,7 +36,7 @@ func TestVerifyCoverageOrchestration(t *testing.T) {
 
 	// Case 3: Success with thresholds file
 	_ = os.WriteFile(covPath, []byte("mode: set\ngithub.com/jadecobra/agbalumo/main.go:1.0,2.0 1 1\n"), 0644)
-	
+
 	config := CoverageConfig{
 		Thresholds: map[string]float64{"default": 50.0},
 	}
@@ -62,7 +62,7 @@ func TestVerifyCoverage_LegacyThreshold(t *testing.T) {
 
 	covPath := filepath.Join(".tester", "coverage", "coverage.out")
 	_ = os.WriteFile(covPath, []byte("mode: set\ngithub.com/jadecobra/agbalumo/main.go:1.0,2.0 1 1\n"), 0644)
-	
+
 	// Legacy threshold file
 	_ = os.WriteFile(filepath.Join(".agents", "coverage-threshold"), []byte("95.5"), 0644)
 

@@ -165,7 +165,7 @@ func VerifyApiSpec(workflowType string) bool {
 	// Use a local npm cache to avoid permission issues in CI/CD or restricted environments
 	npmCache := filepath.Join(".tester", "tmp", "npm_cache")
 	_ = util.SafeMkdir(npmCache)
-	
+
 	cmd := ExecCommand("npx", "-y", "swagger-cli", "bundle", "docs/openapi.yaml", "-r", "-t", "yaml")
 	if cmd.Env == nil {
 		cmd.Env = os.Environ()
@@ -181,7 +181,7 @@ func VerifyApiSpec(workflowType string) bool {
 		fmt.Println("Error extracting openapi routes:", err)
 		return false
 	}
-	
+
 	// #nosec G304 - Internal harness tool reading project docs
 	mdData, err := util.SafeReadFile("docs/api.md")
 	if err != nil {
@@ -202,7 +202,7 @@ func VerifyApiSpec(workflowType string) bool {
 		fmt.Println("Error extracting CLI code cmds:", err)
 		return false
 	}
-	
+
 	cliMDCmds, err := ExtractCLIMarkdownCommands("docs/cli.md", "docs/cli")
 	if err != nil {
 		fmt.Println("Error extracting CLI md cmds:", err)
@@ -251,7 +251,7 @@ func VerifyImplementation() bool {
 	fmt.Println("Running tests...")
 	_ = util.SafeMkdir(filepath.Join(".tester", "coverage"))
 	covFile := filepath.Join(".tester", "coverage", "coverage.out")
-	testOut, testErr := RunCommand("go", "test", "-buildvcs=false", "-json", "-coverprofile="+covFile, "./internal/agent/...")
+	testOut, testErr := RunCommand("go", "test", "-buildvcs=false", "-json", "-coverprofile="+covFile, "./...")
 	if testErr != nil {
 		fmt.Println("❌ Gate FAIL: implementation tests failed.")
 		res, parseErr := ParseTestJSON(bytes.NewReader(testOut))
@@ -310,7 +310,7 @@ func VerifyCoverage() bool {
 		fmt.Println("❌ Gate FAIL: coverage profile not generated.")
 		return false
 	}
-	
+
 	// #nosec G304 - Internal harness tool reading coverage profile
 	f, err := util.SafeOpen(covFile)
 	if err != nil {
@@ -324,7 +324,7 @@ func VerifyCoverage() bool {
 		fmt.Println("❌ Gate FAIL: unable to parse coverage profile.")
 		return false
 	}
-	
+
 	// #nosec G304 - Internal harness tool reading thresholds
 	thresholdsData, err := util.SafeReadFile(filepath.Join(".agents", "coverage-thresholds.json"))
 	var thresholds map[string]float64
@@ -360,7 +360,7 @@ func VerifyCoverage() bool {
 				totalLine = line
 			}
 		}
-		
+
 		fmt.Printf("❌ Gate FAIL: %s. Thresholds not met.\n", totalLine)
 		if len(violations) > 0 {
 			fmt.Println("  " + violations[0])
@@ -414,7 +414,7 @@ func ExtractRendererFunctions(path string) ([]string, error) {
 
 	lines := strings.Split(string(data), "\n")
 	var funcs []string
-	
+
 	// Implementation matches bash logic: grep -E '^		"[a-zA-Z0-9]+":'
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
@@ -440,16 +440,16 @@ func ExtractTemplateFunctionCalls(dir string) ([]string, error) {
 			if err != nil {
 				return err
 			}
-			
+
 			// Simple extraction based on bash logic
 			content := string(data)
-			
+
 			// Find {{ func or {{ range func
 			// We'll use a simplified version of the bash regex.
 			// Re-implemented logic:
 			// find ui/templates -name "*.html" -exec cat {} + | \
 			// grep -oE '\{\{[[:space:]]*(range[[:space:]]+)?([a-zA-Z0-9]+)[[:space:]]'
-			
+
 			lines := strings.Split(content, "\n")
 			for _, line := range lines {
 				// {{ range func ... }}
@@ -460,7 +460,7 @@ func ExtractTemplateFunctionCalls(dir string) ([]string, error) {
 						if strings.HasPrefix(inner, "range") {
 							inner = strings.TrimSpace(strings.TrimPrefix(inner, "range"))
 						}
-						
+
 						// Take the first word
 						words := strings.FieldsFunc(inner, func(r rune) bool {
 							return r == ' ' || r == '}' || r == '|' || r == '(' || r == ')'
@@ -474,7 +474,7 @@ func ExtractTemplateFunctionCalls(dir string) ([]string, error) {
 						}
 					}
 				}
-				
+
 				// | func
 				if strings.Contains(line, "|") {
 					parts := strings.Split(line, "|")

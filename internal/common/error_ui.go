@@ -48,8 +48,8 @@ func RenderImageErrorToast(c echo.Context, err error) error {
 	            class="text-red-400 hover:text-red-600 dark:hover:text-red-200 transition-colors">
 	        <span class="material-symbols-outlined text-[18px]">close</span>
 	    </button>
-	</div>`, 
-	template.HTMLEscapeString(toastID), 
-	template.HTMLEscapeString(toastID), 
-	template.HTMLEscapeString(msg)))
+	</div>`,
+		template.HTMLEscapeString(toastID),
+		template.HTMLEscapeString(toastID),
+		template.HTMLEscapeString(msg)))
 }

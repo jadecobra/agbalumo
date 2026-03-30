@@ -44,12 +44,12 @@ func TestHandleUpdate_JobSuccess(t *testing.T) {
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
 	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:     repo,
-		CategoryStore:    repo,
-		ListingSvc:       listingSvc,
-		ImageService:     nil,
-		GeocodingSvc:     &MockGeocodingService{},
-		Config:           &config.Config{},
+		ListingStore:  repo,
+		CategoryStore: repo,
+		ListingSvc:    listingSvc,
+		ImageService:  nil,
+		GeocodingSvc:  &MockGeocodingService{},
+		Config:        &config.Config{},
 	})
 
 	formData := "title=Senior+Go+Dev+Updated&type=Job&owner_origin=Nigeria&description=Updated+Desc&contact_email=job@example.com&city=Lagos" +

@@ -93,14 +93,13 @@ func CheckAPIDrift(codeRoutes, openapiRoutes, mdRoutes []Route) []string {
 	// Compare Code vs MD
 	allDrift = append(allDrift, CompareRoutes("Code (cmd/server.go)", "API Docs (docs/api.md)", codeRoutes, mdRoutes)...)
 	allDrift = append(allDrift, CompareRoutes("API Docs (docs/api.md)", "Code (cmd/server.go)", mdRoutes, codeRoutes)...)
-	
+
 	// Compare OpenAPI vs MD
 	allDrift = append(allDrift, CompareRoutes("OpenAPI (docs/openapi.yaml)", "API Docs (docs/api.md)", openapiRoutes, mdRoutes)...)
 	allDrift = append(allDrift, CompareRoutes("API Docs (docs/api.md)", "OpenAPI (docs/openapi.yaml)", mdRoutes, openapiRoutes)...)
 
 	return uniqueStrings(allDrift)
 }
-
 
 func uniqueAndSort(routes []Route) []Route {
 	seen := make(map[string]bool)
@@ -221,7 +220,7 @@ func ExtractCLIMarkdownCommands(paths ...string) ([]string, error) {
 			}
 		}
 	}
-	
+
 	cmds = uniqueStrings(cmds)
 	sort.Strings(cmds)
 	return cmds, nil

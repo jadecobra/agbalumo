@@ -86,7 +86,7 @@ func main() {
 				hasErrors = true
 			}
 		}
-		
+
 		// Validation: Chaos Monkey Safety Gates
 		if strings.Contains(strings.ToLower(p.Name), "chaos") {
 			if p.PreferredModel != "GEMINI_3_1_PRO" {
@@ -113,7 +113,7 @@ func main() {
 	} else {
 		mdContent := string(mdData)
 		var mdPersonas []string
-		
+
 		// Simple regex-like search for "*   **PersonaName**" in Section 5
 		lines := strings.Split(mdContent, "\n")
 		inSection5 := false

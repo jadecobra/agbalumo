@@ -18,7 +18,7 @@ github.com/jadecobra/agbalumo/internal/handler/auth.go:19.49,21.2 1 1
 github.com/jadecobra/agbalumo/internal/domain/user.go:10.10,12.2 4 1
 github.com/jadecobra/agbalumo/internal/domain/user.go:15.10,18.2 6 1
 `
-	
+
 	coverageByPkg, err := ParseCoverageProfile(strings.NewReader(profile))
 	require.NoError(t, err)
 
@@ -45,9 +45,9 @@ func TestEnforceCoverageThresholds(t *testing.T) {
 	thresholdsMap := map[string]float64{
 		"github.com/jadecobra/agbalumo/internal/handler": 90.0,
 		"github.com/jadecobra/agbalumo/internal/domain":  100.0,
-		"default":                                        80.0,
+		"default": 80.0,
 	}
-	
+
 	// Create signed payload manually since SaveThresholds writes to file
 	config := CoverageConfig{
 		Thresholds: thresholdsMap,

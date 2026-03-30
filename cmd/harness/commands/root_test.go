@@ -16,7 +16,7 @@ func TestNewRootCmd(t *testing.T) {
 	if len(cmd.Commands()) < 5 {
 		t.Errorf("expected at least 5 subcommands, got %d", len(cmd.Commands()))
 	}
-	
+
 	cmd.SetArgs([]string{"--help"})
 	_ = cmd.Execute()
 }

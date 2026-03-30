@@ -51,10 +51,10 @@ func TestGoogleGeocodingService_GetCity(t *testing.T) {
 			expectedCity: "Sublocality Info",
 		},
 		{
-			name:           "Empty API Key",
-			address:        "Any",
-			apiKey:         "",
-			expectedError:  true,
+			name:          "Empty API Key",
+			address:       "Any",
+			apiKey:        "",
+			expectedError: true,
 		},
 		{
 			name:           "Zero Results",

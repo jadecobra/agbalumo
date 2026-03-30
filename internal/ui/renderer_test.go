@@ -339,13 +339,13 @@ func TestTemplateRenderer_EdgeCases(t *testing.T) {
 
 	// 5. Test ParseFiles Errors (Layouts/Partials/Pages)
 	// We'll manually call compileTemplates or trigger it via NewTemplateRenderer with bad files
-	
+
 	// Create a dir with a bad layout
 	badLayoutDir := t.TempDir()
 	_ = os.Mkdir(filepath.Join(badLayoutDir, "partials"), 0755)
 	_ = os.WriteFile(filepath.Join(badLayoutDir, "base.html"), []byte(`{{ .Oops `), 0644)
 	_ = os.WriteFile(filepath.Join(badLayoutDir, "index.html"), []byte(`Index`), 0644)
-	
+
 	_, err = NewTemplateRenderer(filepath.Join(badLayoutDir, "*.html"))
 	if err == nil {
 		t.Error("Expected error for bad layout syntax, got nil")
@@ -367,7 +367,7 @@ func TestTemplateRenderer_EdgeCases(t *testing.T) {
 	// We already have a renderer from previous steps
 	rec := httptest.NewRecorder()
 	c2 := e.NewContext(httptest.NewRequest(http.MethodGet, "/", nil), rec)
-	
+
 	// renderer with NO templates
 	emptyRenderer := &TemplateRenderer{templates: make(map[string]*template.Template)}
 	if err := emptyRenderer.Render(rec, "nonexistent", nil, c2); err == nil {

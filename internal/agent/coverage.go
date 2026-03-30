@@ -17,7 +17,7 @@ import (
 // and calculates the percentage coverage for each package.
 func ParseCoverageProfile(r io.Reader) (map[string]float64, error) {
 	scanner := bufio.NewScanner(r)
-	
+
 	packageStmts := make(map[string]int)
 	packageCovered := make(map[string]int)
 
@@ -46,9 +46,9 @@ func ParseCoverageProfile(r io.Reader) (map[string]float64, error) {
 		if idx == -1 {
 			continue
 		}
-		
+
 		pkgPath := filePart[:idx]
-		
+
 		numStmts, err := strconv.Atoi(numStmtsStr)
 		if err != nil {
 			continue
@@ -140,11 +140,12 @@ func SaveThresholds(path string, thresholds map[string]float64) error {
 	b = append(b, '\n')
 	return util.SafeWriteFile(path, b)
 }
+
 // EnforceCoverage checks the measured coverage against expected thresholds.
 // Returns a list of formatted violation strings, sorted alphabetically.
 func EnforceCoverage(coverage map[string]float64, thresholds map[string]float64) []string {
 	defaultThreshold, hasDefault := thresholds["default"]
-	
+
 	var violations []string
 
 	for pkg, pct := range coverage {

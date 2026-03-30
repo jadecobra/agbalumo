@@ -41,12 +41,12 @@ func TestHandleHome_FeaturedPrioritization(t *testing.T) {
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
 	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:     repo,
-		CategoryStore:    repo,
-		ListingSvc:       listingSvc,
-		ImageService:     nil,
-		GeocodingSvc:     &MockGeocodingService{},
-		Config:           &config.Config{},
+		ListingStore:  repo,
+		CategoryStore: repo,
+		ListingSvc:    listingSvc,
+		ImageService:  nil,
+		GeocodingSvc:  &MockGeocodingService{},
+		Config:        &config.Config{},
 	})
 
 	if err := h.HandleHome(c); err != nil {
@@ -96,12 +96,12 @@ func TestHandleHome_FeaturedListings_EmptyCategory(t *testing.T) {
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
 	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:     repo,
-		CategoryStore:    repo,
-		ListingSvc:       listingSvc,
-		ImageService:     nil,
-		GeocodingSvc:     &MockGeocodingService{},
-		Config:           &config.Config{},
+		ListingStore:  repo,
+		CategoryStore: repo,
+		ListingSvc:    listingSvc,
+		ImageService:  nil,
+		GeocodingSvc:  &MockGeocodingService{},
+		Config:        &config.Config{},
 	})
 
 	if err := h.HandleHome(c); err != nil {
@@ -109,7 +109,7 @@ func TestHandleHome_FeaturedListings_EmptyCategory(t *testing.T) {
 	}
 
 	body := rec.Body.String()
-	
+
 	// If HandleHome was passing a specific category string (e.g. "business") to GetFeaturedListings,
 	// then the "event" and "service" featured listings would NOT be present in the response.
 	// Since we assert they are all present, we verify it passes an empty string (or doesn't filter).
@@ -141,12 +141,12 @@ func TestHandleFragment_FeaturedPrioritization(t *testing.T) {
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
 	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:     repo,
-		CategoryStore:    repo,
-		ListingSvc:       listingSvc,
-		ImageService:     nil,
-		GeocodingSvc:     &MockGeocodingService{},
-		Config:           &config.Config{},
+		ListingStore:  repo,
+		CategoryStore: repo,
+		ListingSvc:    listingSvc,
+		ImageService:  nil,
+		GeocodingSvc:  &MockGeocodingService{},
+		Config:        &config.Config{},
 	})
 
 	if err := h.HandleFragment(c); err != nil {
@@ -180,12 +180,12 @@ func TestHandleFragment_FeaturedPrioritization_Page2(t *testing.T) {
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
 	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:     repo,
-		CategoryStore:    repo,
-		ListingSvc:       listingSvc,
-		ImageService:     nil,
-		GeocodingSvc:     &MockGeocodingService{},
-		Config:           &config.Config{},
+		ListingStore:  repo,
+		CategoryStore: repo,
+		ListingSvc:    listingSvc,
+		ImageService:  nil,
+		GeocodingSvc:  &MockGeocodingService{},
+		Config:        &config.Config{},
 	})
 
 	if err := h.HandleFragment(c); err != nil {
@@ -220,12 +220,12 @@ func TestHandleFragment_FeaturedListings_CategoryFilter(t *testing.T) {
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
 	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:     repo,
-		CategoryStore:    repo,
-		ListingSvc:       listingSvc,
-		ImageService:     nil,
-		GeocodingSvc:     &MockGeocodingService{},
-		Config:           &config.Config{},
+		ListingStore:  repo,
+		CategoryStore: repo,
+		ListingSvc:    listingSvc,
+		ImageService:  nil,
+		GeocodingSvc:  &MockGeocodingService{},
+		Config:        &config.Config{},
 	})
 
 	if err := h.HandleFragment(c); err != nil {
@@ -239,4 +239,3 @@ func TestHandleFragment_FeaturedListings_CategoryFilter(t *testing.T) {
 	// Assert the featured listing for 'event' category is NOT present
 	assert.NotContains(t, body, "Featured Event")
 }
-

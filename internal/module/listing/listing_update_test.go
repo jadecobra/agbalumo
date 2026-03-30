@@ -13,6 +13,7 @@ import (
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/stretchr/testify/assert"
 )
+
 func TestHandleEdit(t *testing.T) {
 	tests := []struct {
 		name           string
@@ -50,13 +51,13 @@ func TestHandleEdit(t *testing.T) {
 			tt.setup(t, repo)
 			listingSvc := listmod.NewListingService(repo, repo, repo)
 			h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:     repo,
-		CategoryStore:    repo,
-		ListingSvc:       listingSvc,
-		ImageService:     nil,
-		GeocodingSvc:     &MockGeocodingService{},
-		Config:           &config.Config{},
-	})
+				ListingStore:  repo,
+				CategoryStore: repo,
+				ListingSvc:    listingSvc,
+				ImageService:  nil,
+				GeocodingSvc:  &MockGeocodingService{},
+				Config:        &config.Config{},
+			})
 
 			_ = h.HandleEdit(c)
 
@@ -106,13 +107,13 @@ func TestHandleUpdate(t *testing.T) {
 			listingSvc := listmod.NewListingService(repo, repo, repo)
 
 			h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:     repo,
-		CategoryStore:    repo,
-		ListingSvc:       listingSvc,
-		ImageService:     nil,
-		GeocodingSvc:     &MockGeocodingService{},
-		Config:           &config.Config{},
-	})
+				ListingStore:  repo,
+				CategoryStore: repo,
+				ListingSvc:    listingSvc,
+				ImageService:  nil,
+				GeocodingSvc:  &MockGeocodingService{},
+				Config:        &config.Config{},
+			})
 			_ = h.HandleUpdate(c)
 
 			assert.Equal(t, tt.expectedStatus, rec.Code)
@@ -130,12 +131,12 @@ func TestHandleUpdate_NotFound(t *testing.T) {
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
 	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:     repo,
-		CategoryStore:    repo,
-		ListingSvc:       listingSvc,
-		ImageService:     nil,
-		GeocodingSvc:     &MockGeocodingService{},
-		Config:           &config.Config{},
+		ListingStore:  repo,
+		CategoryStore: repo,
+		ListingSvc:    listingSvc,
+		ImageService:  nil,
+		GeocodingSvc:  &MockGeocodingService{},
+		Config:        &config.Config{},
 	})
 	_ = h.HandleUpdate(c)
 	assert.Equal(t, http.StatusNotFound, rec.Code)
@@ -150,12 +151,12 @@ func TestHandleUpdate_NoUser(t *testing.T) {
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
 	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:     repo,
-		CategoryStore:    repo,
-		ListingSvc:       listingSvc,
-		ImageService:     nil,
-		GeocodingSvc:     &MockGeocodingService{},
-		Config:           &config.Config{},
+		ListingStore:  repo,
+		CategoryStore: repo,
+		ListingSvc:    listingSvc,
+		ImageService:  nil,
+		GeocodingSvc:  &MockGeocodingService{},
+		Config:        &config.Config{},
 	})
 	_ = h.HandleUpdate(c)
 	assert.Equal(t, http.StatusUnauthorized, rec.Code)
@@ -175,12 +176,12 @@ func TestHandleUpdate_DuplicateTitle(t *testing.T) {
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
 	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:     repo,
-		CategoryStore:    repo,
-		ListingSvc:       listingSvc,
-		ImageService:     nil,
-		GeocodingSvc:     &MockGeocodingService{},
-		Config:           &config.Config{},
+		ListingStore:  repo,
+		CategoryStore: repo,
+		ListingSvc:    listingSvc,
+		ImageService:  nil,
+		GeocodingSvc:  &MockGeocodingService{},
+		Config:        &config.Config{},
 	})
 	_ = h.HandleUpdate(c)
 	assert.Equal(t, http.StatusBadRequest, rec.Code)

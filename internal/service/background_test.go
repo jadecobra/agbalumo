@@ -8,7 +8,6 @@ import (
 	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
-
 func TestBackgroundService_ExpireListings(t *testing.T) {
 	repo := setupTestRepo(t)
 	// Seed an expired listing

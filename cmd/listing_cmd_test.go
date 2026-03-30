@@ -54,7 +54,7 @@ func TestListingCommands_RunCoverage(t *testing.T) {
 		listingCreateCmd.Run(listingCreateCmd, nil)
 
 		time.Sleep(100 * time.Millisecond) // Give SQLite a moment if needed, though Save is sync
-		
+
 		allListings, _, err := repo.FindAll(context.Background(), "", "", "", "", false, 10, 0)
 		assert.NoError(t, err)
 
@@ -67,7 +67,7 @@ func TestListingCommands_RunCoverage(t *testing.T) {
 		assert.NotEmpty(t, found.ID)
 		assert.Equal(t, domain.Category("Service"), found.Type)
 		assert.Equal(t, "Accra", found.City)
-		
+
 		// Run with flagText = true to hit the format print path
 		flagTitle = "CLI Test Create Text"
 		flagText = true
@@ -88,11 +88,11 @@ func TestListingCommands_RunCoverage(t *testing.T) {
 		allListings, _, _ := repo.FindAll(context.Background(), "", "", "", "", false, 10, 0)
 		if len(allListings) > 0 {
 			targetID := allListings[0].ID
-			
+
 			// JSON format
 			flagText = false
 			listingGetCmd.Run(listingGetCmd, []string{targetID})
-			
+
 			// Text format
 			flagText = true
 			listingGetCmd.Run(listingGetCmd, []string{targetID})
@@ -103,7 +103,7 @@ func TestListingCommands_RunCoverage(t *testing.T) {
 		allListings, _, _ := repo.FindAll(context.Background(), "", "", "", "", false, 10, 0)
 		if len(allListings) > 0 {
 			targetID := allListings[0].ID
-			
+
 			// Set flags
 			flagTitle = "Updated Title"
 			flagCity = "Updated City"
@@ -123,17 +123,17 @@ func TestListingCommands_RunCoverage(t *testing.T) {
 			flagApplyURL = "updated.com"
 			flagCompany = "UpdatedCo"
 			flagPayRange = "200k"
-			
+
 			// JSON output
 			flagText = false
 			listingUpdateCmd.Run(listingUpdateCmd, []string{targetID})
-			
+
 			updated, err := repo.FindByID(context.Background(), targetID)
 			assert.NoError(t, err)
 			assert.Equal(t, "Updated Title", updated.Title)
 			assert.Equal(t, "Updated City", updated.City)
 			assert.Empty(t, updated.ImageURL)
-			
+
 			// Hit the text output path
 			flagTitle = "Updated Title 2"
 			flagRemoveImage = false
@@ -149,8 +149,8 @@ func TestListingCommands_RunCoverage(t *testing.T) {
 
 		// Create a listing missing City but has address
 		l := domain.Listing{
-			ID: "backfill-test-1",
-			Title: "Backfill Test",
+			ID:      "backfill-test-1",
+			Title:   "Backfill Test",
 			Address: "123 Test Ave, Fake City",
 			// City intentionally blank
 		}
@@ -158,7 +158,7 @@ func TestListingCommands_RunCoverage(t *testing.T) {
 
 		// Run backfill
 		listingBackfillCitiesCmd.Run(listingBackfillCitiesCmd, nil)
-		
+
 		// The dummy key will fail geocoding, which is fine, we just want coverage of the code paths
 		// checking if errorCount increments properly and branch coverage.
 	})
@@ -167,7 +167,7 @@ func TestListingCommands_RunCoverage(t *testing.T) {
 		allListings, _, _ := repo.FindAll(context.Background(), "", "", "", "", false, 10, 0)
 		for _, l := range allListings {
 			listingDeleteCmd.Run(listingDeleteCmd, []string{l.ID})
-			
+
 			_, err := repo.FindByID(context.Background(), l.ID)
 			assert.Error(t, err)
 		}

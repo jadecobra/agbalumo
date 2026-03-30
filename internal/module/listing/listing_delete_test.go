@@ -12,6 +12,7 @@ import (
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/stretchr/testify/assert"
 )
+
 func TestHandleDelete(t *testing.T) {
 	tests := []struct {
 		name       string
@@ -77,13 +78,13 @@ func TestHandleDelete(t *testing.T) {
 			listingSvc := listmod.NewListingService(repo, repo, repo)
 
 			h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:     repo,
-		CategoryStore:    repo,
-		ListingSvc:       listingSvc,
-		ImageService:     nil,
-		GeocodingSvc:     &MockGeocodingService{},
-		Config:           &config.Config{},
-	})
+				ListingStore:  repo,
+				CategoryStore: repo,
+				ListingSvc:    listingSvc,
+				ImageService:  nil,
+				GeocodingSvc:  &MockGeocodingService{},
+				Config:        &config.Config{},
+			})
 			_ = h.HandleDelete(c)
 
 			assert.Equal(t, tt.expectCode, rec.Code)

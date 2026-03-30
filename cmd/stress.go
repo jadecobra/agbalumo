@@ -32,7 +32,7 @@ var stressCmd = &cobra.Command{
 		start := time.Now()
 
 		listings := seeder.GenerateStressListings(stressCount)
-		
+
 		slog.Info("Inserting listings...", "count", len(listings))
 		if err := repo.BulkInsertListings(ctx, listings); err != nil {
 			slog.Error("Failed to bulk insert listings", "error", err)

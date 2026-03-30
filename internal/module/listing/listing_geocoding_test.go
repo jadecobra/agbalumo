@@ -29,12 +29,12 @@ func TestHandleCreate_GeocodingFallback(t *testing.T) {
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
 	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:     repo,
-		CategoryStore:    repo,
-		ListingSvc:       listingSvc,
-		ImageService:     nil,
-		GeocodingSvc:     mockGeocoding,
-		Config:           &config.Config{},
+		ListingStore:  repo,
+		CategoryStore: repo,
+		ListingSvc:    listingSvc,
+		ImageService:  nil,
+		GeocodingSvc:  mockGeocoding,
+		Config:        &config.Config{},
 	})
 
 	// Create context with a user

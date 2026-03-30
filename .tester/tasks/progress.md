@@ -89,3 +89,8 @@ Sequential dev loop with auto-formatting, watch mode, and agent protocols.
 # ChiefCritic: User Journey Audit
 Enhanced ChiefCritic persona with browser-based user journey validation and conversion metrics. Blueprint: file:///Users/johnnyblase/.gemini/antigravity/brain/e7d5db52-4f58-4a5b-97d6-f41db4f6ed0c/implementation_plan.md
 - [x] Verify ChiefCritic Journey Audit: Integrated browser-based user journey validation (user_journeys.yaml, audit skill, persona update) with MockGoogleProvider auth and orchestration script (scripts/browser_audit.sh) established
+# Harness Utilities
+Implemented autonomous agent spawning capability to enable background orchestration.
+- [x] Implement SpawnAgent in internal/agent/util.go
+- [x] Add unit tests for SpawnAgent in internal/agent/util_async_test.go
+- [x] Verify process detachment via SysProcAttr.Setsid

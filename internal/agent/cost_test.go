@@ -79,7 +79,7 @@ func TestCalculateContextCost(t *testing.T) {
 	// sq_sum = 25 + 100 = 125.
 	// mean(sq_sum) = 62.5
 	// rms = sqrt(62.5) ≈ 7.90569
-	
+
 	// Just make sure it processes the lines somewhat correctly. We'll be precise in implementation.
 	if report.TotalLines != 15 {
 		t.Errorf("Expected TotalLines 15, got %d", report.TotalLines)

@@ -43,7 +43,7 @@ func TestAdminHandler_HandleToggleFeatured_BadRequest_MissingID(t *testing.T) {
 	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
 	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: mockRepo, FeedbackStore: mockRepo, AnalyticsStore: mockRepo, CategoryStore: mockRepo, UserStore: mockRepo, ListingStore: mockRepo, ClaimRequestStore: mockRepo, CSVService: nil, Cfg: config.LoadConfig()})
-	
+
 	err := h.HandleToggleFeatured(c)
 	assert.NoError(t, err) // Echo handlers return nil and specify code in c.JSON
 	assert.Equal(t, http.StatusBadRequest, rec.Code)

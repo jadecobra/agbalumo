@@ -79,10 +79,6 @@ func isValidTarget(url string) bool {
 	return false
 }
 
-
-
-
-
 type AuditConfig struct {
 	TargetURL  string
 	HTTPClient *http.Client

@@ -19,7 +19,7 @@ func GateCmd() *cobra.Command {
 			if statusStr != "PENDING" && statusStr != "PASS" && statusStr != "FAIL" && statusStr != "PASSED" && statusStr != "FAILED" {
 				return fmt.Errorf("invalid status '%s'", statusStr)
 			}
-			
+
 			var status agent.GateStatus
 			switch statusStr {
 			case "PENDING":

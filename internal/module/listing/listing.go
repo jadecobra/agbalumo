@@ -252,8 +252,6 @@ func (h *ListingHandler) HandleEdit(c echo.Context) error {
 	})
 }
 
-
-
 // Helper methods
 
 func (h *ListingHandler) getFileHeader(c echo.Context, key string) *multipart.FileHeader {

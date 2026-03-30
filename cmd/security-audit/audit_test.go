@@ -381,4 +381,3 @@ func TestIsValidTarget(t *testing.T) {
 		})
 	}
 }
-

@@ -46,7 +46,7 @@ var (
 	// Structural security patterns (Check for insecure coding practices)
 	// Some of these are split into AST-based checks for .go files to improve precision.
 	structuralPatterns = map[string]*regexp.Regexp{
-		"Insecure Handler":   regexp.MustCompile(`onclick\s*=`),
+		"Insecure Handler":  regexp.MustCompile(`onclick\s*=`),
 		"Dangerous JS":      regexp.MustCompile(`(eval\(|Function\(|innerHTML\s*=)`),
 		"Forbidden CDN":     regexp.MustCompile(`https?://(unpkg\.com|cdn\.jsdelivr\.net|cdn\.tailwindcss\.com|jsdelivr\.net)`),
 		"Hardcoded OAuth":   regexp.MustCompile(`GetAuthCodeURL\(["'][^"']+["']`),

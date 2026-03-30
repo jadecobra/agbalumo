@@ -9,7 +9,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-
 // ServerConfig holds the configuration for starting the server
 type ServerConfig struct {
 	Addr     string
@@ -43,7 +42,6 @@ func ResolveServerConfig(env, port string, fileExists func(string) bool) ServerC
 			port = "8080"
 		}
 	}
-
 
 	// In production (Fly.io), TLS is handled by the proxy. We just listen on PORT.
 	if env == "production" {

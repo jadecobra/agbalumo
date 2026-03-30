@@ -218,7 +218,7 @@ func parseCategory(typeStr string) domain.Category {
 	if titleCas == "" {
 		return domain.Business
 	}
-	
+
 	// Return the dynamic category, e.g. "Church" instead of defaulting to Business
 	return domain.Category(titleCas)
 }

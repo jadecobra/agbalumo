@@ -15,8 +15,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/jadecobra/agbalumo/internal/util"
 	"github.com/gen2brain/webp"
+	"github.com/jadecobra/agbalumo/internal/util"
 	"github.com/labstack/echo/v4"
 	_ "golang.org/x/image/webp"
 )

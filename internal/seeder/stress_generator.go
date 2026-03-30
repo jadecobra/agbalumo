@@ -67,19 +67,19 @@ func GenerateStressListings(count int) []domain.Listing {
 				city := cities[rand.IntN(len(cities))]
 
 				l := domain.Listing{
-					ID:              fmt.Sprintf("lst_%d_%d_%d", now.UnixNano(), workerID, i),
+					ID: fmt.Sprintf("lst_%d_%d_%d", now.UnixNano(), workerID, i),
 					// #nosec G404 - weak random is acceptable for non-security-critical stress testing
-					OwnerID:         fmt.Sprintf("usr_%d", rand.IntN(1000)),
-					OwnerOrigin:     origin,
-					Type:            cat,
-					Title:           fmt.Sprintf("Stress Test Listing %d", i),
-					Description:     "This is an automated listing generated for stress testing purposes.",
-					City:            city,
-					ContactEmail:    fmt.Sprintf("test%d@example.com", i),
-					IsActive:        true,
-					Status:          domain.ListingStatusApproved,
+					OwnerID:      fmt.Sprintf("usr_%d", rand.IntN(1000)),
+					OwnerOrigin:  origin,
+					Type:         cat,
+					Title:        fmt.Sprintf("Stress Test Listing %d", i),
+					Description:  "This is an automated listing generated for stress testing purposes.",
+					City:         city,
+					ContactEmail: fmt.Sprintf("test%d@example.com", i),
+					IsActive:     true,
+					Status:       domain.ListingStatusApproved,
 					// #nosec G404 - weak random is acceptable for non-security-critical stress testing
-					CreatedAt:       now.Add(-time.Duration(rand.IntN(30*24)) * time.Hour), // Randomly created in last 30 days
+					CreatedAt: now.Add(-time.Duration(rand.IntN(30*24)) * time.Hour), // Randomly created in last 30 days
 				}
 
 				switch cat {

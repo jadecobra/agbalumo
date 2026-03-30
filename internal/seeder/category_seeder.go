@@ -15,7 +15,7 @@ import (
 // EnsureCategoriesSeeded reads config/categories.json and upserts into the database.
 func EnsureCategoriesSeeded(ctx context.Context, repo *sqlite.SQLiteRepository, configPath string) error {
 	slog.Info("Starting category seed from config", "path", configPath)
-	
+
 	// #nosec G304 - Config path is controlled by application startup logic
 	data, err := os.ReadFile(filepath.Clean(configPath))
 	if err != nil {

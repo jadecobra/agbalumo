@@ -37,10 +37,6 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-
-
-
-
 func getSessionCookie(rec *httptest.ResponseRecorder) string {
 	for _, cookie := range rec.Result().Cookies() {
 		if cookie.Name == "auth_session" {
@@ -49,10 +45,6 @@ func getSessionCookie(rec *httptest.ResponseRecorder) string {
 	}
 	return ""
 }
-
-
-
-
 
 func TestMobileFilterBottomSheet(t *testing.T) {
 	// RED TEST: This test currently fails because the panel is "floating" (inset-x-4)

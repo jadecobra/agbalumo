@@ -13,6 +13,7 @@ import (
 	"github.com/jadecobra/agbalumo/internal/handler"
 	"github.com/stretchr/testify/assert"
 )
+
 func TestHandleCreate(t *testing.T) {
 	tests := []struct {
 		name           string
@@ -59,13 +60,13 @@ func TestHandleCreate(t *testing.T) {
 			listingSvc := listmod.NewListingService(repo, repo, repo)
 
 			h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:     repo,
-		CategoryStore:    repo,
-		ListingSvc:       listingSvc,
-		ImageService:     nil,
-		GeocodingSvc:     &MockGeocodingService{},
-		Config:           &config.Config{},
-	})
+				ListingStore:  repo,
+				CategoryStore: repo,
+				ListingSvc:    listingSvc,
+				ImageService:  nil,
+				GeocodingSvc:  &MockGeocodingService{},
+				Config:        &config.Config{},
+			})
 			c.Set("User", domain.User{ID: "test-user-id"})
 
 			_ = h.HandleCreate(c)
@@ -85,12 +86,12 @@ func TestHandleCreate_NoUser(t *testing.T) {
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
 	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:     repo,
-		CategoryStore:    repo,
-		ListingSvc:       listingSvc,
-		ImageService:     nil,
-		GeocodingSvc:     &MockGeocodingService{},
-		Config:           &config.Config{},
+		ListingStore:  repo,
+		CategoryStore: repo,
+		ListingSvc:    listingSvc,
+		ImageService:  nil,
+		GeocodingSvc:  &MockGeocodingService{},
+		Config:        &config.Config{},
 	})
 	_ = h.HandleCreate(c)
 	assert.Equal(t, http.StatusUnauthorized, rec.Code)
@@ -106,12 +107,12 @@ func TestHandleCreate_DuplicateTitle(t *testing.T) {
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
 	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:     repo,
-		CategoryStore:    repo,
-		ListingSvc:       listingSvc,
-		ImageService:     nil,
-		GeocodingSvc:     &MockGeocodingService{},
-		Config:           &config.Config{},
+		ListingStore:  repo,
+		CategoryStore: repo,
+		ListingSvc:    listingSvc,
+		ImageService:  nil,
+		GeocodingSvc:  &MockGeocodingService{},
+		Config:        &config.Config{},
 	})
 	_ = h.HandleCreate(c)
 	assert.Equal(t, http.StatusBadRequest, rec.Code)

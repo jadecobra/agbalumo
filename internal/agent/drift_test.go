@@ -1,11 +1,11 @@
 package agent_test
 
 import (
+	"github.com/jadecobra/agbalumo/internal/agent"
 	"os"
 	"reflect"
 	"strings"
 	"testing"
-	"github.com/jadecobra/agbalumo/internal/agent"
 )
 
 func TestExtractOpenAPIRoutes(t *testing.T) {
@@ -182,14 +182,18 @@ func TestCheckCLIDrift(t *testing.T) {
 	if len(diffs) != 2 {
 		t.Fatalf("expected 2 diffs, got %d: %v", len(diffs), diffs)
 	}
-	
+
 	expected1 := "❌ Missing in CLI Docs: admin (found in Code)"
 	expected2 := "❌ Missing in Code: seed (found in CLI Docs)"
 
 	found1, found2 := false, false
 	for _, d := range diffs {
-		if d == expected1 { found1 = true }
-		if d == expected2 { found2 = true }
+		if d == expected1 {
+			found1 = true
+		}
+		if d == expected2 {
+			found2 = true
+		}
 	}
 
 	if !found1 || !found2 {

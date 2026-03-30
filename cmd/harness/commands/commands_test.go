@@ -46,12 +46,12 @@ func TestCommandErrors(t *testing.T) {
 			t.Error("expected error for invalid phase, got nil")
 		}
 	})
-	
+
 	t.Run("StatusCmd Success", func(t *testing.T) {
 		// Create a dummy state file
 		root := NewRootCmd()
 		_, _ = executeCommand(root, "init", "test-feat", "feature")
-		
+
 		cmd := StatusCmd()
 		_, err := executeCommand(cmd)
 		if err != nil {

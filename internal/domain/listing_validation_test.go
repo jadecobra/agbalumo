@@ -271,8 +271,6 @@ func TestAddressValidation(t *testing.T) {
 	}
 }
 
-
-
 func TestHoursOfOperationRestriction(t *testing.T) {
 	tests := []struct {
 		name    string

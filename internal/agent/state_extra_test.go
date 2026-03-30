@@ -10,7 +10,7 @@ func TestStateExtraCoverage(t *testing.T) {
 	if !IsNotExist(os.ErrNotExist) {
 		t.Error("expected IsNotExist to be true")
 	}
-	
+
 	// 2. Test SaveState and calculateSignature
 	testPath := "test_state.json"
 	defer func() {
@@ -20,12 +20,12 @@ func TestStateExtraCoverage(t *testing.T) {
 	state := &State{
 		Feature: "test-feature-x",
 	}
-	
+
 	err := SaveState(testPath, state)
 	if err != nil {
 		t.Fatal(err)
 	}
-	
+
 	// 3. Test LoadState
 	loaded, errLoad := LoadState(testPath)
 	if errLoad != nil {
@@ -34,7 +34,7 @@ func TestStateExtraCoverage(t *testing.T) {
 	if loaded.Feature != "test-feature-x" {
 		t.Error("feature mismatch")
 	}
-	
+
 	// 4. Test Error paths
 	t.Run("LoadState_NotFound", func(t *testing.T) {
 		_, errNotFound := LoadState("does-not-exist.json")
@@ -54,14 +54,14 @@ func TestStateExtraCoverage(t *testing.T) {
 	t.Run("CalculateSignature_Consistency", func(t *testing.T) {
 		s1 := &State{Feature: "feat1", WorkflowType: "refactor"}
 		sig1 := calculateSignature(s1)
-		
+
 		s2 := &State{Feature: "feat1", WorkflowType: "refactor"}
 		sig2 := calculateSignature(s2)
-		
+
 		if sig1 != sig2 {
 			t.Errorf("expected consistent signatures for same state, got %s and %s", sig1, sig2)
 		}
-		
+
 		s3 := &State{Feature: "feat1", WorkflowType: "refactor", Signature: "something"}
 		sig3 := calculateSignature(s3)
 		if sig1 != sig3 {

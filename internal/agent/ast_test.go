@@ -48,15 +48,15 @@ func RegisterUserRoutes(g *echo.Group) {
 	}
 
 	expectedRoutes := map[string]bool{
-		"GET /":                 true,
-		"POST /users":           true,
-		"GET /items":            true,
-		"DELETE /items/{id}":    true,
-		"GET /admin":            true,
-		"GET /admin/dashboard":  true,
+		"GET /":                       true,
+		"POST /users":                 true,
+		"GET /items":                  true,
+		"DELETE /items/{id}":          true,
+		"GET /admin":                  true,
+		"GET /admin/dashboard":        true,
 		"POST /admin/settings/update": true,
-		"GET /profile":          true,
-		"PUT /profile/update":   true,
+		"GET /profile":                true,
+		"PUT /profile/update":         true,
 	}
 
 	if len(routes) != len(expectedRoutes) {

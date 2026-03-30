@@ -55,7 +55,7 @@ func ExtractRoutes(paths ...string) ([]Route, error) {
 	// E.g. "adminGroup" -> "/admin"
 	// "e" -> ""
 	groupPaths := make(map[string]string)
-	
+
 	// Add default echo instance if we find it (often 'e' or 'app')
 	// In our cmd/server.go, it's typically 'e'
 	groupPaths["e"] = ""
@@ -150,7 +150,7 @@ func ExtractRoutes(paths ...string) ([]Route, error) {
 			if len(callExpr.Args) > 0 {
 				if argLit, ok := callExpr.Args[0].(*ast.BasicLit); ok && argLit.Kind == token.STRING {
 					pathSuffix := strings.Trim(argLit.Value, "\"")
-					
+
 					// Only keep if it looks like a valid route definition (must be relative path starting with / or empty string on an existing group)
 					if pathSuffix == "" || strings.HasPrefix(pathSuffix, "/") {
 						fullPath := NormalizePath(basePath + pathSuffix)

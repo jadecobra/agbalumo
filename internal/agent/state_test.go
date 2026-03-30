@@ -109,11 +109,11 @@ func TestStateSerialization(t *testing.T) {
 			}
 		}
 	})
-	
+
 	t.Run("LoadState_NotFound", func(t *testing.T) {
 		tmpDir := t.TempDir()
 		statePath := filepath.Join(tmpDir, "nonexistent.json")
-		
+
 		_, err := agent.LoadState(statePath)
 		if err == nil {
 			t.Fatalf("expected error loading non-existent file")
@@ -200,7 +200,7 @@ func TestStateSerialization(t *testing.T) {
 		b, _ := os.ReadFile(statePath)
 		tampered := string(b)
 		tampered = replaceValue(tampered, `"feature": "original"`, `"feature": "tampered"`)
-		
+
 		err = os.WriteFile(statePath, []byte(tampered), 0644)
 		if err != nil {
 			t.Fatalf("failed to write tampered file: %v", err)
@@ -243,7 +243,7 @@ func TestStateSerialization(t *testing.T) {
 			WorkflowType: "feature",
 			Phase:        "READY",
 		}
-		
+
 		err := agent.SaveState(statePath, state)
 		if err != nil {
 			t.Fatalf("SaveState failed: %v", err)

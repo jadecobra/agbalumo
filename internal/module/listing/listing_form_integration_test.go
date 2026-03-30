@@ -81,13 +81,13 @@ func TestListingHandler_FormParsing(t *testing.T) {
 			listingSvc := listmod.NewListingService(repo, repo, repo)
 
 			h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:     repo,
-		CategoryStore:    repo,
-		ListingSvc:       listingSvc,
-		ImageService:     nil,
-		GeocodingSvc:     &MockGeocodingService{},
-		Config:           &config.Config{},
-	})
+				ListingStore:  repo,
+				CategoryStore: repo,
+				ListingSvc:    listingSvc,
+				ImageService:  nil,
+				GeocodingSvc:  &MockGeocodingService{},
+				Config:        &config.Config{},
+			})
 			c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
 			c.Set("User", domain.User{ID: "user-1"})
 
@@ -110,12 +110,12 @@ func TestListingHandler_URLNormalization(t *testing.T) {
 	repo := handler.SetupTestRepository(t)
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:     repo,
-		CategoryStore:    repo,
-		ListingSvc:       listingSvc,
-		ImageService:     nil,
-		GeocodingSvc:     &MockGeocodingService{},
-		Config:           &config.Config{},
+		ListingStore:  repo,
+		CategoryStore: repo,
+		ListingSvc:    listingSvc,
+		ImageService:  nil,
+		GeocodingSvc:  &MockGeocodingService{},
+		Config:        &config.Config{},
 	})
 
 	tests := []struct {

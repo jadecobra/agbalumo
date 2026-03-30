@@ -17,7 +17,7 @@ func UpdateCoverageCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			pkgPath := args[0]
 			thresholdStr := args[1]
-			
+
 			threshold, err := strconv.ParseFloat(thresholdStr, 64)
 			if err != nil {
 				return fmt.Errorf("invalid threshold '%s'", thresholdStr)

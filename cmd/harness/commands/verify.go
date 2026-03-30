@@ -26,16 +26,15 @@ func VerifyCmd() *cobra.Command {
 				return err
 			}
 
+			// Allow drift checks to run without an active feature (useful for CI)
+			isDriftCheck := gateID == agent.GateApiSpec || gateID == agent.GateTemplateDrift || gateID == agent.GateSecurityStatic
 
-	// Allow drift checks to run without an active feature (useful for CI)
-	isDriftCheck := gateID == agent.GateApiSpec || gateID == agent.GateTemplateDrift || gateID == agent.GateSecurityStatic
-
-	if state.Feature == "" && !isDriftCheck {
-		return fmt.Errorf("no active feature found in state file")
-	}
-	if state.WorkflowType == "" {
-		state.WorkflowType = agent.WorkflowFeature
-	}
+			if state.Feature == "" && !isDriftCheck {
+				return fmt.Errorf("no active feature found in state file")
+			}
+			if state.WorkflowType == "" {
+				state.WorkflowType = agent.WorkflowFeature
+			}
 
 			if flagText {
 				fmt.Printf("Verifying gate: %s for feature: %s (%s) [%s]\n", gateID, state.Feature, state.Phase, state.WorkflowType)
@@ -100,10 +99,18 @@ func VerifyCmd() *cobra.Command {
 			switch gateID {
 			case agent.GateRedTest:
 				state.Gates.RedTest = status
+				if success {
+					fmt.Printf("🚀 Gate PASS: red-test passed. Spawning BackendEngineer agent move to GREEN phase...\n")
+					_ = agent.SpawnAgent("Act as BackendEngineer. Tests are failing. Execute GREEN phase.")
+				}
 			case agent.GateApiSpec:
 				state.Gates.ApiSpec = status
 			case agent.GateImplementation:
 				state.Gates.Implementation = status
+				if success {
+					fmt.Printf("🚀 Gate PASS: implementation passed. Spawning ChiefCritic agent for audit...\n")
+					_ = agent.SpawnAgent("Act as ChiefCritic.")
+				}
 			case agent.GateLint:
 				state.Gates.Lint = status
 			case agent.GateCoverage:
@@ -121,7 +128,7 @@ func VerifyCmd() *cobra.Command {
 					return err
 				}
 			}
-			
+
 			// This matches update_gate in bash script
 			// #nosec G204 - Internal harness tool calling itself
 			c := exec.Command("scripts/agent-exec.sh", "workflow", "gate", gateID, statusStr)
@@ -135,17 +142,17 @@ func VerifyCmd() *cobra.Command {
 			switch state.Phase {
 			case "RED":
 				if state.Gates.RedTest == agent.GatePassed && state.Gates.ApiSpec == agent.GatePassed {
-				if flagText {
-					fmt.Println("✨ All RED gates passed. Transitioning to GREEN phase.")
-				}
+					if flagText {
+						fmt.Println("✨ All RED gates passed. Transitioning to GREEN phase.")
+					}
 					// #nosec G204 - Internal harness tool calling itself
 					_ = exec.Command("scripts/agent-exec.sh", "workflow", "set-phase", "GREEN").Run()
 				}
 			case "GREEN":
 				if state.Gates.Implementation == agent.GatePassed {
-				if flagText {
-					fmt.Println("✨ Implementation passed. Transitioning to REFACTOR phase.")
-				}
+					if flagText {
+						fmt.Println("✨ Implementation passed. Transitioning to REFACTOR phase.")
+					}
 					// #nosec G204 - Internal harness tool calling itself
 					_ = exec.Command("scripts/agent-exec.sh", "workflow", "set-phase", "REFACTOR").Run()
 					if uErr := checkAndApplyProgressUpdate(); uErr != nil {

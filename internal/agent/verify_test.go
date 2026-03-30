@@ -59,7 +59,7 @@ func TestVerifyImplementation(t *testing.T) {
 	}{
 		{"golangci-lint", []string{"run", "-c", "scripts/.golangci.yml"}},
 		{"go", []string{"build", "-buildvcs=false", "./cmd/...", "./internal/..."}},
-		{"go", []string{"test", "-buildvcs=false", "-json", "-coverprofile=.tester/coverage/coverage.out", "./internal/agent/..."}},
+		{"go", []string{"test", "-buildvcs=false", "-json", "-coverprofile=.tester/coverage/coverage.out", "./..."}},
 	}
 
 	if len(recordedCommands) != len(expected) {
@@ -433,13 +433,13 @@ func TestVerifyApiSpec_DriftAggregation(t *testing.T) {
 	_ = os.WriteFile(tmpDir+"/cmd/main.go", []byte(`package main
 import "github.com/spf13/cobra"
 var cmd = &cobra.Command{ Use: "serve" }`), 0644)
-	
+
 	// OpenApi and Docs
 	_ = os.WriteFile(tmpDir+"/docs/openapi.yaml", []byte(`
 paths:
   /auth:
     get: {}`), 0644)
-	
+
 	_ = os.WriteFile(tmpDir+"/docs/api.md", []byte(`
 | Method | Path |
 |--------|------|
@@ -461,7 +461,7 @@ paths:
 
 func TestVerifyTemplateDrift(t *testing.T) {
 	tmpDir := t.TempDir()
-	
+
 	err := os.MkdirAll(tmpDir+"/internal/ui", 0755)
 	if err != nil {
 		t.Fatal(err)
@@ -543,24 +543,24 @@ func TestExtractTemplateFunctionCalls_Complex(t *testing.T) {
 	tmpDir := t.TempDir()
 	content := "\n\t\t<div>{{ upper .Name }}</div>\n\t\t<div>{{ lower (trim .Value) }}</div>\n\t\t<div>{{ unknown . }}</div>\n\t"
 	_ = os.WriteFile(tmpDir+"/test.html", []byte(content), 0644)
-	
+
 	calls, err := ExtractTemplateFunctionCalls(tmpDir)
 	if err != nil {
 		t.Fatalf("ExtractTemplateFunctionCalls failed: %v", err)
 	}
-	
+
 	expected := map[string]bool{
-		"upper": true,
-		"lower": true,
+		"upper":   true,
+		"lower":   true,
 		"unknown": true,
 	}
-	
+
 	// Check that we found at least these
 	found := make(map[string]bool)
 	for _, c := range calls {
 		found[c] = true
 	}
-	
+
 	for exp := range expected {
 		if !found[exp] {
 			t.Errorf("expected call %s not found", exp)

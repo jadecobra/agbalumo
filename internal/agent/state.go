@@ -25,11 +25,10 @@ const (
 	GateImplementation      = "implementation"
 	GateLint                = "lint"
 	GateCoverage            = "coverage"
-	GateBrowserVerification  = "browser-verification"
+	GateBrowserVerification = "browser-verification"
 	GateTemplateDrift       = "template-drift"
 	GateSecurityStatic      = "security-static"
 )
-
 
 // Standard workflow types
 const (
@@ -64,7 +63,7 @@ type State struct {
 func calculateSignature(s *State) string {
 	copy := *s
 	copy.Signature = "" // exclude signature itself from hash
-	
+
 	// predictable hashing by marshalling
 	b, _ := json.Marshal(copy)
 	hash := sha256.Sum256(b)
