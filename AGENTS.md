@@ -11,7 +11,8 @@ The squad's configuration is managed via **[.agents/config.yaml](file:///Users/j
 
 ### Core Governance Roles
 - **[ProductOwner](file:///Users/johnnyblase/gym/agbalumo/.agents/personas/product_owner.yaml)**: Owns the **"Why"**. Final authority on user value, cultural context, and reversible (Two-Way Door) decisions.
-- **[SystemsArchitect](file:///Users/johnnyblase/gym/agbalumo/.agents/personas/systems_architect.yaml)**: Owns the **"How"**. Final authority on technical integrity, security, and irreversible (One-Way Door) decisions.
+- **[SDET / SecurityEngineer](file:///Users/johnnyblase/gym/agbalumo/.agents/personas/security_engineer.yaml)**: Owns the **"Proof"**. Final authority on quality and security. They write the failing tests (RED) but NEVER the fix. They are the "Witness" to the implementation's success.
+- **[BackendEngineer](file:///Users/johnnyblase/gym/agbalumo/.agents/personas/backend_engineer.yaml)**: Owns the **"Fix"**. Responsible for minimal, high-performance Go logic to pass the witness's tests.
 
 ---
 
