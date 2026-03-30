@@ -1,30 +1,55 @@
 package commands
 
 import (
-	"bytes"
+	"github.com/jadecobra/agbalumo/internal/agent"
+	"github.com/jadecobra/agbalumo/internal/util"
 	"testing"
-
-	"github.com/spf13/cobra"
 )
 
-func TestUpdateCoverageCmd_Basic(t *testing.T) {
-	cmd := &cobra.Command{Use: "update-coverage"}
-	if cmd.Use != "update-coverage" {
-		t.Errorf("expected update-coverage, got %s", cmd.Use)
+func TestUpdateCoverageCmd(t *testing.T) {
+	cmd := UpdateCoverageCmd()
+
+	thresholdsFile := ".agents/coverage-thresholds.json"
+	backupFile := thresholdsFile + ".bak"
+	if _, err := util.SafeStat(thresholdsFile); err == nil {
+		_ = util.SafeRename(thresholdsFile, backupFile)
+		defer func() { _ = util.SafeRename(backupFile, thresholdsFile) }()
 	}
-}
+	_ = agent.SaveThresholds(thresholdsFile, map[string]float64{})
+	defer func() { _ = util.SafeRemove(thresholdsFile) }()
 
-func TestExecuteUpdateCoverage(t *testing.T) {
-	root := &cobra.Command{Use: "harness"}
-	update := UpdateCoverageCmd()
-	root.AddCommand(update)
-
-	b := bytes.NewBufferString("")
-	root.SetOut(b)
-	root.SetArgs([]string{"update-coverage", "--help"})
-
-	err := root.Execute()
+	// 1. Initial creation
+	cmd.SetArgs([]string{"all", "0.5"})
+	err := cmd.Execute()
 	if err != nil {
-		t.Fatalf("Execute failed: %v", err)
+		t.Fatalf("unexpected error for initial update: %v", err)
+	}
+
+	// 2. Increase threshold
+	cmd.SetArgs([]string{"all", "0.6"})
+	err = cmd.Execute()
+	if err != nil {
+		t.Fatalf("unexpected error for increase: %v", err)
+	}
+
+	// 3. Lowering threshold protection
+	cmd.SetArgs([]string{"all", "0.4"})
+	err = cmd.Execute()
+	if err == nil {
+		t.Errorf("expected error for lowering threshold, got nil")
+	}
+
+	// 4. Invalid threshold
+	cmd.SetArgs([]string{"all", "invalid"})
+	err = cmd.Execute()
+	if err == nil {
+		t.Errorf("expected error for invalid threshold, got nil")
+	}
+
+	// 5. Missing arguments (vaguely testing cobra validation)
+	cmd.SetArgs([]string{"all"})
+	err = cmd.Execute()
+	if err == nil {
+		t.Errorf("expected error for missing args, got nil")
 	}
 }

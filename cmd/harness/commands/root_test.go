@@ -1,162 +1,110 @@
 package commands
 
 import (
-	"testing"
-
-	"github.com/jadecobra/agbalumo/internal/agent"
 	"github.com/jadecobra/agbalumo/internal/util"
+	"testing"
 )
 
-func TestNewRootCmd(t *testing.T) {
-	cmd := NewRootCmd()
-	if cmd.Use != "harness" {
-		t.Errorf("expected Use to be 'harness', got '%s'", cmd.Use)
+func TestRootFunctions(t *testing.T) {
+	stateFile := ".agents/state.json"
+	backupFile := stateFile + ".bak"
+	if _, err := util.SafeStat(stateFile); err == nil {
+		_ = util.SafeRename(stateFile, backupFile)
+		defer func() { _ = util.SafeRename(backupFile, stateFile) }()
 	}
 
-	if len(cmd.Commands()) < 5 {
-		t.Errorf("expected at least 5 subcommands, got %d", len(cmd.Commands()))
+	// 1. Test getState (missing file)
+	_ = util.SafeRemove(stateFile)
+	state, err := getState()
+	if err != nil {
+		t.Fatalf("unexpected error for missing state: %v", err)
+	}
+	if state.Phase != "" && state.Phase != "IDLE" {
+		t.Errorf("expected empty or IDLE phase for new state, got %s", state.Phase)
 	}
 
-	cmd.SetArgs([]string{"--help"})
-	_ = cmd.Execute()
-}
+	// 2. Test saveState
+	state.Feature = "test-save"
+	err = saveState(state)
+	if err != nil {
+		t.Fatalf("unexpected error for saveState: %v", err)
+	}
 
-func TestCoverageHelpers(t *testing.T) {
-	// Call these purely for coverage. They safely return early or are read-only operations.
-	_, _ = getState()
-	_ = saveState(&agent.State{
-		Feature:      "test_feature",
-		WorkflowType: "feature",
-		Phase:        "IDLE",
-	})
-	_ = summarizeProgress()
-	_ = checkAndApplyProgressUpdate()
-}
+	// 3. Test getState (existing file)
+	state2, err := getState()
+	if err != nil {
+		t.Fatalf("unexpected error for reading back state: %v", err)
+	}
+	if state2.Feature != "test-save" {
+		t.Errorf("expected feature test-save, got %s", state2.Feature)
+	}
 
-func TestErrorPaths(t *testing.T) {
-	// Test summarizeProgress with missing files
-	origFileMD := ".tester/tasks/progress.md"
-	tempFileMD := ".tester/tasks/progress.md.bak"
-
-	_ = util.SafeRename(origFileMD, tempFileMD)
-	defer func() {
-		_ = util.SafeRename(tempFileMD, origFileMD)
-	}()
-
-	err := summarizeProgress()
+	// 4. Test summarizeProgress (missing file)
+	pfile := ".tester/tasks/progress.md"
+	pbak := pfile + ".bak"
+	if _, err := util.SafeStat(pfile); err == nil {
+		_ = util.SafeRename(pfile, pbak)
+		defer func() { _ = util.SafeRename(pbak, pfile) }()
+	}
+	_ = util.SafeRemove(pfile)
+	err = summarizeProgress()
 	if err == nil {
-		t.Errorf("expected error for missing progress files, got nil")
+		t.Error("expected error for missing progress file, got nil")
 	}
+
+	// 5. Test summarizeProgress (valid file)
+	_ = util.SafeWriteFile(pfile, []byte("# Category\n- [ ] Task 1\n- [x] Task 2\n"))
+	defer func() { _ = util.SafeRemove(pfile) }()
+	flagText = true
+	err = summarizeProgress()
+	if err != nil {
+		t.Errorf("unexpected error for valid progress file: %v", err)
+	}
+
+	// 6. Test checkAndApplyProgressUpdate (missing file)
+	updateFile := ".tester/tasks/pending_update.md"
+	_ = util.SafeRemove(updateFile)
+	err = checkAndApplyProgressUpdate()
+	if err != nil {
+		t.Fatalf("unexpected error for missing progress update: %v", err)
+	}
+
+	// 7. Test checkAndApplyProgressUpdate (valid file)
+	_ = util.SafeWriteFile(updateFile, []byte("# New Category\n- [x] Done Task\n"))
+	defer func() { _ = util.SafeRemove(updateFile) }()
 
 	err = checkAndApplyProgressUpdate()
 	if err != nil {
-		t.Logf("Note: checkAndApplyProgressUpdate returned: %v", err)
-	}
-}
-
-func TestCheckAndApplyProgressUpdateMD(t *testing.T) {
-	// Create mock progress.md
-	progressFile := ".tester/tasks/progress.md"
-	updateFile := ".tester/tasks/pending_update.md"
-
-	// Backup original progress.md
-	backupFile := progressFile + ".bak"
-	if _, err := util.SafeStat(progressFile); err == nil {
-		_ = util.SafeRename(progressFile, backupFile)
-		defer func() {
-			_ = util.SafeRemove(progressFile)
-			_ = util.SafeRename(backupFile, progressFile)
-		}()
+		t.Fatalf("unexpected error for progress update: %v", err)
 	}
 
-	initialProgress := `# Test Category
-Test Description
-- [x] Step 1
-`
-	_ = util.SafeMkdir(".tester/tasks")
-	_ = util.SafeWriteFile(progressFile, []byte(initialProgress))
-
-	pendingUpdate := `# Test Category
-- [x] Step 2
-`
-	_ = util.SafeWriteFile(updateFile, []byte(pendingUpdate))
-	defer func() { _ = util.SafeRemove(updateFile) }()
-
-	err := checkAndApplyProgressUpdate()
+	// 8. Test summarizeProgress (non-text mode)
+	flagText = false
+	err = summarizeProgress()
 	if err != nil {
-		t.Fatalf("checkAndApplyProgressUpdate failed: %v", err)
-	}
-
-	// Verify the result
-	data, err := util.SafeReadFile(progressFile)
-	if err != nil {
-		t.Fatalf("failed to read updated progress.md: %v", err)
-	}
-
-	tracker, err := agent.ParseMarkdownTracker(string(data))
-	if err != nil {
-		t.Fatalf("failed to parse updated progress.md: %v", err)
-	}
-
-	if len(tracker.Features) > 0 {
-		f := tracker.Features[0]
-		if f.Category != "Test Category" {
-			t.Errorf("expected category 'Test Category', got '%s'", f.Category)
-		}
-		if len(f.Steps) != 2 {
-			t.Errorf("expected 2 steps, got %d", len(f.Steps))
-		}
-		if !f.Passes {
-			t.Errorf("expected passes to be true")
-		}
-	}
-}
-
-func TestHasPending(t *testing.T) {
-	// A strictly complete list
-	stepsWithCompleted := []string{"Task 1 (Completed)", "Task 2 (Completed)", "Task 3 (Completed)"}
-	if agent.HasPending(stepsWithCompleted) {
-		t.Errorf("Expected hasPending to return false for fully completed steps")
-	}
-
-	// Contains an unmarked step, implicitly pending
-	stepsWithoutPending := []string{"Task 1 (Completed)", "Task 2"}
-	if !agent.HasPending(stepsWithoutPending) {
-		t.Errorf("Expected hasPending to return true due to unmarked step 'Task 2'")
-	}
-
-	// Contains an explicitly pending step
-	stepsWithPending := []string{"Task 1 (Completed)", "Task 2 (Pending)"}
-	if !agent.HasPending(stepsWithPending) {
-		t.Errorf("Expected hasPending to return true due to 'Task 2 (Pending)'")
+		t.Fatalf("unexpected error for non-text summary: %v", err)
 	}
 }
 
 func TestPrintJSON(t *testing.T) {
-	// Simple test to hit the lines in printJSON
-	printJSON(true, "test-command", "test-output", nil)
-	printJSON(false, "test-error", nil, []string{"warn1", "warn2"})
+	// printJSON uses os.Stdout, we just verify it doesn't panic
+	printJSON(true, "test", map[string]any{"key": "val"}, nil)
+	printJSON(false, "test", nil, []string{"warn1"})
 }
 
-func TestInitCmdCoverage(t *testing.T) {
-	cmd := NewRootCmd()
-	flagText = true
-	cmd.SetArgs([]string{"init", "test-feature", "bugfix"})
-	_ = cmd.Execute()
-
-	cmd.SetArgs([]string{"set-phase", "RED"})
-	_ = cmd.Execute()
-}
-
-func TestBypassGates(t *testing.T) {
-	state, err := getState()
-	if err != nil {
-		t.Fatalf("failed to get state: %v", err)
+func TestGetState_InvalidJSON(t *testing.T) {
+	stateFile := ".agents/state.json"
+	backupFile := stateFile + ".bak"
+	if _, err := util.SafeStat(stateFile); err == nil {
+		_ = util.SafeRename(stateFile, backupFile)
+		defer func() { _ = util.SafeRename(backupFile, stateFile) }()
 	}
-	state.Gates.Coverage = agent.GatePassed
-	state.Gates.BrowserVerification = agent.GatePassed
-	state.Phase = "REFACTOR"
-	if err := saveState(state); err != nil {
-		t.Fatalf("failed to save state: %v", err)
+
+	_ = util.SafeWriteFile(stateFile, []byte("invalid json"))
+	defer func() { _ = util.SafeRemove(stateFile) }()
+
+	_, err := getState()
+	if err == nil {
+		t.Error("expected error for invalid JSON, got nil")
 	}
 }

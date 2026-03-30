@@ -77,7 +77,7 @@ tasks:
     status:
       - '[ -z "{{.STAGED_GO}}" ]'
     cmds:
-      - gofmt -w {{.STAGED_GO}}
+      - echo "{{.STAGED_GO}}" | xargs gofmt -w
 
   test:
     desc: Run optimized tests on staged Go packages

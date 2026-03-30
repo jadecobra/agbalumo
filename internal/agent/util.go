@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"fmt"
 	"os"
 	"regexp"
 	"strings"
@@ -44,5 +45,9 @@ func SpawnAgent(prompt string) error {
 		cmd.Stderr = null
 	}
 
-	return cmd.Start()
+	if err := cmd.Start(); err != nil {
+		fmt.Fprintf(os.Stderr, "⚠️  Error: Failed to spawn background agent: %v\n", err)
+		return err
+	}
+	return nil
 }
