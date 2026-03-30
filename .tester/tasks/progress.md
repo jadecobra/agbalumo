@@ -94,3 +94,4 @@ Implemented autonomous agent spawning capability to enable background orchestrat
 - [x] Implement SpawnAgent in internal/agent/util.go
 - [x] Add unit tests for SpawnAgent in internal/agent/util_async_test.go
 - [x] Verify process detachment via SysProcAttr.Setsid
+- [x] Pass all harness gates for harness-agent-spawn feature (REFACTOR phase)
