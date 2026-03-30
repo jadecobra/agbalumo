@@ -51,7 +51,7 @@ func (s *GoogleGeocodingService) GetCity(ctx context.Context, address string) (s
 		return "", err
 	}
 
-	// #nosec G107 - SSRF check: The BaseURL is a constant from the constructor, and address is query-escaped.
+	// #nosec G107 G704 - SSRF check: The BaseURL is a constant from the constructor, and address is query-escaped.
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return "", err
