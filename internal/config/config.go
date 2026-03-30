@@ -10,13 +10,13 @@ import (
 type Config struct {
 	Env                  string
 	DatabaseURL          string
-	SessionSecret        string
+	SessionSecret        string // #nosec G117 - Configuration holder for session signing secret
 	AdminCode            string
 	DevAuthEmail         string
 	RateLimitRate        int
 	RateLimitBurst       int
 	UploadDir            string
-	GoogleMapsAPIKey     string
+	GoogleMapsAPIKey     string // #nosec G117 - Configuration holder for Maps API key
 	HasGoogleAuth        bool
 	MockAuth             bool
 	SlowQueryThresholdMs int

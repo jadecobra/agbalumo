@@ -10,7 +10,7 @@ import (
 
 // GoogleGeocodingService implements domain.GeocodingService using Google Maps API.
 type GoogleGeocodingService struct {
-	APIKey  string
+	APIKey  string // #nosec G117 - Service field for API key injection
 	BaseURL string
 }
 
