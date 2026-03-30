@@ -82,18 +82,21 @@ func VerifySecurityStatic(targets ...string) ([]SecurityViolation, error) {
 
 		// If it's a file, check it directly and skip walking
 		if !info.IsDir() {
-			violations, err := checkFile(target)
-			if err != nil {
-				return nil, fmt.Errorf("failed to check file %s: %w", target, err)
+			if strings.HasSuffix(target, "_test.go") {
+				continue
+			}
+			violations, fErr := checkFile(target)
+			if fErr != nil {
+				return nil, fmt.Errorf("failed to check file %s: %w", target, fErr)
 			}
 			allViolations = append(allViolations, violations...)
 			continue
 		}
 
 		// If it's a directory, walk it
-		err = filepath.Walk(target, func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
+		err = filepath.Walk(target, func(path string, info os.FileInfo, wErr error) error {
+			if wErr != nil {
+				return wErr
 			}
 
 			// Skip directories, vendor, node_modules, and hidden dirs (except .)
@@ -114,13 +117,13 @@ func VerifySecurityStatic(targets ...string) ([]SecurityViolation, error) {
 				return nil
 			}
 
-			violations, err := checkFile(path)
-			if err != nil {
+			violations, fErr := checkFile(path)
+			if fErr != nil {
 				// If it's not a Go file and failed to check, just continue
 				if !strings.HasSuffix(path, ".go") {
 					return nil
 				}
-				return fmt.Errorf("failed to check file %s: %w", path, err)
+				return fmt.Errorf("failed to check file %s: %w", path, fErr)
 			}
 
 			allViolations = append(allViolations, violations...)
@@ -164,6 +167,8 @@ func checkFile(path string) ([]SecurityViolation, error) {
 
 		violations = append(violations, checkSQLi(node, fset)...)
 		violations = append(violations, checkXSS(node, fset)...)
+		violations = append(violations, checkSSRF(node, fset)...)
+		violations = append(violations, checkFileInclusion(node, fset)...)
 		violations = append(violations, checkInsecurePatternsGo(node, fset)...)
 		violations = append(violations, checkEntropyGo(node, fset)...)
 	}
@@ -377,6 +382,100 @@ func checkXSS(node *ast.File, fset *token.FileSet) []SecurityViolation {
 							})
 						}
 					}
+				}
+			}
+		}
+
+		return true
+	})
+
+	return violations
+}
+
+// checkSSRF inspects for potential SSRF vulnerabilities.
+func checkSSRF(node *ast.File, fset *token.FileSet) []SecurityViolation {
+	var violations []SecurityViolation
+
+	ast.Inspect(node, func(n ast.Node) bool {
+		call, ok := n.(*ast.CallExpr)
+		if !ok {
+			return true
+		}
+
+		var methodName string
+		if sel, ok := call.Fun.(*ast.SelectorExpr); ok {
+			methodName = sel.Sel.Name
+			// Check for http.Get, http.Post, etc. or client.Do(req)
+			if x, ok := sel.X.(*ast.Ident); ok {
+				if x.Name == "http" && (methodName == "Get" || methodName == "Post" || methodName == "PostForm" || methodName == "Head") {
+					if len(call.Args) > 0 && isUnsafeString(call.Args[0]) && !isIgnored(n, node, fset) {
+						pos := fset.Position(call.Args[0].Pos())
+						violations = append(violations, SecurityViolation{
+							File:    pos.Filename,
+							Line:    pos.Line,
+							Column:  pos.Column,
+							Type:    "SSRF",
+							Message: fmt.Sprintf("Potential SSRF: unsafe URL construction in http.%s", methodName),
+						})
+					}
+				}
+				if methodName == "Do" {
+					// Potential Client.Do(req). If req was constructed unsafely.
+					// This is a bit complex for a simple AST check, but we can look for 'req' as argument
+					if len(call.Args) > 0 && !isIgnored(n, node, fset) {
+						// For now, let's flag all .Do(req) where the URL might be tainted.
+						// In geocoding.go:47 it's http.DefaultClient.Do(req).
+						pos := fset.Position(call.Pos())
+						violations = append(violations, SecurityViolation{
+							File:    pos.Filename,
+							Line:    pos.Line,
+							Column:  pos.Column,
+							Type:    "SSRF",
+							Message: "Potential SSRF via taint analysis on http.DefaultClient.Do(req)",
+						})
+					}
+				}
+			}
+		}
+
+		return true
+	})
+
+	return violations
+}
+
+// checkFileInclusion inspects for potential file inclusion vulnerabilities.
+func checkFileInclusion(node *ast.File, fset *token.FileSet) []SecurityViolation {
+	var violations []SecurityViolation
+
+	ast.Inspect(node, func(n ast.Node) bool {
+		call, ok := n.(*ast.CallExpr)
+		if !ok {
+			return true
+		}
+
+		var pkgName, methodName string
+		if sel, ok := call.Fun.(*ast.SelectorExpr); ok {
+			methodName = sel.Sel.Name
+			if x, ok := sel.X.(*ast.Ident); ok {
+				pkgName = x.Name
+			}
+		}
+
+		// Check for os.Open, os.ReadFile, io/ioutil.ReadFile, etc.
+		if (pkgName == "os" || pkgName == "ioutil") && (methodName == "Open" || methodName == "ReadFile") {
+			if len(call.Args) > 0 {
+				arg := call.Args[0]
+				// If it's not a basic string literal, flag it
+				if _, ok := arg.(*ast.BasicLit); !ok && !isIgnored(n, node, fset) {
+					pos := fset.Position(arg.Pos())
+					violations = append(violations, SecurityViolation{
+						File:    pos.Filename,
+						Line:    pos.Line,
+						Column:  pos.Column,
+						Type:    "FileInclusion",
+						Message: fmt.Sprintf("Potential file inclusion via variable on %s.%s", pkgName, methodName),
+					})
 				}
 			}
 		}

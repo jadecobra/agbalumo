@@ -102,12 +102,9 @@ func TestRealGoogleProvider_GetUserInfo_Success(t *testing.T) {
 	}))
 	defer server.Close()
 
-	// Override package-level var
-	original := googleUserInfoURL
-	googleUserInfoURL = server.URL
-	defer func() { googleUserInfoURL = original }()
-
 	p := NewRealGoogleProvider()
+	p.UserInfoURL = server.URL
+
 	token := &oauth2.Token{AccessToken: "test-token"}
 	user, err := p.GetUserInfo(t.Context(), token)
 
@@ -125,11 +122,8 @@ func TestRealGoogleProvider_GetUserInfo_BadStatus(t *testing.T) {
 	}))
 	defer server.Close()
 
-	original := googleUserInfoURL
-	googleUserInfoURL = server.URL
-	defer func() { googleUserInfoURL = original }()
-
 	p := NewRealGoogleProvider()
+	p.UserInfoURL = server.URL
 	token := &oauth2.Token{AccessToken: "test-token"}
 	user, err := p.GetUserInfo(t.Context(), token)
 
@@ -145,11 +139,8 @@ func TestRealGoogleProvider_GetUserInfo_BadJSON(t *testing.T) {
 	}))
 	defer server.Close()
 
-	original := googleUserInfoURL
-	googleUserInfoURL = server.URL
-	defer func() { googleUserInfoURL = original }()
-
 	p := NewRealGoogleProvider()
+	p.UserInfoURL = server.URL
 	token := &oauth2.Token{AccessToken: "test-token"}
 	user, err := p.GetUserInfo(t.Context(), token)
 

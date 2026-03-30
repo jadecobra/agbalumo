@@ -42,7 +42,7 @@ func TestRootFunctions(t *testing.T) {
 	// 4. Test summarizeProgress (missing file)
 	pfile := ".tester/tasks/progress.md"
 	pbak := pfile + ".bak"
-	if _, err := util.SafeStat(pfile); err == nil {
+	if _, pErr := util.SafeStat(pfile); pErr == nil {
 		_ = util.SafeRename(pfile, pbak)
 		defer func() { _ = util.SafeRename(pbak, pfile) }()
 	}

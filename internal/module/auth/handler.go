@@ -21,7 +21,7 @@ import (
 	"golang.org/x/oauth2/google"
 )
 
-var googleUserInfoURL = "https://www.googleapis.com/oauth2/v2/userinfo"
+const googleUserInfoURL = "https://www.googleapis.com/oauth2/v2/userinfo"
 
 // -- Google Interaction Abstraction --
 
@@ -39,7 +39,8 @@ type GoogleProvider interface {
 }
 
 type RealGoogleProvider struct {
-	config *oauth2.Config
+	config      *oauth2.Config
+	UserInfoURL string
 }
 
 func NewRealGoogleProvider() *RealGoogleProvider {
@@ -56,7 +57,10 @@ func NewRealGoogleProvider() *RealGoogleProvider {
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"},
 		Endpoint:     google.Endpoint,
 	}
-	return &RealGoogleProvider{config: config}
+	return &RealGoogleProvider{
+		config:      config,
+		UserInfoURL: googleUserInfoURL,
+	}
 }
 
 func (p *RealGoogleProvider) getRedirectURL(scheme string, host string) string {
@@ -101,7 +105,8 @@ func (p *RealGoogleProvider) Exchange(ctx context.Context, code string, scheme s
 }
 
 func (p *RealGoogleProvider) GetUserInfo(ctx context.Context, token *oauth2.Token) (*GoogleUser, error) {
-	resp, err := http.Get(googleUserInfoURL + "?access_token=" + token.AccessToken)
+	// #nosec G107 - SSRF check: The URL is from the provider's configuration (defaulting to a constant) and AccessToken is from the OAuth exchange.
+	resp, err := http.Get(p.UserInfoURL + "?access_token=" + token.AccessToken)
 	if err != nil {
 		return nil, err
 	}

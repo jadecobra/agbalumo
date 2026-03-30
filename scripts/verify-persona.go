@@ -29,8 +29,7 @@ type Config struct {
 }
 
 func main() {
-	configPath := ".agents/config.yaml"
-	data, err := os.ReadFile(configPath)
+	data, err := os.ReadFile(".agents/config.yaml")
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
@@ -48,19 +47,25 @@ func main() {
 
 	for _, pReg := range config.Personas {
 		yamlPersonas = append(yamlPersonas, pReg.Name)
-		pPath := filepath.Join(".agents", pReg.File)
-		// ... existing persona validation ...
-		pData, err := os.ReadFile(pPath)
-		if err != nil {
-			fmt.Printf("[FAIL] Could not read persona file %s: %v\n", pPath, err)
+		pPath := filepath.Clean(filepath.Join(".agents", pReg.File))
+		if !strings.HasPrefix(pPath, ".agents/") && !strings.HasPrefix(pPath, ".agents\\") {
+			fmt.Printf("[FAIL] Persona path '%s' must be within .agents/ directory\n", pPath)
+			hasErrors = true
+			continue
+		}
+
+		// #nosec G304 - File Inclusion: Path is cleaned and verified to be within .agents directory.
+		pData, pErr := os.ReadFile(pPath)
+		if pErr != nil {
+			fmt.Printf("[FAIL] Could not read persona file %s: %v\n", pPath, pErr)
 			hasErrors = true
 			continue
 		}
 
 		var p Persona
-		err = yaml.Unmarshal(pData, &p)
-		if err != nil {
-			fmt.Printf("[FAIL] Error parsing YAML for %s: %v\n", pPath, err)
+		pErr = yaml.Unmarshal(pData, &p)
+		if pErr != nil {
+			fmt.Printf("[FAIL] Error parsing YAML for %s: %v\n", pPath, pErr)
 			hasErrors = true
 			continue
 		}

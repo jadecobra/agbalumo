@@ -23,8 +23,9 @@ func UpdateCoverageCmd() *cobra.Command {
 				return fmt.Errorf("invalid threshold '%s'", thresholdStr)
 			}
 
-			path := ".agents/coverage-thresholds.json"
-			data, err := os.ReadFile(path)
+			const thresholdPath = ".agents/coverage-thresholds.json"
+			// #nosec G304 - File Inclusion: Reading internal configuration from the fixed location.
+			data, err := os.ReadFile(thresholdPath)
 			if err != nil {
 				return fmt.Errorf("reading coverage thresholds: %w", err)
 			}
@@ -41,7 +42,7 @@ func UpdateCoverageCmd() *cobra.Command {
 
 			thresholds[pkgPath] = threshold
 
-			if err := agent.SaveThresholds(path, thresholds); err != nil {
+			if err := agent.SaveThresholds(thresholdPath, thresholds); err != nil {
 				return fmt.Errorf("saving coverage thresholds: %w", err)
 			}
 

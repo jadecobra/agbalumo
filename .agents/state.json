@@ -1,7 +1,7 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "harness-agent-spawn",
-  "workflow_type": "refactor",
+  "feature": "security-hardening",
+  "workflow_type": "bugfix",
   "phase": "REFACTOR",
   "gates": {
     "red-test": "PASSED",
@@ -9,10 +9,10 @@
     "implementation": "PASSED",
     "lint": "PASSED",
     "coverage": "PASSED",
-    "browser-verification": "PASSED",
+    "browser-verification": "PENDING",
     "template-drift": "PASSED",
     "security-static": "PASSED"
   },
-  "updated_at": "2026-03-30T04:39:50.091277Z",
-  "signature": "bfcc451cfff43e33a25f23119dd1467614916baea678cf6e34465a678ab3e60c"
+  "updated_at": "2026-03-30T05:22:08.264528Z",
+  "signature": "e40a1d1e349875fd662f3a6eb711b0852c3203201ab1c561770a8725262d6d4a"
 }

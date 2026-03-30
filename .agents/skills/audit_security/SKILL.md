@@ -1,6 +1,6 @@
 # Skill: Audit Security
 name: audit_security
-description: Thoroughly inspect the code for OWASP Top 10 vulnerabilities, unauthorized logic, and input validation gaps.
+description: Thoroughly inspect the code for STRIDE, OWASP Top 10 vulnerabilities, unauthorized logic, and input validation gaps.
 ---
 ## Objective
 As the SecurityEngineer, assume all code is malicious or vulnerable until proven otherwise.

@@ -33,7 +33,7 @@ func VerifySecurityStaticGate(paths ...string) bool {
 		return true
 	}
 
-	limit := 1
+	limit := 5
 	fmt.Printf("❌ Gate FAIL: %d security violations detected (showing first %d).\n", len(allViolations), limit)
 	for i, v := range allViolations {
 		if i >= limit {

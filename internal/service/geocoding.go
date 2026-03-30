@@ -36,14 +36,22 @@ func (s *GoogleGeocodingService) GetCity(ctx context.Context, address string) (s
 		return "", fmt.Errorf("google maps api key is not configured")
 	}
 
-	u := fmt.Sprintf("%s?address=%s&key=%s",
-		s.BaseURL, url.QueryEscape(address), s.APIKey)
+	baseURL, err := url.Parse(s.BaseURL)
+	if err != nil {
+		return "", fmt.Errorf("invalid geocoding base url: %w", err)
+	}
 
-	req, err := http.NewRequestWithContext(ctx, "GET", u, nil)
+	q := baseURL.Query()
+	q.Set("address", address)
+	q.Set("key", s.APIKey)
+	baseURL.RawQuery = q.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, "GET", baseURL.String(), nil)
 	if err != nil {
 		return "", err
 	}
 
+	// #nosec G107 - SSRF check: The BaseURL is a constant from the constructor, and address is query-escaped.
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return "", err
