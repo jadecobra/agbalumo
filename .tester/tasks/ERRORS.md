@@ -1,5 +1,6 @@
 ERRORS
 
+- WARN Using default admin code - set ADMIN_CODE for production - add password management in admin dashboard
 - what should agent do when user request conflicts with TDD principles?
 - critique skils with ChiefCritic reveals gaps that Pro did not catch, do the other skills
 - WARNING: terminal is not fully functional - why?

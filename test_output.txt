@@ -1,0 +1,118 @@
+=== RUN   TestRealGoogleProvider_getRedirectURL_BaseURL
+--- PASS: TestRealGoogleProvider_getRedirectURL_BaseURL (0.00s)
+=== RUN   TestRealGoogleProvider_getRedirectURL_GoogleRedirectURL
+--- PASS: TestRealGoogleProvider_getRedirectURL_GoogleRedirectURL (0.00s)
+=== RUN   TestRealGoogleProvider_getRedirectURL_DynamicHTTPS
+[DEBUG] OAuth Redirect URI: https://localhost:8443/auth/google/callback
+--- PASS: TestRealGoogleProvider_getRedirectURL_DynamicHTTPS (0.00s)
+=== RUN   TestRealGoogleProvider_getRedirectURL_DynamicHTTP
+[DEBUG] OAuth Redirect URI: http://localhost:8080/auth/google/callback
+--- PASS: TestRealGoogleProvider_getRedirectURL_DynamicHTTP (0.00s)
+=== RUN   TestRealGoogleProvider_getRedirectURL_Production
+[DEBUG] OAuth Redirect URI: https://agbalumo.fly.dev/auth/google/callback
+--- PASS: TestRealGoogleProvider_getRedirectURL_Production (0.00s)
+=== RUN   TestRealGoogleProvider_GetAuthCodeURL
+[DEBUG] OAuth Redirect URI: http://localhost:8080/auth/google/callback
+--- PASS: TestRealGoogleProvider_GetAuthCodeURL (0.00s)
+=== RUN   TestRealGoogleProvider_GetUserInfo_Success
+    internal_test.go:99: 
+        	Error Trace:	/Users/johnnyblase/gym/agbalumo/internal/module/auth/internal_test.go:99
+        	            				/opt/homebrew/Cellar/go/1.26.1/libexec/src/net/http/server.go:2286
+        	            				/opt/homebrew/Cellar/go/1.26.1/libexec/src/net/http/server.go:3311
+        	            				/opt/homebrew/Cellar/go/1.26.1/libexec/src/net/http/server.go:2073
+        	            				/opt/homebrew/Cellar/go/1.26.1/libexec/src/runtime/asm_arm64.s:1447
+        	Error:      	"/" does not contain "access_token=test-token"
+        	Test:       	TestRealGoogleProvider_GetUserInfo_Success
+--- FAIL: TestRealGoogleProvider_GetUserInfo_Success (0.00s)
+=== RUN   TestRealGoogleProvider_GetUserInfo_BadStatus
+--- PASS: TestRealGoogleProvider_GetUserInfo_BadStatus (0.00s)
+=== RUN   TestRealGoogleProvider_GetUserInfo_BadJSON
+--- PASS: TestRealGoogleProvider_GetUserInfo_BadJSON (0.00s)
+=== RUN   TestRealGoogleProvider_GetUserInfo_TokenInHeader
+--- PASS: TestRealGoogleProvider_GetUserInfo_TokenInHeader (0.00s)
+=== RUN   TestAuthHandler_DevLogin_Production
+2026/03/31 00:43:38 WARN Using default admin code - set ADMIN_CODE for production
+2026/03/31 00:43:38 ERROR Request failed request_id="" error="code=403, message=Dev login disabled in production"
+--- PASS: TestAuthHandler_DevLogin_Production (0.00s)
+=== RUN   TestAuthHandler_GoogleCallback_StateMismatch
+2026/03/31 00:43:38 WARN Using default admin code - set ADMIN_CODE for production
+2026/03/31 00:43:38 ERROR Request failed request_id="" error="code=400, message=States don't match or expired"
+--- PASS: TestAuthHandler_GoogleCallback_StateMismatch (0.00s)
+=== RUN   TestAuthHandler_GoogleCallback_Success
+2026/03/31 00:43:38 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAuthHandler_GoogleCallback_Success (0.00s)
+=== RUN   TestAuthHandler_GoogleLogin
+2026/03/31 00:43:38 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAuthHandler_GoogleLogin (0.00s)
+=== RUN   TestAuthHandler_DevLogin_Success
+2026/03/31 00:43:38 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAuthHandler_DevLogin_Success (0.00s)
+=== RUN   TestAuthHandler_DevLogin_GOENVFallback
+2026/03/31 00:43:38 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAuthHandler_DevLogin_GOENVFallback (0.00s)
+=== RUN   TestAuthHandler_DevLogin_DefaultEmail
+2026/03/31 00:43:38 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAuthHandler_DevLogin_DefaultEmail (0.00s)
+=== RUN   TestAuthHandler_DevLogin_FindOrCreateError
+--- PASS: TestAuthHandler_DevLogin_FindOrCreateError (0.00s)
+=== RUN   TestAuthHandler_GoogleCallback_ExchangeError
+2026/03/31 00:43:38 WARN Using default admin code - set ADMIN_CODE for production
+2026/03/31 00:43:38 ERROR Request failed request_id="" error="code=500, message=Code exchange failed"
+--- PASS: TestAuthHandler_GoogleCallback_ExchangeError (0.00s)
+=== RUN   TestAuthHandler_GoogleCallback_GetUserInfoError
+2026/03/31 00:43:38 WARN Using default admin code - set ADMIN_CODE for production
+2026/03/31 00:43:38 ERROR Request failed request_id="" error="code=500, message=User data fetch failed"
+--- PASS: TestAuthHandler_GoogleCallback_GetUserInfoError (0.00s)
+=== RUN   TestAuthHandler_SetSessionAndRedirect_NilSession
+2026/03/31 00:43:38 WARN Using default admin code - set ADMIN_CODE for production
+2026/03/31 00:43:38 ERROR Request failed request_id="" error="code=500, message=Session Store Missing"
+--- PASS: TestAuthHandler_SetSessionAndRedirect_NilSession (0.00s)
+=== RUN   TestAuthHandler_Logout
+2026/03/31 00:43:38 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAuthHandler_Logout (0.00s)
+=== RUN   TestAuthHandler_Logout_NoSession
+2026/03/31 00:43:38 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAuthHandler_Logout_NoSession (0.00s)
+=== RUN   TestAuthHandler_GoogleCallback_SaveUserError
+2026/03/31 00:43:38 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAuthHandler_GoogleCallback_SaveUserError (0.00s)
+=== RUN   TestAuthHandler_GoogleCallback_UpdateProfile
+2026/03/31 00:43:38 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAuthHandler_GoogleCallback_UpdateProfile (0.00s)
+=== RUN   TestAuthHandler_GoogleCallback_UpdateProfileSaveError
+2026/03/31 00:43:38 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAuthHandler_GoogleCallback_UpdateProfileSaveError (0.00s)
+=== RUN   TestAuthHandler_GoogleCallback_UpdateProfile_NoChanges
+2026/03/31 00:43:38 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAuthHandler_GoogleCallback_UpdateProfile_NoChanges (0.00s)
+=== RUN   TestAuthHandler_GoogleCallback_CrossSiteCallback
+2026/03/31 00:43:38 WARN Using default admin code - set ADMIN_CODE for production
+--- PASS: TestAuthHandler_GoogleCallback_CrossSiteCallback (0.00s)
+=== RUN   TestAuthMiddleware_RequireAuth_Redirect
+--- PASS: TestAuthMiddleware_RequireAuth_Redirect (0.00s)
+=== RUN   TestAuthMiddleware_RequireAuth_Success
+--- PASS: TestAuthMiddleware_RequireAuth_Success (0.00s)
+=== RUN   TestAuthMiddleware_OptionalAuth_Success
+--- PASS: TestAuthMiddleware_OptionalAuth_Success (0.00s)
+=== RUN   TestAuthMiddleware_OptionalAuth_NoSession
+--- PASS: TestAuthMiddleware_OptionalAuth_NoSession (0.00s)
+=== RUN   TestRealGoogleProvider_GetRedirectURL
+=== RUN   TestRealGoogleProvider_GetRedirectURL/BASE_URL_set
+=== RUN   TestRealGoogleProvider_GetRedirectURL/GOOGLE_REDIRECT_URL_set
+=== RUN   TestRealGoogleProvider_GetRedirectURL/Default_fallback_-_localhost
+[DEBUG] OAuth Redirect URI: http://localhost:8080/auth/google/callback
+=== RUN   TestRealGoogleProvider_GetRedirectURL/Default_fallback_-_secure_local
+[DEBUG] OAuth Redirect URI: https://localhost:8443/auth/google/callback
+=== RUN   TestRealGoogleProvider_GetRedirectURL/Default_fallback_-_production
+[DEBUG] OAuth Redirect URI: https://agbalumo.com/auth/google/callback
+--- PASS: TestRealGoogleProvider_GetRedirectURL (0.00s)
+    --- PASS: TestRealGoogleProvider_GetRedirectURL/BASE_URL_set (0.00s)
+    --- PASS: TestRealGoogleProvider_GetRedirectURL/GOOGLE_REDIRECT_URL_set (0.00s)
+    --- PASS: TestRealGoogleProvider_GetRedirectURL/Default_fallback_-_localhost (0.00s)
+    --- PASS: TestRealGoogleProvider_GetRedirectURL/Default_fallback_-_secure_local (0.00s)
+    --- PASS: TestRealGoogleProvider_GetRedirectURL/Default_fallback_-_production (0.00s)
+=== RUN   TestRealGoogleProvider_Exchange_RedirectURL
+--- PASS: TestRealGoogleProvider_Exchange_RedirectURL (0.00s)
+FAIL
+FAIL	github.com/jadecobra/agbalumo/internal/module/auth	0.491s
+FAIL

@@ -1,7 +1,7 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "fix_ssrf_auth_handler",
-  "workflow_type": "bugfix",
+  "feature": "gate-alignment",
+  "workflow_type": "refactor",
   "phase": "REFACTOR",
   "gates": {
     "red-test": "PASSED",
@@ -10,9 +10,9 @@
     "lint": "PASSED",
     "coverage": "PASSED",
     "browser-verification": "PENDING",
-    "template-drift": "PENDING",
+    "template-drift": "PASSED",
     "security-static": "PASSED"
   },
-  "updated_at": "2026-03-31T05:44:34.972461Z",
-  "signature": "a75d14e408b46d2c9667b8bfcf477b7940be545df022ea42f3fec7f81a10060a"
+  "updated_at": "2026-03-31T05:58:52.589979Z",
+  "signature": "7473f4c025d834a269ba3f7ec3c6d40d26be65fddd1370f0cd34bd3ac10bc78c"
 }

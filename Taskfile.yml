@@ -367,13 +367,13 @@ tasks:
     cmds:
       - task: mod-tidy
       - task: fmt
-      - task: lint
-      - task: build
+      - task: ci:lint
+      - task: ci:build
 
   _pre-commit-heavy:
     internal: true
     deps:
-      - test
+      - ci:test
       - api-drift
       - template-drift
       - agent-drift

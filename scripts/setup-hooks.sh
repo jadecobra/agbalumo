@@ -1,10 +1,9 @@
 #!/bin/sh
 # scripts/setup-hooks.sh
 
-# scripts/setup-hooks.sh
-
 HOOK_DIR=".git/hooks"
 PRE_COMMIT_HOOK="$HOOK_DIR/pre-commit"
+PRE_PUSH_HOOK="$HOOK_DIR/pre-push"
 
 echo "Setting up git hooks..."
 
@@ -47,3 +46,18 @@ EOF
 chmod +x "$PRE_COMMIT_HOOK"
 echo "✅ Git pre-commit hook installed successfully!"
 
+# Creates pre-push hook with full CI validation
+cat > "$PRE_PUSH_HOOK" <<EOF
+#!/bin/sh
+# agbalumo 10x Engineer Pre-push Hook
+# Runs the full production CI suite before pushing to remote.
+# Bypass using: git push --no-verify
+echo "🚀 Running comprehensive CI verification before push..."
+task ci
+if [ \$? -ne 0 ]; then
+  echo "❌ CI validation failed! Fix errors or use 'git push --no-verify' to ignore."
+  exit 1
+fi
+EOF
+chmod +x "$PRE_PUSH_HOOK"
+echo "✅ Git pre-push hook installed successfully!"
