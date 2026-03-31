@@ -80,7 +80,7 @@ Verified necessity of MockImageService in listing tests and removed it where pos
 # Context Cost Reduction
 Granular refactoring tasks to reduce the context cost of the top 10 most expensive files
 - [x] Verify monolithic test files (e.g., handler_test.go, sqlite_test.go, listing_write_test.go), frontend scripts (app.js), and CLI command definitions have been successfully extracted into modular, context-efficient files while maintaining test suite integrity
-- [ ] Verify Interface Segregation (CQRS): Extract ListingStore into ListingReader and ListingWriter interfaces in internal/domain to eliminate sqlite_listing.go structural fragmentation
+- [x] Verify Interface Segregation (CQRS): Extract ListingStore into ListingReader and ListingWriter interfaces in internal/domain to eliminate sqlite_listing.go structural fragmentation
 - [ ] Verify Test Suite Isolation: Refactor residual large test files like sqlite_listing_test.go and listing_validation_test.go to use testify/suite or targeted sub-test groupings to further reduce context bloat
 - [ ] Verify Domain Map Documentation: Create a domain mapping reference in .agents/rules/ indicating where specific business validations (Create, Geocoding, Jobs) are physically located to prevent context discovery thrashing
 # CI/CD Pipeline Improvements
@@ -137,3 +137,8 @@ Fix SSRF vulnerability in GetUserInfo by using authenticated oauth2 client and h
 - [x] Update #nosec comments with proper SSRF rationale (G107, G704)
 - [x] Update existing tests to expect Authorization header
 - [x] Verify fix with new reproduction test
+# Infrastructure Alignment
+Stricter local pre-commit gates aligned with production CI to ensure global reliability.
+- [x] Unified linting (ci:lint) for all local commits.
+- [x] Full codebase build (ci:build) on every pre-commit.
+- [x] Comprehensive test suite (ci:test) with race detection in pre-commit-heavy.

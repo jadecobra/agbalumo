@@ -4,19 +4,30 @@ import "context"
 
 // --- Focused Interfaces ---
 
-// ListingStore handles core listing CRUD and query operations.
-type ListingStore interface {
-	Save(ctx context.Context, listing Listing) error
+// ListingReader handles read-only queries for listings.
+type ListingReader interface {
 	FindAll(ctx context.Context, filterType string, queryText string, sortField string, sortOrder string, includeInactive bool, limit int, offset int) ([]Listing, int, error)
 	FindByID(ctx context.Context, id string) (Listing, error)
 	FindByTitle(ctx context.Context, title string) ([]Listing, error)
 	TitleExists(ctx context.Context, title string) (bool, error)
 	FindAllByOwner(ctx context.Context, ownerID string, limit int, offset int) ([]Listing, int, error)
-	Delete(ctx context.Context, id string) error
 	GetCounts(ctx context.Context) (map[Category]int, error)
 	GetLocations(ctx context.Context) ([]string, error)
 	GetFeaturedListings(ctx context.Context, category string) ([]Listing, error)
+}
+
+// ListingWriter handles write operations for listings.
+type ListingWriter interface {
+	Save(ctx context.Context, listing Listing) error
+	Delete(ctx context.Context, id string) error
 	SetFeatured(ctx context.Context, id string, featured bool) error
+}
+
+// ListingStore handles core listing CRUD and query operations by composing
+// reader and writer interfaces (CQRS).
+type ListingStore interface {
+	ListingReader
+	ListingWriter
 }
 
 // ListingSaver is the minimal interface for saving a listing.

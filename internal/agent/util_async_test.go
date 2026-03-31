@@ -42,7 +42,10 @@ func TestSpawnAgent_ArgValidation(t *testing.T) {
 		}
 	}
 
-	if capturedCmd == nil || capturedCmd.SysProcAttr == nil || !capturedCmd.SysProcAttr.Setsid {
+	if capturedCmd.SysProcAttr == nil || !capturedCmd.SysProcAttr.Setsid {
 		t.Errorf("Expected SysProcAttr with Setsid: true")
+	}
+	if capturedCmd.Stdout == nil || capturedCmd.Stderr == nil {
+		t.Errorf("Expected Stdout and Stderr to be redirected to /dev/null")
 	}
 }
