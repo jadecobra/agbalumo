@@ -2,47 +2,55 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"io"
 	"os"
 
 	"github.com/jadecobra/agbalumo/internal/history"
+	"github.com/spf13/cobra"
 )
 
 func main() {
-	if err := run(os.Args, os.Stdin, os.Stdout); err != nil {
+	cmd := NewRootCmd()
+	if err := cmd.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 }
 
-func run(args []string, stdin io.Reader, stdout io.Writer) error {
-	fs := flag.NewFlagSet("aglog", flag.ContinueOnError)
-	fs.SetOutput(io.Discard) // Silencing standard output for flags
+func NewRootCmd() *cobra.Command {
+	var fFeature, fArch, fPO, fSDET, fBE, fSummary string
 
-	fFeature := fs.String("feature", "", "Feature name")
-	fArch := fs.String("arch", "", "Systems Architect")
-	fPO := fs.String("po", "", "Product Owner")
-	fSDET := fs.String("sdet", "", "SDET")
-	fBE := fs.String("be", "", "Backend Engineer")
-	fSummary := fs.String("summary", "", "Decision summary")
-
-	if err := fs.Parse(args[1:]); err != nil {
-		return err
+	cmd := &cobra.Command{
+		Use:          "aglog",
+		Short:        "Capture squad decisions",
+		SilenceUsage: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return run(cmd.InOrStdin(), cmd.OutOrStdout(), fFeature, fArch, fPO, fSDET, fBE, fSummary)
+		},
 	}
 
+	cmd.Flags().StringVar(&fFeature, "feature", "", "Feature name")
+	cmd.Flags().StringVar(&fArch, "arch", "", "Systems Architect")
+	cmd.Flags().StringVar(&fPO, "po", "", "Product Owner")
+	cmd.Flags().StringVar(&fSDET, "sdet", "", "SDET")
+	cmd.Flags().StringVar(&fBE, "be", "", "Backend Engineer")
+	cmd.Flags().StringVar(&fSummary, "summary", "", "Decision summary")
+
+	return cmd
+}
+
+func run(stdin io.Reader, stdout io.Writer, feature, arch, po, sdet, be, summary string) error {
 	var decision history.SquadDecision
 
-	// If flags are provided, use them. Otherwise, try reading from stdin.
-	if *fFeature != "" {
+	if feature != "" {
 		decision = history.SquadDecision{
-			FeatureName:      *fFeature,
-			SystemsArchitect: *fArch,
-			ProductOwner:     *fPO,
-			SDET:             *fSDET,
-			BackendEngineer:  *fBE,
-			DecisionSummary:  *fSummary,
+			FeatureName:      feature,
+			SystemsArchitect: arch,
+			ProductOwner:     po,
+			SDET:             sdet,
+			BackendEngineer:  be,
+			DecisionSummary:  summary,
 		}
 	} else if stdin != nil {
 		data, err := io.ReadAll(stdin)

@@ -392,3 +392,36 @@ agbalumo harness chaos [flags]
 ```bash
 agbalumo harness chaos --state-corrupt
 ```
+
+---
+
+### aglog
+
+Capture squad decisions for the Learning Loop.
+
+```bash
+aglog [flags]
+```
+
+**Flags:**
+
+| Flag | Description |
+|------|-------------|
+| `--feature`    | Feature name (required) |
+| `--arch`       | Systems Architect name |
+| `--po`         | Product Owner name |
+| `--sdet`       | SDET name |
+| `--be`         | Backend Engineer name |
+| `--summary`    | Decision summary |
+
+**Example:**
+
+```bash
+aglog --feature "aglog-cli" --arch "Gemini" --summary "Refactored to cobra for RunE support"
+```
+
+Also supports JSON input via STDIN:
+
+```bash
+echo '{"FeatureName": "aglog-cli", "DecisionSummary": "..."}' | aglog
+```

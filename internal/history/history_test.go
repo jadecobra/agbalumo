@@ -10,7 +10,7 @@ import (
 func TestStore(t *testing.T) {
 	// Setup: Use a temporary directory for tests
 	tmpDir := t.TempDir()
-	
+
 	// Override default storage directory for testing
 	oldDir := DefaultStorageDir
 	DefaultStorageDir = tmpDir
@@ -75,7 +75,7 @@ func TestStore(t *testing.T) {
 	if !bytes.Contains(content, []byte("[SUMMARY]")) {
 		t.Error("Expected [SUMMARY] header not found")
 	}
-	
+
 	if !bytes.Contains(content, []byte(decision.DecisionSummary)) {
 		t.Error("Expected decision summary text not found")
 	}
@@ -83,17 +83,17 @@ func TestStore(t *testing.T) {
 
 func TestStore_Errors(t *testing.T) {
 	decision := SquadDecision{FeatureName: "err"}
-	
+
 	t.Run("MkdirError", func(t *testing.T) {
 		// Use a file as the directory path to trigger MkdirAll failure
 		tmpDir := t.TempDir()
 		fileAsDir := tmpDir + "/is_a_file"
 		_ = os.WriteFile(fileAsDir, []byte("data"), 0644)
-		
+
 		oldDir := DefaultStorageDir
 		DefaultStorageDir = fileAsDir + "/subdir"
 		defer func() { DefaultStorageDir = oldDir }()
-		
+
 		_, err := Store(decision)
 		if err == nil {
 			t.Error("expected Store to fail on mkdir error")
@@ -104,18 +104,18 @@ func TestStore_Errors(t *testing.T) {
 		// Create a directory where the file should be, making WriteFile fail
 		dir := tmpDir + "/write_err_dir"
 		_ = os.MkdirAll(dir, 0755)
-		
+
 		oldDir := DefaultStorageDir
 		DefaultStorageDir = dir
 		defer func() { DefaultStorageDir = oldDir }()
-		
+
 		// To trigger SafeWriteFile error, we can make the file path a directory
-		// But filename has a timestamp. 
+		// But filename has a timestamp.
 		// If we wait and try to create a directory with the SAME name as the file?
 		// Hard to predict timestamp.
 		// Better: make the directory read-only.
 		_ = os.Chmod(dir, 0555) // Read and execute only, no write
-		
+
 		decision := SquadDecision{FeatureName: "werr"}
 		_, err := Store(decision)
 		if err == nil {

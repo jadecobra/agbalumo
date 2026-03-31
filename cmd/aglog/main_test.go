@@ -20,19 +20,13 @@ func TestRun(t *testing.T) {
 	defer func() { history.DefaultStorageDir = oldDir }()
 
 	t.Run("From Flags", func(t *testing.T) {
-		args := []string{
-			"aglog", // binary name usually first arg
-			"-feature", "FlagFeature",
-			"-arch", "Arch",
-			"-po", "PO",
-			"-sdet", "SDET",
-			"-be", "BE",
-			"-summary", "Flag Summary",
-		}
+		cmd := NewRootCmd()
 		var out bytes.Buffer
-		err := run(args, nil, &out)
+		cmd.SetOut(&out)
+		cmd.SetArgs([]string{"--feature", "FlagFeature", "--arch", "Arch", "--po", "PO", "--sdet", "SDET", "--be", "BE", "--summary", "Flag Summary"})
+		err := cmd.Execute()
 		assert.NoError(t, err)
-		
+
 		output := strings.TrimSpace(out.String())
 		assert.Contains(t, output, "FlagFeature")
 		assert.Contains(t, output, tmpDir)
@@ -40,31 +34,39 @@ func TestRun(t *testing.T) {
 
 	t.Run("From STDIN", func(t *testing.T) {
 		jsonInput := `{"FeatureName": "JSONFeature", "SystemsArchitect": "Arch", "ProductOwner": "PO", "SDET": "SDET", "BackendEngineer": "BE", "DecisionSummary": "JSON Summary"}`
+		cmd := NewRootCmd()
 		var out bytes.Buffer
-		err := run([]string{"aglog"}, strings.NewReader(jsonInput), &out)
+		cmd.SetOut(&out)
+		cmd.SetIn(strings.NewReader(jsonInput))
+		err := cmd.Execute()
 		assert.NoError(t, err)
-		
+
 		output := strings.TrimSpace(out.String())
 		assert.Contains(t, output, "JSONFeature")
 		assert.Contains(t, output, tmpDir)
 	})
 
 	t.Run("Invalid JSON", func(t *testing.T) {
-		var out bytes.Buffer
-		err := run([]string{"aglog"}, strings.NewReader("invalid"), &out)
+		cmd := NewRootCmd()
+		cmd.SetIn(strings.NewReader("invalid"))
+		err := cmd.Execute()
 		assert.Error(t, err)
 	})
 
 	t.Run("Empty Input", func(t *testing.T) {
-		var out bytes.Buffer
-		err := run([]string{"aglog"}, strings.NewReader(""), &out)
+		cmd := NewRootCmd()
+		cmd.SetIn(strings.NewReader(""))
+		err := cmd.Execute()
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "FeatureName is required")
 	})
 
 	t.Run("Flag Parse Error", func(t *testing.T) {
-		var out bytes.Buffer
-		err := run([]string{"aglog", "-invalid-flag"}, nil, &out)
+		cmd := NewRootCmd()
+		cmd.SetArgs([]string{"--invalid-flag"})
+		// Cobra prints error to stderr by default unless SilenceErrors is true
+		cmd.SilenceErrors = true
+		err := cmd.Execute()
 		assert.Error(t, err)
 	})
 
@@ -73,30 +75,35 @@ func TestRun(t *testing.T) {
 		history.DefaultStorageDir = "/non-existent/dir"
 		defer func() { history.DefaultStorageDir = oldDir }()
 
-		args := []string{"aglog", "-feature", "ErrFeature"}
-		var out bytes.Buffer
-		err := run(args, nil, &out)
+		cmd := NewRootCmd()
+		cmd.SetArgs([]string{"--feature", "ErrFeature"})
+		err := cmd.Execute()
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "failed to store decision")
 	})
 
 	t.Run("Stdout Write Error", func(t *testing.T) {
-		args := []string{"aglog", "-feature", "WriteErr"}
-		err := run(args, nil, &errorWriter{})
+		cmd := NewRootCmd()
+		cmd.SetOut(&errorWriter{})
+		cmd.SetArgs([]string{"--feature", "WriteErr"})
+		err := cmd.Execute()
 		assert.Error(t, err)
 	})
 
 	t.Run("Stdin Read Error", func(t *testing.T) {
-		var out bytes.Buffer
-		err := run([]string{"aglog"}, &errorReader{}, &out)
+		cmd := NewRootCmd()
+		cmd.SetIn(&errorReader{})
+		err := cmd.Execute()
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "failed to read from stdin")
 	})
 
 	t.Run("Partial Flags", func(t *testing.T) {
-		args := []string{"aglog", "-feature", "Partial", "-be", "BE"}
+		cmd := NewRootCmd()
 		var out bytes.Buffer
-		err := run(args, nil, &out)
+		cmd.SetOut(&out)
+		cmd.SetArgs([]string{"--feature", "Partial", "--be", "BE"})
+		err := cmd.Execute()
 		assert.NoError(t, err)
 		assert.Contains(t, out.String(), "Partial")
 	})
@@ -109,7 +116,7 @@ func TestMain_Success(t *testing.T) {
 	defer func() { history.DefaultStorageDir = oldDir }()
 
 	oldArgs := os.Args
-	os.Args = []string{"aglog", "-feature", "MainCall"}
+	os.Args = []string{"aglog", "--feature", "MainCall"}
 	defer func() { os.Args = oldArgs }()
 
 	oldStdout := os.Stdout

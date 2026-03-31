@@ -30,7 +30,7 @@ func ChaosCmd() *cobra.Command {
 				}
 				// Corrupt the signature
 				state.Signature = state.Signature + "_CORRUPTED"
-				
+
 				// Standard library JSON marshal to bypass the automatic signature calculation in agent.SaveState
 				b, _ := json.MarshalIndent(state, "", "  ")
 				b = append(b, '\n')
@@ -94,7 +94,7 @@ func ChaosCmd() *cobra.Command {
 					if err != nil {
 						continue
 					}
-					
+
 					// Sabotage by appending error to the first test function
 					lines := strings.Split(string(content), "\n")
 					sabotaged := false
@@ -105,7 +105,7 @@ func ChaosCmd() *cobra.Command {
 							break
 						}
 					}
-					
+
 					if sabotaged {
 						// #nosec G304 - Internal harness chaos tool intentionally sabotages test logic
 						if err := util.SafeWriteFile(target, []byte(strings.Join(lines, "\n"))); err != nil {
