@@ -38,6 +38,9 @@ Comprehensive test metric improvements and testing tools
 - [x] Verify internal/agent/state.go test coverage for SaveState and calculateSignature: Write tests ensuring proper file creation, permissions, and valid SHA256 generation
 - [x] Verify internal/agent/state.go test coverage for LoadState: Write tests covering valid load, missing file, structural mismatch anti-cheat, and signature mismatch
 - [x] Verify map[string]interface{} usage in checkAndApplyProgressUpdate (cmd/harness/commands/root.go) is replaced with strongly-typed structs
+- [x] Mandate 'Unhappy Path' test cases for all features.
+- [x] Switch to './scripts/agent-exec.sh verify red-test' as the primary testing command.
+- [x] Standardize on table-driven test patterns for robustness.
 # Code Refactoring
 Reducing duplication and streamlining API handlers
 - [ ] Verify Pagination Standardization
