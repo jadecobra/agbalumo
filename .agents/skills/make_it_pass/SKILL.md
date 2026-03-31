@@ -18,12 +18,19 @@ Before writing any code, you MUST:
 - **Boundary Sanitization**: Even in the "Green" phase, you MUST sanitize and validate all inputs at the entry point.
 - **Error Handling**: Return errors with context. Never use `panic`.
 
-### 3. Verification & Guardrails
-- **Execution**: Use `./scripts/agent-exec.sh verify implementation` to run the tests.
-- **Sanity Check**: Run `go vet` to catch obvious errors before verifying.
-- **Escalation**: If you cannot pass the tests after 3 attempts, or if the requirements conflict with the existing patterns, STOP and involve the **SystemsArchitect**.
+### 3. Side Effects Audit (Mandatory)
+Before the GREEN phase transition, you MUST clear the following "Side Effects":
+- **Zero Leaked Logs**: Remove all "Developer Scaffolding" (`fmt.Println`, `spew.Dump`, debug `log.Printf`). Use structured logging only where required by the spec.
+- **State Mutation**: Ensure no global variables or package-level state are mutated unintentionally. State changes must be localized and explicit.
+- **Resource Discipline**: Verify all `io.Closer` interfaces are handled (deferred or closed) to prevent leaks.
+
+## Verification & Guardrails
+- **Execution**: Use `harness verify implementation` (via `./scripts/agent-exec.sh verify implementation`) as the primary gate.
+- **Sanity Check**: Run `go vet` and `task lint` to catch obvious errors before the final harness run.
+- **Escalation**: If you cannot pass the tests after 3 attempts, STOP and involve the **SystemsArchitect**.
 
 ## Scripts
 - **Primary**: `./scripts/agent-exec.sh verify implementation`
 - **Manual Check**: `go test -v ./path/to/package/`
-- **Validation**: `go vet ./...`
+- **Validation**: `go vet ./... && task lint`
+
