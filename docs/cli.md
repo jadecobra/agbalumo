@@ -372,3 +372,23 @@ Audit the codebase to measure the agent context cost (RMS of LOC).
 ```bash
 agbalumo cost [dir]
 ```
+
+#### chaos
+Inject chaos and fault failures into the harness environment for resilience testing.
+```bash
+agbalumo harness chaos [flags]
+```
+
+**Flags:**
+
+| Flag | Description |
+|------|-------------|
+| `--state-corrupt` | Randomly alter signatures in state.json to trigger anti-cheat |
+| `--env-wipe` | Clean .tester/tmp/ to verify environment recovery |
+| `--test-sabotage` | Temporarily inject logic failures into *_test.go files |
+
+**Example:**
+
+```bash
+agbalumo harness chaos --state-corrupt
+```

@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const stateFile = ".agents/state.json"
+var StateFile = ".agents/state.json"
 
 var flagText bool
 
@@ -36,7 +36,7 @@ func printJSON(success bool, command string, output any, warnings []string) {
 }
 
 func getState() (*agent.State, error) {
-	state, err := agent.LoadState(stateFile)
+	state, err := agent.LoadState(StateFile)
 	if err != nil {
 		if agent.IsNotExist(err) {
 			return &agent.State{}, nil
@@ -50,7 +50,7 @@ func saveState(state *agent.State) error {
 	if err := util.SafeMkdir(".agents"); err != nil {
 		return fmt.Errorf("error creating .agent directory: %w", err)
 	}
-	if err := agent.SaveState(stateFile, state); err != nil {
+	if err := agent.SaveState(StateFile, state); err != nil {
 		return fmt.Errorf("error saving state: %w", err)
 	}
 	return nil
@@ -171,6 +171,7 @@ func NewRootCmd() *cobra.Command {
 	rootCmd.AddCommand(StatusCmd())
 	rootCmd.AddCommand(UpdateCoverageCmd())
 	rootCmd.AddCommand(CostCmd())
+	rootCmd.AddCommand(ChaosCmd())
 
 	return rootCmd
 }

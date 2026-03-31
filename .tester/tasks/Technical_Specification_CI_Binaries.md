@@ -8,10 +8,10 @@ Extend the performance optimization of `vulncheck` (binary existence checks) to 
 ### Taskfile.yml Architecture
 
 #### New Task: `lint:install`
-- **Purpose**: Idempotently install `golangci-lint` (`v1.64.5`) to `.tester/tmp/go/bin/golangci-lint`.
+- **Purpose**: Idempotently install `golangci-lint` (`v2.10.1`) to `.tester/tmp/go/bin/golangci-lint`.
 - **Internal**: `true`
 - **Prerequisites**: `status` check using `test -f ./.tester/tmp/go/bin/golangci-lint`.
-- **Install Command**: `go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.5`.
+- **Install Command**: `go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.10.1`.
 
 #### New Task: `gitleaks:install`
 - **Purpose**: Idempotently install `gitleaks` (`v8.21.2`) to `.tester/tmp/go/bin/gitleaks`.

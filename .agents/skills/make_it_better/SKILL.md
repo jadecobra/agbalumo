@@ -1,7 +1,7 @@
 # Skill: Make It Better (Refactor)
 name: make_it_better
 description: |
-  Optimize, clean, and DRY the working codebase.
+  Optimize, clean, and DRY the working codebase without breaking the existing test suite.
   A 10x refactor MUST result in lower or equal cognitive complexity (gocognit)
   and zero new duplication (dupl).
 ---

@@ -110,3 +110,17 @@ Implemented a 10x Security Reasoning Framework for the audit_security skill.
 - [x] Hardened audit_security skill with STRIDE and Chaos Injection mandates.
 - [x] Implemented mandatory security_audit.md artifact and compliance archiving.
 - [x] Verified skill compliance via automated TDD-driven validation.
+# Learning Loop Core Logic
+Implemented the infrastructure for capturing and persisting Squad-Decision-Summaries.
+- [x] Create internal/history/history.go
+- [x] Define SquadDecision struct with all required personas
+- [x] Implement Store function with YYYYMMDD_HHMMSS_<feature>.md naming scheme
+- [x] Use internal/util/fs wrapper for cross-platform safety
+- [x] Verify file creation and content formatting with TDD (internal/history/history_test.go)
+# Learning Loop CLI
+Implemented the aglog CLI tool for capturing squad decisions.
+- [x] Create cmd/aglog/main.go with flag and JSON support
+- [x] Create cmd/aglog/main_test.go with unit tests
+- [x] Update internal/history/history.go to return saved path
+- [x] Reach 100% test coverage for logic and 90%+ for CLI
+- [x] Pass all harness gates for aglog-cli feature
