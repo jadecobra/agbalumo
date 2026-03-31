@@ -1,18 +1,18 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "none",
+  "feature": "gitleaks-rules",
   "workflow_type": "feature",
-  "phase": "IDLE",
+  "phase": "REFACTOR",
   "gates": {
-    "red-test": "PENDING",
+    "red-test": "PASSED",
     "api-spec": "PASSED",
-    "implementation": "PENDING",
-    "lint": "PENDING",
-    "coverage": "PENDING",
+    "implementation": "PASSED",
+    "lint": "PASSED",
+    "coverage": "PASSED",
     "browser-verification": "PENDING",
     "template-drift": "PENDING",
     "security-static": "PASSED"
   },
-  "updated_at": "2026-03-31T22:37:07.980286Z",
-  "signature": "5a42b49e2c301efbe92a4b1b9bc1bca955098066b295fe8cf8d05650c633b778"
+  "updated_at": "2026-03-31T23:45:24.648803Z",
+  "signature": "d09b9ad8b47e06cb11dc167cbd9d1f3e16b55d8e97dce5605582ec5565feded7"
 }

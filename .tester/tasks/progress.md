@@ -142,22 +142,27 @@ Stricter local pre-commit gates aligned with production CI to ensure global reli
 - [x] Research `progress.md` for `SpawnAgent` decommissioning.
 - [x] Research `build-feature` documentation for any `SpawnAgent` remnants.
 - [x] Modify `Taskfile.yml`:
-  - [x] Rename `lint` to `lint:staged`.
-  - [x] Create `lint` pointing to `ci:lint`.
-  - [x] Update `_pre-commit-fast`.
+- [x] Rename `lint` to `lint:staged`.
+- [x] Create `lint` pointing to `ci:lint`.
+- [x] Update `_pre-commit-fast`.
 - [x] Modify `.tester/tasks/progress.md`:
-  - [x] Mark `SpawnAgent` as decommissioned.
+- [x] Mark `SpawnAgent` as decommissioned.
 - [x] Verify:
-  - [x] Run `task lint` on a clean `main` and verify it project-scans.
-  - [x] Run `task ci` to verify the full suite.
+- [x] Run `task lint` on a clean `main` and verify it project-scans.
+- [x] Run `task ci` to verify the full suite.
 - [x] Cleanup: Commit changes to `Taskfile.yml` and `progress.md`.
 - [x] Unified linting (ci:lint) for all local commits.
 - [x] Full codebase build (ci:build) on every pre-commit.
 - [x] Comprehensive test suite (ci:test) with race detection in pre-commit-heavy.
 # Decommissioning SpawnAgent
-Removed SpawnAgent utility due to functional issues and environment constraints. 
+Removed SpawnAgent utility due to functional issues and environment constraints.
 - [x] Removed SpawnAgent from internal/agent/util.go
 - [x] Deleted internal/agent/spawn_test.go and internal/agent/util_async_test.go
 - [x] Cleaned up unused imports (fmt, os, syscall) in internal/agent/util.go
 - [x] Removed background agent spawning from harness verify command
 - [x] Verified system stability with 100% test pass on remaining gates
+# Gitleaks Rules Migration
+Replaced mock rules with official default rules in .gitleaks.toml.
+- [x] Initialized harness for gitleaks-rules
+- [x] Merged default rules with project allowlist
+- [x] Verified scan passes with new ruleset
