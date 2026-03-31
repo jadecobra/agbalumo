@@ -193,6 +193,29 @@ tasks:
     cmds:
       - go install github.com/mibk/dupl@latest
 
+  goconst:install:
+    desc: Install goconst (internal)
+    status:
+      - test -f '{{.GOBIN}}/goconst'
+    cmds:
+      - go install github.com/jgautheron/goconst/cmd/goconst@latest
+
+  maligned:install:
+    desc: Install maligned (internal)
+    status:
+      - test -f '{{.GOBIN}}/maligned'
+    cmds:
+      - go install github.com/mdempsky/maligned@latest
+
+  critique:
+    desc: Run ChiefCritic robustness audit
+    deps:
+      - task: gocognit:install
+      - task: goconst:install
+      - task: maligned:install
+    cmds:
+      - bash scripts/critique.sh {{.CLI_ARGS}}
+
   complexity:
     desc: Run cognitive complexity check on staged Go files
     silent: true
