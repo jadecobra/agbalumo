@@ -44,8 +44,8 @@ tasks:
     cmds:
       - go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.10.1
 
-  lint:
-    desc: Run golangci-lint on staged files
+  lint:staged:
+    desc: Run golangci-lint on staged files (fast)
     silent: true
     status:
       - '[ -z "{{.STAGED_GO}}" ]'
@@ -53,6 +53,13 @@ tasks:
       - task: lint:install
     cmds:
       - '{{.GOBIN}}/golangci-lint run -c scripts/.golangci.yml --new-from-rev=HEAD'
+
+  lint:
+    desc: Run full lint on the entire codebase
+    deps:
+      - task: ci:lint
+    cmds:
+      - echo "Full project lint completed successfully."
 
   mod-tidy:
     desc: Run go mod tidy and check for drift
@@ -367,7 +374,7 @@ tasks:
     cmds:
       - task: mod-tidy
       - task: fmt
-      - task: ci:lint
+      - task: lint
       - task: ci:build
 
   _pre-commit-heavy:

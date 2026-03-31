@@ -34,3 +34,11 @@ See **[.agents/rules/architecture.md](file:///Users/johnnyblase/gym/agbalumo/.ag
 - **internal/domain/**: Core business logic and interfaces.
 - **internal/handler/**: HTTP/Echo handlers and boundary validation.
 - **internal/repository/**: SQLite/Persistence logic.
+
+---
+
+## 5. Multi-Conversation Handoff Protocol
+To minimize context bloat and hallucination risk (especially with models like Flash), all persona transitions in Phase 2 MUST follow the **New Window Protocol**:
+1. **Finalize**: Outgoing persona runs `./scripts/agent-exec.sh handoff <next_persona>`.
+2. **Shift**: The user opens a NEW chat window.
+3. **Resume**: Incoming persona runs `/resume` as their first action.

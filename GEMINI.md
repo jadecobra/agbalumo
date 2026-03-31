@@ -16,6 +16,7 @@ For detailed rules and development process, run or refer to these workflows:
 - **ALWAYS** initialize the 10x Engineer harness when starting a new task (feature, bugfix, or refactor) by running `./scripts/agent-exec.sh init <feature_name> <workflow_type>`.
 - **MANDATORY REFERENCE**: Refer to the `/harness` workflow for all available commands, gate IDs, and phase transition logic.
 - **CONTEXT PROTOCOL**: Before starting any task in the `GREEN` or `REFACTOR` phases, you **MUST** locate and read the active `implementation_plan.md` (linked in `progress.md`) to verify the technical details (thresholds, contracts, and patterns) of the feature.
+- **HANDOFF PROTOCOL**: When transitioning between personas (e.g., SDET -> BackendEngineer), you **MUST** run `./scripts/agent-exec.sh handoff <next_persona>` and instruct the user to start a new chat session. In a new session, your first command **MUST** be `/resume`.
 - **SANDBOX PROTOCOL**: If hitting macOS "Operation not permitted" (EPERM) errors due to App Sandboxing, use the **Sandboxed Workspace Mode**:
   1. Run `task sandbox:setup` to initialize local tool directories.
   2. Run `source scripts/sandbox.env` in your terminal to redirect `go`, `gh`, and other tools.

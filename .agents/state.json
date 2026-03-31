@@ -1,18 +1,18 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "listing-cqrs-refactor",
-  "workflow_type": "refactor",
-  "phase": "REFACTOR",
+  "feature": "none",
+  "workflow_type": "feature",
+  "phase": "IDLE",
   "gates": {
-    "red-test": "PASSED",
+    "red-test": "PENDING",
     "api-spec": "PASSED",
-    "implementation": "PASSED",
-    "lint": "PASSED",
-    "coverage": "PASSED",
+    "implementation": "PENDING",
+    "lint": "PENDING",
+    "coverage": "PENDING",
     "browser-verification": "PENDING",
     "template-drift": "PENDING",
     "security-static": "PASSED"
   },
-  "updated_at": "2026-03-31T15:04:55.463845Z",
-  "signature": "40cbe3f3fefe650c27fd0b1282485491e82e8a10a80e580bf1e00c581dbb1673"
+  "updated_at": "2026-03-31T22:37:07.980286Z",
+  "signature": "5a42b49e2c301efbe92a4b1b9bc1bca955098066b295fe8cf8d05650c633b778"
 }

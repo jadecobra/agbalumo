@@ -47,3 +47,8 @@ func SafeOpen(name string) (*os.File, error) {
 func SafeIsNotExist(err error) bool {
 	return os.IsNotExist(err)
 }
+
+// SafeGetwd returns the current working directory safely.
+func SafeGetwd() (string, error) {
+	return os.Getwd()
+}

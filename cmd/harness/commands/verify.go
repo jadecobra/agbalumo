@@ -100,16 +100,14 @@ func VerifyCmd() *cobra.Command {
 			case agent.GateRedTest:
 				state.Gates.RedTest = status
 				if success {
-					fmt.Printf("🚀 Gate PASS: red-test passed. Spawning BackendEngineer agent move to GREEN phase...\n")
-					_ = agent.SpawnAgent("Act as BackendEngineer. Tests are failing. Execute GREEN phase.")
+					fmt.Printf("🚀 Gate PASS: red-test passed. Transitioning to GREEN phase...\n")
 				}
 			case agent.GateApiSpec:
 				state.Gates.ApiSpec = status
 			case agent.GateImplementation:
 				state.Gates.Implementation = status
 				if success {
-					fmt.Printf("🚀 Gate PASS: implementation passed. Spawning ChiefCritic agent for audit...\n")
-					_ = agent.SpawnAgent("Act as ChiefCritic.")
+					fmt.Printf("🚀 Gate PASS: implementation passed. Proceeding to audit...\n")
 				}
 			case agent.GateLint:
 				state.Gates.Lint = status

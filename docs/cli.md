@@ -393,6 +393,19 @@ agbalumo harness chaos [flags]
 agbalumo harness chaos --state-corrupt
 ```
 
+#### handoff
+Generate a HANDOFF.md context-bridge for persona transitions in the architecture loop.
+
+```bash
+agbalumo harness handoff [target-persona]
+```
+
+**Example:**
+
+```bash
+agbalumo harness handoff BackendEngineer
+```
+
 ---
 
 ### aglog

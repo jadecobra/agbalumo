@@ -1,6 +1,7 @@
 ERRORS
-
-- is agent using SpawnAgent for build-feature workflow? I see no new conversations
+- disable terminal sandbox to fix terminal issues
+- set gitleaks to use default rules
+- is agent using SpawnAgent for build-feature workflow? I see no new conversations (antiravity CLI might be broken) - would it be better to use gemini CLI?
 - WARN Using default admin code - set ADMIN_CODE for production - add password management in admin dashboard
 - what should agent do when user request conflicts with TDD principles?
 - critique skils with ChiefCritic reveals gaps that Pro did not catch, do the other skills

@@ -172,6 +172,7 @@ func NewRootCmd() *cobra.Command {
 	rootCmd.AddCommand(UpdateCoverageCmd())
 	rootCmd.AddCommand(CostCmd())
 	rootCmd.AddCommand(ChaosCmd())
+	rootCmd.AddCommand(HandoffCmd())
 
 	return rootCmd
 }

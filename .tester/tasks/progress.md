@@ -98,12 +98,11 @@ Sequential dev loop with auto-formatting, watch mode, and agent protocols.
 # ChiefCritic: User Journey Audit
 Enhanced ChiefCritic persona with browser-based user journey validation and conversion metrics. Blueprint: file:///Users/johnnyblase/.gemini/antigravity/brain/e7d5db52-4f58-4a5b-97d6-f41db4f6ed0c/implementation_plan.md
 - [x] Verify ChiefCritic Journey Audit: Integrated browser-based user journey validation (user_journeys.yaml, audit skill, persona update) with MockGoogleProvider auth and orchestration script (scripts/browser_audit.sh) established
-# Harness Utilities
-Implemented autonomous agent spawning capability to enable background orchestration.
-- [x] Implement SpawnAgent in internal/agent/util.go
-- [x] Add unit tests for SpawnAgent in internal/agent/util_async_test.go
-- [x] Verify process detachment via SysProcAttr.Setsid
-- [x] Pass all harness gates for harness-agent-spawn feature (REFACTOR phase)
+# Harness Utilities (Decommissioned)
+- [x] ~~Implement SpawnAgent in internal/agent/util.go~~ (Removed: Environment constraints)
+- [x] ~~Add unit tests for SpawnAgent in internal/agent/util_async_test.go~~ (Removed)
+- [x] ~~Verify process detachment via SysProcAttr.Setsid~~ (Removed)
+- [x] ~~Pass all harness gates for harness-agent-spawn feature (REFACTOR phase)~~ (Removed)
 # Security Hardening
 Validated and excluded G117 struct-secret-pattern linter warnings for configuration fields.
 - [x] Applied #nosec G117 to SessionSecret and GoogleMapsAPIKey in config.go
@@ -139,6 +138,26 @@ Fix SSRF vulnerability in GetUserInfo by using authenticated oauth2 client and h
 - [x] Verify fix with new reproduction test
 # Infrastructure Alignment
 Stricter local pre-commit gates aligned with production CI to ensure global reliability.
+- [x] Research current `Taskfile.yml` linting targets and `_pre-commit-fast` setup.
+- [x] Research `progress.md` for `SpawnAgent` decommissioning.
+- [x] Research `build-feature` documentation for any `SpawnAgent` remnants.
+- [x] Modify `Taskfile.yml`:
+  - [x] Rename `lint` to `lint:staged`.
+  - [x] Create `lint` pointing to `ci:lint`.
+  - [x] Update `_pre-commit-fast`.
+- [x] Modify `.tester/tasks/progress.md`:
+  - [x] Mark `SpawnAgent` as decommissioned.
+- [x] Verify:
+  - [x] Run `task lint` on a clean `main` and verify it project-scans.
+  - [x] Run `task ci` to verify the full suite.
+- [x] Cleanup: Commit changes to `Taskfile.yml` and `progress.md`.
 - [x] Unified linting (ci:lint) for all local commits.
 - [x] Full codebase build (ci:build) on every pre-commit.
 - [x] Comprehensive test suite (ci:test) with race detection in pre-commit-heavy.
+# Decommissioning SpawnAgent
+Removed SpawnAgent utility due to functional issues and environment constraints. 
+- [x] Removed SpawnAgent from internal/agent/util.go
+- [x] Deleted internal/agent/spawn_test.go and internal/agent/util_async_test.go
+- [x] Cleaned up unused imports (fmt, os, syscall) in internal/agent/util.go
+- [x] Removed background agent spawning from harness verify command
+- [x] Verified system stability with 100% test pass on remaining gates

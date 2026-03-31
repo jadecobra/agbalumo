@@ -9,16 +9,22 @@ When the user types `/build-feature <idea>`, orchestrate the development process
 2. Shift context and act as the **SystemsArchitect** to review the spec for technical feasibility and refine the architecture. 
    *(Wait for the user to explicitly approve the spec. If the user provides feedback or adds comments directly to the Markdown file, act as the ProductOwner/SystemsArchitect again to re-read and revise the document. Loop this step until they approve).*
 
-### Phase 2: Autonomous Execution Loop (Fully Automated)
+### Phase 2: Autonomous Execution Loop (Multi-Conversation)
 
-> [!NOTE]
-> Steps 3 through 7 are now fully automated by the Go harness via the `antigravity chat` CLI. Once Phase 1 is approved, the human-led agent triggers `./scripts/agent-exec.sh init` and the harness autonomously orchestrates the following personas.
+> [!IMPORTANT]
+> To minimize context cost and hallucination risk, each step below MUST be performed in a **NEW conversation**. 
+> After completing your turn, generate a handoff for the next persona and instruct the user to start a new chat.
 
-3. **SDET-Tester**: Execute the `make_it_fail` skill to generate rigorous RED test cases.
-4. **BackendEngineer**: Execute the `make_it_pass` skill to pass the tests (GREEN phase).
-5. **ChiefCritic**: Execute the `critique_product` skill to audit the implementation. If flaws are found, the harness returns to Step 4.
-6. **BackendEngineer**: Execute the `make_it_better` skill to refactor the working code optimally.
-7. **SecurityEngineer**: Execute the `audit_security` skill to review for OWASP vulnerabilities.
+1. **SDET-Tester**: Execute the `make_it_fail` skill to generate RED test cases.
+   - *Handoff*: `harness handoff BackendEngineer`
+2. **BackendEngineer**: Run `/resume`, then execute `make_it_pass` to pass the tests.
+   - *Handoff*: `harness handoff ChiefCritic`
+3. **ChiefCritic**: Run `/resume`, then execute `critique_product`. If flaws are found, handoff back to `BackendEngineer`.
+   - *Handoff*: `harness handoff BackendEngineer` or `harness handoff SecurityEngineer`
+4. **BackendEngineer**: Run `/resume`, then execute `make_it_better`.
+   - *Handoff*: `harness handoff SecurityEngineer`
+5. **SecurityEngineer**: Run `/resume`, then execute `audit_security`.
+   - *Finalization*: `harness handoff SystemsArchitect`
 
 ### Phase 3: Resilience & Chaos (Human Intervention Required)
 
