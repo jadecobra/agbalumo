@@ -105,8 +105,14 @@ func (p *RealGoogleProvider) Exchange(ctx context.Context, code string, scheme s
 }
 
 func (p *RealGoogleProvider) GetUserInfo(ctx context.Context, token *oauth2.Token) (*GoogleUser, error) {
-	// #nosec G107 - SSRF check: The URL is from the provider's configuration (defaulting to a constant) and AccessToken is from the OAuth exchange.
-	resp, err := http.Get(p.UserInfoURL + "?access_token=" + token.AccessToken)
+	client := p.config.Client(ctx, token)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, p.UserInfoURL, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// #nosec G107 G704 - SSRF check: The URL is from the provider's configuration (defaulting to a constant) and AccessToken is handled by the authenticated client.
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}

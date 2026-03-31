@@ -130,3 +130,10 @@ Implemented the aglog CLI tool for capturing squad decisions.
 - [x] Update internal/history/history.go to return saved path
 - [x] Reach 100% test coverage for logic and 90%+ for CLI
 - [x] Pass all harness gates for aglog-cli feature
+# Auth Component Refactoring
+Fix SSRF vulnerability in GetUserInfo by using authenticated oauth2 client and header-based authentication.
+- [x] Refactor GetUserInfo to use p.config.Client
+- [x] Use http.NewRequestWithContext for safer request creation
+- [x] Update #nosec comments with proper SSRF rationale (G107, G704)
+- [x] Update existing tests to expect Authorization header
+- [x] Verify fix with new reproduction test
