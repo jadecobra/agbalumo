@@ -1,7 +1,7 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "aglog-cli",
-  "workflow_type": "feature",
+  "feature": "record_decision_utility",
+  "workflow_type": "refactor",
   "phase": "REFACTOR",
   "gates": {
     "red-test": "PASSED",
@@ -10,9 +10,9 @@
     "lint": "PASSED",
     "coverage": "PASSED",
     "browser-verification": "PASSED",
-    "template-drift": "PASSED",
+    "template-drift": "PENDING",
     "security-static": "PASSED"
   },
-  "updated_at": "2026-03-31T02:29:33.307001Z",
-  "signature": "e7c250f1b0f352569c2ffea8d058f168ea3b0d2f4fb55f3494dabf92d0bb30f0"
+  "updated_at": "2026-03-31T03:30:33.231914Z",
+  "signature": "2ec1fc08d6fec809f0cefa7aba6931f85b87bf0728e74f8f964010aaf16a6ed8"
 }

@@ -28,9 +28,14 @@ For every feature in the `REFACTOR` phase, you MUST generate a `security_audit.m
 - **[ ] Predictable IDs**: Are we using UUIDs or non-enumerable IDs for public resources?
 
 ### 3. Compliance & Archiving
-- **[ ] Rationale Audit**: Ensure all `#nosec` exclusions have a valid justification.
-- **[ ] Compliance**: Upon feature finalization, COPY the `security_audit.md` to `docs/security/` with a timestamped filename (e.g., `docs/security/2024-03-30-audit_security_hardening.md`).
+- [ ] Rationale Audit: Ensure all `#nosec` exclusions have a valid justification.
+
+## Mandatory Final Step
+The **SecurityEngineer** MUST archive the results before the feature can be finalized:
+1. **Archive STRIDE Analysis**: Copy the conversation's `security_audit.md` to `docs/security/` with a timestamped filename (e.g., `docs/security/2026-03-31-stride-analysis-feature-x.md`).
+2. **Project History Persistence**: Use the `scripts/record-decision.sh` (decision-memory utility) to register the security attestation in the squad project history.
 
 ## Scripts
-- Default: `scripts/agent-exec.sh verify security-static`
-- Chaos: `scripts/benchmark_stress.sh`
+- **Static Analysis**: `harness verify security-static` (standard exec: `./scripts/agent-exec.sh verify security-static`)
+- **Project History**: `./scripts/record-decision.sh` (decision-memory utility)
+

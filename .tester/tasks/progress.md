@@ -46,6 +46,9 @@ Reducing duplication and streamlining API handlers
 - [ ] Verify Base Handler Struct (Pending): Review handler method signatures to confirm they use a base struct to eliminate session parsing duplication
 - [ ] Verify Service Layer Consolidation (Pending): Inspect service layer structures and ensure validation middleware runs consistently
 - [x] Verify Route Grouping (Completed): Inspect code and ensure auth-required routes are fully separated from public routes via grouped middleware
+- [x] Create 'scripts/record-decision.sh' with binary build check and sync marker output.
+- [x] Verified binary build and execution in sandboxed workspace environment.
+- [x] Verified filesystem persistence in internal/history/.
 # Phase 3 Roadmap (Pending)
 Features and architectural improvements planned for the next phase
 - [ ] Verify Apple/Facebook Platforms (Pending): Click on 'Apple' and 'Facebook' login buttons in the identity section and configure dev accounts

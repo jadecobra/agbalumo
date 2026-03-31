@@ -1,5 +1,6 @@
 ERRORS
 
+- what should agent do when user request conflicts with TDD principles?
 - critique skils with ChiefCritic reveals gaps that Pro did not catch, do the other skills
 - WARNING: terminal is not fully functional - why?
 - should we add a research persona?
