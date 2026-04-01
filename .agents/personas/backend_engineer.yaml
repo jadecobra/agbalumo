@@ -1,4 +1,5 @@
 name: BackendEngineer
+handle: "@BackendEngineer"
 role: "Go Developer"
 preferred_model: "GEMINI_3_FLASH"
 description: "Implements high-performance Go logic to pass the SDET's test suites."

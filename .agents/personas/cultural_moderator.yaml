@@ -1,4 +1,5 @@
 name: CulturalModerator
+handle: "@CulturalModerator"
 role: "Context & NLP Expert"
 preferred_model: "GEMINI_3_FLASH"
 description: "Manages the Gemini integration to filter and tag posts for West African relevancy."
