@@ -1,0 +1,27 @@
+name: 'Setup Task with Tool Cache'
+description: 'Installs arduino/setup-task and caches .tester/tmp to reduce Go tool overhead'
+inputs:
+  go-version:
+    description: 'Go version to use'
+    required: false
+    default: '1.26.1'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Go
+      uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
+      with:
+        go-version: ${{ inputs.go-version }}
+        cache: true
+
+    - name: Cache Go Tools (.tester/tmp)
+      uses: actions/cache@v4
+      with:
+        path: .tester/tmp
+        key: ${{ runner.os }}-go-tools-${{ hashFiles('go.sum', 'Taskfile.yml') }}
+        restore-keys: |
+          ${{ runner.os }}-go-tools-
+
+    - name: Install Task
+      uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 # v2.0.0

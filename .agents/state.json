@@ -1,18 +1,18 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "sqlite-in-memory",
+  "feature": "none",
   "workflow_type": "refactor",
-  "phase": "REFACTOR",
+  "phase": "IDLE",
   "gates": {
-    "red-test": "PASSED",
-    "api-spec": "PASSED",
-    "implementation": "PASSED",
-    "lint": "PASSED",
-    "coverage": "PASSED",
+    "red-test": "PENDING",
+    "api-spec": "PENDING",
+    "implementation": "PENDING",
+    "lint": "PENDING",
+    "coverage": "PENDING",
     "browser-verification": "PENDING",
     "template-drift": "PENDING",
-    "security-static": "PENDING"
+    "security-static": "PASSED"
   },
-  "updated_at": "2026-04-01T01:45:43.569952Z",
-  "signature": "2ff8b3c74fb149471482bf9a1331514c79aa7f9eca64cead2754e4bf8db80642"
+  "updated_at": "2026-04-01T03:58:08.04812Z",
+  "signature": "7efa544e97f71229918bcce82fbd87885e99e5b0a0eb9e277376b175e9ca6675"
 }
