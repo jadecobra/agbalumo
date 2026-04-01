@@ -16,9 +16,42 @@ type HandoffParams struct {
 	Progress      *ProgressTracker
 }
 
+// ReadFile is a convenience wrapper for util.SafeReadFile.
+func ReadFile(filename string) (string, error) {
+	b, err := util.SafeReadFile(filename)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
+}
+
+// RemoveFile is a convenience wrapper for util.SafeRemove.
+func RemoveFile(filename string) error {
+	return util.SafeRemove(filename)
+}
+
 // CreateHandoff creates the HANDOFF.md file.
 func CreateHandoff(params HandoffParams) error {
+	return CreateHandoffToPath(params, HandoffFile)
+}
+
+// CreateHandoffToPath creates a handoff file at the specified path with YAML frontmatter.
+func CreateHandoffToPath(params HandoffParams, path string) error {
 	var sb strings.Builder
+
+	// Prepend YAML frontmatter
+	fmt.Fprintf(&sb, "---\n")
+	fmt.Fprintf(&sb, "target_persona: %s\n", params.TargetPersona)
+	fmt.Fprintf(&sb, "feature: %s\n", params.CurrentState.Feature)
+	fmt.Fprintf(&sb, "workflow_type: %s\n", params.CurrentState.WorkflowType)
+	fmt.Fprintf(&sb, "phase: %s\n", params.CurrentState.Phase)
+
+	// Capture relevant gate states for validation
+	fmt.Fprintf(&sb, "prior_gate_state:\n")
+	fmt.Fprintf(&sb, "  red_test: %s\n", params.CurrentState.Gates.RedTest)
+	fmt.Fprintf(&sb, "  implementation: %s\n", params.CurrentState.Gates.Implementation)
+	fmt.Fprintf(&sb, "  lint: %s\n", params.CurrentState.Gates.Lint)
+	fmt.Fprintf(&sb, "---\n\n")
 
 	fmt.Fprintf(&sb, "# 🤝 HANDOFF: Transition to %s\n\n", params.TargetPersona)
 	fmt.Fprintf(&sb, "> [!IMPORTANT]\n")
@@ -50,5 +83,5 @@ func CreateHandoff(params HandoffParams) error {
 	fmt.Fprintf(&sb, "1. Run `task lint` and `task test` to verify the current baseline.\n")
 	fmt.Fprintf(&sb, "2. Follow the `/build-feature` pipeline for the next phase.\n")
 
-	return util.SafeWriteFile(HandoffFile, []byte(sb.String()))
+	return util.SafeWriteFile(path, []byte(sb.String()))
 }

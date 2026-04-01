@@ -108,3 +108,10 @@ Normalized installation and usage of the ChiefCritic auxiliary toolset (gocognit
 - [x] Isolated binaries to ./.tester/tmp/go/bin.
 - [x] Refactored scripts/critique.sh to use local binaries and fixed package scoping for macOS.
 - [x] Expanded task_optimization_test.go with comprehensive verification cases.
+# Handoff YAML Frontmatter
+Implemented YAML frontmatter block for HANDOFF.md to enable machine-readable persona transitions.
+- [x] Create failing test TestCreateHandoff_YAMLFrontmatter in internal/agent/handoff_test.go
+- [x] Implement CreateHandoffToPath with YAML frontmatter prepending
+- [x] Add ReadFile and RemoveFile helpers to internal/agent/handoff.go
+- [x] Update CreateHandoff to use CreateHandoffToPath
+- [x] Verify all internal/agent tests pass
