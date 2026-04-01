@@ -1,9 +1,12 @@
 package commands
 
 import (
+	"os"
+	"strings"
+	"testing"
+
 	"github.com/jadecobra/agbalumo/internal/agent"
 	"github.com/jadecobra/agbalumo/internal/util"
-	"testing"
 )
 
 func TestGateCmd(t *testing.T) {
@@ -62,4 +65,15 @@ func TestGateCmd(t *testing.T) {
 	if err == nil {
 		t.Errorf("expected error for unknown gate, got nil")
 	}
+
+	// 6. Verify bypass audit log is written on blocked attempt
+	_ = os.Remove(".tester/tasks/bypass_audit.log") // clean slate
+	_ = cmd.RunE(cmd, []string{"coverage", "PASS"})  // this is blocked
+	logBytes, readErr := os.ReadFile(".tester/tasks/bypass_audit.log")
+	if readErr != nil {
+		t.Errorf("expected bypass_audit.log to be created, got error: %v", readErr)
+	} else if !strings.Contains(string(logBytes), "BLOCKED") || !strings.Contains(string(logBytes), "coverage") {
+		t.Errorf("bypass_audit.log missing expected content, got: %s", string(logBytes))
+	}
+	_ = os.Remove(".tester/tasks/bypass_audit.log") // cleanup
 }

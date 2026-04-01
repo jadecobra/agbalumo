@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/jadecobra/agbalumo/internal/agent"
 	"github.com/spf13/cobra"
@@ -27,6 +28,10 @@ func GateCmd() *cobra.Command {
 			case "PASS", "PASSED":
 				if gateID == agent.GateRedTest || gateID == agent.GateCoverage || gateID == agent.GateLint || gateID == agent.GateImplementation || gateID == agent.GateApiSpec {
 					fmt.Fprintf(os.Stderr, "❌ Error: The '%s' gate cannot be manually bypassed.\n", gateID)
+					if f, err := os.OpenFile(".tester/tasks/bypass_audit.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600); err == nil {
+						_, _ = fmt.Fprintf(f, "%s | BLOCKED | gate=%s | attempted=%s | user=agent\n", time.Now().UTC().Format(time.RFC3339), gateID, statusStr)
+						_ = f.Close()
+					}
 					return fmt.Errorf("manual bypass not allowed for gate '%s'", gateID)
 				}
 				status = agent.GatePassed
