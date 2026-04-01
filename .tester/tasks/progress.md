@@ -166,3 +166,9 @@ Replaced mock rules with official default rules in .gitleaks.toml.
 - [x] Initialized harness for gitleaks-rules
 - [x] Merged default rules with project allowlist
 - [x] Verified scan passes with new ruleset
+
+# Cross-Package Database Test Isolation
+Refactor disk-bound tests in other packages to use in-memory SQLite isolation.
+- [ ] Refactor `cmd/...` tests to use in-memory SQLite isolation (Pending)
+- [ ] Refactor `internal/handler/...` tests to use in-memory SQLite isolation (Pending)
+- [ ] Verify zero physical `.db` file leakage across the entire test suite

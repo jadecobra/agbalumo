@@ -10,7 +10,7 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 func TestSaveAndFindByID(t *testing.T) {
@@ -362,7 +362,7 @@ func TestGetMetrics(t *testing.T) {
 }
 
 func TestCategoryErrors_Raw(t *testing.T) {
-	db, _ := sql.Open("sqlite3", ":memory:")
+	db, _ := sql.Open("sqlite", ":memory:")
 	repo := sqlite.NewSQLiteRepositoryFromDB(db)
 	_ = db.Close()
 	ctx := context.Background()
@@ -505,7 +505,7 @@ func TestMigrationBackfillCity(t *testing.T) {
 	// 1. Create a raw DB and insert a row with NULL/empty city
 	tmpDir := t.TempDir()
 	dbPath := filepath.Join(tmpDir, "backfill.db")
-	db, err := sql.Open("sqlite3", dbPath)
+	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		t.Fatalf("Failed to open raw db: %v", err)
 	}

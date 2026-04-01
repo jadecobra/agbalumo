@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	_ "modernc.org/sqlite"
 )
 
 func TestReproCategoryRegression(t *testing.T) {
@@ -94,7 +95,7 @@ func TestUpsertCoreCategory_ActiveOverwrite(t *testing.T) {
 
 	// 1. Manually insert an INACTIVE core category
 	// (Simulating an old DB state or manual deactivation)
-	db, err := sql.Open("sqlite3", dbPath)
+	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		t.Fatalf("Failed to open DB directly: %v", err)
 	}

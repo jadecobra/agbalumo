@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strconv"
 	"testing"
 	"time"
@@ -14,10 +13,9 @@ import (
 )
 
 func BenchmarkSearchPerformance(b *testing.B) {
-	// Setup a persistent test DB (on disk to avoid memory limits with large datasets)
-	tmpDir := b.TempDir()
-	dbPath := filepath.Join(tmpDir, "perf_test.db")
-	repo, err := sqlite.NewSQLiteRepository(dbPath + "?_time_format=sqlite")
+	// Setup a unique in-memory DB for the benchmark
+	dbName := fmt.Sprintf("file:bench_%s?mode=memory&cache=shared&_time_format=sqlite", b.Name())
+	repo, err := sqlite.NewSQLiteRepository(dbName)
 	if err != nil {
 		b.Fatalf("Failed to create repo: %v", err)
 	}
