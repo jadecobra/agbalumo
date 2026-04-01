@@ -96,6 +96,24 @@ paths:
         '200':
           description: OK
 
+  /hello-agent:
+    get:
+      summary: Hello Agent
+      description: A test endpoint for agent handoff verification
+      tags:
+        - Public
+      responses:
+        '200':
+          description: Success message
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Hello, Agent!"
+
   # Authentication Routes
   /auth/dev:
     $ref: './openapi/paths/auth.yaml#/dev'

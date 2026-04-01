@@ -31,3 +31,4 @@ failed to create root command: failed to read configuration: open /Users/johnnyb
 how come agent does not know how to use agent-exec.sh
 run agent-exec.sh --help
 
+warnings in CI

@@ -216,6 +216,7 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 
 	// Public Routes
 	e.GET("/about", pageHandler.HandleAbout)
+	e.GET("/hello-agent", handler.HandleHelloAgent)
 
 	// Feedback
 	feedbackHandler := handler.NewFeedbackHandler(repo)
