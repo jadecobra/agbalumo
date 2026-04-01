@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -43,6 +44,12 @@ func TestGetDatabaseURL(t *testing.T) {
 }
 
 func TestInitRepo(t *testing.T) {
+	// Isolate database for CI parity
+	tempDir := t.TempDir()
+	dbPath := filepath.Join(tempDir, "test_init.db")
+	_ = os.Setenv("DATABASE_URL", dbPath)
+	defer func() { _ = os.Unsetenv("DATABASE_URL") }()
+
 	repo := initRepo()
 	if repo == nil {
 		t.Error("initRepo() should return non-nil repo")

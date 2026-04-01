@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
@@ -11,13 +12,11 @@ import (
 
 func TestListingCLI_ImageFlags(t *testing.T) {
 	// Use a temporary database for integration tests
-	tempDB := "test_cli_images.db"
+	tempDir := t.TempDir()
+	tempDB := filepath.Join(tempDir, "test_cli_images.db")
 	_ = os.Setenv("DATABASE_URL", tempDB)
 	defer func() {
 		_ = os.Unsetenv("DATABASE_URL")
-		_ = os.Remove(tempDB)
-		_ = os.Remove(tempDB + "-shm")
-		_ = os.Remove(tempDB + "-wal")
 	}()
 
 	repo := initRepo()

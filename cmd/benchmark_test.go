@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"os"
 	"path/filepath"
 	"testing"
 
@@ -9,15 +8,8 @@ import (
 )
 
 func TestBenchmarkCmd_Success(t *testing.T) {
-	dbDir := filepath.Join(".tester", "db_tests")
-	_ = os.MkdirAll(dbDir, 0755)
-	dbPath := filepath.Join(dbDir, "benchmark_test.db")
-
-	defer func() {
-		_ = os.Remove(dbPath)
-		_ = os.Remove(dbPath + "-shm")
-		_ = os.Remove(dbPath + "-wal")
-	}()
+	tempDir := t.TempDir()
+	dbPath := filepath.Join(tempDir, "benchmark_test.db")
 
 	// Create and initialize DB schema
 	_, err := sqlite.NewSQLiteRepository(dbPath)

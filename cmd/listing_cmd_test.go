@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -11,13 +12,11 @@ import (
 )
 
 func TestListingCommands_RunCoverage(t *testing.T) {
-	tempDB := "test_cli_commands.db"
+	tempDir := t.TempDir()
+	tempDB := filepath.Join(tempDir, "test_cli_commands.db")
 	_ = os.Setenv("DATABASE_URL", tempDB)
 	defer func() {
 		_ = os.Unsetenv("DATABASE_URL")
-		_ = os.Remove(tempDB)
-		_ = os.Remove(tempDB + "-shm")
-		_ = os.Remove(tempDB + "-wal")
 	}()
 
 	repo := initRepo()

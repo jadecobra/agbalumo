@@ -29,20 +29,22 @@ if [ "$STRICT_MODE" == "true" ]; then
 fi
 
 mkdir -p .tester/coverage
-# Execute tests
-go test $TEST_OPTS -coverprofile=.tester/coverage/coverage.out $PKG
+# Execute tests silently on success, loud on failure
+if ! go test $TEST_OPTS -coverprofile=.tester/coverage/coverage.out $PKG > .tester/test_output.log 2>&1; then
+    cat .tester/test_output.log
+    exit 1
+fi
 
-# Coverage analysis
+# Coverage analysis (Silent unless failed)
 COVERAGE=$(go tool cover -func=.tester/coverage/coverage.out | awk '/^total:/ {print substr($3, 1, length($3)-1)}')
 
 if awk "BEGIN {exit !($COVERAGE < $THRESHOLD)}"; then
     if [ "$FMT" != "json" ]; then
-        echo "  ${RED}❌ Error: Coverage is below threshold: $COVERAGE% < $THRESHOLD%${NC}"
-        echo "  ${YELLOW}Top 5 lowest coverage files:${NC}"
+        echo -e "${RED}❌ Error: Coverage is below threshold: $COVERAGE% < $THRESHOLD%${NC}"
+        echo -e "${YELLOW}Top 5 lowest coverage files:${NC}"
         go tool cover -func=.tester/coverage/coverage.out | grep -v "100.0%" | sort -k 3 -n | head -5 | sed 's/^/    /'
-        echo "  ${BLUE}See: .agents/workflows/feature-implementation.md (Gate: coverage)${NC}"
     fi
     exit 2
 fi
 
-if [ "$FMT" != "json" ]; then echo "Coverage: $COVERAGE%"; fi
+if [ "$FMT" != "json" ]; then echo -e "✅ Tests Passed. Coverage: ${GREEN}$COVERAGE%${NC} (Threshold: $THRESHOLD%)"; fi

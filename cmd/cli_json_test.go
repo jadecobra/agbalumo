@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -12,9 +13,10 @@ import (
 
 func TestCLIJSONOutput(t *testing.T) {
 	// Setup: Ensure we use a test database
-	_ = os.Setenv("DATABASE_URL", ".tester/data/cli_test.db")
+	tempDir := t.TempDir()
+	dbPath := filepath.Join(tempDir, "cli_test.db")
+	_ = os.Setenv("DATABASE_URL", dbPath)
 	defer func() { _ = os.Unsetenv("DATABASE_URL") }()
-	defer func() { _ = os.Remove(".tester/data/cli_test.db") }()
 
 	// 1. Test listing list --json (empty)
 	t.Run("listing list --json empty", func(t *testing.T) {
