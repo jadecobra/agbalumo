@@ -102,3 +102,9 @@ Implemented explicit local binary paths for vulncheck, golangci-lint, and gitlea
 - [x] Modified vulncheck, ci:vulncheck, lint, and gitleaks tasks to use local binaries directly.
 - [x] Simplified scripts/gitleaks-scan.sh by removing expensive fallback logic.
 - [x] Created and verified internal/agent/task_optimization_test.go covering all tools.
+# Auxiliary Tooling Optimization
+Normalized installation and usage of the ChiefCritic auxiliary toolset (gocognit, goconst, fieldalignment, dupl).
+- [x] Pinned all auxiliary tools to specific, idempotent versions in Taskfile.yml.
+- [x] Isolated binaries to ./.tester/tmp/go/bin.
+- [x] Refactored scripts/critique.sh to use local binaries and fixed package scoping for macOS.
+- [x] Expanded task_optimization_test.go with comprehensive verification cases.

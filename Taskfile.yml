@@ -187,37 +187,38 @@ tasks:
       - '{{.TASKFILE_DIR}}/.tester/tmp/go/bin/govulncheck ./...'
 
   gocognit:install:
-    desc: Install gocognit (internal)
+    internal: true
     status:
-      - test -f '{{.GOBIN}}/gocognit'
+      - test -f ./.tester/tmp/go/bin/gocognit
     cmds:
       - go install github.com/uudashr/gocognit/cmd/gocognit@v1.0.1
 
   dupl:install:
-    desc: Install dupl (internal)
+    internal: true
     status:
-      - test -f '{{.GOBIN}}/dupl'
+      - test -f ./.tester/tmp/go/bin/dupl
     cmds:
       - go install github.com/mibk/dupl@v1.0.0
 
   goconst:install:
-    desc: Install goconst (internal)
+    internal: true
     status:
-      - test -f '{{.GOBIN}}/goconst'
+      - test -f ./.tester/tmp/go/bin/goconst
     cmds:
       - go install github.com/jgautheron/goconst/cmd/goconst@v1.7.1
 
   fieldalignment:install:
-    desc: Install fieldalignment (successor to maligned)
+    internal: true
     status:
-      - test -f '{{.GOBIN}}/fieldalignment'
+      - test -f ./.tester/tmp/go/bin/fieldalignment
     cmds:
-      - go install golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest
+      - go install golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@v0.30.0
 
   critique:
     desc: Run ChiefCritic robustness audit
     deps:
       - task: gocognit:install
+      - task: dupl:install
       - task: goconst:install
       - task: fieldalignment:install
     cmds:

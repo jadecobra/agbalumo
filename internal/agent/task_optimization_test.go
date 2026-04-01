@@ -42,6 +42,26 @@ func TestTaskfileToolingOptimization(t *testing.T) {
 			expectedStatus: "test -f ./.tester/tmp/go/bin/gitleaks",
 			expectedCmd:    "{{.TASKFILE_DIR}}/.tester/tmp/go/bin/gitleaks",
 		},
+		{
+			name:           "gocognit",
+			expectedStatus: "test -f ./.tester/tmp/go/bin/gocognit",
+			expectedCmd:    "go install github.com/uudashr/gocognit/cmd/gocognit@v1.0.1",
+		},
+		{
+			name:           "dupl",
+			expectedStatus: "test -f ./.tester/tmp/go/bin/dupl",
+			expectedCmd:    "go install github.com/mibk/dupl@v1.0.0",
+		},
+		{
+			name:           "goconst",
+			expectedStatus: "test -f ./.tester/tmp/go/bin/goconst",
+			expectedCmd:    "go install github.com/jgautheron/goconst/cmd/goconst@v1.7.1",
+		},
+		{
+			name:           "fieldalignment",
+			expectedStatus: "test -f ./.tester/tmp/go/bin/fieldalignment",
+			expectedCmd:    "go install golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@v0.30.0",
+		},
 	}
 
 	for _, tc := range tests {
