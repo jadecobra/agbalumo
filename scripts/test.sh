@@ -29,10 +29,28 @@ if [ "$STRICT_MODE" == "true" ]; then
 fi
 
 mkdir -p .tester/coverage
-# Execute tests silently on success, loud on failure
-if ! go test $TEST_OPTS -coverprofile=.tester/coverage/coverage.out $PKG > .tester/test_output.log 2>&1; then
-    cat .tester/test_output.log
-    exit 1
+TEST_LOG=".tester/test_output.log"
+rm -f "$TEST_LOG"
+
+# Execute tests with streaming heartbeats
+# We use PIPESTATUS to check for go test failure while piping to awk
+set +e 
+go test -v $TEST_OPTS -coverprofile=.tester/coverage/coverage.out $PKG 2>&1 | \
+    awk -v logfile="$TEST_LOG" '
+    /^[[:space:]]*(=== RUN|--- PASS)/ { printf "."; fflush() }
+    { print >> logfile }
+    '
+TEST_EXIT_CODE=${PIPESTATUS[0]}
+set -e
+
+# Ensure newline after heartbeats
+echo ""
+
+if [ $TEST_EXIT_CODE -ne 0 ]; then
+    if [ -f "$TEST_LOG" ]; then
+        cat "$TEST_LOG"
+    fi
+    exit $TEST_EXIT_CODE
 fi
 
 # Coverage analysis (Silent unless failed)
