@@ -96,3 +96,9 @@ Implementation of a test endpoint for agent handoff verification.
 - [x] Write RED test for /hello-agent
 - [x] Implement handler and route for /hello-agent
 - [x] Pass GREEN phase (implementation, lint, coverage)
+# Taskfile Tooling Optimization
+Implemented explicit local binary paths for vulncheck, golangci-lint, and gitleaks to reduce overhead and ensure idempotency.
+- [x] Updated Taskfile.yml with explicit paths for vulncheck:install, lint:install, and gitleaks:install.
+- [x] Modified vulncheck, ci:vulncheck, lint, and gitleaks tasks to use local binaries directly.
+- [x] Simplified scripts/gitleaks-scan.sh by removing expensive fallback logic.
+- [x] Created and verified internal/agent/task_optimization_test.go covering all tools.

@@ -313,6 +313,12 @@ agbalumo admin promote <user-id>
 
 Internal commands for testing and the agent workflow harness.
 
+#### hello
+Protocol test command for agent handoff verification.
+```bash
+agbalumo hello
+```
+
 #### benchmark
 Run performance query benchmarks.
 ```bash

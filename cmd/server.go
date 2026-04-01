@@ -261,5 +261,3 @@ func setupBackgroundServices(cfg *config.Config, repo *sqlite.SQLiteRepository) 
 	bgService := service.NewBackgroundService(repo)
 	go bgService.StartTicker(ctx)
 }
-
-// dummy change

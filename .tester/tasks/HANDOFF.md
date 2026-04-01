@@ -5,9 +5,9 @@
 > To proceed: Open a NEW chat window, tag `@BackendEngineer`, and run `/resume`.
 
 ## 📋 Project Context
-- **Feature**: hello-agent
+- **Feature**: taskfile-vulncheck-optimization
 - **Workflow**: feature
-- **Current Phase**: GREEN
+- **Current Phase**: RED
 
 ## 🚀 Outgoing Persona Summary
 The previous task has reached a milestone. 

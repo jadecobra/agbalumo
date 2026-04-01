@@ -1,4 +1,9 @@
 ERRORS
+- do review of the hello-agent test
+    - should chiefcritic write code or kick the task back to the SDET tester to hand back to BackendEngineer or appropriate persona for correction?
+    - should securityengineer write code or should kick the task back to the SDET tester to add a test then BackendEngineer to implement solution
+    - how do you tag a persona? should be part of instructions given in handoff
+    - add tagging to persona
 - disable terminal sandbox to fix terminal issues - done
 - WARN Using default admin code - set ADMIN_CODE for production - add password management in admin dashboard
 - CI/CD pipeline is much slower - get it to work first - current 1min - local must match production

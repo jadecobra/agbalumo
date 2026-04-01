@@ -173,6 +173,7 @@ func NewRootCmd() *cobra.Command {
 	rootCmd.AddCommand(CostCmd())
 	rootCmd.AddCommand(ChaosCmd())
 	rootCmd.AddCommand(HandoffCmd())
+	rootCmd.AddCommand(HelloCmd())
 
 	return rootCmd
 }
