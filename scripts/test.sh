@@ -16,7 +16,7 @@ if [ "$1" != "" ]; then
     PKG="$1"
 fi
 
-TEST_OPTS="-json -buildvcs=false"
+TEST_OPTS="-buildvcs=false"
 
 # Use race detector unless SKIP_RACE is set
 if [ "$SKIP_RACE" != "true" ]; then
@@ -30,7 +30,7 @@ fi
 
 mkdir -p .tester/coverage
 # Execute tests
-go test $TEST_OPTS -coverprofile=.tester/coverage/coverage.out $PKG > /dev/null
+go test $TEST_OPTS -coverprofile=.tester/coverage/coverage.out $PKG
 
 # Coverage analysis
 COVERAGE=$(go tool cover -func=.tester/coverage/coverage.out | awk '/^total:/ {print substr($3, 1, length($3)-1)}')

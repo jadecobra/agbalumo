@@ -1,17 +1,17 @@
 version: '3'
 
 env:
-  GOPATH: '{{if eq .ISOLATE_GO "true"}}{{.TASKFILE_DIR}}/.tester/tmp/go{{else}}{{default (printf "%s/.tester/tmp/go" .TASKFILE_DIR) .SYSTEM_GOPATH}}{{end}}'
-  GOCACHE: '{{if eq .ISOLATE_GO "true"}}{{.TASKFILE_DIR}}/.tester/tmp/go/cache{{else}}{{default (printf "%s/.tester/tmp/go/cache" .TASKFILE_DIR) .SYSTEM_GOCACHE}}{{end}}'
-  ISOLATE_GO: '{{default "true" .ISOLATE_GO}}'
+  GOPATH: '{{if eq .ISOLATE_GO "true"}}{{.ISO_PATH}}{{else}}{{.SYSTEM_GOPATH}}{{end}}'
+  GOCACHE: '{{if eq .ISOLATE_GO "true"}}{{.ISO_PATH}}/cache{{else}}{{default (printf "%s/cache" .ISO_PATH) .SYSTEM_GOCACHE}}{{end}}'
+  ISOLATE_GO: '{{.ISOLATE_GO}}'
 
 vars:
   ISOLATE_GO: '{{default "true" .ISOLATE_GO}}'
+  # Base paths for Go isolation
+  ISO_PATH: '{{.TASKFILE_DIR}}/.tester/tmp/go'
   SYSTEM_GOPATH:
     sh: '{{if ne .ISOLATE_GO "true"}}go env GOPATH{{else}}echo .tester/tmp/go{{end}}'
-  SYSTEM_GOCACHE:
-    sh: '{{if ne .ISOLATE_GO "true"}}go env GOCACHE{{else}}echo .tester/tmp/gocache{{end}}'
-  GOBIN: '{{if eq .ISOLATE_GO "true"}}{{.TASKFILE_DIR}}/.tester/tmp/go/bin{{else}}{{.SYSTEM_GOPATH}}/bin{{end}}'
+  GOBIN: '{{if eq .ISOLATE_GO "true"}}{{.ISO_PATH}}/bin{{else}}{{.SYSTEM_GOPATH}}/bin{{end}}'
   STAGED_GO:
     sh: git diff --cached --name-only --diff-filter=ACMR | grep '\.go$' || true
   STAGED_HTML:
@@ -174,7 +174,7 @@ tasks:
     status:
       - test -f '{{.GOBIN}}/govulncheck'
     cmds:
-      - go install golang.org/x/vuln/cmd/govulncheck@latest
+      - go install golang.org/x/vuln/cmd/govulncheck@v1.1.4
 
   vulncheck:
     desc: Run govulncheck vulnerability scan on staged Go files
@@ -191,35 +191,35 @@ tasks:
     status:
       - test -f '{{.GOBIN}}/gocognit'
     cmds:
-      - go install github.com/uudashr/gocognit/cmd/gocognit@latest
+      - go install github.com/uudashr/gocognit/cmd/gocognit@v1.0.1
 
   dupl:install:
     desc: Install dupl (internal)
     status:
       - test -f '{{.GOBIN}}/dupl'
     cmds:
-      - go install github.com/mibk/dupl@latest
+      - go install github.com/mibk/dupl@v1.0.0
 
   goconst:install:
     desc: Install goconst (internal)
     status:
       - test -f '{{.GOBIN}}/goconst'
     cmds:
-      - go install github.com/jgautheron/goconst/cmd/goconst@latest
+      - go install github.com/jgautheron/goconst/cmd/goconst@v1.7.1
 
-  maligned:install:
-    desc: Install maligned (internal)
+  fieldalignment:install:
+    desc: Install fieldalignment (successor to maligned)
     status:
-      - test -f '{{.GOBIN}}/maligned'
+      - test -f '{{.GOBIN}}/fieldalignment'
     cmds:
-      - go install github.com/mdempsky/maligned@latest
+      - go install golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest
 
   critique:
     desc: Run ChiefCritic robustness audit
     deps:
       - task: gocognit:install
       - task: goconst:install
-      - task: maligned:install
+      - task: fieldalignment:install
     cmds:
       - bash scripts/critique.sh {{.CLI_ARGS}}
 
@@ -374,7 +374,7 @@ tasks:
     cmds:
       - task: mod-tidy
       - task: fmt
-      - task: lint
+      - task: lint:staged
       - task: ci:build
 
   _pre-commit-heavy:

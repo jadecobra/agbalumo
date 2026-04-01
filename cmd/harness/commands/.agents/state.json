@@ -1,0 +1,18 @@
+{
+  "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
+  "feature": "test-refactor",
+  "workflow_type": "refactor",
+  "phase": "IDLE",
+  "gates": {
+    "red-test": "PENDING",
+    "api-spec": "PENDING",
+    "implementation": "PENDING",
+    "lint": "PENDING",
+    "coverage": "PENDING",
+    "browser-verification": "PENDING",
+    "template-drift": "PENDING",
+    "security-static": "PENDING"
+  },
+  "updated_at": "2026-04-01T00:40:41.986177Z",
+  "signature": "f128d37a01f2b227d10bc303a9ad561d476bd879a0c3648537a16512496b1320"
+}
