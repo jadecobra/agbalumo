@@ -1,6 +1,7 @@
 #!/bin/bash
 # scripts/test.sh - Optimized test runner for agbalumo.
 set -e
+set -o pipefail
 source "$(dirname "$0")/utils.sh"
 setup_path
 
@@ -33,15 +34,14 @@ TEST_LOG=".tester/test_output.log"
 rm -f "$TEST_LOG"
 
 # Execute tests with streaming heartbeats
-# We use PIPESTATUS to check for go test failure while piping to awk
-set +e 
+# set -o pipefail ensures the pipe returns the first non-zero exit code.
+# We use || to capture the exit status without triggering set -e.
+TEST_EXIT_CODE=0
 go test -v $TEST_OPTS -coverprofile=.tester/coverage/coverage.out $PKG 2>&1 | \
     awk -v logfile="$TEST_LOG" '
     /^[[:space:]]*(=== RUN|--- PASS)/ { printf "."; fflush() }
     { print >> logfile }
-    '
-TEST_EXIT_CODE=${PIPESTATUS[0]}
-set -e
+    ' || TEST_EXIT_CODE=$?
 
 # Ensure newline after heartbeats
 echo ""
