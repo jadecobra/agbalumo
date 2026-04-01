@@ -93,9 +93,6 @@ Refactor disk-bound tests in other packages to use in-memory SQLite isolation.
 - [ ] Verify zero physical `.db` file leakage across the entire test suite
 # Hello Agent Feature
 Implementation of a test endpoint for agent handoff verification.
-- [x] Write RED test for `/hello-agent`
-- [ ] Implement handler and route for `/hello-agent`
-- [ ] Pass GREEN phase (implementation, lint, coverage)
 - [x] Write RED test for /hello-agent
 - [x] Implement handler and route for /hello-agent
 - [x] Pass GREEN phase (implementation, lint, coverage)

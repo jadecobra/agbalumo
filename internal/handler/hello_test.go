@@ -22,9 +22,9 @@ func TestHelloAgent(t *testing.T) {
 	e.GET("/hello-agent", handler.HandleHelloAgent)
 	e.ServeHTTP(rec, req)
 
-	// This is expected to fail with 404 Not Found
+	// Test that the handler returns the correct response when registered.
 	assert.Equal(t, http.StatusOK, rec.Code, "Route /hello-agent should be registered and return 200 OK")
-	
+
 	expectedBody := `{"message":"Hello, Agent!"}`
 	assert.JSONEq(t, expectedBody, rec.Body.String(), "Response body should match")
 }
