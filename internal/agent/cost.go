@@ -43,6 +43,7 @@ func CalculateContextCost(dir string) (*CostReport, error) {
 		".tester":      true,
 		".agents":      true,
 		".agent":       true,
+		"scripts":      true,
 	}
 
 	validExts := map[string]bool{
@@ -64,6 +65,11 @@ func CalculateContextCost(dir string) (*CostReport, error) {
 		"yarn.lock":         true,
 		"go.sum":            true,
 		"go.mod":            true,
+		"Taskfile.yml":      true,
+	}
+
+	ignoredPathSegments := []string{
+		"ui/static",
 	}
 
 	err := filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
@@ -74,6 +80,14 @@ func CalculateContextCost(dir string) (*CostReport, error) {
 		if d.IsDir() {
 			if ignoredDirs[d.Name()] {
 				return filepath.SkipDir
+			}
+
+			// Handle multi-segment paths (e.g., "ui/static")
+			slashPath := "/" + filepath.ToSlash(path)
+			for _, seg := range ignoredPathSegments {
+				if strings.Contains(slashPath, "/"+seg+"/") || strings.HasSuffix(slashPath, "/"+seg) {
+					return filepath.SkipDir
+				}
 			}
 			return nil
 		}
