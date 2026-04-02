@@ -124,3 +124,7 @@ Implemented YAML frontmatter block for HANDOFF.md to enable machine-readable per
 Upgrading CI GitHub Actions to Node.js 24 compatible versions.
 - [x] Write failing contract tests in internal/agent/ci_versions_test.go
 - [x] Verify RED phase gate
+- [x] Update .github/workflows/ci.yml with Node.js 24 compatible versions
+- [x] Update .github/actions/setup-task-with-cache/action.yml
+- [x] Pass implementation, lint, and coverage gates
+
