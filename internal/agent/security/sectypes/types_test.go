@@ -64,14 +64,14 @@ func TestIsUnsafeString(t *testing.T) {
 func TestIsIgnored(t *testing.T) {
 	t.Run("IsIgnoredRaw", func(t *testing.T) {
 		assert.False(t, IsIgnoredRaw("var x = 1"))
-		assert.True(t, IsIgnoredRaw("// #nosec"))
+		assert.True(t, IsIgnoredRaw("// #nosec - test rationale"))
 		assert.True(t, IsIgnoredRaw("// antigravity:allow"))
 	})
 
 	t.Run("IsIgnoredAST", func(t *testing.T) {
 		fset := token.NewFileSet()
 		// Try a simpler way to trigger #nosec
-		src := "package p\n// #nosec\nfunc main() {}"
+		src := "package p\n// #nosec - test rationale\nfunc main() {}"
 		f, _ := parser.ParseFile(fset, "test.go", src, parser.ParseComments)
 		
 		var node ast.Node

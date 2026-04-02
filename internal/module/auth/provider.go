@@ -93,7 +93,7 @@ func (p *RealGoogleProvider) GetUserInfo(ctx context.Context, token *oauth2.Toke
 		return nil, err
 	}
 
-	resp, err := client.Do(req) // #nosec G704
+	resp, err := client.Do(req) // #nosec G704 - Standard Google OAuth2 userinfo request
 	if err != nil {
 		return nil, err
 	}

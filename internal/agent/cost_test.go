@@ -93,9 +93,31 @@ func TestCalculateContextCost(t *testing.T) {
 	if len(report.TopFiles) != 2 {
 		t.Errorf("Expected 2 TopFiles, got %d", len(report.TopFiles))
 	} else {
-		// Sorted descending
-		if report.TopFiles[0].Lines != 10 {
-			t.Errorf("Expected Top file to have 10 lines, got %d", report.TopFiles[0].Lines)
+		// TopFiles are now sorted by Tokens descending
+		if report.TopFiles[0].Tokens <= 0 {
+			t.Errorf("Expected top file to have positive token count, got %d", report.TopFiles[0].Tokens)
 		}
+	}
+	// Validate token counts are populated for each file
+	if report.TotalTokens <= 0 {
+		t.Errorf("Expected TotalTokens > 0, got %d", report.TotalTokens)
+	}
+	for _, fc := range report.TopFiles {
+		if fc.Tokens <= 0 {
+			t.Errorf("Expected Tokens > 0 for file %s, got %d", fc.FilePath, fc.Tokens)
+		}
+	}
+
+	// Validate TokenRMS is positive
+	if report.TokenRMS <= 0 {
+		t.Errorf("Expected TokenRMS > 0, got %f", report.TokenRMS)
+	}
+
+	// Validate ContextWindowPct is between 0 and 100 (tiny test dir is well under 200k tokens)
+	if report.ContextWindowPct <= 0 {
+		t.Errorf("Expected ContextWindowPct > 0, got %f", report.ContextWindowPct)
+	}
+	if report.ContextWindowPct >= 100 {
+		t.Errorf("Expected ContextWindowPct < 100 for tiny test dir, got %f", report.ContextWindowPct)
 	}
 }

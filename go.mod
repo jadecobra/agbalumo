@@ -9,6 +9,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.15.0
 	github.com/mattn/go-sqlite3 v1.14.34
+	github.com/pkoukk/tiktoken-go v0.1.8
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.11.1
 	golang.org/x/image v0.36.0
@@ -21,6 +22,7 @@ require (
 require (
 	cloud.google.com/go/compute/metadata v0.9.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/dlclark/regexp2 v1.10.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/ebitengine/purego v0.8.3 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect

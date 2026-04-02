@@ -8,11 +8,11 @@
     "api-spec": "PASSED",
     "implementation": "PASSED",
     "lint": "PASSED",
-    "coverage": "FAILED",
+    "coverage": "PASSED",
     "browser-verification": "PENDING",
     "template-drift": "PASSED",
     "security-static": "PASSED"
   },
-  "updated_at": "2026-04-02T15:40:16.04277Z",
-  "signature": "00b4ced22f3bb7e00dac964ef7f0034cfc05cf17f62c39c2f4927390e6592a37"
+  "updated_at": "2026-04-02T19:33:35.242221Z",
+  "signature": "881501a2863c3dd1856b4841476ac29e6db377746f47fcc0ee82e513c887ec35"
 }

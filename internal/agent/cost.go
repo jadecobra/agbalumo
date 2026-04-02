@@ -7,18 +7,28 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/pkoukk/tiktoken-go"
 )
+
+// claudeSonnetWindow is the binding worst-case context window.
+// Satisfying this automatically satisfies larger windows (e.g. Gemini Flash 1M).
+const claudeSonnetWindow = 200_000
 
 type FileCost struct {
 	FilePath string
 	Lines    int
+	Tokens   int // estimated via cl100k_base tokenizer
 }
 
 type CostReport struct {
-	TotalFiles int
-	TotalLines int
-	RMS        float64
-	TopFiles   []FileCost
+	TotalFiles       int
+	TotalLines       int
+	TotalTokens      int     // NEW: sum of token counts across all files
+	RMS              float64 // existing: LOC-based RMS (kept for parallel transition)
+	TokenRMS         float64 // NEW: token-based RMS
+	ContextWindowPct float64 // NEW: TotalTokens / claudeSonnetWindow * 100
+	TopFiles         []FileCost
 }
 
 func CalculateContextCost(dir string) (*CostReport, error) {
@@ -88,9 +98,20 @@ func CalculateContextCost(dir string) (*CostReport, error) {
 			lines++
 		}
 
+		// Token counting — cl100k_base is a close approximation for Gemini/Claude (~5% error)
+		enc, encErr := tiktoken.GetEncoding("cl100k_base")
+		tokenCount := 0
+		if encErr == nil {
+			tokenCount = len(enc.Encode(string(content), nil, nil))
+		} else {
+			// Fallback: ~4 chars per token is a widely-used heuristic
+			tokenCount = len(content) / 4
+		}
+
 		fileCosts = append(fileCosts, FileCost{
 			FilePath: path,
 			Lines:    lines,
+			Tokens:   tokenCount,
 		})
 
 		return nil
@@ -116,8 +137,17 @@ func CalculateContextCost(dir string) (*CostReport, error) {
 	meanSquares := sumSquares / float64(len(fileCosts))
 	report.RMS = math.Sqrt(meanSquares)
 
+	var tokenSumSquares float64
+	for _, fc := range fileCosts {
+		report.TotalTokens += fc.Tokens
+		tokenSumSquares += float64(fc.Tokens) * float64(fc.Tokens)
+	}
+	tokenMeanSquares := tokenSumSquares / float64(len(fileCosts))
+	report.TokenRMS = math.Sqrt(tokenMeanSquares)
+	report.ContextWindowPct = float64(report.TotalTokens) / claudeSonnetWindow * 100
+
 	sort.SliceStable(fileCosts, func(i, j int) bool {
-		return fileCosts[i].Lines > fileCosts[j].Lines
+		return fileCosts[i].Tokens > fileCosts[j].Tokens
 	})
 
 	report.TopFiles = fileCosts

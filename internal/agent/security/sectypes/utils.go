@@ -47,6 +47,8 @@ func IsIgnoredRaw(line string) bool {
 
 func IsUnsafeString(expr ast.Expr) bool {
 	switch e := expr.(type) {
+	case *ast.BasicLit:
+		return false // Literals are safe
 	case *ast.BinaryExpr:
 		if e.Op == token.ADD {
 			return true
@@ -57,6 +59,8 @@ func IsUnsafeString(expr ast.Expr) bool {
 				return true
 			}
 		}
+	case *ast.Ident, *ast.SelectorExpr:
+		return true // Dynamic values are unsafe
 	}
 	return false
 }

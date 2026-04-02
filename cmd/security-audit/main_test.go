@@ -121,6 +121,8 @@ func TestSecurityAudit(t *testing.T) {
 		config.FileReader = func(name string) ([]byte, error) { return nil, errors.New("missing") }
 		// All other checks will be skipped or pass due to mock runner returning empty output/nil error
 		err = runAudit(config)
+		assert.NoError(t, err)
+
 		// It might still pass if headers pass. Let's force a header failure.
 		ts2 := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
 		defer ts2.Close()
@@ -134,6 +136,8 @@ func TestSecurityAudit(t *testing.T) {
 		t.Setenv("SECURITY_AUDIT_URL", "http://localhost:8080")
 		// Since runMain calls runAudit which does things, we'll just test the return code for invalid target
 		code := runMain([]string{"cmd", "--target=invalid"})
+		assert.Equal(t, 1, code)
+
 		// wait, target is from env or defaults.
 		t.Setenv("SECURITY_AUDIT_URL", "https://google.com")
 		code = runMain([]string{"cmd"})
