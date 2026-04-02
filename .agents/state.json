@@ -1,6 +1,6 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "taskfile-vulncheck-optimization",
+  "feature": "upgrade-ci-node24",
   "workflow_type": "feature",
   "phase": "REFACTOR",
   "gates": {
@@ -13,6 +13,6 @@
     "template-drift": "PASSED",
     "security-static": "PASSED"
   },
-  "updated_at": "2026-04-01T16:47:15.592136Z",
-  "signature": "e24431001ceba27d81946094f5e8edb7e8a4524b30329ffb31bdb9639509df99"
+  "updated_at": "2026-04-02T02:42:37.015615Z",
+  "signature": "cadc8f68f946b7766a642c2d6b7d6ccfee0367cf848fcdc6489e9b4678177d19"
 }

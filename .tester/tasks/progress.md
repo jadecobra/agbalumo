@@ -127,4 +127,6 @@ Upgrading CI GitHub Actions to Node.js 24 compatible versions.
 - [x] Update .github/workflows/ci.yml with Node.js 24 compatible versions
 - [x] Update .github/actions/setup-task-with-cache/action.yml
 - [x] Pass implementation, lint, and coverage gates
+- [x] Refactor ci.yml to centralize NODE_VERSION '24' in top-level env
+- [x] Refactor ci_versions_test.go to support environment expressions and verify global env
 

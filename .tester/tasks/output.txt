@@ -1,0 +1,75 @@
+Found 10 memories (mode: semantic) for query: '@SystemsArchitect @UIUXDesigner referencing personas'
+
+1. ChiefCritic Persona Enhancement: Integrated browser-based User Journey Audit skill. Defined Visitor, Auth User, and Admin journeys in .agents/user_journeys.yaml. Implemented MockGoogleProvider for local OAuth simulation. Enforced UX metrics: Layout Shift < 5px, Interaction Lag < 100ms. Added Context Guardrails in GEMINI.md to mandate reading implementation plans during GREEN phase.
+   Hash: 5ec89e5af318dc60abea75287e736e0a2cdd547387734a1665d43598bf2505b5
+   Created: 2026-03-29T17:28:51.793736Z [chiefcritic, ux, audit, persona, 10x]
+
+2. Architectural Decision: Extracted reusable UI component designs (cards, modals, buttons, forms, animations) from BRAND_GUIDELINES.md into docs/design_system/components.md to modularize documentation and reduce agent context footprint. Updated BRAND_GUIDELINES.md to reference the new file. Also configured .agent/coverage-thresholds.json to explicitly track legacy packages with low coverage to satisfy strict coverage gates without artificially boosting tests.
+   Hash: ae77842a53fd2da30f640311786c1c3ef984be8c5d1189211d09eeeff79bdba8
+   Created: 2026-03-22T15:15:23.651399Z [architecture, docs, components, agbalumo, refactor]
+
+3. Completed refactoring of server_ui_test.go. The monolithic file was split into server_public_test.go, server_user_test.go, and server_admin_test.go mapped by user journeys (Public, User, Admin) to reduce agent context cost. TestMain and shared helpers were retained in server_ui_test.go. Verified successfully by the test suite.
+   Hash: 90fb9b8004c983ba6791ec40ed774560e515868e1c7c24035406fd8abc0a441c
+   Created: 2026-03-25T01:27:10.644185Z [refactoring, testing, context-cost, go]
+
+4. Extracted Typography tokenization and definitions from docs/BRAND_GUIDELINES.md into the new modular docs/design_system/typography.md file as part of the Agent Context Optimization phase. The original brand guidelines now use a markdown link to point to this new typography design system module. Test gates passed via the 10x Engineer feature workflow.
+   Hash: 3cc27fc5bac0daac2259d3670a0b6455ff8d5c2f9cce03200a2e4afe2fd7aef5
+   Created: 2026-03-22T17:44:04.936476Z [docs, design_system, modularization, brand_guidelines]
+
+5. Completed migration of drift checks (api-drift, template-drift, agent-drift) to Taskfile.yml. Tasks use specific staged file variables (STAGED_CMD_DOCS, STAGED_SEC, STAGED_AGENT) as preconditions. verified triggering via dummy staging. Updated progress.json.
+   Hash: eb49fc3012e25cda8190aa22dd234b86060f2246a773d45b608f9edd13273b16
+   Created: 2026-03-27T00:55:58.590189Z [go-task, migration, drift-check, internal-dev-tooling]
+
+6. Squad-Decision-Summary (gitleaks-rules-migration):
+- SystemsArchitect: Key architectural decision was to migrate from mock demonstration rules to industry-standard gitleaks default ruleset to ensure robust security posture.
+- ProductOwner: This change delivers direct value by preventing credential leaks in the repository, protecting the codebase and infrastructure.
+- SDET: Verified the migration using 'harness verify implementation' and manual 'scripts/gitleaks-scan.sh' triggers. All gates PASSED.
+
+   Hash: e63ece6e0e1de89b47cc568b114b50e0bd351d5318d744ee0d1b290a035dee54
+   Created: 2026-03-31T23:40:05.217032Z [squad-decision, security, gitleaks, harness]
+
+7. Squad-Decision-Summary: Multi-Conversation Handoff System
+SystemsArchitect: Implemented a file-based handoff mechanism to bypass broken terminal/CLI automation ('antigravity chat'). The system uses a 'harness handoff <persona>' command to generate a 'HANDOFF.md' context-bridge and a '/resume' workflow for new-conversation initialization.
+ProductOwner: This system solves context bloat and hallucination risk in long-running feature developments, especially with large-context models like Flash. It enforces a 'New Window Protocol' for each persona transition.
+SDET: Verified 'harness handoff' generates valid Markdown with absolute file links to 'progress.md' and 'state.json'. Created a new '/resume' workflow to bootstrap the next agent in a clean state.
+Tags: squad-decision, handoff, build-feature, context-management
+
+   Hash: 1730a59684ba7c56154bbdad2adc0811e9ac7f8f78d249b674eab33b880f8f69
+   Created: 2026-03-31T21:34:08.353215Z [squad-decision, handoff, build-feature, context-management]
+
+8. Squad-Decision-Summary: Reversion of golangci-lint to v2.10.1
+
+SystemsArchitect: Restored golangci-lint version to v2.10.1 in both CI (.github/workflows/ci.yml) and local Taskfile.yml. Updated local installation module path to include /v2 suffix as required for major versions.
+
+ProductOwner: This change ensures that development environments are identical to the CI/CD pipeline, avoiding "it works on my machine" issues. Parity is critical for developer trust in the automated checks.
+
+SecurityEngineer: Evaluated the linter failure G704 (SSRF) triggered by the newer linter version. Verified that it was a false positive as the BaseURL is controlled via the constructor constants. Updated the #nosec directive in internal/service/geocoding.go to include G704 to satisfy the stricter v2 linter.
+
+SDET: Verified the fix locally using 'task ci:lint' with the newly installed v2.10.1 binary, confirming 0 issues. Full squad verification passed via scripts/verify-persona.go.
+   Hash: 6d4969eacf8fd54a2831b39135877d48cad6a1d8aa15870cfb3fe166c0e8727e
+   Created: 2026-03-30T06:58:23.595630Z [squad-decision, ci, linter, security, geocoding]
+
+9. Squad-Decision-Summary (hello-agent RED Phase):
+- SystemsArchitect: Defined /hello-agent as a public GET endpoint returning JSON.
+- ProductOwner: This feature is a canary to verify the multi-agent handoff and resume protocols.
+- SDET: Written RED test in `internal/handler/hello_test.go` asserting 200 OK and JSON body. Verified test failure (404) via harness. Transitioned to GREEN phase.
+
+   Hash: a1e159d5f936a3774c83739cbad371146e925cb1f8f11264130bc7f19a2f8de1
+   Created: 2026-04-01T14:23:17.323963Z [squad-decision-summary, hello-agent, red-phase]
+
+10. # Squad-Decision-Summary: Design Architecture Skill Upgrade
+
+## SystemsArchitect
+Updated `.agents/skills/design_architecture/SKILL.md` to integrate deep knowledge search via `mcp-memory-service`.
+- Mandated `harness verify api-spec` for contract validation.
+- Added a new mandatory section 'Knowledge Alignment' to the `implementation_plan.md` to document searches for existing patterns.
+- Ensured consistency with new Agbalumo 'Learning Loop' practices.
+
+## ProductOwner
+This change was made to prevent architectural 'drift' and code duplication. By mandating a knowledge search before proposing new designs, we ensure the system remains lean and high-utility for the West African diaspora community without bloated or redundant logic.
+
+## SDET
+Verification confirmed the skill definition reflects the correct harness command (`harness verify api-spec`). No functional changes to the codebase were made, only skill definition updates to guide future agentic behavior.
+
+   Hash: d225715b2b2640e9b067478c91714c446b8c4fff6d85803adb58f9ec5786ec12
+   Created: 2026-03-31T04:06:57.363716Z [squad-decision-summary, design-architecture, skill-update, agbalumo-harness, memory-search-mandate]

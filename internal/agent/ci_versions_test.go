@@ -70,3 +70,72 @@ func TestCIVersionsNode24(t *testing.T) {
 		})
 	}
 }
+
+func TestCINodeRuntime24(t *testing.T) {
+	// Find project root
+	root := "../../"
+	if _, err := os.Stat(filepath.Join(root, "go.mod")); err != nil {
+		root = "./"
+	}
+
+	ciFile := filepath.Join(root, ".github/workflows/ci.yml")
+	content, err := os.ReadFile(ciFile)
+	if err != nil {
+		t.Fatalf("failed to read %s: %v", ciFile, err)
+	}
+
+	lines := strings.Split(string(content), "\n")
+	nodeVersionLineFound := false
+	envNodeVersion := ""
+
+	// 1. Extract top-level NODE_VERSION from env block
+	for _, line := range lines {
+		if strings.Contains(line, "NODE_VERSION:") {
+			parts := strings.Split(line, ":")
+			if len(parts) > 1 {
+				envNodeVersion = strings.Trim(strings.TrimSpace(parts[1]), "\"'")
+			}
+		}
+	}
+
+	// 2. Verify all node-version usages
+	for _, line := range lines {
+		if strings.Contains(line, "node-version:") {
+			nodeVersionLineFound = true
+			trimmed := strings.TrimSpace(line)
+
+			// Support both hardcoded '24' and interpolated expression
+			if strings.Contains(trimmed, "${{ env.NODE_VERSION }}") {
+				if envNodeVersion != "24" {
+					t.Errorf("In %s, node-version uses expression but global NODE_VERSION is '%s' (expected '24')", ciFile, envNodeVersion)
+				}
+			} else if !strings.Contains(trimmed, "'24'") && !strings.Contains(trimmed, "\"24\"") && !strings.Contains(trimmed, ": 24") {
+				t.Errorf("In %s, found invalid node-version: %s (expected '24' or expression)", ciFile, trimmed)
+			}
+		}
+	}
+
+	if !nodeVersionLineFound {
+		t.Errorf("In %s, no node-version found", ciFile)
+	}
+}
+
+func TestPackageNodeEngine24(t *testing.T) {
+	// Find project root
+	root := "../../"
+	if _, err := os.Stat(filepath.Join(root, "go.mod")); err != nil {
+		root = "./"
+	}
+
+	pkgFile := filepath.Join(root, "package.json")
+	content, err := os.ReadFile(pkgFile)
+	if err != nil {
+		t.Fatalf("failed to read %s: %v", pkgFile, err)
+	}
+
+	if !strings.Contains(string(content), "\"node\": \">=24\"") &&
+		!strings.Contains(string(content), "\"node\": \"^24") &&
+		!strings.Contains(string(content), "\"node\": \"24") {
+		t.Errorf("In %s, engines.node does not specify version 24", pkgFile)
+	}
+}

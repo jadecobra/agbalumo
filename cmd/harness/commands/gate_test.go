@@ -68,7 +68,7 @@ func TestGateCmd(t *testing.T) {
 
 	// 6. Verify bypass audit log is written on blocked attempt
 	_ = os.Remove(".tester/tasks/bypass_audit.log") // clean slate
-	_ = cmd.RunE(cmd, []string{"coverage", "PASS"})  // this is blocked
+	_ = cmd.RunE(cmd, []string{"coverage", "PASS"}) // this is blocked
 	logBytes, readErr := os.ReadFile(".tester/tasks/bypass_audit.log")
 	if readErr != nil {
 		t.Errorf("expected bypass_audit.log to be created, got error: %v", readErr)

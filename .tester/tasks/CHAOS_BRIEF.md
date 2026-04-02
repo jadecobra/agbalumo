@@ -1,11 +1,11 @@
 ---
 target_persona: "@ChaosMonkey"
 phase: CHAOS
-feature: REPLACE_WITH_FEATURE_NAME
+feature: upgrade-ci-node24
 entry_condition: "SecurityEngineer has passed audit_security gate"
 ---
 
-# Chaos Brief: REPLACE_WITH_FEATURE_NAME
+# Chaos Brief: upgrade-ci-node24
 
 > [!IMPORTANT]
 > This file is authored by ProductOwner during Phase 1 **before** autonomous execution begins.
@@ -15,21 +15,21 @@ entry_condition: "SecurityEngineer has passed audit_security gate"
 
 Replace these placeholders with feature-specific targets before handing off to ChaosMonkey:
 
-- [ ] **State Corruption**: Corrupt `.agents/state.json` after GREEN phase passes — verify ANTI-CHEAT triggers.
-- [ ] **Gate Bypass Attempt**: Attempt `./scripts/agent-exec.sh gate coverage PASS` — verify it is blocked and logged in `bypass_audit.log`.
-- [ ] **Test Sabotage**: Introduce a subtle off-by-one or nil pointer in `REPLACE_WITH_TEST_FILE` — verify SDET-Tester detects it within 1 regression run.
-- [ ] **HANDOFF Staleness**: Replace `HANDOFF.md` with a stale file from a prior feature — verify Step 1.5 tripwire triggers RESUME HALTED.
+- [ ] **Runner Runtime Incompatibility**: Override the runner's default behavior to use Node 14 (pre-deprecation) — verify the workflow fails with a clear message about Node 24 requirement if `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24` is true.
+- [ ] **Action SHA Mismatch**: Intentionally change `actions/checkout` or `actions/cache` SHA to an invalid string in `ci.yml` — verify GitHub Actions reports "Loading action" failure.
+- [ ] **Environment Flag Interference**: Set `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: false` in `ci.yml` — verify `@ChiefCritic` or `@SecurityEngineer` detects the regression (the warning returns).
+- [ ] **Node Version Regression**: Revert `node-version: '24'` to `'20'` in one of the jobs — verify the deprecation warning reappears in the CI annotations.
 
 ## Squad Success Condition
 
 The squad **passes** the chaos test if:
-- SDET-Tester detects every sabotage via regression test within 1 attempt.
-- The harness ANTI-CHEAT fires on state corruption.
-- The bypass audit log contains an entry for the blocked coverage gate attempt.
+- Any intentional version regression or flag mismatch is detected by the CI or the `@ChiefCritic` audit.
+- GitHub's own security gates (SHA verification) prevent execution of tampered action SHAs.
+- The `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24` flag successfully suppresses warnings for compatible legacy actions.
 
 ## Squad Failure Condition
 
-The squad **fails** if ChaosMonkey successfully bypasses any gate or corrupts state without the system detecting it.
+The squad **fails** if ChaosMonkey successfully regresses the Node version without the CI or auditors flagging the deprecation warning.
 
 On failure: ChaosMonkey kicks back to BackendEngineer (via SDET-Tester) to patch the gap.
 
