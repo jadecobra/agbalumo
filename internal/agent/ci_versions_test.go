@@ -41,7 +41,6 @@ func TestCIVersionsNode24(t *testing.T) {
 		{file: filepath.Join(customActionsDir, "setup-task-with-cache/action.yml"), action: "arduino/setup-task", minVers: "v2.0.0", sha: "b91d5d2c96a56797b48ac1e0e89220bf64044611"},
 	}
 
-
 	for _, tc := range tests {
 		t.Run(filepath.Base(tc.file)+"/"+tc.action, func(t *testing.T) {
 			content, err := os.ReadFile(tc.file)
@@ -169,4 +168,3 @@ func TestPackageNodeEngine24(t *testing.T) {
 		t.Errorf("In %s, engines.node does not specify version 24", pkgFile)
 	}
 }
-

@@ -26,6 +26,10 @@ func (r *RealRunner) Run(dir string, name string, args ...string) (string, error
 }
 
 func main() {
+	os.Exit(runMain(os.Args))
+}
+
+func runMain(args []string) int {
 	// Initialize Config
 	client := &http.Client{
 		Transport: &http.Transport{
@@ -45,7 +49,7 @@ func main() {
 
 	if !isValidTarget(targetURL) {
 		fmt.Printf("❌ Error: Target URL %q is not an approved destination (localhost or nip.io).\n", targetURL)
-		os.Exit(1)
+		return 1
 	}
 
 	config := AuditConfig{
@@ -57,8 +61,9 @@ func main() {
 	}
 
 	if err := runAudit(config); err != nil {
-		os.Exit(1)
+		return 1
 	}
+	return 0
 }
 
 func isValidTarget(url string) bool {

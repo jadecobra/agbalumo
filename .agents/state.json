@@ -1,6 +1,6 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "upgrade-ci-node24",
+  "feature": "context-cost-reduction",
   "workflow_type": "feature",
   "phase": "REFACTOR",
   "gates": {
@@ -8,11 +8,11 @@
     "api-spec": "PASSED",
     "implementation": "PASSED",
     "lint": "PASSED",
-    "coverage": "PASSED",
-    "browser-verification": "PASSED",
+    "coverage": "FAILED",
+    "browser-verification": "PENDING",
     "template-drift": "PASSED",
     "security-static": "PASSED"
   },
-  "updated_at": "2026-04-02T05:17:59.109674Z",
-  "signature": "ec24e17921564155dfaa15b42043be1c2f90d310d85ad6cb050f305edfc5e03e"
+  "updated_at": "2026-04-02T15:40:16.04277Z",
+  "signature": "00b4ced22f3bb7e00dac964ef7f0034cfc05cf17f62c39c2f4927390e6592a37"
 }

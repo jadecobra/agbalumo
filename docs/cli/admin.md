@@ -1,109 +1,65 @@
-# Admin CLI
+# Admin Operations
 
-Administrative operations.
+The `admin` command provides administrative subcommands for managing the agbalumo platform, including approving listings, managing users, and viewing claim requests.
+
+### admin
+
+Admin operations.
 
 ```bash
 agbalumo admin [command]
 ```
 
-## Subcommands
+#### approve
 
-### approve
+Approve a listing by ID.
 
-Approve a pending listing.
-
+Example:
 ```bash
-agbalumo admin approve [listing-id]
+agbalumo admin approve cli-12345
 ```
 
-**Example:**
+#### reject
 
+Reject a listing by ID.
+
+Example:
 ```bash
-agbalumo admin approve cli-1234567890
-# Output: Listing approved: cli-1234567890
+agbalumo admin reject cli-12345
 ```
 
-### reject
-
-Reject a listing.
-
-```bash
-agbalumo admin reject [listing-id]
-```
-
-**Example:**
-
-```bash
-agbalumo admin reject cli-1234567890
-# Output: Listing rejected: cli-1234567890
-```
-
-### featured
+#### featured
 
 Toggle featured status of a listing.
 
+Example:
 ```bash
-agbalumo admin featured [listing-id]
+agbalumo admin featured cli-12345
 ```
 
-**Example:**
+#### pending-claims
 
-```bash
-agbalumo admin featured cli-1234567890
-# Output: Listing featured: cli-1234567890
-# Run again to unfeature:
-# Output: Listing unfeatured: cli-1234567890
-```
+List pending claim requests.
 
-### pending-claims
-
-List all pending claim requests.
-
+Example:
 ```bash
 agbalumo admin pending-claims
 ```
 
-**Example:**
+#### users
 
-```bash
-agbalumo admin pending-claims
-# Output:
-# Found 2 pending claims:
-#
-# [claim-123] User 'john@example.com' claiming 'Lagos Restaurant'
-# [claim-456] User 'jane@example.com' claiming 'Accra Market'
-```
+List all users.
 
-### users
-
-List all registered users.
-
+Example:
 ```bash
 agbalumo admin users
 ```
 
-**Example:**
+#### promote
 
+Promote a user to admin by user ID.
+
+Example:
 ```bash
-agbalumo admin users
-# Output:
-# Found 10 users:
-#
-# [user-123] john@example.com - user
-# [admin-456] admin@example.com - admin
-```
-
-### promote
-
-Promote a user to admin role.
-
-```bash
-agbalumo admin promote [user-id]
-```
-
-**Example:**
-
-```bash
-agbalumo admin promote user-123
-# Output: User promoted to admin: user-123
+agbalumo admin promote user-12345
 ```

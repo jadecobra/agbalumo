@@ -86,6 +86,11 @@ Granular refactoring tasks to reduce the context cost of the top 10 most expensi
 - [x] Verify Interface Segregation (CQRS): Extract ListingStore into ListingReader and ListingWriter interfaces in internal/domain to eliminate sqlite_listing.go structural fragmentation
 - [ ] Verify Test Suite Isolation: Refactor residual large test files like sqlite_listing_test.go and listing_validation_test.go to use testify/suite or targeted sub-test groupings to further reduce context bloat
 - [ ] Verify Domain Map Documentation: Create a domain mapping reference in .agents/rules/ indicating where specific business validations (Create, Geocoding, Jobs) are physically located to prevent context discovery thrashing
+- [x] Verified modularization of `internal/agent/security.go` and `internal/agent/verify_test.go`.
+- [x] Verified split of `internal/repository/sqlite/sqlite_listing_test.go`.
+- [x] Fixed regressions in `internal/ui` (CSRF and toJson escaping).
+- [x] Fixed regression in `internal/module/auth` (Hardcoded Google UserInfo URL).
+- [x] Confirmed all tests pass (84.6% coverage).
 # Cross-Package Database Test Isolation
 Refactor disk-bound tests in other packages to use in-memory SQLite isolation.
 - [ ] Refactor `cmd/...` tests to use in-memory SQLite isolation (Pending)
