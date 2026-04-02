@@ -115,3 +115,12 @@ Implemented YAML frontmatter block for HANDOFF.md to enable machine-readable per
 - [x] Add ReadFile and RemoveFile helpers to internal/agent/handoff.go
 - [x] Update CreateHandoff to use CreateHandoffToPath
 - [x] Verify all internal/agent tests pass
+- [x] Create failing test TestCreateHandoff_YAMLFrontmatter in internal/agent/handoff_test.go
+- [x] Implement CreateHandoffToPath with YAML frontmatter prepending
+- [x] Add ReadFile and RemoveFile helpers to internal/agent/handoff.go
+- [x] Update CreateHandoff to use CreateHandoffToPath
+- [x] Verify all internal/agent tests pass
+# upgrade-ci-node24
+Upgrading CI GitHub Actions to Node.js 24 compatible versions.
+- [x] Write failing contract tests in internal/agent/ci_versions_test.go
+- [x] Verify RED phase gate
