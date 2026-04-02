@@ -21,24 +21,26 @@ func TestCIVersionsNode24(t *testing.T) {
 		file     string
 		action   string
 		minVers  string
+		sha      string
 		critical bool
 	}{
 		// Main Workflow
-		{file: filepath.Join(workflowsDir, "ci.yml"), action: "actions/checkout", minVers: "v6.0.2"},
-		{file: filepath.Join(workflowsDir, "ci.yml"), action: "actions/setup-go", minVers: "v6.4.0"},
-		{file: filepath.Join(workflowsDir, "ci.yml"), action: "golangci/golangci-lint-action", minVers: "v9.2.0"},
-		{file: filepath.Join(workflowsDir, "ci.yml"), action: "actions/upload-artifact", minVers: "v6.0.0"},
-		{file: filepath.Join(workflowsDir, "ci.yml"), action: "actions/setup-node", minVers: "v6.3.0"},
-		{file: filepath.Join(workflowsDir, "ci.yml"), action: "docker/setup-buildx-action", minVers: "v4.0.0"},
-		{file: filepath.Join(workflowsDir, "ci.yml"), action: "docker/build-push-action", minVers: "v7.0.0"},
-		{file: filepath.Join(workflowsDir, "ci.yml"), action: "aquasecurity/trivy-action", minVers: "v0.35.0", critical: true},
-		{file: filepath.Join(workflowsDir, "ci.yml"), action: "superfly/flyctl-actions/setup-flyctl", minVers: "v1.5"},
+		{file: filepath.Join(workflowsDir, "ci.yml"), action: "actions/checkout", minVers: "v6.0.2", sha: "de0fac2e4500dabe0009e67214ff5f5447ce83dd"},
+		{file: filepath.Join(workflowsDir, "ci.yml"), action: "actions/setup-go", minVers: "v6.4.0", sha: "4a3601121dd01d1626a1e23e37211e3254c1c06c"},
+		{file: filepath.Join(workflowsDir, "ci.yml"), action: "golangci/golangci-lint-action", minVers: "v9.2.0", sha: "1e7e51e771db61008b38414a730f564565cf7c20"},
+		{file: filepath.Join(workflowsDir, "ci.yml"), action: "actions/upload-artifact", minVers: "v6.0.0", sha: "b7c566a772e6b6bfb58ed0dc250532a479d7789f"},
+		{file: filepath.Join(workflowsDir, "ci.yml"), action: "actions/setup-node", minVers: "v6.3.0", sha: "53b83949f2b8417936a58334460f7815124036e5"},
+		{file: filepath.Join(workflowsDir, "ci.yml"), action: "docker/setup-buildx-action", minVers: "v4.0.0", sha: "4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd"},
+		{file: filepath.Join(workflowsDir, "ci.yml"), action: "docker/build-push-action", minVers: "v7.0.0", sha: "d08e5c354a6adb9ed34480a06d141179aa583294"},
+		{file: filepath.Join(workflowsDir, "ci.yml"), action: "aquasecurity/trivy-action", minVers: "v0.35.0", sha: "57a97c7e7821a5776cebc9bb87c984fa69cba8f1", critical: true},
+		{file: filepath.Join(workflowsDir, "ci.yml"), action: "superfly/flyctl-actions/setup-flyctl", minVers: "v1.5", sha: "fc53c09e1bc3be6f54706524e3b82c4f462f77be"},
 
 		// Custom Action
-		{file: filepath.Join(customActionsDir, "setup-task-with-cache/action.yml"), action: "actions/setup-go", minVers: "v6.4.0"},
-		{file: filepath.Join(customActionsDir, "setup-task-with-cache/action.yml"), action: "actions/cache", minVers: "v5.0.4"},
-		{file: filepath.Join(customActionsDir, "setup-task-with-cache/action.yml"), action: "arduino/setup-task", minVers: "v2.0.0"},
+		{file: filepath.Join(customActionsDir, "setup-task-with-cache/action.yml"), action: "actions/setup-go", minVers: "v6.4.0", sha: "4a3601121dd01d1626a1e23e37211e3254c1c06c"},
+		{file: filepath.Join(customActionsDir, "setup-task-with-cache/action.yml"), action: "actions/cache", minVers: "v5.0.4", sha: "0ad5b37d409490538a1e79ad0619598a221f58ef"},
+		{file: filepath.Join(customActionsDir, "setup-task-with-cache/action.yml"), action: "arduino/setup-task", minVers: "v2.0.0", sha: "b91d5d2c96a56797b48ac1e0e89220bf64044611"},
 	}
+
 
 	for _, tc := range tests {
 		t.Run(filepath.Base(tc.file)+"/"+tc.action, func(t *testing.T) {
@@ -47,27 +49,55 @@ func TestCIVersionsNode24(t *testing.T) {
 				t.Fatalf("failed to read %s: %v", tc.file, err)
 			}
 
-			// Simple check for "uses: action@minVers" or later
-			// Since we use SHAs, we also check for the tag in the comment if present
 			lines := strings.Split(string(content), "\n")
-			found := false
-			for _, line := range lines {
+			occurrences := 0
+			for i, line := range lines {
 				if strings.Contains(line, "uses: "+tc.action) {
-					// Check if the current version in the line is at least minVers
-					// For simplicity in RED phase, we just check if it contains the exact minVers or higher
-					// If it contains a lower version (e.g. v6.0.2 vs v6.1.0), it should fail.
-					if strings.Contains(line, tc.minVers) {
-						found = true
-						break
+					occurrences++
+					// 1. Verify SHA part
+					if !strings.Contains(line, tc.sha) {
+						t.Errorf("%s:L%d - Action %s uses invalid SHA (expected %s)", tc.file, i+1, tc.action, tc.sha)
 					}
-					// If it contains a higher version, we should also pass (not implemented here for RED simplicity)
+					// 2. Verify comment version (if present)
+					if !strings.Contains(line, tc.minVers) {
+						t.Errorf("%s:L%d - Action %s comment mismatch (expected %s)", tc.file, i+1, tc.action, tc.minVers)
+					}
 				}
 			}
 
-			if !found {
-				t.Errorf("Action %s in %s does not meet minimum version %s", tc.action, tc.file, tc.minVers)
+			if occurrences == 0 {
+				t.Errorf("Action %s not found in %s", tc.action, tc.file)
 			}
 		})
+	}
+}
+
+func TestCIEnvFlagsNode24(t *testing.T) {
+	// Find project root
+	root := "../../"
+	if _, err := os.Stat(filepath.Join(root, "go.mod")); err != nil {
+		root = "./"
+	}
+
+	ciFile := filepath.Join(root, ".github/workflows/ci.yml")
+	content, err := os.ReadFile(ciFile)
+	if err != nil {
+		t.Fatalf("failed to read %s: %v", ciFile, err)
+	}
+
+	lines := strings.Split(string(content), "\n")
+	flagFound := false
+	for _, line := range lines {
+		if strings.Contains(line, "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24:") {
+			flagFound = true
+			if !strings.Contains(line, "true") {
+				t.Errorf("FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 must be set to true in %s", ciFile)
+			}
+		}
+	}
+
+	if !flagFound {
+		t.Errorf("FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 flag not found in %s", ciFile)
 	}
 }
 
@@ -139,3 +169,4 @@ func TestPackageNodeEngine24(t *testing.T) {
 		t.Errorf("In %s, engines.node does not specify version 24", pkgFile)
 	}
 }
+

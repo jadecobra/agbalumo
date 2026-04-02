@@ -16,7 +16,7 @@ runs:
         cache: true
 
     - name: Cache Go Tools (.tester/tmp)
-      uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+      uses: actions/cache@0ad5b37d409490538a1e79ad0619598a221f58ef # v5.0.4
       with:
         path: .tester/tmp
         key: ${{ runner.os }}-go-tools-${{ hashFiles('go.sum', 'Taskfile.yml') }}

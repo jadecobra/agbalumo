@@ -129,4 +129,5 @@ Upgrading CI GitHub Actions to Node.js 24 compatible versions.
 - [x] Pass implementation, lint, and coverage gates
 - [x] Refactor ci.yml to centralize NODE_VERSION '24' in top-level env
 - [x] Refactor ci_versions_test.go to support environment expressions and verify global env
-
+- [x] Centralize Node.js 24 version in top-level env in ci.yml
+- [x] Refactor ci_versions_test.go to support environment expressions

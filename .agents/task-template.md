@@ -4,7 +4,7 @@
 [Provide a brief description of the goal and any background information.]
 
 ## Persona & Phase
-- **Active Persona**: [Lead Architect | SDET Agent | Backend Agent | etc.]
+- **Active Persona**: [SystemsArchitect | SDET-Tester | BackendEngineer | etc.]
 - **Current Phase**: [PLANNING | EXECUTION | VERIFICATION]
 - **State Machine Phase**: [IDLE | RED | GREEN | REFACTOR]
 
