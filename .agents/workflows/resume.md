@@ -10,6 +10,7 @@ Use this workflow to initialize a new conversation window with the correct proje
    - `view_file .tester/tasks/HANDOFF.md` <!-- Identify the Target Persona and current phase -->
    - `view_file .tester/tasks/progress.md` <!-- Historical context of what's done -->
    - `view_file implementation_plan.md` <!-- The technical spec for the next steps -->
+   - **If `target_persona` is `@ChaosMonkey`**: additionally run `view_file .tester/tasks/CHAOS_BRIEF.md` — this is your mission brief. The CHAOS_BRIEF supersedes the generic HANDOFF objectives for Phase 3.
 
 1.5. **Confirm Identity** *(tripwire — do this before any other action)*:
    - Read the `target_persona:` field from `HANDOFF.md`.
