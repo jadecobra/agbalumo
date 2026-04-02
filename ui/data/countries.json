@@ -1,0 +1,88 @@
+[
+  {
+    "region": "West Africa",
+    "countries": [
+      {"name": "Benin", "flag": "🇧🇯"},
+      {"name": "Burkina Faso", "flag": "🇧🇫"},
+      {"name": "Cabo Verde", "flag": "🇨🇻"},
+      {"name": "Cote d'Ivoire", "flag": "🇨🇮"},
+      {"name": "Gambia", "flag": "🇬🇲"},
+      {"name": "Ghana", "flag": "🇬🇭"},
+      {"name": "Guinea", "flag": "🇬🇳"},
+      {"name": "Guinea-Bissau", "flag": "🇬🇼"},
+      {"name": "Liberia", "flag": "🇱🇷"},
+      {"name": "Mali", "flag": "🇲🇱"},
+      {"name": "Mauritania", "flag": "🇲🇷"},
+      {"name": "Niger", "flag": "🇳🇪"},
+      {"name": "Nigeria", "flag": "🇳🇬"},
+      {"name": "Senegal", "flag": "🇸🇳"},
+      {"name": "Sierra Leone", "flag": "🇸🇱"},
+      {"name": "Togo", "flag": "🇹🇬"}
+    ]
+  },
+  {
+    "region": "North Africa",
+    "countries": [
+      {"name": "Algeria", "flag": "🇩🇿"},
+      {"name": "Egypt", "flag": "🇪🇬"},
+      {"name": "Libya", "flag": "🇱🇾"},
+      {"name": "Morocco", "flag": "🇲🇦"},
+      {"name": "Sudan", "flag": "🇸🇩"},
+      {"name": "Tunisia", "flag": "🇹🇳"},
+      {"name": "Western Sahara", "flag": ""}
+    ]
+  },
+  {
+    "region": "East Africa",
+    "countries": [
+      {"name": "Burundi", "flag": "🇧🇮"},
+      {"name": "Comoros", "flag": "🇰🇲"},
+      {"name": "Djibouti", "flag": "🇩🇯"},
+      {"name": "Eritrea", "flag": "🇪🇷"},
+      {"name": "Ethiopia", "flag": "🇪🇹"},
+      {"name": "Kenya", "flag": "🇰🇪"},
+      {"name": "Madagascar", "flag": "🇲🇬"},
+      {"name": "Malawi", "flag": "🇲🇼"},
+      {"name": "Mauritius", "flag": "🇲🇺"},
+      {"name": "Mozambique", "flag": "🇲🇿"},
+      {"name": "Rwanda", "flag": "🇷🇼"},
+      {"name": "Seychelles", "flag": "🇸🇨"},
+      {"name": "Somalia", "flag": "🇸🇴"},
+      {"name": "South Sudan", "flag": "🇸🇸"},
+      {"name": "Tanzania", "flag": "🇹🇿"},
+      {"name": "Uganda", "flag": "🇺🇬"},
+      {"name": "Zambia", "flag": "🇿🇲"},
+      {"name": "Zimbabwe", "flag": "🇿🇼"}
+    ]
+  },
+  {
+    "region": "Central Africa",
+    "countries": [
+      {"name": "Angola", "flag": "🇦🇴"},
+      {"name": "Cameroon", "flag": "🇨🇲"},
+      {"name": "Central African Republic", "flag": "🇨🇫"},
+      {"name": "Chad", "flag": "🇹🇩"},
+      {"name": "Congo", "flag": "🇨🇬"},
+      {"name": "Democratic Republic of the Congo", "flag": "🇨🇩"},
+      {"name": "Equatorial Guinea", "flag": "🇬🇶"},
+      {"name": "Gabon", "flag": "🇬🇦"},
+      {"name": "Sao Tome and Principe", "flag": "🇸🇹"}
+    ]
+  },
+  {
+    "region": "Southern Africa",
+    "countries": [
+      {"name": "Botswana", "flag": "🇧🇼"},
+      {"name": "Eswatini", "flag": "🇸🇿"},
+      {"name": "Lesotho", "flag": "🇱🇸"},
+      {"name": "Namibia", "flag": "🇳🇦"},
+      {"name": "South Africa", "flag": "🇿🇦"}
+    ]
+  },
+  {
+    "region": "Other",
+    "countries": [
+      {"name": "Other", "flag": "🌍"}
+    ]
+  }
+]

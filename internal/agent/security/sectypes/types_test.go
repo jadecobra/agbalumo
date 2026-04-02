@@ -36,29 +36,29 @@ func TestDeduplicateViolations(t *testing.T) {
 
 func TestIsUnsafeString(t *testing.T) {
 	fset := token.NewFileSet()
-	
+
 	t.Run("SafeLiteral", func(t *testing.T) {
 		expr, _ := parser.ParseExpr("\"fixed\"")
 		assert.False(t, IsUnsafeString(expr))
 	})
-	
+
 	t.Run("UnsafeConcat", func(t *testing.T) {
 		// Go strings like `abc` + "def" are BinaryExpr
 		expr, _ := parser.ParseExpr("`abc` + \"def\"")
 		assert.True(t, IsUnsafeString(expr))
 	})
-	
+
 	t.Run("UnsafeSprintf", func(t *testing.T) {
 		expr, _ := parser.ParseExpr("fmt.Sprintf(\"SELECT * FROM %s\", table)")
 		assert.True(t, IsUnsafeString(expr))
 	})
-	
+
 	t.Run("UnsafeVar", func(t *testing.T) {
 		expr, _ := parser.ParseExpr("query")
 		assert.True(t, IsUnsafeString(expr))
 	})
 
-    _ = fset
+	_ = fset
 }
 
 func TestIsIgnored(t *testing.T) {
@@ -73,7 +73,7 @@ func TestIsIgnored(t *testing.T) {
 		// Try a simpler way to trigger #nosec
 		src := "package p\n// #nosec - test rationale\nfunc main() {}"
 		f, _ := parser.ParseFile(fset, "test.go", src, parser.ParseComments)
-		
+
 		var node ast.Node
 		for _, d := range f.Decls {
 			if fn, ok := d.(*ast.FuncDecl); ok && fn.Name.Name == "main" {
@@ -81,9 +81,9 @@ func TestIsIgnored(t *testing.T) {
 				break
 			}
 		}
-		
+
 		assert.True(t, IsIgnored(node, f, fset))
-		
+
 		src2 := "package p\nfunc main() {}"
 		f2, _ := parser.ParseFile(fset, "test2.go", src2, parser.ParseComments)
 		node2 := f2.Decls[0]

@@ -32,7 +32,7 @@ func TestTemplateRenderer_Funcs(t *testing.T) {
 	t.Run("isNew", func(t *testing.T) {
 		tmplContent := `{{ if isNew .CreatedAt }}new{{ else }}old{{ end }}`
 		renderer := setupRenderer(t, tempDir, "isnew.html", tmplContent)
-		
+
 		buf := new(bytes.Buffer)
 		renderer.Render(buf, "isnew.html", map[string]interface{}{"CreatedAt": time.Now()}, c)
 		if !bytes.Contains(buf.Bytes(), []byte("new")) {
@@ -47,6 +47,30 @@ func TestTemplateRenderer_Funcs(t *testing.T) {
 		renderer.Render(buf, "tojson.html", map[string]interface{}{"name": "test"}, c)
 		if !strings.Contains(buf.String(), `"name":"test"`) {
 			t.Errorf("Expected JSON, got %s", buf.String())
+		}
+	})
+
+	t.Run("displayCity", func(t *testing.T) {
+		tmplContent := `City: {{ displayCity .City .Address }}`
+		renderer := setupRenderer(t, tempDir, "city.html", tmplContent)
+
+		tests := []struct {
+			City    string
+			Address string
+			Want    string
+		}{
+			{"Lagos", "", "Lagos"},
+			{"", "123 St, Accra, Ghana", "Accra"},
+			{"", "123 St", ""},
+			{"", "", ""},
+		}
+
+		for _, tt := range tests {
+			buf := new(bytes.Buffer)
+			renderer.Render(buf, "city.html", map[string]interface{}{"City": tt.City, "Address": tt.Address}, c)
+			if !strings.Contains(buf.String(), "City: "+tt.Want) {
+				t.Errorf("displayCity(%q, %q) = %q, want %q", tt.City, tt.Address, buf.String(), tt.Want)
+			}
 		}
 	})
 }

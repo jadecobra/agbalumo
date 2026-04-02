@@ -5,6 +5,8 @@ import (
 	"errors"
 	"html/template"
 	"io"
+	"log/slog"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -12,9 +14,22 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// Country represents a country with a name and flag emoji.
+type Country struct {
+	Name string `json:"name"`
+	Flag string `json:"flag"`
+}
+
+// Region represents a geographical region containing countries.
+type Region struct {
+	Region    string    `json:"region"`
+	Countries []Country `json:"countries"`
+}
+
 // TemplateRenderer is a custom html/template renderer for Echo framework
 type TemplateRenderer struct {
-	templates map[string]*template.Template
+	templates      map[string]*template.Template
+	CountryRegions []Region
 }
 
 // NewTemplateRenderer creates a new instance of TemplateRenderer with parsed templates
@@ -33,16 +48,32 @@ func NewTemplateRenderer(patterns ...string) (*TemplateRenderer, error) {
 	}
 
 	layoutFiles, partialFiles, pageFiles := categorizeTemplateFiles(allFiles)
+
+	renderer := &TemplateRenderer{}
+	if err := renderer.loadCountryData(); err != nil {
+		slog.Warn("Failed to load country data", "error", err)
+	}
+
 	funcMap := BuildGlobalFuncMap()
+	funcMap["Countries"] = func() []Region {
+		return renderer.CountryRegions
+	}
 
 	templates, err := compileTemplates(layoutFiles, partialFiles, pageFiles, funcMap)
 	if err != nil {
 		return nil, err
 	}
 
-	return &TemplateRenderer{
-		templates: templates,
-	}, nil
+	renderer.templates = templates
+	return renderer, nil
+}
+
+func (t *TemplateRenderer) loadCountryData() error {
+	data, err := os.ReadFile("ui/data/countries.json")
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(data, &t.CountryRegions)
 }
 
 func categorizeTemplateFiles(files []string) (layouts, partials, pages []string) {
@@ -104,6 +135,9 @@ func BuildGlobalFuncMap() template.FuncMap {
 			// #nosec G203 - Intentional template escape for trusted content
 			return template.HTML(s)
 		},
+		"Countries": func() []Region {
+			return nil
+		},
 		"displayCity": func(city, address string) string {
 			if city != "" {
 				return city
@@ -159,6 +193,7 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 	if viewContext, isMap := data.(map[string]interface{}); isMap {
 		token := c.Get("csrf")
 		viewContext["CSRF"] = token
+		viewContext["CountryRegions"] = t.CountryRegions
 	}
 
 	tmpl, ok := t.templates[name]
