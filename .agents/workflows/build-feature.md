@@ -3,30 +3,48 @@ description: Start the Autonomous AI Developer Pipeline sequence with a new feat
 ---
 When the user types `/build-feature <idea>`, orchestrate the development process strictly using `.agents/config.yaml` personas and `.agents/personas/`.
 
+## Pipeline State Machine
+
+```
+@ProductOwner → @SystemsArchitect → [Approved] → @SDET-Tester
+@SDET-Tester → [RED Pass] → @BackendEngineer
+@BackendEngineer → [GREEN Pass] → @ChiefCritic (⚠️ Pro model required)
+@ChiefCritic → [P0/P1/P2 Defects] → @SDET-Tester
+@ChiefCritic → [Clean / P3 only] → @BackendEngineer (REFACTOR)
+@BackendEngineer → [REFACTOR Pass] → @SecurityEngineer
+@SecurityEngineer → [P0/P1/P2 Defects] → @SDET-Tester
+@SecurityEngineer → [Clean] → @ChaosMonkey
+@ChaosMonkey → [Brittle] → @SDET-Tester
+@ChaosMonkey → [Resilient] → ✅ Done
+```
+
 ### Phase 1: Architecture & Planning (Human Intervention Required)
 
-1. Act as the **ProductOwner** and execute the `design_architecture` skill using the `<idea>` to define the user value, spec, and "Why".
-2. Shift context and act as the **SystemsArchitect** to review the spec for technical feasibility and refine the architecture. 
-   *(Wait for the user to explicitly approve the spec. If the user provides feedback or adds comments directly to the Markdown file, act as the ProductOwner/SystemsArchitect again to re-read and revise the document. Loop this step until they approve).*
+1. Act as the **@ProductOwner** and execute the `design_architecture` skill using the `<idea>` to define the user value, spec, and "Why".
+2. Shift context and act as the **@SystemsArchitect** to review the spec for technical feasibility and refine the architecture.
+   *(Wait for the user to explicitly approve the spec. Loop until approved.)*
+3. **@ProductOwner** authors two output files before autonomous execution begins:
+   - `implementation_plan.md` — technical spec for Phase 2 personas.
+   - `.tester/tasks/CHAOS_BRIEF.md` — Phase 3 chaos brief for **@ChaosMonkey**. Fill in the sabotage targets specific to this feature using the template at `.tester/tasks/CHAOS_BRIEF.md`.
 
 ### Phase 2: Autonomous Execution Loop (Multi-Conversation)
 
 > [!IMPORTANT]
-> To minimize context cost and hallucination risk, each step below MUST be performed in a **NEW conversation**. 
-> After completing your turn, generate a handoff for the next persona and instruct the user to start a new chat.
+> Each step MUST run in a **NEW conversation window** to minimize context cost and hallucination risk.
+> After completing your turn, generate a handoff and instruct the user to open a new chat.
 
-1. **SDET-Tester**: Execute the `make_it_fail` skill to generate RED test cases.
+1. **@SDET-Tester**: Execute the `make_it_fail` skill to generate RED test cases.
    - *Handoff*: `harness handoff BackendEngineer`
-2. **BackendEngineer**: Run `/resume`, then execute `make_it_pass` to pass the tests.
+2. **@BackendEngineer**: Run `/resume`, then execute `make_it_pass` to pass the tests.
    - *Handoff*: `harness handoff ChiefCritic`
-3. **ChiefCritic**: Run `/resume`, then execute `critique_product`. If flaws are found, handoff back to `BackendEngineer`.
-   - *Handoff*: `harness handoff BackendEngineer` or `harness handoff SecurityEngineer`
-4. **BackendEngineer**: Run `/resume`, then execute `make_it_better`.
+3. **@ChiefCritic** *(⚠️ requires Pro model — Flash audit output is insufficient)*: Run `/resume`, then execute `critique_product`. Apply severity threshold from `defect_policy`. Only P0/P1/P2 defects trigger kick-back.
+   - *Handoff*: `harness handoff BackendEngineer` (if P0/P1/P2 found) or `harness handoff BackendEngineer` (REFACTOR if clean)
+4. **@BackendEngineer**: Run `/resume`, then execute `make_it_better`.
    - *Handoff*: `harness handoff SecurityEngineer`
-5. **SecurityEngineer**: Run `/resume`, then execute `audit_security`.
-   - *Finalization*: `harness handoff SystemsArchitect`
+5. **@SecurityEngineer**: Run `/resume`, then execute `audit_security`. Apply severity threshold from `defect_policy`. Only P0/P1/P2 findings trigger kick-back.
+   - *Finalization*: `harness handoff ChaosMonkey`
 
 ### Phase 3: Resilience & Chaos (Human Intervention Required)
 
-8. **Chaos Stress Test**: Shift context to the **ChaosMonkey** and execute a "Hard Mode" challenge. Intentionally inject a state failure or test sabotage. If the **SystemsArchitect** cannot restore the environment or the **SDET-Tester** fails to detect the sabotage, return to Step 6.
-9. Final Verification and Squad Sync.
+6. **@ChaosMonkey**: Open a NEW chat. Run `/resume`. Read `.tester/tasks/CHAOS_BRIEF.md` (your mission brief). Execute sabotage targets in order. Report against success/failure conditions in the brief. **Never write fixes** — kick back to @SDET-Tester on failure.
+7. **Final Verification**: @SystemsArchitect confirms all gates are green: `harness status --text`. Run `/janitor` if workspace entropy is high.
