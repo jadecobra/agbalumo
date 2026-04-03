@@ -27,3 +27,10 @@ Git is our only state tracker. You must execute atomic commits automatically aft
 * **When Refactoring**: Before modifying any logic, run existing tests. If coverage is low, write baseline safety tests first to capture current behavior.
 * **Contract Stability**: You are forbidden from breaking external API or CLI contracts during bugs or refactors unless explicitly authorized. You MUST autonomously verify this by running `npx swagger-cli bundle docs/openapi.yaml` and the project's standalone verification tool (`go run cmd/verify/main.go api-spec`) to prove no contracts were broken.
 * **No Paperwork**: Do not generate human-readable progress files (e.g., `progress.md`, `state.json`) unless explicitly asked to draft a public-facing README. Your code and your Git commits are your proof of work.
+
+## ARCHITECTURAL MEMORY (ADRs)
+
+* When major architectural decisions, simplifications, or tradeoffs are agreed upon (especially during Phase 1 of `/build-feature`), you MUST document them.
+* Write a brief Architecture Decision Record (ADR) to `docs/adr/YYYY-MM-DD-title.md`.
+* Use the template located at `docs/adr/template.md` to ensure consistent formatting (Context, Decision, Consequences).
+* Commit this file alongside the feature code. Do NOT use external memory services.

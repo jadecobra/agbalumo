@@ -78,3 +78,10 @@ Delete a listing.
 ```bash
 agbalumo listing delete [id]
 ```
+##### backfill-cities
+
+Backfill missing city data for listings using geocoding.
+
+```bash
+agbalumo listing backfill-cities
+```

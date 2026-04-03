@@ -160,8 +160,23 @@ var coverageCmd = &cobra.Command{
 	},
 }
 
+var auditCmd = &cobra.Command{
+	Use:   "audit",
+	Short: "Run comprehensive security and health audit",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cfg := maintenance.AuditConfig{
+			TargetURL: os.Getenv("APP_URL"),
+			RootDir:   ".",
+		}
+		if cfg.TargetURL == "" {
+			cfg.TargetURL = "https://localhost:8443"
+		}
+		return maintenance.RunSecurityAudit(cfg)
+	},
+}
+
 func main() {
-	rootCmd.AddCommand(apiSpecCmd, templateDriftCmd, costCmd, coverageCmd)
+	rootCmd.AddCommand(apiSpecCmd, templateDriftCmd, costCmd, coverageCmd, auditCmd)
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}

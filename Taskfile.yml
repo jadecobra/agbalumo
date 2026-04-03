@@ -276,7 +276,7 @@ tasks:
     deps:
       - task: vulncheck:install
     cmds:
-      - PATH="{{.GOBIN}}:$PATH" go run cmd/security-audit/main.go
+      - go run cmd/verify/main.go audit
 
   watch:
     desc: Watch Go files and run fast checks + tests on change

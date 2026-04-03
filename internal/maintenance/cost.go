@@ -65,7 +65,8 @@ func CalculateContextCost(dir string) (*CostReport, error) {
 			return nil
 		}
 
-		content, err := os.ReadFile(path)
+		// G304: Maintenance utility reads source files for token counting
+		content, err := os.ReadFile(path) //nolint:gosec // maintenance utility
 		if err != nil {
 			return nil
 		}

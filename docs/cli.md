@@ -8,6 +8,12 @@ The `agbalumo` CLI is a comprehensive tool for managing the directory platform, 
   - Create, update, and manage business listings.
 - **[Admin Operations](cli/admin.md)**
   - Approve claims, manage users, and site configuration.
+- **[Verification & Maintenance](cli/verify.md)**
+  - Documentation drift, template checking, and coverage gates.
+- **[Category Management](cli/category.md)**
+  - Add and list custom categories.
+- **[System Maintenance](cli/maintenance.md)**
+  - Serve, Seed, Benchmark, Stress, and logs.
 
 ## Global Flags
 
