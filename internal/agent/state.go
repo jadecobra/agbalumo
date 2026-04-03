@@ -29,6 +29,7 @@ const (
 	GateTemplateDrift       = "template-drift"
 	GateSecurityStatic      = "security-static"
 	GateVibeCheck           = "vibe-check"
+	GateRemoteCi            = "remote-ci"
 )
 
 // Standard workflow types
@@ -49,6 +50,7 @@ type Gates struct {
 	TemplateDrift       GateStatus `json:"template-drift"`
 	SecurityStatic      GateStatus `json:"security-static"`
 	VibeCheck           GateStatus `json:"vibe-check"`
+	RemoteCi            GateStatus `json:"remote-ci"`
 }
 
 // State represents the contents of .agents/state.json
@@ -121,6 +123,18 @@ func SaveState(path string, state *State) error {
 	b = append(b, '\n')
 
 	return util.SafeWriteFile(path, b)
+}
+
+// IsVerified returns true if all core automated quality gates have passed.
+// This is used to bypass redundant CI checks in git hooks.
+func (s *State) IsVerified() bool {
+	return s.Gates.RedTest == GatePassed &&
+		s.Gates.ApiSpec == GatePassed &&
+		s.Gates.Implementation == GatePassed &&
+		s.Gates.Lint == GatePassed &&
+		s.Gates.Coverage == GatePassed &&
+		s.Gates.SecurityStatic == GatePassed &&
+		s.Gates.TemplateDrift == GatePassed
 }
 
 // IsNotExist is a helper utility mapped to util.SafeIsNotExist

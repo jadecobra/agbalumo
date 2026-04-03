@@ -174,6 +174,7 @@ func NewRootCmd() *cobra.Command {
 	rootCmd.AddCommand(ChaosCmd())
 	rootCmd.AddCommand(HandoffCmd())
 	rootCmd.AddCommand(HelloCmd())
+	rootCmd.AddCommand(CheckVerifiedCmd())
 
 	return rootCmd
 }

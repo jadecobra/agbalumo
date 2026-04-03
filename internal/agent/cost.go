@@ -171,3 +171,4 @@ func CalculateContextCost(dir string) (*CostReport, error) {
 
 	return report, nil
 }
+// Fast-path verification final attempt
