@@ -28,8 +28,8 @@ func TestCIVersionsNode24(t *testing.T) {
 		{file: filepath.Join(workflowsDir, "ci.yml"), action: "actions/checkout", minVers: "v6.0.2", sha: "de0fac2e4500dabe0009e67214ff5f5447ce83dd"},
 		{file: filepath.Join(workflowsDir, "ci.yml"), action: "actions/setup-go", minVers: "v6.4.0", sha: "4a3601121dd01d1626a1e23e37211e3254c1c06c"},
 		{file: filepath.Join(workflowsDir, "ci.yml"), action: "golangci/golangci-lint-action", minVers: "v9.2.0", sha: "1e7e51e771db61008b38414a730f564565cf7c20"},
-		{file: filepath.Join(workflowsDir, "ci.yml"), action: "actions/upload-artifact", minVers: "v6.0.0", sha: "b7c566a772e6b6bfb58ed0dc250532a479d7789f"},
-		{file: filepath.Join(workflowsDir, "ci.yml"), action: "actions/setup-node", minVers: "v6.3.0", sha: "53b83949f2b8417936a58334460f7815124036e5"},
+		{file: filepath.Join(workflowsDir, "ci.yml"), action: "actions/upload-artifact", minVers: "v7.0.0", sha: "bbbca2ddaa5d8feaa63e36b76fdaad77386f024f"},
+		{file: filepath.Join(workflowsDir, "ci.yml"), action: "actions/setup-node", minVers: "v6.3.0", sha: "53b83947a5a98c8d113130e565377fae1a50d02f"},
 		{file: filepath.Join(workflowsDir, "ci.yml"), action: "docker/setup-buildx-action", minVers: "v4.0.0", sha: "4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd"},
 		{file: filepath.Join(workflowsDir, "ci.yml"), action: "docker/build-push-action", minVers: "v7.0.0", sha: "d08e5c354a6adb9ed34480a06d141179aa583294"},
 		{file: filepath.Join(workflowsDir, "ci.yml"), action: "aquasecurity/trivy-action", minVers: "v0.35.0", sha: "57a97c7e7821a5776cebc9bb87c984fa69cba8f1", critical: true},
@@ -37,7 +37,7 @@ func TestCIVersionsNode24(t *testing.T) {
 
 		// Custom Action
 		{file: filepath.Join(customActionsDir, "setup-task-with-cache/action.yml"), action: "actions/setup-go", minVers: "v6.4.0", sha: "4a3601121dd01d1626a1e23e37211e3254c1c06c"},
-		{file: filepath.Join(customActionsDir, "setup-task-with-cache/action.yml"), action: "actions/cache", minVers: "v5.0.4", sha: "0ad5b37d409490538a1e79ad0619598a221f58ef"},
+		{file: filepath.Join(customActionsDir, "setup-task-with-cache/action.yml"), action: "actions/cache", minVers: "v5.0.4", sha: "668228422ae6a00e4ad889ee87cd7109ec5666a7"},
 		{file: filepath.Join(customActionsDir, "setup-task-with-cache/action.yml"), action: "arduino/setup-task", minVers: "v2.0.0", sha: "b91d5d2c96a56797b48ac1e0e89220bf64044611"},
 	}
 
