@@ -27,6 +27,7 @@ func TestStateSave(t *testing.T) {
 				BrowserVerification: agent.GatePending,
 				TemplateDrift:       agent.GatePending,
 				SecurityStatic:      agent.GatePending,
+				VibeCheck:           agent.GatePending,
 			},
 			UpdatedAt: time.Date(2026, 3, 16, 12, 0, 0, 0, time.UTC),
 		}

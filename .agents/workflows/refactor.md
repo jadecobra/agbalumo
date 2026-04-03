@@ -13,9 +13,9 @@ description: Workflow for refactoring internal components without changing exter
 Before any code is modified, initialize the state machine to track gate progress.
 
 // turbo
-1. Run `./scripts/agent-exec.sh workflow init <refactor-description> refactor`
+1. Run `./scripts/agent-exec.sh init <refactor-description> refactor`
 // turbo
-2. Run `./scripts/agent-exec.sh workflow set-phase RED`
+2. Run `./scripts/agent-exec.sh set-phase RED`
 
 ---
 
@@ -33,17 +33,17 @@ Define the scope and ensure the current codebase is stable.
   go test -v ./internal/package_name/...
   ```
 - **Gate: `red-test`**
-  - **PASS**: Existing tests pass, or new "safety" tests fail as expected (if written to prove a bug or missing coverage).
-  - **Note**: In a pure refactor, you might manually mark this as PASS if existing tests are sufficient.
-  - `DEBUG`: `./scripts/agent-gate.sh red-test`
+  - **PASS**: Existing tests pass, or new "safety" tests fail as expected.
+  - **Note**: In a pure refactor, you may manually mark this as PASS if existing tests are sufficient.
+  - `DEBUG`: `./scripts/agent-exec.sh verify red-test`
 
 ### 1b. Verify Contract Stability
 
-> **Persona: [SystemsArchitect](file:///Users/johnnyblase/gym/agbalumo/.agents/personas/systems_architect.yaml)** — Ensure the refactor doesn't accidentally change the API or CLI (One-Way Door).
+> **Persona: SystemsArchitect** — Ensure the refactor doesn't accidentally change the API or CLI (One-Way Door).
 
 - **Gate: `api-spec`**
-  - **PASS**: `./scripts/agent-gate.sh api-spec` passes (no drift in `docs/api.md` or CLI contracts).
-  - **FAIL**: Drift detected. You MUST either revert the contract change or justify why it's necessary to the SystemsArchitect and ProductOwner (which might turn this into a `feature` workflow).
+  - **PASS**: `./scripts/agent-exec.sh verify api-spec` passes.
+  - **FAIL**: Drift detected. Revert contract change or justify to the SystemsArchitect and ProductOwner.
 
 ---
 
@@ -53,7 +53,7 @@ Modify the code while keeping tests green.
 
 ### 2a. Implement Refactor (GREEN)
 
-> **Persona: Backend** — Clean up code, improve performance, or fix technical debt. Maintain functional equivalence.
+> **Persona: Backend** — Clean up code, improve performance, or fix technical debt.
 
 - *Run*:
   ```bash
@@ -78,6 +78,7 @@ Modify the code while keeping tests green.
   ```
 - **Gate: `lint`**
 - **Gate: `coverage`** (Coverage MUST NOT drop).
+- **Advisory: `context-cost`** (Target TokenRMS < 110, monitor only).
 
 ---
 
@@ -89,19 +90,19 @@ Modify the code while keeping tests green.
   ./scripts/verify_restart.sh
   ```
 @[.agents/rules/browser-url.md]
-- **Gate: `browser-verification`** (Optional, but recommended if UI logic was touched).
+- **Gate: `browser-verification`**
 
 ### 3b. Chaos Contract Audit
-> **Persona: [ChaosMonkey](file:///Users/johnnyblase/gym/agbalumo/.agents/personas/chaos_monkey.yaml)** — Attempt to silently modify a contract (API/CLI) without updating documentation. Verify that the `api-spec` gate correctly identifies and blocks the change.
+> **Persona: ChaosMonkey** — Attempt to silently modify a contract (API/CLI) without updating documentation. Verify that the `api-spec` gate correctly identifies and blocks the change.
 
 ---
 
 ## 6. Final Reset
 
 // turbo
-1. Run `./scripts/agent-exec.sh workflow set-phase IDLE`
+1. Run `./scripts/agent-exec.sh set-phase IDLE`
 // turbo
-2. Run `./scripts/agent-exec.sh workflow init none`
+2. Run `./scripts/agent-exec.sh init none`
 
 ---
 
@@ -113,6 +114,7 @@ Modify the code while keeping tests green.
 - [ ] `go test -race ./...` passes.
 - [ ] **Gate: `lint`** - `task pre-commit` passed.
 - [ ] **Gate: `coverage`** - No coverage drop.
+- [ ] **Context-Cost Check** - TokenRMS awareness verified.
 - [ ] **Gate: `chaos-verify`** - Refactor survived fault injection.
 - [ ] `task.md` updated.
 - [ ] **AUTO-COMMIT**: Execute git commit automatically with a short, imperative message (e.g., "Refactor: extract helper function"). DO NOT wait for the user to explicitly tell you to commit.

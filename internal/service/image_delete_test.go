@@ -1,4 +1,4 @@
-package service_test
+package service
 
 import (
 	"context"
@@ -6,13 +6,12 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/service"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestLocalImageService_DeleteImage(t *testing.T) {
 	tempDir := t.TempDir()
-	svc := service.NewLocalImageService(tempDir)
+	svc := NewLocalImageService(tempDir)
 
 	listingID := "test-delete"
 	filename := listingID + ".jpg"
@@ -32,7 +31,7 @@ func TestLocalImageService_DeleteImage(t *testing.T) {
 }
 
 func TestLocalImageService_DeleteImage_EdgeCases(t *testing.T) {
-	svc := service.NewLocalImageService(t.TempDir())
+	svc := NewLocalImageService(t.TempDir())
 
 	err := svc.DeleteImage(context.Background(), "/static/uploads/../../etc/passwd")
 	assert.NoError(t, err)

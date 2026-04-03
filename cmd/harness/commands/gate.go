@@ -26,7 +26,7 @@ func GateCmd() *cobra.Command {
 			case "PENDING":
 				status = agent.GatePending
 			case "PASS", "PASSED":
-				if gateID == agent.GateRedTest || gateID == agent.GateCoverage || gateID == agent.GateLint || gateID == agent.GateImplementation || gateID == agent.GateApiSpec {
+				if gateID == agent.GateRedTest || gateID == agent.GateCoverage || gateID == agent.GateLint || gateID == agent.GateImplementation || gateID == agent.GateApiSpec || gateID == agent.GateVibeCheck {
 					fmt.Fprintf(os.Stderr, "❌ Error: The '%s' gate cannot be manually bypassed.\n", gateID)
 					if f, err := os.OpenFile(".tester/tasks/bypass_audit.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600); err == nil {
 						_, _ = fmt.Fprintf(f, "%s | BLOCKED | gate=%s | attempted=%s | user=agent\n", time.Now().UTC().Format(time.RFC3339), gateID, statusStr)
@@ -57,6 +57,8 @@ func GateCmd() *cobra.Command {
 				state.Gates.Coverage = status
 			case agent.GateBrowserVerification:
 				state.Gates.BrowserVerification = status
+			case agent.GateVibeCheck:
+				state.Gates.VibeCheck = status
 			default:
 				return fmt.Errorf("unknown gate '%s'", gateID)
 			}

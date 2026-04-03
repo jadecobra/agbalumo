@@ -9,17 +9,21 @@ import (
 )
 
 type BackgroundService struct {
-	Repo domain.ListingExpirer
+	Repo     domain.ListingExpirer
+	Interval time.Duration
 }
 
 func NewBackgroundService(repo domain.ListingExpirer) *BackgroundService {
-	return &BackgroundService{Repo: repo}
+	return &BackgroundService{
+		Repo:     repo,
+		Interval: 1 * time.Hour, // Default
+	}
 }
 
 // StartTicker runs the expiration logic periodically.
 // It blocks, so it should be run in a goroutine.
 func (s *BackgroundService) StartTicker(ctx context.Context) {
-	ticker := time.NewTicker(1 * time.Hour) // Run every hour
+	ticker := time.NewTicker(s.Interval)
 	defer ticker.Stop()
 
 	slog.Info("[Background] Service started. Ticking every 1 hour.")

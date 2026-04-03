@@ -1,4 +1,4 @@
-package service_test
+package service
 
 import (
 	"bytes"
@@ -12,12 +12,21 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/service"
 	"github.com/stretchr/testify/assert"
 )
 
 func createValidPNG() []byte {
-	img := image.NewRGBA(image.Rect(0, 0, 10, 10))
+	return createCustomPNG(10, 10)
+}
+
+func createCustomPNG(width, height int) []byte {
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+	// Fill with some noise to make it harder to compress
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			img.Set(x, y, color.RGBA{uint8(x % 256), uint8(y % 256), uint8((x + y) % 256), 255})
+		}
+	}
 	var buf bytes.Buffer
 	_ = png.Encode(&buf, img)
 	return buf.Bytes()
@@ -40,10 +49,10 @@ func createValidGIF() []byte {
 	return buf.Bytes()
 }
 
-func setupTestImageService(t *testing.T, mutators ...func(*service.LocalImageService)) (*service.LocalImageService, string) {
+func setupTestImageService(t *testing.T, mutators ...func(*LocalImageService)) (*LocalImageService, string) {
 	t.Helper()
 	tempDir := t.TempDir()
-	svc := &service.LocalImageService{
+	svc := &LocalImageService{
 		UploadDir:      tempDir,
 		MaxUploadSize:  1024 * 1024,
 		MaxFileSize:    200 * 1024,

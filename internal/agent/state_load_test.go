@@ -23,7 +23,8 @@ func TestStateLoad(t *testing.T) {
     "coverage": "PENDING",
     "browser-verification": "PENDING",
     "template-drift": "PENDING",
-    "security-static": "PENDING"
+    "security-static": "PENDING",
+    "vibe-check": "PENDING"
   },
   "updated_at": "2026-03-15T13:47:32Z",
   "signature": ""

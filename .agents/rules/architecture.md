@@ -1,6 +1,7 @@
 ```
 cmd/           CLI commands (Cobra)
 internal/
+  agent/       High-governance harness, context cost, and security auditors
   config/      Configuration
   domain/      Core types, interfaces, business rules
   handler/     HTTP handlers (Echo)

@@ -2,10 +2,15 @@ package service
 
 import (
 	"context"
+	"encoding/csv"
+	"fmt"
+	"io"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestParseAndImport(t *testing.T) {
@@ -208,44 +213,80 @@ func FuzzParseCategory(f *testing.F) {
 	})
 }
 
-func TestGenerateCSV(t *testing.T) {
+func TestGenerateCSV_Empty(t *testing.T) {
 	svc := NewCSVService()
 	ctx := context.Background()
 
+	reader, err := svc.GenerateCSV(ctx, []domain.Listing{})
+	assert.NoError(t, err)
+
+	csvReader := csv.NewReader(reader)
+	headers, err := csvReader.Read()
+	assert.NoError(t, err)
+	assert.Equal(t, "ID", headers[0])
+
+	_, err = csvReader.Read()
+	assert.Equal(t, io.EOF, err)
+}
+
+func TestGenerateCSV_FullMapping(t *testing.T) {
+	svc := NewCSVService()
+	ctx := context.Background()
+	now := time.Now().Truncate(time.Second)
+
 	listings := []domain.Listing{
 		{
-			ID:           "test-1",
-			Title:        "Listing 1",
-			Type:         domain.Business,
-			Description:  "Desc 1",
-			City:         "Lagos",
-			ContactEmail: "l1@example.com",
-		},
-		{
-			ID:           "test-2",
-			Title:        "Listing 2",
-			Type:         domain.Job,
-			Description:  "Desc 2",
-			Company:      "Tech Co",
-			ContactEmail: "l2@example.com",
+			ID:              "full-1",
+			Title:           "Full Title",
+			Type:            domain.Business,
+			Description:     "Full Desc",
+			City:            "City",
+			Address:         "Addr",
+			OwnerOrigin:     "Origin",
+			ContactEmail:    "e@e.com",
+			ContactPhone:    "123",
+			ContactWhatsApp: "456",
+			WebsiteURL:      "w.com",
+			CreatedAt:       now,
+			Status:          domain.ListingStatusApproved,
+			IsActive:        true,
+			Featured:        true,
+			Company:         "Co",
+			PayRange:        "1-2",
+			Skills:          "Go",
+			JobApplyURL:     "j.com",
+			JobStartDate:    now,
+			EventStart:      now,
+			EventEnd:        now.Add(time.Hour),
+			Deadline:        now.Add(24 * time.Hour),
 		},
 	}
 
 	reader, err := svc.GenerateCSV(ctx, listings)
-	if err != nil {
-		t.Fatalf("GenerateCSV failed: %v", err)
-	}
+	assert.NoError(t, err)
 
-	// Read and verify
-	importSvc := NewCSVService()
-	// Since GenerateCSV is a stream, we can read it all
-	// We'll verify it by counting lines or checking content
-	importResult, err := importSvc.ParseAndImport(ctx, reader, setupTestRepo(t))
-	if err != nil {
-		t.Fatalf("Failed to parse generated CSV: %v", err)
-	}
+	csvReader := csv.NewReader(reader)
+	_, _ = csvReader.Read() // Skip header
+	row, err := csvReader.Read()
+	assert.NoError(t, err)
+	assert.Equal(t, "full-1", row[0])
+	assert.Equal(t, "Full Title", row[1])
+	assert.Equal(t, "Business", row[2])
+	assert.Equal(t, "Full Desc", row[3])
+}
 
-	if importResult.SuccessCount != len(listings) {
-		t.Errorf("Expected %d successful imports, got %d. Errors: %v", len(listings), importResult.SuccessCount, importResult.Errors)
-	}
+type errReader struct{}
+
+func (e *errReader) Read(p []byte) (n int, err error) {
+	return 0, fmt.Errorf("forced read error")
+}
+
+func TestParseAndImport_ReadError(t *testing.T) {
+	svc := NewCSVService()
+	ctx := context.Background()
+	repo := setupTestRepo(t)
+
+	_, err := svc.ParseAndImport(ctx, &errReader{}, repo)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "failed to read CSV header")
 }

@@ -346,6 +346,11 @@ tasks:
     cmds:
       - bash scripts/agent-drift-check.sh
 
+  ci:verify-shas:
+    desc: Verify all GitHub Action SHAs are pinned
+    cmds:
+      - bash scripts/ci/verify-action-shas.sh
+
   ci:build:
     desc: Run full safety build
     cmds:
@@ -361,6 +366,7 @@ tasks:
       - task: ci:api-drift
       - task: ci:template-drift
       - task: ci:agent-drift
+      - task: ci:verify-shas
       - task: security-audit
 
   pre-commit:

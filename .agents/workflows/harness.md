@@ -1,6 +1,7 @@
 ---
 description: Comprehensive command reference and protocol guide for the Agbalumo execution harness.
 ---
+
 Use this workflow to understand how to interact with the project's strictly governed development harness (`scripts/agent-exec.sh`).
 
 ### Core Commands
@@ -29,12 +30,18 @@ Every command should be run via the wrapper script to ensure correct environment
        *   `api-spec`: Check for API/Contract drift.
        *   `implementation`: Run implementation tests (Logic).
        *   `lint`: Run `golangci-lint`.
-       *   `coverage`: Verify test coverage thresholds.
+       *   `coverage`: Verify test coverage thresholds (Advisory).
        *   `template-drift`: Ensure HTML templates match domain models.
        *   `security-static`: Run AST-based security scanners.
        *   `browser-verification`: Manually mark UI verification as passed.
 
-4. **Check Status**:
+4. **Report Context Cost**:
+   ```bash
+   ./scripts/agent-exec.sh cost
+   ```
+   *   Reports TokenRMS, TotalTokens, and ContextWindowPct. (Advisory awareness).
+
+5. **Check Status**:
    ```bash
    ./scripts/agent-exec.sh status
    ```

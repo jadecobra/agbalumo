@@ -46,7 +46,7 @@ func VerifyCmd() *cobra.Command {
 				if state.Gates.RedTest != agent.GatePassed || state.Gates.ApiSpec != agent.GatePassed {
 					return fmt.Errorf("implementation requires red-test and api-spec to be PASS. 💡 HINT: If this is a UI layer change, use './scripts/agent-exec.sh verify red-test ui-bypass'. 💡 HINT: Note that you MUST still pass the lint gate and verify the UI using the browser_subagent")
 				}
-			case agent.GateLint, agent.GateCoverage, agent.GateBrowserVerification:
+			case agent.GateLint, agent.GateCoverage, agent.GateBrowserVerification, agent.GateVibeCheck:
 				if state.Gates.Implementation != agent.GatePassed {
 					return fmt.Errorf("%s requires implementation to be PASS", gateID)
 				}
@@ -81,6 +81,8 @@ func VerifyCmd() *cobra.Command {
 					fmt.Println("❌ Gate FAIL: browser-verification must be manually passed or verified via browser subagent.")
 					success = false
 				}
+			case agent.GateVibeCheck:
+				success = agent.VerifyVibeCheck()
 			default:
 				return fmt.Errorf("unknown gate_id '%s'", gateID)
 			}
@@ -117,6 +119,8 @@ func VerifyCmd() *cobra.Command {
 				state.Gates.TemplateDrift = status
 			case agent.GateSecurityStatic:
 				state.Gates.SecurityStatic = status
+			case agent.GateVibeCheck:
+				state.Gates.VibeCheck = status
 			case agent.GateBrowserVerification:
 				// Already handled above
 			}

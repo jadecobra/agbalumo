@@ -1,31 +1,31 @@
-# Chaos Brief - Context Cost Optimization
+# Chaos Brief - The Ada Context (60-Second Quality)
 
 ## Mission Brief
-As **ChaosMonkey**, your goal is to sabotage the context cost optimization efforts to ensure the squad's monitoring and refactoring are resilient against "cost drift" and "ghost files". 
+As **ChaosMonkey**, your goal is to sabotage the feature build and infrastructure to ensure its resilience. Specifically, you must target the CI/CD pipeline and the build process to ensure that my fixes are not just "fixing the immediate error" but also robust against future accidental regressions.
 
 ## Sabotage Targets
 
-### 1. The Ghost File Injection
-- **Target**: `CalculateContextCost` logic in `internal/agent/cost.go`.
-- **Action**: Create a large dummy file in a directory that *should* be ignored (e.g., `.agents/temp/ghost.md` with 5000 lines) BUT ensure it's actually counted due to a logic flaw you introduce, OR find a way to make it look like a valid file in a non-ignored dir. 
-- **Goal**: Artificially inflate the RMS to prove the monitoring is brittle.
+### 1. The Build-Breaker
+- **Target**: `.github/workflows/ci.yml` or `Taskfile.yml`.
+- **Action**: Inject an invalid go directive or a syntax error in the workflow.
+- **Goal**: Verify that the squad's monitoring and your own verification identifies the regression and rejects the build immediately.
 
-### 2. The Multi-File Circular Fragility
-- **Target**: The split `internal/agent/security.go` files.
-- **Action**: Introduce a circular dependency between `security_web.go` and `security_sql.go` during the refactoring phase. 
-- **Goal**: Break the build and ensure the `BackendEngineer`'s modularization is sound.
+### 2. The Dependency Saboteur
+- **Target**: `go.mod` or `package.json`.
+- **Action**: Force an incompatible version of a dependency (e.g., `golang.org/x/image` version downgrade) that triggers a build failure in CI.
+- **Goal**: Ensure the "Dependabot" failures from the logs can be detected and remediated by the squad's SDET.
 
-### 3. The Exemption Bypass
-- **Target**: The `ignoredFiles` map in `cost.go`.
-- **Action**: Rename `critique_report.md` to `critique_report_legacy.md` and see if the cost tool still ignores it (it shouldn't if it's hardcoded).
-- **Goal**: Test the robustness of the exclusion rules.
+### 3. The Action-Sha Bypass
+- **Target**: Pinned SHAs in `ci.yml`.
+- **Action**: Change a pinned SHA for a core action to an older but "valid" version that introduces a security vulnerability.
+- **Goal**: Check if the SecurityEngineer persona flags the downgraded/insecure action SHA.
 
-## Success Conditions (Resilience)
-- The squad detects the "Ghost File" inflation and adjusts the `ignoredDirs` or `ignoredFiles` logic.
-- The build failure from circular dependencies is caught by `task lint` / `task test` before phase transition.
-- The cost report correctly identifies the "new" legacy report if it wasn't explicitly excluded by pattern rather than name.
+---
+*Success Conditions (Resilience)*: 
+- Build fails and the harness correctly identifies the error location.
+- SDET-Tester can reproduce the failure and pass it back for repair.
+- Security scan identifies insecure/stale action versions.
 
-## Failure Conditions (Brittle)
-- The RMS cost reported is wildly inaccurate and the squad doesn't notice.
-- Circular dependencies are merged into master.
-- Large reports continue to bloat the context without the squad's awareness.
+*Failure Conditions (Brittle)*:
+- Build passes locally but fails remotely with the same "unable to resolve action" error.
+- Regressions go unnoticed by the verification gates.

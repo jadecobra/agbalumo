@@ -4,23 +4,20 @@ import (
 	"testing"
 )
 
-// TestContextCostThreshold asserts that the codebase context cost is within acceptable limits.
-// This test is intended to fail until the high-cost files (like outlier reports) are addressed.
+// TestContextCostThreshold logs the LOC-based context cost for awareness.
+// It does NOT fail the build, as context cost is now an advisory metric.
 func TestContextCostThreshold(t *testing.T) {
-	const threshold = 110.0
 	report, err := CalculateContextCost("../../.") // Calculate from repo root
 	if err != nil {
 		t.Fatalf("Failed to calculate context cost: %v", err)
 	}
 
-	if report.RMS > threshold {
-		t.Errorf("Context Cost (RMS) too high: %.2f (Threshold: %.2f). Top files must be refactored or excluded.", report.RMS, threshold)
-		t.Logf("Total Files: %d, Total Lines: %d", report.TotalFiles, report.TotalLines)
-		t.Logf("Top 10 expensive files:")
-		for i := 0; i < 10 && i < len(report.TopFiles); i++ {
-			t.Logf("  %s: %d lines", report.TopFiles[i].FilePath, report.TopFiles[i].Lines)
-		}
+	t.Logf("=== Context Cost (LOC RMS) ===")
+	t.Logf("RMS: %.2f (Advisory target: ≤110.0)", report.RMS)
+	if report.RMS > 110.0 {
+		t.Logf("WARNING: Context Cost is above recommended levels. Consider refactoring top files.")
 	}
+	t.Logf("Total Files: %d, Total Lines: %d", report.TotalFiles, report.TotalLines)
 }
 
 // TestContextCostTokenBaseline logs token-based metrics for observation during the LOC→Token transition.

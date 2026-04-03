@@ -28,6 +28,7 @@ const (
 	GateBrowserVerification = "browser-verification"
 	GateTemplateDrift       = "template-drift"
 	GateSecurityStatic      = "security-static"
+	GateVibeCheck           = "vibe-check"
 )
 
 // Standard workflow types
@@ -47,6 +48,7 @@ type Gates struct {
 	BrowserVerification GateStatus `json:"browser-verification"`
 	TemplateDrift       GateStatus `json:"template-drift"`
 	SecurityStatic      GateStatus `json:"security-static"`
+	VibeCheck           GateStatus `json:"vibe-check"`
 }
 
 // State represents the contents of .agents/state.json

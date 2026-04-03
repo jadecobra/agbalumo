@@ -36,6 +36,9 @@ jobs:
           version: v2.10.1
           args: --timeout=5m --config=scripts/.golangci.yml
 
+      - name: Verify GitHub Action SHAs
+        run: task ci:verify-shas
+
   security_static:
     name: Security Static Analysis
     runs-on: ubuntu-latest

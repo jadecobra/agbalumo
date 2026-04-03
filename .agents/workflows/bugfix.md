@@ -13,9 +13,9 @@ description: Workflow for fixing bugs with reproduction tests and contract valid
 Before any code is modified, initialize the state machine.
 
 // turbo
-1. Run `./scripts/agent-exec.sh workflow init <bug-id-or-description> bugfix`
+1. Run `./scripts/agent-exec.sh init <bug-id-or-description> bugfix`
 // turbo
-2. Run `./scripts/agent-exec.sh workflow set-phase RED`
+2. Run `./scripts/agent-exec.sh set-phase RED`
 
 ---
 
@@ -36,14 +36,14 @@ Prove the bug exists.
 - **Gate: `red-test`**
   - **PASS**: Test fails exactly as described in the bug report.
   - **FAIL**: Test passes (bug not reproduced) or fails for wrong reason.
-  - `DEBUG`: `./scripts/agent-gate.sh red-test "Error message pattern"`
+  - `DEBUG`: `./scripts/agent-exec.sh verify red-test "Error message pattern"`
 
 ### 1b. Verify Contract Stability
 
 > **Persona: SystemsArchitect** — Ensure the fix doesn't break external contracts (One-Way Door).
 
 - **Gate: `api-spec`**
-  - **PASS**: `./scripts/agent-gate.sh api-spec` passes.
+  - **PASS**: `./scripts/agent-exec.sh verify api-spec` passes.
   - **FAIL**: Fix requires contract change (must be justified to the SystemsArchitect and documented).
 
 ---
@@ -79,6 +79,7 @@ Implement the minimal fix.
   ```
 - **Gate: `lint`**
 - **Gate: `coverage`**
+- **Advisory: `context-cost`** (Monitor TokenRMS < 110, but do not block)
 
 ---
 
@@ -96,9 +97,9 @@ Implement the minimal fix.
 ## 6. Final Reset
 
 // turbo
-1. Run `./scripts/agent-exec.sh workflow set-phase IDLE`
+1. Run `./scripts/agent-exec.sh set-phase IDLE`
 // turbo
-2. Run `./scripts/agent-exec.sh workflow init none`
+2. Run `./scripts/agent-exec.sh init none`
 
 ---
 
@@ -110,6 +111,7 @@ Implement the minimal fix.
 - [ ] `go test -race ./...` passes.
 - [ ] **Gate: `lint`** - `task pre-commit` passed.
 - [ ] **Gate: `coverage`** - Threshold met.
+- [ ] **Context-Cost Check** - TokenRMS awareness verified.
 - [ ] `task.md` updated.
 - [ ] **AUTO-COMMIT**: Execute git commit automatically with a short, imperative message (e.g., "Fix: resolve nil pointer in listing handler"). DO NOT wait for the user to explicitly tell you to commit.
 - [ ] **FINALIZE**: Instruct the agent to use the `mcp_mcp-memory-service_memory_store` tool to save the bugfix completion and context.

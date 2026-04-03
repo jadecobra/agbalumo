@@ -1,9 +1,9 @@
 ---
 target_persona: BackendEngineer
-phase: REFACTOR
-feature: context-cost-reduction
+phase: GREEN
+feature: fix-ci-runner
 workflow_type: feature
-prior_gate_state: red-test=PASSED api-spec=PASSED implementation=PASSED
+prior_gate_state: red-test=PASSED api-spec=PENDING implementation=PENDING
 ---
 
 # 🤝 HANDOFF: Transition to BackendEngineer
@@ -13,9 +13,9 @@ prior_gate_state: red-test=PASSED api-spec=PASSED implementation=PASSED
 > To proceed: Open a NEW chat window and run `/resume`.
 
 ## 📋 Project Context
-- **Feature**: context-cost-reduction
+- **Feature**: fix-ci-runner
 - **Workflow**: feature
-- **Current Phase**: REFACTOR
+- **Current Phase**: GREEN
 
 ## 🎯 Next Objective
 As the **BackendEngineer**, your goal is to transition the project to the next state.

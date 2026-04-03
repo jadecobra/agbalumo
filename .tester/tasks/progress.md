@@ -136,3 +136,15 @@ Upgrading CI GitHub Actions to Node.js 24 compatible versions.
 - [x] Refactor ci_versions_test.go to support environment expressions and verify global env
 - [x] Centralize Node.js 24 version in top-level env in ci.yml
 - [x] Refactor ci_versions_test.go to support environment expressions
+# Infrastructure Safety
+Implemented automated GitHub Action SHA pinning verification to prevent infrastructure drift.
+- [x] Created scripts/verify-action-shas.sh for POSIX-compliant SHA signature checking.
+- [x] Integrated ci:verify-shas task into Taskfile.yml.
+- [x] Added automated SHA verification step to .github/workflows/ci.yml.
+# Infrastructure Hardening
+- [x] Pin all GitHub Actions to 40-character commit SHAs.
+- [x] Implement dynamic project root detection in `scripts/ci/verify-action-shas.sh`.
+- [x] Integrate SHA verification into CI pipeline and Taskfile.
+- [x] Resolve lint regressions in `internal/agent/verify_gate_vibe.go`.
+- [x] Boost `internal/service` test coverage to >80% (80.1% achieved).
+- [x] Unify service test packages to resolve visibility issues and import cycles.

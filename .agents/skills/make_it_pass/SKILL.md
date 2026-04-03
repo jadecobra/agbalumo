@@ -24,6 +24,20 @@ Before the GREEN phase transition, you MUST clear the following "Side Effects":
 - **State Mutation**: Ensure no global variables or package-level state are mutated unintentionally. State changes must be localized and explicit.
 - **Resource Discipline**: Verify all `io.Closer` interfaces are handled (deferred or closed) to prevent leaks.
 
+### 4. Chunked Implementation Protocol (Mandatory)
+
+Output truncation is a silent failure mode. Prevent it:
+
+1. **Read the File Change Manifest** from `implementation_plan.md` before writing any code. If no manifest exists, create one and surface it to the user before proceeding.
+2. **One file per response turn.** Never write multiple complete files in a single output. After each file, run `go build ./...` and fix errors before continuing.
+3. **Large file rule** — if a file is marked `[LARGE]` or exceeds ~150 lines:
+   - **Turn A**: Type definitions, structs, interface signatures only. Verify compilation.
+   - **Turn B**: Function bodies and logic. Verify affected tests pass.
+   - **Turn C** (if needed): Helpers, init code, integration wiring.
+4. **Fail fast**: Never move to the next file with a broken build.
+5. Run `harness verify implementation` only after ALL manifest files are complete and the build is clean.
+
+
 ## Verification & Guardrails
 - **Execution**: Use `harness verify implementation` (via `./scripts/agent-exec.sh verify implementation`) as the primary gate.
 - **Sanity Check**: Run `go vet` and `task lint` to catch obvious errors before the final harness run.

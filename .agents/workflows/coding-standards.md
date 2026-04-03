@@ -28,6 +28,14 @@ This workflow is referenced for specific edge-case rules regarding code style, i
 - Wrap with `echo.NewHTTPError` for specific codes.
 - Handlers should generally return `error`.
 
+## Context Cost Awareness (Tokens)
+
+To maintain agentic efficiency, we monitor **Token Density**.
+- **Advisory TokenRMS**: Target **< 110**.
+- **Context Window**: Monitor `ContextWindowPct` relative to Claude Sonnet (200k tokens).
+- **Efficiency Pattern**: If a file exceeds **500 tokens**, consider if splitting into sub-packages or smaller files would improve logical cohesion and "Agentic Attention."
+- **Janitor Run**: Use `/janitor` to clean up high-cost or high-entropy files when the TokenRMS exceeds thresholds significantly.
+
 ## Testing Conventions
 
 ### Test Structure
@@ -51,8 +59,8 @@ func TestFeatureName(t *testing.T) {
 Use `github.com/stretchr/testify/mock`. Place mocks in `internal/mock/`.
 
 ### Coverage & Rules
-- **TDD:** Write tests first. A feature isn't done until tests pass.
-- **Coverage:** Threshold is enforced from `.agents/coverage-threshold`. NEVER lower this value — write more tests instead.
-- **Persona Sync:** Changes to `.agents/config.yaml` or `.agents/personas/*.yaml` MUST be mirrored in `docs/CODING_STANDARDS.md` (Section 5). "Double-Commit" is required. **Chaos Verification** will proactively inject drift to ensure these rules are strictly followed.
+- **TDD:** Write failing tests (RED) FIRST.
+- **Coverage:** Thresholds are defined in `.agents/coverage-thresholds.json`. NEVER lower these value.
+- **Persona Sync:** Changes to rules MUST be mirrored in `GEMINI.md` and `.agents/rules/`.
 - **Functions:** Keep functions small and single-purpose (SRP).
 - **Comments:** Code should be self-documenting; avoid unnecessary comments.

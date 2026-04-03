@@ -1,8 +1,8 @@
 {
   "_DO_NOT_EDIT_": "MANUAL EDITS WILL INVALIDATE SIGNATURE. USE ./scripts/agent-exec.sh TO MANAGE STATE.",
-  "feature": "externalize-country-data",
-  "workflow_type": "refactor",
-  "phase": "IDLE",
+  "feature": "fix-ci-runner",
+  "workflow_type": "feature",
+  "phase": "REFACTOR",
   "gates": {
     "red-test": "PASSED",
     "api-spec": "PASSED",
@@ -10,9 +10,10 @@
     "lint": "PASSED",
     "coverage": "PASSED",
     "browser-verification": "PASSED",
-    "template-drift": "PASSED",
-    "security-static": "PASSED"
+    "template-drift": "PENDING",
+    "security-static": "PASSED",
+    "vibe-check": "PASSED"
   },
-  "updated_at": "2026-04-02T22:17:01.344975Z",
-  "signature": "c11db3bbcf1391a2c4b587596a31e94356e7bdd82a96dec23f96c9322cd692be"
+  "updated_at": "2026-04-03T02:08:17.027139Z",
+  "signature": "9f4aa845937c0c9bd19ca31c29d9f36995bf8b869bed5780575f465b3b5c83a6"
 }
