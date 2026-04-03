@@ -1,56 +1,50 @@
 ---
-description: Start the Autonomous AI Developer Pipeline sequence with a new feature idea
+description: Execute the end-to-end 10x Engineering pipeline for a new feature.
 ---
 
-When the user types `/build-feature <idea>`, orchestrate the development process strictly using `.agents/config.yaml` personas and `.agents/personas/`.
+`/build-feature <idea>`
+When the user types `/build-feature <idea>`, you act as a unified Senior Systems Engineer. You will execute the entire lifecycle (Architecture, TDD, Security, Resilience) in this single continuous session.
 
-## Pipeline State Machine
+**Do not ask for permission to move between phases. Your Git commits are your checkpoints**.
 
-```
-@ProductOwner → @SystemsArchitect → [Approved] → @SDET-Tester
-@SDET-Tester → [RED Pass] → @BackendEngineer
-@BackendEngineer → [GREEN Pass] → @ChiefCritic (⚠️ Pro model required)
-@ChiefCritic → [P0/P1/P2 Defects] → @SDET-Tester
-@ChiefCritic → [Clean / P3 only] → @BackendEngineer (REFACTOR)
-@BackendEngineer → [REFACTOR Pass] → @SecurityEngineer
-@SecurityEngineer → [P0/P1/P2 Defects] → @SDET-Tester
-@SecurityEngineer → [Clean] → @ChaosMonkey
-@ChaosMonkey → [Brittle] → @SDET-Tester
-@ChaosMonkey → [Resilient] → ✅ Done
-```
+## Phase 1: Architecture & Planning (The Iterative Algorithm)
 
-### Phase 1: Architecture & Planning (Human Intervention Required)
+When receiving the `<idea>`, DO NOT write code immediately. HALT and execute the following interactive protocol.
 
-1. Act as the **@ProductOwner** and execute the `design_architecture` skill using the `<idea>` to define the user value, spec, and "Why".
-2. Shift context and act as the **@SystemsArchitect** to review the spec for technical feasibility and refine the architecture.
-   *(Wait for the user to explicitly approve the spec. Loop until approved.)*
-   - The `implementation_plan.md` MUST include a **File Change Manifest**: an ordered table of every file to be created or modified, labeled `[NEW]`, `[MODIFY]`, or `[DELETE]`, with an estimated **token count** per file. Any file with >500 estimated tokens must be flagged **`[EXPENSIVE]`** and annotated with named sub-sections (e.g., "structs → handler logic → helpers"). Order the manifest smallest-first.
-3. **@ProductOwner** authors three output files before autonomous execution begins:
-   - `implementation_plan.md` — technical spec for Phase 2 personas. 
-   - `.tester/tasks/vibe_check.md` — manual UX/aesthetic checklist generated from `.agents/vibe-check-template.md`. User/PO must check off all items.
-   - `.tester/tasks/CHAOS_BRIEF.md` — Phase 3 chaos brief for **@ChaosMonkey**. Fill in the sabotage targets specific to this feature using the template at `.tester/tasks/CHAOS_BRIEF.md`.
+1. **Question the Requirements (Make it less dumb)**:
+* Push back on the user. Why are we building this? Does the end-user actually need it?
+* The Interrogation Loop: Ask only one piercing question per turn to challenge the core assumption, strip away scope, or force the user to clarify their thinking.
+* WAIT for the user to respond and defend the idea.
+* Evaluate the user's defense. If the proposed scope still contains unnecessary complexity, ask another challenging question. Repeat this loop until you are convinced the idea is ruthlessly minimal.
+2. **Delete the Part or Process**:
+* Once the core idea is justified, Analyze the `<idea>` against the codebase and actively suggest removing at least one component, feature, or abstraction initially proposed. (e.g., "Do we really need a new DB table for this, or can we just append to the existing JSON column?")
+3. **Simplify & Optimize**:
+* Outline the absolute minimum viable path (MVP) for the code. No over-engineering. No "future-proofing" for scale we don't currently have.
+* Identify the files to create/modify. If a file will exceed ~500 tokens, plan to split it logically immediately.
+4. **Accelerate**:
+* Identify the critical path. Ensure the proposed architecture allows for the fastest possible execution and tightest test loop.
+5. **Automate**:
+* Only after Steps 1-4 are agreed upon collaboratively, proceed to Phase 2 to automate the implementation.
 
-### Phase 2: Autonomous Execution Loop (Multi-Conversation)
+## Phase 2: Autonomous Execution Loop (TDD)
+Execute the Red-Green-Refactor loop natively using the terminal.
+1. **RED**: Write the failing test cases first. Run `go test`. Verify they fail.
+2. **GREEN**: Write the implementation. Run `go test`. Loop until tests pass.
+3. **REFACTOR**: Run task lint and review for cyclomatic complexity or duplication. Refactor.
+4. **COMMIT**: Once tests and lint pass, execute `git commit -m "feat(<scope>): implement <idea>"` natively.
 
-> [!IMPORTANT]
-> Each step MUST run in a **NEW conversation window** (New Window Protocol) to minimize context cost and hallucination risk.
-> After completing your turn, generate a handoff and instruct the user to open a new chat.
+## Phase 3: Audit & Resilience
+Before considering the feature complete, self-audit the code you just committed.
+1. **Security Audit**: Run your local SAST/security tooling (e.g., `gosec ./...`). Fix any P0/P1/P2 defects immediately and amend the commit.
+2. **Chaos/Resilience**: Identify the weakest architectural boundary of the new feature based on the project structure:
+* `repository/`: Inject database timeouts or connection drops.
+* `handler/` & `middleware/`: Inject malformed payloads or test rate limit exhaustion.
+* `service/`: Force business logic edge cases or unexpected interface nil returns.
+    
+    Write a quick resilience test targeting this specific boundary and execute it.
+3. **The Resilience Halt**: If the chaos test successfully breaks the application, **DO NOT fix it silently**. HALT the execution.
+* Explain the failure mechanism to the user.
+* Propose 2-3 architectural patterns to handle the fault (e.g., Circuit Breaker, Exponential Backoff, Graceful Degradation).
+* WAIT for the user to make an engineering decision before implementing the fix.
 
-1. **@SDET-Tester**: Execute the `make_it_fail` skill to generate RED test cases.
-   - *Transition*: `./scripts/agent-exec.sh set-phase RED`
-   - *Handoff*: `./scripts/agent-exec.sh handoff BackendEngineer`
-2. **@BackendEngineer**: Run `/resume`, then execute `make_it_pass` to pass the tests.
-   - *Transition*: `./scripts/agent-exec.sh set-phase GREEN`
-   - *Handoff*: `./scripts/agent-exec.sh handoff ChiefCritic`
-3. **@ChiefCritic** *(⚠️ requires Pro model)*: Run `/resume`, then execute `critique_product`. Apply severity threshold from `defect_policy`. Only P0/P1/P2 defects trigger kick-back.
-   - *Handoff*: `./scripts/agent-exec.sh handoff BackendEngineer` (if P0/P1/P2 found) or `handoff BackendEngineer` (REFACTOR if clean)
-4. **@BackendEngineer**: Run `/resume`, then execute `make_it_better`.
-   - *Transition*: `./scripts/agent-exec.sh set-phase REFACTOR`
-   - *Handoff*: `./scripts/agent-exec.sh handoff SecurityEngineer`
-5. **@SecurityEngineer**: Run `/resume`, then execute `audit_security`. Apply severity threshold from `defect_policy`. Only P0/P1/P2 findings trigger kick-back.
-   - *Finalization*: `./scripts/agent-exec.sh handoff ChaosMonkey`
-
-### Phase 3: Resilience & Chaos (Human Intervention Required)
-
-6. **@ChaosMonkey**: Open a NEW chat. Run `/resume`. Read `.tester/tasks/CHAOS_BRIEF.md` (your mission brief). Execute sabotage targets in order. Report against success/failure conditions in the brief. **Never write fixes** — kick back to @SDET-Tester on failure.
-7. **Final Verification**: @SystemsArchitect confirms all gates are green: `./scripts/agent-exec.sh status`. Run `./scripts/agent-exec.sh verify vibe-check` to ensure the human PO has validated the UX checklist. Run `/janitor` if workspace entropy is high.
+**Completion**: When all phases are complete and the final commit is made, summarize the architectural decisions and test coverage for the user in a single, concise chat message.

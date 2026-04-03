@@ -8,12 +8,6 @@ The `agbalumo` CLI is a comprehensive tool for managing the directory platform, 
   - Create, update, and manage business listings.
 - **[Admin Operations](cli/admin.md)**
   - Approve claims, manage users, and site configuration.
-- **[Agent Harness & Testing](cli/harness.md)**
-  - Manage the developer pipeline, gates, and benchmarking tools.
-- **[Environment & Server Configuration](cli/env.md)**
-  - Server startup and environment variable reference.
-- **[Miscellaneous Utilities](cli/misc.md)**
-  - Seeding, categories, and decision logging (`aglog`).
 
 ## Global Flags
 

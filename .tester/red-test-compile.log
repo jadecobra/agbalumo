@@ -1,6 +1,0 @@
-# github.com/jadecobra/agbalumo/internal/domain_test [github.com/jadecobra/agbalumo/internal/domain.test]
-internal/domain/interface_segregation_test.go:13:15: undefined: domain.ListingReader
-internal/domain/interface_segregation_test.go:14:15: undefined: domain.ListingWriter
-internal/domain/interface_segregation_test.go:19:21: undefined: domain.ListingReader
-FAIL	github.com/jadecobra/agbalumo/internal/domain [build failed]
-FAIL

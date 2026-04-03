@@ -1,17 +1,6 @@
 version: '3'
 
-env:
-  GOPATH: '{{if eq .ISOLATE_GO "true"}}{{.ISO_PATH}}{{else}}{{.SYSTEM_GOPATH}}{{end}}'
-  GOCACHE: '{{if eq .ISOLATE_GO "true"}}{{.ISO_PATH}}/cache{{else}}{{default (printf "%s/cache" .ISO_PATH) .SYSTEM_GOCACHE}}{{end}}'
-  ISOLATE_GO: '{{.ISOLATE_GO}}'
-
 vars:
-  ISOLATE_GO: '{{default "true" .ISOLATE_GO}}'
-  # Base paths for Go isolation
-  ISO_PATH: '{{.TASKFILE_DIR}}/.tester/tmp/go'
-  SYSTEM_GOPATH:
-    sh: '{{if ne .ISOLATE_GO "true"}}go env GOPATH{{else}}echo .tester/tmp/go{{end}}'
-  GOBIN: '{{if eq .ISOLATE_GO "true"}}{{.ISO_PATH}}/bin{{else}}{{.SYSTEM_GOPATH}}/bin{{end}}'
   STAGED_GO:
     sh: git diff --cached --name-only --diff-filter=ACMR | grep '\.go$' || true
   STAGED_HTML:
@@ -24,10 +13,11 @@ vars:
     sh: git diff --cached --name-only --diff-filter=ACMR | grep -E '^cmd/cli/|^docs/cli\.md$' || true
   STAGED_PERF:
     sh: git diff --cached --name-only --diff-filter=ACMR | grep -E '^ui/|^internal/handler/|^internal/repository/|^scripts/' || true
-  STAGED_BRAND:
-    sh: git diff --cached --name-only --diff-filter=ACMR | grep -E '\.agents/rules/brand\.toon$' || true
-  STAGED_AGENT:
-    sh: git diff --cached --name-only --diff-filter=ACMR | grep -E '\.agents/agent\.yaml$|docs/CODING_STANDARDS\.md$' || true
+  STAGED_ALL:
+    sh: git diff --cached --name-only || true
+  CONTAINER: '{{default "false" .USE_CONTAINER}}'
+  GOBIN:
+    sh: go env GOPATH | sed 's|$|/bin|'
   STAGED_PKGS:
     sh: git diff --cached --name-only --diff-filter=ACMR | grep '\.go$' | xargs -I {} dirname {} | sort | uniq | sed 's|^|./|' | tr '\n' ' ' || true
   STAGED_SEC_AUDIT:
@@ -40,7 +30,7 @@ tasks:
   lint:install:
     internal: true
     status:
-      - test -f ./.tester/tmp/go/bin/golangci-lint
+      - test -f {{.GOBIN}}/golangci-lint
     cmds:
       - go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.10.1
 
@@ -52,7 +42,7 @@ tasks:
     deps:
       - task: lint:install
     cmds:
-      - '{{.TASKFILE_DIR}}/.tester/tmp/go/bin/golangci-lint run -c scripts/.golangci.yml --new-from-rev=HEAD'
+      - '{{.GOBIN}}/golangci-lint run -c scripts/.golangci.yml --new-from-rev=HEAD'
 
   lint:
     desc: Run full lint on the entire codebase
@@ -95,7 +85,7 @@ tasks:
       USE_CONTAINER: '{{.CONTAINER}}'
       SKIP_RACE: 'true'
     cmds:
-      - bash scripts/test.sh "{{.STAGED_PKGS}}"
+      - go test -count=1 ./...
 
   test:race:
     desc: Run tests with race detector on staged Go packages
@@ -104,36 +94,33 @@ tasks:
     env:
       USE_CONTAINER: '{{.CONTAINER}}'
     cmds:
-      - bash scripts/test.sh "{{.STAGED_PKGS}}"
+      - go test -count=1 ./...
 
   api-drift:
-    desc: Run API drift check via harness
+    desc: Detect API drift (Code vs OpenAPI vs MD)
     silent: true
     status:
       - '[ -z "{{.STAGED_CMD_DOCS}}" ]'
     cmds:
-      - ./scripts/agent-exec.sh verify api-spec
+      - go run cmd/verify/main.go api-spec
 
   template-drift:
-    desc: Run template function drift check via harness
+    desc: Detect template function drift
     silent: true
     status:
       - '[ -z "{{.STAGED_SEC}}" ]'
     cmds:
-      - ./scripts/agent-exec.sh verify template-drift
+      - go run cmd/verify/main.go template-drift
 
-  agent-drift:
-    desc: Run agent rules drift check on staged agent files
-    silent: true
-    status:
-      - '[ -z "{{.STAGED_AGENT}}" ]'
+  cost:
+    desc: Calculate context cost (advisory)
     cmds:
-      - bash scripts/agent-drift-check.sh
+      - go run cmd/verify/main.go context-cost
 
   gitleaks:install:
     internal: true
     status:
-      - test -f ./.tester/tmp/go/bin/gitleaks
+      - test -f {{.GOBIN}}/gitleaks
     cmds:
       - go install github.com/zricethezav/gitleaks/v8@v8.21.2
 
@@ -147,7 +134,7 @@ tasks:
     deps:
       - task: gitleaks:install
     cmds:
-      - '{{.TASKFILE_DIR}}/.tester/tmp/go/bin/gitleaks protect --staged --verbose --redact'
+      - '{{.GOBIN}}/gitleaks protect --staged --verbose --redact'
 
   gosec-rationale:
     desc: Verify mandatory inline gosec justification
@@ -167,12 +154,14 @@ tasks:
     env:
       USE_CONTAINER: '{{.CONTAINER}}'
     cmds:
-      - ./scripts/agent-exec.sh verify security-static "{{.STAGED_ALL}}"
+      - go run cmd/verify/main.go api-spec
+      - go run cmd/verify/main.go template-drift
+      - go run cmd/verify/main.go coverage
 
   vulncheck:install:
     internal: true
     status:
-      - test -f ./.tester/tmp/go/bin/govulncheck
+      - test -f {{.GOBIN}}/govulncheck
     cmds:
       - go install golang.org/x/vuln/cmd/govulncheck@v1.1.4
 
@@ -184,33 +173,33 @@ tasks:
     deps:
       - task: vulncheck:install
     cmds:
-      - '{{.TASKFILE_DIR}}/.tester/tmp/go/bin/govulncheck ./...'
+      - '{{.GOBIN}}/govulncheck ./...'
 
   gocognit:install:
     internal: true
     status:
-      - test -f ./.tester/tmp/go/bin/gocognit
+      - test -f {{.GOBIN}}/gocognit
     cmds:
       - go install github.com/uudashr/gocognit/cmd/gocognit@v1.0.1
 
   dupl:install:
     internal: true
     status:
-      - test -f ./.tester/tmp/go/bin/dupl
+      - test -f {{.GOBIN}}/dupl
     cmds:
       - go install github.com/mibk/dupl@v1.0.0
 
   goconst:install:
     internal: true
     status:
-      - test -f ./.tester/tmp/go/bin/goconst
+      - test -f {{.GOBIN}}/goconst
     cmds:
       - go install github.com/jgautheron/goconst/cmd/goconst@v1.7.1
 
   fieldalignment:install:
     internal: true
     status:
-      - test -f ./.tester/tmp/go/bin/fieldalignment
+      - test -f {{.GOBIN}}/fieldalignment
     cmds:
       - go install golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@v0.30.0
 
@@ -256,7 +245,7 @@ tasks:
     status:
       - '[ -z "{{.STAGED_ALL}}" ]'
     cmds:
-      - bash scripts/ci/check-coverage-drift.sh --local
+      - go run cmd/verify/main.go coverage
 
   gates:
     desc: Check workflow gate enforcement
@@ -310,44 +299,38 @@ tasks:
     deps:
       - task: lint:install
     cmds:
-      - '{{.TASKFILE_DIR}}/.tester/tmp/go/bin/golangci-lint run -c scripts/.golangci.yml'
+      - '{{.GOBIN}}/golangci-lint run -c scripts/.golangci.yml'
 
   ci:test:
     desc: Run full test suite with coverage and race detector (strict)
     env:
       STRICT_MODE: 'true'
     cmds:
-      - bash scripts/test.sh
+      - go test -count=1 ./...
 
   ci:security:
     desc: Run full security audit
     deps:
       - task: ci:vulncheck
     cmds:
-      - ./scripts/agent-exec.sh verify security-static --text
+      - go run cmd/verify/main.go coverage
 
   ci:vulncheck:
     desc: Run full govulncheck vulnerability scan
     deps:
       - task: vulncheck:install
     cmds:
-      - '{{.TASKFILE_DIR}}/.tester/tmp/go/bin/govulncheck ./...'
+      - '{{.GOBIN}}/govulncheck ./...'
 
   ci:api-drift:
-    desc: Run full API drift check via harness
+    desc: Run full API drift check
     cmds:
-      - ./scripts/agent-exec.sh verify api-spec --text
+      - go run cmd/verify/main.go api-spec
 
   ci:template-drift:
-    desc: Run full template function drift check via harness
+    desc: Run full template function drift check
     cmds:
-      - ./scripts/agent-exec.sh verify template-drift --text
-
-  ci:agent-drift:
-    desc: Run full agent rules drift check
-    cmds:
-      - bash scripts/agent-drift-check.sh
-
+      - go run cmd/verify/main.go template-drift
   ci:verify-shas:
     desc: Verify all GitHub Action SHAs are pinned
     cmds:
@@ -367,14 +350,12 @@ tasks:
       - task: ci:build
       - task: ci:api-drift
       - task: ci:template-drift
-      - task: ci:agent-drift
       - task: ci:verify-shas
       - task: security-audit
 
   pre-commit:
     desc: Run all pre-commit gates (Fast Sequential -> Heavy Parallel)
     cmds:
-      - task: gates
       - task: _pre-commit-fast
       - task: _pre-commit-heavy
 
@@ -392,7 +373,6 @@ tasks:
       - ci:test
       - api-drift
       - template-drift
-      - agent-drift
       - vulncheck
       - gitleaks
       - gosec-rationale

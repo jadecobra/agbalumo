@@ -15,13 +15,5 @@ runs:
         go-version: ${{ inputs.go-version }}
         cache: true
 
-    - name: Cache Go Tools (.tester/tmp)
-      uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
-      with:
-        path: .tester/tmp
-        key: ${{ runner.os }}-go-tools-${{ hashFiles('go.sum', 'Taskfile.yml') }}
-        restore-keys: |
-          ${{ runner.os }}-go-tools-
-
     - name: Install Task
       uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 # v2.0.0
