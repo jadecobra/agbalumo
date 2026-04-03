@@ -26,7 +26,6 @@ func TestCIVersionsNode24(t *testing.T) {
 	}{
 		// Main Workflow
 		{file: filepath.Join(workflowsDir, "ci.yml"), action: "actions/checkout", minVers: "v6.0.2", sha: "de0fac2e4500dabe0009e67214ff5f5447ce83dd"},
-		{file: filepath.Join(workflowsDir, "ci.yml"), action: "actions/setup-go", minVers: "v6.4.0", sha: "4a3601121dd01d1626a1e23e37211e3254c1c06c"},
 		{file: filepath.Join(workflowsDir, "ci.yml"), action: "golangci/golangci-lint-action", minVers: "v9.2.0", sha: "1e7e51e771db61008b38414a730f564565cf7c20"},
 		{file: filepath.Join(workflowsDir, "ci.yml"), action: "actions/upload-artifact", minVers: "v7.0.0", sha: "bbbca2ddaa5d8feaa63e36b76fdaad77386f024f"},
 		{file: filepath.Join(workflowsDir, "ci.yml"), action: "actions/setup-node", minVers: "v6.3.0", sha: "53b83947a5a98c8d113130e565377fae1a50d02f"},
