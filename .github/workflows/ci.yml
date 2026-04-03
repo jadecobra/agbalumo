@@ -124,7 +124,7 @@ jobs:
           fi
 
       - name: Run Dynamic Security Audit
-        run: go run cmd/security-audit/main.go
+        run: task security-audit
 
   drift_checks:
     name: Drift Verification

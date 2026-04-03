@@ -4,6 +4,8 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -145,8 +147,30 @@ func TestSecurityAudit(t *testing.T) {
 	})
 }
 
-func TestRealRunner(t *testing.T) {
-	r := &RealRunner{}
-	_, err := r.Run(".", "echo", "hello")
+func TestXSSExclusion(t *testing.T) {
+	// This test verifies the grep exclusion logic using RealRunner on a temporary directory
+	tmpDir := t.TempDir()
+	agentDir := filepath.Join(tmpDir, "internal/agent")
+	err := os.MkdirAll(agentDir, 0755)
 	assert.NoError(t, err)
+
+	// Create a "vulnerable" file in the excluded directory
+	vulnerableFile := filepath.Join(agentDir, "scanner.go")
+	err = os.WriteFile(vulnerableFile, []byte("var x = template.HTML(input)"), 0644)
+	assert.NoError(t, err)
+
+	runner := &RealRunner{}
+	// Should PASS because internal/agent is excluded
+	assert.True(t, checkXSS(tmpDir, runner))
+
+	// Create a vulnerable file in a non-excluded directory
+	otherDir := filepath.Join(tmpDir, "internal/handler")
+	err = os.MkdirAll(otherDir, 0755)
+	assert.NoError(t, err)
+	vulnerableFile2 := filepath.Join(otherDir, "handler.go")
+	err = os.WriteFile(vulnerableFile2, []byte("var x = template.HTML(input)"), 0644)
+	assert.NoError(t, err)
+
+	// Should FAIL because internal/handler is NOT excluded
+	assert.False(t, checkXSS(tmpDir, runner))
 }

@@ -284,8 +284,10 @@ tasks:
       - '[ -z "{{.STAGED_SEC_AUDIT}}" ]'
     env:
       APP_URL: '{{default "https://192.168.68.69.nip.io:8443" .APP_URL}}'
+    deps:
+      - task: vulncheck:install
     cmds:
-      - go run cmd/security-audit/main.go
+      - PATH="{{.GOBIN}}:$PATH" go run cmd/security-audit/main.go
 
   watch:
     desc: Watch Go files and run fast checks + tests on change
