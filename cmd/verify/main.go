@@ -340,6 +340,35 @@ var precommitCmd = &cobra.Command{
 	},
 }
 
+var critiqueCmd = &cobra.Command{
+	Use:   "critique",
+	Short: "Run ChiefCritic robustness audit natively",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("🚀 Starting ChiefCritic Robustness Audit...")
+
+		fmt.Println("\n[1/4] Checking Cognitive Complexity (gocognit)...")
+		gocognitErr := runCmd("go", "run", "github.com/uudashr/gocognit/cmd/gocognit", "-over", "10", "./cmd", "./internal")
+		if gocognitErr != nil {
+			fmt.Println("❌ Complexity threshold exceeded!")
+		}
+
+		fmt.Println("\n[2/4] Checking Repeated Strings (goconst)...")
+		_ = runCmd("go", "run", "github.com/jgautheron/goconst/cmd/goconst", "./cmd/...", "./internal/...")
+
+		fmt.Println("\n[3/4] Checking Struct Alignment (fieldalignment)...")
+		_ = runCmd("go", "run", "golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment", "./internal/...", "./cmd/...")
+
+		fmt.Println("\n[4/4] Checking Code Duplication (dupl)...")
+		_ = runCmd("go", "run", "github.com/mibk/dupl", "-threshold", "15", "-t", "./cmd", "./internal")
+
+		fmt.Println("\n✅ ChiefCritic Audit Complete!")
+		if gocognitErr != nil {
+			return fmt.Errorf("robustness audit failed due to cognitive complexity")
+		}
+		return nil
+	},
+}
+
 func main() {
 	rootCmd.AddCommand(
 		apiSpecCmd,
@@ -353,9 +382,9 @@ func main() {
 		ciToolsCmd,
 		gitleaksCmd,
 		ignoredFilesCmd,
+		critiqueCmd,
 	)
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
 }
-
