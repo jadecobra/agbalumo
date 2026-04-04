@@ -11,8 +11,8 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/jadecobra/agbalumo/internal/middleware"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 

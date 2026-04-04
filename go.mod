@@ -1,6 +1,6 @@
 module github.com/jadecobra/agbalumo
 
-go 1.26.1
+go 1.25.0
 
 require (
 	github.com/gen2brain/webp v0.5.5
@@ -8,11 +8,10 @@ require (
 	github.com/gorilla/sessions v1.4.0
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.15.0
-	github.com/mattn/go-sqlite3 v1.14.34
 	github.com/pkoukk/tiktoken-go v0.1.8
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.11.1
-	golang.org/x/image v0.36.0
+	golang.org/x/image v0.38.0
 	golang.org/x/oauth2 v0.34.0
 	golang.org/x/time v0.14.0
 	modernc.org/sqlite v1.44.3
@@ -43,7 +42,7 @@ require (
 	golang.org/x/exp v0.0.0-20251023183803-a4bb9ffd2546 // indirect
 	golang.org/x/net v0.49.0 // indirect
 	golang.org/x/sys v0.41.0 // indirect
-	golang.org/x/text v0.34.0 // indirect
+	golang.org/x/text v0.35.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	modernc.org/libc v1.68.0 // indirect

@@ -115,13 +115,13 @@ func setupMiddleware(e *echo.Echo, cfg *config.Config) {
 func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config) {
 	cachedRepo := cached.NewCachedListingStore(repo, 60*time.Second)
 	geocodingSvc := service.NewGoogleGeocodingService(cfg.GoogleMapsAPIKey)
-	
+
 	listingSvc := listing.NewListingService(
 		domain.ListingStore(cachedRepo),
 		domain.CategoryStore(cachedRepo),
 		domain.ClaimRequestStore(cachedRepo),
 	)
-	
+
 	listingHandler := listing.NewListingHandler(listing.ListingDependencies{
 		ListingStore:     domain.ListingStore(cachedRepo),
 		CategoryStore:    domain.CategoryStore(cachedRepo),
@@ -130,10 +130,10 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 		Config:           cfg,
 		GoogleMapsAPIKey: cfg.GoogleMapsAPIKey,
 	})
-	
+
 	csvService := service.NewCSVService()
 	csvService.Geocoding = geocodingSvc
-	
+
 	adminHandler := admin.NewAdminHandler(admin.AdminDependencies{
 		AdminStore:        domain.AdminStore(repo),
 		FeedbackStore:     domain.FeedbackStore(repo),
@@ -145,7 +145,7 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 		CSVService:        csvService,
 		Cfg:               cfg,
 	})
-	
+
 	var googleProvider auth.GoogleProvider
 	if cfg.MockAuth {
 		googleProvider = &auth.MockGoogleProvider{
@@ -159,7 +159,7 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 		Config:         cfg,
 		GoogleProvider: googleProvider,
 	})
-	
+
 	authMw := auth.NewAuthMiddleware(domain.UserStore(repo))
 	fbHandler := feedback.NewFeedbackHandler(repo)
 	pageHandler := common.NewPageHandler(domain.CategoryStore(cachedRepo), cfg)

@@ -10,8 +10,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/ui"
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
+	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
 )
 
@@ -24,7 +24,7 @@ func (h *AuthHandler) DevLogin(c echo.Context) error {
 	if h.Cfg.Env != "development" {
 		return ui.RespondError(c, echo.NewHTTPError(http.StatusForbidden, "Dev login disabled in production"))
 	}
-	
+
 	googleID := "dev-" + email
 	name := "Dev User"
 	avatar := "https://ui-avatars.com/api/?name=Dev+User&background=random"

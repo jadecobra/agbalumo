@@ -10,8 +10,8 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/jadecobra/agbalumo/internal/module/admin"
+	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/stretchr/testify/assert"
 )
 

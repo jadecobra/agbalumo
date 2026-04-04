@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/jadecobra/agbalumo/internal/seeder"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

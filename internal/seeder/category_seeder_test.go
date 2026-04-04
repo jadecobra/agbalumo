@@ -9,7 +9,6 @@ import (
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
 	"github.com/jadecobra/agbalumo/internal/seeder"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 func newTestRepoForSeeder(t *testing.T) *sqlite.SQLiteRepository {

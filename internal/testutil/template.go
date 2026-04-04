@@ -52,13 +52,13 @@ func NewRealTemplateForPage(t *testing.T, pageName string) *template.Template {
 
 	// We parse base.html, error.html and the specific page
 	tmpl := template.New("base").Funcs(funcMap)
-	
+
 	// Add potential relative paths
 	paths := []string{
 		filepath.Join(projectRoot, "ui", "templates", "base.html"),
 		filepath.Join(projectRoot, "ui", "templates", "error.html"),
 	}
-	
+
 	// Add the specific page if it's not base or error
 	if pageName != "base.html" && pageName != "error.html" {
 		paths = append(paths, filepath.Join(projectRoot, "ui", "templates", pageName))

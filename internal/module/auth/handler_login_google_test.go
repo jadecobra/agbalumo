@@ -8,8 +8,8 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/jadecobra/agbalumo/internal/config"
-	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/jadecobra/agbalumo/internal/module/auth"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	testifyMock "github.com/stretchr/testify/mock"
