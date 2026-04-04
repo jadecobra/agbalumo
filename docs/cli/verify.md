@@ -14,6 +14,14 @@ agbalumo verify [command]
 
 #### Subcommands
 
+##### ci
+
+Run the full CI pipeline natively in Go (Lint, Test, Vulncheck, Drift).
+
+```bash
+agbalumo verify ci
+```
+
 ##### audit
 
 Run comprehensive security and health audit.

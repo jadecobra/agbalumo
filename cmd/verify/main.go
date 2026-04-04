@@ -175,8 +175,51 @@ var auditCmd = &cobra.Command{
 	},
 }
 
+func runCmd(name string, args ...string) error {
+	cmd := exec.Command(name, args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
+var ciCmd = &cobra.Command{
+	Use:   "ci",
+	Short: "Run the full CI pipeline natively in Go",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("🚀 Starting Native CI Pipeline...")
+
+		fmt.Println("\n=== 1. Running Lint ===")
+		if err := runCmd("go", "run", "github.com/golangci/golangci-lint/cmd/golangci-lint", "run", "-c", "scripts/.golangci.yml"); err != nil {
+			return fmt.Errorf("lint failed: %w", err)
+		}
+
+		fmt.Println("\n=== 2. Running Tests ===")
+		if err := runCmd("go", "test", "-race", "-cover", "-count=1", "./..."); err != nil {
+			return fmt.Errorf("tests failed: %w", err)
+		}
+
+		fmt.Println("\n=== 3. Running Vulncheck ===")
+		if err := runCmd("go", "run", "golang.org/x/vuln/cmd/govulncheck", "./..."); err != nil {
+			return fmt.Errorf("vulncheck failed: %w", err)
+		}
+
+		fmt.Println("\n=== 4. Checking API/CLI Contract Drift ===")
+		if err := apiSpecCmd.RunE(cmd, args); err != nil {
+			return err
+		}
+
+		fmt.Println("\n=== 5. Checking Template Drift ===")
+		if err := templateDriftCmd.RunE(cmd, args); err != nil {
+			return err
+		}
+
+		fmt.Println("\n✅ CI Pipeline Passed Successfully!")
+		return nil
+	},
+}
+
 func main() {
-	rootCmd.AddCommand(apiSpecCmd, templateDriftCmd, costCmd, coverageCmd, auditCmd)
+	rootCmd.AddCommand(apiSpecCmd, templateDriftCmd, costCmd, coverageCmd, auditCmd, ciCmd)
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}

@@ -1,88 +1,83 @@
-# golangci-lint v2 configuration
-version: "2"
-
 run:
   timeout: 5m
   tests: true
 
 linters:
-  default: standard
   enable:
     - gosec
     - bodyclose
     - nolintlint
-  settings:
-    govet:
-      enable:
-        - shadow
-    revive:
-      rules:
-        - name: exported
-          disabled: true
-    gosec:
-      config:
-        G306: "0600" # redundant but safe
-    nolintlint:
-      allow-unused: false
-      allow-no-explanation: []
-      require-explanation: true
-      require-specific: true
-  exclusions:
+linters-settings:
+  govet:
+    enable:
+      - shadow
+  revive:
     rules:
-      - path: "(_test\\.go|scripts/)"
-        linters:
-          - gosec
-          - bodyclose
-          - errcheck
-      - linters:
-          - gosec
-        text: "G301:"
-        path: "(_test\\.go|scripts/|internal/service/image.go)"
-      - linters:
-          - gosec
-        text: "G302:"
-        path: "(_test\\.go|scripts/)"
-      - linters:
-          - gosec
-        text: "G306:"
-        path: "(_test\\.go|scripts/)"
-      - linters:
-          - gosec
-        text: "G204:"
-        path: "(_test\\.go|scripts/)"
-      - linters:
-          - gosec
-        text: "G304:"
-        path: "(_test\\.go|scripts/|internal/service/image.go)"
-      - linters:
-          - gosec
-        text: "G404:"
-        path: "(_test\\.go|scripts/)"
-      - linters:
-          - gosec
-        text: "G203:"
-        path: "(_test\\.go|scripts/|internal/ui/renderer.go)"
-      - linters:
-          - gosec
-        text: "G402:"
-        path: "(_test\\.go|scripts/)"
-      - linters:
-          - gosec
-        text: "G101:"
-        path: "(_test\\.go|scripts/|cmd/server.go)"
-      - linters:
-          - gosec
-        text: "G122:"
-        path: "(_test\\.go|scripts/)"
-      - linters:
-          - gosec
-        text: "G702:"
-        path: "(_test\\.go|scripts/)"
-      - linters:
-          - gosec
-        text: "G703:"
-        path: "(_test\\.go|scripts/)"
+      - name: exported
+        disabled: true
+  gosec:
+    config:
+      G306: "0600" # redundant but safe
+  nolintlint:
+    allow-unused: true
+    allow-no-explanation: []
+    require-explanation: true
+    require-specific: true
 
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
+  exclude-rules:
+    - path: "(_test\\.go|scripts/)"
+      linters:
+        - gosec
+        - bodyclose
+        - errcheck
+    - linters:
+        - gosec
+      text: "G301:"
+      path: "(_test\\.go|scripts/|internal/service/image.go)"
+    - linters:
+        - gosec
+      text: "G302:"
+      path: "(_test\\.go|scripts/)"
+    - linters:
+        - gosec
+      text: "G306:"
+      path: "(_test\\.go|scripts/)"
+    - linters:
+        - gosec
+      text: "G204:"
+      path: "(_test\\.go|scripts/)"
+    - linters:
+        - gosec
+      text: "G304:"
+      path: "(_test\\.go|scripts/|internal/service/image.go)"
+    - linters:
+        - gosec
+      text: "G404:"
+      path: "(_test\\.go|scripts/)"
+    - linters:
+        - gosec
+      text: "G203:"
+      path: "(_test\\.go|scripts/|internal/ui/renderer.go)"
+    - linters:
+        - gosec
+      text: "G402:"
+      path: "(_test\\.go|scripts/)"
+    - linters:
+        - gosec
+      text: "G101:"
+      path: "(_test\\.go|scripts/|cmd/server.go)"
+    - linters:
+        - gosec
+      text: "G122:"
+      path: "(_test\\.go|scripts/)"
+    - linters:
+        - gosec
+      text: "G702:"
+      path: "(_test\\.go|scripts/)"
+    - linters:
+        - gosec
+      text: "G703:"
+      path: "(_test\\.go|scripts/)"

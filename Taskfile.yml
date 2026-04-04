@@ -42,7 +42,7 @@ tasks:
     deps:
       - task: lint:install
     cmds:
-      - '{{.GOBIN}}/golangci-lint run -c scripts/.golangci.yml --new-from-rev=HEAD'
+      - 'go run github.com/golangci/golangci-lint/cmd/golangci-lint run -c scripts/.golangci.yml --new-from-rev=HEAD'
 
   lint:
     desc: Run full lint on the entire codebase
