@@ -369,6 +369,14 @@ var critiqueCmd = &cobra.Command{
 	},
 }
 
+var perfCmd = &cobra.Command{
+	Use:   "perf",
+	Short: "Run performance audit natively",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return maintenance.RunPerformanceAudit(".")
+	},
+}
+
 func main() {
 	rootCmd.AddCommand(
 		apiSpecCmd,
@@ -383,6 +391,7 @@ func main() {
 		gitleaksCmd,
 		ignoredFilesCmd,
 		critiqueCmd,
+		perfCmd,
 	)
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
