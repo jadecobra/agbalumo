@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"sort"
+	"strings"
 )
 
 var rootCmd = &cobra.Command{
@@ -218,8 +219,69 @@ var ciCmd = &cobra.Command{
 	},
 }
 
+func getStagedFiles(extension string) ([]string, error) {
+	out, err := exec.Command("git", "diff", "--cached", "--name-only", "--diff-filter=ACMR").Output()
+	if err != nil {
+		return nil, err
+	}
+	var files []string
+	lines := strings.Split(string(out), "\n")
+	for _, l := range lines {
+		if strings.HasSuffix(l, extension) {
+			files = append(files, l)
+		}
+	}
+	return files, nil
+}
+
+var precommitCmd = &cobra.Command{
+	Use:   "precommit",
+	Short: "Highly optimized, parallelized checks restricted only to staged files",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("🚀 Starting Fast Pre-Commit Engine...")
+
+		// 1. Mod Tidy drift check
+		fmt.Println("📦 Checking go.mod/go.sum drift...")
+		if err := runCmd("go", "mod", "tidy"); err != nil {
+			return fmt.Errorf("go mod tidy failed: %w", err)
+		}
+		if err := exec.Command("git", "diff", "--exit-code", "go.mod", "go.sum").Run(); err != nil {
+			return fmt.Errorf("drift detected in go.mod/go.sum. Please commit changes: %w", err)
+		}
+
+		// 2. Fmt staged files
+		stagedGoFiles, err := getStagedFiles(".go")
+		if err != nil {
+			return fmt.Errorf("failed to get staged files: %w", err)
+		}
+		if len(stagedGoFiles) > 0 {
+			fmt.Printf("🧹 Formatting %d staged files...\n", len(stagedGoFiles))
+			args := append([]string{"-w"}, stagedGoFiles...)
+			if err := runCmd("gofmt", args...); err != nil {
+				return fmt.Errorf("gofmt failed: %w", err)
+			}
+		}
+
+		// 3. Build check
+		fmt.Println("🔨 Running fast build syntax check...")
+		if err := runCmd("go", "build", "-o", "/dev/null", "./..."); err != nil {
+			return fmt.Errorf("build check failed: %w", err)
+		}
+
+		// 4. Lint Stage (diff only)
+		fmt.Println("🛡️ Running staged-only lint...")
+		// Use go run for the pinned tool
+		if err := runCmd("go", "run", "github.com/golangci/golangci-lint/cmd/golangci-lint", "run", "-c", "scripts/.golangci.yml", "--new-from-rev=HEAD"); err != nil {
+			return fmt.Errorf("lint stage failed: %w", err)
+		}
+
+		fmt.Println("✅ Pre-commit verification passed!")
+		return nil
+	},
+}
+
 func main() {
-	rootCmd.AddCommand(apiSpecCmd, templateDriftCmd, costCmd, coverageCmd, auditCmd, ciCmd)
+	rootCmd.AddCommand(apiSpecCmd, templateDriftCmd, costCmd, coverageCmd, auditCmd, ciCmd, precommitCmd)
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}

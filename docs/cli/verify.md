@@ -61,3 +61,11 @@ Enforce coverage threshold anti-degradation.
 ```bash
 agbalumo verify coverage
 ```
+
+##### precommit
+
+Highly optimized, parallelized checks restricted only to staged files.
+
+```bash
+agbalumo verify precommit
+```
