@@ -24,11 +24,10 @@ check_dep "npm"
 check_dep "git"
 check_dep "bc"
 check_dep "lsof"
-check_dep "task"
 
 # Backup existing hook if it's not ours
 if [ -f "$PRE_COMMIT_HOOK" ]; then
-    if ! grep -q "task pre-commit" "$PRE_COMMIT_HOOK"; then
+    if ! grep -q "cmd/verify/main.go precommit" "$PRE_COMMIT_HOOK"; then
         echo "📦 Backing up existing pre-commit hook to $PRE_COMMIT_HOOK.bak"
         cp "$PRE_COMMIT_HOOK" "$PRE_COMMIT_HOOK.bak"
     fi

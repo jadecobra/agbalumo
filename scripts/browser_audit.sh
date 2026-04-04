@@ -19,7 +19,7 @@ pkill server || true
 
 # 2. Rebuild
 echo "🔨 Rebuilding server and assets..."
-task restart-server
+SKIP_PRE_COMMIT=true ./scripts/verify_restart.sh
 
 # 3. Launch
 echo "🚀 Starting server at $BASE_URL with MOCK_AUTH=true..."

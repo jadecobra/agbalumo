@@ -12,9 +12,9 @@ done
 # 1. Run Quality Checks (Tests + Coverage)
 if [ "$SKIP_PRE_COMMIT" != "true" ]; then
     echo "🔍 Running Quality Checks..."
-    task pre-commit
+    go run cmd/verify/main.go precommit
 else
-    echo "🔍 Skipping pre-commit checks (called from pre-commit.sh)..."
+    echo "🔍 Skipping pre-commit checks..."
 fi
 
 # 2. Build Assets & Server

@@ -69,3 +69,75 @@ Highly optimized, parallelized checks restricted only to staged files.
 ```bash
 agbalumo verify precommit
 ```
+
+##### check-gates
+
+Verify TDD workflow gates based on Git history and staged changes.
+
+```bash
+agbalumo verify check-gates
+```
+
+##### ci-tools
+
+Verify CI toolset availability and OS friendliness.
+
+```bash
+agbalumo verify ci-tools
+```
+
+##### critique
+
+Run ChiefCritic robustness audit natively.
+
+```bash
+agbalumo verify critique
+```
+
+##### gitleaks
+
+Run gitleaks secret scan on staged files.
+
+```bash
+agbalumo verify gitleaks
+```
+
+##### ignored-files
+
+Check for ignored files staged for commit.
+
+```bash
+agbalumo verify ignored-files
+```
+
+##### perf
+
+Run performance audit natively.
+
+```bash
+agbalumo verify perf
+```
+
+##### test
+
+Run tests with race detection and coverage enforcement.
+
+```bash
+agbalumo verify test [pkg] [--race=true] [--threshold-path=path]
+```
+
+##### verify-shas
+
+Verify all GitHub Action SHAs are pinned.
+
+```bash
+agbalumo verify verify-shas
+```
+
+##### watch
+
+Watch files and restart a command (e.g., serve or test).
+
+```bash
+agbalumo verify watch [command] [args...]
+```

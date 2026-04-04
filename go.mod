@@ -3,6 +3,7 @@ module github.com/jadecobra/agbalumo
 go 1.25.0
 
 require (
+	github.com/fsnotify/fsnotify v1.8.0
 	github.com/gen2brain/webp v0.5.5
 	github.com/golangci/golangci-lint v1.64.8
 	github.com/google/uuid v1.6.0
@@ -84,7 +85,6 @@ require (
 	github.com/fatih/semgroup v1.2.0 // indirect
 	github.com/fatih/structtag v1.2.0 // indirect
 	github.com/firefart/nonamedreturns v1.0.5 // indirect
-	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/fzipp/gocyclo v0.6.0 // indirect
 	github.com/ghostiam/protogetter v0.3.9 // indirect
 	github.com/gitleaks/go-gitdiff v0.9.1 // indirect

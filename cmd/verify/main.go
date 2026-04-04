@@ -312,8 +312,8 @@ var precommitCmd = &cobra.Command{
 		}
 		if len(stagedGoFiles) > 0 {
 			fmt.Printf("🧹 Formatting %d staged files...\n", len(stagedGoFiles))
-			args := append([]string{"-w"}, stagedGoFiles...)
-			if err := runCmd("gofmt", args...); err != nil {
+			fmtArgs := append([]string{"-w"}, stagedGoFiles...)
+			if err := runCmd("gofmt", fmtArgs...); err != nil {
 				return fmt.Errorf("gofmt failed: %w", err)
 			}
 		}
@@ -377,7 +377,58 @@ var perfCmd = &cobra.Command{
 	},
 }
 
+var checkGatesCmd = &cobra.Command{
+	Use:   "check-gates",
+	Short: "Verify TDD workflow gates based on Git history and staged changes",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		phase, err := maintenance.InferCurrentPhase(".")
+		if err != nil {
+			return err
+		}
+		return maintenance.ExecuteGateChecks(".", phase)
+	},
+}
+
+var testCmd = &cobra.Command{
+	Use:   "test [pkg]",
+	Short: "Run tests with race detection and coverage enforcement",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		pkg := "./..."
+		if len(args) > 0 {
+			pkg = args[0]
+		}
+		race, _ := cmd.Flags().GetBool("race")
+		thresholdPath, _ := cmd.Flags().GetString("threshold-path")
+		if thresholdPath == "" {
+			// Check .metrics/coverage then .agents/coverage-threshold
+			if _, err := os.Stat(".metrics/coverage"); err == nil {
+				thresholdPath = ".metrics/coverage"
+			} else if _, err := os.Stat(".agents/coverage-threshold"); err == nil {
+				thresholdPath = ".agents/coverage-threshold"
+			}
+		}
+		return maintenance.RunTests(pkg, race, thresholdPath)
+	},
+}
+
+var watchCmd = &cobra.Command{
+	Use:   "watch [command] [args...]",
+	Short: "Watch files and restart a command (e.g., serve or test)",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cmdName := "go"
+		cmdArgs := []string{"run", "main.go", "serve"}
+		if len(args) > 0 {
+			cmdName = args[0]
+			cmdArgs = args[1:]
+		}
+		return maintenance.Watch(cmd.Context(), cmdName, cmdArgs)
+	},
+}
+
 func main() {
+	testCmd.Flags().Bool("race", true, "Enable race detection")
+	testCmd.Flags().String("threshold-path", "", "Path to coverage threshold file")
+
 	rootCmd.AddCommand(
 		apiSpecCmd,
 		templateDriftCmd,
@@ -392,6 +443,9 @@ func main() {
 		ignoredFilesCmd,
 		critiqueCmd,
 		perfCmd,
+		checkGatesCmd,
+		testCmd,
+		watchCmd,
 	)
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
