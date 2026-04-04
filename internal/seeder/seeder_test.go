@@ -5,14 +5,14 @@ import (
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/jadecobra/agbalumo/internal/seeder"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestSeedAll(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 
 	seeder.SeedAll(context.Background(), repo)
 
@@ -23,7 +23,7 @@ func TestSeedAll(t *testing.T) {
 }
 
 func TestEnsureSeeded_Empty(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 
 	seeder.EnsureSeeded(context.Background(), repo)
 
@@ -34,7 +34,7 @@ func TestEnsureSeeded_Empty(t *testing.T) {
 }
 
 func TestEnsureSeeded_NotEmpty(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	// Seed one listing
 	l := domain.Listing{ID: "1", Title: "Existing", OwnerOrigin: "Ghana", Type: "Business", Address: "123 St"}
 	_ = repo.Save(context.Background(), l)

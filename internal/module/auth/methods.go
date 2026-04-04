@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/ui"
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/labstack/echo/v4"
 )
@@ -22,7 +22,7 @@ func (h *AuthHandler) DevLogin(c echo.Context) error {
 	}
 
 	if h.Cfg.Env != "development" {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusForbidden, "Dev login disabled in production"))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusForbidden, "Dev login disabled in production"))
 	}
 	
 	googleID := "dev-" + email
@@ -31,7 +31,7 @@ func (h *AuthHandler) DevLogin(c echo.Context) error {
 
 	user, err := h.findOrCreateUser(c.Request().Context(), googleID, email, name, avatar)
 	if err != nil {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Failed to login"))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Failed to login"))
 	}
 
 	return h.setSessionAndRedirect(c, user.ID)
@@ -39,7 +39,7 @@ func (h *AuthHandler) DevLogin(c echo.Context) error {
 
 func (h *AuthHandler) GoogleLogin(c echo.Context) error {
 	if !h.Cfg.HasGoogleAuth {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusServiceUnavailable, "Google OAuth is not configured"))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusServiceUnavailable, "Google OAuth is not configured"))
 	}
 
 	state := uuid.New().String()
@@ -97,7 +97,7 @@ func (h *AuthHandler) findOrCreateUser(ctx context.Context, googleID, email, nam
 func (h *AuthHandler) setSessionAndRedirect(c echo.Context, userID string) error {
 	sess := customMiddleware.GetSession(c)
 	if sess == nil {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Session Store Missing"))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Session Store Missing"))
 	}
 
 	baseURL := os.Getenv("BASE_URL")
@@ -112,7 +112,7 @@ func (h *AuthHandler) setSessionAndRedirect(c echo.Context, userID string) error
 	}
 	sess.Values["user_id"] = userID
 	if err := sess.Save(c.Request(), c.Response()); err != nil {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Failed to save session"))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Failed to save session"))
 	}
 
 	return c.Redirect(http.StatusTemporaryRedirect, "/")
@@ -122,7 +122,7 @@ func (h *AuthHandler) GoogleCallback(c echo.Context) error {
 
 	stateCookie, err := c.Cookie("oauth_state")
 	if err != nil || stateCookie.Value != state {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "States don't match or expired"))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "States don't match or expired"))
 	}
 
 	deleteCookie := new(http.Cookie)
@@ -135,17 +135,17 @@ func (h *AuthHandler) GoogleCallback(c echo.Context) error {
 	code := c.QueryParam("code")
 	token, err := h.GoogleProvider.Exchange(c.Request().Context(), code, c.Scheme(), c.Request().Host)
 	if err != nil {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Code exchange failed"))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Code exchange failed"))
 	}
 
 	gUser, err := h.GoogleProvider.GetUserInfo(c.Request().Context(), token)
 	if err != nil {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "User data fetch failed"))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "User data fetch failed"))
 	}
 
 	user, err := h.findOrCreateUser(c.Request().Context(), gUser.ID, gUser.Email, gUser.Name, gUser.Picture)
 	if err != nil {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Failed to login"))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Failed to login"))
 	}
 
 	return h.setSessionAndRedirect(c, user.ID)

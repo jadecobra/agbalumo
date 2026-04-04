@@ -11,7 +11,7 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/stretchr/testify/assert"
 )
@@ -27,7 +27,7 @@ func TestAdminHandler_HandleAddCategory_Success(t *testing.T) {
 	session, _ := store.Get(c.Request(), "auth_session")
 	c.Set("session", session)
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 
 	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
 	_ = h.HandleAddCategory(c)
@@ -48,7 +48,7 @@ func TestAdminHandler_HandleAddCategory_EmptyName_Redirects(t *testing.T) {
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/categories/add", strings.NewReader(formData.Encode()))
 	c.Set("User", domain.User{ID: "admin1", Role: domain.UserRoleAdmin})
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
 	_ = h.HandleAddCategory(c)
 
@@ -69,7 +69,7 @@ func TestAdminHandler_HandleAddCategory_DuplicateName_Redirects(t *testing.T) {
 	session, _ := store.Get(c.Request(), "auth_session")
 	c.Set("session", session)
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	// Seed existing category
 	_ = repo.SaveCategory(context.Background(), domain.CategoryData{ID: "music", Name: "Music"})
 
@@ -94,7 +94,7 @@ func TestAdminHandler_HandleAddCategory_Claimable(t *testing.T) {
 	session, _ := store.Get(c.Request(), "auth_session")
 	c.Set("session", session)
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 
 	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
 	_ = h.HandleAddCategory(c)

@@ -10,13 +10,13 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHandleCreate_GeocodingFallback(t *testing.T) {
 	// 1. Setup
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	mockGeocoding := &MockGeocodingService{
 		GetCityFunc: func(ctx context.Context, address string) (string, error) {
 			if address == "1600 Amphitheatre Parkway, Mountain View, CA" {

@@ -11,7 +11,7 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -47,7 +47,7 @@ func TestAdminHandler_HandleLoginView(t *testing.T) {
 				c.Set("User", tt.user)
 			}
 
-			repo := handler.SetupTestRepository(t)
+			repo := testutil.SetupTestRepository(t)
 			h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
 			_ = h.HandleLoginView(c)
 
@@ -104,7 +104,7 @@ func TestAdminHandler_HandleLoginAction(t *testing.T) {
 			formData.Set("code", tt.code)
 			c, rec := setupAdminTestContext(http.MethodPost, "/admin/login", strings.NewReader(formData.Encode()))
 
-			repo := handler.SetupTestRepository(t)
+			repo := testutil.SetupTestRepository(t)
 			if tt.user != nil {
 				err := repo.SaveUser(context.Background(), *tt.user)
 				assert.NoError(t, err)

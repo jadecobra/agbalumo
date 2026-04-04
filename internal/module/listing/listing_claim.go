@@ -1,7 +1,8 @@
 package listing
 
 import (
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/module/user"
+	"github.com/jadecobra/agbalumo/internal/ui"
 
 	"net/http"
 
@@ -10,24 +11,24 @@ import (
 
 // HandleClaim processes a request to claim an unowned listing.
 func (h *ListingHandler) HandleClaim(c echo.Context) error {
-	user, ok := handler.GetUser(c)
+	u, ok := user.GetUser(c)
 	if !ok {
 		return c.Redirect(http.StatusFound, "/auth/google/login")
 	}
 
 	id := c.Param("id")
 
-	_, err := h.ListingSvc.ClaimListing(c.Request().Context(), *user, id)
+	_, err := h.ListingSvc.ClaimListing(c.Request().Context(), *u, id)
 	if err != nil {
 		switch err.Error() {
 		case "listing not found":
-			return handler.RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
+			return ui.RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
 		case "listing is already owned", "listing type cannot be claimed":
-			return handler.RespondError(c, echo.NewHTTPError(http.StatusForbidden, err.Error()))
+			return ui.RespondError(c, echo.NewHTTPError(http.StatusForbidden, err.Error()))
 		case "you already have a pending claim for this listing":
-			return handler.RespondError(c, echo.NewHTTPError(http.StatusConflict, err.Error()))
+			return ui.RespondError(c, echo.NewHTTPError(http.StatusConflict, err.Error()))
 		default:
-			return handler.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Failed to submit claim: "+err.Error()))
+			return ui.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Failed to submit claim: "+err.Error()))
 		}
 	}
 

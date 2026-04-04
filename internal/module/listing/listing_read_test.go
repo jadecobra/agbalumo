@@ -10,7 +10,7 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
@@ -23,7 +23,7 @@ func TestHandleHome(t *testing.T) {
 	c := e.NewContext(req, rec)
 	ctx := context.Background()
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	_ = repo.Save(ctx, domain.Listing{
 		ID:           "1",
 		Title:        "Listing 1",
@@ -64,7 +64,7 @@ func TestHandleDetail(t *testing.T) {
 	c.SetParamValues("1")
 	ctx := context.Background()
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	_ = repo.Save(ctx, domain.Listing{
 		ID:           "1",
 		Title:        "Detail View",
@@ -104,7 +104,7 @@ func TestHandleProfile(t *testing.T) {
 	user := domain.User{ID: "u1", Name: "John Doe"}
 	c.Set("User", user)
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	_ = repo.Save(ctx, domain.Listing{
 		ID:           "1",
 		Title:        "My Listing",
@@ -143,7 +143,7 @@ func TestHandleFragment(t *testing.T) {
 	c := e.NewContext(req, rec)
 	ctx := context.Background()
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	// Seed 31 listings to test pagination limit of 30
 	for i := 1; i <= 31; i++ {
 		_ = repo.Save(ctx, domain.Listing{

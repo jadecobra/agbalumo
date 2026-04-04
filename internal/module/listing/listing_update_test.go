@@ -10,7 +10,7 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -47,7 +47,7 @@ func TestHandleEdit(t *testing.T) {
 			c.SetParamValues("1")
 			c.Set("User", tt.user)
 
-			repo := handler.SetupTestRepository(t)
+			repo := testutil.SetupTestRepository(t)
 			tt.setup(t, repo)
 			listingSvc := listmod.NewListingService(repo, repo, repo)
 			h := listmod.NewListingHandler(listmod.ListingDependencies{
@@ -101,7 +101,7 @@ func TestHandleUpdate(t *testing.T) {
 			c.SetParamValues("1")
 			c.Set("User", tt.user)
 
-			repo := handler.SetupTestRepository(t)
+			repo := testutil.SetupTestRepository(t)
 			tt.setup(t, repo)
 
 			listingSvc := listmod.NewListingService(repo, repo, repo)
@@ -121,7 +121,7 @@ func TestHandleUpdate(t *testing.T) {
 	}
 }
 func TestHandleUpdate_NotFound(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	c, rec := setupTestContext(http.MethodPost, "/listings/1", strings.NewReader(""))
 	c.SetPath("/listings/:id")
 	c.SetParamNames("id")
@@ -142,7 +142,7 @@ func TestHandleUpdate_NotFound(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, rec.Code)
 }
 func TestHandleUpdate_NoUser(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	c, rec := setupTestContext(http.MethodPost, "/listings/1", strings.NewReader(""))
 	c.SetPath("/listings/:id")
 	c.SetParamNames("id")
@@ -162,7 +162,7 @@ func TestHandleUpdate_NoUser(t *testing.T) {
 	assert.Equal(t, http.StatusUnauthorized, rec.Code)
 }
 func TestHandleUpdate_DuplicateTitle(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	_ = repo.Save(context.Background(), domain.Listing{ID: "1", OwnerID: "user1", Title: "Old", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "123 St"})
 	_ = repo.Save(context.Background(), domain.Listing{ID: "2", OwnerID: "user2", Title: "Taken Title", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "456 St"})
 

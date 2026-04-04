@@ -13,14 +13,14 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAdminHandler_HandleBulkAction_MorePaths(t *testing.T) {
 	e := echo.New()
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: nil})
 
 	ctx := context.Background()

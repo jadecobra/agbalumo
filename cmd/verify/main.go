@@ -21,7 +21,7 @@ var apiSpecCmd = &cobra.Command{
 		fmt.Println("🔍 Checking API and CLI Drift...")
 
 		// 1. Code Routes
-		codeRoutes, err := maintenance.ExtractRoutes("cmd", "internal/handler", "internal/module")
+		codeRoutes, err := maintenance.ExtractRoutes("cmd", "internal/handler", "internal/module", "internal/infra")
 		if err != nil {
 			return fmt.Errorf("failed to extract code routes: %w", err)
 		}

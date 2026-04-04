@@ -14,7 +14,7 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -28,7 +28,7 @@ func TestHomePageUIValues(t *testing.T) {
 	c := e.NewContext(req, rec)
 	ctx := context.Background()
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	err := repo.Save(ctx, domain.Listing{ID: "1", Title: "Business A", Type: domain.Business, IsActive: true, CreatedAt: time.Now()})
 	require.NoError(t, err)
 	err = repo.Save(ctx, domain.Listing{ID: "2", Title: "Job B", Type: domain.Job, IsActive: true, CreatedAt: time.Now().Add(time.Second)})

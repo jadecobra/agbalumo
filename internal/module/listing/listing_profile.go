@@ -1,25 +1,24 @@
 package listing
 
 import (
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/module/user"
+	"github.com/jadecobra/agbalumo/internal/ui"
 
 	"net/http"
 
-	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/labstack/echo/v4"
 )
 
 func (h *ListingHandler) HandleProfile(c echo.Context) error {
-	user := c.Get("User")
-	if user == nil {
+	u, ok := user.GetUser(c)
+	if !ok || u == nil {
 		return c.Redirect(http.StatusTemporaryRedirect, "/auth/google/login")
 	}
-	u := user.(domain.User)
 
 	p := GetPagination(c, 50)
 	listings, _, err := h.ListingStore.FindAllByOwner(c.Request().Context(), u.ID, p.Limit, p.Offset)
 	if err != nil {
-		return handler.RespondError(c, err)
+		return ui.RespondError(c, err)
 	}
 
 	data := map[string]interface{}{

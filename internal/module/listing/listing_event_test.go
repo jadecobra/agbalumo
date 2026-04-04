@@ -12,12 +12,12 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHandleCreate_EventParsing(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 	h := listmod.NewListingHandler(listmod.ListingDependencies{
 		ListingStore:  repo,

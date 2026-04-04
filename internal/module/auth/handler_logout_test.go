@@ -7,7 +7,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/jadecobra/agbalumo/internal/config"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/jadecobra/agbalumo/internal/module/auth"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -25,7 +25,7 @@ func TestAuthHandler_Logout(t *testing.T) {
 	sess, _ := store.Get(req, "session-name")
 	c.Set("session", sess)
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, Config: config.LoadConfig()})
 
 	err := h.Logout(c)
@@ -44,7 +44,7 @@ func TestAuthHandler_Logout_NoSession(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, Config: config.LoadConfig()})
 
 	err := h.Logout(c)

@@ -11,7 +11,7 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
@@ -25,7 +25,7 @@ func TestHandleHome_FeaturedPrioritization(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 
 	// Seed data
 	f1 := domain.Listing{ID: "f1", Title: "Featured 1", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
@@ -80,7 +80,7 @@ func TestHandleHome_FeaturedListings_EmptyCategory(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 
 	// Seed data: Featured listings across MULTIPLE categories to verify HandleHome doesn't filter by a specific category
 	f1 := domain.Listing{ID: "f1", Title: "Featured Business", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
@@ -129,7 +129,7 @@ func TestHandleFragment_FeaturedPrioritization(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 
 	// Seed data
 	f1 := domain.Listing{ID: "f1", Title: "Featured 1", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
@@ -168,7 +168,7 @@ func TestHandleFragment_FeaturedPrioritization_Page2(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 
 	// Seed data
 	f1 := domain.Listing{ID: "f1", Title: "Featured 1", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
@@ -206,7 +206,7 @@ func TestHandleFragment_FeaturedListings_CategoryFilter(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 
 	// Seed data: Featured listings across MULTIPLE categories
 	f1 := domain.Listing{ID: "f1", Title: "Featured Business", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}

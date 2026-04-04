@@ -70,8 +70,8 @@ func ExtractCLICodeCommands(dir string) ([]string, error) {
 			return err
 		}
 		if !info.IsDir() && filepath.Ext(path) == ".go" {
-		// G304: Maintenance utility reads the OpenAPI source file
-		data, err := os.ReadFile(path) //nolint:gosec // maintenance utility
+			// G304: Maintenance utility reads the OpenAPI source file
+			data, err := os.ReadFile(path) //nolint:gosec // maintenance utility
 			if err != nil {
 				return err
 			}
@@ -130,8 +130,8 @@ func ExtractCLIMarkdownCommands(paths ...string) ([]string, error) {
 				fmt.Fprintf(os.Stderr, "Warning: failed to walk %s: %v\n", path, walkErr)
 			}
 		} else if filepath.Ext(path) == ".md" {
-		// G304: Maintenance utility reads API markdown file
-		data, err := os.ReadFile(path) //nolint:gosec // maintenance utility
+			// G304: Maintenance utility reads API markdown file
+			data, err := os.ReadFile(path) //nolint:gosec // maintenance utility
 			if err == nil {
 				matches := headerRe.FindAllStringSubmatch(string(data), -1)
 				for _, match := range matches {

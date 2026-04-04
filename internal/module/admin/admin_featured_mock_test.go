@@ -10,7 +10,7 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"github.com/stretchr/testify/assert"
 )
@@ -48,7 +48,7 @@ func TestAdminHandler_HandleToggleFeatured_BadRequest_MissingID(t *testing.T) {
 	assert.NoError(t, err) // Echo handlers return nil and specify code in c.JSON
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 
-	var errResp handler.ErrorResponse
+	var errResp ui.ErrorResponse
 	if err := json.Unmarshal(rec.Body.Bytes(), &errResp); err != nil {
 		t.Fatalf("failed to unmarshal JSON: %v. Body tracking: %s", err, rec.Body.String())
 	}

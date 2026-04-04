@@ -11,7 +11,7 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -19,7 +19,7 @@ func TestAdminHandler_HandleAllListings(t *testing.T) {
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin/listings", nil)
 	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	// Seed a listing
 	_ = repo.Save(context.Background(), domain.Listing{ID: "1", Title: "Test Listing"})
 
@@ -112,7 +112,7 @@ func TestAdminHandler_HandleToggleFeatured(t *testing.T) {
 			}
 			c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
-			repo := handler.SetupTestRepository(t)
+			repo := testutil.SetupTestRepository(t)
 			tt.setupData(t, repo)
 
 			h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
@@ -141,7 +141,7 @@ func TestAdminHandler_HandleApproveClaim(t *testing.T) {
 	c.SetParamValues("cr1")
 	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	// Seed a claim request
 	_ = repo.SaveClaimRequest(context.Background(), domain.ClaimRequest{ID: "cr1", UserID: "u1", ListingID: "l1", Status: domain.ClaimStatusPending})
 
@@ -159,7 +159,7 @@ func TestAdminHandler_HandleListingRow(t *testing.T) {
 	c.SetParamValues("1")
 	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	_ = repo.Save(context.Background(), domain.Listing{ID: "1", Title: "Test Row Listing"})
 
 	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})

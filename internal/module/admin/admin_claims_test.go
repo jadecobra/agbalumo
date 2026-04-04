@@ -9,12 +9,12 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHandleApproveClaim(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
 
 	// Seed data
@@ -35,7 +35,7 @@ func TestHandleApproveClaim(t *testing.T) {
 }
 
 func TestHandleApproveClaim_Error(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
 
 	// No data seeded for "bad" ID should result in error when trying to update
@@ -49,7 +49,7 @@ func TestHandleApproveClaim_Error(t *testing.T) {
 }
 
 func TestHandleRejectClaim(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
 
 	// Seed data
@@ -70,7 +70,7 @@ func TestHandleRejectClaim(t *testing.T) {
 }
 
 func TestHandleRejectClaim_Error(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
 
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/claims/bad/reject", nil)

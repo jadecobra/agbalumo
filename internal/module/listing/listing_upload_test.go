@@ -13,14 +13,14 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestListingHandler_Upload_Malicious(t *testing.T) {
 	// Setup
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 	h := listmod.NewListingHandler(listmod.ListingDependencies{
 		ListingStore:  repo,
@@ -68,7 +68,7 @@ func TestListingHandler_Upload_Malicious(t *testing.T) {
 
 func TestListingHandler_Upload_Valid(t *testing.T) {
 	// Setup
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 
 	h := listmod.NewListingHandler(listmod.ListingDependencies{

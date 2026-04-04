@@ -10,7 +10,7 @@ import (
 	"github.com/jadecobra/agbalumo/internal/module/admin"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/jadecobra/agbalumo/internal/service"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -18,7 +18,7 @@ import (
 
 func TestAdminHandler_HandleExportListings(t *testing.T) {
 	e := echo.New()
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	csvSvc := service.NewCSVService()
 	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: csvSvc, Cfg: nil})
 

@@ -9,7 +9,7 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/common"
 	"github.com/jadecobra/agbalumo/internal/config"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -35,7 +35,7 @@ func TestHandleAbout(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	cfg := &config.Config{}
 
 	h := common.NewPageHandler(repo, cfg)

@@ -3,7 +3,7 @@ package admin
 import (
 	"github.com/jadecobra/agbalumo/internal/module/listing"
 
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/ui"
 
 	"net/http"
 	"strings"
@@ -26,7 +26,7 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 	// Fetch all listings with the given category filter, including inactive ones.
 	listings, totalCountRows, err := h.ListingStore.FindAll(ctx, category, queryText, sortField, sortOrder, true, pagination.Limit, pagination.Offset)
 	if err != nil {
-		return handler.RespondError(c, err)
+		return ui.RespondError(c, err)
 	}
 
 	hasNextPage := pagination.Offset+len(listings) < totalCountRows
@@ -65,7 +65,7 @@ func (h *AdminHandler) HandleListingRow(c echo.Context) error {
 	ctx := c.Request().Context()
 	listing, err := h.ListingStore.FindByID(ctx, id)
 	if err != nil {
-		return handler.RespondError(c, err)
+		return ui.RespondError(c, err)
 	}
 	return c.Render(http.StatusOK, "admin_listing_table_row", listing)
 }
@@ -74,7 +74,7 @@ func (h *AdminHandler) HandleListingRow(c echo.Context) error {
 func (h *AdminHandler) HandleToggleFeatured(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
-		return handler.RespondJSONError(c, http.StatusBadRequest, "Listing ID is required")
+		return ui.RespondJSONError(c, http.StatusBadRequest, "Listing ID is required")
 	}
 
 	featured := c.FormValue("featured") == "true"
@@ -83,27 +83,27 @@ func (h *AdminHandler) HandleToggleFeatured(c echo.Context) error {
 	if featured {
 		listing, err := h.ListingStore.FindByID(ctx, id)
 		if err != nil {
-			return handler.RespondError(c, err)
+			return ui.RespondError(c, err)
 		}
 
 		if !listing.Featured {
 			featuredListings, err := h.ListingStore.GetFeaturedListings(ctx, string(listing.Type))
 			if err != nil {
-				return handler.RespondError(c, err)
+				return ui.RespondError(c, err)
 			}
 			if len(featuredListings) >= 3 {
-				return handler.RespondJSONError(c, http.StatusBadRequest, "Maximum of 3 featured listings per category reached")
+				return ui.RespondJSONError(c, http.StatusBadRequest, "Maximum of 3 featured listings per category reached")
 			}
 		}
 	}
 
 	if err := h.ListingStore.SetFeatured(ctx, id, featured); err != nil {
-		return handler.RespondError(c, err)
+		return ui.RespondError(c, err)
 	}
 
 	updatedListing, err := h.ListingStore.FindByID(ctx, id)
 	if err != nil {
-		return handler.RespondError(c, err)
+		return ui.RespondError(c, err)
 	}
 
 	return c.Render(http.StatusOK, "admin_listing_table_row", updatedListing)

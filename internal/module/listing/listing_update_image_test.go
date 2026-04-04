@@ -10,13 +10,13 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	testifyMock "github.com/stretchr/testify/mock"
 )
 
 func TestHandleUpdate_ImageRemoval(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 
 	// Existing listing with an image
 	existingListing := domain.Listing{

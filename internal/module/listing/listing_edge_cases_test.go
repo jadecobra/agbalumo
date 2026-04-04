@@ -15,14 +15,14 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	testifyMock "github.com/stretchr/testify/mock"
 )
 
 func TestHandleCreate_WithImage(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
@@ -82,7 +82,7 @@ func TestHandleCreate_InvalidDates(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			repo := handler.SetupTestRepository(t)
+			repo := testutil.SetupTestRepository(t)
 			c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
 			listingSvc := listmod.NewListingService(repo, repo, repo)
 			h := listmod.NewListingHandler(listmod.ListingDependencies{
@@ -101,7 +101,7 @@ func TestHandleCreate_InvalidDates(t *testing.T) {
 }
 
 func TestHandleCreate_ImageUploadError(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
@@ -132,7 +132,7 @@ func TestHandleCreate_ImageUploadError(t *testing.T) {
 }
 
 func TestHandleProfile_NoUser(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	c, rec := setupTestContext(http.MethodGet, "/profile", nil)
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 	h := listmod.NewListingHandler(listmod.ListingDependencies{

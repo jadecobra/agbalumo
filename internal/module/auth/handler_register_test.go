@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/jadecobra/agbalumo/internal/module/auth"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -30,7 +30,7 @@ func TestAuthHandler_GoogleCallback_SaveUserError(t *testing.T) {
 	sess, _ := store.Get(req, "session-name")
 	c.Set("session", sess)
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	mockProvider := &MockGoogleProvider{}
 	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, GoogleProvider: mockProvider, Config: config.LoadConfig()})
 
@@ -57,7 +57,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfile(t *testing.T) {
 	sess, _ := store.Get(req, "session-name")
 	c.Set("session", sess)
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	mockProvider := &MockGoogleProvider{}
 	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, GoogleProvider: mockProvider, Config: config.LoadConfig()})
 
@@ -103,7 +103,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfileSaveError(t *testing.T) {
 	sess, _ := store.Get(req, "session-name")
 	c.Set("session", sess)
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	mockProvider := &MockGoogleProvider{}
 	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, GoogleProvider: mockProvider, Config: config.LoadConfig()})
 
@@ -146,7 +146,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfile_NoChanges(t *testing.T) {
 	sess, _ := store.Get(req, "session-name")
 	c.Set("session", sess)
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	mockProvider := &MockGoogleProvider{}
 	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, GoogleProvider: mockProvider, Config: config.LoadConfig()})
 
@@ -194,7 +194,7 @@ func TestAuthHandler_GoogleCallback_CrossSiteCallback(t *testing.T) {
 	sess, _ := store.Get(req, "session-name")
 	c.Set("session", sess)
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	mockProvider := &MockGoogleProvider{}
 	cfg := config.LoadConfig()
 	cfg.HasGoogleAuth = true

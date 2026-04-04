@@ -10,12 +10,12 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAdminHandler_HandleDashboard_HappyPath(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	// Seed data for various components of the dashboard
 	ctx := context.Background()
 
@@ -47,7 +47,7 @@ func TestAdminHandler_HandleDashboard_HappyPath(t *testing.T) {
 }
 
 func TestAdminHandler_HandleDashboard_GrowthMetrics(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	ctx := context.Background()
 
 	// Seed multiple users/listings on different days if possible, or just enough to show it doesn't crash

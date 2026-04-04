@@ -10,7 +10,7 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -54,7 +54,7 @@ func TestHandleCreate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
-			repo := handler.SetupTestRepository(t)
+			repo := testutil.SetupTestRepository(t)
 			tt.setup(t, repo)
 
 			listingSvc := listmod.NewListingService(repo, repo, repo)
@@ -79,7 +79,7 @@ func TestHandleCreate(t *testing.T) {
 	}
 }
 func TestHandleCreate_NoUser(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	body := "title=Test&type=Business&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&city=Lagos&address=123+St"
 	c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(body))
 
@@ -97,7 +97,7 @@ func TestHandleCreate_NoUser(t *testing.T) {
 	assert.Equal(t, http.StatusUnauthorized, rec.Code)
 }
 func TestHandleCreate_DuplicateTitle(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	_ = repo.Save(context.Background(), domain.Listing{ID: "x", Title: "Existing", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "123 St"})
 
 	body := "title=Existing&type=Business&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&city=Lagos&address=123+St"

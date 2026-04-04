@@ -8,7 +8,7 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -17,7 +17,7 @@ func TestAdminHandler_HandleUsers_Success(t *testing.T) {
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin/users", nil)
 	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	// Seed a user
 	user := domain.User{ID: "u1", Name: "Test User", Email: "test@test.com", Role: domain.UserRoleUser}
 	err := repo.SaveUser(c.Request().Context(), user)

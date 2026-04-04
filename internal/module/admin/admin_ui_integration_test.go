@@ -12,7 +12,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
@@ -21,7 +21,7 @@ func TestAdminDashboardFooterPosition(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplateForPage(t, "admin_dashboard.html")}
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	ctx := context.Background()
 
 	// Seed some feedback
@@ -74,7 +74,7 @@ func TestMetricCardsHaveModalTriggers(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplateForPage(t, "admin_dashboard.html")}
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	ctx := context.Background()
 	_ = repo.Save(ctx, domain.Listing{ID: "1", Title: "Business A", Type: domain.Business, IsActive: true})
 
@@ -115,7 +115,7 @@ func TestCategoryModalExists(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplateForPage(t, "admin_dashboard.html")}
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: nil})
 
 	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
@@ -153,7 +153,7 @@ func TestAdminDashboard_FlashMessages(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplateForPage(t, "admin_dashboard.html")}
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: nil})
 
 	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
@@ -212,7 +212,7 @@ func TestAdminListings_ModalTrigger(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplateForPage(t, "admin_listings.html")}
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	ctx := context.Background()
 	_ = repo.Save(ctx, domain.Listing{ID: "listing1", Title: "Business A", Type: domain.Business, IsActive: true})
 

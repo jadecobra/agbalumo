@@ -3,7 +3,8 @@ package admin
 import (
 	"github.com/jadecobra/agbalumo/internal/module/listing"
 
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/module/user"
+	"github.com/jadecobra/agbalumo/internal/ui"
 
 	"fmt"
 	"io"
@@ -92,13 +93,12 @@ func (h *AdminHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddleware
 // AdminMiddleware checks if the user is an admin.
 func (h *AdminHandler) AdminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		user := c.Get("User")
-		if user == nil {
+		u, ok := user.GetUser(c)
+		if !ok || u == nil {
 			return c.Redirect(http.StatusTemporaryRedirect, "/auth/google/login")
 		}
 
-		u, ok := user.(domain.User)
-		if !ok || u.Role != domain.UserRoleAdmin {
+		if u.Role != domain.UserRoleAdmin {
 			// Redirect to claim page to enter access code
 			return c.Redirect(http.StatusTemporaryRedirect, "/admin/login")
 		}
@@ -110,9 +110,8 @@ func (h *AdminHandler) AdminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 // HandleLoginView renders the admin access code form.
 func (h *AdminHandler) HandleLoginView(c echo.Context) error {
 	// If already admin, redirect to dashboard
-	user := c.Get("User")
-	if user != nil {
-		if u, ok := user.(domain.User); ok && u.Role == domain.UserRoleAdmin {
+	if u, ok := user.GetUser(c); ok && u != nil {
+		if u.Role == domain.UserRoleAdmin {
 			return c.Redirect(http.StatusTemporaryRedirect, "/admin")
 		}
 	}
@@ -131,21 +130,15 @@ func (h *AdminHandler) HandleLoginAction(c echo.Context) error {
 	}
 
 	// Promote User
-	user := c.Get("User")
-	if user == nil {
-		return c.Redirect(http.StatusTemporaryRedirect, "/auth/google/login")
-	}
-
-	u, ok := user.(domain.User)
-	if !ok {
-		// Should not happen if OptionalAuth/RequireAuth are working, but handle safely
+	u, ok := user.GetUser(c)
+	if !ok || u == nil {
 		return c.Redirect(http.StatusTemporaryRedirect, "/auth/google/login")
 	}
 
 	u.Role = domain.UserRoleAdmin
 	// SaveUser now handles update via ID efficiently
-	if err := h.UserStore.SaveUser(c.Request().Context(), u); err != nil {
-		return handler.RespondError(c, err)
+	if err := h.UserStore.SaveUser(c.Request().Context(), *u); err != nil {
+		return ui.RespondError(c, err)
 	}
 
 	return c.Redirect(http.StatusFound, "/admin")
@@ -157,32 +150,32 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 
 	claimRequests, err := h.ClaimRequestStore.GetPendingClaimRequests(ctx)
 	if err != nil {
-		return handler.RespondError(c, err)
+		return ui.RespondError(c, err)
 	}
 
 	userCount, err := h.AdminStore.GetUserCount(ctx)
 	if err != nil {
-		return handler.RespondError(c, err)
+		return ui.RespondError(c, err)
 	}
 
 	feedbackCounts, err := h.FeedbackStore.GetFeedbackCounts(ctx)
 	if err != nil {
-		return handler.RespondError(c, err)
+		return ui.RespondError(c, err)
 	}
 
 	listingGrowth, err := h.AnalyticsStore.GetListingGrowth(ctx)
 	if err != nil {
-		return handler.RespondError(c, err)
+		return ui.RespondError(c, err)
 	}
 
 	userGrowth, err := h.AnalyticsStore.GetUserGrowth(ctx)
 	if err != nil {
-		return handler.RespondError(c, err)
+		return ui.RespondError(c, err)
 	}
 
 	feedbacks, err := h.FeedbackStore.GetAllFeedback(ctx)
 	if err != nil {
-		return handler.RespondError(c, err)
+		return ui.RespondError(c, err)
 	}
 
 	// Get Flash Messages
@@ -287,7 +280,7 @@ func (h *AdminHandler) HandleUsers(c echo.Context) error {
 	p := listing.GetPagination(c, 50)
 	users, err := h.AdminStore.GetAllUsers(ctx, p.Limit, p.Offset)
 	if err != nil {
-		return handler.RespondError(c, err)
+		return ui.RespondError(c, err)
 	}
 	p.HasNextPage = len(users) == p.Limit
 
@@ -306,12 +299,12 @@ func (h *AdminHandler) HandleExportListings(c echo.Context) error {
 	// In a very large system, we might want to stream this from the DB directly.
 	listings, _, err := h.ListingStore.FindAll(ctx, "", "", "created_at", "desc", true, 10000, 0)
 	if err != nil {
-		return handler.RespondError(c, err)
+		return ui.RespondError(c, err)
 	}
 
 	reader, err := h.CSVService.GenerateCSV(ctx, listings)
 	if err != nil {
-		return handler.RespondError(c, err)
+		return ui.RespondError(c, err)
 	}
 
 	c.Response().Header().Set(echo.HeaderContentType, "text/csv")

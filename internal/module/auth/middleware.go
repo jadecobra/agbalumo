@@ -26,7 +26,7 @@ func (m *AuthMiddleware) OptionalAuth(next echo.HandlerFunc) echo.HandlerFunc {
 			if userID, ok := sess.Values["user_id"].(string); ok {
 				user, err := m.Repo.FindUserByID(c.Request().Context(), userID)
 				if err == nil {
-					c.Set("User", user)
+					c.Set("User", &user)
 				}
 			}
 		}

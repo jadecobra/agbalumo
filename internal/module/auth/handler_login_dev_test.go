@@ -8,7 +8,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/jadecobra/agbalumo/internal/config"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/jadecobra/agbalumo/internal/module/auth"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -22,7 +22,7 @@ func TestAuthHandler_DevLogin_Production(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	cfg := config.LoadConfig()
 	cfg.Env = "production"
 	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, Config: cfg})
@@ -43,7 +43,7 @@ func TestAuthHandler_DevLogin_Success(t *testing.T) {
 	sess, _ := store.Get(req, "session-name")
 	c.Set("session", sess)
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, Config: config.LoadConfig()})
 
 	_ = os.Setenv("AGBALUMO_ENV", "development")

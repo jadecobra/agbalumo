@@ -12,13 +12,13 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestListingHandler_HandleUpdate_Reproduction(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	ctx := context.Background()
 
 	// 1. Create a listing to edit
@@ -88,7 +88,7 @@ func TestListingHandler_HandleUpdate_Reproduction(t *testing.T) {
 }
 
 func TestListingHandler_HandleUpdate_AdminSource(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	ctx := context.Background()
 
 	// 1. Create a listing to edit

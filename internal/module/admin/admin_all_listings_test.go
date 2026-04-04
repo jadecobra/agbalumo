@@ -9,12 +9,12 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAdminHandler_HandleAllListings_Extended(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 
 	// Seed listings for filtering and counts
 	_ = repo.Save(context.Background(), domain.Listing{ID: "l1", Title: "Test Business", Type: "business", Status: domain.ListingStatusApproved, OwnerOrigin: "Nigeria", Address: "123 Test St", City: "Lagos"})
@@ -81,7 +81,7 @@ func TestAdminHandler_HandleAllListings_Extended(t *testing.T) {
 }
 
 func TestAdminHandler_HandleAllListings_Counts(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	ctx := context.Background()
 
 	// Seed multiple categories

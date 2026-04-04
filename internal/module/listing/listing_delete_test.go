@@ -9,7 +9,7 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -72,7 +72,7 @@ func TestHandleDelete(t *testing.T) {
 				c.Set("User", tt.user)
 			}
 
-			repo := handler.SetupTestRepository(t)
+			repo := testutil.SetupTestRepository(t)
 			tt.setup(t, repo)
 
 			listingSvc := listmod.NewListingService(repo, repo, repo)

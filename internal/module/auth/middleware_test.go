@@ -8,7 +8,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/jadecobra/agbalumo/internal/module/auth"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -25,7 +25,7 @@ func TestAuthMiddleware_RequireAuth_Redirect(t *testing.T) {
 	sess, _ := store.Get(req, "session-name")
 	c.Set("session", sess)
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	authMw := auth.NewAuthMiddleware(repo)
 
 	handlerFunc := authMw.RequireAuth(func(c echo.Context) error {
@@ -50,7 +50,7 @@ func TestAuthMiddleware_RequireAuth_Success(t *testing.T) {
 	sess.Values["user_id"] = "user-123"
 	c.Set("session", sess)
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	authMw := auth.NewAuthMiddleware(repo)
 
 	handlerFunc := authMw.RequireAuth(func(c echo.Context) error {
@@ -75,7 +75,7 @@ func TestAuthMiddleware_OptionalAuth_Success(t *testing.T) {
 	sess.Values["user_id"] = "user-123"
 	c.Set("session", sess)
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	user := domain.User{ID: "user-123", GoogleID: "google-123", Name: "Test User", Email: "test@test.com"}
 	err := repo.SaveUser(context.Background(), user)
 	require.NoError(t, err)
@@ -102,7 +102,7 @@ func TestAuthMiddleware_OptionalAuth_NoSession(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	authMw := auth.NewAuthMiddleware(repo)
 
 	handlerFunc := authMw.OptionalAuth(func(c echo.Context) error {

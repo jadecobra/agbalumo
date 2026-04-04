@@ -12,7 +12,7 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -21,7 +21,7 @@ import (
 func TestAdminHandler_HandleAdminDeleteAction_Success(t *testing.T) {
 	cfg := config.LoadConfig()
 	cfg.AdminCode = "secret"
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 
 	// Seed data
 	_ = repo.Save(context.Background(), domain.Listing{ID: "l1", Title: "To Delete", OwnerOrigin: "Nigeria", Type: "business"})
@@ -45,7 +45,7 @@ func TestAdminHandler_HandleAdminDeleteAction_Success(t *testing.T) {
 }
 
 func TestHandleAdminDeleteView(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	_ = repo.Save(context.Background(), domain.Listing{ID: "listing1", Title: "To Delete", OwnerOrigin: "Nigeria", Type: "business"})
 	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: &config.Config{}})
 
@@ -61,7 +61,7 @@ func TestHandleAdminDeleteView(t *testing.T) {
 }
 
 func TestHandleAdminDeleteView_NoIDs_Redirects(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: &config.Config{}})
 
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin/listings/delete", nil)
@@ -72,7 +72,7 @@ func TestHandleAdminDeleteView_NoIDs_Redirects(t *testing.T) {
 }
 
 func TestHandleAdminDeleteView_FindByIDError_Returns404(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	// No data seeded, so "bad-id" will not be found
 	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: &config.Config{}})
 
@@ -93,7 +93,7 @@ func TestHandleAdminDeleteAction_NoIDs_Redirects(t *testing.T) {
 
 	cfg := config.LoadConfig()
 	cfg.AdminCode = "secret"
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: cfg})
 
 	_ = h.HandleAdminDeleteAction(c)
@@ -110,7 +110,7 @@ func TestHandleAdminDeleteAction_WrongCode_RendersConfirmWithError(t *testing.T)
 	cfg := config.LoadConfig()
 	cfg.AdminCode = "correct"
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	// Seed so it doesn't fail on something else
 	_ = repo.Save(context.Background(), domain.Listing{ID: "l1", Title: "To Delete", OwnerOrigin: "Nigeria", Type: "business"})
 
@@ -124,7 +124,7 @@ func TestHandleAdminDeleteAction_PartialSuccess(t *testing.T) {
 	cfg := config.LoadConfig()
 	cfg.AdminCode = "secret"
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	// Seed only l1
 	_ = repo.Save(context.Background(), domain.Listing{ID: "l1", Title: "To Delete", OwnerOrigin: "Nigeria", Type: "business"})
 

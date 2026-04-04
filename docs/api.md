@@ -38,7 +38,6 @@ No authentication required.
 | GET | `/about` | About page |
 | GET | `/listings/fragment` | HTMX partial for listings |
 | GET | `/listings/:id` | Listing detail page |
-| GET | `/hello-agent` | Hello Agent (test endpoint) |
 
 ### Query Parameters
 

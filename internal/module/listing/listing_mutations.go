@@ -1,7 +1,8 @@
 package listing
 
 import (
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/module/user"
+	"github.com/jadecobra/agbalumo/internal/ui"
 
 	"fmt"
 	"net/http"
@@ -26,20 +27,19 @@ func (h *ListingHandler) HandleCreate(c echo.Context) error {
 		if common.IsImageError(err) {
 			return common.RenderImageErrorToast(c, err)
 		}
-		return handler.RespondError(c, err)
+		return ui.RespondError(c, err)
 	}
 
-	u := c.Get("User")
-	if u == nil {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, "Authentication required to post listings"))
+	uRaw, ok := user.GetUser(c)
+	if !ok || uRaw == nil {
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, "Authentication required to post listings"))
 	}
-	user := u.(domain.User)
-	l.OwnerID = user.ID
+	l.OwnerID = uRaw.ID
 
 	// Check for duplicate title
 	existing, err := h.ListingStore.FindByTitle(c.Request().Context(), l.Title)
 	if err == nil && len(existing) > 0 {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Title already exists. Please choose a different title."))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Title already exists. Please choose a different title."))
 	}
 
 	// Default deadline for requests if not provided
@@ -54,21 +54,20 @@ func (h *ListingHandler) HandleCreate(c echo.Context) error {
 func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 	id := c.Param("id")
 
-	u := c.Get("User")
-	if u == nil {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, "Login Required"))
+	uRaw, ok := user.GetUser(c)
+	if !ok || uRaw == nil {
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, "Login Required"))
 	}
-	user := u.(domain.User)
 
 	ctx := c.Request().Context()
 	listing, err := h.ListingStore.FindByID(ctx, id)
 	if err != nil {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
 	}
 
 	// Authorization Check (Owner or Admin)
-	if listing.OwnerID != user.ID && user.Role != domain.UserRoleAdmin {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusForbidden, "You are not the owner of this listing"))
+	if listing.OwnerID != uRaw.ID && uRaw.Role != domain.UserRoleAdmin {
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusForbidden, "You are not the owner of this listing"))
 	}
 
 	// Save original image URL BEFORE bindAndMapListing may modify it
@@ -79,7 +78,7 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 		if common.IsImageError(err) {
 			return common.RenderImageErrorToast(c, err)
 		}
-		return handler.RespondError(c, err)
+		return ui.RespondError(c, err)
 	}
 
 	// Handle Image Removal
@@ -98,10 +97,9 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 	// Check for duplicate title
 	existing, fErr := h.ListingStore.FindByTitle(ctx, listing.Title)
 	if fErr == nil {
-		// bounded action: title duplicates are usually few
 		for _, ext := range existing {
 			if ext.ID != listing.ID {
-				return handler.RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Title already exists. Please choose a different title."))
+				return ui.RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Title already exists. Please choose a different title."))
 			}
 		}
 	}
@@ -111,23 +109,23 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 
 func (h *ListingHandler) HandleDelete(c echo.Context) error {
 	id := c.Param("id")
-	user, ok := handler.GetUser(c)
-	if !ok {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, "Login required"))
+	uRaw, ok := user.GetUser(c)
+	if !ok || uRaw == nil {
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, "Login required"))
 	}
 
 	ctx := c.Request().Context()
 	listing, err := h.ListingStore.FindByID(ctx, id)
 	if err != nil {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
 	}
 
-	if listing.OwnerID != user.ID {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusForbidden, "You are not the owner of this listing"))
+	if listing.OwnerID != uRaw.ID {
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusForbidden, "You are not the owner of this listing"))
 	}
 
 	if err := h.ListingStore.Delete(ctx, id); err != nil {
-		return handler.RespondError(c, err)
+		return ui.RespondError(c, err)
 	}
 
 	return c.Redirect(http.StatusSeeOther, "/profile")
@@ -152,11 +150,11 @@ func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error
 	}
 
 	if err := l.Validate(); err != nil {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Validation Error: "+err.Error()))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Validation Error: "+err.Error()))
 	}
 
 	if err := h.ListingStore.Save(c.Request().Context(), *l); err != nil {
-		return handler.RespondError(c, err)
+		return ui.RespondError(c, err)
 	}
 
 	var user interface{}

@@ -10,7 +10,7 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -75,7 +75,7 @@ func TestListingHandler_FormParsing(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			repo := handler.SetupTestRepository(t)
+			repo := testutil.SetupTestRepository(t)
 			tt.setup(t, repo)
 
 			listingSvc := listmod.NewListingService(repo, repo, repo)
@@ -107,7 +107,7 @@ func TestListingHandler_FormParsing(t *testing.T) {
 }
 
 func TestListingHandler_URLNormalization(t *testing.T) {
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	listingSvc := listmod.NewListingService(repo, repo, repo)
 	h := listmod.NewListingHandler(listmod.ListingDependencies{
 		ListingStore:  repo,

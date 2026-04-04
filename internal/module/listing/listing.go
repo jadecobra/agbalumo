@@ -1,7 +1,8 @@
 package listing
 
 import (
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/module/user"
+	"github.com/jadecobra/agbalumo/internal/ui"
 
 	"mime/multipart"
 	"net/http"
@@ -112,7 +113,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	wg.Wait()
 
 	if listingsErr != nil {
-		return handler.RespondError(c, listingsErr)
+		return ui.RespondError(c, listingsErr)
 	}
 	hasNextPage := offset+len(listings) < totalCount
 
@@ -169,7 +170,7 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 
 	listings, totalCount, err := h.ListingStore.FindAll(c.Request().Context(), filterType, queryText, "", "", false, limit, offset)
 	if err != nil {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, err.Error()))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, err.Error()))
 	}
 	hasNextPage := offset+len(listings) < totalCount
 
@@ -206,7 +207,7 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 
 	listing, err := h.ListingStore.FindByID(ctx, id)
 	if err != nil {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
 	}
 
 	// Fetch category data to check if claimable
@@ -223,19 +224,19 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 // HandleEdit renders the edit modal
 func (h *ListingHandler) HandleEdit(c echo.Context) error {
 	id := c.Param("id")
-	user, ok := handler.GetUser(c)
+	userRaw, ok := user.GetUser(c)
 	if !ok {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, "Login required"))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, "Login required"))
 	}
 
 	listing, err := h.ListingStore.FindByID(c.Request().Context(), id)
 	if err != nil {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
 	}
 
 	// Authorization Check (Owner or Admin)
-	if listing.OwnerID != user.ID && user.Role != domain.UserRoleAdmin {
-		return handler.RespondError(c, echo.NewHTTPError(http.StatusForbidden, "You are not the owner of this listing"))
+	if listing.OwnerID != userRaw.ID && userRaw.Role != domain.UserRoleAdmin {
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusForbidden, "You are not the owner of this listing"))
 	}
 
 	targetID := c.QueryParam("target")

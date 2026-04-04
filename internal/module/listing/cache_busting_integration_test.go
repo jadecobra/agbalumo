@@ -9,7 +9,7 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/handler"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	listmod "github.com/jadecobra/agbalumo/internal/module/listing"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -20,7 +20,7 @@ func TestListingHandler_HandleImageUpload_CacheBusting(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 
-	repo := handler.SetupTestRepository(t)
+	repo := testutil.SetupTestRepository(t)
 	mockImageService := &MockImageService{}
 	mockGeocodingService := &MockGeocodingService{}
 

@@ -20,7 +20,7 @@ func TestCompareCoverageThreshold(t *testing.T) {
 	// In a test environment, if Git doesn't have the file in HEAD, it should return nil (pass)
 	// Or it might fail the git show command.
 	// Since we are mocking the file on disk, we can test the parsing and comparison logic.
-	
+
 	// Test happy path (no previous HEAD, or current > previous)
 	err = CompareCoverageThreshold(path)
 	if err != nil {
