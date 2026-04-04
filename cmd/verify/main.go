@@ -176,6 +176,38 @@ var auditCmd = &cobra.Command{
 	},
 }
 
+var verifyShasCmd = &cobra.Command{
+	Use:   "verify-shas",
+	Short: "Verify all GitHub Action SHAs are pinned",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return maintenance.VerifyActionSHAs(".")
+	},
+}
+
+var ciToolsCmd = &cobra.Command{
+	Use:   "ci-tools",
+	Short: "Verify CI toolset availability and OS friendliness",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return maintenance.VerifyCITools(".")
+	},
+}
+
+var gitleaksCmd = &cobra.Command{
+	Use:   "gitleaks",
+	Short: "Run gitleaks secret scan on staged files",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return maintenance.CheckGitleaks(".")
+	},
+}
+
+var ignoredFilesCmd = &cobra.Command{
+	Use:   "ignored-files",
+	Short: "Check for ignored files staged for commit",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return maintenance.CheckIgnoredFiles(".")
+	},
+}
+
 func runCmd(name string, args ...string) error {
 	cmd := exec.Command(name, args...)
 	cmd.Stdout = os.Stdout
@@ -189,28 +221,43 @@ var ciCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("🚀 Starting Native CI Pipeline...")
 
-		fmt.Println("\n=== 1. Running Lint ===")
+		fmt.Println("\n=== 1. Verifying GitHub Action SHAs ===")
+		if err := maintenance.VerifyActionSHAs("."); err != nil {
+			return err
+		}
+
+		fmt.Println("\n=== 2. Verifying CI Toolset ===")
+		if err := maintenance.VerifyCITools("."); err != nil {
+			return err
+		}
+
+		fmt.Println("\n=== 3. Running Lint ===")
 		if err := runCmd("go", "run", "github.com/golangci/golangci-lint/cmd/golangci-lint", "run", "-c", "scripts/.golangci.yml"); err != nil {
 			return fmt.Errorf("lint failed: %w", err)
 		}
 
-		fmt.Println("\n=== 2. Running Tests ===")
+		fmt.Println("\n=== 4. Running Tests ===")
 		if err := runCmd("go", "test", "-race", "-cover", "-count=1", "./..."); err != nil {
 			return fmt.Errorf("tests failed: %w", err)
 		}
 
-		fmt.Println("\n=== 3. Running Vulncheck ===")
+		fmt.Println("\n=== 5. Running Vulncheck ===")
 		if err := runCmd("go", "run", "golang.org/x/vuln/cmd/govulncheck", "./..."); err != nil {
 			return fmt.Errorf("vulncheck failed: %w", err)
 		}
 
-		fmt.Println("\n=== 4. Checking API/CLI Contract Drift ===")
+		fmt.Println("\n=== 6. Checking API/CLI Contract Drift ===")
 		if err := apiSpecCmd.RunE(cmd, args); err != nil {
 			return err
 		}
 
-		fmt.Println("\n=== 5. Checking Template Drift ===")
+		fmt.Println("\n=== 7. Checking Template Drift ===")
 		if err := templateDriftCmd.RunE(cmd, args); err != nil {
+			return err
+		}
+
+		fmt.Println("\n=== 8. Checking Coverage Threshold ===")
+		if err := coverageCmd.RunE(cmd, args); err != nil {
 			return err
 		}
 
@@ -240,7 +287,16 @@ var precommitCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("🚀 Starting Fast Pre-Commit Engine...")
 
-		// 1. Mod Tidy drift check
+		// 1. VCS Checks
+		fmt.Println("🔍 Running Stage Isolation Checks...")
+		if err := maintenance.CheckIgnoredFiles("."); err != nil {
+			return err
+		}
+		if err := maintenance.CheckGitleaks("."); err != nil {
+			return err
+		}
+
+		// 2. Mod Tidy drift check
 		fmt.Println("📦 Checking go.mod/go.sum drift...")
 		if err := runCmd("go", "mod", "tidy"); err != nil {
 			return fmt.Errorf("go mod tidy failed: %w", err)
@@ -249,7 +305,7 @@ var precommitCmd = &cobra.Command{
 			return fmt.Errorf("drift detected in go.mod/go.sum. Please commit changes: %w", err)
 		}
 
-		// 2. Fmt staged files
+		// 3. Fmt staged files
 		stagedGoFiles, err := getStagedFiles(".go")
 		if err != nil {
 			return fmt.Errorf("failed to get staged files: %w", err)
@@ -262,17 +318,21 @@ var precommitCmd = &cobra.Command{
 			}
 		}
 
-		// 3. Build check
+		// 4. Build check
 		fmt.Println("🔨 Running fast build syntax check...")
 		if err := runCmd("go", "build", "-o", "/dev/null", "./..."); err != nil {
 			return fmt.Errorf("build check failed: %w", err)
 		}
 
-		// 4. Lint Stage (diff only)
+		// 5. Lint Stage (diff only)
 		fmt.Println("🛡️ Running staged-only lint...")
-		// Use go run for the pinned tool
 		if err := runCmd("go", "run", "github.com/golangci/golangci-lint/cmd/golangci-lint", "run", "-c", "scripts/.golangci.yml", "--new-from-rev=HEAD"); err != nil {
 			return fmt.Errorf("lint stage failed: %w", err)
+		}
+
+		// 6. Coverage gate check (optional for pre-commit but good for anti-degradation)
+		if err := coverageCmd.RunE(cmd, args); err != nil {
+			return err
 		}
 
 		fmt.Println("✅ Pre-commit verification passed!")
@@ -281,8 +341,21 @@ var precommitCmd = &cobra.Command{
 }
 
 func main() {
-	rootCmd.AddCommand(apiSpecCmd, templateDriftCmd, costCmd, coverageCmd, auditCmd, ciCmd, precommitCmd)
+	rootCmd.AddCommand(
+		apiSpecCmd,
+		templateDriftCmd,
+		costCmd,
+		coverageCmd,
+		auditCmd,
+		ciCmd,
+		precommitCmd,
+		verifyShasCmd,
+		ciToolsCmd,
+		gitleaksCmd,
+		ignoredFilesCmd,
+	)
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
 }
+

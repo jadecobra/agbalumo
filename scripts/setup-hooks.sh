@@ -38,9 +38,9 @@ fi
 cat > "$PRE_COMMIT_HOOK" <<EOF
 #!/bin/sh
 # agbalumo 10x Engineer Pre-commit Hook
-# 1. Fast Checks (Fmt/Lint/Build) -> 2. Heavy Checks (Tests/Audit)
+# Native Go verification engine for maximum precision and drift avoidance.
 
-task pre-commit
+go run cmd/verify/main.go precommit
 EOF
 
 chmod +x "$PRE_COMMIT_HOOK"
@@ -50,10 +50,10 @@ echo "✅ Git pre-commit hook installed successfully!"
 cat > "$PRE_PUSH_HOOK" <<EOF
 #!/bin/sh
 # agbalumo 10x Engineer Pre-push Hook
-# Runs the full production CI suite before pushing to remote.
+# Runs the full native Go CI suite before pushing to remote.
 # Bypass using: git push --no-verify
 echo "🚀 Running comprehensive CI verification before push..."
-task ci
+go run cmd/verify/main.go ci
 if [ \$? -ne 0 ]; then
   echo "❌ CI validation failed! Fix errors or use 'git push --no-verify' to ignore."
   exit 1
