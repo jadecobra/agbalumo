@@ -1,5 +1,5 @@
 # Build Stage for Litestream
-FROM golang:1.24.1-bookworm AS litestream-builder
+FROM golang:1.24-bookworm AS litestream-builder
 RUN apt-get update && apt-get install -y git
 WORKDIR /src
 RUN git clone https://github.com/benbjohnson/litestream.git . && \
@@ -14,7 +14,7 @@ RUN git clone https://github.com/benbjohnson/litestream.git . && \
     CGO_ENABLED=1 go install -ldflags '-extldflags "-static"' ./cmd/litestream
 
 # Build Stage for App
-FROM golang:1.24.1-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 WORKDIR /app
 
@@ -34,7 +34,7 @@ RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache
     CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o server main.go
 
 # Runtime Stage
-FROM alpine:3.21
+FROM alpine:latest
 
 WORKDIR /app
 
