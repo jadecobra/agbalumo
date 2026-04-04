@@ -10,6 +10,7 @@ RUN git clone https://github.com/benbjohnson/litestream.git . && \
     go get go.opentelemetry.io/otel/sdk@latest && \
     go get golang.org/x/net@latest && \
     go get golang.org/x/oauth2@latest && \
+    go get github.com/go-jose/go-jose/v4@v4.1.4 && \
     go mod tidy && \
     CGO_ENABLED=1 go install -ldflags '-extldflags "-static"' ./cmd/litestream
 

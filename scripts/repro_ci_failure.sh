@@ -29,7 +29,7 @@ echo "${YELLOW}Running Trivy scan (via Docker) to match CI failure...${NC}"
 docker run --rm \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v "$(pwd)/.cache/trivy:/root/.cache/" \
-  aquasec/trivy:latest \
+  ghcr.io/aquasecurity/trivy:latest \
   image \
   --exit-code 1 \
   --ignore-unfixed \

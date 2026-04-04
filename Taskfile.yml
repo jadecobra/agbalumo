@@ -278,6 +278,24 @@ tasks:
     cmds:
       - go run cmd/verify/main.go audit
 
+  ci:docker-scan:
+    desc: Build local Docker image and scan for vulnerabilities (Trivy)
+    vars:
+      IMAGE_NAME: 'agbalumo-local'
+    cmds:
+      - docker build -t {{.IMAGE_NAME}} .
+      - |
+        docker run --rm \
+          -v /var/run/docker.sock:/var/run/docker.sock \
+          -v "$(pwd)/.cache/trivy:/root/.cache/" \
+          ghcr.io/aquasecurity/trivy:latest \
+          image \
+          --exit-code 1 \
+          --ignore-unfixed \
+          --vuln-type os,library \
+          --severity CRITICAL,HIGH \
+          {{.IMAGE_NAME}}
+
   watch:
     desc: Watch Go files and run fast checks + tests on change
     cmds:
@@ -351,6 +369,7 @@ tasks:
       - task: ci:api-drift
       - task: ci:template-drift
       - task: ci:verify-shas
+      - task: ci:docker-scan
       - task: security-audit
 
   pre-commit:

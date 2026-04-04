@@ -151,10 +151,10 @@ else
 fi
 
 # Static middleware should set Cache-Control immutable on /static/
-if grep -q "immutable" cmd/server.go 2>/dev/null; then
+if grep -q "immutable" internal/infra/server/server.go 2>/dev/null; then
     pass "Cache-Control: immutable set for /static/ ✓"
 else
-    fail "No 'immutable' Cache-Control found in cmd/server.go for static assets."
+    fail "No 'immutable' Cache-Control found in internal/infra/server/server.go for static assets."
 fi
 
 # ─── CHECK 3: Database Configuration ──────────────────────────────────────────
