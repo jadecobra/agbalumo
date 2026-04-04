@@ -1,18 +1,3 @@
-# Build Stage for Litestream
-FROM golang:1.25-bookworm AS litestream-builder
-RUN apt-get update && apt-get install -y git
-WORKDIR /src
-RUN git clone https://github.com/benbjohnson/litestream.git . && \
-    git checkout v0.5.10 && \
-    go get golang.org/x/crypto@latest && \
-    go get google.golang.org/grpc@latest && \
-    go get google.golang.org/api@latest && \
-    go get go.opentelemetry.io/otel/sdk@latest && \
-    go get golang.org/x/net@latest && \
-    go get golang.org/x/oauth2@latest && \
-    go get github.com/go-jose/go-jose/v4@v4.1.4 && \
-    go mod tidy && \
-    CGO_ENABLED=1 go install -ldflags '-extldflags "-static"' ./cmd/litestream
 
 # Build Stage for App
 FROM golang:1.25-alpine AS builder
@@ -48,8 +33,8 @@ RUN adduser -D -u 1000 appuser && \
     mkdir -p /data && \
     chown appuser:appuser /data /app
 
-# Copy binaries from builders
-COPY --from=litestream-builder --chown=appuser:appuser /go/bin/litestream /usr/local/bin/litestream
+# Copy binaries (Litestream from official image, app from local builder)
+COPY --from=litestream/litestream:0.5.10 --chown=appuser:appuser /usr/local/bin/litestream /usr/local/bin/litestream
 COPY --from=builder --chown=appuser:appuser /app/server .
 
 # Copy UI assets (Templates & Static)
