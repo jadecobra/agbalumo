@@ -38,13 +38,13 @@ func CheckGosecRationale(rootDir string) error {
 			// Only match if the line starts with // #nosec or has it as a trailing comment
 			// This avoids matching " // #nosec" inside strings in most cases.
 			if (strings.HasPrefix(trimmed, "// #nosec") || strings.HasPrefix(trimmed, "//#nosec")) &&
-			   !strings.Contains(line, " - ") && !strings.Contains(line, " -- ") {
-				
+				!strings.Contains(line, " - ") && !strings.Contains(line, " -- ") {
+
 				// Extra safety: if it's in a test file, ignore the test case strings
 				if strings.HasSuffix(path, "_test.go") && (strings.Contains(line, "content:") || strings.Contains(line, "name:")) {
 					continue
 				}
-				
+
 				invalid = append(invalid, fmt.Sprintf("%s:%d -> %s", path, i+1, strings.TrimSpace(line)))
 			}
 		}

@@ -28,10 +28,12 @@ func TestMain(m *testing.M) {
 	// We need to change to the project root directory so template paths work
 	_ = os.Chdir("..")
 
-	e, err = cmd.SetupServer()
+	var cleanup func()
+	e, cleanup, err = cmd.SetupServer()
 	if err != nil {
 		log.Fatalf("Failed to setup server: %v", err)
 	}
+	defer cleanup()
 
 	code := m.Run()
 	os.Exit(code)

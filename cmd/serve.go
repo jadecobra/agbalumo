@@ -1,9 +1,15 @@
 package cmd
 
 import (
+	"context"
+	"errors"
 	"log/slog"
+	"net/http"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
@@ -73,7 +79,7 @@ var serveCmd = &cobra.Command{
 		port := os.Getenv("PORT")
 
 		// Setup Server
-		e, err := SetupServer()
+		e, cleanup, err := SetupServer()
 		if err != nil {
 			slog.Error("Failed to setup server", "error", err)
 			os.Exit(1)
@@ -91,21 +97,45 @@ var serveCmd = &cobra.Command{
 			return
 		}
 
-		if config.TLS {
-			slog.Info("Starting Secure Server (HTTPS)", "addr", config.Addr)
-			if err := e.StartTLS(config.Addr, config.CertFile, config.KeyFile); err != nil {
-				e.Logger.Fatal(err)
+		// 1. Run the server in a goroutine
+		go func() {
+			if config.TLS {
+				slog.Info("Starting Secure Server (HTTPS)", "addr", config.Addr)
+				if err := e.StartTLS(config.Addr, config.CertFile, config.KeyFile); err != nil && !errors.Is(err, http.ErrServerClosed) {
+					slog.Error("Server forced to shutdown", "error", err)
+				}
+			} else {
+				mode := "DEV"
+				if env == "production" {
+					mode = "PRODUCTION"
+				}
+				slog.Info("Starting Server (HTTP)", "mode", mode, "addr", config.Addr)
+				if err := e.Start(config.Addr); err != nil && !errors.Is(err, http.ErrServerClosed) {
+					slog.Error("Server forced to shutdown", "error", err)
+				}
 			}
-		} else {
-			mode := "DEV"
-			if env == "production" {
-				mode = "PRODUCTION"
-			}
-			slog.Info("Starting Server (HTTP)", "mode", mode, "addr", config.Addr)
-			if err := e.Start(config.Addr); err != nil {
-				e.Logger.Fatal(err)
-			}
+		}()
+
+		// 2. Setup channel to listen for OS interrupt signals
+		quit := make(chan os.Signal, 1)
+		signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+
+		// Block until a signal is received
+		<-quit
+		slog.Info("Shutdown signal received, initiating graceful teardown...")
+
+		// 3. Create context with 15 second timeout to allow in-flight requests to drain
+		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+		defer cancel()
+
+		if err := e.Shutdown(ctx); err != nil {
+			slog.Error("Echo shutdown failed gracefully", "error", err)
 		}
+
+		// 4. Run cleanup (close DB, stop background services)
+		cleanup()
+
+		slog.Info("Server exited properly")
 	},
 }
 

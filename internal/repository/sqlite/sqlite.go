@@ -228,3 +228,7 @@ func (r *SQLiteRepository) migrate() error {
 
 	return nil
 }
+// Close closes the underlying database connection.
+func (r *SQLiteRepository) Close() error {
+	return r.db.Close()
+}

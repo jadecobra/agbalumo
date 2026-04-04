@@ -28,7 +28,8 @@ import (
 )
 
 // Setup initializes the Echo server and its dependencies.
-func Setup(cfg *config.Config) (*echo.Echo, error) {
+// It returns the Echo instance, a cleanup function to close resources, and any error encountered.
+func Setup(cfg *config.Config) (*echo.Echo, func(), error) {
 	// Initialize Structured Logging
 	var logger *slog.Logger
 	if cfg.Env == "production" {
@@ -55,7 +56,7 @@ func Setup(cfg *config.Config) (*echo.Echo, error) {
 
 	repo, err := sqlite.NewSQLiteRepository(cfg.DatabaseURL)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	repo.SetSlowQueryThreshold(time.Duration(cfg.SlowQueryThresholdMs) * time.Millisecond)
 
@@ -67,14 +68,24 @@ func Setup(cfg *config.Config) (*echo.Echo, error) {
 		"ui/templates/about.html",
 	)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	e.Renderer = renderer
 
 	setupRoutes(e, repo, cfg)
-	setupBackgroundServices(cfg, repo)
 
-	return e, nil
+	bgCtx, cancelBg := context.WithCancel(context.Background())
+	setupBackgroundServices(bgCtx, cfg, repo)
+
+	cleanup := func() {
+		slog.Info("Executing server cleanup...")
+		cancelBg()
+		if err := repo.Close(); err != nil {
+			slog.Error("Failed to close repository", "error", err)
+		}
+	}
+
+	return e, cleanup, nil
 }
 
 func setupMiddleware(e *echo.Echo, cfg *config.Config) {
@@ -202,8 +213,7 @@ func StaticCacheHeaders() echo.MiddlewareFunc {
 	}
 }
 
-func setupBackgroundServices(cfg *config.Config, repo *sqlite.SQLiteRepository) {
-	ctx := context.Background()
+func setupBackgroundServices(ctx context.Context, cfg *config.Config, repo *sqlite.SQLiteRepository) {
 	if err := seeder.EnsureCategoriesSeeded(ctx, repo, "config/categories.json"); err != nil {
 		slog.Error("Failed to seed categories", "error", err)
 	}

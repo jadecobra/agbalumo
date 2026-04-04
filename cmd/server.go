@@ -7,7 +7,7 @@ import (
 )
 
 // SetupServer initializes the Echo server and its dependencies by calling the infra layer.
-func SetupServer() (*echo.Echo, error) {
+func SetupServer() (*echo.Echo, func(), error) {
 	cfg := config.LoadConfig()
 	return server.Setup(cfg)
 }

@@ -32,10 +32,11 @@ func TestServerE2E(t *testing.T) {
 		_ = os.Unsetenv("UPLOAD_DIR")
 	}()
 
-	e, err := SetupServer()
+	e, cleanup, err := SetupServer()
 	if err != nil {
 		t.Fatalf("Failed to setup server: %v", err)
 	}
+	defer cleanup()
 
 	ts := httptest.NewServer(e)
 	defer ts.Close()
