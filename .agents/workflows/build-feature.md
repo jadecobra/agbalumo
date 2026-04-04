@@ -17,10 +17,14 @@ When receiving the `<idea>`, DO NOT write code immediately. HALT and execute the
 * WAIT for the user to respond and defend the idea.
 * Evaluate the user's defense. If the proposed scope still contains unnecessary complexity, ask another challenging question. Repeat this loop until you are convinced the idea is ruthlessly minimal.
 2. **Delete the Part or Process**:
-* Once the core idea is justified, Analyze the `<idea>` against the codebase and actively suggest removing at least one component, feature, or abstraction initially proposed. (e.g., "Do we really need a new DB table for this, or can we just append to the existing JSON column?")
-3. **Simplify & Optimize**:
-* Outline the absolute minimum viable path (MVP) for the code. No over-engineering. No "future-proofing" for scale we don't currently have.
-* Identify the files to create/modify. If a file will exceed ~500 tokens, plan to split it logically immediately.
+* Analyze the `<idea>` and actively propose removing at least one component, feature, or abstraction. (e.g., "Do we really need a new DB table, or can we append to an existing JSON column?")
+* **Ban Interface Bloat**: If the user or the plan suggests creating new mock files, deeply-nested interfaces, or massive constructor dependencies (the "Lego-Brick" anti-pattern), you MUST reject it. Push for direct DB access via a unified `AppEnv` context to preserve Agent iteration speed.
+
+3. **Simplify & Optimize (Agent-Optimized Architecture)**:
+* Outline the absolute minimum viable path (MVP) for the code.
+* Enforce **Vertical Slices** and **Unified Dependencies**. You are forbidden from adding to Dependency Injection hell. Handlers should ingest ONE unified environment struct (e.g., `*AppEnv`), not 10 individual stores.
+* Plan to use Real in-memory SQLite tables (`:memory:`) for tests instead of generating brittle Mocks.
+
 4. **Accelerate**:
 * Identify the critical path. Ensure the proposed architecture allows for the fastest possible execution and tightest test loop.
 5. **Automate**:

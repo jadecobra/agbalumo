@@ -425,6 +425,15 @@ var watchCmd = &cobra.Command{
 	},
 }
 
+var gosecRationaleCmd = &cobra.Command{
+	Use:   "gosec-rationale",
+	Short: "Verify that all #nosec directives include a rationale comment",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("🔍 Checking for mandatory rationale in #nosec directives...")
+		return maintenance.CheckGosecRationale(".")
+	},
+}
+
 func main() {
 	testCmd.Flags().Bool("race", true, "Enable race detection")
 	testCmd.Flags().String("threshold-path", "", "Path to coverage threshold file")
@@ -446,6 +455,7 @@ func main() {
 		checkGatesCmd,
 		testCmd,
 		watchCmd,
+		gosecRationaleCmd,
 	)
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)

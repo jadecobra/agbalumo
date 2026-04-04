@@ -106,7 +106,7 @@ func ExecuteGateChecks(rootDir string, phase WorkflowPhase) error {
 		if err := runTests(rootDir); err != nil {
 			return err
 		}
-		
+
 		// Coverage check
 		if err := CompareCoverageThreshold(".metrics/coverage"); err != nil {
 			// fallback to legacy

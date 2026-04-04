@@ -102,6 +102,14 @@ Run gitleaks secret scan on staged files.
 agbalumo verify gitleaks
 ```
 
+##### gosec-rationale
+
+Verify that all #nosec directives include a rationale comment.
+
+```bash
+agbalumo verify gosec-rationale
+```
+
 ##### ignored-files
 
 Check for ignored files staged for commit.
