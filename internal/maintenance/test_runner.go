@@ -19,7 +19,7 @@ func RunTests(pkg string, race bool, thresholdPath string) error {
 	args = append(args, pkg)
 
 	// G204: Maintenance utility executes go test
-	cmd := exec.Command("go", args...) //nolint:gosec // maintenance utility
+	cmd := exec.Command("go", args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 

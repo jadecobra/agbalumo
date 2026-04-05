@@ -125,7 +125,7 @@ func TestMain_Success(t *testing.T) {
 
 	main()
 
-	w.Close()
+	_ = w.Close()
 	os.Stdout = oldStdout
 
 	var buf bytes.Buffer

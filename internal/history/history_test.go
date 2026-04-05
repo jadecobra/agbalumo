@@ -3,6 +3,7 @@ package history
 import (
 	"bytes"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -53,7 +54,7 @@ func TestStore(t *testing.T) {
 	}
 
 	// Verify content
-	content, err := os.ReadFile(tmpDir + "/" + foundFile)
+	content, err := os.ReadFile(filepath.Clean(tmpDir + "/" + foundFile))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -88,7 +89,7 @@ func TestStore_Errors(t *testing.T) {
 		// Use a file as the directory path to trigger MkdirAll failure
 		tmpDir := t.TempDir()
 		fileAsDir := tmpDir + "/is_a_file"
-		_ = os.WriteFile(fileAsDir, []byte("data"), 0644)
+		_ = os.WriteFile(filepath.Clean(fileAsDir), []byte("data"), 0600)
 
 		oldDir := DefaultStorageDir
 		DefaultStorageDir = fileAsDir + "/subdir"
@@ -103,7 +104,7 @@ func TestStore_Errors(t *testing.T) {
 		tmpDir := t.TempDir()
 		// Create a directory where the file should be, making WriteFile fail
 		dir := tmpDir + "/write_err_dir"
-		_ = os.MkdirAll(dir, 0755)
+		_ = os.MkdirAll(dir, 0700)
 
 		oldDir := DefaultStorageDir
 		DefaultStorageDir = dir
@@ -114,7 +115,7 @@ func TestStore_Errors(t *testing.T) {
 		// If we wait and try to create a directory with the SAME name as the file?
 		// Hard to predict timestamp.
 		// Better: make the directory read-only.
-		_ = os.Chmod(dir, 0555) // Read and execute only, no write
+		_ = os.Chmod(dir, 0400) // Read-only for current user
 
 		decision := SquadDecision{FeatureName: "werr"}
 		_, err := Store(decision)

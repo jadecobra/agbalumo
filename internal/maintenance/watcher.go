@@ -20,7 +20,7 @@ func Watch(ctx context.Context, cmdName string, cmdArgs []string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create watcher: %w", err)
 	}
-	defer watcher.Close()
+	defer func() { _ = watcher.Close() }()
 
 	// Initial run
 	fmt.Printf("👀 Watcher started. Initial execution: %s %s\n", cmdName, strings.Join(cmdArgs, " "))

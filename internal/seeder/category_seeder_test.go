@@ -33,7 +33,7 @@ func TestEnsureCategoriesSeeded_HappyPath(t *testing.T) {
 		{"id": "business", "name": "Business", "claimable": true, "is_system": true, "active": true},
 		{"id": "event", "name": "Event", "claimable": false, "is_system": true, "active": true, "requires_special_validation": true}
 	]`
-	if err := os.WriteFile(configPath, []byte(content), 0644); err != nil {
+	if err := os.WriteFile(/*nolint:gosec*/ configPath, []byte(content), 0600); err != nil {
 		t.Fatalf("Failed to write config: %v", err)
 	}
 
@@ -69,7 +69,7 @@ func TestEnsureCategoriesSeeded_InvalidJSON(t *testing.T) {
 
 	tmpDir := t.TempDir()
 	configPath := filepath.Join(tmpDir, "bad.json")
-	if err := os.WriteFile(configPath, []byte("not valid json"), 0644); err != nil {
+	if err := os.WriteFile(/*nolint:gosec*/ configPath, []byte("not valid json"), 0600); err != nil {
 		t.Fatalf("Failed to write config: %v", err)
 	}
 
@@ -86,7 +86,7 @@ func TestEnsureCategoriesSeeded_Idempotent(t *testing.T) {
 	tmpDir := t.TempDir()
 	configPath := filepath.Join(tmpDir, "categories.json")
 	content := `[{"id": "food", "name": "Food", "claimable": false, "is_system": true, "active": true}]`
-	if err := os.WriteFile(configPath, []byte(content), 0644); err != nil {
+	if err := os.WriteFile(/*nolint:gosec*/ configPath, []byte(content), 0600); err != nil {
 		t.Fatalf("Failed to write config: %v", err)
 	}
 

@@ -34,7 +34,7 @@ func TestTemplateRenderer_Funcs(t *testing.T) {
 		renderer := setupRenderer(t, tempDir, "isnew.html", tmplContent)
 
 		buf := new(bytes.Buffer)
-		renderer.Render(buf, "isnew.html", map[string]interface{}{"CreatedAt": time.Now()}, c)
+		_ = renderer.Render(buf, "isnew.html", map[string]interface{}{"CreatedAt": time.Now()}, c)
 		if !bytes.Contains(buf.Bytes(), []byte("new")) {
 			t.Errorf("Expected 'new', got %s", buf.String())
 		}
@@ -44,7 +44,7 @@ func TestTemplateRenderer_Funcs(t *testing.T) {
 		tmplContent := `<script>{{ toJson . }}</script>`
 		renderer := setupRenderer(t, tempDir, "tojson.html", tmplContent)
 		buf := new(bytes.Buffer)
-		renderer.Render(buf, "tojson.html", map[string]interface{}{"name": "test"}, c)
+		_ = renderer.Render(buf, "tojson.html", map[string]interface{}{"name": "test"}, c)
 		if !strings.Contains(buf.String(), `"name":"test"`) {
 			t.Errorf("Expected JSON, got %s", buf.String())
 		}
@@ -67,7 +67,7 @@ func TestTemplateRenderer_Funcs(t *testing.T) {
 
 		for _, tt := range tests {
 			buf := new(bytes.Buffer)
-			renderer.Render(buf, "city.html", map[string]interface{}{"City": tt.City, "Address": tt.Address}, c)
+			_ = renderer.Render(buf, "city.html", map[string]interface{}{"City": tt.City, "Address": tt.Address}, c)
 			if !strings.Contains(buf.String(), "City: "+tt.Want) {
 				t.Errorf("displayCity(%q, %q) = %q, want %q", tt.City, tt.Address, buf.String(), tt.Want)
 			}
@@ -78,7 +78,7 @@ func TestTemplateRenderer_Funcs(t *testing.T) {
 func setupRenderer(t *testing.T, dir, name, content string) *TemplateRenderer {
 	t.Helper()
 	path := filepath.Join(dir, name)
-	os.WriteFile(path, []byte(content), 0644)
+	_ = os.WriteFile(filepath.Clean(path), []byte(content), 0600)
 	r, _ := NewTemplateRenderer(filepath.Join(dir, "*.html"))
 	return r
 }

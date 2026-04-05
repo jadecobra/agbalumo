@@ -21,7 +21,9 @@ func TestTemplateRenderer_Render_Core(t *testing.T) {
 		c := e.NewContext(httptest.NewRequest(http.MethodGet, "/", nil), rec)
 		c.Set("csrf", "token-123")
 		
-		renderer.Render(rec, "test", map[string]interface{}{}, c)
+		if err := renderer.Render(rec, "test", map[string]interface{}{}, c); err != nil {
+			t.Fatal(err)
+		}
 		if rec.Body.String() != "token-123" {
 			t.Errorf("Expected token-123, got %q", rec.Body.String())
 		}

@@ -19,7 +19,7 @@ func TestTemplateRenderer_EdgeCases(t *testing.T) {
 	buf := new(bytes.Buffer)
 
 	t.Run("Dict Helper Errors", func(t *testing.T) {
-		os.WriteFile(filepath.Join(tempDir, "bad_dict.html"), []byte(`{{ dict "key" }}`), 0644)
+		_ = os.WriteFile(filepath.Clean(filepath.Join(tempDir, "bad_dict.html")), []byte(`{{ dict "key" }}`), 0600)
 		renderer, _ := NewTemplateRenderer(filepath.Join(tempDir, "*.html"))
 		if err := renderer.Render(buf, "bad_dict.html", nil, c); err == nil {
 			t.Error("Expected error for odd number of dict args")

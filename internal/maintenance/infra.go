@@ -36,13 +36,13 @@ func VerifyActionSHAs(rootDir string) error {
 	usesRegex := regexp.MustCompile(`^\s*uses:\s*([^'\s#]+)`)
 
 	for _, file := range files {
-		f, err := os.Open(file)
+		f, err := os.Open(filepath.Clean(file))
 		if err != nil {
 			fmt.Printf("❌ Error opening %s: %v\n", file, err)
 			errorCount++
 			continue
 		}
-		defer f.Close()
+		defer func() { _ = f.Close() }()
 
 		scanner := bufio.NewScanner(f)
 		lineNum := 0
@@ -91,7 +91,7 @@ func VerifyCITools(rootDir string) error {
 	ciFile := filepath.Join(rootDir, ".github/workflows/ci.yml")
 	fmt.Printf("🔍 Verifying CI tools in %s...\n", ciFile)
 
-	data, err := os.ReadFile(ciFile)
+	data, err := os.ReadFile(filepath.Clean(ciFile))
 	if err != nil {
 		return fmt.Errorf("failed to read %s: %w", ciFile, err)
 	}

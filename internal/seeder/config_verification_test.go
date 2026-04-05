@@ -46,7 +46,7 @@ func TestEnsureCategoriesSeeded_Verification(t *testing.T) {
 			{ID: "Ver-2", Name: "Verify Two", IsSystem: true, Active: true},
 		}
 		data, _ := json.Marshal(cats)
-		_ = os.WriteFile(configPath, data, 0644)
+		_ = os.WriteFile(/*nolint:gosec*/ configPath, data, 0600)
 
 		err := seeder.EnsureCategoriesSeeded(ctx, repo, configPath)
 		if err != nil {

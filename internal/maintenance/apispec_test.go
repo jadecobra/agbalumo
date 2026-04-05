@@ -22,13 +22,13 @@ func TestExtractCLICodeCommands(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	goCode := `
 package test
 var cmd = &cobra.Command{ Use: "test-cmd" }
 `
-	_ = os.WriteFile(filepath.Join(tmpDir, "cli.go"), []byte(goCode), 0644)
+	_ = os.WriteFile(/*nolint:gosec*/ filepath.Join(tmpDir, "cli.go"), []byte(goCode), 0600)
 
 	cmds, err := ExtractCLICodeCommands(tmpDir)
 	if err != nil {
@@ -45,7 +45,7 @@ func TestExtractCLIMarkdownCommands(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	mdCode := `
 # CLI Docs
@@ -53,7 +53,7 @@ func TestExtractCLIMarkdownCommands(t *testing.T) {
 ##### add
 `
 	mdPath := filepath.Join(tmpDir, "cli.md")
-	_ = os.WriteFile(mdPath, []byte(mdCode), 0644)
+	_ = os.WriteFile(/*nolint:gosec*/ mdPath, []byte(mdCode), 0600)
 
 	cmds, err := ExtractCLIMarkdownCommands(mdPath)
 	if err != nil {

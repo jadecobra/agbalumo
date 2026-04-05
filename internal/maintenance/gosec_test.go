@@ -12,7 +12,7 @@ func TestCheckGosecRationale(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	tests := []struct {
 		name     string
@@ -65,10 +65,10 @@ func TestCheckGosecRationale(t *testing.T) {
 			if err != nil {
 				t.Fatalf("failed to create case dir: %v", err)
 			}
-			defer os.RemoveAll(caseDir)
+			_ = os.RemoveAll(caseDir)
 
 			filePath := filepath.Join(caseDir, tt.filename)
-			if werr := os.WriteFile(filePath, []byte(tt.content), 0644); werr != nil {
+			if werr := os.WriteFile(/*nolint:gosec*/ filePath, []byte(tt.content), 0600); werr != nil {
 				t.Fatalf("failed to write test file: %v", werr)
 			}
 

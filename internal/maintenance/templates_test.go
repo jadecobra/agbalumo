@@ -11,7 +11,7 @@ func TestExtractRendererFunctions(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	rendererCode := `
 package ui
@@ -23,7 +23,7 @@ func GetFuncs() {
 }
 `
 	rendererPath := filepath.Join(tmpDir, "renderer.go")
-	_ = os.WriteFile(rendererPath, []byte(rendererCode), 0644)
+	_ = os.WriteFile(/*nolint:gosec*/ rendererPath, []byte(rendererCode), 0600)
 
 	funcs, err := ExtractRendererFunctions(rendererPath)
 	if err != nil {
@@ -45,13 +45,13 @@ func TestExtractTemplateFunctionCalls(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	templateCode := `
 <div>{{ formatDate .Date }}</div>
 <div>{{ range .Items | filterItems }}</div>
 `
-	_ = os.WriteFile(filepath.Join(tmpDir, "index.html"), []byte(templateCode), 0644)
+	_ = os.WriteFile(/*nolint:gosec*/ filepath.Join(tmpDir, "index.html"), []byte(templateCode), 0600)
 
 	used, err := ExtractTemplateFunctionCalls(tmpDir)
 	if err != nil {

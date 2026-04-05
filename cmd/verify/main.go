@@ -209,7 +209,7 @@ var ignoredFilesCmd = &cobra.Command{
 }
 
 func runCmd(name string, args ...string) error {
-	cmd := exec.Command(name, args...)
+	cmd := exec.Command(name, args...) //nolint:gosec // maintenance utility runs trusted commands
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
@@ -232,7 +232,7 @@ var ciCmd = &cobra.Command{
 		}
 
 		fmt.Println("\n=== 3. Running Lint ===")
-		if err := runCmd("go", "run", "github.com/golangci/golangci-lint/cmd/golangci-lint", "run", "-c", "scripts/.golangci.yml"); err != nil {
+		if err := runCmd("go", "run", "github.com/golangci/golangci-lint/v2/cmd/golangci-lint", "run", "-c", "scripts/.golangci.yml"); err != nil {
 			return fmt.Errorf("lint failed: %w", err)
 		}
 
@@ -326,7 +326,7 @@ var precommitCmd = &cobra.Command{
 
 		// 5. Lint Stage (diff only)
 		fmt.Println("🛡️ Running staged-only lint...")
-		if err := runCmd("go", "run", "github.com/golangci/golangci-lint/cmd/golangci-lint", "run", "-c", "scripts/.golangci.yml", "--new-from-rev=HEAD"); err != nil {
+		if err := runCmd("go", "run", "github.com/golangci/golangci-lint/v2/cmd/golangci-lint", "run", "-c", "scripts/.golangci.yml", "--new-from-rev=HEAD"); err != nil {
 			return fmt.Errorf("lint stage failed: %w", err)
 		}
 

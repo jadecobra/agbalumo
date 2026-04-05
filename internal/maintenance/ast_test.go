@@ -12,7 +12,7 @@ func TestExtractRoutes(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	// Create a sample Go file with routes
 	goCode := `
@@ -26,7 +26,7 @@ func Register(e *echo.Echo) {
 	users.GET("/:id", nil)
 }
 `
-	err = os.WriteFile(filepath.Join(tmpDir, "routes.go"), []byte(goCode), 0644)
+	err = os.WriteFile(/*nolint:gosec*/ filepath.Join(tmpDir, "routes.go"), []byte(goCode), 0600)
 	if err != nil {
 		t.Fatalf("failed to write test file: %v", err)
 	}

@@ -15,7 +15,7 @@ func TestTypographyConstraints(t *testing.T) {
 	projectRoot := filepath.Join(wd, "..", "..", "..")
 
 	tailwindPath := filepath.Join(projectRoot, "tailwind.config.js")
-	tailwindContent, err := os.ReadFile(tailwindPath)
+	tailwindContent, err := os.ReadFile(filepath.Clean(tailwindPath))
 	if err != nil {
 		t.Fatalf("Failed to read tailwind.config.js: %v", err)
 	}

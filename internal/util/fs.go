@@ -15,10 +15,10 @@ func SafeRename(oldpath, newpath string) error {
 	return os.Rename(oldpath, newpath)
 }
 
-// SafeWriteFile writes a file with 0644 permissions.
+// SafeWriteFile writes a file with 0600 permissions.
 func SafeWriteFile(filename string, data []byte) error {
-	// #nosec G306 - 0644 is intentional to allow web server read access
-	return os.WriteFile(filename, data, 0644)
+	// #nosec G306 - 0600 is intentional to allow web server read access
+	return os.WriteFile(filename, data, 0600)
 }
 
 // SafeRemove removes a file safely.

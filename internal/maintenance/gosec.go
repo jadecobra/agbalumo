@@ -32,7 +32,7 @@ func CheckGosecRationale(rootDir string) error {
 			}
 		}
 
-		content, readErr := os.ReadFile(path)
+		content, readErr := os.ReadFile(filepath.Clean(path)) //nolint:gosec // maintenance utility reads local source files for analysis
 		if readErr != nil {
 			return nil
 		}
@@ -64,7 +64,7 @@ func CheckGosecRationale(rootDir string) error {
 		var sb strings.Builder
 		sb.WriteString("mandatory rationale missing for #nosec directives:\n")
 		for _, issue := range invalid {
-			sb.WriteString(fmt.Sprintf("  %s\n", issue))
+			fmt.Fprintf(&sb, "  %s\n", issue)
 		}
 		return fmt.Errorf("%s", sb.String())
 	}

@@ -58,7 +58,7 @@ func TestTemplateTailwindCleanup(t *testing.T) {
 	})
 
 	for _, tmpl := range templates {
-		contentBytes, err := os.ReadFile(tmpl)
+		contentBytes, err := os.ReadFile(filepath.Clean(tmpl))
 		if err != nil {
 			t.Fatalf("Failed to read template %s: %v", tmpl, err)
 		}
@@ -84,7 +84,7 @@ func TestSearchBarTheme(t *testing.T) {
 	projectRoot := filepath.Join(wd, "..", "..", "..")
 
 	templatePath := filepath.Join(projectRoot, "ui", "templates", "components", "navigation.html")
-	templateContent, err := os.ReadFile(templatePath)
+	templateContent, err := os.ReadFile(filepath.Clean(templatePath))
 	if err != nil {
 		t.Fatalf("Failed to read navigation.html: %v", err)
 	}
