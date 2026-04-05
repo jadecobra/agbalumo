@@ -7,7 +7,7 @@ This document serves as the central source of truth for build, test, and quality
 ### Safe Server Restart
 The primary way to build and start the server is using the verification script:
 ```bash
-./scripts/verify_restart.sh
+go build
 ```
 This script handles process cleanup, environment variable validation, and secure HTTPS setup.
 
@@ -55,38 +55,18 @@ This script performs:
 ### Local CI Execution
 To replicate the CI environment locally:
 ```bash
-./scripts/ci-local.sh
+go run cmd/verify/main.go ci
 ```
 
 ### Performance Audit
 We maintain a "Performance-First" culture. Run the automated audit to check asset sizes, DB config, and N+1 patterns:
 ```bash
-./scripts/performance-audit.sh
+go run cmd/verify/main.go perf
 ```
 
 ---
 
-## 🤖 Agentic Harness
 
-Agbalumo uses an active operational framework for agentic coding.
-
-### Workflow State Machine
-Manage workflow states using `agent-exec.sh`:
-```bash
-./scripts/agent-exec.sh workflow status
-```
-
-### Workflow Gates
-Programmatically verify workflow gates (e.g., Red tests) using:
-```bash
-./scripts/agent-gate.sh <gate_id>
-```
-
-### Brand Enforcement ("Juice")
-Generate CSS tokens and Go constants from `.agents/rules/brand.toon`:
-```bash
-./scripts/generate-juice.sh
-```
 
 ---
 
@@ -94,5 +74,5 @@ Generate CSS tokens and Go constants from `.agents/rules/brand.toon`:
 
 Always run a security audit before any major release or dependency change:
 ```bash
-./scripts/security-check.sh
+go run cmd/verify/main.go audit
 ```

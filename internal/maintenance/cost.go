@@ -44,7 +44,7 @@ func CalculateContextCost(dir string) (*CostReport, error) {
 
 	ignoredFiles := map[string]bool{
 		"package-lock.json": true, "pnpm-lock.yaml": true, "yarn.lock": true,
-		"go.sum": true, "go.mod": true, "Taskfile.yml": true,
+		"go.sum": true, "go.mod": true,
 	}
 
 	err := filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
