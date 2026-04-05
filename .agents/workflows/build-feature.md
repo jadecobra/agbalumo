@@ -34,7 +34,7 @@ When receiving the `<idea>`, DO NOT write code immediately. HALT and execute the
 Execute the Red-Green-Refactor loop natively using the terminal.
 1. **RED**: Write the failing test cases first. Run `go test`. Verify they fail.
 2. **GREEN**: Write the implementation. Run `go test`. Loop until tests pass.
-3. **REFACTOR**: Run task lint and review for cyclomatic complexity or duplication. Refactor.
+3. **REFACTOR**: Run lint and review for cyclomatic complexity or duplication. Refactor.
 4. **COMMIT**: Once tests and lint pass, execute `git commit -m "feat(<scope>): implement <idea>"` natively.
 
 ## Phase 3: Audit & Resilience

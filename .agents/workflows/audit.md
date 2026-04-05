@@ -18,7 +18,7 @@ description: comprehensive project audit (tests, security, ui, performance)
 
     - **Custom Security Tool**:
       ```bash
-      go run cmd/security-audit/main.go
+      go run cmd/verify/main.go audit
       ```
       - Verify HTTPS (HSTS), CSP, and X-Frame-Options.
     
@@ -50,6 +50,10 @@ description: comprehensive project audit (tests, security, ui, performance)
 4. **Performance Check**
     - Monitor server logs during browser navigation for slow requests (>500ms).
     - Check browser network tab for large assets (images >500KB, JS bundles).
+    - Run the native static performance analysis:
+      ```bash
+      go run cmd/verify/main.go perf
+      ```
     - ensure database queries are efficient (no N+1 issues visible in logs).
 
 5. **Reporting**
