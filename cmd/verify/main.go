@@ -232,7 +232,7 @@ var ciCmd = &cobra.Command{
 		}
 
 		fmt.Println("\n=== 3. Running Lint ===")
-		if err := runCmd("go", "run", "github.com/golangci/golangci-lint/v2/cmd/golangci-lint", "run", "-c", "scripts/.golangci.yml"); err != nil {
+		if err := runCmd("go", "run", "github.com/golangci/golangci-lint/v2/cmd/golangci-lint", "run"); err != nil {
 			return fmt.Errorf("lint failed: %w", err)
 		}
 
@@ -326,7 +326,7 @@ var precommitCmd = &cobra.Command{
 
 		// 5. Lint Stage (diff only)
 		fmt.Println("🛡️ Running staged-only lint...")
-		if err := runCmd("go", "run", "github.com/golangci/golangci-lint/v2/cmd/golangci-lint", "run", "-c", "scripts/.golangci.yml", "--new-from-rev=HEAD"); err != nil {
+		if err := runCmd("go", "run", "github.com/golangci/golangci-lint/v2/cmd/golangci-lint", "run", "--new-from-rev=HEAD"); err != nil {
 			return fmt.Errorf("lint stage failed: %w", err)
 		}
 
