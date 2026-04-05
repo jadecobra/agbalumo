@@ -16,7 +16,7 @@ func TestLocalImageService_DeleteImage(t *testing.T) {
 	listingID := "test-delete"
 	filename := listingID + ".jpg"
 	savedPath := filepath.Join(tempDir, filename)
-	err := os.WriteFile(/*nolint:gosec*/ savedPath, []byte("dummy image data"), 0600)
+	err := os.WriteFile( /*nolint:gosec*/ savedPath, []byte("dummy image data"), 0600)
 	assert.NoError(t, err)
 
 	imageURL := "/static/uploads/" + filename

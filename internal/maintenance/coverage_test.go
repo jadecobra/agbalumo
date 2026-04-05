@@ -15,7 +15,7 @@ func TestCompareCoverageThreshold(t *testing.T) {
 	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	path := filepath.Join(tmpDir, "threshold.txt")
-	_ = os.WriteFile(/*nolint:gosec*/ path, []byte("80.5\n"), 0600)
+	_ = os.WriteFile( /*nolint:gosec*/ path, []byte("80.5\n"), 0600)
 
 	// In a test environment, if Git doesn't have the file in HEAD, it should return nil (pass)
 	// Or it might fail the git show command.
@@ -30,7 +30,7 @@ func TestCompareCoverageThreshold(t *testing.T) {
 	}
 
 	// Test invalid value
-	_ = os.WriteFile(/*nolint:gosec*/ path, []byte("invalid\n"), 0600)
+	_ = os.WriteFile( /*nolint:gosec*/ path, []byte("invalid\n"), 0600)
 	err = CompareCoverageThreshold(path)
 	if err == nil {
 		t.Error("expected error for invalid threshold value, got nil")

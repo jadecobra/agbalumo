@@ -23,7 +23,7 @@ func GetFuncs() {
 }
 `
 	rendererPath := filepath.Join(tmpDir, "renderer.go")
-	_ = os.WriteFile(/*nolint:gosec*/ rendererPath, []byte(rendererCode), 0600)
+	_ = os.WriteFile( /*nolint:gosec*/ rendererPath, []byte(rendererCode), 0600)
 
 	funcs, err := ExtractRendererFunctions(rendererPath)
 	if err != nil {
@@ -51,7 +51,7 @@ func TestExtractTemplateFunctionCalls(t *testing.T) {
 <div>{{ formatDate .Date }}</div>
 <div>{{ range .Items | filterItems }}</div>
 `
-	_ = os.WriteFile(/*nolint:gosec*/ filepath.Join(tmpDir, "index.html"), []byte(templateCode), 0600)
+	_ = os.WriteFile( /*nolint:gosec*/ filepath.Join(tmpDir, "index.html"), []byte(templateCode), 0600)
 
 	used, err := ExtractTemplateFunctionCalls(tmpDir)
 	if err != nil {

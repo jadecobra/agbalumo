@@ -28,7 +28,7 @@ func TestExtractCLICodeCommands(t *testing.T) {
 package test
 var cmd = &cobra.Command{ Use: "test-cmd" }
 `
-	_ = os.WriteFile(/*nolint:gosec*/ filepath.Join(tmpDir, "cli.go"), []byte(goCode), 0600)
+	_ = os.WriteFile( /*nolint:gosec*/ filepath.Join(tmpDir, "cli.go"), []byte(goCode), 0600)
 
 	cmds, err := ExtractCLICodeCommands(tmpDir)
 	if err != nil {
@@ -53,7 +53,7 @@ func TestExtractCLIMarkdownCommands(t *testing.T) {
 ##### add
 `
 	mdPath := filepath.Join(tmpDir, "cli.md")
-	_ = os.WriteFile(/*nolint:gosec*/ mdPath, []byte(mdCode), 0600)
+	_ = os.WriteFile( /*nolint:gosec*/ mdPath, []byte(mdCode), 0600)
 
 	cmds, err := ExtractCLIMarkdownCommands(mdPath)
 	if err != nil {

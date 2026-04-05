@@ -56,7 +56,7 @@ func TestNewSQLiteRepositoryFromDB(t *testing.T) {
 func TestSQLiteRepository_InitializationErrors(t *testing.T) {
 	tmpDir := t.TempDir()
 	filePath := filepath.Join(tmpDir, "file")
-	_ = os.WriteFile(/*nolint:gosec*/ filePath, []byte("content"), 0600)
+	_ = os.WriteFile( /*nolint:gosec*/ filePath, []byte("content"), 0600)
 
 	// Try to use that file as a directory for the DB
 	_, err := sqlite.NewSQLiteRepository(filePath)

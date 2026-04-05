@@ -26,7 +26,7 @@ func setupTestGitRepo(t *testing.T) string {
 	runGit("config", "user.name", "Test User")
 
 	// Initial commit
-	if err := os.WriteFile(/*nolint:gosec*/ filepath.Join(tmpDir, "README.md"), []byte("# Test Repo"), 0600); err != nil {
+	if err := os.WriteFile( /*nolint:gosec*/ filepath.Join(tmpDir, "README.md"), []byte("# Test Repo"), 0600); err != nil {
 		t.Fatal(err)
 	}
 	runGit("add", "README.md")
@@ -53,7 +53,7 @@ func TestInferCurrentPhase(t *testing.T) {
 
 	// 2. RED (only tests staged)
 	testFile := filepath.Join(tmpDir, "feature_test.go")
-	if err = os.WriteFile(/*nolint:gosec*/ testFile, []byte("package main\nfunc TestRed(t *testing.T) {}"), 0600); err != nil {
+	if err = os.WriteFile( /*nolint:gosec*/ testFile, []byte("package main\nfunc TestRed(t *testing.T) {}"), 0600); err != nil {
 		t.Fatal(err)
 	}
 	runGit("add", "feature_test.go")
@@ -65,7 +65,7 @@ func TestInferCurrentPhase(t *testing.T) {
 	// 3. GREEN (last commit was 'test:', staged implementation)
 	runGit("commit", "-m", "test: add failing test")
 	implFile := filepath.Join(tmpDir, "feature.go")
-	if err = os.WriteFile(/*nolint:gosec*/ implFile, []byte("package main\nfunc Feature() {}"), 0600); err != nil {
+	if err = os.WriteFile( /*nolint:gosec*/ implFile, []byte("package main\nfunc Feature() {}"), 0600); err != nil {
 		t.Fatal(err)
 	}
 	runGit("add", "feature.go")
@@ -77,7 +77,7 @@ func TestInferCurrentPhase(t *testing.T) {
 	// 4. REFACTOR (last commit was 'feat:', staged cleaning)
 	runGit("commit", "-m", "feat: implement feature")
 	newImpl := []byte("package main\nfunc Feature() { /* optimized */ }")
-	if err = os.WriteFile(/*nolint:gosec*/ implFile, newImpl, 0600); err != nil {
+	if err = os.WriteFile( /*nolint:gosec*/ implFile, newImpl, 0600); err != nil {
 		t.Fatal(err)
 	}
 	runGit("add", "feature.go")

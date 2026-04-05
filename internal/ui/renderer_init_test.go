@@ -10,7 +10,7 @@ func TestNewTemplateRenderer(t *testing.T) {
 	tempDir := t.TempDir()
 
 	tmplPath := filepath.Join(tempDir, "test.html")
-	if err := os.WriteFile(/*nolint:gosec*/ tmplPath, []byte(`{{define "test"}}Hello Test{{end}}`), 0600); err != nil {
+	if err := os.WriteFile( /*nolint:gosec*/ tmplPath, []byte(`{{define "test"}}Hello Test{{end}}`), 0600); err != nil {
 		t.Fatalf("Failed to write temp template: %v", err)
 	}
 

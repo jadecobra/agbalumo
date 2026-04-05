@@ -2,12 +2,12 @@ package ui
 
 import (
 	"bytes"
+	"html/template"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"testing"
-	"html/template"
 
 	"github.com/labstack/echo/v4"
 )

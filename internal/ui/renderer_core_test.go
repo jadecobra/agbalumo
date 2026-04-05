@@ -12,7 +12,7 @@ import (
 
 func TestTemplateRenderer_Render_Core(t *testing.T) {
 	e := echo.New()
-	
+
 	t.Run("CSRF", func(t *testing.T) {
 		tmpl := template.New("test").Funcs(BuildGlobalFuncMap())
 		_, _ = tmpl.Parse(`{{.CSRF}}`)
@@ -20,7 +20,7 @@ func TestTemplateRenderer_Render_Core(t *testing.T) {
 		rec := httptest.NewRecorder()
 		c := e.NewContext(httptest.NewRequest(http.MethodGet, "/", nil), rec)
 		c.Set("csrf", "token-123")
-		
+
 		if err := renderer.Render(rec, "test", map[string]interface{}{}, c); err != nil {
 			t.Fatal(err)
 		}

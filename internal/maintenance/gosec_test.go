@@ -65,10 +65,11 @@ func TestCheckGosecRationale(t *testing.T) {
 			if err != nil {
 				t.Fatalf("failed to create case dir: %v", err)
 			}
-			_ = os.RemoveAll(caseDir)
+			// Don't remove caseDir here, as we need to write into it!
+			// tmpDir cleanup will handle this via defer.
 
 			filePath := filepath.Join(caseDir, tt.filename)
-			if werr := os.WriteFile(/*nolint:gosec*/ filePath, []byte(tt.content), 0600); werr != nil {
+			if werr := os.WriteFile( /*nolint:gosec*/ filePath, []byte(tt.content), 0600); werr != nil {
 				t.Fatalf("failed to write test file: %v", werr)
 			}
 

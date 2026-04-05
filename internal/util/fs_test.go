@@ -49,7 +49,7 @@ func TestSafeWriteFile(t *testing.T) {
 		t.Errorf("Expected mode 0600, got %v", mode)
 	}
 
-	content, err := os.ReadFile(/*nolint:gosec*/ filename)
+	content, err := os.ReadFile( /*nolint:gosec*/ filename)
 	if err != nil {
 		t.Fatalf("os.ReadFile failed: %v", err)
 	}
@@ -62,16 +62,15 @@ func TestSafeWriteFile(t *testing.T) {
 func TestSafeReadFile(t *testing.T) {
 	filename := "testreadfile"
 	data := []byte("safe read content")
-	err := os.WriteFile(/*nolint:gosec*/ filename, data, 0600)
+	err := os.WriteFile( /*nolint:gosec*/ filename, data, 0600)
 	if err != nil {
 		t.Fatalf("os.WriteFile failed: %v", err)
 	}
-	_ = os.Remove(filename)
-
 	content, err := SafeReadFile(filename)
 	if err != nil {
 		t.Fatalf("SafeReadFile failed: %v", err)
 	}
+	defer func() { _ = os.Remove(filename) }()
 
 	if string(content) != string(data) {
 		t.Errorf("Expected content %s, got %s", string(data), string(content))
@@ -81,7 +80,7 @@ func TestSafeReadFile(t *testing.T) {
 func TestSafeRemove(t *testing.T) {
 	filename := "testremove"
 	data := []byte("remove content")
-	err := os.WriteFile(/*nolint:gosec*/ filename, data, 0600)
+	err := os.WriteFile( /*nolint:gosec*/ filename, data, 0600)
 	if err != nil {
 		t.Fatalf("os.WriteFile failed: %v", err)
 	}
@@ -100,16 +99,15 @@ func TestSafeRemove(t *testing.T) {
 func TestSafeStat(t *testing.T) {
 	filename := "teststat"
 	data := []byte("stat content")
-	err := os.WriteFile(/*nolint:gosec*/ filename, data, 0600)
+	err := os.WriteFile( /*nolint:gosec*/ filename, data, 0600)
 	if err != nil {
 		t.Fatalf("os.WriteFile failed: %v", err)
 	}
-	_ = os.Remove(filename)
-
 	info, err := SafeStat(filename)
 	if err != nil {
 		t.Fatalf("SafeStat failed: %v", err)
 	}
+	defer func() { _ = os.Remove(filename) }()
 
 	if info.Name() != filename {
 		t.Errorf("Expected filename %s, got %s", filename, info.Name())
@@ -119,16 +117,15 @@ func TestSafeStat(t *testing.T) {
 func TestSafeIsNotExist(t *testing.T) {
 	t.Run("ExistingFile", func(t *testing.T) {
 		filename := "existing_test"
-		err := os.WriteFile(/*nolint:gosec*/ filename, []byte("data"), 0600)
+		err := os.WriteFile( /*nolint:gosec*/ filename, []byte("data"), 0600)
 		if err != nil {
 			t.Fatalf("os.WriteFile failed: %v", err)
 		}
-		_ = os.Remove(filename)
-
 		_, err = os.Stat(filename)
 		if SafeIsNotExist(err) {
 			t.Error("Expected SafeIsNotExist to be false for existing file")
 		}
+		_ = os.Remove(filename)
 	})
 
 	t.Run("NonExistentFile", func(t *testing.T) {
@@ -151,7 +148,7 @@ func TestSafeRename(t *testing.T) {
 	newFile := "rename_new"
 	data := []byte("rename test")
 
-	err := os.WriteFile(/*nolint:gosec*/ oldFile, data, 0600)
+	err := os.WriteFile( /*nolint:gosec*/ oldFile, data, 0600)
 	if err != nil {
 		t.Fatalf("os.WriteFile failed: %v", err)
 	}
@@ -177,17 +174,18 @@ func TestSafeOpen(t *testing.T) {
 	filename := "open_test"
 	data := []byte("open test content")
 
-	err := os.WriteFile(/*nolint:gosec*/ filename, data, 0600)
+	err := os.WriteFile( /*nolint:gosec*/ filename, data, 0600)
 	if err != nil {
 		t.Fatalf("os.WriteFile failed: %v", err)
 	}
-	_ = os.Remove(filename)
-
 	f, err := SafeOpen(filename)
 	if err != nil {
 		t.Fatalf("SafeOpen failed: %v", err)
 	}
-	defer func() { _ = f.Close() }()
+	defer func() {
+		_ = f.Close()
+		_ = os.Remove(filename)
+	}()
 
 	info, err := f.Stat()
 	if err != nil {

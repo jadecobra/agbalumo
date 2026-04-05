@@ -26,7 +26,7 @@ func Register(e *echo.Echo) {
 	users.GET("/:id", nil)
 }
 `
-	err = os.WriteFile(/*nolint:gosec*/ filepath.Join(tmpDir, "routes.go"), []byte(goCode), 0600)
+	err = os.WriteFile( /*nolint:gosec*/ filepath.Join(tmpDir, "routes.go"), []byte(goCode), 0600)
 	if err != nil {
 		t.Fatalf("failed to write test file: %v", err)
 	}
