@@ -9,7 +9,7 @@ description: Update test coverage threshold (ONLY INCREASE, NEVER LOWER)
 Follow these steps to update the test coverage threshold for the project ONLY when you have ADDED tests and the coverage has INCREASED.
 
 1. Find the current total test coverage percentage by executing the following command:
-```sh
+```bash
 export PATH=/opt/homebrew/bin:/usr/local/go/bin:$PATH && go test -race -coverprofile=.tester/coverage/coverage.out ./... && go tool cover -func=.tester/coverage/coverage.out | grep -v "mock" | grep total | awk '{print substr($3, 1, length($3)-1)}'
 ```
 *(Extract the coverage percentage from the output).*
@@ -19,12 +19,12 @@ export PATH=/opt/homebrew/bin:/usr/local/go/bin:$PATH && go test -race -coverpro
 
 // turbo
 3. Run the pre-commit script to verify the threshold is correctly set and all tests pass:
-```sh
-export PATH=/opt/homebrew/bin:/usr/local/go/bin:$PATH && task pre-commit
+```bash
+export PATH=/opt/homebrew/bin:/usr/local/go/bin:$PATH && go run cmd/verify/main.go precommit
 ```
 
 // turbo
 4. Commit the change using:
-```sh
-git add .agent/coverage-threshold scripts/pre-commit.sh && git commit -m "build: update test coverage threshold to <NEW_PERCENTAGE>%"
+```bash
+git add .agent/coverage-threshold && git commit -m "build: update test coverage threshold to <NEW_PERCENTAGE>%"
 ```
