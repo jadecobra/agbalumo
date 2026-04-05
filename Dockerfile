@@ -27,8 +27,10 @@ WORKDIR /app
 # Install CA certificates and runtime dependencies
 # su-exec is for dropping root privileges in entrypoint
 # libc6-compat is for glibc compatibility (litestream)
+# We explicitly upgrade libcrypto3 and libssl3 to resolve CVE-2024-13176
 RUN apk --no-cache upgrade && \
-    apk --no-cache add ca-certificates tzdata wget bash su-exec libc6-compat
+    apk --no-cache add ca-certificates tzdata wget bash su-exec libc6-compat && \
+    apk add --no-cache --upgrade libcrypto3 libssl3
 
 # Set time zone
 ENV TZ=UTC
