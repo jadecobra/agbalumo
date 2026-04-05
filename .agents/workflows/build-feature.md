@@ -34,7 +34,7 @@ When receiving the `<idea>`, DO NOT write code immediately. HALT and execute the
 Execute the Red-Green-Refactor loop natively using the terminal.
 1. **RED**: Write the failing test cases first. Run `go test`. Verify they fail.
 2. **GREEN**: Write the implementation. Run `go test`. Loop until tests pass.
-3. **REFACTOR**: Run lint and review for cyclomatic complexity or duplication. Refactor.
+3. **REFACTOR**: You MUST run `go run cmd/verify/main.go critique` to audit cognitive complexity, repeated strings, struct alignments, and duplication. Fix any failing checks and refactor.
 4. **COMMIT**: Once tests and lint pass, execute `git commit -m "feat(<scope>): implement <idea>"` natively.
 
 ## Phase 3: Audit & Resilience
@@ -50,5 +50,8 @@ Before considering the feature complete, self-audit the code you just committed.
 * Explain the failure mechanism to the user.
 * Propose 2-3 architectural patterns to handle the fault (e.g., Circuit Breaker, Exponential Backoff, Graceful Degradation).
 * WAIT for the user to make an engineering decision before implementing the fix.
+4. **Contract Verification**: Before finishing, guarantee you did not introduce undetected regressions in templates or API drift by running:
+    - `go run cmd/verify/main.go template-drift`
+    - `go run cmd/verify/main.go api-spec`
 
 **Completion**: When all phases are complete and the final commit is made, summarize the architectural decisions and test coverage for the user in a single, concise chat message.
