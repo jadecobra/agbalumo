@@ -1,6 +1,0 @@
-{
-  "success": false,
-  "command": "pre-commit.sh",
-  "output": "Workflow gate enforcement failed.",
-  "warnings": []
-}
