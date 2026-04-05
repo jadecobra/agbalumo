@@ -24,9 +24,14 @@ FROM alpine:latest
 
 WORKDIR /app
 
-# Install CA certificates and upgrade all packages to get latest security fixes
+# Install CA certificates and runtime dependencies
+# su-exec is for dropping root privileges in entrypoint
+# libc6-compat is for glibc compatibility (litestream)
 RUN apk --no-cache upgrade && \
-    apk --no-cache add ca-certificates tzdata wget bash
+    apk --no-cache add ca-certificates tzdata wget bash su-exec libc6-compat
+
+# Set time zone
+ENV TZ=UTC
 
 # Create appuser and setup directories
 RUN adduser -D -u 1000 appuser && \
@@ -38,7 +43,6 @@ COPY --from=litestream/litestream:0.5.10 --chown=appuser:appuser /usr/local/bin/
 COPY --from=builder --chown=appuser:appuser /app/server .
 
 # Copy UI assets (Templates & Static)
-# Copy from local context, NOT builder, to allow fast UI updates
 COPY --chown=appuser:appuser ui ui
 COPY --chown=appuser:appuser config config
 
@@ -56,8 +60,8 @@ COPY --chown=appuser:appuser scripts/entrypoint.sh /app/entrypoint.sh
 # Ensure entrypoint is executable
 RUN chmod +x /app/entrypoint.sh
 
-# Use non-root user
-USER appuser
+# Start as root to allow entrypoint to chown volumes, then drop to appuser
+USER root
 
 # Run the entrypoint script
 CMD ["/app/entrypoint.sh"]
