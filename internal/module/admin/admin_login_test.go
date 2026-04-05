@@ -9,7 +9,6 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/module/admin"
 
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
@@ -47,8 +46,9 @@ func TestAdminHandler_HandleLoginView(t *testing.T) {
 				c.Set("User", tt.user)
 			}
 
-			repo := testutil.SetupTestRepository(t)
-			h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
+			app, cleanup := testutil.SetupTestAppEnv(t)
+			defer cleanup()
+			h := admin.NewAdminHandler(app)
 			_ = h.HandleLoginView(c)
 
 			assert.Equal(t, tt.expectCode, rec.Code)
@@ -104,17 +104,18 @@ func TestAdminHandler_HandleLoginAction(t *testing.T) {
 			formData.Set("code", tt.code)
 			c, rec := setupAdminTestContext(http.MethodPost, "/admin/login", strings.NewReader(formData.Encode()))
 
-			repo := testutil.SetupTestRepository(t)
+			app, cleanup := testutil.SetupTestAppEnv(t)
+			defer cleanup()
 			if tt.user != nil {
-				err := repo.SaveUser(context.Background(), *tt.user)
+				err := app.DB.SaveUser(context.Background(), *tt.user)
 				assert.NoError(t, err)
 				c.Set("User", *tt.user)
 			}
 
-			cfg := config.LoadConfig()
+			cfg := app.Cfg
 			cfg.AdminCode = tt.adminCode
 
-			h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: cfg})
+			h := admin.NewAdminHandler(app)
 			_ = h.HandleLoginAction(c)
 
 			assert.Equal(t, tt.expectCode, rec.Code)
@@ -123,7 +124,7 @@ func TestAdminHandler_HandleLoginAction(t *testing.T) {
 			}
 
 			if tt.name == "ValidCode_PromotesUser" && tt.user != nil {
-				updatedUser, err := repo.FindUserByID(context.Background(), tt.user.ID)
+				updatedUser, err := app.DB.FindUserByID(context.Background(), tt.user.ID)
 				assert.NoError(t, err)
 				assert.Equal(t, domain.UserRoleAdmin, updatedUser.Role)
 			}

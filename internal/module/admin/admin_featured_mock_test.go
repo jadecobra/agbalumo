@@ -10,6 +10,7 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/infra/env"
 	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/stretchr/testify/assert"
@@ -26,7 +27,8 @@ func TestAdminHandler_HandleToggleFeatured_Error(t *testing.T) {
 	c.SetParamValues("123")
 	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: mockRepo, FeedbackStore: mockRepo, AnalyticsStore: mockRepo, CategoryStore: mockRepo, UserStore: mockRepo, ListingStore: mockRepo, ClaimRequestStore: mockRepo, CSVService: nil, Cfg: config.LoadConfig()})
+	app := &env.AppEnv{DB: mockRepo, Cfg: config.LoadConfig()}
+	h := admin.NewAdminHandler(app)
 	err := h.HandleToggleFeatured(c)
 
 	assert.NoError(t, err)
@@ -42,7 +44,8 @@ func TestAdminHandler_HandleToggleFeatured_BadRequest_MissingID(t *testing.T) {
 	c.SetParamValues("")
 	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: mockRepo, FeedbackStore: mockRepo, AnalyticsStore: mockRepo, CategoryStore: mockRepo, UserStore: mockRepo, ListingStore: mockRepo, ClaimRequestStore: mockRepo, CSVService: nil, Cfg: config.LoadConfig()})
+	app := &env.AppEnv{DB: mockRepo, Cfg: config.LoadConfig()}
+	h := admin.NewAdminHandler(app)
 
 	err := h.HandleToggleFeatured(c)
 	assert.NoError(t, err) // Echo handlers return nil and specify code in c.JSON

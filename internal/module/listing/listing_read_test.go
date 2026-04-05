@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
@@ -21,10 +20,10 @@ func TestHandleHome(t *testing.T) {
 	req := setupRequest(http.MethodGet, "/", nil)
 	rec := setupResponseRecorder()
 	c := e.NewContext(req, rec)
-	ctx := context.Background()
 
-	repo := testutil.SetupTestRepository(t)
-	_ = repo.Save(ctx, domain.Listing{
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	_ = app.DB.Save(context.Background(), domain.Listing{
 		ID:           "1",
 		Title:        "Listing 1",
 		Type:         domain.Business,
@@ -34,18 +33,8 @@ func TestHandleHome(t *testing.T) {
 		ContactEmail: "test@example.com",
 		OwnerOrigin:  "Nigeria",
 	})
-	_ = repo.SaveCategory(ctx, domain.CategoryData{ID: string(domain.Business), Name: "Business", Active: true})
-
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  nil,
-		GeocodingSvc:  &MockGeocodingService{},
-		Config:        &config.Config{},
-	})
+	_ = app.DB.SaveCategory(context.Background(), domain.CategoryData{ID: string(domain.Business), Name: "Business", Active: true})
+	h := listmod.NewListingHandler(app)
 	if err := h.HandleHome(c); err != nil {
 		t.Fatal(err)
 	}
@@ -62,10 +51,10 @@ func TestHandleDetail(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetParamNames("id")
 	c.SetParamValues("1")
-	ctx := context.Background()
 
-	repo := testutil.SetupTestRepository(t)
-	_ = repo.Save(ctx, domain.Listing{
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	_ = app.DB.Save(context.Background(), domain.Listing{
 		ID:           "1",
 		Title:        "Detail View",
 		Type:         domain.Business,
@@ -75,17 +64,7 @@ func TestHandleDetail(t *testing.T) {
 		ContactEmail: "test@example.com",
 		OwnerOrigin:  "Nigeria",
 	})
-
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  nil,
-		GeocodingSvc:  &MockGeocodingService{},
-		Config:        &config.Config{},
-	})
+	h := listmod.NewListingHandler(app)
 	if err := h.HandleDetail(c); err != nil {
 		t.Fatal(err)
 	}
@@ -99,13 +78,13 @@ func TestHandleProfile(t *testing.T) {
 	req := setupRequest(http.MethodGet, "/profile", nil)
 	rec := setupResponseRecorder()
 	c := e.NewContext(req, rec)
-	ctx := context.Background()
 
 	user := domain.User{ID: "u1", Name: "John Doe"}
 	c.Set("User", user)
 
-	repo := testutil.SetupTestRepository(t)
-	_ = repo.Save(ctx, domain.Listing{
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	_ = app.DB.Save(context.Background(), domain.Listing{
 		ID:           "1",
 		Title:        "My Listing",
 		OwnerID:      "u1",
@@ -116,17 +95,7 @@ func TestHandleProfile(t *testing.T) {
 		OwnerOrigin:  "Nigeria",
 		Type:         domain.Business,
 	})
-
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  nil,
-		GeocodingSvc:  &MockGeocodingService{},
-		Config:        &config.Config{},
-	})
+	h := listmod.NewListingHandler(app)
 	if err := h.HandleProfile(c); err != nil {
 		t.Fatal(err)
 	}
@@ -141,12 +110,11 @@ func TestHandleFragment(t *testing.T) {
 	req.Header.Set("HX-Request", "true")
 	rec := setupResponseRecorder()
 	c := e.NewContext(req, rec)
-	ctx := context.Background()
 
-	repo := testutil.SetupTestRepository(t)
-	// Seed 31 listings to test pagination limit of 30
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
 	for i := 1; i <= 31; i++ {
-		_ = repo.Save(ctx, domain.Listing{
+		_ = app.DB.Save(context.Background(), domain.Listing{
 			ID:           strconv.Itoa(i),
 			Title:        "Search Result " + strconv.Itoa(i),
 			Type:         domain.Business,
@@ -157,17 +125,7 @@ func TestHandleFragment(t *testing.T) {
 			OwnerOrigin:  "Nigeria",
 		})
 	}
-
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  nil,
-		GeocodingSvc:  &MockGeocodingService{},
-		Config:        &config.Config{},
-	})
+	h := listmod.NewListingHandler(app)
 	if err := h.HandleFragment(c); err != nil {
 		t.Fatal(err)
 	}

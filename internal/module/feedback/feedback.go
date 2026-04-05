@@ -6,17 +6,18 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/infra/env"
 	"github.com/jadecobra/agbalumo/internal/module/user"
 	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
 )
 
 type FeedbackHandler struct {
-	Repo domain.FeedbackStore
+	App *env.AppEnv
 }
 
-func NewFeedbackHandler(repo domain.FeedbackStore) *FeedbackHandler {
-	return &FeedbackHandler{Repo: repo}
+func NewFeedbackHandler(app *env.AppEnv) *FeedbackHandler {
+	return &FeedbackHandler{App: app}
 }
 
 // RegisterRoutes registers the feedback routes
@@ -61,7 +62,7 @@ func (h *FeedbackHandler) HandleSubmit(c echo.Context) error {
 		CreatedAt: time.Now(),
 	}
 
-	if err := h.Repo.SaveFeedback(c.Request().Context(), fb); err != nil {
+	if err := h.App.DB.SaveFeedback(c.Request().Context(), fb); err != nil {
 		return ui.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Failed to save feedback"))
 	}
 

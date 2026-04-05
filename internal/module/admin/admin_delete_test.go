@@ -10,7 +10,6 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/module/admin"
 
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/jadecobra/agbalumo/internal/testutil"
@@ -19,19 +18,19 @@ import (
 )
 
 func TestAdminHandler_HandleAdminDeleteAction_Success(t *testing.T) {
-	cfg := config.LoadConfig()
-	cfg.AdminCode = "secret"
-	repo := testutil.SetupTestRepository(t)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	app.Cfg.AdminCode = "secret"
 
 	// Seed data
-	_ = repo.Save(context.Background(), domain.Listing{ID: "l1", Title: "To Delete", OwnerOrigin: "Nigeria", Type: "business"})
+	_ = app.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "To Delete", OwnerOrigin: "Nigeria", Type: "business"})
 
 	formData := url.Values{}
 	formData.Set("admin_code", "secret")
 	formData.Add("id", "l1")
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings/delete", strings.NewReader(formData.Encode()))
 
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: cfg})
+	h := admin.NewAdminHandler(app)
 	store := middleware.NewTestSessionStore()
 	session, _ := store.Get(c.Request(), "auth_session")
 	c.Set("session", session)
@@ -40,14 +39,15 @@ func TestAdminHandler_HandleAdminDeleteAction_Success(t *testing.T) {
 	assert.Equal(t, http.StatusFound, rec.Code)
 
 	// Verify deletion
-	_, err := repo.FindByID(context.Background(), "l1")
+	_, err := app.DB.FindByID(context.Background(), "l1")
 	assert.Error(t, err) // Should not be found
 }
 
 func TestHandleAdminDeleteView(t *testing.T) {
-	repo := testutil.SetupTestRepository(t)
-	_ = repo.Save(context.Background(), domain.Listing{ID: "listing1", Title: "To Delete", OwnerOrigin: "Nigeria", Type: "business"})
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: &config.Config{}})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	_ = app.DB.Save(context.Background(), domain.Listing{ID: "listing1", Title: "To Delete", OwnerOrigin: "Nigeria", Type: "business"})
+	h := admin.NewAdminHandler(app)
 
 	req := httptest.NewRequest(http.MethodGet, "/admin/listings/delete?id=listing1", nil)
 	rec := httptest.NewRecorder()
@@ -61,8 +61,9 @@ func TestHandleAdminDeleteView(t *testing.T) {
 }
 
 func TestHandleAdminDeleteView_NoIDs_Redirects(t *testing.T) {
-	repo := testutil.SetupTestRepository(t)
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: &config.Config{}})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	h := admin.NewAdminHandler(app)
 
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin/listings/delete", nil)
 
@@ -72,9 +73,10 @@ func TestHandleAdminDeleteView_NoIDs_Redirects(t *testing.T) {
 }
 
 func TestHandleAdminDeleteView_FindByIDError_Returns404(t *testing.T) {
-	repo := testutil.SetupTestRepository(t)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
 	// No data seeded, so "bad-id" will not be found
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: &config.Config{}})
+	h := admin.NewAdminHandler(app)
 
 	req := httptest.NewRequest(http.MethodGet, "/admin/listings/delete?id=bad-id", nil)
 	rec := httptest.NewRecorder()
@@ -91,10 +93,10 @@ func TestHandleAdminDeleteAction_NoIDs_Redirects(t *testing.T) {
 	formData.Set("admin_code", "secret")
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings/delete", strings.NewReader(formData.Encode()))
 
-	cfg := config.LoadConfig()
-	cfg.AdminCode = "secret"
-	repo := testutil.SetupTestRepository(t)
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: cfg})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	app.Cfg.AdminCode = "secret"
+	h := admin.NewAdminHandler(app)
 
 	_ = h.HandleAdminDeleteAction(c)
 	assert.Equal(t, http.StatusFound, rec.Code)
@@ -107,26 +109,26 @@ func TestHandleAdminDeleteAction_WrongCode_RendersConfirmWithError(t *testing.T)
 	formData.Add("id", "l1")
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings/delete", strings.NewReader(formData.Encode()))
 
-	cfg := config.LoadConfig()
-	cfg.AdminCode = "correct"
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	app.Cfg.AdminCode = "correct"
 
-	repo := testutil.SetupTestRepository(t)
 	// Seed so it doesn't fail on something else
-	_ = repo.Save(context.Background(), domain.Listing{ID: "l1", Title: "To Delete", OwnerOrigin: "Nigeria", Type: "business"})
+	_ = app.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "To Delete", OwnerOrigin: "Nigeria", Type: "business"})
 
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: cfg})
+	h := admin.NewAdminHandler(app)
 
 	_ = h.HandleAdminDeleteAction(c)
 	assert.Equal(t, http.StatusOK, rec.Code)
 }
 
 func TestHandleAdminDeleteAction_PartialSuccess(t *testing.T) {
-	cfg := config.LoadConfig()
-	cfg.AdminCode = "secret"
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	app.Cfg.AdminCode = "secret"
 
-	repo := testutil.SetupTestRepository(t)
 	// Seed only l1
-	_ = repo.Save(context.Background(), domain.Listing{ID: "l1", Title: "To Delete", OwnerOrigin: "Nigeria", Type: "business"})
+	_ = app.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "To Delete", OwnerOrigin: "Nigeria", Type: "business"})
 
 	formData := url.Values{}
 	formData.Set("admin_code", "secret")
@@ -134,7 +136,7 @@ func TestHandleAdminDeleteAction_PartialSuccess(t *testing.T) {
 	formData.Add("id", "l2") // Does not exist
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings/delete", strings.NewReader(formData.Encode()))
 
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: cfg})
+	h := admin.NewAdminHandler(app)
 	store := middleware.NewTestSessionStore()
 	session, _ := store.Get(c.Request(), "auth_session")
 	c.Set("session", session)
@@ -143,7 +145,7 @@ func TestHandleAdminDeleteAction_PartialSuccess(t *testing.T) {
 	assert.Equal(t, http.StatusFound, rec.Code)
 
 	// Verify l1 deleted
-	_, err := repo.FindByID(context.Background(), "l1")
+	_, err := app.DB.FindByID(context.Background(), "l1")
 	assert.Error(t, err)
 
 	// Verify flash message

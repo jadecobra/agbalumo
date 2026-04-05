@@ -18,7 +18,7 @@ func (h *ListingHandler) HandleClaim(c echo.Context) error {
 
 	id := c.Param("id")
 
-	_, err := h.ListingSvc.ClaimListing(c.Request().Context(), *u, id)
+	_, err := h.App.ListingSvc.ClaimListing(c.Request().Context(), *u, id)
 	if err != nil {
 		switch err.Error() {
 		case "listing not found":

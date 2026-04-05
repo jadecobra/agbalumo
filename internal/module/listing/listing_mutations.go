@@ -37,7 +37,7 @@ func (h *ListingHandler) HandleCreate(c echo.Context) error {
 	l.OwnerID = uRaw.ID
 
 	// Check for duplicate title
-	existing, err := h.ListingStore.FindByTitle(c.Request().Context(), l.Title)
+	existing, err := h.App.DB.FindByTitle(c.Request().Context(), l.Title)
 	if err == nil && len(existing) > 0 {
 		return ui.RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Title already exists. Please choose a different title."))
 	}
@@ -60,7 +60,7 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	listing, err := h.ListingStore.FindByID(ctx, id)
+	listing, err := h.App.DB.FindByID(ctx, id)
 	if err != nil {
 		return ui.RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
 	}
@@ -85,8 +85,7 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 	var req ListingFormRequest
 	_ = c.Bind(&req)
 	if originalImageURL != "" && (req.RemoveImage || listing.ImageURL != originalImageURL) {
-		err = h.ImageService.DeleteImage(ctx, originalImageURL)
-		if err != nil {
+		if err := h.App.ImageSvc.DeleteImage(ctx, originalImageURL); err != nil {
 			c.Logger().Errorf("Failed to delete image: %v", err)
 		}
 		if req.RemoveImage {
@@ -95,7 +94,7 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 	}
 
 	// Check for duplicate title
-	existing, fErr := h.ListingStore.FindByTitle(ctx, listing.Title)
+	existing, fErr := h.App.DB.FindByTitle(ctx, listing.Title)
 	if fErr == nil {
 		for _, ext := range existing {
 			if ext.ID != listing.ID {
@@ -115,7 +114,7 @@ func (h *ListingHandler) HandleDelete(c echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	listing, err := h.ListingStore.FindByID(ctx, id)
+	listing, err := h.App.DB.FindByID(ctx, id)
 	if err != nil {
 		return ui.RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
 	}
@@ -124,7 +123,7 @@ func (h *ListingHandler) HandleDelete(c echo.Context) error {
 		return ui.RespondError(c, echo.NewHTTPError(http.StatusForbidden, "You are not the owner of this listing"))
 	}
 
-	if err := h.ListingStore.Delete(ctx, id); err != nil {
+	if err := h.App.DB.Delete(ctx, id); err != nil {
 		return ui.RespondError(c, err)
 	}
 
@@ -134,8 +133,8 @@ func (h *ListingHandler) HandleDelete(c echo.Context) error {
 func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error {
 	// Auto-populate city from address if missing
 	if l.City == "" && l.Address != "" {
-		if h.GeocodingSvc != nil {
-			city, err := h.GeocodingSvc.GetCity(c.Request().Context(), l.Address)
+		if h.App.GeocodingSvc != nil {
+			city, err := h.App.GeocodingSvc.GetCity(c.Request().Context(), l.Address)
 			if err == nil && city != "" {
 				l.City = city
 			} else if err != nil {
@@ -153,7 +152,7 @@ func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error
 		return ui.RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Validation Error: "+err.Error()))
 	}
 
-	if err := h.ListingStore.Save(c.Request().Context(), *l); err != nil {
+	if err := h.App.DB.Save(c.Request().Context(), *l); err != nil {
 		return ui.RespondError(c, err)
 	}
 
@@ -177,7 +176,7 @@ func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error
 }
 
 func (h *ListingHandler) handleImageUpload(c echo.Context, l *domain.Listing) error {
-	imageURL, err := h.ImageService.UploadImage(c.Request().Context(), h.getFileHeader(c, "image"), l.ID)
+	imageURL, err := h.App.ImageSvc.UploadImage(c.Request().Context(), h.getFileHeader(c, "image"), l.ID)
 	if err == nil && imageURL != "" {
 		l.ImageURL = fmt.Sprintf("%s?t=%d", imageURL, time.Now().Unix())
 		return nil

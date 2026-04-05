@@ -10,23 +10,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/service"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHandleCreate_EventParsing(t *testing.T) {
-	repo := testutil.SetupTestRepository(t)
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  nil,
-		GeocodingSvc:  &MockGeocodingService{},
-		Config:        &config.Config{},
-	})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	app.GeocodingSvc = &service.GoogleGeocodingService{}
+	h := listmod.NewListingHandler(app)
 
 	// Create form data
 	form := url.Values{}
@@ -47,7 +41,7 @@ func TestHandleCreate_EventParsing(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 
 	// Verify DB state
-	listings, _ := repo.FindByTitle(context.Background(), "Test Event")
+	listings, _ := app.DB.FindByTitle(context.Background(), "Test Event")
 	assert.Len(t, listings, 1)
 	l := listings[0]
 	assert.Equal(t, domain.Event, l.Type)

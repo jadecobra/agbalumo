@@ -7,13 +7,11 @@ import (
 	"testing"
 
 	"github.com/gorilla/sessions"
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/module/auth"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	testifyMock "github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
 	"golang.org/x/oauth2"
 )
 
@@ -30,11 +28,12 @@ func TestAuthHandler_GoogleCallback_Success(t *testing.T) {
 	sess, _ := store.Get(req, "session-name")
 	c.Set("session", sess)
 
-	repo := testutil.SetupTestRepository(t)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	app.Cfg.HasGoogleAuth = true
 	mockProvider := &MockGoogleProvider{}
-	cfg := config.LoadConfig()
-	cfg.HasGoogleAuth = true
-	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, GoogleProvider: mockProvider, Config: cfg})
+	h := auth.NewAuthHandler(app)
+	h.GoogleProvider = mockProvider
 
 	token := &oauth2.Token{AccessToken: "access-token"}
 	gUser := &auth.GoogleUser{ID: "google-123", Email: "test@example.com", Name: "Test User", Picture: "http://pic.com"}
@@ -46,8 +45,8 @@ func TestAuthHandler_GoogleCallback_Success(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
 
-	user, err := repo.FindUserByGoogleID(context.Background(), "google-123")
-	require.NoError(t, err)
+	user, err := app.DB.FindUserByGoogleID(context.Background(), "google-123")
+	assert.NoError(t, err)
 	assert.Equal(t, user.ID, sess.Values["user_id"])
 }
 
@@ -59,11 +58,12 @@ func TestAuthHandler_GoogleLogin(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	repo := testutil.SetupTestRepository(t)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	app.Cfg.HasGoogleAuth = true
 	mockProvider := &MockGoogleProvider{}
-	cfg := config.LoadConfig()
-	cfg.HasGoogleAuth = true
-	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, GoogleProvider: mockProvider, Config: cfg})
+	h := auth.NewAuthHandler(app)
+	h.GoogleProvider = mockProvider
 
 	mockProvider.On("GetAuthCodeURL", testifyMock.AnythingOfType("string"), "http", "example.com").Return("http://google.com/auth")
 

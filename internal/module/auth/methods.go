@@ -18,10 +18,10 @@ import (
 func (h *AuthHandler) DevLogin(c echo.Context) error {
 	email := c.QueryParam("email")
 	if email == "" {
-		email = h.Cfg.DevAuthEmail
+		email = h.App.Cfg.DevAuthEmail
 	}
 
-	if h.Cfg.Env != "development" {
+	if h.App.Cfg.Env != "development" {
 		return ui.RespondError(c, echo.NewHTTPError(http.StatusForbidden, "Dev login disabled in production"))
 	}
 
@@ -38,13 +38,13 @@ func (h *AuthHandler) DevLogin(c echo.Context) error {
 }
 
 func (h *AuthHandler) GoogleLogin(c echo.Context) error {
-	if !h.Cfg.HasGoogleAuth {
+	if !h.App.Cfg.HasGoogleAuth {
 		return ui.RespondError(c, echo.NewHTTPError(http.StatusServiceUnavailable, "Google OAuth is not configured"))
 	}
 
 	state := uuid.New().String()
 	baseURL := os.Getenv("BASE_URL")
-	isSecure := h.Cfg.Env == "production" || strings.HasPrefix(baseURL, "https://")
+	isSecure := h.App.Cfg.Env == "production" || strings.HasPrefix(baseURL, "https://")
 
 	cookie := new(http.Cookie)
 	cookie.Name = "oauth_state"
@@ -70,7 +70,7 @@ func (h *AuthHandler) Logout(c echo.Context) error {
 }
 
 func (h *AuthHandler) findOrCreateUser(ctx context.Context, googleID, email, name, avatar string) (*domain.User, error) {
-	user, err := h.Repo.FindUserByGoogleID(ctx, googleID)
+	user, err := h.App.DB.FindUserByGoogleID(ctx, googleID)
 	if err != nil {
 		user = domain.User{
 			ID:        uuid.New().String(),
@@ -80,7 +80,7 @@ func (h *AuthHandler) findOrCreateUser(ctx context.Context, googleID, email, nam
 			AvatarURL: avatar,
 			CreatedAt: time.Now(),
 		}
-		if err := h.Repo.SaveUser(ctx, user); err != nil {
+		if err := h.App.DB.SaveUser(ctx, user); err != nil {
 			return nil, err
 		}
 		return &user, nil
@@ -89,7 +89,7 @@ func (h *AuthHandler) findOrCreateUser(ctx context.Context, googleID, email, nam
 	if user.AvatarURL != avatar || user.Name != name {
 		user.AvatarURL = avatar
 		user.Name = name
-		_ = h.Repo.SaveUser(ctx, user)
+		_ = h.App.DB.SaveUser(ctx, user)
 	}
 	return &user, nil
 }
@@ -101,7 +101,7 @@ func (h *AuthHandler) setSessionAndRedirect(c echo.Context, userID string) error
 	}
 
 	baseURL := os.Getenv("BASE_URL")
-	isSecure := h.Cfg.Env == "production" || strings.HasPrefix(baseURL, "https://")
+	isSecure := h.App.Cfg.Env == "production" || strings.HasPrefix(baseURL, "https://")
 
 	sess.Options = &sessions.Options{
 		Path:     "/",

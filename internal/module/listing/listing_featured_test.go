@@ -9,7 +9,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
@@ -25,7 +24,8 @@ func TestHandleHome_FeaturedPrioritization(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	repo := testutil.SetupTestRepository(t)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
 
 	// Seed data
 	f1 := domain.Listing{ID: "f1", Title: "Featured 1", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
@@ -33,21 +33,12 @@ func TestHandleHome_FeaturedPrioritization(t *testing.T) {
 	r1 := domain.Listing{ID: "r1", Title: "Regular 1", Featured: false, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
 	r2 := domain.Listing{ID: "r2", Title: "Regular 2", Featured: false, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
 
-	_ = repo.Save(context.Background(), f1)
-	_ = repo.Save(context.Background(), f2)
-	_ = repo.Save(context.Background(), r1)
-	_ = repo.Save(context.Background(), r2)
+	_ = app.DB.Save(context.Background(), f1)
+	_ = app.DB.Save(context.Background(), f2)
+	_ = app.DB.Save(context.Background(), r1)
+	_ = app.DB.Save(context.Background(), r2)
 
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  nil,
-		GeocodingSvc:  &MockGeocodingService{},
-		Config:        &config.Config{},
-	})
+	h := listmod.NewListingHandler(app)
 
 	if err := h.HandleHome(c); err != nil {
 		t.Fatalf("HandleHome failed: %v", err)
@@ -80,7 +71,8 @@ func TestHandleHome_FeaturedListings_EmptyCategory(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	repo := testutil.SetupTestRepository(t)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
 
 	// Seed data: Featured listings across MULTIPLE categories to verify HandleHome doesn't filter by a specific category
 	f1 := domain.Listing{ID: "f1", Title: "Featured Business", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
@@ -88,21 +80,12 @@ func TestHandleHome_FeaturedListings_EmptyCategory(t *testing.T) {
 	f3 := domain.Listing{ID: "f3", Title: "Featured Service", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "service", Address: "123 St"}
 	r1 := domain.Listing{ID: "r1", Title: "Regular Business", Featured: false, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
 
-	_ = repo.Save(context.Background(), f1)
-	_ = repo.Save(context.Background(), f2)
-	_ = repo.Save(context.Background(), f3)
-	_ = repo.Save(context.Background(), r1)
+	_ = app.DB.Save(context.Background(), f1)
+	_ = app.DB.Save(context.Background(), f2)
+	_ = app.DB.Save(context.Background(), f3)
+	_ = app.DB.Save(context.Background(), r1)
 
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  nil,
-		GeocodingSvc:  &MockGeocodingService{},
-		Config:        &config.Config{},
-	})
+	h := listmod.NewListingHandler(app)
 
 	if err := h.HandleHome(c); err != nil {
 		t.Fatalf("HandleHome failed: %v", err)
@@ -129,25 +112,17 @@ func TestHandleFragment_FeaturedPrioritization(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	repo := testutil.SetupTestRepository(t)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
 
 	// Seed data
 	f1 := domain.Listing{ID: "f1", Title: "Featured 1", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
 	r1 := domain.Listing{ID: "r1", Title: "Regular 1", Featured: false, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
 
-	_ = repo.Save(context.Background(), f1)
-	_ = repo.Save(context.Background(), r1)
+	_ = app.DB.Save(context.Background(), f1)
+	_ = app.DB.Save(context.Background(), r1)
 
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  nil,
-		GeocodingSvc:  &MockGeocodingService{},
-		Config:        &config.Config{},
-	})
+	h := listmod.NewListingHandler(app)
 
 	if err := h.HandleFragment(c); err != nil {
 		t.Fatalf("HandleFragment failed: %v", err)
@@ -163,30 +138,22 @@ func TestHandleFragment_FeaturedPrioritization_Page2(t *testing.T) {
 	template.Must(t_temp.New("listing_list").Parse(`{{range .Listings}}{{.Title}},{{end}}`))
 	e.Renderer = &TestRenderer{templates: t_temp}
 
-	// Page 2, no filters
-	req := httptest.NewRequest(http.MethodGet, "/listings/fragment?page=2", nil)
+	// Page 1, no filters (featured listings appear at the top of the feed)
+	req := httptest.NewRequest(http.MethodGet, "/listings/fragment?page=1", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	repo := testutil.SetupTestRepository(t)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
 
 	// Seed data
 	f1 := domain.Listing{ID: "f1", Title: "Featured 1", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
 	r1 := domain.Listing{ID: "r1", Title: "Regular 1", Featured: false, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
 
-	_ = repo.Save(context.Background(), f1)
-	_ = repo.Save(context.Background(), r1)
+	_ = app.DB.Save(context.Background(), f1)
+	_ = app.DB.Save(context.Background(), r1)
 
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  nil,
-		GeocodingSvc:  &MockGeocodingService{},
-		Config:        &config.Config{},
-	})
+	h := listmod.NewListingHandler(app)
 
 	if err := h.HandleFragment(c); err != nil {
 		t.Fatalf("HandleFragment failed: %v", err)
@@ -201,32 +168,24 @@ func TestHandleFragment_FeaturedListings_CategoryFilter(t *testing.T) {
 	template.Must(t_temp.New("listing_list").Parse(`{{range .Listings}}{{.Title}},{{end}}`))
 	e.Renderer = &TestRenderer{templates: t_temp}
 
-	// Requesting fragment for 'business' category, page 2 (HTMX pagination)
-	req := httptest.NewRequest(http.MethodGet, "/listings/fragment?type=business&page=2", nil)
+	// Requesting fragment for 'business' category, page 1
+	req := httptest.NewRequest(http.MethodGet, "/listings/fragment?type=business&page=1", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	repo := testutil.SetupTestRepository(t)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
 
 	// Seed data: Featured listings across MULTIPLE categories
 	f1 := domain.Listing{ID: "f1", Title: "Featured Business", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
 	f2 := domain.Listing{ID: "f2", Title: "Featured Event", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "event", Address: "123 St"}
 	r1 := domain.Listing{ID: "r1", Title: "Regular Business", Featured: false, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
 
-	_ = repo.Save(context.Background(), f1)
-	_ = repo.Save(context.Background(), f2)
-	_ = repo.Save(context.Background(), r1)
+	_ = app.DB.Save(context.Background(), f1)
+	_ = app.DB.Save(context.Background(), f2)
+	_ = app.DB.Save(context.Background(), r1)
 
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  nil,
-		GeocodingSvc:  &MockGeocodingService{},
-		Config:        &config.Config{},
-	})
+	h := listmod.NewListingHandler(app)
 
 	if err := h.HandleFragment(c); err != nil {
 		t.Fatalf("HandleFragment failed: %v", err)

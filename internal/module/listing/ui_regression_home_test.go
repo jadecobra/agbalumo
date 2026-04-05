@@ -12,12 +12,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestHomePageUIValues(t *testing.T) {
@@ -28,27 +26,12 @@ func TestHomePageUIValues(t *testing.T) {
 	c := e.NewContext(req, rec)
 	ctx := context.Background()
 
-	repo := testutil.SetupTestRepository(t)
-	err := repo.Save(ctx, domain.Listing{ID: "1", Title: "Business A", Type: domain.Business, IsActive: true, CreatedAt: time.Now()})
-	require.NoError(t, err)
-	err = repo.Save(ctx, domain.Listing{ID: "2", Title: "Job B", Type: domain.Job, IsActive: true, CreatedAt: time.Now().Add(time.Second)})
-	require.NoError(t, err)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	_ = app.DB.Save(ctx, domain.Listing{ID: "1", Title: "Business A", Type: domain.Business, IsActive: true, CreatedAt: time.Now()})
+	_ = app.DB.Save(ctx, domain.Listing{ID: "2", Title: "Job B", Type: domain.Job, IsActive: true, CreatedAt: time.Now().Add(time.Second)})
 
-	// Verify repo has them
-	all, _, err := repo.FindAll(ctx, "", "", "", "", false, 20, 0)
-	require.NoError(t, err)
-	assert.Equal(t, 2, len(all))
-
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  nil,
-		GeocodingSvc:  &MockGeocodingService{},
-		Config:        &config.Config{},
-	})
+	h := listmod.NewListingHandler(app)
 	if err := h.HandleHome(c); err != nil {
 		t.Fatal(err)
 	}

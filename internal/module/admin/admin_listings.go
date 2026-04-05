@@ -24,20 +24,20 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 	queryText := strings.TrimSpace(c.QueryParam("q"))
 
 	// Fetch all listings with the given category filter, including inactive ones.
-	listings, totalCountRows, err := h.ListingStore.FindAll(ctx, category, queryText, sortField, sortOrder, true, pagination.Limit, pagination.Offset)
+	listings, totalCountRows, err := h.App.DB.FindAll(ctx, category, queryText, sortField, sortOrder, true, pagination.Limit, pagination.Offset)
 	if err != nil {
 		return ui.RespondError(c, err)
 	}
 
 	hasNextPage := pagination.Offset+len(listings) < totalCountRows
 
-	counts, err := h.ListingStore.GetCounts(ctx)
+	counts, err := h.App.DB.GetCounts(ctx)
 	if err != nil {
 		c.Logger().Errorf("failed to get listing counts: %v", err)
 		counts = make(map[domain.Category]int)
 	}
 
-	categories, err := h.CategoryStore.GetCategories(ctx, domain.CategoryFilter{})
+	categories, err := h.App.DB.GetCategories(ctx, domain.CategoryFilter{})
 	if err != nil {
 		c.Logger().Errorf("failed to get categories: %v", err)
 		categories = []domain.CategoryData{}
@@ -63,7 +63,7 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 func (h *AdminHandler) HandleListingRow(c echo.Context) error {
 	id := c.Param("id")
 	ctx := c.Request().Context()
-	listing, err := h.ListingStore.FindByID(ctx, id)
+	listing, err := h.App.DB.FindByID(ctx, id)
 	if err != nil {
 		return ui.RespondError(c, err)
 	}
@@ -81,13 +81,13 @@ func (h *AdminHandler) HandleToggleFeatured(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	if featured {
-		listing, err := h.ListingStore.FindByID(ctx, id)
+		listing, err := h.App.DB.FindByID(ctx, id)
 		if err != nil {
 			return ui.RespondError(c, err)
 		}
 
 		if !listing.Featured {
-			featuredListings, err := h.ListingStore.GetFeaturedListings(ctx, string(listing.Type))
+			featuredListings, err := h.App.DB.GetFeaturedListings(ctx, string(listing.Type))
 			if err != nil {
 				return ui.RespondError(c, err)
 			}
@@ -97,11 +97,11 @@ func (h *AdminHandler) HandleToggleFeatured(c echo.Context) error {
 		}
 	}
 
-	if err := h.ListingStore.SetFeatured(ctx, id, featured); err != nil {
+	if err := h.App.DB.SetFeatured(ctx, id, featured); err != nil {
 		return ui.RespondError(c, err)
 	}
 
-	updatedListing, err := h.ListingStore.FindByID(ctx, id)
+	updatedListing, err := h.App.DB.FindByID(ctx, id)
 	if err != nil {
 		return ui.RespondError(c, err)
 	}

@@ -7,18 +7,18 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/module/admin"
 
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHandleApproveClaim(t *testing.T) {
-	repo := testutil.SetupTestRepository(t)
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	h := admin.NewAdminHandler(app)
 
 	// Seed data
-	_ = repo.SaveClaimRequest(context.Background(), domain.ClaimRequest{ID: "claim1", UserID: "u1", ListingID: "l1", Status: domain.ClaimStatusPending})
+	_ = app.DB.SaveClaimRequest(context.Background(), domain.ClaimRequest{ID: "claim1", UserID: "u1", ListingID: "l1", Status: domain.ClaimStatusPending})
 
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/claims/claim1/approve", nil)
 	c.SetParamNames("id")
@@ -28,15 +28,16 @@ func TestHandleApproveClaim(t *testing.T) {
 	if assert.NoError(t, h.HandleApproveClaim(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 		// Verify database state
-		claim, err := repo.GetClaimRequestByUserAndListing(context.Background(), "u1", "l1")
+		claim, err := app.DB.GetClaimRequestByUserAndListing(context.Background(), "u1", "l1")
 		assert.NoError(t, err)
 		assert.Equal(t, domain.ClaimStatusApproved, claim.Status)
 	}
 }
 
 func TestHandleApproveClaim_Error(t *testing.T) {
-	repo := testutil.SetupTestRepository(t)
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	h := admin.NewAdminHandler(app)
 
 	// No data seeded for "bad" ID should result in error when trying to update
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/claims/bad/approve", nil)
@@ -49,11 +50,12 @@ func TestHandleApproveClaim_Error(t *testing.T) {
 }
 
 func TestHandleRejectClaim(t *testing.T) {
-	repo := testutil.SetupTestRepository(t)
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	h := admin.NewAdminHandler(app)
 
 	// Seed data
-	_ = repo.SaveClaimRequest(context.Background(), domain.ClaimRequest{ID: "claim1", UserID: "u1", ListingID: "l1", Status: domain.ClaimStatusPending})
+	_ = app.DB.SaveClaimRequest(context.Background(), domain.ClaimRequest{ID: "claim1", UserID: "u1", ListingID: "l1", Status: domain.ClaimStatusPending})
 
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/claims/claim1/reject", nil)
 	c.SetParamNames("id")
@@ -63,15 +65,16 @@ func TestHandleRejectClaim(t *testing.T) {
 	if assert.NoError(t, h.HandleRejectClaim(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 		// Verify database state
-		claim, err := repo.GetClaimRequestByUserAndListing(context.Background(), "u1", "l1")
+		claim, err := app.DB.GetClaimRequestByUserAndListing(context.Background(), "u1", "l1")
 		assert.NoError(t, err)
 		assert.Equal(t, domain.ClaimStatusRejected, claim.Status)
 	}
 }
 
 func TestHandleRejectClaim_Error(t *testing.T) {
-	repo := testutil.SetupTestRepository(t)
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	h := admin.NewAdminHandler(app)
 
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/claims/bad/reject", nil)
 	c.SetParamNames("id")

@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
@@ -72,19 +71,10 @@ func TestHandleDelete(t *testing.T) {
 				c.Set("User", tt.user)
 			}
 
-			repo := testutil.SetupTestRepository(t)
-			tt.setup(t, repo)
-
-			listingSvc := listmod.NewListingService(repo, repo, repo)
-
-			h := listmod.NewListingHandler(listmod.ListingDependencies{
-				ListingStore:  repo,
-				CategoryStore: repo,
-				ListingSvc:    listingSvc,
-				ImageService:  nil,
-				GeocodingSvc:  &MockGeocodingService{},
-				Config:        &config.Config{},
-			})
+			app, cleanup := testutil.SetupTestAppEnv(t)
+			defer cleanup()
+			tt.setup(t, app.DB)
+			h := listmod.NewListingHandler(app)
 			_ = h.HandleDelete(c)
 
 			assert.Equal(t, tt.expectCode, rec.Code)

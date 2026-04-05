@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/gorilla/sessions"
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/module/auth"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
@@ -25,8 +24,9 @@ func TestAuthHandler_Logout(t *testing.T) {
 	sess, _ := store.Get(req, "session-name")
 	c.Set("session", sess)
 
-	repo := testutil.SetupTestRepository(t)
-	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, Config: config.LoadConfig()})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	h := auth.NewAuthHandler(app)
 
 	err := h.Logout(c)
 
@@ -44,8 +44,9 @@ func TestAuthHandler_Logout_NoSession(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	repo := testutil.SetupTestRepository(t)
-	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, Config: config.LoadConfig()})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	h := auth.NewAuthHandler(app)
 
 	err := h.Logout(c)
 

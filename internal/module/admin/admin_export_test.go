@@ -18,13 +18,15 @@ import (
 
 func TestAdminHandler_HandleExportListings(t *testing.T) {
 	e := echo.New()
-	repo := testutil.SetupTestRepository(t)
-	csvSvc := service.NewCSVService()
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: csvSvc, Cfg: nil})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+
+	h := admin.NewAdminHandler(app)
+	app.CSVService = service.NewCSVService()
 
 	ctx := context.Background()
 	// Seed some data
-	_ = repo.Save(ctx, domain.Listing{
+	_ = app.DB.Save(ctx, domain.Listing{
 		ID:           "test-1",
 		Title:        "Test Listing",
 		Type:         domain.Business,

@@ -12,12 +12,12 @@ import (
 	"github.com/jadecobra/agbalumo/internal/common"
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/infra/env"
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"github.com/jadecobra/agbalumo/internal/module/auth"
 	"github.com/jadecobra/agbalumo/internal/module/feedback"
 	"github.com/jadecobra/agbalumo/internal/module/listing"
-	"github.com/jadecobra/agbalumo/internal/repository/cached"
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
 	"github.com/jadecobra/agbalumo/internal/seeder"
 	"github.com/jadecobra/agbalumo/internal/service"
@@ -60,6 +60,22 @@ func Setup(cfg *config.Config) (*echo.Echo, func(), error) {
 	}
 	repo.SetSlowQueryThreshold(time.Duration(cfg.SlowQueryThresholdMs) * time.Millisecond)
 
+	listingSvc := listing.NewListingService(repo, repo, repo)
+	csvSvc := service.NewCSVService()
+	geocodingSvc := service.NewGoogleGeocodingService(cfg.GoogleMapsAPIKey)
+	csvSvc.Geocoding = geocodingSvc
+	imageSvc := service.NewLocalImageService(cfg.UploadDir)
+
+	app := &env.AppEnv{
+		DB:           repo,
+		Cfg:          cfg,
+		Logger:       slog.Default(),
+		CSVService:   csvSvc,
+		GeocodingSvc: geocodingSvc,
+		ImageSvc:     imageSvc,
+		ListingSvc:   listingSvc,
+	}
+
 	renderer, err := ui.NewTemplateRenderer(
 		"ui/templates/*.html",
 		"ui/templates/partials/*.html",
@@ -72,7 +88,7 @@ func Setup(cfg *config.Config) (*echo.Echo, func(), error) {
 	}
 	e.Renderer = renderer
 
-	setupRoutes(e, repo, cfg)
+	setupRoutes(e, app)
 
 	bgCtx, cancelBg := context.WithCancel(context.Background())
 	setupBackgroundServices(bgCtx, cfg, repo)
@@ -123,57 +139,17 @@ func setupMiddleware(e *echo.Echo, cfg *config.Config) {
 	e.Use(customMiddleware.SessionMiddleware(store))
 }
 
-func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config) {
-	cachedRepo := cached.NewCachedListingStore(repo, 60*time.Second)
-	geocodingSvc := service.NewGoogleGeocodingService(cfg.GoogleMapsAPIKey)
+func setupRoutes(e *echo.Echo, app *env.AppEnv) {
+	repo := app.DB
 
-	listingSvc := listing.NewListingService(
-		domain.ListingStore(cachedRepo),
-		domain.CategoryStore(cachedRepo),
-		domain.ClaimRequestStore(cachedRepo),
-	)
-
-	listingHandler := listing.NewListingHandler(listing.ListingDependencies{
-		ListingStore:     domain.ListingStore(cachedRepo),
-		CategoryStore:    domain.CategoryStore(cachedRepo),
-		ListingSvc:       listingSvc,
-		GeocodingSvc:     geocodingSvc,
-		Config:           cfg,
-		GoogleMapsAPIKey: cfg.GoogleMapsAPIKey,
-	})
-
-	csvService := service.NewCSVService()
-	csvService.Geocoding = geocodingSvc
-
-	adminHandler := admin.NewAdminHandler(admin.AdminDependencies{
-		AdminStore:        domain.AdminStore(repo),
-		FeedbackStore:     domain.FeedbackStore(repo),
-		AnalyticsStore:    domain.AnalyticsStore(repo),
-		CategoryStore:     domain.CategoryStore(repo),
-		UserStore:         domain.UserStore(repo),
-		ListingStore:      domain.ListingStore(repo),
-		ClaimRequestStore: domain.ClaimRequestStore(repo),
-		CSVService:        csvService,
-		Cfg:               cfg,
-	})
-
-	var googleProvider auth.GoogleProvider
-	if cfg.MockAuth {
-		googleProvider = &auth.MockGoogleProvider{
-			Email: "test@agbalumo.com",
-			Name:  "Test User",
-		}
-	}
-
-	authHandler := auth.NewAuthHandler(auth.AuthDependencies{
-		UserStore:      domain.UserStore(repo),
-		Config:         cfg,
-		GoogleProvider: googleProvider,
-	})
+	// Modules now use AppEnv for all dependencies.
+	listingHandler := listing.NewListingHandler(app)
+	adminHandler := admin.NewAdminHandler(app)
+	authHandler := auth.NewAuthHandler(app)
 
 	authMw := auth.NewAuthMiddleware(domain.UserStore(repo))
-	fbHandler := feedback.NewFeedbackHandler(repo)
-	pageHandler := common.NewPageHandler(domain.CategoryStore(cachedRepo), cfg)
+	fbHandler := feedback.NewFeedbackHandler(app)
+	pageHandler := common.NewPageHandler(app)
 
 	e.GET("/healthz", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
@@ -181,7 +157,7 @@ func setupRoutes(e *echo.Echo, repo *sqlite.SQLiteRepository, cfg *config.Config
 
 	staticCacheMiddleware := StaticCacheHeaders()
 	e.Group("/static", staticCacheMiddleware).Static("/", "ui/static")
-	e.Group("/static/uploads", staticCacheMiddleware).Static("/", cfg.UploadDir)
+	e.Group("/static/uploads", staticCacheMiddleware).Static("/", app.Cfg.UploadDir)
 
 	e.Use(authMw.OptionalAuth)
 

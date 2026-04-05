@@ -11,25 +11,23 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
+	testifyMock "github.com/stretchr/testify/mock"
 )
 
 func TestListingHandler_Upload_Malicious(t *testing.T) {
-	// Setup
-	repo := testutil.SetupTestRepository(t)
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  nil,
-		GeocodingSvc:  &MockGeocodingService{},
-		Config:        &config.Config{},
-	})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+
+	// Use MockImageService to simulate a validation failure
+	mockImg := &testutil.MockImageService{}
+	app.ImageSvc = mockImg
+	mockImg.On("UploadImage", testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).Return("", echo.NewHTTPError(http.StatusBadRequest, "invalid image format"))
+
+	h := listmod.NewListingHandler(app)
 
 	// Create a malicious file (text file disguised as jpg)
 	body := new(bytes.Buffer)
@@ -67,19 +65,9 @@ func TestListingHandler_Upload_Malicious(t *testing.T) {
 }
 
 func TestListingHandler_Upload_Valid(t *testing.T) {
-	// Setup
-	repo := testutil.SetupTestRepository(t)
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  nil,
-		GeocodingSvc:  &MockGeocodingService{},
-		Config:        &config.Config{},
-		UploadDir:     t.TempDir(),
-	})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	h := listmod.NewListingHandler(app)
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
@@ -113,7 +101,7 @@ func TestListingHandler_Upload_Valid(t *testing.T) {
 	assert.Contains(t, []int{http.StatusOK, http.StatusCreated, http.StatusFound}, rec.Code)
 
 	// Verify DB
-	listings, _ := repo.FindByTitle(context.Background(), "Valid Title")
+	listings, _ := app.DB.FindByTitle(context.Background(), "Valid Title")
 	assert.Len(t, listings, 1)
 	assert.NotEmpty(t, listings[0].ImageURL)
 }

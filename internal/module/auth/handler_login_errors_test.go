@@ -5,7 +5,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/module/auth"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
@@ -23,8 +22,9 @@ func TestAuthHandler_GoogleCallback_Errors(t *testing.T) {
 		c := e.NewContext(req, rec)
 		req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "valid"})
 
-		repo := testutil.SetupTestRepository(t)
-		h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, Config: config.LoadConfig()})
+		app, cleanup := testutil.SetupTestAppEnv(t)
+		defer cleanup()
+		h := auth.NewAuthHandler(app)
 		err := h.GoogleCallback(c)
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
@@ -36,9 +36,11 @@ func TestAuthHandler_GoogleCallback_Errors(t *testing.T) {
 		c := e.NewContext(req, rec)
 		req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "s"})
 
-		repo := testutil.SetupTestRepository(t)
+		app, cleanup := testutil.SetupTestAppEnv(t)
+		defer cleanup()
 		mockProvider := &MockGoogleProvider{}
-		h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, GoogleProvider: mockProvider, Config: config.LoadConfig()})
+		h := auth.NewAuthHandler(app)
+		h.GoogleProvider = mockProvider
 		mockProvider.On("Exchange", testifyMock.Anything, "c", "http", "example.com").Return(nil, assert.AnError)
 
 		err := h.GoogleCallback(c)

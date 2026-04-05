@@ -8,7 +8,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
@@ -16,7 +15,6 @@ import (
 )
 
 func TestHandleUpdate_ImageRemoval(t *testing.T) {
-	repo := testutil.SetupTestRepository(t)
 
 	// Existing listing with an image
 	existingListing := domain.Listing{
@@ -32,24 +30,18 @@ func TestHandleUpdate_ImageRemoval(t *testing.T) {
 		City:         "Lagos",
 		Address:      "123 Street",
 	}
-	_ = repo.Save(context.Background(), existingListing)
-
 	mockImageService := &MockImageService{}
 	// Expect DeleteImage to be called
 	mockImageService.On("DeleteImage", testifyMock.Anything, existingListing.ImageURL).Return(nil)
 	// UploadImage might be called with nil if no image is uploaded
 	mockImageService.On("UploadImage", testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).Return("", nil).Maybe()
 
-	listingSvc := listmod.NewListingService(repo, repo, repo)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	app.ImageSvc = mockImageService
+	_ = app.DB.Save(context.Background(), existingListing)
 
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  mockImageService,
-		GeocodingSvc:  &MockGeocodingService{},
-		Config:        &config.Config{},
-	})
+	h := listmod.NewListingHandler(app)
 
 	// Body with remove_image=true and required fields
 	body := "title=New+Title&remove_image=true&owner_origin=Nigeria&description=Cool&contact_email=test@test.com&city=Lagos&address=123+Street&type=Business"
@@ -67,7 +59,7 @@ func TestHandleUpdate_ImageRemoval(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 
 	// Verify DB state
-	updated, _ := repo.FindByID(context.Background(), "listing-123")
+	updated, _ := app.DB.FindByID(context.Background(), "listing-123")
 	assert.Empty(t, updated.ImageURL)
 	assert.Equal(t, "New Title", updated.Title)
 

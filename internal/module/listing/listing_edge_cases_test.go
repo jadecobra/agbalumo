@@ -13,7 +13,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
@@ -22,7 +21,6 @@ import (
 )
 
 func TestHandleCreate_WithImage(t *testing.T) {
-	repo := testutil.SetupTestRepository(t)
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
@@ -42,17 +40,9 @@ func TestHandleCreate_WithImage(t *testing.T) {
 	c, rec := setupTestContext(http.MethodPost, "/listings", body)
 	c.Request().Header.Set(echo.HeaderContentType, writer.FormDataContentType())
 
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  nil,
-		GeocodingSvc:  &MockGeocodingService{},
-		Config:        &config.Config{},
-		UploadDir:     t.TempDir(),
-	})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	h := listmod.NewListingHandler(app)
 	c.Set("User", domain.User{ID: "u1"})
 
 	if err := h.HandleCreate(c); err != nil {
@@ -62,7 +52,7 @@ func TestHandleCreate_WithImage(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 
 	// Verify DB state
-	listings, _ := repo.FindByTitle(context.Background(), "Image Listing")
+	listings, _ := app.DB.FindByTitle(context.Background(), "Image Listing")
 	assert.Len(t, listings, 1)
 	assert.NotEmpty(t, listings[0].ImageURL)
 }
@@ -82,17 +72,10 @@ func TestHandleCreate_InvalidDates(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			repo := testutil.SetupTestRepository(t)
+			app, cleanup := testutil.SetupTestAppEnv(t)
+			defer cleanup()
 			c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
-			listingSvc := listmod.NewListingService(repo, repo, repo)
-			h := listmod.NewListingHandler(listmod.ListingDependencies{
-				ListingStore:  repo,
-				CategoryStore: repo,
-				ListingSvc:    listingSvc,
-				ImageService:  nil,
-				GeocodingSvc:  &MockGeocodingService{},
-				Config:        &config.Config{},
-			})
+			h := listmod.NewListingHandler(app)
 			c.Set("User", domain.User{ID: "u1"})
 			_ = h.HandleCreate(c)
 			assert.Equal(t, tt.expectedStatus, rec.Code)
@@ -101,30 +84,15 @@ func TestHandleCreate_InvalidDates(t *testing.T) {
 }
 
 func TestHandleCreate_ImageUploadError(t *testing.T) {
-	repo := testutil.SetupTestRepository(t)
-
-	body := new(bytes.Buffer)
-	writer := multipart.NewWriter(body)
-	part, _ := writer.CreateFormFile("image", "test.png")
-	_, _ = part.Write([]byte("fake"))
-	_ = writer.Close()
-
-	c, rec := setupTestContext(http.MethodPost, "/listings", body)
-	c.Request().Header.Set(echo.HeaderContentType, writer.FormDataContentType())
-
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
 	mockImageService := &MockImageService{}
+	app.ImageSvc = mockImageService
 	mockImageService.On("UploadImage", testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).Return("", errors.New("upload fail"))
 
-	listingSvc := listmod.NewListingService(repo, repo, repo)
+	c, rec := setupTestContext(http.MethodPost, "/listings", nil)
 
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  mockImageService,
-		GeocodingSvc:  &MockGeocodingService{},
-		Config:        &config.Config{},
-	})
+	h := listmod.NewListingHandler(app)
 	c.Set("User", domain.User{ID: "u1"})
 
 	_ = h.HandleCreate(c)
@@ -132,17 +100,10 @@ func TestHandleCreate_ImageUploadError(t *testing.T) {
 }
 
 func TestHandleProfile_NoUser(t *testing.T) {
-	repo := testutil.SetupTestRepository(t)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
 	c, rec := setupTestContext(http.MethodGet, "/profile", nil)
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  nil,
-		GeocodingSvc:  &MockGeocodingService{},
-		Config:        &config.Config{},
-	})
+	h := listmod.NewListingHandler(app)
 	_ = h.HandleProfile(c)
 	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
 }

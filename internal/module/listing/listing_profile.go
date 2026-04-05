@@ -16,7 +16,7 @@ func (h *ListingHandler) HandleProfile(c echo.Context) error {
 	}
 
 	p := GetPagination(c, 50)
-	listings, _, err := h.ListingStore.FindAllByOwner(c.Request().Context(), u.ID, p.Limit, p.Offset)
+	listings, _, err := h.App.DB.FindAllByOwner(c.Request().Context(), u.ID, p.Limit, p.Offset)
 	if err != nil {
 		return ui.RespondError(c, err)
 	}
@@ -24,7 +24,7 @@ func (h *ListingHandler) HandleProfile(c echo.Context) error {
 	data := map[string]interface{}{
 		"User":             u,
 		"Listings":         listings,
-		"GoogleMapsApiKey": h.GoogleMapsAPIKey,
+		"GoogleMapsApiKey": h.App.Cfg.GoogleMapsAPIKey,
 	}
 
 	if c.Request().Header.Get("HX-Request") == "true" {

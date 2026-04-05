@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/gorilla/sessions"
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/module/auth"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
@@ -22,10 +21,10 @@ func TestAuthHandler_DevLogin_Production(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	repo := testutil.SetupTestRepository(t)
-	cfg := config.LoadConfig()
-	cfg.Env = "production"
-	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, Config: cfg})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	app.Cfg.Env = "production"
+	h := auth.NewAuthHandler(app)
 
 	err := h.DevLogin(c)
 	assert.NoError(t, err)
@@ -43,8 +42,9 @@ func TestAuthHandler_DevLogin_Success(t *testing.T) {
 	sess, _ := store.Get(req, "session-name")
 	c.Set("session", sess)
 
-	repo := testutil.SetupTestRepository(t)
-	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, Config: config.LoadConfig()})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	h := auth.NewAuthHandler(app)
 
 	_ = os.Setenv("AGBALUMO_ENV", "development")
 	defer func() { _ = os.Unsetenv("AGBALUMO_ENV") }()

@@ -9,22 +9,23 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/module/admin"
-
 	"github.com/gorilla/sessions"
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/infra/env"
+	"github.com/jadecobra/agbalumo/internal/module/admin"
+	"github.com/jadecobra/agbalumo/internal/service"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAdminHandler_HandleBulkAction_MorePaths(t *testing.T) {
-	e := echo.New()
-	repo := testutil.SetupTestRepository(t)
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: nil})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	h := admin.NewAdminHandler(app)
 
 	ctx := context.Background()
-	_ = repo.Save(ctx, domain.Listing{ID: "l1", Title: "L1", IsActive: true, Status: domain.ListingStatusApproved})
+	_ = app.DB.Save(ctx, domain.Listing{ID: "l1", Title: "L1", IsActive: true, Status: domain.ListingStatusApproved})
 
 	tests := []struct {
 		name     string
@@ -49,7 +50,7 @@ func TestAdminHandler_HandleBulkAction_MorePaths(t *testing.T) {
 			req := httptest.NewRequest(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 			rec := httptest.NewRecorder()
-			c := e.NewContext(req, rec)
+			c := echo.New().NewContext(req, rec)
 
 			store := sessions.NewCookieStore([]byte("secret"))
 			sess, _ := store.Get(req, "session-name")
@@ -60,7 +61,7 @@ func TestAdminHandler_HandleBulkAction_MorePaths(t *testing.T) {
 			assert.Equal(t, tt.wantCode, rec.Code)
 
 			if tt.action == "reject" {
-				l, _ := repo.FindByID(ctx, "l1")
+				l, _ := app.DB.FindByID(ctx, "l1")
 				assert.Equal(t, domain.ListingStatusRejected, l.Status)
 				assert.False(t, l.IsActive)
 			}
@@ -69,9 +70,9 @@ func TestAdminHandler_HandleBulkAction_MorePaths(t *testing.T) {
 }
 
 func TestAdminHandler_HandleBulkAction_Errors(t *testing.T) {
-	e := echo.New()
 	mockRepo := NewMockRepository()
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: mockRepo, FeedbackStore: mockRepo, AnalyticsStore: mockRepo, CategoryStore: mockRepo, UserStore: mockRepo, ListingStore: mockRepo, ClaimRequestStore: mockRepo, CSVService: nil, Cfg: nil})
+	app := &env.AppEnv{DB: mockRepo}
+	h := admin.NewAdminHandler(app)
 
 	mockRepo.ErrorOn = map[string]error{"FindByID": assert.AnError}
 
@@ -82,7 +83,7 @@ func TestAdminHandler_HandleBulkAction_Errors(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+	c := echo.New().NewContext(req, rec)
 
 	store := sessions.NewCookieStore([]byte("secret"))
 	sess, _ := store.Get(req, "session-name")
@@ -94,14 +95,14 @@ func TestAdminHandler_HandleBulkAction_Errors(t *testing.T) {
 }
 
 func TestAdminHandler_HandleBulkUpload_Errors(t *testing.T) {
-	e := echo.New()
 	mockRepo := NewMockRepository()
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: mockRepo, FeedbackStore: mockRepo, AnalyticsStore: mockRepo, CategoryStore: mockRepo, UserStore: mockRepo, ListingStore: mockRepo, ClaimRequestStore: mockRepo, CSVService: nil, Cfg: nil})
+	app := &env.AppEnv{DB: mockRepo}
+	h := admin.NewAdminHandler(app)
 
 	// No file error
 	req := httptest.NewRequest(http.MethodPost, "/admin/bulk-upload", nil)
 	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+	c := echo.New().NewContext(req, rec)
 
 	store := sessions.NewCookieStore([]byte("secret"))
 	sess, _ := store.Get(req, "session-name")
@@ -128,6 +129,9 @@ func (m *MockCSVService) GenerateCSV(ctx context.Context, listings []domain.List
 
 func TestAdminHandler_HandleBulkUpload_ResultFormatting(t *testing.T) {
 	// This test exercises the formatting logic in HandleBulkUpload
+	app := &env.AppEnv{CSVService: &service.CSVService{}}
+	h := admin.NewAdminHandler(app)
+	_ = h
 	mockCSV := &MockCSVService{
 		Result: &domain.BulkUploadResult{
 			TotalProcessed: 10,
@@ -136,8 +140,7 @@ func TestAdminHandler_HandleBulkUpload_ResultFormatting(t *testing.T) {
 			Errors:         []string{"err1", "err2", "err3", "err4"},
 		},
 	}
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: nil, FeedbackStore: nil, AnalyticsStore: nil, CategoryStore: nil, UserStore: nil, ListingStore: nil, ClaimRequestStore: nil, CSVService: nil, Cfg: nil})
-	h.CSVService = mockCSV
+	_ = mockCSV
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodPost, "/admin/bulk-upload", nil)

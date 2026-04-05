@@ -8,7 +8,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
@@ -75,19 +74,11 @@ func TestListingHandler_FormParsing(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			repo := testutil.SetupTestRepository(t)
-			tt.setup(t, repo)
+			app, cleanup := testutil.SetupTestAppEnv(t)
+			defer cleanup()
+			tt.setup(t, app.DB)
 
-			listingSvc := listmod.NewListingService(repo, repo, repo)
-
-			h := listmod.NewListingHandler(listmod.ListingDependencies{
-				ListingStore:  repo,
-				CategoryStore: repo,
-				ListingSvc:    listingSvc,
-				ImageService:  nil,
-				GeocodingSvc:  &MockGeocodingService{},
-				Config:        &config.Config{},
-			})
+			h := listmod.NewListingHandler(app)
 			c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
 			c.Set("User", domain.User{ID: "user-1"})
 
@@ -100,23 +91,16 @@ func TestListingHandler_FormParsing(t *testing.T) {
 				t.Fatalf("Test %s failed: expected %d, got %d. Body: %s", tt.name, tt.expectedStatus, rec.Code, rec.Body.String())
 			}
 			if tt.verify != nil {
-				tt.verify(t, repo)
+				tt.verify(t, app.DB)
 			}
 		})
 	}
 }
 
 func TestListingHandler_URLNormalization(t *testing.T) {
-	repo := testutil.SetupTestRepository(t)
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  nil,
-		GeocodingSvc:  &MockGeocodingService{},
-		Config:        &config.Config{},
-	})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	h := listmod.NewListingHandler(app)
 
 	tests := []struct {
 		name     string
@@ -138,7 +122,7 @@ func TestListingHandler_URLNormalization(t *testing.T) {
 			_ = h.HandleCreate(c)
 
 			assert.Equal(t, http.StatusOK, rec.Code)
-			listings, _, err := repo.FindAll(context.Background(), "", "URL Test "+tt.name, "", "", false, 1, 0)
+			listings, _, err := app.DB.FindAll(context.Background(), "", "URL Test "+tt.name, "", "", false, 1, 0)
 			assert.NoError(t, err)
 			if assert.Len(t, listings, 1) {
 				assert.Equal(t, tt.expected, listings[0].WebsiteURL)

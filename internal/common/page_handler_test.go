@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/common"
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
@@ -35,10 +34,9 @@ func TestHandleAbout(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	repo := testutil.SetupTestRepository(t)
-	cfg := &config.Config{}
-
-	h := common.NewPageHandler(repo, cfg)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	h := common.NewPageHandler(app)
 	if err := h.HandleAbout(c); err != nil {
 		t.Fatal(err)
 	}

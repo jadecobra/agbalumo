@@ -9,7 +9,6 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/module/admin"
 
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/jadecobra/agbalumo/internal/testutil"
@@ -27,16 +26,17 @@ func TestAdminHandler_HandleAddCategory_Success(t *testing.T) {
 	session, _ := store.Get(c.Request(), "auth_session")
 	c.Set("session", session)
 
-	repo := testutil.SetupTestRepository(t)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
 
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
+	h := admin.NewAdminHandler(app)
 	_ = h.HandleAddCategory(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)
 	assert.Equal(t, "/admin", rec.Header().Get("Location"))
 
 	// Verify database state
-	cats, err := repo.GetCategories(context.Background(), domain.CategoryFilter{})
+	cats, err := app.DB.GetCategories(context.Background(), domain.CategoryFilter{})
 	assert.NoError(t, err)
 	assert.Len(t, cats, 1)
 	assert.Equal(t, "Music", cats[0].Name)
@@ -48,15 +48,16 @@ func TestAdminHandler_HandleAddCategory_EmptyName_Redirects(t *testing.T) {
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/categories/add", strings.NewReader(formData.Encode()))
 	c.Set("User", domain.User{ID: "admin1", Role: domain.UserRoleAdmin})
 
-	repo := testutil.SetupTestRepository(t)
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	h := admin.NewAdminHandler(app)
 	_ = h.HandleAddCategory(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)
 	assert.Equal(t, "/admin", rec.Header().Get("Location"))
 
 	// Verify no category added
-	cats, _ := repo.GetCategories(context.Background(), domain.CategoryFilter{})
+	cats, _ := app.DB.GetCategories(context.Background(), domain.CategoryFilter{})
 	assert.Empty(t, cats)
 }
 
@@ -69,18 +70,19 @@ func TestAdminHandler_HandleAddCategory_DuplicateName_Redirects(t *testing.T) {
 	session, _ := store.Get(c.Request(), "auth_session")
 	c.Set("session", session)
 
-	repo := testutil.SetupTestRepository(t)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
 	// Seed existing category
-	_ = repo.SaveCategory(context.Background(), domain.CategoryData{ID: "music", Name: "Music"})
+	_ = app.DB.SaveCategory(context.Background(), domain.CategoryData{ID: "music", Name: "Music"})
 
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
+	h := admin.NewAdminHandler(app)
 	_ = h.HandleAddCategory(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)
 	assert.Equal(t, "/admin", rec.Header().Get("Location"))
 
 	// Verify still only one category
-	cats, _ := repo.GetCategories(context.Background(), domain.CategoryFilter{})
+	cats, _ := app.DB.GetCategories(context.Background(), domain.CategoryFilter{})
 	assert.Len(t, cats, 1)
 }
 
@@ -94,15 +96,16 @@ func TestAdminHandler_HandleAddCategory_Claimable(t *testing.T) {
 	session, _ := store.Get(c.Request(), "auth_session")
 	c.Set("session", session)
 
-	repo := testutil.SetupTestRepository(t)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
 
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: config.LoadConfig()})
+	h := admin.NewAdminHandler(app)
 	_ = h.HandleAddCategory(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)
 
 	// Verify database state
-	cats, _ := repo.GetCategories(context.Background(), domain.CategoryFilter{})
+	cats, _ := app.DB.GetCategories(context.Background(), domain.CategoryFilter{})
 	assert.Len(t, cats, 1)
 	assert.Equal(t, "Services", cats[0].Name)
 	assert.True(t, cats[0].Claimable)

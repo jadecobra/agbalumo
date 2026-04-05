@@ -84,7 +84,7 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 		return nil, 0, err
 	}
 
-	orderClause := "created_at DESC"
+	orderClause := "featured DESC, created_at DESC"
 	if sortField != "" {
 		field := "created_at"
 		switch sortField {
@@ -102,7 +102,12 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 		if sortOrder == "ASC" || sortOrder == "asc" {
 			order = "ASC"
 		}
-		orderClause = field + " " + order
+
+		if field == "featured" {
+			orderClause = "featured " + order + ", created_at DESC"
+		} else {
+			orderClause = "featured DESC, " + field + " " + order
+		}
 	}
 
 	// #nosec G202 - Dynamic query construction with trusted internal fragments

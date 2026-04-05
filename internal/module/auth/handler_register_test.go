@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/gorilla/sessions"
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/module/auth"
 	"github.com/jadecobra/agbalumo/internal/testutil"
@@ -30,9 +29,11 @@ func TestAuthHandler_GoogleCallback_SaveUserError(t *testing.T) {
 	sess, _ := store.Get(req, "session-name")
 	c.Set("session", sess)
 
-	repo := testutil.SetupTestRepository(t)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
 	mockProvider := &MockGoogleProvider{}
-	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, GoogleProvider: mockProvider, Config: config.LoadConfig()})
+	h := auth.NewAuthHandler(app)
+	h.GoogleProvider = mockProvider
 
 	token := &oauth2.Token{AccessToken: "token"}
 	gUser := &auth.GoogleUser{ID: "g-err", Email: "err@test.com"}
@@ -57,9 +58,11 @@ func TestAuthHandler_GoogleCallback_UpdateProfile(t *testing.T) {
 	sess, _ := store.Get(req, "session-name")
 	c.Set("session", sess)
 
-	repo := testutil.SetupTestRepository(t)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
 	mockProvider := &MockGoogleProvider{}
-	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, GoogleProvider: mockProvider, Config: config.LoadConfig()})
+	h := auth.NewAuthHandler(app)
+	h.GoogleProvider = mockProvider
 
 	token := &oauth2.Token{AccessToken: "token"}
 	gUser := &auth.GoogleUser{
@@ -76,7 +79,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfile(t *testing.T) {
 		Name:      "Old Name",
 		AvatarURL: "http://old-pic.com",
 	}
-	_ = repo.SaveUser(context.Background(), existingUser)
+	_ = app.DB.SaveUser(context.Background(), existingUser)
 
 	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", "http", "example.com").Return(token, nil)
 	mockProvider.On("GetUserInfo", testifyMock.Anything, token).Return(gUser, nil)
@@ -86,7 +89,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfile(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
 
-	updatedUser, _ := repo.FindUserByGoogleID(context.Background(), "g1")
+	updatedUser, _ := app.DB.FindUserByGoogleID(context.Background(), "g1")
 	assert.Equal(t, "New Name", updatedUser.Name)
 }
 
@@ -103,9 +106,11 @@ func TestAuthHandler_GoogleCallback_UpdateProfileSaveError(t *testing.T) {
 	sess, _ := store.Get(req, "session-name")
 	c.Set("session", sess)
 
-	repo := testutil.SetupTestRepository(t)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
 	mockProvider := &MockGoogleProvider{}
-	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, GoogleProvider: mockProvider, Config: config.LoadConfig()})
+	h := auth.NewAuthHandler(app)
+	h.GoogleProvider = mockProvider
 
 	token := &oauth2.Token{AccessToken: "token"}
 	gUser := &auth.GoogleUser{
@@ -122,7 +127,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfileSaveError(t *testing.T) {
 		Name:      "Old Name",
 		AvatarURL: "http://old-pic.com",
 	}
-	_ = repo.SaveUser(context.Background(), existingUser)
+	_ = app.DB.SaveUser(context.Background(), existingUser)
 
 	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", "http", "example.com").Return(token, nil)
 	mockProvider.On("GetUserInfo", testifyMock.Anything, token).Return(gUser, nil)
@@ -146,9 +151,11 @@ func TestAuthHandler_GoogleCallback_UpdateProfile_NoChanges(t *testing.T) {
 	sess, _ := store.Get(req, "session-name")
 	c.Set("session", sess)
 
-	repo := testutil.SetupTestRepository(t)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
 	mockProvider := &MockGoogleProvider{}
-	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, GoogleProvider: mockProvider, Config: config.LoadConfig()})
+	h := auth.NewAuthHandler(app)
+	h.GoogleProvider = mockProvider
 
 	token := &oauth2.Token{AccessToken: "token"}
 	gUser := &auth.GoogleUser{
@@ -165,7 +172,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfile_NoChanges(t *testing.T) {
 		Name:      "Same Name",
 		AvatarURL: "http://same-pic.com",
 	}
-	_ = repo.SaveUser(context.Background(), existingUser)
+	_ = app.DB.SaveUser(context.Background(), existingUser)
 
 	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", "http", "example.com").Return(token, nil)
 	mockProvider.On("GetUserInfo", testifyMock.Anything, token).Return(gUser, nil)
@@ -176,29 +183,25 @@ func TestAuthHandler_GoogleCallback_UpdateProfile_NoChanges(t *testing.T) {
 }
 
 func TestAuthHandler_GoogleCallback_CrossSiteCallback(t *testing.T) {
-	// Simulate Google callback where the main session cookie is dropped due to SameSite=StrictMode
-	// but the custom 'oauth_state' cookie is preserved because it's SameSite=LaxMode.
 	e := echo.New()
 	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 
 	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
-
-	// ONLY set the oauth_state cookie, NOT the main session cookie
 	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "random-state"})
 
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	// Inject a fresh, empty session to simulate what SessionMiddleware does when the strict cookie is missing cross-site.
 	store := sessions.NewCookieStore([]byte("secret"))
 	sess, _ := store.Get(req, "session-name")
 	c.Set("session", sess)
 
-	repo := testutil.SetupTestRepository(t)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	app.Cfg.HasGoogleAuth = true
 	mockProvider := &MockGoogleProvider{}
-	cfg := config.LoadConfig()
-	cfg.HasGoogleAuth = true
-	h := auth.NewAuthHandler(auth.AuthDependencies{UserStore: repo, GoogleProvider: mockProvider, Config: cfg})
+	h := auth.NewAuthHandler(app)
+	h.GoogleProvider = mockProvider
 
 	token := &oauth2.Token{AccessToken: "access-token"}
 	gUser := &auth.GoogleUser{

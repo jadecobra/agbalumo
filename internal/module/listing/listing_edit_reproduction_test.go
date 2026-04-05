@@ -10,7 +10,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
@@ -18,7 +17,8 @@ import (
 )
 
 func TestListingHandler_HandleUpdate_Reproduction(t *testing.T) {
-	repo := testutil.SetupTestRepository(t)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
 	ctx := context.Background()
 
 	// 1. Create a listing to edit
@@ -31,19 +31,9 @@ func TestListingHandler_HandleUpdate_Reproduction(t *testing.T) {
 		IsActive:    true,
 		Status:      domain.ListingStatusApproved,
 	}
-	err := repo.Save(ctx, listing)
-	assert.NoError(t, err)
+	_ = app.DB.Save(ctx, listing)
 
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  nil,
-		GeocodingSvc:  &MockGeocodingService{},
-		Config:        &config.Config{},
-	})
+	h := listmod.NewListingHandler(app)
 
 	// 2. Prepare update data
 	updatedTitle := "Updated Title"
@@ -65,7 +55,7 @@ func TestListingHandler_HandleUpdate_Reproduction(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 	c := e.NewContext(req, rec)
 	c.SetParamNames("id")
 	c.SetParamValues("test-id-123")
@@ -73,7 +63,7 @@ func TestListingHandler_HandleUpdate_Reproduction(t *testing.T) {
 
 	// 4. Call handler
 	// Simulate the redundant bind in HandleUpdate to see if it breaks anything
-	err = h.HandleUpdate(c)
+	err := h.HandleUpdate(c)
 	assert.NoError(t, err)
 
 	// 5. Verify response and DB
@@ -82,13 +72,14 @@ func TestListingHandler_HandleUpdate_Reproduction(t *testing.T) {
 	}
 	assert.Equal(t, http.StatusOK, rec.Code)
 
-	updatedListing, err := repo.FindByID(ctx, "test-id-123")
+	updatedListing, err := app.DB.FindByID(ctx, "test-id-123")
 	assert.NoError(t, err)
 	assert.Equal(t, updatedTitle, updatedListing.Title, "Title should be updated in database")
 }
 
 func TestListingHandler_HandleUpdate_AdminSource(t *testing.T) {
-	repo := testutil.SetupTestRepository(t)
+	app2, cleanup2 := testutil.SetupTestAppEnv(t)
+	defer cleanup2()
 	ctx := context.Background()
 
 	// 1. Create a listing to edit
@@ -101,19 +92,9 @@ func TestListingHandler_HandleUpdate_AdminSource(t *testing.T) {
 		IsActive:    true,
 		Status:      domain.ListingStatusApproved,
 	}
-	err := repo.Save(ctx, listing)
-	assert.NoError(t, err)
+	_ = app2.DB.Save(ctx, listing)
 
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  nil,
-		GeocodingSvc:  &MockGeocodingService{},
-		Config:        &config.Config{},
-	})
+	h := listmod.NewListingHandler(app2)
 
 	// 2. Prepare update data
 	updatedTitle := "Updated Title Admin"
@@ -135,14 +116,14 @@ func TestListingHandler_HandleUpdate_AdminSource(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 	c := e.NewContext(req, rec)
 	c.SetParamNames("id")
 	c.SetParamValues("test-id-admin")
 	c.Set("User", domain.User{ID: "admin-1", Role: domain.UserRoleAdmin})
 
 	// 4. Call handler
-	err = h.HandleUpdate(c)
+	err := h.HandleUpdate(c)
 	assert.NoError(t, err)
 
 	// 5. Verify response and DB
@@ -155,7 +136,7 @@ func TestListingHandler_HandleUpdate_AdminSource(t *testing.T) {
 	assert.Equal(t, "listing-updated-test-id-admin", rec.Header().Get("HX-Trigger"), "Response should trigger listing-updated event")
 	assert.Empty(t, rec.Body.String(), "Response should be empty for admin source update")
 
-	updatedListing, err := repo.FindByID(ctx, "test-id-admin")
+	updatedListing, err := app2.DB.FindByID(ctx, "test-id-admin")
 	assert.NoError(t, err)
 	assert.Equal(t, updatedTitle, updatedListing.Title, "Title should be updated in database")
 }

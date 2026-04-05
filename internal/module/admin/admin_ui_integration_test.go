@@ -12,6 +12,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/infra/env"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -21,24 +22,24 @@ func TestAdminDashboardFooterPosition(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplateForPage(t, "admin_dashboard.html")}
 
-	repo := testutil.SetupTestRepository(t)
-	ctx := context.Background()
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
 
 	// Seed some feedback
-	_ = repo.SaveFeedback(ctx, domain.Feedback{
+	_ = app.DB.SaveFeedback(context.Background(), domain.Feedback{
 		ID:        "fb-1",
 		Content:   "Great App bug",
 		Type:      "Issue",
 		CreatedAt: time.Now(),
 	})
-	_ = repo.SaveFeedback(ctx, domain.Feedback{
+	_ = app.DB.SaveFeedback(context.Background(), domain.Feedback{
 		ID:        "fb-2",
 		Content:   "Another feedback",
 		Type:      "Feature",
 		CreatedAt: time.Now(),
 	})
 
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: nil})
+	h := admin.NewAdminHandler(app)
 
 	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
 	rec := httptest.NewRecorder()
@@ -74,11 +75,10 @@ func TestMetricCardsHaveModalTriggers(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplateForPage(t, "admin_dashboard.html")}
 
-	repo := testutil.SetupTestRepository(t)
-	ctx := context.Background()
-	_ = repo.Save(ctx, domain.Listing{ID: "1", Title: "Business A", Type: domain.Business, IsActive: true})
-
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: nil})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	_ = app.DB.Save(context.Background(), domain.Listing{ID: "1", Title: "Business A", Type: domain.Business, IsActive: true})
+	h := admin.NewAdminHandler(app)
 
 	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
 	rec := httptest.NewRecorder()
@@ -115,8 +115,9 @@ func TestCategoryModalExists(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplateForPage(t, "admin_dashboard.html")}
 
-	repo := testutil.SetupTestRepository(t)
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: nil})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	h := admin.NewAdminHandler(app)
 
 	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
 	rec := httptest.NewRecorder()
@@ -153,8 +154,9 @@ func TestAdminDashboard_FlashMessages(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplateForPage(t, "admin_dashboard.html")}
 
-	repo := testutil.SetupTestRepository(t)
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: nil})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	h := admin.NewAdminHandler(app)
 
 	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
 	rec := httptest.NewRecorder()
@@ -176,11 +178,9 @@ func TestAdminDashboard_FlashMessages(t *testing.T) {
 }
 
 func TestAdminDashboard_ErrorPaths(t *testing.T) {
-	e := echo.New()
-	e.Renderer = &AdminMockRenderer{}
-
 	mockRepo := NewMockRepository()
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: mockRepo, FeedbackStore: mockRepo, AnalyticsStore: mockRepo, CategoryStore: mockRepo, UserStore: mockRepo, ListingStore: mockRepo, ClaimRequestStore: mockRepo, CSVService: nil, Cfg: nil})
+	app := &env.AppEnv{DB: mockRepo}
+	h := admin.NewAdminHandler(app)
 
 	tests := []struct {
 		name    string
@@ -200,7 +200,8 @@ func TestAdminDashboard_ErrorPaths(t *testing.T) {
 			mockRepo.ErrorOn = map[string]error{tt.errOn: assert.AnError}
 			req := httptest.NewRequest(http.MethodGet, "/admin", nil)
 			rec := httptest.NewRecorder()
-			c := e.NewContext(req, rec)
+			c := echo.New().NewContext(req, rec)
+			c.Echo().Renderer = &AdminMockRenderer{}
 
 			err := h.HandleDashboard(c)
 			assert.NoError(t, err)
@@ -212,11 +213,11 @@ func TestAdminListings_ModalTrigger(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplateForPage(t, "admin_listings.html")}
 
-	repo := testutil.SetupTestRepository(t)
-	ctx := context.Background()
-	_ = repo.Save(ctx, domain.Listing{ID: "listing1", Title: "Business A", Type: domain.Business, IsActive: true})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	_ = app.DB.Save(context.Background(), domain.Listing{ID: "listing1", Title: "Business A", Type: domain.Business, IsActive: true})
 
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: repo, FeedbackStore: repo, AnalyticsStore: repo, CategoryStore: repo, UserStore: repo, ListingStore: repo, ClaimRequestStore: repo, CSVService: nil, Cfg: nil})
+	h := admin.NewAdminHandler(app)
 
 	req := httptest.NewRequest(http.MethodGet, "/admin/listings", nil)
 	rec := httptest.NewRecorder()

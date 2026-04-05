@@ -1,14 +1,11 @@
 package testutil
 
 import (
-	"context"
 	"html/template"
 	"io"
-	"mime/multipart"
 
 	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
-	testifyMock "github.com/stretchr/testify/mock"
 )
 
 // TestRenderer is a simple Template Renderer for testing
@@ -40,17 +37,3 @@ func NewMainTemplate() *template.Template {
 	`))
 }
 
-// MockImageService for testing
-type MockImageService struct {
-	testifyMock.Mock
-}
-
-func (m *MockImageService) UploadImage(ctx context.Context, file *multipart.FileHeader, listingID string) (string, error) {
-	args := m.Called(ctx, file, listingID)
-	return args.String(0), args.Error(1)
-}
-
-func (m *MockImageService) DeleteImage(ctx context.Context, imageURL string) error {
-	args := m.Called(ctx, imageURL)
-	return args.Error(0)
-}

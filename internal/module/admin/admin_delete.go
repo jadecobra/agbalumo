@@ -25,7 +25,7 @@ func (h *AdminHandler) HandleAdminDeleteView(c echo.Context) error {
 	// Safe bounded admin action: N+1 here is acceptable because batch sizes are limited
 	// by pagination (e.g. 50 items) and SQLite connection overhead is negligible.
 	for _, id := range ids {
-		if _, err := h.ListingStore.FindByID(ctx, id); err != nil {
+		if _, err := h.App.DB.FindByID(ctx, id); err != nil {
 			return c.String(http.StatusNotFound, "Listing not found")
 		}
 	}
@@ -47,7 +47,7 @@ func (h *AdminHandler) HandleAdminDeleteAction(c echo.Context) error {
 		return c.Redirect(http.StatusFound, "/admin/listings")
 	}
 
-	if adminCode != h.Cfg.AdminCode {
+	if adminCode != h.App.Cfg.AdminCode {
 		return c.Render(http.StatusOK, "admin_delete_confirm.html", map[string]interface{}{
 			"IDs":   ids,
 			"Error": "Invalid Admin Code. Deletion aborted.",
@@ -58,7 +58,7 @@ func (h *AdminHandler) HandleAdminDeleteAction(c echo.Context) error {
 	ctx := c.Request().Context()
 	successCount := 0
 	for _, id := range ids {
-		if err := h.ListingStore.Delete(ctx, id); err == nil {
+		if err := h.App.DB.Delete(ctx, id); err == nil {
 			successCount++
 		} else {
 			c.Logger().Errorf("Failed to delete listing %s: %v", id, err)

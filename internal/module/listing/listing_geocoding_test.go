@@ -8,15 +8,15 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHandleCreate_GeocodingFallback(t *testing.T) {
-	// 1. Setup
-	repo := testutil.SetupTestRepository(t)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+
 	mockGeocoding := &MockGeocodingService{
 		GetCityFunc: func(ctx context.Context, address string) (string, error) {
 			if address == "1600 Amphitheatre Parkway, Mountain View, CA" {
@@ -26,16 +26,8 @@ func TestHandleCreate_GeocodingFallback(t *testing.T) {
 		},
 	}
 
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  nil,
-		GeocodingSvc:  mockGeocoding,
-		Config:        &config.Config{},
-	})
+	app.GeocodingSvc = mockGeocoding
+	h := listmod.NewListingHandler(app)
 
 	// Create context with a user
 	body := "title=Google+HQ&type=Business&owner_origin=Nigeria&description=Tech+Giant+HQ&contact_email=info@google.com&address=1600+Amphitheatre+Parkway,+Mountain+View,+CA"
@@ -52,7 +44,7 @@ func TestHandleCreate_GeocodingFallback(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 
 	// Verify that the city was automatically populated in the database
-	listings, err := repo.FindByTitle(context.Background(), "Google HQ")
+	listings, err := app.DB.FindByTitle(context.Background(), "Google HQ")
 	assert.NoError(t, err)
 	assert.Len(t, listings, 1)
 	assert.Equal(t, "Mountain View", listings[0].City, "City should be populated from geocoding fallback")

@@ -12,7 +12,7 @@ func (h *AdminHandler) HandleApproveClaim(c echo.Context) error {
 	id := c.Param("id")
 	ctx := c.Request().Context()
 
-	if err := h.ClaimRequestStore.UpdateClaimRequestStatus(ctx, id, domain.ClaimStatusApproved); err != nil {
+	if err := h.App.DB.UpdateClaimRequestStatus(ctx, id, domain.ClaimStatusApproved); err != nil {
 		return c.String(http.StatusNotFound, "Claim request not found")
 	}
 
@@ -24,7 +24,7 @@ func (h *AdminHandler) HandleRejectClaim(c echo.Context) error {
 	id := c.Param("id")
 	ctx := c.Request().Context()
 
-	if err := h.ClaimRequestStore.UpdateClaimRequestStatus(ctx, id, domain.ClaimStatusRejected); err != nil {
+	if err := h.App.DB.UpdateClaimRequestStatus(ctx, id, domain.ClaimStatusRejected); err != nil {
 		return c.String(http.StatusNotFound, "Claim request not found")
 	}
 

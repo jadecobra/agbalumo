@@ -9,15 +9,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHandleUpdate_JobSuccess(t *testing.T) {
-	// Setup
-	repo := testutil.SetupTestRepository(t)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
 
 	// Existing Job Listing
 	existingListing := domain.Listing{
@@ -37,20 +36,11 @@ func TestHandleUpdate_JobSuccess(t *testing.T) {
 		IsActive:     true,
 		ContactEmail: "old@example.com",
 	}
-	_ = repo.Save(context.Background(), existingListing)
+	_ = app.DB.Save(context.Background(), existingListing)
 
 	jobStart := time.Now().Add(48 * time.Hour).Format("2006-01-02T15:04")
 
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  nil,
-		GeocodingSvc:  &MockGeocodingService{},
-		Config:        &config.Config{},
-	})
+	h := listmod.NewListingHandler(app)
 
 	formData := "title=Senior+Go+Dev+Updated&type=Job&owner_origin=Nigeria&description=Updated+Desc&contact_email=job@example.com&city=Lagos" +
 		"&company=Updated+Corp&skills=Go,+Rust&pay_range=200k&job_apply_url=https://updated.com&job_start_date=" + jobStart
@@ -68,7 +58,7 @@ func TestHandleUpdate_JobSuccess(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 
 	// Verify DB state
-	updated, _ := repo.FindByID(context.Background(), "job-1")
+	updated, _ := app.DB.FindByID(context.Background(), "job-1")
 	assert.Equal(t, "Senior Go Dev Updated", updated.Title)
 	assert.Equal(t, "Updated Corp", updated.Company)
 	assert.Equal(t, "Go, Rust", updated.Skills)

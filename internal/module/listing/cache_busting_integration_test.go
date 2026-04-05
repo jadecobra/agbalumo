@@ -7,7 +7,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	listmod "github.com/jadecobra/agbalumo/internal/module/listing"
 	"github.com/jadecobra/agbalumo/internal/testutil"
@@ -20,20 +19,14 @@ func TestListingHandler_HandleImageUpload_CacheBusting(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
 
-	repo := testutil.SetupTestRepository(t)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
 	mockImageService := &MockImageService{}
 	mockGeocodingService := &MockGeocodingService{}
+	app.ImageSvc = mockImageService
+	app.GeocodingSvc = mockGeocodingService
 
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  mockImageService,
-		GeocodingSvc:  mockGeocodingService,
-		Config:        &config.Config{},
-	})
+	h := listmod.NewListingHandler(app)
 
 	// Mock successful upload returning a clean URL
 	mockImageService.On("UploadImage", testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).
@@ -64,7 +57,7 @@ func TestListingHandler_HandleImageUpload_CacheBusting(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Fetch from DB to check ImageURL
-	all, _, _ := repo.FindAll(c.Request().Context(), "", "", "", "", false, 10, 0)
+	all, _, _ := app.DB.FindAll(c.Request().Context(), "", "", "", "", false, 10, 0)
 	assert.Equal(t, 1, len(all))
 	assert.Contains(t, all[0].ImageURL, "/static/uploads/test.webp?t=")
 

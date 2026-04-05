@@ -3,26 +3,31 @@ package auth
 import (
 	"context"
 
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/infra/env"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/oauth2"
 )
 
 type AuthHandler struct {
-	Repo           domain.UserStore
+	App            *env.AppEnv
 	GoogleProvider GoogleProvider
-	Cfg            *config.Config
 }
 
-func NewAuthHandler(deps AuthDependencies) *AuthHandler {
-	if deps.GoogleProvider == nil {
-		deps.GoogleProvider = NewRealGoogleProvider()
+func NewAuthHandler(app *env.AppEnv) *AuthHandler {
+	var googleProvider GoogleProvider
+	if app.Cfg.MockAuth {
+		googleProvider = &MockGoogleProvider{
+			Email: "test@agbalumo.com",
+			Name:  "Test User",
+		}
+	} else {
+		googleProvider = NewRealGoogleProvider()
 	}
+
 	return &AuthHandler{
-		Repo:           deps.UserStore,
-		GoogleProvider: deps.GoogleProvider,
-		Cfg:            deps.Config,
+		App:            app,
+		GoogleProvider: googleProvider,
 	}
 }
 

@@ -20,8 +20,9 @@ func TestFeedbackHandler_HandleModal(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	repo := testutil.SetupTestRepository(t)
-	h := NewFeedbackHandler(repo)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	h := NewFeedbackHandler(app)
 
 	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 
@@ -44,8 +45,9 @@ func TestFeedbackHandler_HandleSubmit_Success(t *testing.T) {
 	mockUser := &domain.User{ID: "user1"}
 	c.Set("User", mockUser)
 
-	repo := testutil.SetupTestRepository(t)
-	h := NewFeedbackHandler(repo)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	h := NewFeedbackHandler(app)
 
 	err := h.HandleSubmit(c)
 	assert.NoError(t, err)
@@ -53,7 +55,7 @@ func TestFeedbackHandler_HandleSubmit_Success(t *testing.T) {
 	assert.Contains(t, rec.Body.String(), "check_circle")
 
 	// Verify feedback in DB
-	feedbacks, err := repo.GetAllFeedback(c.Request().Context())
+	feedbacks, err := app.DB.GetAllFeedback(c.Request().Context())
 	require.NoError(t, err)
 	assert.Equal(t, 1, len(feedbacks))
 	assert.Equal(t, "user1", feedbacks[0].UserID)
@@ -68,8 +70,9 @@ func TestFeedbackHandler_HandleSubmit_NoAuth(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	repo := testutil.SetupTestRepository(t)
-	h := NewFeedbackHandler(repo)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	h := NewFeedbackHandler(app)
 
 	err := h.HandleSubmit(c)
 	assert.NoError(t, err)
@@ -88,8 +91,9 @@ func TestFeedbackHandler_HandleSubmit_EmptyContent(t *testing.T) {
 
 	c.Set("User", domain.User{ID: "user1"})
 
-	repo := testutil.SetupTestRepository(t)
-	h := NewFeedbackHandler(repo)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	h := NewFeedbackHandler(app)
 
 	err := h.HandleSubmit(c)
 	assert.NoError(t, err)

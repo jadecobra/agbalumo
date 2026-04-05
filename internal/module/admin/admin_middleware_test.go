@@ -4,16 +4,18 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/module/admin"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAdminMiddleware_NoUser(t *testing.T) {
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin", nil)
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: nil, FeedbackStore: nil, AnalyticsStore: nil, CategoryStore: nil, UserStore: nil, ListingStore: nil, ClaimRequestStore: nil, CSVService: nil, Cfg: config.LoadConfig()})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	h := admin.NewAdminHandler(app)
 
 	called := false
 	mdw := h.AdminMiddleware(func(c echo.Context) error {
@@ -29,7 +31,9 @@ func TestAdminMiddleware_NoUser(t *testing.T) {
 func TestAdminMiddleware_AdminUser(t *testing.T) {
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin", nil)
 	c.Set("User", domain.User{ID: "admin1", Role: domain.UserRoleAdmin})
-	h := admin.NewAdminHandler(admin.AdminDependencies{AdminStore: nil, FeedbackStore: nil, AnalyticsStore: nil, CategoryStore: nil, UserStore: nil, ListingStore: nil, ClaimRequestStore: nil, CSVService: nil, Cfg: config.LoadConfig()})
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	h := admin.NewAdminHandler(app)
 
 	called := false
 	mdw := h.AdminMiddleware(func(c echo.Context) error {

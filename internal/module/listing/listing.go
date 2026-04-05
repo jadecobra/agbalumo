@@ -1,53 +1,26 @@
 package listing
 
 import (
+	"github.com/jadecobra/agbalumo/internal/infra/env"
 	"github.com/jadecobra/agbalumo/internal/module/user"
 	"github.com/jadecobra/agbalumo/internal/ui"
 
 	"mime/multipart"
 	"net/http"
 	"sync"
+	"time"
 
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/service"
 	"github.com/labstack/echo/v4"
 )
 
-type ListingDependencies struct {
-	ListingStore     domain.ListingStore
-	CategoryStore    domain.CategoryStore
-	ImageService     domain.ImageService // Optional
-	ListingSvc       domain.ListingService
-	GeocodingSvc     domain.GeocodingService
-	Config           *config.Config
-	GoogleMapsAPIKey string
-	UploadDir        string // Optional
-}
-
 type ListingHandler struct {
-	ListingStore     domain.ListingStore
-	CategoryStore    domain.CategoryStore
-	ImageService     domain.ImageService
-	ListingSvc       domain.ListingService
-	GeocodingSvc     domain.GeocodingService
-	GoogleMapsAPIKey string
-	Cfg              *config.Config
+	App *env.AppEnv
 }
 
-func NewListingHandler(deps ListingDependencies) *ListingHandler {
-	imgSvc := deps.ImageService
-	if imgSvc == nil {
-		imgSvc = service.NewLocalImageService(deps.UploadDir)
-	}
+func NewListingHandler(app *env.AppEnv) *ListingHandler {
 	return &ListingHandler{
-		ListingStore:     deps.ListingStore,
-		CategoryStore:    deps.CategoryStore,
-		ImageService:     imgSvc,
-		ListingSvc:       deps.ListingSvc,
-		GeocodingSvc:     deps.GeocodingSvc,
-		GoogleMapsAPIKey: deps.GoogleMapsAPIKey,
-		Cfg:              deps.Config,
+		App: app,
 	}
 }
 
@@ -83,33 +56,49 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		counts    map[domain.Category]int
 		featured  []domain.Listing
 		locations []string
+		categories []domain.CategoryData
 
 		listingsErr  error
 		countsErr    error
 		featuredErr  error
 		locationsErr error
+		categoriesErr error
 
 		wg sync.WaitGroup
 	)
 
-	wg.Add(4)
 	var totalCount int
+	wg.Add(4)
 	go func() {
 		defer wg.Done()
-		listings, totalCount, listingsErr = h.ListingStore.FindAll(ctx, "", "", "", "", false, limit, offset)
+		listings, totalCount, listingsErr = h.App.DB.FindAll(ctx, "", "", "", "", false, limit, offset)
 	}()
 	go func() {
 		defer wg.Done()
-		counts, countsErr = h.ListingStore.GetCounts(ctx)
+		counts, countsErr = h.App.DB.GetCounts(ctx)
 	}()
 	go func() {
 		defer wg.Done()
-		featured, featuredErr = h.ListingStore.GetFeaturedListings(ctx, "")
+		featured, featuredErr = h.App.DB.GetFeaturedListings(ctx, "")
 	}()
 	go func() {
 		defer wg.Done()
-		locations, locationsErr = h.ListingStore.GetLocations(ctx)
+		locations, locationsErr = h.App.DB.GetLocations(ctx)
 	}()
+
+	var ok bool
+	categories, ok = h.App.CatCache.Get()
+	if !ok {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			categories, categoriesErr = h.App.DB.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: true})
+			if categoriesErr == nil {
+				h.App.CatCache.Set(categories, 5*time.Minute)
+			}
+		}()
+	}
+
 	wg.Wait()
 
 	if listingsErr != nil {
@@ -127,34 +116,35 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		featured = []domain.Listing{} // Graceful fallback
 	}
 
-	// Prioritize featured listings on all pages
-	finalListings := h.mergeFeatured(featured, listings, limit)
-
-	strCounts := make(map[string]int)
-	categoryTotal := 0
-	for cat, count := range counts {
-		strCounts[string(cat)] = count
-		categoryTotal += count
-	}
-
-	user := c.Get("User")
-
 	if locationsErr != nil {
 		c.Logger().Errorf("failed to get locations: %v", locationsErr)
 		locations = []string{}
 	}
 
+	if categoriesErr != nil {
+		c.Logger().Errorf("failed to get categories in HandleHome: %v", categoriesErr)
+		categories = []domain.CategoryData{}
+	}
+
+	strCounts := make(map[string]int)
+	for cat, count := range counts {
+		strCounts[string(cat)] = count
+	}
+
+	user := c.Get("User")
+
 	return h.renderWithBaseContext(c, "index.html", map[string]interface{}{
-		"Listings":         finalListings,
+		"Listings":         listings,
 		"Pagination":       Pagination{Page: page, TotalPages: (totalCount + limit - 1) / limit, HasNextPage: hasNextPage, TotalCount: totalCount},
 		"FeaturedListings": featured,
 		"Counts":           strCounts,
 		"Locations":        locations,
 		"TotalCount":       totalCount,
+		"Categories":       categories,
 		"Category":         "",
 		"QueryText":        "",
 		"User":             user,
-		"GoogleMapsApiKey": h.GoogleMapsAPIKey,
+		"GoogleMapsApiKey": h.App.Cfg.GoogleMapsAPIKey,
 	})
 }
 
@@ -168,20 +158,14 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	limit := p.Limit
 	offset := p.Offset
 
-	listings, totalCount, err := h.ListingStore.FindAll(c.Request().Context(), filterType, queryText, "", "", false, limit, offset)
+	listings, totalCount, err := h.App.DB.FindAll(c.Request().Context(), filterType, queryText, "", "", false, limit, offset)
 	if err != nil {
 		return ui.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, err.Error()))
 	}
 	hasNextPage := offset+len(listings) < totalCount
 
-	// For the main feed (no search query), include featured listings
+	// For the main feed (no search query), listings already prioritize featured due to SQL optimization.
 	finalListings := listings
-	if queryText == "" {
-		featured, err := h.ListingStore.GetFeaturedListings(c.Request().Context(), filterType)
-		if err == nil {
-			finalListings = h.mergeFeatured(featured, listings, limit)
-		}
-	}
 
 	data := map[string]interface{}{
 		"Listings":   finalListings,
@@ -205,19 +189,19 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 	id := c.Param("id")
 	ctx := c.Request().Context()
 
-	listing, err := h.ListingStore.FindByID(ctx, id)
+	listing, err := h.App.DB.FindByID(ctx, id)
 	if err != nil {
 		return ui.RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
 	}
 
 	// Fetch category data to check if claimable
-	category, _ := h.CategoryStore.GetCategory(ctx, string(listing.Type))
+	category, _ := h.App.DB.GetCategory(ctx, string(listing.Type))
 
 	return c.Render(http.StatusOK, "modal_detail", map[string]interface{}{
 		"Listing":          listing,
 		"Category":         category,
 		"User":             c.Get("User"),
-		"GoogleMapsApiKey": h.GoogleMapsAPIKey,
+		"GoogleMapsApiKey": h.App.Cfg.GoogleMapsAPIKey,
 	})
 }
 
@@ -229,7 +213,7 @@ func (h *ListingHandler) HandleEdit(c echo.Context) error {
 		return ui.RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, "Login required"))
 	}
 
-	listing, err := h.ListingStore.FindByID(c.Request().Context(), id)
+	listing, err := h.App.DB.FindByID(c.Request().Context(), id)
 	if err != nil {
 		return ui.RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
 	}
@@ -249,7 +233,7 @@ func (h *ListingHandler) HandleEdit(c echo.Context) error {
 		"Listing":          listing,
 		"TargetID":         targetID,
 		"Source":           source,
-		"GoogleMapsApiKey": h.GoogleMapsAPIKey,
+		"GoogleMapsApiKey": h.App.Cfg.GoogleMapsAPIKey,
 	})
 }
 
@@ -265,35 +249,36 @@ func (h *ListingHandler) getFileHeader(c echo.Context, key string) *multipart.Fi
 
 func (h *ListingHandler) renderWithBaseContext(c echo.Context, tmpl string, data map[string]interface{}) error {
 	ctx := c.Request().Context()
-	categories, err := h.CategoryStore.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: true})
-	if err != nil {
-		c.Logger().Errorf("Failed to retrieve categories: %v", err)
-		categories = []domain.CategoryData{}
-	}
 
-	data["Categories"] = categories
-	data["Env"] = h.Cfg.Env
-	data["HasGoogleAuth"] = h.Cfg.HasGoogleAuth
-	return c.Render(http.StatusOK, tmpl, data)
-}
+	var categories []domain.CategoryData
+	var ok bool
 
-// mergeFeatured prepends featured listings to the list and removes duplicates, keeping total at limit.
-func (h *ListingHandler) mergeFeatured(featured, listings []domain.Listing, limit int) []domain.Listing {
-	featuredMap := make(map[string]bool)
-	for _, f := range featured {
-		featuredMap[f.ID] = true
-	}
-
-	var filtered []domain.Listing
-	for _, l := range listings {
-		if !featuredMap[l.ID] {
-			filtered = append(filtered, l)
+	// Check if already provided in data
+	if providedCats, exists := data["Categories"]; exists {
+		if cats, typeOk := providedCats.([]domain.CategoryData); typeOk {
+			categories = cats
+			ok = true
 		}
 	}
 
-	merged := append(featured, filtered...)
-	if len(merged) > limit {
-		merged = merged[:limit]
+	if !ok {
+		// Check Cache First
+		categories, ok = h.App.CatCache.Get()
+		if !ok {
+			var err error
+			categories, err = h.App.DB.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: true})
+			if err != nil {
+				c.Logger().Errorf("Failed to retrieve categories: %v", err)
+				categories = []domain.CategoryData{}
+			} else {
+				// Cache for 5 minutes
+				h.App.CatCache.Set(categories, 5*time.Minute)
+			}
+		}
 	}
-	return merged
+
+	data["Categories"] = categories
+	data["Env"] = h.App.Cfg.Env
+	data["HasGoogleAuth"] = h.App.Cfg.HasGoogleAuth
+	return c.Render(http.StatusOK, tmpl, data)
 }

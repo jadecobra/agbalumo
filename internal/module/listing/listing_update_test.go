@@ -8,7 +8,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
@@ -47,17 +46,10 @@ func TestHandleEdit(t *testing.T) {
 			c.SetParamValues("1")
 			c.Set("User", tt.user)
 
-			repo := testutil.SetupTestRepository(t)
-			tt.setup(t, repo)
-			listingSvc := listmod.NewListingService(repo, repo, repo)
-			h := listmod.NewListingHandler(listmod.ListingDependencies{
-				ListingStore:  repo,
-				CategoryStore: repo,
-				ListingSvc:    listingSvc,
-				ImageService:  nil,
-				GeocodingSvc:  &MockGeocodingService{},
-				Config:        &config.Config{},
-			})
+			app, cleanup := testutil.SetupTestAppEnv(t)
+			defer cleanup()
+			tt.setup(t, app.DB)
+			h := listmod.NewListingHandler(app)
 
 			_ = h.HandleEdit(c)
 
@@ -101,19 +93,11 @@ func TestHandleUpdate(t *testing.T) {
 			c.SetParamValues("1")
 			c.Set("User", tt.user)
 
-			repo := testutil.SetupTestRepository(t)
-			tt.setup(t, repo)
+			app, cleanup := testutil.SetupTestAppEnv(t)
+			defer cleanup()
+			tt.setup(t, app.DB)
 
-			listingSvc := listmod.NewListingService(repo, repo, repo)
-
-			h := listmod.NewListingHandler(listmod.ListingDependencies{
-				ListingStore:  repo,
-				CategoryStore: repo,
-				ListingSvc:    listingSvc,
-				ImageService:  nil,
-				GeocodingSvc:  &MockGeocodingService{},
-				Config:        &config.Config{},
-			})
+			h := listmod.NewListingHandler(app)
 			_ = h.HandleUpdate(c)
 
 			assert.Equal(t, tt.expectedStatus, rec.Code)
@@ -121,68 +105,39 @@ func TestHandleUpdate(t *testing.T) {
 	}
 }
 func TestHandleUpdate_NotFound(t *testing.T) {
-	repo := testutil.SetupTestRepository(t)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	h := listmod.NewListingHandler(app)
 	c, rec := setupTestContext(http.MethodPost, "/listings/1", strings.NewReader(""))
 	c.SetPath("/listings/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("1")
 	c.Set("User", domain.User{ID: "user1"})
-
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  nil,
-		GeocodingSvc:  &MockGeocodingService{},
-		Config:        &config.Config{},
-	})
 	_ = h.HandleUpdate(c)
 	assert.Equal(t, http.StatusNotFound, rec.Code)
 }
 func TestHandleUpdate_NoUser(t *testing.T) {
-	repo := testutil.SetupTestRepository(t)
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	h := listmod.NewListingHandler(app)
 	c, rec := setupTestContext(http.MethodPost, "/listings/1", strings.NewReader(""))
 	c.SetPath("/listings/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("1")
-
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  nil,
-		GeocodingSvc:  &MockGeocodingService{},
-		Config:        &config.Config{},
-	})
 	_ = h.HandleUpdate(c)
 	assert.Equal(t, http.StatusUnauthorized, rec.Code)
 }
 func TestHandleUpdate_DuplicateTitle(t *testing.T) {
-	repo := testutil.SetupTestRepository(t)
-	_ = repo.Save(context.Background(), domain.Listing{ID: "1", OwnerID: "user1", Title: "Old", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "123 St"})
-	_ = repo.Save(context.Background(), domain.Listing{ID: "2", OwnerID: "user2", Title: "Taken Title", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "456 St"})
-
-	body := "title=Taken+Title&type=Business&owner_origin=Ghana&description=Desc&contact_email=t@e.com&city=Kumasi&address=123+St"
-	c, rec := setupTestContext(http.MethodPost, "/listings/1", strings.NewReader(body))
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	_ = app.DB.Save(context.Background(), domain.Listing{ID: "1", OwnerID: "user1", Title: "Old", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "123 St"})
+	_ = app.DB.Save(context.Background(), domain.Listing{ID: "2", OwnerID: "user2", Title: "Taken Title", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "456 St"})
+	h := listmod.NewListingHandler(app)
+	c, rec := setupTestContext(http.MethodPost, "/listings/1", strings.NewReader("title=Taken+Title&type=Business&owner_origin=Ghana&description=Desc&contact_email=t@e.com&city=Kumasi&address=123+St"))
 	c.SetPath("/listings/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("1")
 	c.Set("User", domain.User{ID: "user1"})
-
-	listingSvc := listmod.NewListingService(repo, repo, repo)
-
-	h := listmod.NewListingHandler(listmod.ListingDependencies{
-		ListingStore:  repo,
-		CategoryStore: repo,
-		ListingSvc:    listingSvc,
-		ImageService:  nil,
-		GeocodingSvc:  &MockGeocodingService{},
-		Config:        &config.Config{},
-	})
 	_ = h.HandleUpdate(c)
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 }
