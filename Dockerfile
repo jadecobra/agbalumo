@@ -62,6 +62,9 @@ COPY --chown=appuser:appuser scripts/entrypoint.sh /app/entrypoint.sh
 # Ensure entrypoint is executable
 RUN chmod +x /app/entrypoint.sh
 
+# Explicitly set PATH to include common binary locations
+ENV PATH="/usr/local/bin:/usr/bin:/bin:/app:${PATH}"
+
 # Start as root to allow entrypoint to chown volumes, then drop to appuser
 USER root
 

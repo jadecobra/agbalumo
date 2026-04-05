@@ -6,29 +6,23 @@ set -e
 echo "[entrypoint] Ensuring /data and /app permissions..."
 chown -R appuser:appuser /data /app
 
-# Drop privileges and run the rest of the script as appuser
-exec su-exec appuser /bin/bash <<EOF
-set -e
+# --- Run Tasks as appuser ---
+# We use su-exec to drop privileges and start the app process.
+# We run the city backfill in the background as appuser.
 
-# Ensure the /data directory exists
-mkdir -p /data
+echo "[entrypoint] Starting city backfill in background..."
+su-exec appuser /bin/bash -c "/app/server listing backfill-cities > /tmp/backfill.log 2>&1 &"
 
-# --- Restore from replica if database does not exist ---
+# Restore from replica if database does not exist
 if [ ! -f /data/agbalumo.db ]; then
     echo "[entrypoint] No database found at /data/agbalumo.db. Attempting restore from R2..."
-    /usr/local/bin/litestream restore -config /etc/litestream.yml /data/agbalumo.db && \
+    su-exec appuser /usr/local/bin/litestream restore -config /etc/litestream.yml /data/agbalumo.db && \
         echo "[entrypoint] Restore successful." || \
         echo "[entrypoint] No remote data found (first run or empty bucket). Starting fresh."
 else
     echo "[entrypoint] Existing database found at /data/agbalumo.db. Skipping restore."
 fi
 
-# --- Run City Backfill ---
-# We run this in the background to ensure the health check passes immediately
-echo "[entrypoint] Starting city backfill in background..."
-./server listing backfill-cities > /tmp/backfill.log 2>&1 &
-
-# --- Start the app under Litestream replication ---
+# Start the app under Litestream replication
 echo "[entrypoint] Starting Litestream replication and app server..."
-exec /usr/local/bin/litestream replicate -config /etc/litestream.yml -exec "./server serve"
-EOF
+exec su-exec appuser /usr/local/bin/litestream replicate -config /etc/litestream.yml -exec "/app/server serve"
