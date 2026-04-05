@@ -12,7 +12,6 @@ import (
 	"strings"
 	"time"
 
-
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/infra/env"
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
@@ -24,7 +23,7 @@ import (
 type AdminHandler struct {
 	App *env.AppEnv
 }
- 
+
 func NewAdminHandler(app *env.AppEnv) *AdminHandler {
 	return &AdminHandler{
 		App: app,

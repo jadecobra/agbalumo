@@ -74,6 +74,7 @@ func Setup(cfg *config.Config) (*echo.Echo, func(), error) {
 		GeocodingSvc: geocodingSvc,
 		ImageSvc:     imageSvc,
 		ListingSvc:   listingSvc,
+		CatCache:     &env.CategoryCache{},
 	}
 
 	renderer, err := ui.NewTemplateRenderer(

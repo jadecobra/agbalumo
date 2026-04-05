@@ -11,6 +11,7 @@ import (
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
+
 func TestAdminHandler_HandleAllListings_Extended(t *testing.T) {
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()

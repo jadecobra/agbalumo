@@ -36,4 +36,3 @@ func NewMainTemplate() *template.Template {
 		{{define "modal_feedback.html"}}{{if .}}Feedback Modal: {{.}}{{else}}Feedback Modal{{end}}{{end}}
 	`))
 }
-

@@ -52,16 +52,16 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 
 	// P1.3: Run all three queries in parallel
 	var (
-		listings  []domain.Listing
-		counts    map[domain.Category]int
-		featured  []domain.Listing
-		locations []string
+		listings   []domain.Listing
+		counts     map[domain.Category]int
+		featured   []domain.Listing
+		locations  []string
 		categories []domain.CategoryData
 
-		listingsErr  error
-		countsErr    error
-		featuredErr  error
-		locationsErr error
+		listingsErr   error
+		countsErr     error
+		featuredErr   error
+		locationsErr  error
 		categoriesErr error
 
 		wg sync.WaitGroup
