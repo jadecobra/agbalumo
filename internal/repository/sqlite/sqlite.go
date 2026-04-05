@@ -218,6 +218,7 @@ func (r *SQLiteRepository) migrate() error {
 		return err
 	}
 
+	_, _ = r.db.ExecContext(context.Background(), `CREATE INDEX IF NOT EXISTS idx_listings_city ON listings(is_active, status, city);`)
 	_, _ = r.db.ExecContext(context.Background(), `CREATE INDEX IF NOT EXISTS idx_claim_requests_user_listing ON claim_requests(user_id, listing_id);`)
 	_, _ = r.db.ExecContext(context.Background(), `CREATE INDEX IF NOT EXISTS idx_claim_requests_status ON claim_requests(status);`)
 

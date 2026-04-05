@@ -20,11 +20,16 @@ func CheckGosecRationale(rootDir string) error {
 			return nil
 		}
 
-		// Exclude common directories to simulate bash excluded paths
-		// Using filepath.ToSlash to handle potential Windows paths if needed,
-		// but since we're on Mac, a simple contains is fine.
-		if strings.Contains(path, "/vendor/") || strings.Contains(path, "/.tester/") || strings.Contains(path, "/tmp/") || strings.Contains(path, "/.go/") {
-			return nil
+		// Exclude common directories to simulate bash excluded paths.
+		// We only exclude segments relative to the rootDir to allow tests in /tmp on Linux.
+		rel, err := filepath.Rel(rootDir, path)
+		if err == nil {
+			pathParts := strings.Split(filepath.ToSlash(rel), "/")
+			for _, part := range pathParts {
+				if part == "vendor" || part == ".tester" || part == "tmp" || part == ".go" {
+					return nil // skip
+				}
+			}
 		}
 
 		content, readErr := os.ReadFile(path)
