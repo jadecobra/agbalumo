@@ -35,6 +35,11 @@ To maintain agentic efficiency, we monitor **Token Density**.
 - **Context Window**: Monitor `ContextWindowPct` relative to Claude Sonnet (200k tokens).
 - **Efficiency Pattern**: If a file exceeds **500 tokens**, consider if splitting into sub-packages or smaller files would improve logical cohesion and "Agentic Attention."
 - **Janitor Run**: Use `/janitor` to clean up high-cost or high-entropy files when the TokenRMS exceeds thresholds significantly.
+- **Verification**: Verify token density at any time by running: `go run cmd/verify/main.go context-cost`.
+
+## Security & Linter Suppression
+
+- **Suppression Justification:** Any time you use a `#nosec` directive, you must include a valid justification comment. Validate this project constraint by running `go run cmd/verify/main.go gosec-rationale`.
 
 ## Testing Conventions
 
