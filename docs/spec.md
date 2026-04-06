@@ -98,9 +98,9 @@ type Listing struct {
 * **Moderation:** Listings can be approved or rejected.
 * **Access Control:** Admin access is protected via Google Auth + a secondary Access Code.
 
-### 7. UI Design System (TOON Tokens)
+### 7. UI Design System (Tailwind)
 
-agbalumo uses a "Juicy Fruit" design aesthetic, inspired by Yoruba roots and community-first values.
+agbalumo uses a "Juicy Fruit" design aesthetic, inspired by Yoruba roots and community-first values. The "Juicy Fruit" aesthetic is enforced via a centralized `tailwind.config.js` configuration spanning `ui/templates/`, entirely replacing the legacy design token generation approach.
 
 * **Colors:**
   - `primary`: #FF8A00 (agbalumo orange)
@@ -121,7 +121,7 @@ agbalumo uses a "Juicy Fruit" design aesthetic, inspired by Yoruba roots and com
 
 ### 8. Security & 10x Auditing
 
-agbalumo maintains a "Zero Trust" security posture by enforcing automated vulnerability scans (`govulncheck`), container security scans (`aquasecurity/trivy-action`), and custom security audits (`cmd/security-audit`) in the CI/CD pipeline. The project targets the latest secure Go versions (currently `1.25.8`) to mitigate standard library risks.
+agbalumo maintains a "Zero Trust" security posture by enforcing automated vulnerability scans (`govulncheck`), container security scans (`aquasecurity/trivy-action`), and custom security and drift audits natively integrated into the CI/CD pipeline via `cmd/verify`. The project targets the latest secure Go versions (currently `1.25.8`) to mitigate standard library risks.
 
 ### 9. Codebase Critique & Improvements (Self-Correction)
 
