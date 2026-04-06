@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"log/slog"
 	"time"
@@ -125,82 +126,77 @@ func (r *SQLiteRepository) BulkInsertListings(ctx context.Context, listings []do
 	}
 	defer func() { _ = tx.Rollback() }()
 
-	total := len(listings)
-	nextThreshold := 10
-
 	const batchSize = 500
 	for i := 0; i < len(listings); i += batchSize {
 		end := i + batchSize
 		if end > len(listings) {
 			end = len(listings)
 		}
-		batch := listings[i:end]
 
-		query := `
-		INSERT INTO listings (id, owner_id, title, description, type, owner_origin, city, address, hours_of_operation, is_active, created_at, image_url, contact_email, contact_phone, contact_whatsapp, website_url, deadline, event_start, event_end, skills, job_start_date, job_apply_url, company, pay_range, status, featured)
-		VALUES `
-		var args []interface{}
-		for j, l := range batch {
-			if j > 0 {
-				query += ", "
-			}
-			query += "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-
-			status := string(l.Status)
-			if status == "" {
-				status = string(domain.ListingStatusApproved)
-			}
-
-			args = append(args,
-				l.ID, l.OwnerID, l.Title, l.Description, l.Type, l.OwnerOrigin, l.City, l.Address, l.HoursOfOperation, l.IsActive, l.CreatedAt,
-				l.ImageURL, l.ContactEmail, l.ContactPhone, l.ContactWhatsApp, l.WebsiteURL, l.Deadline, l.EventStart, l.EventEnd,
-				l.Skills, l.JobStartDate, l.JobApplyURL, l.Company, l.PayRange, status, l.Featured,
-			)
-		}
-
-		query += `
-		ON CONFLICT(id) DO UPDATE SET
-			owner_id = excluded.owner_id,
-			title = excluded.title,
-			description = excluded.description,
-			type = excluded.type,
-			owner_origin = excluded.owner_origin,
-			city = excluded.city,
-			address = excluded.address,
-			hours_of_operation = excluded.hours_of_operation,
-			is_active = excluded.is_active,
-			image_url = excluded.image_url,
-			contact_email = excluded.contact_email,
-			contact_phone = excluded.contact_phone,
-			contact_whatsapp = excluded.contact_whatsapp,
-			website_url = excluded.website_url,
-			deadline = excluded.deadline,
-			event_start = excluded.event_start,
-			event_end = excluded.event_end,
-			skills = excluded.skills,
-			job_start_date = excluded.job_start_date,
-			job_apply_url = excluded.job_apply_url,
-			company = excluded.company,
-			pay_range = excluded.pay_range,
-			status = excluded.status,
-			featured = excluded.featured;
-		`
-
-		_, err := tx.ExecContext(ctx, query, args...)
-		if err != nil {
+		if err := r.insertBatch(ctx, tx, listings[i:end]); err != nil {
 			return err
 		}
-
-		if total > 0 {
-			percentage := (end * 100) / total
-			if percentage >= nextThreshold {
-				slog.Info("Bulk insert progress", slog.Int("percentage", percentage), slog.Int("processed", end), slog.Int("total", total))
-				nextThreshold = ((percentage / 10) + 1) * 10
-			}
-		}
+		r.logBulkProgress(end, len(listings))
 	}
 
 	return tx.Commit()
+}
+
+func (r *SQLiteRepository) insertBatch(ctx context.Context, tx *sql.Tx, batch []domain.Listing) error {
+	query, args := r.buildBulkInsertSQL(batch)
+	_, err := tx.ExecContext(ctx, query, args...)
+	return err
+}
+
+func (r *SQLiteRepository) buildBulkInsertSQL(batch []domain.Listing) (string, []interface{}) {
+	query := `INSERT INTO listings (id, owner_id, title, description, type, owner_origin, city, address, hours_of_operation, is_active, created_at, image_url, contact_email, contact_phone, contact_whatsapp, website_url, deadline, event_start, event_end, skills, job_start_date, job_apply_url, company, pay_range, status, featured) VALUES `
+	args := make([]interface{}, 0, len(batch)*26)
+
+	for i, l := range batch {
+		if i > 0 {
+			query += ", "
+		}
+		query += "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+
+		args = append(args,
+			l.ID, l.OwnerID, l.Title, l.Description, l.Type, l.OwnerOrigin, l.City, l.Address, l.HoursOfOperation, l.IsActive, l.CreatedAt,
+			l.ImageURL, l.ContactEmail, l.ContactPhone, l.ContactWhatsApp, l.WebsiteURL, l.Deadline, l.EventStart, l.EventEnd,
+			l.Skills, l.JobStartDate, l.JobApplyURL, l.Company, l.PayRange, r.ensureStatus(l.Status), l.Featured,
+		)
+	}
+
+	query += ` ON CONFLICT(id) DO UPDATE SET
+		owner_id = excluded.owner_id, title = excluded.title, description = excluded.description,
+		type = excluded.type, owner_origin = excluded.owner_origin, city = excluded.city,
+		address = excluded.address, hours_of_operation = excluded.hours_of_operation,
+		is_active = excluded.is_active, image_url = excluded.image_url,
+		contact_email = excluded.contact_email, contact_phone = excluded.contact_phone,
+		contact_whatsapp = excluded.contact_whatsapp, website_url = excluded.website_url,
+		deadline = excluded.deadline, event_start = excluded.event_start,
+		event_end = excluded.event_end, skills = excluded.skills,
+		job_start_date = excluded.job_start_date, job_apply_url = excluded.job_apply_url,
+		company = excluded.company, pay_range = excluded.pay_range,
+		status = excluded.status, featured = excluded.featured;`
+
+	return query, args
+}
+
+func (r *SQLiteRepository) ensureStatus(s domain.ListingStatus) string {
+	if s == "" {
+		return string(domain.ListingStatusApproved)
+	}
+	return string(s)
+}
+
+func (r *SQLiteRepository) logBulkProgress(current, total int) {
+	if total <= 0 {
+		return
+	}
+	percentage := (current * 100) / total
+	// Log progress at major milestones to keep logs clean
+	if percentage%25 == 0 || current == total {
+		slog.Info("Bulk insert progress", slog.Int("percentage", percentage), slog.Int("processed", current), slog.Int("total", total))
+	}
 }
 
 func (r *SQLiteRepository) Delete(ctx context.Context, id string) error {

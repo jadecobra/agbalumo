@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/spf13/cobra"
 )
 
@@ -87,7 +88,7 @@ var listingUpdateCmd = &cobra.Command{
 		}
 
 		if err := repo.Save(context.Background(), listing); err != nil {
-			slog.Error("Failed to update listing", "error", err)
+			slog.Error(domain.MsgFailedToUpdateListing, "error", err)
 			os.Exit(1)
 		}
 

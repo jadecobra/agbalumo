@@ -80,7 +80,7 @@ var adminFeaturedCmd = &cobra.Command{
 
 		listing.Featured = !listing.Featured
 		if err := repo.Save(context.Background(), listing); err != nil {
-			slog.Error("Failed to update listing", "error", err)
+			slog.Error(domain.MsgFailedToUpdateListing, "error", err)
 			os.Exit(1)
 		}
 

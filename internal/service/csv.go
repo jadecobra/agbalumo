@@ -26,28 +26,37 @@ func (s *CSVService) ParseAndImport(ctx context.Context, r io.Reader, repo domai
 	reader := csv.NewReader(r)
 	reader.TrimLeadingSpace = true
 
-	// Read Header
 	headers, err := reader.Read()
 	if err != nil {
 		return nil, fmt.Errorf("failed to read CSV header: %w", err)
 	}
 
-	// map header name to index
+	headerMap, err := s.validateHeaders(headers)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.processRecords(ctx, reader, headerMap, repo), nil
+}
+
+func (s *CSVService) validateHeaders(headers []string) (map[string]int, error) {
 	headerMap := make(map[string]int)
 	for i, h := range headers {
 		headerMap[strings.ToLower(strings.TrimSpace(h))] = i
 	}
 
-	// Validate required headers
 	required := []string{"title", "type", "description"}
 	for _, req := range required {
 		if _, ok := headerMap[req]; !ok {
 			return nil, fmt.Errorf("missing required header: %s", req)
 		}
 	}
+	return headerMap, nil
+}
 
+func (s *CSVService) processRecords(ctx context.Context, reader *csv.Reader, headerMap map[string]int, repo domain.ListingStore) *domain.BulkUploadResult {
 	result := &domain.BulkUploadResult{}
-	lineNum := 1 // Header is line 1
+	lineNum := 1
 
 	for {
 		record, err := reader.Read()
@@ -58,84 +67,81 @@ func (s *CSVService) ParseAndImport(ctx context.Context, r io.Reader, repo domai
 		result.TotalProcessed++
 
 		if err != nil {
-			result.FailureCount++
-			result.Errors = append(result.Errors, fmt.Sprintf("Line %d: Failed to read row: %v", lineNum, err))
+			s.recordFailure(result, lineNum, fmt.Errorf("failed to read row: %v", err))
 			continue
 		}
 
-		// Parse Row
-		listing, err := s.parseRow(record, headerMap)
-		if err != nil {
-			result.FailureCount++
-			result.Errors = append(result.Errors, fmt.Sprintf("Line %d: %v", lineNum, err))
-			continue
+		if err := s.processRow(ctx, record, headerMap, repo, result, lineNum); err != nil {
+			s.recordFailure(result, lineNum, err)
+		} else {
+			result.SuccessCount++
 		}
+	}
+	return result
+}
 
-		// Check for duplicate
-		existingListings, err := repo.FindByTitle(ctx, listing.Title)
-		if err != nil {
-			result.FailureCount++
-			result.Errors = append(result.Errors, fmt.Sprintf("Line %d: Database error checking duplicates: %v", lineNum, err))
-			continue
-		}
-
-		isDuplicate := false
-		for _, ex := range existingListings {
-			matchCount := 0
-			if ex.Type == listing.Type {
-				matchCount++
-			}
-			if ex.Description == listing.Description && listing.Description != "" {
-				matchCount++
-			}
-			if ex.OwnerOrigin == listing.OwnerOrigin && listing.OwnerOrigin != "" {
-				matchCount++
-			}
-			if ex.ContactEmail == listing.ContactEmail && listing.ContactEmail != "" {
-				matchCount++
-			}
-			if ex.ContactPhone == listing.ContactPhone && listing.ContactPhone != "" {
-				matchCount++
-			}
-			if ex.ContactWhatsApp == listing.ContactWhatsApp && listing.ContactWhatsApp != "" {
-				matchCount++
-			}
-			if ex.Address == listing.Address && listing.Address != "" {
-				matchCount++
-			}
-			if ex.City == listing.City && listing.City != "" {
-				matchCount++
-			}
-
-			// If title matches AND more than 2 other fields match, consider it a duplicate
-			if matchCount > 2 {
-				isDuplicate = true
-				break
-			}
-		}
-
-		if isDuplicate {
-			result.FailureCount++
-			result.Errors = append(result.Errors, fmt.Sprintf("Line %d: Duplicate listing detected (title and >2 fields match)", lineNum))
-			continue
-		}
-
-		// Set System Defaults for Uploads
-		listing.OwnerID = "" // Unowned (Seeded)
-		listing.IsActive = true
-		listing.Status = domain.ListingStatusApproved
-
-		// Save to Repo
-		if err := repo.Save(ctx, *listing); err != nil {
-			result.FailureCount++
-			result.Errors = append(result.Errors, fmt.Sprintf("Line %d: Database error: %v", lineNum, err))
-			continue
-		}
-
-		result.SuccessCount++
+func (s *CSVService) processRow(ctx context.Context, record []string, headerMap map[string]int, repo domain.ListingStore, result *domain.BulkUploadResult, lineNum int) error {
+	listing, err := s.parseRow(record, headerMap)
+	if err != nil {
+		return err
 	}
 
-	return result, nil
+	isDup, err := s.isDuplicate(ctx, repo, listing)
+	if err != nil {
+		return fmt.Errorf("duplicate check failed: %v", err)
+	}
+	if isDup {
+		return fmt.Errorf("duplicate listing detected (title and >2 fields match)")
+	}
+
+	listing.OwnerID = ""
+	listing.IsActive = true
+	listing.Status = domain.ListingStatusApproved
+
+	if err := repo.Save(ctx, *listing); err != nil {
+		return fmt.Errorf("database error: %v", err)
+	}
+	return nil
+}
+
+func (s *CSVService) recordFailure(result *domain.BulkUploadResult, lineNum int, err error) {
+	result.FailureCount++
+	result.Errors = append(result.Errors, fmt.Sprintf("Line %d: %v", lineNum, err))
+}
+
+func (s *CSVService) isDuplicate(ctx context.Context, repo domain.ListingStore, listing *domain.Listing) (bool, error) {
+	existingListings, err := repo.FindByTitle(ctx, listing.Title)
+	if err != nil {
+		return false, err
+	}
+
+	for _, ex := range existingListings {
+		if s.matchFieldsCount(ex, listing) > 2 {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func (s *CSVService) matchFieldsCount(ex domain.Listing, listing *domain.Listing) int {
+	matches := 0
+	check := func(s1, s2 string) {
+		if s1 == s2 && s1 != "" {
+			matches++
+		}
+	}
+
+	if ex.Type == listing.Type {
+		matches++
+	}
+	check(ex.Description, listing.Description)
+	check(ex.OwnerOrigin, listing.OwnerOrigin)
+	check(ex.ContactEmail, listing.ContactEmail)
+	check(ex.ContactPhone, listing.ContactPhone)
+	check(ex.ContactWhatsApp, listing.ContactWhatsApp)
+	check(ex.Address, listing.Address)
+	check(ex.City, listing.City)
+	return matches
 }
 
 // GenerateCSV converts a slice of Listings into a CSV stream.
@@ -144,16 +150,11 @@ func (s *CSVService) GenerateCSV(ctx context.Context, listings []domain.Listing)
 
 	go func() {
 		defer func() {
-			if err := pw.Close(); err != nil {
-				// We can't do much here except log if we had a logger,
-				// but at least we check it to satisfy the linter.
-				_ = err
-			}
+			_ = pw.Close()
 		}()
 		writer := csv.NewWriter(pw)
 		defer writer.Flush()
 
-		// Write Header
 		headers := []string{
 			"ID", "Title", "Type", "Description", "City", "Address",
 			"Origin", "Email", "Phone", "WhatsApp",
@@ -162,45 +163,32 @@ func (s *CSVService) GenerateCSV(ctx context.Context, listings []domain.Listing)
 			"EventStart", "EventEnd", "Deadline",
 		}
 		if err := writer.Write(headers); err != nil {
-			pw.CloseWithError(err)
+			_ = pw.CloseWithError(err)
 			return
 		}
 
-		// Write Rows
 		for _, l := range listings {
-			row := []string{
-				l.ID,
-				l.Title,
-				string(l.Type),
-				l.Description,
-				l.City,
-				l.Address,
-				l.OwnerOrigin,
-				l.ContactEmail,
-				l.ContactPhone,
-				l.ContactWhatsApp,
-				l.WebsiteURL,
-				l.CreatedAt.Format(time.RFC3339),
-				string(l.Status),
-				fmt.Sprintf("%v", l.IsActive),
-				fmt.Sprintf("%v", l.Featured),
-				l.Company,
-				l.PayRange,
-				l.Skills,
-				l.JobApplyURL,
-				l.JobStartDate.Format(time.RFC3339),
-				l.EventStart.Format(time.RFC3339),
-				l.EventEnd.Format(time.RFC3339),
-				l.Deadline.Format(time.RFC3339),
-			}
+			row := s.listingToCSVRow(l)
 			if err := writer.Write(row); err != nil {
-				pw.CloseWithError(err)
+				_ = pw.CloseWithError(err)
 				return
 			}
 		}
 	}()
 
 	return pr, nil
+}
+
+func (s *CSVService) listingToCSVRow(l domain.Listing) []string {
+	return []string{
+		l.ID, l.Title, string(l.Type), l.Description, l.City, l.Address,
+		l.OwnerOrigin, l.ContactEmail, l.ContactPhone, l.ContactWhatsApp,
+		l.WebsiteURL, l.CreatedAt.Format(time.RFC3339), string(l.Status),
+		fmt.Sprintf("%v", l.IsActive), fmt.Sprintf("%v", l.Featured),
+		l.Company, l.PayRange, l.Skills, l.JobApplyURL,
+		l.JobStartDate.Format(time.RFC3339), l.EventStart.Format(time.RFC3339),
+		l.EventEnd.Format(time.RFC3339), l.Deadline.Format(time.RFC3339),
+	}
 }
 
 func parseCategory(typeStr string) domain.Category {
@@ -218,8 +206,6 @@ func parseCategory(typeStr string) domain.Category {
 	if titleCas == "" {
 		return domain.Business
 	}
-
-	// Return the dynamic category, e.g. "Church" instead of defaulting to Business
 	return domain.Category(titleCas)
 }
 
@@ -236,11 +222,14 @@ func (s *CSVService) parseRow(record []string, headerMap map[string]int) (*domai
 		return nil, fmt.Errorf("title is required")
 	}
 
-	cat := parseCategory(get("type"))
-
 	desc := get("description")
 	if desc == "" {
 		return nil, fmt.Errorf("description is required")
+	}
+
+	email, phone, whatsapp, website := get("email"), get("phone"), get("whatsapp"), get("website")
+	if email == "" && phone == "" && whatsapp == "" && website == "" {
+		return nil, fmt.Errorf("at least one contact method (email, phone, whatsapp, or website) is required")
 	}
 
 	origin := get("origin")
@@ -248,41 +237,17 @@ func (s *CSVService) parseRow(record []string, headerMap map[string]int) (*domai
 		origin = "Nigeria"
 	}
 
-	email := get("email")
-	phone := get("phone")
-	whatsapp := get("whatsapp")
-	website := get("website")
-
-	if email == "" && phone == "" && whatsapp == "" && website == "" {
-		return nil, fmt.Errorf("at least one contact method (email, phone, whatsapp, or website) is required")
-	}
-
-	address := get("address")
-	city := get("city")
-
-	// If city is missing but address exists, try to geocode if service is available
+	address, city := get("address"), get("city")
 	if city == "" && address != "" && s.Geocoding != nil {
-		// Note: Using background context here as parseRow doesn't take context
-		// This is a trade-off for the current structure.
-		// A better refactor would pass ctx to parseRow, but let's stick to minimal changes.
 		if foundCity, err := s.Geocoding.GetCity(context.Background(), address); err == nil && foundCity != "" {
 			city = foundCity
 		}
 	}
 
 	return &domain.Listing{
-		ID:               uuid.New().String(),
-		Title:            title,
-		Type:             cat,
-		Description:      desc,
-		OwnerOrigin:      origin,
-		ContactEmail:     email,
-		WebsiteURL:       website,
-		ContactPhone:     phone,
-		ContactWhatsApp:  whatsapp,
-		Address:          address,
-		City:             city,
-		HoursOfOperation: get("hours"),
-		CreatedAt:        time.Now(),
+		ID: uuid.New().String(), Title: title, Type: parseCategory(get("type")),
+		Description: desc, OwnerOrigin: origin, ContactEmail: email, WebsiteURL: website,
+		ContactPhone: phone, ContactWhatsApp: whatsapp, Address: address, City: city,
+		HoursOfOperation: get("hours"), CreatedAt: time.Now(),
 	}, nil
 }

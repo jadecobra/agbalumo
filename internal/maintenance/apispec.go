@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strings"
 )
 
@@ -66,25 +65,11 @@ func ExtractCLICodeCommands(dir string) ([]string, error) {
 	useRe := regexp.MustCompile(`(?m)Use:\s*"([^ "\n]+)`)
 
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
+		found, walkErr := extractCommandsFromCode(path, info, err, useRe)
+		if walkErr != nil {
+			return walkErr
 		}
-		if !info.IsDir() && filepath.Ext(path) == ".go" {
-			// G304: Maintenance utility reads the OpenAPI source file
-			data, err := os.ReadFile(path) //nolint:gosec // maintenance utility
-			if err != nil {
-				return err
-			}
-			matches := useRe.FindAllStringSubmatch(string(data), -1)
-			for _, match := range matches {
-				if len(match) > 1 {
-					cmd := strings.TrimSpace(match[1])
-					if cmd != "" && cmd != "agbalumo" {
-						cmds = append(cmds, cmd)
-					}
-				}
-			}
-		}
+		cmds = append(cmds, found...)
 		return nil
 	})
 
@@ -94,91 +79,92 @@ func ExtractCLICodeCommands(dir string) ([]string, error) {
 	return uniqueStrings(cmds), nil
 }
 
+func extractCommandsFromCode(path string, info os.FileInfo, err error, re *regexp.Regexp) ([]string, error) {
+	if err != nil || info.IsDir() || filepath.Ext(path) != ".go" {
+		return nil, err
+	}
+
+	data, readErr := os.ReadFile(path) //nolint:gosec // maintenance utility
+	if readErr != nil {
+		return nil, readErr
+	}
+
+	var found []string
+	matches := re.FindAllStringSubmatch(string(data), -1)
+	for _, match := range matches {
+		if len(match) > 1 {
+			cmd := strings.TrimSpace(match[1])
+			if cmd != "" && cmd != "agbalumo" {
+				found = append(found, cmd)
+			}
+		}
+	}
+	return found, nil
+}
+
 // ExtractCLIMarkdownCommands extracts CLI commands from Markdown documentation.
 func ExtractCLIMarkdownCommands(paths ...string) ([]string, error) {
 	var cmds []string
+	for _, path := range paths {
+		found, err := extractCommandsFromPath(path)
+		if err == nil {
+			cmds = append(cmds, found...)
+		}
+	}
+	return uniqueStrings(cmds), nil
+}
+
+func extractCommandsFromPath(path string) ([]string, error) {
+	info, err := os.Stat(path)
+	if err != nil {
+		return nil, err
+	}
+
+	if info.IsDir() {
+		return walkMarkdownDir(path)
+	}
+	return extractFromMarkdownFile(path)
+}
+
+func walkMarkdownDir(dir string) ([]string, error) {
+	var cmds []string
+	err := filepath.Walk(dir, func(p string, i os.FileInfo, e error) error {
+		if e == nil && !i.IsDir() && filepath.Ext(p) == ".md" {
+			found, _ := extractFromMarkdownFile(p)
+			cmds = append(cmds, found...)
+		}
+		return nil
+	})
+	return cmds, err
+}
+
+func extractFromMarkdownFile(path string) ([]string, error) {
+	if filepath.Ext(path) != ".md" {
+		return nil, nil
+	}
+
+	data, err := os.ReadFile(path) //nolint:gosec // maintenance utility
+	if err != nil {
+		return nil, err
+	}
+
 	headerRe := regexp.MustCompile(`(?m)^###+\s+(.*)`)
 	ignored := map[string]bool{
 		"subcommands": true, "commands": true, "flags": true, "example": true,
 		"quick reference": true, "environment variables": true, "global flags": true,
 	}
 
-	for _, path := range paths {
-		info, err := os.Stat(path)
-		if err != nil {
-			continue
-		}
-		if info.IsDir() {
-			walkErr := filepath.Walk(path, func(p string, i os.FileInfo, e error) error {
-				if e == nil && !i.IsDir() && filepath.Ext(p) == ".md" {
-					// G304: Maintenance utility reads partial openapi files
-					data, _ := os.ReadFile(p) //nolint:gosec // maintenance utility
-					matches := headerRe.FindAllStringSubmatch(string(data), -1)
-					for _, match := range matches {
-						if len(match) > 1 {
-							cmd := strings.TrimSpace(strings.ToLower(match[1]))
-							if cmd != "" && !ignored[cmd] {
-								cmds = append(cmds, cmd)
-							}
-						}
-					}
-				}
-				return nil
-			})
-			if walkErr != nil {
-				// We don't fail the whole command if one MD file fails to read
-				fmt.Fprintf(os.Stderr, "Warning: failed to walk %s: %v\n", path, walkErr)
-			}
-		} else if filepath.Ext(path) == ".md" {
-			// G304: Maintenance utility reads API markdown file
-			data, err := os.ReadFile(path) //nolint:gosec // maintenance utility
-			if err == nil {
-				matches := headerRe.FindAllStringSubmatch(string(data), -1)
-				for _, match := range matches {
-					if len(match) > 1 {
-						cmd := strings.TrimSpace(strings.ToLower(match[1]))
-						if cmd != "" && !ignored[cmd] {
-							cmds = append(cmds, cmd)
-						}
-					}
-				}
+	var cmds []string
+	matches := headerRe.FindAllStringSubmatch(string(data), -1)
+	for _, match := range matches {
+		if len(match) > 1 {
+			cmd := strings.TrimSpace(strings.ToLower(match[1]))
+			if cmd != "" && !ignored[cmd] {
+				cmds = append(cmds, cmd)
 			}
 		}
 	}
-
-	return uniqueStrings(cmds), nil
-}
-
-func uniqueAndSort(routes []Route) []Route {
-	seen := make(map[string]bool)
-	var unique []Route
-	for _, r := range routes {
-		key := r.Method + " " + r.Path
-		if !seen[key] {
-			seen[key] = true
-			unique = append(unique, r)
-		}
-	}
-	sort.Slice(unique, func(i, j int) bool {
-		if unique[i].Path == unique[j].Path {
-			return unique[i].Method < unique[j].Method
-		}
-		return unique[i].Path < unique[j].Path
-	})
-	return unique
-}
-
-func uniqueStrings(strs []string) []string {
-	seen := make(map[string]bool)
-	var unique []string
-	for _, s := range strs {
-		if !seen[s] {
-			seen[s] = true
-			unique = append(unique, s)
-		}
-	}
-	sort.Strings(unique)
-	return unique
+	return cmds, nil
 }
 
 // CompareRoutes returns a list of differences between two route sets.

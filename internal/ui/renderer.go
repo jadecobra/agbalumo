@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -92,69 +91,18 @@ func categorizeTemplateFiles(files []string) (layouts, partials, pages []string)
 
 func BuildGlobalFuncMap() template.FuncMap {
 	return template.FuncMap{
-		"split": strings.Split,
-		"mod":   func(i, j int) int { return i % j },
-		"add":   func(i, j int) int { return i + j },
-		"sub":   func(i, j int) int { return i - j },
-		"seq": func(start, end int) []int {
-			var s []int
-			for i := start; i <= end; i++ {
-				s = append(s, i)
-			}
-			return s
-		},
-		"dict": func(values ...interface{}) (map[string]interface{}, error) {
-			if len(values)%2 != 0 {
-				return nil, errors.New("invalid dict call")
-			}
-			dict := make(map[string]interface{}, len(values)/2)
-			for i := 0; i < len(values); i += 2 {
-				key, ok := values[i].(string)
-				if !ok {
-					return nil, errors.New("dict keys must be strings")
-				}
-				dict[key] = values[i+1]
-			}
-			return dict, nil
-		},
-		"toJson": func(v interface{}) (template.JS, error) {
-			b, err := json.Marshal(v)
-			if err != nil {
-				return "", err
-			}
-			// #nosec G203 - Intentional template escape for trusted content
-			return template.JS(b), nil
-		},
-		"isNew": func(createdAt time.Time) bool {
-			if createdAt.IsZero() {
-				return false
-			}
-			return time.Since(createdAt) < 7*24*time.Hour
-		},
-		"safeHTML": func(s string) template.HTML {
-			// #nosec G203 - Intentional template escape for trusted content
-			return template.HTML(s)
-		},
+		"split":       strings.Split,
+		"mod":         func(i, j int) int { return i % j },
+		"add":         func(i, j int) int { return i + j },
+		"sub":         func(i, j int) int { return i - j },
+		"seq":         seq,
+		"dict":        dict,
+		"toJson":      toJson,
+		"isNew":       isNew,
+		"safeHTML":    safeHTML,
+		"displayCity": displayCity,
 		"Countries": func() []Region {
 			return nil
-		},
-		"displayCity": func(city, address string) string {
-			if city != "" {
-				return city
-			}
-			if address == "" {
-				return ""
-			}
-			// Fallback: extract city from address (e.g., "123 Main St, City, ST 12345")
-			parts := strings.Split(address, ",")
-			if len(parts) >= 2 {
-				// Most common format is [Street], [City], [State Zip]
-				// We take the second part if available
-				return strings.TrimSpace(parts[1])
-			}
-			// If no comma exists, we don't know if it's a city or a street.
-			// To avoid showing "123 Test St" in the city slot, we return empty.
-			return ""
 		},
 	}
 }
@@ -163,28 +111,31 @@ func compileTemplates(layouts, partials, pages []string, funcMap template.FuncMa
 	templates := make(map[string]*template.Template)
 
 	for _, pageFile := range pages {
-		fileName := filepath.Base(pageFile)
-		tmpl := template.New(fileName).Funcs(funcMap)
-
-		if len(layouts) > 0 {
-			if _, err := tmpl.ParseFiles(layouts...); err != nil {
-				return nil, err
-			}
-		}
-
-		if len(partials) > 0 {
-			if _, err := tmpl.ParseFiles(partials...); err != nil {
-				return nil, err
-			}
-		}
-
-		if _, err := tmpl.ParseFiles(pageFile); err != nil {
+		tmpl, err := parseTemplateFiles(pageFile, layouts, partials, funcMap)
+		if err != nil {
 			return nil, err
 		}
-
-		templates[fileName] = tmpl
+		templates[filepath.Base(pageFile)] = tmpl
 	}
 	return templates, nil
+}
+
+func parseTemplateFiles(page string, layouts, partials []string, funcMap template.FuncMap) (*template.Template, error) {
+	tmpl := template.New(filepath.Base(page)).Funcs(funcMap)
+
+	if len(layouts) > 0 {
+		if _, err := tmpl.ParseFiles(layouts...); err != nil {
+			return nil, err
+		}
+	}
+
+	if len(partials) > 0 {
+		if _, err := tmpl.ParseFiles(partials...); err != nil {
+			return nil, err
+		}
+	}
+
+	return tmpl.ParseFiles(page)
 }
 
 // Render renders a template document

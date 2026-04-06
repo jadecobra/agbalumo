@@ -8,6 +8,7 @@ import (
 	"text/tabwriter"
 	"time"
 
+	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
 	"github.com/spf13/cobra"
 )
@@ -22,7 +23,7 @@ var benchmarkCmd = &cobra.Command{
 
 		repo, err := sqlite.NewSQLiteRepository(dbPath)
 		if err != nil {
-			slog.Error("Failed to open DB", "path", dbPath, "error", err)
+			slog.Error(domain.MsgFailedToOpenDB, "path", dbPath, "error", err)
 			os.Exit(1)
 		}
 

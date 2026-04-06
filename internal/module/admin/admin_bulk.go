@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -17,111 +18,102 @@ func (h *AdminHandler) HandleBulkAction(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	if len(selectedIDs) == 0 {
-		sess := customMiddleware.GetSession(c)
-		if sess != nil {
-			sess.AddFlash("No listings selected", "message")
-			_ = sess.Save(c.Request(), c.Response())
-		}
-		return c.Redirect(http.StatusFound, "/admin/listings")
+		return h.redirectWithFlash(c, "No listings selected", "/admin/listings")
 	}
 
 	if action == "delete" {
-		// Pass IDs as query parameters to the confirmation page
-		query := url.Values{}
-		for _, id := range selectedIDs {
-			query.Add("id", id)
-		}
-		return c.Redirect(http.StatusFound, "/admin/listings/delete-confirm?"+query.Encode())
+		return h.redirectToBulkDeleteConfirm(c, selectedIDs)
 	}
 
 	newCategory := c.FormValue("new_category")
+	successCount := h.processBulkListings(ctx, selectedIDs, action, newCategory)
 
+	return h.redirectWithFlash(c, fmt.Sprintf("Successfully processed %d listings", successCount), "/admin/listings")
+}
+
+func (h *AdminHandler) redirectToBulkDeleteConfirm(c echo.Context, ids []string) error {
+	query := url.Values{}
+	for _, id := range ids {
+		query.Add("id", id)
+	}
+	return c.Redirect(http.StatusFound, "/admin/listings/delete-confirm?"+query.Encode())
+}
+
+func (h *AdminHandler) processBulkListings(ctx context.Context, ids []string, action, newCategory string) int {
 	successCount := 0
-	// Safe bounded admin action: N+1 here is acceptable because batch sizes are limited
-	// by pagination (e.g. 50 items) and SQLite connection overhead is negligible.
-	for _, id := range selectedIDs {
-		listing, err := h.App.DB.FindByID(ctx, id)
-		if err != nil {
-			continue // Skip if not found
-		}
-
-		switch action {
-		case "approve":
-			listing.Status = domain.ListingStatusApproved
-			listing.IsActive = true
-		case "reject":
-			listing.Status = domain.ListingStatusRejected
-			listing.IsActive = false
-			if newCategory != "" {
-				listing.Type = domain.Category(newCategory)
-			}
-		case "change_category":
-			if newCategory != "" {
-				listing.Type = domain.Category(newCategory)
-			} else {
-				continue
-			}
-		default:
-			continue // Unknown action
-		}
-
-		if err := h.App.DB.Save(ctx, listing); err == nil {
+	for _, id := range ids {
+		if err := h.applyActionToListing(ctx, id, action, newCategory); err == nil {
 			successCount++
 		}
 	}
+	return successCount
+}
 
-	sess := customMiddleware.GetSession(c)
-	if sess != nil {
-		sess.AddFlash(fmt.Sprintf("Successfully processed %d listings", successCount), "message")
-		_ = sess.Save(c.Request(), c.Response())
+func (h *AdminHandler) applyActionToListing(ctx context.Context, id, action, newCategory string) error {
+	listing, err := h.App.DB.FindByID(ctx, id)
+	if err != nil {
+		return err
 	}
 
-	return c.Redirect(http.StatusFound, "/admin/listings")
+	switch action {
+	case "approve":
+		listing.Status = domain.ListingStatusApproved
+		listing.IsActive = true
+	case "reject":
+		listing.Status = domain.ListingStatusRejected
+		listing.IsActive = false
+		if newCategory != "" {
+			listing.Type = domain.Category(newCategory)
+		}
+	case "change_category":
+		if newCategory == "" {
+			return fmt.Errorf("category required")
+		}
+		listing.Type = domain.Category(newCategory)
+	default:
+		return fmt.Errorf("unknown action: %s", action)
+	}
+
+	return h.App.DB.Save(ctx, listing)
 }
 
 // HandleBulkUpload processes a CSV file upload.
 func (h *AdminHandler) HandleBulkUpload(c echo.Context) error {
-	handleError := func(msg string) error {
-		sess := customMiddleware.GetSession(c)
-		if sess != nil {
-			sess.AddFlash(msg, "message")
-			_ = sess.Save(c.Request(), c.Response())
-		}
-		return c.Redirect(http.StatusFound, "/admin")
-	}
-
 	// 1. Get File
 	file, err := c.FormFile("csv_file")
 	if err != nil {
-		return handleError("Please select a valid CSV file")
+		return h.redirectWithFlash(c, "Please select a valid CSV file", "/admin")
 	}
 
 	src, err := file.Open()
 	if err != nil {
-		return handleError("Failed to open file: " + err.Error())
+		return h.redirectWithFlash(c, "Failed to open file: "+err.Error(), "/admin")
 	}
 	defer func() { _ = src.Close() }()
 
 	// 2. Parse and Import
 	result, err := h.App.CSVService.ParseAndImport(c.Request().Context(), src, h.App.DB)
 	if err != nil {
-		return handleError("Failed to process CSV: " + err.Error())
+		return h.redirectWithFlash(c, "Failed to process CSV: "+err.Error(), "/admin")
 	}
 
 	// 3. Render Result / Redirect
+	msg := fmt.Sprintf("Processed %d items. Success: %d, Failed: %d", result.TotalProcessed, result.SuccessCount, result.FailureCount)
+	if len(result.Errors) > 0 {
+		if len(result.Errors) > 3 {
+			msg += fmt.Sprintf(". Errors: %v ...", result.Errors[:3])
+		} else {
+			msg += fmt.Sprintf(". Errors: %v", result.Errors)
+		}
+	}
+	return h.redirectWithFlash(c, msg, "/admin")
+}
+
+func (h *AdminHandler) redirectWithFlash(c echo.Context, msg, targetURL string) error {
 	sess := customMiddleware.GetSession(c)
 	if sess != nil {
-		msg := fmt.Sprintf("Processed %d items. Success: %d, Failed: %d", result.TotalProcessed, result.SuccessCount, result.FailureCount)
-		if len(result.Errors) > 0 {
-			if len(result.Errors) > 3 {
-				msg += fmt.Sprintf(". Errors: %v ...", result.Errors[:3])
-			} else {
-				msg += fmt.Sprintf(". Errors: %v", result.Errors)
-			}
-		}
 		sess.AddFlash(msg, "message")
 		_ = sess.Save(c.Request(), c.Response())
 	}
-
-	return c.Redirect(http.StatusFound, "/admin")
+	return c.Redirect(http.StatusFound, targetURL)
 }

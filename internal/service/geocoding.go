@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 )
@@ -22,13 +23,13 @@ func NewGoogleGeocodingService(apiKey string) *GoogleGeocodingService {
 }
 
 type geocodingResponse struct {
+	Status  string `json:"status"`
 	Results []struct {
 		AddressComponents []struct {
 			LongName string   `json:"long_name"`
 			Types    []string `json:"types"`
 		} `json:"address_components"`
 	} `json:"results"`
-	Status string `json:"status"`
 }
 
 func (s *GoogleGeocodingService) GetCity(ctx context.Context, address string) (string, error) {
@@ -36,6 +37,20 @@ func (s *GoogleGeocodingService) GetCity(ctx context.Context, address string) (s
 		return "", fmt.Errorf("google maps api key is not configured")
 	}
 
+	apiURL, err := s.buildURL(address)
+	if err != nil {
+		return "", err
+	}
+
+	body, err := s.fetch(ctx, apiURL)
+	if err != nil {
+		return "", err
+	}
+
+	return s.parseCity(body)
+}
+
+func (s *GoogleGeocodingService) buildURL(address string) (string, error) {
 	baseURL, err := url.Parse(s.BaseURL)
 	if err != nil {
 		return "", fmt.Errorf("invalid geocoding base url: %w", err)
@@ -45,25 +60,32 @@ func (s *GoogleGeocodingService) GetCity(ctx context.Context, address string) (s
 	q.Set("address", address)
 	q.Set("key", s.APIKey)
 	baseURL.RawQuery = q.Encode()
+	return baseURL.String(), nil
+}
 
-	req, err := http.NewRequestWithContext(ctx, "GET", baseURL.String(), nil)
+func (s *GoogleGeocodingService) fetch(ctx context.Context, apiURL string) ([]byte, error) {
+	req, err := http.NewRequestWithContext(ctx, "GET", apiURL, nil)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	// #nosec G107 G704 - SSRF check: The BaseURL is a constant from the constructor, and address is query-escaped.
+	// #nosec G107 G704 - SSRF check: BaseURL is constant, address is encoded.
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("geocoding api returned status: %d", resp.StatusCode)
+		return nil, fmt.Errorf("geocoding api returned status: %d", resp.StatusCode)
 	}
 
+	return io.ReadAll(resp.Body)
+}
+
+func (s *GoogleGeocodingService) parseCity(body []byte) (string, error) {
 	var res geocodingResponse
-	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+	if err := json.Unmarshal(body, &res); err != nil {
 		return "", err
 	}
 
@@ -78,21 +100,26 @@ func (s *GoogleGeocodingService) GetCity(ctx context.Context, address string) (s
 		return "", nil
 	}
 
-	// Logic similar to app.js
+	return s.extractCity(res.Results[0].AddressComponents), nil
+}
+
+func (s *GoogleGeocodingService) extractCity(components []struct {
+	LongName string   `json:"long_name"`
+	Types    []string `json:"types"`
+}) string {
 	var city string
-	for _, component := range res.Results[0].AddressComponents {
+	for _, component := range components {
 		types := component.Types
 		if contains(types, "locality") {
-			city = component.LongName
-			break
-		} else if contains(types, "sublocality_level_1") || contains(types, "sublocality") {
+			return component.LongName
+		}
+		if contains(types, "sublocality_level_1") || contains(types, "sublocality") {
 			city = component.LongName
 		} else if city == "" && (contains(types, "postal_town") || contains(types, "administrative_area_level_2") || contains(types, "neighborhood")) {
 			city = component.LongName
 		}
 	}
-
-	return city, nil
+	return city
 }
 
 func contains(slice []string, val string) bool {

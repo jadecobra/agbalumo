@@ -14,33 +14,33 @@ var (
 
 // Listing represents a directory entry or request.
 type Listing struct {
+	CreatedAt        time.Time     `json:"created_at" form:"created_at"`
+	Deadline         time.Time     `json:"deadline" form:"deadline"`
+	EventStart       time.Time     `json:"event_start" form:"event_start"`
+	EventEnd         time.Time     `json:"event_end" form:"event_end"`
+	JobStartDate     time.Time     `json:"job_start_date" form:"job_start_date"`
 	ID               string        `json:"id" form:"id"`
-	OwnerID          string        `json:"owner_id" form:"owner_id"`         // Link to User.ID
-	OwnerOrigin      string        `json:"owner_origin" form:"owner_origin"` // Required: Country of Origin
-	Type             Category      `json:"type" form:"type"`
-	Anchor           string        `json:"anchor" form:"anchor"` // Food, Professional, etc.
+	OwnerID          string        `json:"owner_id" form:"owner_id"`
+	OwnerOrigin      string        `json:"owner_origin" form:"owner_origin"`
+	Anchor           string        `json:"anchor" form:"anchor"`
 	Title            string        `json:"title" form:"title"`
 	Description      string        `json:"description" form:"description"`
 	City             string        `json:"city" form:"city"`
-	Address          string        `json:"address" form:"address"`                       // New: Specific Business Address
-	HoursOfOperation string        `json:"hours_of_operation" form:"hours_of_operation"` // New
-	ImageURL         string        `json:"image_url" form:"image_url"`                   // New: Uploaded or Default Image
+	Address          string        `json:"address" form:"address"`
+	HoursOfOperation string        `json:"hours_of_operation" form:"hours_of_operation"`
+	ImageURL         string        `json:"image_url" form:"image_url"`
 	ContactEmail     string        `json:"contact_email" form:"contact_email"`
-	ContactPhone     string        `json:"contact_phone" form:"contact_phone"` // New: Validation alternative
+	ContactPhone     string        `json:"contact_phone" form:"contact_phone"`
 	ContactWhatsApp  string        `json:"contact_whatsapp" form:"contact_whatsapp"`
-	WebsiteURL       string        `json:"website_url" form:"website_url"` // New: Optional
-	CreatedAt        time.Time     `json:"created_at" form:"created_at"`
-	Deadline         time.Time     `json:"deadline" form:"deadline"` // Required for 'Request'
-	EventStart       time.Time     `json:"event_start" form:"event_start"`
-	EventEnd         time.Time     `json:"event_end" form:"event_end"`
-	Skills           string        `json:"skills" form:"skills"`                 // New: For Job
-	JobStartDate     time.Time     `json:"job_start_date" form:"job_start_date"` // New: For Job
-	JobApplyURL      string        `json:"job_apply_url" form:"job_apply_url"`   // New: Optional
-	Company          string        `json:"company" form:"company"`               // New: For Job
-	PayRange         string        `json:"pay_range" form:"pay_range"`           // New: For Job
+	WebsiteURL       string        `json:"website_url" form:"website_url"`
+	Skills           string        `json:"skills" form:"skills"`
+	JobApplyURL      string        `json:"job_apply_url" form:"job_apply_url"`
+	Company          string        `json:"company" form:"company"`
+	PayRange         string        `json:"pay_range" form:"pay_range"`
+	Type             Category      `json:"type" form:"type"`
+	Status           ListingStatus `json:"status" form:"status"`
 	IsActive         bool          `json:"is_active" form:"is_active"`
-	Status           ListingStatus `json:"status" form:"status"`     // New: Moderation Status
-	Featured         bool          `json:"featured" form:"featured"` // Admin-selected for hero carousel
+	Featured         bool          `json:"featured" form:"featured"`
 }
 
 // ListingStatus represents the moderation state of a listing.
@@ -119,75 +119,75 @@ var ValidOrigins = map[string]bool{
 
 // Validate enforces domain rules for the Listing.
 func (l *Listing) Validate() error {
-	// Origin is required for ALL types
-	if l.OwnerOrigin == "" {
-		return ErrMissingOrigin
+	if err := l.validateOrigin(); err != nil {
+		return err
 	}
-
-	if !ValidOrigins[l.OwnerOrigin] {
-		return ErrInvalidOrigin
+	if err := l.validateTypeRequirements(); err != nil {
+		return err
 	}
-
-	// Address is required for Business and Food
-	if l.Type == Business || l.Type == Food {
-		if l.Address == "" {
-			return errors.New("address is required for business and food listings")
-		}
+	if err := l.validateContact(); err != nil {
+		return err
 	}
-
-	// Hours of Operation restricted to Business, Service, Food
-	if l.HoursOfOperation != "" {
-		allowed := l.Type == Business || l.Type == Service || l.Type == Food
-		if !allowed {
-			return errors.New("hours of operation not applicable for this listing type")
-		}
-	}
-
-	if l.ContactEmail == "" && l.ContactWhatsApp == "" && l.ContactPhone == "" && l.WebsiteURL == "" {
-		return ErrMissingContact
-	}
-
 	if l.City == "" {
 		return errors.New("city is required")
 	}
 
-	if l.Type == Request {
-		if err := l.validateRequest(); err != nil {
-			return err
-		}
+	if err := l.validateTypeSpecific(); err != nil {
+		return err
 	}
-
-	if l.Type == Event {
-		if err := l.validateEvent(); err != nil {
-			return err
-		}
-	}
-
-	if l.Type == Job {
-		if err := l.validateJob(); err != nil {
-			return err
-		}
-	}
-
 	return l.validateLengths()
 }
 
+func (l *Listing) validateOrigin() error {
+	if l.OwnerOrigin == "" {
+		return ErrMissingOrigin
+	}
+	if !ValidOrigins[l.OwnerOrigin] {
+		return ErrInvalidOrigin
+	}
+	return nil
+}
+
+func (l *Listing) validateTypeRequirements() error {
+	if (l.Type == Business || l.Type == Food) && l.Address == "" {
+		return errors.New("address is required for business and food listings")
+	}
+	if l.HoursOfOperation != "" && !(l.Type == Business || l.Type == Service || l.Type == Food) {
+		return errors.New("hours of operation not applicable for this listing type")
+	}
+	return nil
+}
+
+func (l *Listing) validateContact() error {
+	if l.ContactEmail == "" && l.ContactWhatsApp == "" && l.ContactPhone == "" && l.WebsiteURL == "" {
+		return ErrMissingContact
+	}
+	return nil
+}
+
+func (l *Listing) validateTypeSpecific() error {
+	switch l.Type {
+	case Request:
+		return l.validateRequest()
+	case Event:
+		return l.validateEvent()
+	case Job:
+		return l.validateJob()
+	}
+	return nil
+}
+
 func (l *Listing) validateRequest() error {
-	// Deadline cannot be in the past (allow for small clock skew/today)
-	// Using a 24h buffer for "today" logic as implied by previous handler logic
 	if !l.Deadline.IsZero() && l.Deadline.Before(time.Now().Add(-24*time.Hour)) {
 		return errors.New("deadline cannot be in the past")
 	}
 
-	// Calculate duration between CreatedAt and Deadline
-	// If CreatedAt is zero, use Now as a fallback for validation context
 	start := l.CreatedAt
 	if start.IsZero() {
 		start = time.Now()
 	}
 
-	limit := start.Add(90 * 24 * time.Hour)
-	if l.Deadline.After(limit) {
+	if l.Deadline.After(start.Add(90 * 24 * time.Hour)) {
 		return ErrInvalidDeadline
 	}
 	return nil
@@ -222,11 +222,9 @@ func (l *Listing) validateJob() error {
 	if l.JobStartDate.IsZero() {
 		return errors.New("job start date is required")
 	}
-	// Start date cannot be in the past (allow 24h buffer)
 	if l.JobStartDate.Before(time.Now().Add(-24 * time.Hour)) {
 		return errors.New("job start date cannot be in the past")
 	}
-
 	if l.JobApplyURL == "" {
 		return errors.New("apply url is required")
 	}

@@ -36,62 +36,70 @@ func ExtractRendererFunctions(path string) ([]string, error) {
 func ExtractTemplateFunctionCalls(dir string) ([]string, error) {
 	var used []string
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".html") {
+			return err
+		}
+
+		data, err := os.ReadFile(path) //nolint:gosec // maintenance utility
 		if err != nil {
 			return err
 		}
-		if !info.IsDir() && strings.HasSuffix(path, ".html") {
-			// G304: Maintenance utility reads template files for verification
-			data, err := os.ReadFile(path) //nolint:gosec // maintenance utility
-			if err != nil {
-				return err
-			}
 
-			content := string(data)
-			lines := strings.Split(content, "\n")
-			for _, line := range lines {
-				if strings.Contains(line, "{{") {
-					parts := strings.Split(line, "{{")
-					for _, p := range parts[1:] {
-						inner := strings.TrimSpace(p)
-						if strings.HasPrefix(inner, "range") {
-							inner = strings.TrimSpace(strings.TrimPrefix(inner, "range"))
-						}
-
-						words := strings.FieldsFunc(inner, func(r rune) bool {
-							return r == ' ' || r == '}' || r == '|' || r == '(' || r == ')'
-						})
-						if len(words) > 0 {
-							name := words[0]
-							if !isTemplateKeyword(name) && !strings.HasPrefix(name, ".") && !strings.HasPrefix(name, "$") {
-								used = append(used, name)
-							}
-						}
-					}
-				}
-
-				if strings.Contains(line, "|") {
-					parts := strings.Split(line, "|")
-					for _, p := range parts[1:] {
-						inner := strings.TrimSpace(p)
-						words := strings.FieldsFunc(inner, func(r rune) bool {
-							return r == ' ' || r == '}' || r == '|' || r == '(' || r == ')'
-						})
-						if len(words) > 0 {
-							name := words[0]
-							if !isTemplateKeyword(name) && !strings.HasPrefix(name, ".") && !strings.HasPrefix(name, "$") {
-								used = append(used, name)
-							}
-						}
-					}
-				}
-			}
-		}
+		used = append(used, parseTemplateFunctions(string(data))...)
 		return nil
 	})
+
 	if err != nil {
 		return nil, err
 	}
 	return uniqueStrings(used), nil
+}
+
+func parseTemplateFunctions(content string) []string {
+	var used []string
+	lines := strings.Split(content, "\n")
+	for _, line := range lines {
+		used = append(used, extractFromLine(line)...)
+	}
+	return used
+}
+
+func extractFromLine(line string) []string {
+	var used []string
+	// Extract from {{ ... }}
+	if strings.Contains(line, "{{") {
+		parts := strings.Split(line, "{{")
+		for _, p := range parts[1:] {
+			used = append(used, extractFirstWord(p, true)...)
+		}
+	}
+	// Extract from ... | func
+	if strings.Contains(line, "|") {
+		parts := strings.Split(line, "|")
+		for _, p := range parts[1:] {
+			used = append(used, extractFirstWord(p, false)...)
+		}
+	}
+	return used
+}
+
+func extractFirstWord(input string, stripRange bool) []string {
+	inner := strings.TrimSpace(input)
+	if stripRange && strings.HasPrefix(inner, "range") {
+		inner = strings.TrimSpace(strings.TrimPrefix(inner, "range"))
+	}
+
+	words := strings.FieldsFunc(inner, func(r rune) bool {
+		return r == ' ' || r == '}' || r == '|' || r == '(' || r == ')'
+	})
+
+	if len(words) > 0 {
+		name := words[0]
+		if !isTemplateKeyword(name) && !strings.HasPrefix(name, ".") && !strings.HasPrefix(name, "$") {
+			return []string{name}
+		}
+	}
+	return nil
 }
 
 func isTemplateKeyword(s string) bool {

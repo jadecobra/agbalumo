@@ -2,7 +2,6 @@ package listing
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -34,31 +33,31 @@ func NewListingService(
 // the user does not already have a pending claim for this listing.
 func (s *ListingService) ClaimListing(ctx context.Context, user domain.User, listingID string) (domain.ClaimRequest, error) {
 	if user.ID == "" {
-		return domain.ClaimRequest{}, errors.New("user ID is required")
+		return domain.ClaimRequest{}, domain.ErrUserIDRequired
 	}
 
 	listing, err := s.ListingStore.FindByID(ctx, listingID)
 	if err != nil {
-		return domain.ClaimRequest{}, errors.New("listing not found")
+		return domain.ClaimRequest{}, domain.ErrListingNotFound
 	}
 
 	if listing.OwnerID != "" {
-		return domain.ClaimRequest{}, errors.New("listing is already owned")
+		return domain.ClaimRequest{}, domain.ErrListingOwned
 	}
 
 	categoryInfo, err := s.CategoryStore.GetCategory(ctx, string(listing.Type))
 	if err != nil {
-		return domain.ClaimRequest{}, errors.New("invalid category type")
+		return domain.ClaimRequest{}, domain.ErrInvalidCategoryType
 	}
 
 	if !categoryInfo.Claimable {
-		return domain.ClaimRequest{}, errors.New("listing type cannot be claimed")
+		return domain.ClaimRequest{}, domain.ErrListingNotClaimable
 	}
 
 	// Check for an existing pending claim from this user
 	existing, err := s.ClaimRequestStore.GetClaimRequestByUserAndListing(ctx, user.ID, listingID)
 	if err == nil && existing.Status == domain.ClaimStatusPending {
-		return domain.ClaimRequest{}, errors.New("you already have a pending claim for this listing")
+		return domain.ClaimRequest{}, domain.ErrPendingClaimExists
 	}
 
 	cr := domain.ClaimRequest{
@@ -73,7 +72,7 @@ func (s *ListingService) ClaimListing(ctx context.Context, user domain.User, lis
 	}
 
 	if err := s.ClaimRequestStore.SaveClaimRequest(ctx, cr); err != nil {
-		return domain.ClaimRequest{}, errors.New("failed to save claim request")
+		return domain.ClaimRequest{}, domain.ErrFailedToSaveClaim
 	}
 
 	return cr, nil

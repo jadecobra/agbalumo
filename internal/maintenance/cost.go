@@ -29,76 +29,91 @@ type CostReport struct {
 	TopFiles         []FileCost
 }
 
-func CalculateContextCost(dir string) (*CostReport, error) {
-	var fileCosts []FileCost
+var ignoredDirs = map[string]bool{
+	".git": true, "vendor": true, "node_modules": true, "dist": true, "build": true,
+	".tester": true, ".agents": true, ".agent": true, "scripts": true,
+}
 
-	ignoredDirs := map[string]bool{
-		".git": true, "vendor": true, "node_modules": true, "dist": true, "build": true,
-		".tester": true, ".agents": true, ".agent": true, "scripts": true,
+var validExts = map[string]bool{
+	".go": true, ".html": true, ".css": true, ".js": true, ".json": true,
+	".md": true, ".sh": true, ".yml": true, ".yaml": true, ".sql": true,
+}
+
+var ignoredFiles = map[string]bool{
+	"package-lock.json": true, "pnpm-lock.yaml": true, "yarn.lock": true,
+	"go.sum": true, "go.mod": true,
+}
+
+type costCollector struct {
+	costs []FileCost
+}
+
+func (c *costCollector) walk(path string, d os.DirEntry, err error) error {
+	if err != nil {
+		return err
 	}
-
-	validExts := map[string]bool{
-		".go": true, ".html": true, ".css": true, ".js": true, ".json": true,
-		".md": true, ".sh": true, ".yml": true, ".yaml": true, ".sql": true,
-	}
-
-	ignoredFiles := map[string]bool{
-		"package-lock.json": true, "pnpm-lock.yaml": true, "yarn.lock": true,
-		"go.sum": true, "go.mod": true,
-	}
-
-	err := filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
-		if err != nil {
-			return err
+	if d.IsDir() {
+		if ignoredDirs[d.Name()] {
+			return filepath.SkipDir
 		}
-		if d.IsDir() {
-			if ignoredDirs[d.Name()] {
-				return filepath.SkipDir
-			}
-			return nil
-		}
-		if ignoredFiles[d.Name()] {
-			return nil
-		}
-		ext := strings.ToLower(filepath.Ext(path))
-		if !validExts[ext] {
-			return nil
-		}
-
-		// G304: Maintenance utility reads source files for token counting
-		content, err := os.ReadFile(path) //nolint:gosec // maintenance utility
-		if err != nil {
-			return nil
-		}
-
-		lines := bytes.Count(content, []byte{'\n'})
-		if len(content) > 0 && content[len(content)-1] != '\n' {
-			lines++
-		}
-
-		enc, encErr := tiktoken.GetEncoding("cl100k_base")
-		tokenCount := 0
-		if encErr == nil {
-			tokenCount = len(enc.Encode(string(content), nil, nil))
-		} else {
-			tokenCount = len(content) / 4
-		}
-
-		fileCosts = append(fileCosts, FileCost{
-			FilePath: path,
-			Lines:    lines,
-			Tokens:   tokenCount,
-		})
 		return nil
-	})
+	}
+	if ignoredFiles[d.Name()] {
+		return nil
+	}
+	ext := strings.ToLower(filepath.Ext(path))
+	if !validExts[ext] {
+		return nil
+	}
 
+	cost, costErr := calculateFileCost(path)
+	if costErr == nil {
+		c.costs = append(c.costs, cost)
+	}
+	return nil
+}
+
+func CalculateContextCost(dir string) (*CostReport, error) {
+	collector := &costCollector{}
+	err := filepath.WalkDir(dir, collector.walk)
 	if err != nil {
 		return nil, err
 	}
 
+	return generateReport(collector.costs), nil
+}
+
+func calculateFileCost(path string) (FileCost, error) {
+	// G304: Maintenance utility reads source files for token counting
+	content, err := os.ReadFile(path) //nolint:gosec // maintenance utility
+	if err != nil {
+		return FileCost{}, err
+	}
+
+	lines := bytes.Count(content, []byte{'\n'})
+	if len(content) > 0 && content[len(content)-1] != '\n' {
+		lines++
+	}
+
+	enc, encErr := tiktoken.GetEncoding("cl100k_base")
+	tokenCount := 0
+	if encErr == nil {
+		tokenCount = len(enc.Encode(string(content), nil, nil))
+	} else {
+		tokenCount = len(content) / 4
+	}
+
+	return FileCost{
+		FilePath: path,
+		Lines:    lines,
+		Tokens:   tokenCount,
+	}, nil
+}
+
+func generateReport(fileCosts []FileCost) *CostReport {
 	report := &CostReport{}
 	if len(fileCosts) == 0 {
-		return report, nil
+		return report
 	}
 
 	report.TotalFiles = len(fileCosts)
@@ -123,5 +138,5 @@ func CalculateContextCost(dir string) (*CostReport, error) {
 		report.TopFiles = report.TopFiles[:10]
 	}
 
-	return report, nil
+	return report
 }

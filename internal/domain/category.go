@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"errors"
 	"time"
 )
 
@@ -19,10 +18,6 @@ const (
 	Event    Category = "Event"
 )
 
-var (
-	ErrCategoryNotFound = errors.New("category not found")
-	ErrCategoryInactive = errors.New("category is inactive")
-)
 
 // CategoryData represents a category entity in the system.
 type CategoryData struct {

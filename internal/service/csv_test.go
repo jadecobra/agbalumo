@@ -13,48 +13,37 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestParseAndImport(t *testing.T) {
+func TestParseAndImport_Valid(t *testing.T) {
 	svc := NewCSVService()
 	ctx := context.Background()
-
-	t.Run("Valid Import", func(t *testing.T) {
-		csvContent := `title,type,description,origin,email,website
+	csvContent := `title,type,description,origin,email,website
 Test Biz,Business,Desc 1,Ghana,test@test.com,example.com
 Test Svc,Service,Desc 2,Nigeria,svc@test.com,
 `
-		repo := setupTestRepo(t)
+	repo := setupTestRepo(t)
 
-		result, err := svc.ParseAndImport(ctx, strings.NewReader(csvContent), repo)
-		if err != nil {
-			t.Fatalf("Unexpected error: %v", err)
-		}
+	result, err := svc.ParseAndImport(ctx, strings.NewReader(csvContent), repo)
+	assert.NoError(t, err)
+	assert.Equal(t, 2, result.TotalProcessed)
+	assert.Equal(t, 2, result.SuccessCount)
+	assert.Equal(t, 0, result.FailureCount)
+}
 
-		if result.TotalProcessed != 2 {
-			t.Errorf("Expected 2 total, got %d", result.TotalProcessed)
-		}
-		if result.SuccessCount != 2 {
-			t.Errorf("Expected 2 success, got %d", result.SuccessCount)
-		}
-		if result.FailureCount != 0 {
-			t.Errorf("Expected 0 failures, got %d", result.FailureCount)
-		}
-	})
-
-	t.Run("Missing Headers", func(t *testing.T) {
-		csvContent := `title,description
+func TestParseAndImport_MissingHeaders(t *testing.T) {
+	svc := NewCSVService()
+	ctx := context.Background()
+	csvContent := `title,description
 Test,Desc`
-		repo := setupTestRepo(t)
-		_, err := svc.ParseAndImport(ctx, strings.NewReader(csvContent), repo)
-		if err == nil {
-			t.Error("Expected error for missing headers, got nil")
-		}
-		if !strings.Contains(err.Error(), "missing required header") {
-			t.Errorf("Expected missing header error, got %v", err)
-		}
-	})
+	repo := setupTestRepo(t)
+	_, err := svc.ParseAndImport(ctx, strings.NewReader(csvContent), repo)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "missing required header")
+}
 
-	t.Run("Partial Failure", func(t *testing.T) {
-		csvContent := `title,type,description,origin,email,phone,website
+func TestParseAndImport_PartialFailure(t *testing.T) {
+	svc := NewCSVService()
+	ctx := context.Background()
+	csvContent := `title,type,description,origin,email,phone,website
 Good,Business,Desc,Ghana,a@b.com,,
 BadTypeDefaultsToBusiness,InvalidType,Desc,Ghana,a@b.com,,
 MissingDesc,Business,,Ghana,a@b.com,,
@@ -64,115 +53,82 @@ MissingEmailHasPhone,Business,Desc,Ghana,,12345,
 MissingAllContact,Business,Desc,Ghana,,,
 MissingEmailPhoneHasWebsite,Business,Desc,Ghana,,,example.com`
 
-		repo := setupTestRepo(t)
+	repo := setupTestRepo(t)
 
-		result, err := svc.ParseAndImport(ctx, strings.NewReader(csvContent), repo)
-		if err != nil {
-			t.Fatalf("Unexpected error: %v", err)
-		}
+	result, err := svc.ParseAndImport(ctx, strings.NewReader(csvContent), repo)
+	assert.NoError(t, err)
+	assert.Equal(t, 8, result.TotalProcessed)
+	assert.Equal(t, 5, result.SuccessCount)
+	assert.Equal(t, 3, result.FailureCount)
+}
 
-		if result.TotalProcessed != 8 {
-			t.Errorf("Expected 8 total, got %d", result.TotalProcessed)
-		}
-		if result.SuccessCount != 5 {
-			t.Errorf("Expected 5 success, got %d", result.SuccessCount)
-		}
-		if result.FailureCount != 3 {
-			t.Errorf("Expected 3 failures, got %d", result.FailureCount)
-		}
-	})
-
-	t.Run("Duplicate Check", func(t *testing.T) {
-		csvContent := `title,type,description,origin,email,phone,address,city
+func TestParseAndImport_Duplicate(t *testing.T) {
+	svc := NewCSVService()
+	ctx := context.Background()
+	csvContent := `title,type,description,origin,email,phone,address,city
 Dup Listing,Business,Same Desc,Ghana,dup@test.com,1234,123 St,Accra
 `
-		repo := setupTestRepo(t)
-		// Seed duplicate
-		_ = repo.Save(ctx, domain.Listing{Title: "Dup Listing", Type: domain.Business, Description: "Same Desc", ContactEmail: "dup@test.com", OwnerOrigin: "Nigeria"})
+	repo := setupTestRepo(t)
+	// Seed duplicate
+	_ = repo.Save(ctx, domain.Listing{Title: "Dup Listing", Type: domain.Business, Description: "Same Desc", ContactEmail: "dup@test.com", OwnerOrigin: "Nigeria"})
 
-		result, err := svc.ParseAndImport(ctx, strings.NewReader(csvContent), repo)
-		if err != nil {
-			t.Fatalf("Unexpected error: %v", err)
-		}
-		if result.FailureCount != 1 {
-			t.Errorf("Expected 1 failure, got %d. Errors: %v", result.FailureCount, result.Errors)
-		}
-		if result.SuccessCount != 0 {
-			t.Errorf("Expected 0 success, got %d", result.SuccessCount)
-		}
-		if !strings.Contains(result.Errors[0], ">2 fields match") {
-			t.Errorf("Expected >2 fields match error, got %s", result.Errors[0])
-		}
-	})
+	result, err := svc.ParseAndImport(ctx, strings.NewReader(csvContent), repo)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, result.FailureCount)
+	assert.Equal(t, 0, result.SuccessCount)
+	assert.Contains(t, result.Errors[0], ">2 fields match")
+}
 
-	// Duplicate DB Error and Save Error are hard to force with SQLite without mocks.
-	// Since we're moving towards integration tests, we'll skip these or use real constraints if possible.
-
-	t.Run("Category Parsing Edge Cases", func(t *testing.T) {
-		csvContent := `title,type,description,email
+func TestParseAndImport_CategoryEdgeCases(t *testing.T) {
+	svc := NewCSVService()
+	ctx := context.Background()
+	csvContent := `title,type,description,email
 Lowercase Food,food,Desc,a@b.com
 Random Type,Random,Desc,a@b.com
 Dynamic Church,church,Desc,a@b.com
 UPPERCASE CHURCH,CHURCH,Desc,a@b.com
 `
-		repo := setupTestRepo(t)
+	repo := setupTestRepo(t)
 
-		result, err := svc.ParseAndImport(ctx, strings.NewReader(csvContent), repo)
-		if err != nil {
-			t.Fatalf("Unexpected error: %v", err)
-		}
-		if result.FailureCount != 0 {
-			t.Errorf("Expected 0 failures, got %d", result.FailureCount)
-		}
+	result, err := svc.ParseAndImport(ctx, strings.NewReader(csvContent), repo)
+	assert.NoError(t, err)
+	assert.Equal(t, 0, result.FailureCount)
 
-		listings, err := repo.FindByTitle(ctx, "Dynamic Church")
-		if err != nil || len(listings) == 0 {
-			t.Fatalf("Failed to find Dynamic Church listing")
-		}
-		if listings[0].Type != domain.Category("Church") {
-			t.Errorf("Expected category 'Church', got %q", listings[0].Type)
-		}
+	listings, err := repo.FindByTitle(ctx, "Dynamic Church")
+	assert.NoError(t, err)
+	assert.NotEmpty(t, listings)
+	assert.Equal(t, domain.Category("Church"), listings[0].Type)
 
-		listingsUpper, err := repo.FindByTitle(ctx, "UPPERCASE CHURCH")
-		if err != nil || len(listingsUpper) == 0 {
-			t.Fatalf("Failed to find UPPERCASE CHURCH listing")
-		}
-		if listingsUpper[0].Type != domain.Category("Church") {
-			t.Errorf("Expected category 'Church', got %q", listingsUpper[0].Type)
-		}
-	})
+	listingsUpper, err := repo.FindByTitle(ctx, "UPPERCASE CHURCH")
+	assert.NoError(t, err)
+	assert.NotEmpty(t, listingsUpper)
+	assert.Equal(t, domain.Category("Church"), listingsUpper[0].Type)
+}
 
-	t.Run("Geocoding Fallback", func(t *testing.T) {
-		csvContent := `title,type,description,email,address
+func TestParseAndImport_Geocoding(t *testing.T) {
+	svc := NewCSVService()
+	ctx := context.Background()
+	csvContent := `title,type,description,email,address
 Geo Hub,Business,Test Geocode,test@geo.com,"1600 Amphitheatre Parkway, Mountain View, CA"
 `
-		repo := setupTestRepo(t)
-		mockGeo := &mockGeocodingService{
-			GetCityFunc: func(ctx context.Context, addr string) (string, error) {
-				if strings.Contains(addr, "Mountain View") {
-					return "Mountain View", nil
-				}
-				return "", nil
-			},
-		}
-		svcWithGeo := NewCSVService()
-		svcWithGeo.Geocoding = mockGeo
+	repo := setupTestRepo(t)
+	mockGeo := &mockGeocodingService{
+		GetCityFunc: func(ctx context.Context, addr string) (string, error) {
+			if strings.Contains(addr, "Mountain View") {
+				return "Mountain View", nil
+			}
+			return "", nil
+		},
+	}
+	svc.Geocoding = mockGeo
 
-		result, err := svcWithGeo.ParseAndImport(ctx, strings.NewReader(csvContent), repo)
-		if err != nil {
-			t.Fatalf("Unexpected error: %v", err)
-		}
+	result, err := svc.ParseAndImport(ctx, strings.NewReader(csvContent), repo)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, result.SuccessCount)
 
-		if result.SuccessCount != 1 {
-			t.Fatalf("Expected 1 success, got %d. Errors: %v", result.SuccessCount, result.Errors)
-		}
-
-		// Verify city was populated
-		listings, _ := repo.FindByTitle(ctx, "Geo Hub")
-		if listings[0].City != "Mountain View" {
-			t.Errorf("Expected city 'Mountain View', got %q", listings[0].City)
-		}
-	})
+	// Verify city was populated
+	listings, _ := repo.FindByTitle(ctx, "Geo Hub")
+	assert.Equal(t, "Mountain View", listings[0].City)
 }
 
 type mockGeocodingService struct {

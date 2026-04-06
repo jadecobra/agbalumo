@@ -31,7 +31,7 @@ func (h *AuthHandler) DevLogin(c echo.Context) error {
 
 	user, err := h.findOrCreateUser(c.Request().Context(), googleID, email, name, avatar)
 	if err != nil {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Failed to login"))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, domain.MsgFailedToLogin))
 	}
 
 	return h.setSessionAndRedirect(c, user.ID)
@@ -145,7 +145,7 @@ func (h *AuthHandler) GoogleCallback(c echo.Context) error {
 
 	user, err := h.findOrCreateUser(c.Request().Context(), gUser.ID, gUser.Email, gUser.Name, gUser.Picture)
 	if err != nil {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Failed to login"))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, domain.MsgFailedToLogin))
 	}
 
 	return h.setSessionAndRedirect(c, user.ID)

@@ -60,7 +60,7 @@ func (r *SQLiteRepository) FindUserByGoogleID(ctx context.Context, googleID stri
 
 	u, err := scanUser(row)
 	if err == sql.ErrNoRows {
-		return domain.User{}, errors.New("user not found")
+		return domain.User{}, domain.ErrUserNotFound
 	}
 	return u, err
 }

@@ -48,7 +48,7 @@ func TestListingService_ClaimListing(t *testing.T) {
 
 		_, err := svc.ClaimListing(ctx, domain.User{}, "loc-123")
 		require.Error(t, err)
-		require.Equal(t, "user ID is required", err.Error())
+		require.ErrorIs(t, err, domain.ErrUserIDRequired)
 	})
 
 	t.Run("listing not found", func(t *testing.T) {
@@ -57,7 +57,7 @@ func TestListingService_ClaimListing(t *testing.T) {
 
 		_, err := svc.ClaimListing(ctx, testUser, "bad-id")
 		require.Error(t, err)
-		require.Equal(t, "listing not found", err.Error())
+		require.ErrorIs(t, err, domain.ErrListingNotFound)
 	})
 
 	t.Run("already owned", func(t *testing.T) {
@@ -68,7 +68,7 @@ func TestListingService_ClaimListing(t *testing.T) {
 
 		_, err := svc.ClaimListing(ctx, testUser, "loc-123")
 		require.Error(t, err)
-		require.Equal(t, "listing is already owned", err.Error())
+		require.ErrorIs(t, err, domain.ErrListingOwned)
 	})
 
 	t.Run("unclaimable type", func(t *testing.T) {
@@ -80,7 +80,7 @@ func TestListingService_ClaimListing(t *testing.T) {
 
 		_, err := svc.ClaimListing(ctx, testUser, "loc-123")
 		require.Error(t, err)
-		require.Equal(t, "listing type cannot be claimed", err.Error())
+		require.ErrorIs(t, err, domain.ErrListingNotClaimable)
 	})
 
 	t.Run("duplicate pending claim rejected", func(t *testing.T) {
@@ -93,7 +93,7 @@ func TestListingService_ClaimListing(t *testing.T) {
 
 		_, err := svc.ClaimListing(ctx, testUser, "loc-123")
 		require.Error(t, err)
-		require.Equal(t, "you already have a pending claim for this listing", err.Error())
+		require.ErrorIs(t, err, domain.ErrPendingClaimExists)
 	})
 
 	t.Run("save fails", func(t *testing.T) {

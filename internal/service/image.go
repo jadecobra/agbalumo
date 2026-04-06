@@ -50,116 +50,117 @@ func (s *LocalImageService) UploadImage(ctx context.Context, file *multipart.Fil
 		return "", nil // No file to upload
 	}
 
+	if err := s.validateUpload(file); err != nil {
+		return "", err
+	}
+
+	img, err := s.decodeImage(file)
+	if err != nil {
+		return "", err
+	}
+
+	if err := util.SafeMkdir(s.UploadDir); err != nil {
+		return "", err
+	}
+
+	buf, err := s.compressAndScaleImage(img)
+	if err != nil {
+		return "", err
+	}
+
+	filename := filepath.Base(listingID) + ".webp"
+	dstPath := filepath.Join(s.UploadDir, filename)
+	if err := util.SafeWriteFile(dstPath, buf.Bytes()); err != nil {
+		return "", err
+	}
+
+	return "/static/uploads/" + filename, nil
+}
+
+func (s *LocalImageService) validateUpload(file *multipart.FileHeader) error {
 	if file.Size > s.MaxUploadSize {
-		return "", echo.NewHTTPError(http.StatusBadRequest, "File size exceeds 1MB limit")
+		return echo.NewHTTPError(http.StatusBadRequest, "File size exceeds 1MB limit")
 	}
 
 	src, err := file.Open()
 	if err != nil {
-		return "", err
+		return err
 	}
 	defer func() { _ = src.Close() }()
 
-	// 1. Validate File Content (Magic Bytes) - accept all image types
 	buff := make([]byte, 512)
-	_, err = src.Read(buff)
+	if _, err = src.Read(buff); err != nil {
+		return err
+	}
+
+	if !strings.HasPrefix(http.DetectContentType(buff), "image/") {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid file type. Only image files are allowed.")
+	}
+	return nil
+}
+
+func (s *LocalImageService) decodeImage(file *multipart.FileHeader) (image.Image, error) {
+	src, err := file.Open()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
+	defer func() { _ = src.Close() }()
 
-	fileType := http.DetectContentType(buff)
-	if !strings.HasPrefix(fileType, "image/") {
-		return "", echo.NewHTTPError(http.StatusBadRequest, "Invalid file type. Only image files are allowed.")
-	}
-
-	// Reset file pointer after reading magic bytes
-	_, err = src.Seek(0, 0)
-	if err != nil {
-		return "", err
-	}
-
-	// 2. Decode the image
 	img, _, err := image.Decode(src)
 	if err != nil {
-		return "", echo.NewHTTPError(http.StatusBadRequest, "Invalid or unsupported image file")
+		return nil, echo.NewHTTPError(http.StatusBadRequest, "Invalid or unsupported image file")
 	}
+	return img, nil
+}
 
-	// 3. Ensure directory exists
-	err = util.SafeMkdir(s.UploadDir)
-	if err != nil {
-		return "", err
-	}
-
-	// 4. Compress and save as WebP with iterative compression to meet size target
-	filename := filepath.Base(listingID) + ".webp"
-	dstPath := filepath.Join(s.UploadDir, filename)
-
-	// First attempt: encode with initial quality
+func (s *LocalImageService) compressAndScaleImage(img image.Image) (*bytes.Buffer, error) {
 	var buf bytes.Buffer
 	quality := s.InitialQuality
-	err = webp.Encode(&buf, img, webp.Options{Quality: quality})
-	if err != nil {
-		return "", err
-	}
 
-	// Iteratively reduce quality until we meet the target size
-	for buf.Len() > int(s.MaxFileSize) && quality > s.MinQuality {
+	for {
 		buf.Reset()
-		quality -= 10 // Reduce quality by 10% each iteration
-		if quality < s.MinQuality {
-			quality = s.MinQuality
+		if err := webp.Encode(&buf, img, webp.Options{Quality: quality}); err != nil {
+			return nil, err
 		}
-		err = webp.Encode(&buf, img, webp.Options{Quality: quality})
-		if err != nil {
-			return "", err
+
+		if buf.Len() <= int(s.MaxFileSize) || quality <= s.MinQuality {
+			break
 		}
+		quality -= 10
 	}
 
-	// If still too large after minimum quality, downscale the image
 	if buf.Len() > int(s.MaxFileSize) {
-		// Calculate scale factor to reduce dimensions
-		targetSize := int(s.MaxFileSize)
-		currentSize := buf.Len()
-		scale := float64(targetSize) / float64(currentSize)
-		if scale < 1.0 {
-			// Calculate new dimensions (square root because area scales with square)
-			scale = math.Sqrt(scale)
-			if scale < 0.25 {
-				scale = 0.25 // Don't go below 25% of original size
-			}
+		return s.downscaleAndRecompress(img)
+	}
+	return &buf, nil
+}
 
-			b := img.Bounds()
-			newWidth := int(float64(b.Dx()) * scale)
-			newHeight := int(float64(b.Dy()) * scale)
+func (s *LocalImageService) downscaleAndRecompress(img image.Image) (*bytes.Buffer, error) {
+	var buf bytes.Buffer
+	if err := webp.Encode(&buf, img, webp.Options{Quality: s.MinQuality}); err != nil {
+		return nil, err
+	}
 
-			// Create downscaled image
-			newImg := image.NewRGBA(image.Rect(0, 0, newWidth, newHeight))
-			for y := 0; y < newHeight; y++ {
-				for x := 0; x < newWidth; x++ {
-					srcX := x * b.Dx() / newWidth
-					srcY := y * b.Dy() / newHeight
-					newImg.Set(x, y, img.At(srcX, srcY))
-				}
-			}
-			img = newImg
+	scale := math.Sqrt(float64(s.MaxFileSize) / float64(buf.Len()))
+	if scale < 0.25 {
+		scale = 0.25
+	}
 
-			// Re-encode with minimum quality
-			buf.Reset()
-			err = webp.Encode(&buf, img, webp.Options{Quality: s.MinQuality})
-			if err != nil {
-				return "", err
-			}
+	b := img.Bounds()
+	newWidth, newHeight := int(float64(b.Dx())*scale), int(float64(b.Dy())*scale)
+	newImg := image.NewRGBA(image.Rect(0, 0, newWidth, newHeight))
+
+	for y := 0; y < newHeight; y++ {
+		for x := 0; x < newWidth; x++ {
+			newImg.Set(x, y, img.At(x*b.Dx()/newWidth, y*b.Dy()/newHeight))
 		}
 	}
 
-	// Write final compressed image to file using secure permissions
-	err = util.SafeWriteFile(dstPath, buf.Bytes())
-	if err != nil {
-		return "", err
+	buf.Reset()
+	if err := webp.Encode(&buf, newImg, webp.Options{Quality: s.MinQuality}); err != nil {
+		return nil, err
 	}
-
-	// Return web-accessible path
-	return "/static/uploads/" + filename, nil
+	return &buf, nil
 }
 
 // DeleteImage removes the image from the local filesystem
@@ -168,21 +169,15 @@ func (s *LocalImageService) DeleteImage(ctx context.Context, imageURL string) er
 		return nil
 	}
 
-	// Assuming imageURL is like "/static/uploads/listing-123.jpg"
-	// and we need to map it back to the local path.
 	filename := filepath.Base(imageURL)
-	// Strip query parameters if any (for cache busting)
 	if idx := strings.Index(filename, "?"); idx != -1 {
 		filename = filename[:idx]
 	}
 
 	dstPath := filepath.Join(s.UploadDir, filename)
-
-	// Check if file exists before trying to delete
 	if _, err := os.Stat(dstPath); os.IsNotExist(err) {
 		return nil
 	}
-
 	return os.Remove(dstPath)
 }
 
@@ -198,22 +193,10 @@ func (s *LocalImageService) CompressImage(src io.Reader) (io.Reader, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return &buf, nil
 }
 
 // ConvertToWebP converts any image to WebP format
 func (s *LocalImageService) ConvertToWebP(src io.Reader) (io.Reader, error) {
-	img, _, err := image.Decode(src)
-	if err != nil {
-		return nil, err
-	}
-
-	var buf bytes.Buffer
-	err = webp.Encode(&buf, img, webp.Options{Quality: s.InitialQuality})
-	if err != nil {
-		return nil, err
-	}
-
-	return &buf, nil
+	return s.CompressImage(src)
 }

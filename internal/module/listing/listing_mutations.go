@@ -1,9 +1,7 @@
 package listing
 
 import (
-	"github.com/jadecobra/agbalumo/internal/module/user"
-	"github.com/jadecobra/agbalumo/internal/ui"
-
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -11,6 +9,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/jadecobra/agbalumo/internal/common"
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/module/user"
+	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
 )
 
@@ -66,44 +66,60 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 	}
 
 	// Authorization Check (Owner or Admin)
-	if listing.OwnerID != uRaw.ID && uRaw.Role != domain.UserRoleAdmin {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusForbidden, "You are not the owner of this listing"))
+	if err := h.checkListingAuth(listing, uRaw); err != nil {
+		return ui.RespondError(c, err)
 	}
 
 	// Save original image URL BEFORE bindAndMapListing may modify it
 	originalImageURL := listing.ImageURL
 
-	err = h.bindAndMapListing(c, &listing)
-	if err != nil {
+	if err := h.bindAndMapListing(c, &listing); err != nil {
 		if common.IsImageError(err) {
 			return common.RenderImageErrorToast(c, err)
 		}
 		return ui.RespondError(c, err)
 	}
 
-	// Handle Image Removal
+	h.handleImageRemoval(c, &listing, originalImageURL)
+
+	if err := h.checkDuplicateTitle(ctx, listing.Title, listing.ID); err != nil {
+		return ui.RespondError(c, err)
+	}
+
+	return h.processAndSave(c, &listing)
+}
+
+func (h *ListingHandler) checkListingAuth(listing domain.Listing, uRaw *domain.User) error {
+	if listing.OwnerID != uRaw.ID && uRaw.Role != domain.UserRoleAdmin {
+		return echo.NewHTTPError(http.StatusForbidden, "You are not the owner of this listing")
+	}
+	return nil
+}
+
+func (h *ListingHandler) handleImageRemoval(c echo.Context, listing *domain.Listing, originalURL string) {
 	var req ListingFormRequest
 	_ = c.Bind(&req)
-	if originalImageURL != "" && (req.RemoveImage || listing.ImageURL != originalImageURL) {
-		if err := h.App.ImageSvc.DeleteImage(ctx, originalImageURL); err != nil {
+	if originalURL != "" && (req.RemoveImage || listing.ImageURL != originalURL) {
+		if err := h.App.ImageSvc.DeleteImage(c.Request().Context(), originalURL); err != nil {
 			c.Logger().Errorf("Failed to delete image: %v", err)
 		}
 		if req.RemoveImage {
 			listing.ImageURL = ""
 		}
 	}
+}
 
-	// Check for duplicate title
-	existing, fErr := h.App.DB.FindByTitle(ctx, listing.Title)
-	if fErr == nil {
-		for _, ext := range existing {
-			if ext.ID != listing.ID {
-				return ui.RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Title already exists. Please choose a different title."))
-			}
+func (h *ListingHandler) checkDuplicateTitle(ctx context.Context, title string, currentID string) error {
+	existing, err := h.App.DB.FindByTitle(ctx, title)
+	if err != nil {
+		return nil
+	}
+	for _, ext := range existing {
+		if ext.ID != currentID {
+			return echo.NewHTTPError(http.StatusBadRequest, "Title already exists. Please choose a different title.")
 		}
 	}
-
-	return h.processAndSave(c, &listing)
+	return nil
 }
 
 func (h *ListingHandler) HandleDelete(c echo.Context) error {
@@ -131,22 +147,7 @@ func (h *ListingHandler) HandleDelete(c echo.Context) error {
 }
 
 func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error {
-	// Auto-populate city from address if missing
-	if l.City == "" && l.Address != "" {
-		if h.App.GeocodingSvc != nil {
-			city, err := h.App.GeocodingSvc.GetCity(c.Request().Context(), l.Address)
-			if err == nil && city != "" {
-				l.City = city
-			} else if err != nil {
-				c.Logger().Errorf("Failed to geocode address: %v", err)
-			}
-		}
-
-		// Last resort: Try to extract city manually if still empty
-		if l.City == "" {
-			l.City = domain.ExtractCityFromAddress(l.Address)
-		}
-	}
+	h.autoPopulateCity(c.Request().Context(), l)
 
 	if err := l.Validate(); err != nil {
 		return ui.RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Validation Error: "+err.Error()))
@@ -154,11 +155,6 @@ func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error
 
 	if err := h.App.DB.Save(c.Request().Context(), *l); err != nil {
 		return ui.RespondError(c, err)
-	}
-
-	var user interface{}
-	if u := c.Get("User"); u != nil {
-		user = u
 	}
 
 	// Trigger an HTMX event so other components (like admin table rows) can update themselves
@@ -169,10 +165,31 @@ func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error
 		return c.NoContent(http.StatusOK)
 	}
 
+	var user interface{}
+	if u := c.Get("User"); u != nil {
+		user = u
+	}
 	return h.renderWithBaseContext(c, "listing_card", map[string]interface{}{
 		"Listing": l,
 		"User":    user,
 	})
+}
+
+func (h *ListingHandler) autoPopulateCity(ctx context.Context, l *domain.Listing) {
+	if l.City != "" || l.Address == "" {
+		return
+	}
+
+	if h.App.GeocodingSvc != nil {
+		city, err := h.App.GeocodingSvc.GetCity(ctx, l.Address)
+		if err == nil && city != "" {
+			l.City = city
+		}
+	}
+
+	if l.City == "" {
+		l.City = domain.ExtractCityFromAddress(l.Address)
+	}
 }
 
 func (h *ListingHandler) handleImageUpload(c echo.Context, l *domain.Listing) error {

@@ -15,6 +15,8 @@ var rootCmd = &cobra.Command{
 	Short: "Agbalumo Maintenance and Verification Utility",
 }
 
+const errFmt = "❌ %s\n"
+
 var apiSpecCmd = &cobra.Command{
 	Use:   "api-spec",
 	Short: "Detect drift between Code, OpenAPI, and Markdown docs",
@@ -84,7 +86,7 @@ var apiSpecCmd = &cobra.Command{
 		if len(allDrifts) > 0 {
 			sort.Strings(allDrifts)
 			for _, d := range allDrifts {
-				fmt.Printf("❌ %s\n", d)
+				fmt.Printf(errFmt, d)
 			}
 			return fmt.Errorf("contract drift detected (%d issues)", len(allDrifts))
 		}
@@ -112,7 +114,7 @@ var templateDriftCmd = &cobra.Command{
 		drifts := maintenance.CheckTemplateDrift(defined, used)
 		if len(drifts) > 0 {
 			for _, d := range drifts {
-				fmt.Printf("❌ %s\n", d)
+				fmt.Printf(errFmt, d)
 			}
 			return fmt.Errorf("template function drift detected (%d issues)", len(drifts))
 		}
@@ -359,7 +361,7 @@ var critiqueCmd = &cobra.Command{
 		_ = runCmd("go", "run", "golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment", "./internal/...", "./cmd/...")
 
 		fmt.Println("\n[4/4] Checking Code Duplication (dupl)...")
-		_ = runCmd("go", "run", "github.com/mibk/dupl", "-threshold", "15", "-t", "./cmd", "./internal")
+		_ = runCmd("go", "run", "github.com/mibk/dupl", "-threshold", "15", "./cmd", "./internal")
 
 		fmt.Println("\n✅ ChiefCritic Audit Complete!")
 		if gocognitErr != nil {

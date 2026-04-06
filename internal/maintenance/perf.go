@@ -14,6 +14,7 @@ func RunPerformanceAudit(rootDir string) error {
 	fmt.Println("---------------------------------")
 
 	errs := []string{}
+	const failMsg = "❌ Failed"
 
 	// 1. Static Asset Sizes
 	fmt.Print("[?] Checking Static Asset Sizes... ")
@@ -36,7 +37,7 @@ func RunPerformanceAudit(rootDir string) error {
 	// 3. Search Smoke Benchmark
 	fmt.Print("[?] Running Search Smoke Benchmark... ")
 	if err := runSearchBenchmark(rootDir); err != nil {
-		fmt.Println("❌ Failed")
+		fmt.Println(failMsg)
 		errs = append(errs, err.Error())
 	} else {
 		fmt.Println("✅ Passed")

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
@@ -53,67 +54,21 @@ func scanListing(s Scanner) (domain.Listing, error) {
 
 func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, queryText string, sortField string, sortOrder string, includeInactive bool, limit int, offset int) ([]domain.Listing, int, error) {
 	start := time.Now()
-	defer func() {
-		if duration := time.Since(start); duration > r.slowQueryThreshold {
-			slog.Info("Slow query detected", slog.String("query", "FindAll"), slog.Int64("duration_ms", duration.Milliseconds()))
-		}
-	}()
+	defer r.logSlowQuery("FindAll", start)
 
-	whereClause := " WHERE 1=1"
-	var args []interface{}
+	where, args := r.buildFindAllWhere(filterType, queryText, includeInactive)
 
-	if !includeInactive {
-		whereClause += ` AND is_active = true AND status = 'Approved'`
-	}
-
-	if filterType != "" {
-		whereClause += ` AND type = ?`
-		args = append(args, filterType)
-	}
-
-	if queryText != "" {
-		whereClause += ` AND rowid IN (SELECT rowid FROM listings_fts WHERE listings_fts MATCH ?)`
-		args = append(args, queryText)
-	}
-
-	// Get total count first
-	var totalCount int
-	countQuery := `SELECT COUNT(*) FROM listings` + whereClause
-	err := r.readDB.QueryRowContext(ctx, countQuery, args...).Scan(&totalCount)
+	totalCount, err := r.getCount(ctx, "listings", where, args)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	orderClause := "featured DESC, created_at DESC"
-	if sortField != "" {
-		field := "created_at"
-		switch sortField {
-		case "title":
-			field = "title"
-		case "status":
-			field = "status"
-		case "featured":
-			field = "featured"
-		case "type":
-			field = "type"
-		}
-
-		order := "DESC"
-		if sortOrder == "ASC" || sortOrder == "asc" {
-			order = "ASC"
-		}
-
-		if field == "featured" {
-			orderClause = "featured " + order + ", created_at DESC"
-		} else {
-			orderClause = "featured DESC, " + field + " " + order
-		}
-	}
+	order := r.buildOrderClause(sortField, sortOrder)
 
 	// #nosec G202 - Dynamic query construction with trusted internal fragments
 	query := `SELECT ` + listingSelections + ` FROM listings 
-	          WHERE rowid IN (SELECT rowid FROM listings` + whereClause + ` ORDER BY ` + orderClause + ` LIMIT ? OFFSET ?)
-	          ORDER BY ` + orderClause
+	          WHERE rowid IN (SELECT rowid FROM listings ` + where + ` ORDER BY ` + order + ` LIMIT ? OFFSET ?)
+	          ORDER BY ` + order
 	args = append(args, limit, offset)
 
 	rows, err := r.readDB.QueryContext(ctx, query, args...)
@@ -122,15 +77,86 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 	}
 	defer func() { _ = rows.Close() }()
 
+	listings, err := scanListings(rows)
+	if err != nil {
+		return nil, 0, err
+	}
+	return listings, totalCount, nil
+}
+
+func (r *SQLiteRepository) buildFindAllWhere(filterType, queryText string, includeInactive bool) (string, []interface{}) {
+	where := " WHERE 1=1"
+	var args []interface{}
+
+	if !includeInactive {
+		where += ` AND is_active = true AND status = 'Approved'`
+	}
+
+	if filterType != "" {
+		where += ` AND type = ?`
+		args = append(args, filterType)
+	}
+
+	if queryText != "" {
+		where += ` AND rowid IN (SELECT rowid FROM listings_fts WHERE listings_fts MATCH ?)`
+		args = append(args, queryText)
+	}
+
+	return where, args
+}
+
+func (r *SQLiteRepository) buildOrderClause(sortField, sortOrder string) string {
+	if sortField == "" {
+		return "featured DESC, created_at DESC"
+	}
+
+	field := "created_at"
+	switch sortField {
+	case "title":
+		field = "title"
+	case "status":
+		field = "status"
+	case "featured":
+		field = "featured"
+	case "type":
+		field = "type"
+	}
+
+	order := "DESC"
+	if strings.ToLower(sortOrder) == "asc" {
+		order = "ASC"
+	}
+
+	if field == "featured" {
+		return "featured " + order + ", created_at DESC"
+	}
+	return "featured DESC, " + field + " " + order
+}
+
+func (r *SQLiteRepository) getCount(ctx context.Context, table, where string, args []interface{}) (int, error) {
+	var count int
+	// #nosec G202 - Dynamic query construction with trusted internal fragments
+	query := "SELECT COUNT(*) FROM " + table + where
+	err := r.readDB.QueryRowContext(ctx, query, args...).Scan(&count)
+	return count, err
+}
+
+func (r *SQLiteRepository) logSlowQuery(name string, start time.Time) {
+	if duration := time.Since(start); duration > r.slowQueryThreshold {
+		slog.Info("Slow query detected", slog.String("query", name), slog.Int64("duration_ms", duration.Milliseconds()))
+	}
+}
+
+func scanListings(rows *sql.Rows) ([]domain.Listing, error) {
 	var listings []domain.Listing
 	for rows.Next() {
 		l, err := scanListing(rows)
 		if err != nil {
-			return nil, 0, err
+			return nil, err
 		}
 		listings = append(listings, l)
 	}
-	return listings, totalCount, rows.Err()
+	return listings, rows.Err()
 }
 
 func (r *SQLiteRepository) FindByID(ctx context.Context, id string) (domain.Listing, error) {
