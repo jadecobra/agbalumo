@@ -1,12 +1,16 @@
 package sqlite
 
 import (
-	"context"
 	"database/sql"
+	"embed"
+	"strings"
 	"time"
 
 	_ "modernc.org/sqlite" // register driver
 )
+
+//go:embed migrations/*.sql
+var migrationFS embed.FS
 
 type Scanner interface {
 	Scan(dest ...interface{}) error
@@ -74,157 +78,65 @@ func (r *SQLiteRepository) SetSlowQueryThreshold(d time.Duration) {
 }
 
 func (r *SQLiteRepository) migrate() error {
-	createListingsTable := `
-	CREATE TABLE IF NOT EXISTS listings (
-		id TEXT PRIMARY KEY,
-		owner_id TEXT,
-		title TEXT,
-		description TEXT,
-		type TEXT,
-		owner_origin TEXT,
-		is_active BOOLEAN,
-		created_at DATETIME,
-		image_url TEXT,
-		contact_email TEXT,
-		contact_phone TEXT,
-		contact_whatsapp TEXT,
-		website_url TEXT,
-		deadline DATETIME,
-		skills TEXT,
-		job_start_date DATETIME,
-		job_apply_url TEXT,
-		company TEXT,
-		pay_range TEXT
-	);`
-
-	if _, err := r.db.ExecContext(context.Background(), createListingsTable); err != nil {
+	// Create schema_migrations table if it doesn't exist
+	_, err := r.db.Exec(`CREATE TABLE IF NOT EXISTS schema_migrations (version TEXT PRIMARY KEY);`)
+	if err != nil {
 		return err
 	}
 
-	createUsersTable := `
-    CREATE TABLE IF NOT EXISTS users (
-        id TEXT PRIMARY KEY,
-        google_id TEXT UNIQUE,
-        email TEXT,
-        name TEXT,
-        avatar_url TEXT,
-        created_at DATETIME
-    );`
-
-	if _, err := r.db.ExecContext(context.Background(), createUsersTable); err != nil {
+	// Read migration files from embedded FS
+	entries, err := migrationFS.ReadDir("migrations")
+	if err != nil {
 		return err
 	}
 
-	createFeedbackTable := `
-	CREATE TABLE IF NOT EXISTS feedback (
-		id TEXT PRIMARY KEY,
-		user_id TEXT,
-		type TEXT,
-		content TEXT,
-		created_at DATETIME
-	);`
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		name := entry.Name()
 
-	if _, err := r.db.ExecContext(context.Background(), createFeedbackTable); err != nil {
-		return err
-	}
+		// Check if this migration has already been applied
+		var exists int
+		err := r.db.QueryRow("SELECT COUNT(*) FROM schema_migrations WHERE version = ?", name).Scan(&exists)
+		if err != nil {
+			return err
+		}
+		if exists > 0 {
+			continue
+		}
 
-	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN address TEXT;")
-	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN city TEXT;")
-	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN hours_of_operation TEXT DEFAULT '';")
-	_, _ = r.db.ExecContext(context.Background(), "UPDATE listings SET city = '' WHERE city IS NULL OR city = '';")
-	_, _ = r.db.ExecContext(context.Background(), "UPDATE listings SET city = '' WHERE city = 'Unknown';")
+		// Read and execute the migration
+		contentRaw, err := migrationFS.ReadFile("migrations/" + name)
+		if err != nil {
+			return err
+		}
+		content := string(contentRaw)
 
-	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN event_start DATETIME;")
-	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN event_end DATETIME;")
+		// Execute the migration content statement by statement.
+		// We use a custom separator to avoid breaking SQLite triggers with internal semicolons.
+		statements := strings.Split(content, "-- STATEMENT")
+		for _, stmt := range statements {
+			stmt = strings.TrimSpace(stmt)
+			if stmt == "" {
+				continue
+			}
+			_, err = r.db.Exec(stmt)
+			if err != nil {
+				// For the initial legacy migration (001), we ignore errors (like "duplicate column")
+				// to ensure backward compatibility with partially migrated databases.
+				if name == "001_initial_schema.sql" {
+					continue
+				}
+				return err
+			}
+		}
 
-	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN skills TEXT DEFAULT '';")
-	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN job_start_date DATETIME;")
-	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN job_apply_url TEXT DEFAULT '';")
-	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN company TEXT DEFAULT '';")
-	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN pay_range TEXT DEFAULT '';")
-
-	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN status TEXT DEFAULT 'Approved';")
-
-	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'User';")
-
-	_, _ = r.db.ExecContext(context.Background(), "ALTER TABLE listings ADD COLUMN featured BOOLEAN DEFAULT 0;")
-
-	_, _ = r.db.ExecContext(context.Background(), "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id);")
-
-	_, _ = r.db.ExecContext(context.Background(), "CREATE INDEX IF NOT EXISTS idx_listings_owner_id ON listings(owner_id);")
-	_, _ = r.db.ExecContext(context.Background(), "CREATE INDEX IF NOT EXISTS idx_listings_filter_sort ON listings(is_active, status, type, created_at DESC);")
-
-	_, _ = r.db.ExecContext(context.Background(), `
-		CREATE VIRTUAL TABLE IF NOT EXISTS listings_fts USING fts5(
-			title, description, city,
-			content=listings,
-			content_rowid=rowid,
-			tokenize='trigram'
-		);
-	`)
-
-	_, _ = r.db.ExecContext(context.Background(), `
-		CREATE TRIGGER IF NOT EXISTS listings_ai AFTER INSERT ON listings BEGIN
-			INSERT INTO listings_fts(rowid, title, description, city)
-			VALUES (new.rowid, new.title, new.description, new.city);
-		END;
-	`)
-	_, _ = r.db.ExecContext(context.Background(), `
-		CREATE TRIGGER IF NOT EXISTS listings_ad AFTER DELETE ON listings BEGIN
-			INSERT INTO listings_fts(listings_fts, rowid, title, description, city)
-			VALUES ('delete', old.rowid, old.title, old.description, old.city);
-		END;
-	`)
-	_, _ = r.db.ExecContext(context.Background(), `
-		CREATE TRIGGER IF NOT EXISTS listings_au AFTER UPDATE ON listings BEGIN
-			INSERT INTO listings_fts(listings_fts, rowid, title, description, city)
-			VALUES ('delete', old.rowid, old.title, old.description, old.city);
-			INSERT INTO listings_fts(rowid, title, description, city)
-			VALUES (new.rowid, new.title, new.description, new.city);
-		END;
-	`)
-
-	_, _ = r.db.ExecContext(context.Background(), "INSERT INTO listings_fts(listings_fts) VALUES('rebuild');")
-
-	createCategoriesTable := `
-	CREATE TABLE IF NOT EXISTS categories (
-		id TEXT PRIMARY KEY,
-		name TEXT,
-		claimable BOOLEAN,
-		is_system BOOLEAN,
-		active BOOLEAN,
-		requires_special_validation BOOLEAN,
-		created_at DATETIME,
-		updated_at DATETIME
-	);`
-
-	if _, err := r.db.ExecContext(context.Background(), createCategoriesTable); err != nil {
-		return err
-	}
-
-	createClaimRequestsTable := `
-	CREATE TABLE IF NOT EXISTS claim_requests (
-		id TEXT PRIMARY KEY,
-		listing_id TEXT NOT NULL,
-		listing_title TEXT,
-		user_id TEXT NOT NULL,
-		user_name TEXT,
-		user_email TEXT,
-		status TEXT NOT NULL DEFAULT 'Pending',
-		created_at DATETIME
-	);`
-
-	if _, err := r.db.ExecContext(context.Background(), createClaimRequestsTable); err != nil {
-		return err
-	}
-
-	_, _ = r.db.ExecContext(context.Background(), `CREATE INDEX IF NOT EXISTS idx_listings_city ON listings(is_active, status, city);`)
-	_, _ = r.db.ExecContext(context.Background(), `CREATE INDEX IF NOT EXISTS idx_claim_requests_user_listing ON claim_requests(user_id, listing_id);`)
-	_, _ = r.db.ExecContext(context.Background(), `CREATE INDEX IF NOT EXISTS idx_claim_requests_status ON claim_requests(status);`)
-
-	_, err := r.db.ExecContext(context.Background(), "ALTER TABLE categories ADD COLUMN active_fixed BOOLEAN DEFAULT 0;")
-	if err == nil {
-		_, _ = r.db.ExecContext(context.Background(), "UPDATE categories SET active = 1, active_fixed = 1;")
+		// Record the migration as applied
+		_, err = r.db.Exec("INSERT INTO schema_migrations (version) VALUES (?)", name)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
