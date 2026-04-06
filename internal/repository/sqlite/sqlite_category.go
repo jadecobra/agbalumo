@@ -20,7 +20,7 @@ func (r *SQLiteRepository) SaveCategory(ctx context.Context, c domain.CategoryDa
 		requires_special_validation = excluded.requires_special_validation,
 		updated_at = excluded.updated_at;
 	`
-	_, err := r.db.ExecContext(ctx, query,
+	_, err := r.writeDB.ExecContext(ctx, query,
 		c.ID, c.Name, c.Claimable, c.IsSystem, c.Active, c.RequiresSpecialValidation, c.CreatedAt, c.UpdatedAt,
 	)
 	return err
@@ -41,7 +41,7 @@ func (r *SQLiteRepository) GetCategories(ctx context.Context, filter domain.Cate
 
 	query += ` ORDER BY name ASC`
 
-	rows, err := r.db.QueryContext(ctx, query, args...)
+	rows, err := r.readDB.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (r *SQLiteRepository) UpsertCoreCategory(ctx context.Context, c domain.Cate
 		requires_special_validation = excluded.requires_special_validation,
 		updated_at = excluded.updated_at;
 	`
-	_, err := r.db.ExecContext(ctx, query,
+	_, err := r.writeDB.ExecContext(ctx, query,
 		c.ID, c.Name, c.Claimable, c.IsSystem, c.Active, c.RequiresSpecialValidation, c.CreatedAt, c.UpdatedAt,
 	)
 	return err
@@ -92,7 +92,7 @@ func (r *SQLiteRepository) GetCategory(ctx context.Context, name string) (domain
 		FROM categories
 		WHERE id = ?
 	`
-	row := r.db.QueryRowContext(ctx, query, name)
+	row := r.readDB.QueryRowContext(ctx, query, name)
 
 	var c domain.CategoryData
 	var created, updated sql.NullTime

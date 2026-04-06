@@ -79,7 +79,7 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 	// Get total count first
 	var totalCount int
 	countQuery := `SELECT COUNT(*) FROM listings` + whereClause
-	err := r.db.QueryRowContext(ctx, countQuery, args...).Scan(&totalCount)
+	err := r.readDB.QueryRowContext(ctx, countQuery, args...).Scan(&totalCount)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -116,7 +116,7 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 	          ORDER BY ` + orderClause
 	args = append(args, limit, offset)
 
-	rows, err := r.db.QueryContext(ctx, query, args...)
+	rows, err := r.readDB.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -146,7 +146,7 @@ func (r *SQLiteRepository) FindByID(ctx context.Context, id string) (domain.List
 		FROM listings
 		WHERE id = ?
 	`
-	row := r.db.QueryRowContext(ctx, query, id)
+	row := r.readDB.QueryRowContext(ctx, query, id)
 
 	l, err := scanListing(row)
 	if err == sql.ErrNoRows {
@@ -161,7 +161,7 @@ func (r *SQLiteRepository) FindByTitle(ctx context.Context, title string) ([]dom
 		FROM listings
 		WHERE title = ?
 	`
-	rows, err := r.db.QueryContext(ctx, query, title)
+	rows, err := r.readDB.QueryContext(ctx, query, title)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +180,7 @@ func (r *SQLiteRepository) FindByTitle(ctx context.Context, title string) ([]dom
 
 func (r *SQLiteRepository) FindAllByOwner(ctx context.Context, ownerID string, limit int, offset int) ([]domain.Listing, int, error) {
 	var totalCount int
-	err := r.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM listings WHERE owner_id = ?", ownerID).Scan(&totalCount)
+	err := r.readDB.QueryRowContext(ctx, "SELECT COUNT(*) FROM listings WHERE owner_id = ?", ownerID).Scan(&totalCount)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -191,7 +191,7 @@ func (r *SQLiteRepository) FindAllByOwner(ctx context.Context, ownerID string, l
               ORDER BY created_at DESC
               LIMIT ? OFFSET ?`
 
-	rows, err := r.db.QueryContext(ctx, query, ownerID, limit, offset)
+	rows, err := r.readDB.QueryContext(ctx, query, ownerID, limit, offset)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -212,7 +212,7 @@ func (r *SQLiteRepository) FindAllByOwner(ctx context.Context, ownerID string, l
 func (r *SQLiteRepository) TitleExists(ctx context.Context, title string) (bool, error) {
 	var exists bool
 	query := `SELECT EXISTS(SELECT 1 FROM listings WHERE title = ?)`
-	err := r.db.QueryRowContext(ctx, query, title).Scan(&exists)
+	err := r.readDB.QueryRowContext(ctx, query, title).Scan(&exists)
 	return exists, err
 }
 
@@ -225,7 +225,7 @@ func (r *SQLiteRepository) GetCounts(ctx context.Context) (map[domain.Category]i
 	}()
 
 	query := `SELECT type, COUNT(*) FROM listings WHERE is_active = true AND status = 'Approved' GROUP BY type`
-	rows, err := r.db.QueryContext(ctx, query)
+	rows, err := r.readDB.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -245,7 +245,7 @@ func (r *SQLiteRepository) GetCounts(ctx context.Context) (map[domain.Category]i
 
 func (r *SQLiteRepository) GetLocations(ctx context.Context) ([]string, error) {
 	query := `SELECT DISTINCT city FROM listings WHERE is_active = true AND status = 'Approved' AND city != '' ORDER BY city ASC`
-	rows, err := r.db.QueryContext(ctx, query)
+	rows, err := r.readDB.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -280,7 +280,7 @@ func (r *SQLiteRepository) GetFeaturedListings(ctx context.Context, category str
 		ORDER BY created_at DESC 
 		LIMIT 3
 	`
-	rows, err := r.db.QueryContext(ctx, query, args...)
+	rows, err := r.readDB.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}

@@ -12,7 +12,7 @@ func (r *SQLiteRepository) SaveFeedback(ctx context.Context, f domain.Feedback) 
 	INSERT INTO feedback (id, user_id, type, content, created_at)
 	VALUES (?, ?, ?, ?, ?)
 	`
-	_, err := r.db.ExecContext(ctx, query,
+	_, err := r.writeDB.ExecContext(ctx, query,
 		f.ID, f.UserID, f.Type, f.Content, f.CreatedAt,
 	)
 	return err
@@ -21,7 +21,7 @@ func (r *SQLiteRepository) SaveFeedback(ctx context.Context, f domain.Feedback) 
 // GetAllFeedback retrieves all feedback entries ordered by creation time (newest first).
 func (r *SQLiteRepository) GetAllFeedback(ctx context.Context) ([]domain.Feedback, error) {
 	query := `SELECT id, user_id, type, content, created_at FROM feedback ORDER BY created_at DESC`
-	rows, err := r.db.QueryContext(ctx, query)
+	rows, err := r.readDB.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}

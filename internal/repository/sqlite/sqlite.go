@@ -17,52 +17,87 @@ type Scanner interface {
 }
 
 type SQLiteRepository struct {
-	db                 *sql.DB
+	writeDB            *sql.DB
+	readDB             *sql.DB
 	slowQueryThreshold time.Duration
 }
 
-// NewSQLiteRepositoryFromDB creates a new repository using an existing DB connection.
+// NewSQLiteRepositoryFromDB creates a new repository using an existing DB connection for both pools.
 func NewSQLiteRepositoryFromDB(db *sql.DB) *SQLiteRepository {
 	return &SQLiteRepository{
-		db:                 db,
+		writeDB:            db,
+		readDB:             db,
 		slowQueryThreshold: 50 * time.Millisecond,
 	}
 }
 
 func NewSQLiteRepository(dbPath string) (*SQLiteRepository, error) {
-	db, err := sql.Open("sqlite", dbPath)
+	// 1. Open the Write Database (MaxOpenConns=1)
+	writeDB, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := db.Ping(); err != nil {
+	if err := writeDB.Ping(); err != nil {
 		return nil, err
 	}
 
-	if _, err := db.Exec("PRAGMA journal_mode=WAL;"); err != nil {
-		return nil, err
+	// Applying Pragmas (most important for journal/sync)
+	pragmas := []string{
+		"PRAGMA journal_mode=WAL;",
+		"PRAGMA busy_timeout=5000;",
+		"PRAGMA synchronous=NORMAL;",
+		"PRAGMA foreign_keys=ON;",
 	}
-	if _, err := db.Exec("PRAGMA busy_timeout=5000;"); err != nil {
-		return nil, err
-	}
-	if _, err := db.Exec("PRAGMA synchronous=NORMAL;"); err != nil {
-		return nil, err
-	}
-	if _, err := db.Exec("PRAGMA foreign_keys=ON;"); err != nil {
-		return nil, err
+
+	for _, p := range pragmas {
+		if _, err := writeDB.Exec(p); err != nil {
+			return nil, err
+		}
 	}
 
 	if dbPath == ":memory:" {
-		db.SetMaxOpenConns(1)
-		db.SetMaxIdleConns(1)
-	} else {
-		db.SetMaxOpenConns(100)
-		db.SetMaxIdleConns(100)
+		writeDB.SetMaxOpenConns(1)
+		writeDB.SetMaxIdleConns(1)
+		writeDB.SetConnMaxLifetime(0)
+		repo := &SQLiteRepository{
+			writeDB:            writeDB,
+			readDB:             writeDB, // Same pool for memory
+			slowQueryThreshold: 50 * time.Millisecond,
+		}
+		if err := repo.migrate(); err != nil {
+			return nil, err
+		}
+		return repo, nil
 	}
-	db.SetConnMaxLifetime(0)
+
+	// 2. Open the Read Database (MaxOpenConns=100)
+	readDB, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := readDB.Ping(); err != nil {
+		return nil, err
+	}
+
+	for _, p := range pragmas {
+		if _, err := readDB.Exec(p); err != nil {
+			return nil, err
+		}
+	}
+
+	// Configure pools for file-based database
+	writeDB.SetMaxOpenConns(1)
+	writeDB.SetMaxIdleConns(1)
+	readDB.SetMaxOpenConns(100)
+	readDB.SetMaxIdleConns(100)
+	writeDB.SetConnMaxLifetime(0)
+	readDB.SetConnMaxLifetime(0)
 
 	repo := &SQLiteRepository{
-		db:                 db,
+		writeDB:            writeDB,
+		readDB:             readDB,
 		slowQueryThreshold: 50 * time.Millisecond,
 	}
 	if err := repo.migrate(); err != nil {
@@ -79,7 +114,7 @@ func (r *SQLiteRepository) SetSlowQueryThreshold(d time.Duration) {
 
 func (r *SQLiteRepository) migrate() error {
 	// Create schema_migrations table if it doesn't exist
-	_, err := r.db.Exec(`CREATE TABLE IF NOT EXISTS schema_migrations (version TEXT PRIMARY KEY);`)
+	_, err := r.writeDB.Exec(`CREATE TABLE IF NOT EXISTS schema_migrations (version TEXT PRIMARY KEY);`)
 	if err != nil {
 		return err
 	}
@@ -98,7 +133,7 @@ func (r *SQLiteRepository) migrate() error {
 
 		// Check if this migration has already been applied
 		var exists int
-		err := r.db.QueryRow("SELECT COUNT(*) FROM schema_migrations WHERE version = ?", name).Scan(&exists)
+		err := r.writeDB.QueryRow("SELECT COUNT(*) FROM schema_migrations WHERE version = ?", name).Scan(&exists)
 		if err != nil {
 			return err
 		}
@@ -121,7 +156,7 @@ func (r *SQLiteRepository) migrate() error {
 			if stmt == "" {
 				continue
 			}
-			_, err = r.db.Exec(stmt)
+			_, err = r.writeDB.Exec(stmt)
 			if err != nil {
 				// For the initial legacy migration (001), we ignore errors (like "duplicate column")
 				// to ensure backward compatibility with partially migrated databases.
@@ -133,7 +168,7 @@ func (r *SQLiteRepository) migrate() error {
 		}
 
 		// Record the migration as applied
-		_, err = r.db.Exec("INSERT INTO schema_migrations (version) VALUES (?)", name)
+		_, err = r.writeDB.Exec("INSERT INTO schema_migrations (version) VALUES (?)", name)
 		if err != nil {
 			return err
 		}
@@ -142,7 +177,15 @@ func (r *SQLiteRepository) migrate() error {
 	return nil
 }
 
-// Close closes the underlying database connection.
+// Close closes both underlying database connections.
 func (r *SQLiteRepository) Close() error {
-	return r.db.Close()
+	if r.writeDB == r.readDB {
+		return r.writeDB.Close()
+	}
+	err1 := r.writeDB.Close()
+	err2 := r.readDB.Close()
+	if err1 != nil {
+		return err1
+	}
+	return err2
 }

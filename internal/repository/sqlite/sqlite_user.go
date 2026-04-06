@@ -22,7 +22,7 @@ func scanUser(s Scanner) (domain.User, error) {
 // SaveUser inserts or updates a user.
 func (r *SQLiteRepository) SaveUser(ctx context.Context, u domain.User) error {
 	updateQuery := `UPDATE users SET google_id=?, email=?, name=?, avatar_url=?, role=? WHERE id=?`
-	res, err := r.db.ExecContext(ctx, updateQuery,
+	res, err := r.writeDB.ExecContext(ctx, updateQuery,
 		u.GoogleID, u.Email, u.Name, u.AvatarURL, u.Role, u.ID,
 	)
 	if err != nil {
@@ -47,7 +47,7 @@ func (r *SQLiteRepository) SaveUser(ctx context.Context, u domain.User) error {
 		avatar_url = excluded.avatar_url,
 		role = excluded.role;
 	`
-	_, err = r.db.ExecContext(ctx, insertQuery,
+	_, err = r.writeDB.ExecContext(ctx, insertQuery,
 		u.ID, u.GoogleID, u.Email, u.Name, u.AvatarURL, u.Role, u.CreatedAt,
 	)
 	return err
@@ -56,7 +56,7 @@ func (r *SQLiteRepository) SaveUser(ctx context.Context, u domain.User) error {
 // FindUserByGoogleID retrieves a user by their Google ID.
 func (r *SQLiteRepository) FindUserByGoogleID(ctx context.Context, googleID string) (domain.User, error) {
 	query := `SELECT id, google_id, email, name, avatar_url, COALESCE(role, 'User'), created_at FROM users WHERE google_id = ?`
-	row := r.db.QueryRowContext(ctx, query, googleID)
+	row := r.readDB.QueryRowContext(ctx, query, googleID)
 
 	u, err := scanUser(row)
 	if err == sql.ErrNoRows {
@@ -68,7 +68,7 @@ func (r *SQLiteRepository) FindUserByGoogleID(ctx context.Context, googleID stri
 // FindUserByID retrieves a user by their ID.
 func (r *SQLiteRepository) FindUserByID(ctx context.Context, id string) (domain.User, error) {
 	query := `SELECT id, google_id, email, name, avatar_url, COALESCE(role, 'User'), created_at FROM users WHERE id = ?`
-	row := r.db.QueryRowContext(ctx, query, id)
+	row := r.readDB.QueryRowContext(ctx, query, id)
 
 	u, err := scanUser(row)
 	if err == sql.ErrNoRows {
@@ -80,7 +80,7 @@ func (r *SQLiteRepository) FindUserByID(ctx context.Context, id string) (domain.
 func (r *SQLiteRepository) GetUserCount(ctx context.Context) (int, error) {
 	var count int
 	query := `SELECT COUNT(*) FROM users`
-	if err := r.db.QueryRowContext(ctx, query).Scan(&count); err != nil {
+	if err := r.readDB.QueryRowContext(ctx, query).Scan(&count); err != nil {
 		return 0, err
 	}
 	return count, nil
@@ -88,7 +88,7 @@ func (r *SQLiteRepository) GetUserCount(ctx context.Context) (int, error) {
 
 func (r *SQLiteRepository) GetAllUsers(ctx context.Context, limit int, offset int) ([]domain.User, error) {
 	query := `SELECT id, google_id, email, name, avatar_url, COALESCE(role, 'User'), created_at FROM users ORDER BY created_at DESC LIMIT ? OFFSET ?`
-	rows, err := r.db.QueryContext(ctx, query, limit, offset)
+	rows, err := r.readDB.QueryContext(ctx, query, limit, offset)
 	if err != nil {
 		return nil, err
 	}

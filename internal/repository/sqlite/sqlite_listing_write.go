@@ -46,7 +46,7 @@ func (r *SQLiteRepository) Save(ctx context.Context, l domain.Listing) error {
 		status = string(domain.ListingStatusApproved)
 	}
 
-	_, err := r.db.ExecContext(ctx, query,
+	_, err := r.writeDB.ExecContext(ctx, query,
 		l.ID, l.OwnerID, l.Title, l.Description, l.Type, l.OwnerOrigin, l.City, l.Address, l.HoursOfOperation, l.IsActive, l.CreatedAt,
 		l.ImageURL, l.ContactEmail, l.ContactPhone, l.ContactWhatsApp, l.WebsiteURL, l.Deadline, l.EventStart, l.EventEnd,
 		l.Skills, l.JobStartDate, l.JobApplyURL, l.Company, l.PayRange, status, l.Featured,
@@ -56,7 +56,7 @@ func (r *SQLiteRepository) Save(ctx context.Context, l domain.Listing) error {
 
 // SaveBatch inserts or updates multiple listings in a single transaction.
 func (r *SQLiteRepository) SaveBatch(ctx context.Context, listings []domain.Listing) error {
-	tx, err := r.db.BeginTx(ctx, nil)
+	tx, err := r.writeDB.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
@@ -119,7 +119,7 @@ func (r *SQLiteRepository) SaveBatch(ctx context.Context, listings []domain.List
 
 // BulkInsertListings executes bulk INSERT statements chunked into batches of 500.
 func (r *SQLiteRepository) BulkInsertListings(ctx context.Context, listings []domain.Listing) error {
-	tx, err := r.db.BeginTx(ctx, nil)
+	tx, err := r.writeDB.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
@@ -205,7 +205,7 @@ func (r *SQLiteRepository) BulkInsertListings(ctx context.Context, listings []do
 
 func (r *SQLiteRepository) Delete(ctx context.Context, id string) error {
 	query := `DELETE FROM listings WHERE id = ?`
-	result, err := r.db.ExecContext(ctx, query, id)
+	result, err := r.writeDB.ExecContext(ctx, query, id)
 	if err != nil {
 		return err
 	}
@@ -242,7 +242,7 @@ func (r *SQLiteRepository) ExpireListings(ctx context.Context) (int64, error) {
 	`
 
 	for {
-		result, err := r.db.ExecContext(ctx, query, now, now, now.AddDate(0, 0, -90), batchSize)
+		result, err := r.writeDB.ExecContext(ctx, query, now, now, now.AddDate(0, 0, -90), batchSize)
 		if err != nil {
 			return totalAffected, err
 		}
@@ -266,6 +266,6 @@ func (r *SQLiteRepository) ExpireListings(ctx context.Context) (int64, error) {
 // SetFeatured toggles the featured status of a listing.
 func (r *SQLiteRepository) SetFeatured(ctx context.Context, id string, featured bool) error {
 	query := `UPDATE listings SET featured = ? WHERE id = ?`
-	_, err := r.db.ExecContext(ctx, query, featured, id)
+	_, err := r.writeDB.ExecContext(ctx, query, featured, id)
 	return err
 }

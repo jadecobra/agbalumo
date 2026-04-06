@@ -16,7 +16,7 @@ func (r *SQLiteRepository) SaveClaimRequest(ctx context.Context, req domain.Clai
 	ON CONFLICT(id) DO UPDATE SET
 		status = excluded.status;
 	`
-	_, err := r.db.ExecContext(ctx, query,
+	_, err := r.writeDB.ExecContext(ctx, query,
 		req.ID, req.ListingID, req.ListingTitle, req.UserID, req.UserName, req.UserEmail, req.Status, req.CreatedAt,
 	)
 	return err
@@ -30,7 +30,7 @@ func (r *SQLiteRepository) GetPendingClaimRequests(ctx context.Context) ([]domai
 		WHERE status = 'Pending'
 		ORDER BY created_at ASC
 	`
-	rows, err := r.db.QueryContext(ctx, query)
+	rows, err := r.readDB.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (r *SQLiteRepository) GetPendingClaimRequests(ctx context.Context) ([]domai
 
 // UpdateClaimRequestStatus updates a claim request's status.
 func (r *SQLiteRepository) UpdateClaimRequestStatus(ctx context.Context, id string, status domain.ClaimStatus) error {
-	tx, err := r.db.BeginTx(ctx, nil)
+	tx, err := r.writeDB.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
@@ -93,7 +93,7 @@ func (r *SQLiteRepository) GetClaimRequestByUserAndListing(ctx context.Context, 
 		ORDER BY created_at DESC
 		LIMIT 1
 	`
-	row := r.db.QueryRowContext(ctx, query, userID, listingID)
+	row := r.readDB.QueryRowContext(ctx, query, userID, listingID)
 	var cr domain.ClaimRequest
 	err := row.Scan(&cr.ID, &cr.ListingID, &cr.ListingTitle, &cr.UserID, &cr.UserName, &cr.UserEmail, &cr.Status, &cr.CreatedAt)
 	if err == sql.ErrNoRows {

@@ -9,7 +9,7 @@ import (
 
 func (r *SQLiteRepository) GetFeedbackCounts(ctx context.Context) (map[domain.FeedbackType]int, error) {
 	query := `SELECT type, COUNT(*) FROM feedback GROUP BY type`
-	rows, err := r.db.QueryContext(ctx, query)
+	rows, err := r.readDB.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func (r *SQLiteRepository) GetFeedbackCounts(ctx context.Context) (map[domain.Fe
 }
 
 func (r *SQLiteRepository) queryDailyMetrics(ctx context.Context, query string) ([]domain.DailyMetric, error) {
-	rows, err := r.db.QueryContext(ctx, query)
+	rows, err := r.readDB.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}

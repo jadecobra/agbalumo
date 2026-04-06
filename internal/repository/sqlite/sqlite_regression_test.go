@@ -29,7 +29,7 @@ func TestFindListingWithNullEventDates(t *testing.T) {
 		?, NULL, NULL
 	)`
 
-	_, err = repo.db.ExecContext(ctx, query, time.Now(), time.Now().Add(24*time.Hour))
+	_, err = repo.writeDB.ExecContext(ctx, query, time.Now(), time.Now().Add(24*time.Hour))
 	assert.NoError(t, err)
 
 	// 3. Try to FindByID
