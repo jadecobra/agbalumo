@@ -32,3 +32,24 @@ const listingUpsertUpdate = `ON CONFLICT(id) DO UPDATE SET
 const ListingUpsertSQL = `INSERT INTO listings ` + listingColumns + `
 	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	` + listingUpsertUpdate
+
+// CategoryUpsertSQL is the shared UPSERT query for category saving.
+const CategoryUpsertSQL = `
+	INSERT INTO categories (id, name, claimable, is_system, active, requires_special_validation, created_at, updated_at)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+	ON CONFLICT(id) DO UPDATE SET
+		name = excluded.name,
+		claimable = excluded.claimable,
+		is_system = excluded.is_system,
+		active = excluded.active,
+		requires_special_validation = excluded.requires_special_validation,
+		updated_at = excluded.updated_at;
+	`
+
+// ClaimUpsertSQL is the shared UPSERT query for claim saves.
+const ClaimUpsertSQL = `
+	INSERT INTO claim_requests (id, listing_id, listing_title, user_id, user_name, user_email, status, created_at)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+	ON CONFLICT(id) DO UPDATE SET
+		status = excluded.status;
+	`

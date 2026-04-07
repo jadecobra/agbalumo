@@ -10,13 +10,7 @@ import (
 
 // SaveClaimRequest inserts or updates a claim request.
 func (r *SQLiteRepository) SaveClaimRequest(ctx context.Context, req domain.ClaimRequest) error {
-	query := `
-	INSERT INTO claim_requests (id, listing_id, listing_title, user_id, user_name, user_email, status, created_at)
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-	ON CONFLICT(id) DO UPDATE SET
-		status = excluded.status;
-	`
-	_, err := r.writeDB.ExecContext(ctx, query,
+	_, err := r.writeDB.ExecContext(ctx, ClaimUpsertSQL,
 		req.ID, req.ListingID, req.ListingTitle, req.UserID, req.UserName, req.UserEmail, req.Status, req.CreatedAt,
 	)
 	return err

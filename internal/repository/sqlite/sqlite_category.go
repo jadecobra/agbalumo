@@ -9,18 +9,7 @@ import (
 
 // SaveCategory inserts or updates a category.
 func (r *SQLiteRepository) SaveCategory(ctx context.Context, c domain.CategoryData) error {
-	query := `
-	INSERT INTO categories (id, name, claimable, is_system, active, requires_special_validation, created_at, updated_at)
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-	ON CONFLICT(id) DO UPDATE SET
-		name = excluded.name,
-		claimable = excluded.claimable,
-		is_system = excluded.is_system,
-		active = excluded.active,
-		requires_special_validation = excluded.requires_special_validation,
-		updated_at = excluded.updated_at;
-	`
-	_, err := r.writeDB.ExecContext(ctx, query,
+	_, err := r.writeDB.ExecContext(ctx, CategoryUpsertSQL,
 		c.ID, c.Name, c.Claimable, c.IsSystem, c.Active, c.RequiresSpecialValidation, c.CreatedAt, c.UpdatedAt,
 	)
 	return err
@@ -68,18 +57,7 @@ func (r *SQLiteRepository) GetCategories(ctx context.Context, filter domain.Cate
 
 // EnsureCoreCategories seeds the categories table with core types that must exist.
 func (r *SQLiteRepository) UpsertCoreCategory(ctx context.Context, c domain.CategoryData) error {
-	query := `
-	INSERT INTO categories (id, name, claimable, is_system, active, requires_special_validation, created_at, updated_at)
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-	ON CONFLICT(id) DO UPDATE SET
-		name = excluded.name,
-		claimable = excluded.claimable,
-		is_system = excluded.is_system,
-		active = excluded.active,
-		requires_special_validation = excluded.requires_special_validation,
-		updated_at = excluded.updated_at;
-	`
-	_, err := r.writeDB.ExecContext(ctx, query,
+	_, err := r.writeDB.ExecContext(ctx, CategoryUpsertSQL,
 		c.ID, c.Name, c.Claimable, c.IsSystem, c.Active, c.RequiresSpecialValidation, c.CreatedAt, c.UpdatedAt,
 	)
 	return err
