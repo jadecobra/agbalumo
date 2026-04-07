@@ -63,6 +63,11 @@ func TestFeatureName(t *testing.T) {
 ### Mocks
 Use `github.com/stretchr/testify/mock`. Place mocks in `internal/mock/`.
 
+### Test Helpers & Anti-Duplication
+- **Use Standards First:** Always check `internal/testutil/` for centralized UI, authentication, or seeding helpers (like `setupAdminTestContext`, `testutil.NewMainTemplate`) before creating custom ones inline.
+- **Prevent Copy-Paste:** To avoid failing the `cmd/verify/main.go critique` toolchain, any repetitive setup boilerplate or repeated logic between subtests *must* be extracted into explicit helper functions.
+- **Cognitive Complexity limits:** High-complexity test functions (with deep nesting or serial sequential assertions) will fail the project's quality gates. Extract large blocks into private helpers.
+
 ### Coverage & Rules
 - **TDD:** Write failing tests (RED) FIRST.
 - **Coverage:** Thresholds are defined in `.agents/coverage-thresholds.json`. NEVER lower these value.

@@ -227,14 +227,18 @@ func TestUniqueStrings(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := UniqueStrings(tt.input)
-			if len(got) != len(tt.expected) {
-				t.Fatalf("Expected length %d, got %d", len(tt.expected), len(got))
-			}
-			for i := range got {
-				if got[i] != tt.expected[i] {
-					t.Errorf("At index %d: expected %s, got %s", i, tt.expected[i], got[i])
-				}
-			}
+			verifyUniqueStringsResult(t, got, tt.expected)
 		})
+	}
+}
+
+func verifyUniqueStringsResult(t *testing.T, got, expected []string) {
+	if len(got) != len(expected) {
+		t.Fatalf("Expected length %d, got %d", len(expected), len(got))
+	}
+	for i := range got {
+		if got[i] != expected[i] {
+			t.Errorf("At index %d: expected %s, got %s", i, expected[i], got[i])
+		}
 	}
 }

@@ -14,12 +14,7 @@ func TestCheckGosecRationale(t *testing.T) {
 	}
 	defer func() { _ = os.RemoveAll(tmpDir) }()
 
-	tests := []struct {
-		name     string
-		content  string
-		filename string
-		wantErr  bool
-	}{
+	tests := []gosecRationaleTest{
 		{
 			name:     "valid with hyphen",
 			content:  "// #nosec G101 - this is a rationale",
@@ -60,24 +55,35 @@ func TestCheckGosecRationale(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Create a fresh temp directory for each test case
-			caseDir, err := os.MkdirTemp(tmpDir, "case-*")
-			if err != nil {
-				t.Fatalf("failed to create case dir: %v", err)
-			}
-			// Don't remove caseDir here, as we need to write into it!
-			// tmpDir cleanup will handle this via defer.
-
-			filePath := filepath.Join(caseDir, tt.filename)
-			if werr := os.WriteFile( /*nolint:gosec*/ filePath, []byte(tt.content), 0600); werr != nil {
-				t.Fatalf("failed to write test file: %v", werr)
-			}
-
-			// We pass the caseDir as the root to CheckGosecRationale
-			err = CheckGosecRationale(caseDir)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("CheckGosecRationale() error = %v, wantErr %v", err, tt.wantErr)
-			}
+			runSingleGosecRationaleTest(t, tmpDir, tt)
 		})
+	}
+}
+
+type gosecRationaleTest struct {
+	name     string
+	content  string
+	filename string
+	wantErr  bool
+}
+
+func runSingleGosecRationaleTest(t *testing.T, tmpDir string, tt gosecRationaleTest) {
+	// Create a fresh temp directory for each test case
+	caseDir, err := os.MkdirTemp(tmpDir, "case-*")
+	if err != nil {
+		t.Fatalf("failed to create case dir: %v", err)
+	}
+	// Don't remove caseDir here, as we need to write into it!
+	// tmpDir cleanup will handle this via defer.
+
+	filePath := filepath.Join(caseDir, tt.filename)
+	if werr := os.WriteFile( /*nolint:gosec*/ filePath, []byte(tt.content), 0600); werr != nil {
+		t.Fatalf("failed to write test file: %v", werr)
+	}
+
+	// We pass the caseDir as the root to CheckGosecRationale
+	err = CheckGosecRationale(caseDir)
+	if (err != nil) != tt.wantErr {
+		t.Errorf("CheckGosecRationale() error = %v, wantErr %v", err, tt.wantErr)
 	}
 }

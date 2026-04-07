@@ -29,6 +29,10 @@ func TestTemplateRenderer_Funcs(t *testing.T) {
 		}
 	})
 
+	verifyOtherTemplateFuncs(t, tempDir, c)
+}
+
+func verifyOtherTemplateFuncs(t *testing.T, tempDir string, c echo.Context) {
 	t.Run("isNew", func(t *testing.T) {
 		tmplContent := `{{ if isNew .CreatedAt }}new{{ else }}old{{ end }}`
 		renderer := setupRenderer(t, tempDir, "isnew.html", tmplContent)

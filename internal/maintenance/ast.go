@@ -34,17 +34,23 @@ func collectGoFiles(paths []string) []string {
 			continue
 		}
 		if info.IsDir() {
-			_ = filepath.Walk(p, func(path string, i os.FileInfo, e error) error {
-				if e == nil && !i.IsDir() && strings.HasSuffix(path, ".go") {
-					goFiles = append(goFiles, path)
-				}
-				return nil
-			})
+			goFiles = append(goFiles, walkGoDir(p)...)
 		} else {
 			goFiles = append(goFiles, p)
 		}
 	}
 	return goFiles
+}
+
+func walkGoDir(dirPath string) []string {
+	var files []string
+	_ = filepath.Walk(dirPath, func(path string, i os.FileInfo, e error) error {
+		if e == nil && !i.IsDir() && strings.HasSuffix(path, ".go") {
+			files = append(files, path)
+		}
+		return nil
+	})
+	return files
 }
 
 func parseGoFiles(fset *token.FileSet, filePaths []string) []*ast.File {

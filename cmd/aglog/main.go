@@ -41,6 +41,25 @@ func NewRootCmd() *cobra.Command {
 }
 
 func run(stdin io.Reader, stdout io.Writer, feature, arch, po, sdet, be, summary string) error {
+	decision, err := buildSquadDecision(stdin, feature, arch, po, sdet, be, summary)
+	if err != nil {
+		return err
+	}
+
+	if decision.FeatureName == "" {
+		return fmt.Errorf("FeatureName is required via flags or JSON input")
+	}
+
+	path, err := history.Store(decision)
+	if err != nil {
+		return fmt.Errorf("failed to store decision: %w", err)
+	}
+
+	_, err = fmt.Fprintln(stdout, path)
+	return err
+}
+
+func buildSquadDecision(stdin io.Reader, feature, arch, po, sdet, be, summary string) (history.SquadDecision, error) {
 	var decision history.SquadDecision
 
 	if feature != "" {
@@ -55,25 +74,14 @@ func run(stdin io.Reader, stdout io.Writer, feature, arch, po, sdet, be, summary
 	} else if stdin != nil {
 		data, err := io.ReadAll(stdin)
 		if err != nil && err != io.EOF {
-			return fmt.Errorf("failed to read from stdin: %w", err)
+			return decision, fmt.Errorf("failed to read from stdin: %w", err)
 		}
 
 		if len(data) > 0 {
 			if err := json.Unmarshal(data, &decision); err != nil {
-				return fmt.Errorf("failed to unmarshal JSON: %w", err)
+				return decision, fmt.Errorf("failed to unmarshal JSON: %w", err)
 			}
 		}
 	}
-
-	if decision.FeatureName == "" {
-		return fmt.Errorf("FeatureName is required via flags or JSON input")
-	}
-
-	path, err := history.Store(decision)
-	if err != nil {
-		return fmt.Errorf("failed to store decision: %w", err)
-	}
-
-	_, err = fmt.Fprintln(stdout, path)
-	return err
+	return decision, nil
 }

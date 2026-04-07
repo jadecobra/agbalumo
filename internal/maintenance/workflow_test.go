@@ -45,43 +45,53 @@ func TestInferCurrentPhase(t *testing.T) {
 		_ = cmd.Run()
 	}
 
-	// 1. IDLE (no staged changes)
+	testIdlePhase(t, tmpDir)
+	testRedPhase(t, tmpDir, runGit)
+	testGreenPhase(t, tmpDir, runGit)
+	testRefactorPhase(t, tmpDir, runGit)
+}
+
+func testIdlePhase(t *testing.T, tmpDir string) {
 	phase, err := InferCurrentPhase(tmpDir)
 	if err != nil || phase != PhaseIdle {
 		t.Errorf("IDLE: expected (IDLE, nil), got (%s, %v)", phase, err)
 	}
+}
 
-	// 2. RED (only tests staged)
+func testRedPhase(t *testing.T, tmpDir string, runGit func(...string)) {
 	testFile := filepath.Join(tmpDir, "feature_test.go")
-	if err = os.WriteFile( /*nolint:gosec*/ testFile, []byte("package main\nfunc TestRed(t *testing.T) {}"), 0600); err != nil {
+	if err := os.WriteFile( /*nolint:gosec*/ testFile, []byte("package main\nfunc TestRed(t *testing.T) {}"), 0600); err != nil {
 		t.Fatal(err)
 	}
 	runGit("add", "feature_test.go")
-	phase, err = InferCurrentPhase(tmpDir)
+	phase, err := InferCurrentPhase(tmpDir)
 	if err != nil || phase != PhaseRed {
 		t.Errorf("RED: expected (RED, nil), got (%s, %v)", phase, err)
 	}
+}
 
-	// 3. GREEN (last commit was 'test:', staged implementation)
+func testGreenPhase(t *testing.T, tmpDir string, runGit func(...string)) {
 	runGit("commit", "-m", "test: add failing test")
 	implFile := filepath.Join(tmpDir, "feature.go")
-	if err = os.WriteFile( /*nolint:gosec*/ implFile, []byte("package main\nfunc Feature() {}"), 0600); err != nil {
+	if err := os.WriteFile( /*nolint:gosec*/ implFile, []byte("package main\nfunc Feature() {}"), 0600); err != nil {
 		t.Fatal(err)
 	}
 	runGit("add", "feature.go")
-	phase, err = InferCurrentPhase(tmpDir)
+	phase, err := InferCurrentPhase(tmpDir)
 	if err != nil || phase != PhaseGreen {
 		t.Errorf("GREEN: expected (GREEN, nil), got (%s, %v)", phase, err)
 	}
+}
 
-	// 4. REFACTOR (last commit was 'feat:', staged cleaning)
+func testRefactorPhase(t *testing.T, tmpDir string, runGit func(...string)) {
 	runGit("commit", "-m", "feat: implement feature")
+	implFile := filepath.Join(tmpDir, "feature.go")
 	newImpl := []byte("package main\nfunc Feature() { /* optimized */ }")
-	if err = os.WriteFile( /*nolint:gosec*/ implFile, newImpl, 0600); err != nil {
+	if err := os.WriteFile( /*nolint:gosec*/ implFile, newImpl, 0600); err != nil {
 		t.Fatal(err)
 	}
 	runGit("add", "feature.go")
-	phase, err = InferCurrentPhase(tmpDir)
+	phase, err := InferCurrentPhase(tmpDir)
 	if err != nil || phase != PhaseRefactor {
 		t.Errorf("REFACTOR: expected (REFACTOR, nil), got (%s, %v)", phase, err)
 	}

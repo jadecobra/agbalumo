@@ -27,6 +27,11 @@ func TestListingCommands_RunCoverage(t *testing.T) {
 		_ = repo.Delete(context.Background(), l.ID)
 	}
 
+	runListingCommandsTestsPart1(t, repo)
+	runListingCommandsTestsPart2(t, repo)
+}
+
+func runListingCommandsTestsPart1(t *testing.T, repo domain.ListingRepository) {
 	t.Run("Create", func(t *testing.T) {
 		flagTitle = "CLI Test Create"
 		flagType = "Service"
@@ -97,7 +102,9 @@ func TestListingCommands_RunCoverage(t *testing.T) {
 			listingGetCmd.Run(listingGetCmd, []string{targetID})
 		}
 	})
+}
 
+func runListingCommandsTestsPart2(t *testing.T, repo domain.ListingRepository) {
 	t.Run("Update", func(t *testing.T) {
 		allListings, _, _ := repo.FindAll(context.Background(), "", "", "", "", false, 10, 0)
 		if len(allListings) > 0 {

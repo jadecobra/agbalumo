@@ -53,7 +53,10 @@ func TestStore(t *testing.T) {
 		t.Fatal("Decision file not found")
 	}
 
-	// Verify content
+	verifyTestStoreContent(t, tmpDir, foundFile, decision)
+}
+
+func verifyTestStoreContent(t *testing.T, tmpDir, foundFile string, decision SquadDecision) {
 	content, err := os.ReadFile(filepath.Clean(tmpDir + "/" + foundFile))
 	if err != nil {
 		t.Fatal(err)

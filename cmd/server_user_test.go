@@ -57,12 +57,16 @@ func TestUserRoutes(t *testing.T) {
 		}
 	}
 
+	testUserListingFlow(t, rec.Body.String(), cookie, csrfCookie, csrfToken)
+}
+
+func testUserListingFlow(t *testing.T, body, cookie, csrfCookie, csrfToken string) {
 	title := fmt.Sprintf("My Test Listing %d", time.Now().UnixNano())
 	form := strings.NewReader("title=" + title + "&type=Service&owner_origin=Nigeria&description=Testing&contact_email=dev@test.com&city=Lagos&_csrf=" + csrfToken)
-	req = httptest.NewRequest(http.MethodPost, "/listings", form)
+	req := httptest.NewRequest(http.MethodPost, "/listings", form)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("Cookie", cookie+"; "+csrfCookie)
-	rec = httptest.NewRecorder()
+	rec := httptest.NewRecorder()
 	e.ServeHTTP(rec, req)
 
 	assert.Equal(t, http.StatusOK, rec.Code) // Returns 200 OK with the new listing card
@@ -70,7 +74,7 @@ func TestUserRoutes(t *testing.T) {
 
 	// Extract listing ID from the card
 	createdBody := rec.Body.String()
-	idx = strings.Index(createdBody, "id=\"listing-")
+	idx := strings.Index(createdBody, "id=\"listing-")
 	if idx != -1 {
 		subStr := createdBody[idx+len("id=\"listing-"):]
 		endId := strings.Index(subStr, "\"")

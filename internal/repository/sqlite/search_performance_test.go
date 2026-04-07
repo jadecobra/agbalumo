@@ -37,7 +37,10 @@ func BenchmarkSearchPerformance(b *testing.B) {
 			_, _, _ = repo.FindAll(ctx, "", "", "", "", false, 30, 0)
 		}
 	})
+	runRemainingSearchBenchmarks(b, repo, ctx)
+}
 
+func runRemainingSearchBenchmarks(b *testing.B, repo *sqlite.SQLiteRepository, ctx context.Context) {
 	b.Run("FindAll_Search_Page1", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			_, _, _ = repo.FindAll(ctx, "", "ghana", "", "", false, 30, 0)

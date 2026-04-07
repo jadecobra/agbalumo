@@ -56,10 +56,13 @@ func ExtractMarkdownRoutes(content []byte) ([]Route, error) {
 // ExtractCLICodeCommands extracts CLI subcommands from Go source files.
 func ExtractCLICodeCommands(dir string) ([]string, error) {
 	var cmds []string
-	useRe := regexp.MustCompile(`(?m)Use:\s*"([^ "\n]+)`)
+	regexes := []*regexp.Regexp{
+		regexp.MustCompile(`(?m)Use:\s*"([^ "\n]+)`),
+		regexp.MustCompile(`(?m)makeSimpleCmd\("([^"]+)"`),
+	}
 
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-		found, walkErr := extractCommandsFromCode(path, info, err, useRe)
+		found, walkErr := extractCommandsFromCode(path, info, err, regexes)
 		if walkErr != nil {
 			return walkErr
 		}
@@ -73,23 +76,25 @@ func ExtractCLICodeCommands(dir string) ([]string, error) {
 	return uniqueStrings(cmds), nil
 }
 
-func extractCommandsFromCode(path string, info os.FileInfo, err error, re *regexp.Regexp) ([]string, error) {
+func extractCommandsFromCode(path string, info os.FileInfo, err error, regexes []*regexp.Regexp) ([]string, error) {
 	if err != nil || info.IsDir() || filepath.Ext(path) != ".go" {
 		return nil, err
 	}
-
+ 
 	data, readErr := readFileOrErr(path, "code file")
 	if readErr != nil {
 		return nil, readErr
 	}
-
+ 
 	var found []string
-	matches := re.FindAllStringSubmatch(string(data), -1)
-	for _, match := range matches {
-		if len(match) > 1 {
-			cmd := strings.TrimSpace(match[1])
-			if cmd != "" && cmd != "agbalumo" {
-				found = append(found, cmd)
+	for _, re := range regexes {
+		matches := re.FindAllStringSubmatch(string(data), -1)
+		for _, match := range matches {
+			if len(match) > 1 {
+				cmd := strings.TrimSpace(match[1])
+				if cmd != "" && cmd != "agbalumo" {
+					found = append(found, cmd)
+				}
 			}
 		}
 	}

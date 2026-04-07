@@ -94,20 +94,7 @@ func NewRealTemplateForPage(t *testing.T, pageName string) *template.Template {
 		t.Fatal(err)
 	}
 
-	// Adjust path to find the ui directory correctly from various test locations
-	var projectRoot string
-	tempWd := wd
-	for {
-		if _, err := os.Stat(filepath.Join(tempWd, "ui", "templates")); err == nil {
-			projectRoot = tempWd
-			break
-		}
-		parent := filepath.Dir(tempWd)
-		if parent == tempWd {
-			t.Fatalf("Could not find project root (containing ui/templates) starting from %s", wd)
-		}
-		tempWd = parent
-	}
+	projectRoot := findProjectRoot(t, wd)
 
 	partialPattern := filepath.Join(projectRoot, "ui", "templates", "partials", "*.html")
 	componentPattern := filepath.Join(projectRoot, "ui", "templates", "components", "*.html")
@@ -139,4 +126,18 @@ func NewRealTemplateForPage(t *testing.T, pageName string) *template.Template {
 	}
 
 	return tmpl
+}
+
+func findProjectRoot(t *testing.T, wd string) string {
+	tempWd := wd
+	for {
+		if _, err := os.Stat(filepath.Join(tempWd, "ui", "templates")); err == nil {
+			return tempWd
+		}
+		parent := filepath.Dir(tempWd)
+		if parent == tempWd {
+			t.Fatalf("Could not find project root (containing ui/templates) starting from %s", wd)
+		}
+		tempWd = parent
+	}
 }

@@ -42,17 +42,14 @@ func Register(e *echo.Echo) {
 		{Method: "GET", Path: "/health"},
 	}
 
+	verifyExtractedRoutes(t, expected, routes)
+}
+
+func verifyExtractedRoutes(t *testing.T, expected, routes []Route) {
 	if len(routes) != len(expected) {
 		t.Errorf("expected %d routes, got %d", len(expected), len(routes))
 	}
 
-	// routes are sorted by path, then method in ExtractRoutes
-	// Expected sorted:
-	// GET /api/v1/users/:id
-	// POST /api/v1/login
-	// GET /health
-
-	// Let's just check if each expected route exists
 	found := 0
 	for _, exp := range expected {
 		for _, got := range routes {

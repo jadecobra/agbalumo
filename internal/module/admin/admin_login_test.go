@@ -60,15 +60,7 @@ func TestAdminHandler_HandleLoginView(t *testing.T) {
 }
 
 func TestAdminHandler_HandleLoginAction(t *testing.T) {
-	tests := []struct {
-		user       *domain.User
-		verifyUser func(*testing.T, *admin.AdminHandler, string)
-		name       string
-		code       string
-		adminCode  string
-		expectLoc  string
-		expectCode int
-	}{
+	tests := []loginActionTest{
 		{
 			name:       "WrongCode_RendersError",
 			code:       "wrong",
@@ -97,37 +89,55 @@ func TestAdminHandler_HandleLoginAction(t *testing.T) {
 			},
 		},
 	}
+	runAdminLoginActionTests(t, tests)
+}
 
+// runAdminLoginActionTests exists solely to reduce the cognitive complexity of the test suite
+type loginActionTest struct {
+	user       *domain.User
+	verifyUser func(*testing.T, *admin.AdminHandler, string)
+	name       string
+	code       string
+	adminCode  string
+	expectLoc  string
+	expectCode int
+}
+
+func runAdminLoginActionTests(t *testing.T, tests []loginActionTest) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			formData := url.Values{}
-			formData.Set("code", tt.code)
-			c, rec := setupAdminTestContext(http.MethodPost, "/admin/login", strings.NewReader(formData.Encode()))
-
-			app, cleanup := testutil.SetupTestAppEnv(t)
-			defer cleanup()
-			if tt.user != nil {
-				err := app.DB.SaveUser(context.Background(), *tt.user)
-				assert.NoError(t, err)
-				c.Set("User", *tt.user)
-			}
-
-			cfg := app.Cfg
-			cfg.AdminCode = tt.adminCode
-
-			h := admin.NewAdminHandler(app)
-			_ = h.HandleLoginAction(c)
-
-			assert.Equal(t, tt.expectCode, rec.Code)
-			if tt.expectLoc != "" {
-				assert.Equal(t, tt.expectLoc, rec.Header().Get("Location"))
-			}
-
-			if tt.name == "ValidCode_PromotesUser" && tt.user != nil {
-				updatedUser, err := app.DB.FindUserByID(context.Background(), tt.user.ID)
-				assert.NoError(t, err)
-				assert.Equal(t, domain.UserRoleAdmin, updatedUser.Role)
-			}
+			runSingleAdminLoginActionTest(t, tt)
 		})
+	}
+}
+
+func runSingleAdminLoginActionTest(t *testing.T, tt loginActionTest) {
+	formData := url.Values{}
+	formData.Set("code", tt.code)
+	c, rec := setupAdminTestContext(http.MethodPost, "/admin/login", strings.NewReader(formData.Encode()))
+
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	if tt.user != nil {
+		err := app.DB.SaveUser(context.Background(), *tt.user)
+		assert.NoError(t, err)
+		c.Set("User", *tt.user)
+	}
+
+	cfg := app.Cfg
+	cfg.AdminCode = tt.adminCode
+
+	h := admin.NewAdminHandler(app)
+	_ = h.HandleLoginAction(c)
+
+	assert.Equal(t, tt.expectCode, rec.Code)
+	if tt.expectLoc != "" {
+		assert.Equal(t, tt.expectLoc, rec.Header().Get("Location"))
+	}
+
+	if tt.name == "ValidCode_PromotesUser" && tt.user != nil {
+		updatedUser, err := app.DB.FindUserByID(context.Background(), tt.user.ID)
+		assert.NoError(t, err)
+		assert.Equal(t, domain.UserRoleAdmin, updatedUser.Role)
 	}
 }

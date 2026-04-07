@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
 	"github.com/jadecobra/agbalumo/internal/seeder"
 	_ "modernc.org/sqlite"
 )
@@ -32,6 +33,10 @@ func TestEnsureCategoriesSeeded_Verification(t *testing.T) {
 		}
 	})
 
+	verifyValidConfigRun(t, ctx, repo, configPath)
+}
+
+func verifyValidConfigRun(t *testing.T, ctx context.Context, repo *sqlite.SQLiteRepository, configPath string) {
 	t.Run("ValidConfig", func(t *testing.T) {
 		cats := []domain.CategoryData{
 			{ID: "Ver-1", Name: "Verify One", IsSystem: true, Active: true},

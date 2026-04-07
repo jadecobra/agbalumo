@@ -149,14 +149,14 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 
 type dashboardData struct {
 	ClaimRequests  []domain.ClaimRequest
-	UserCount      int
 	FeedbackCounts map[domain.FeedbackType]int
 	ListingGrowth  []domain.DailyMetric
 	UserGrowth     []domain.DailyMetric
 	Feedbacks      []domain.Feedback
-	ListingCount   int
 	Categories     []domain.CategoryData
 	Users          []domain.User
+	UserCount      int
+	ListingCount   int
 }
 
 func (h *AdminHandler) loadDashboardData(ctx context.Context, c echo.Context) (dashboardData, error) {
