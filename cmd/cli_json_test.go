@@ -20,15 +20,8 @@ func TestCLIJSONOutput(t *testing.T) {
 
 	// 1. Test listing list --json (empty)
 	t.Run("listing list --json empty", func(t *testing.T) {
-		buf := new(bytes.Buffer)
-		rootCmd.SetOut(buf)
-		rootCmd.SetArgs([]string{"listing", "list"})
-
-		if err := rootCmd.Execute(); err != nil {
-			t.Fatalf("Execute failed: %v", err)
-		}
-
-		output := strings.TrimSpace(buf.String())
+		output := executeCommand(t, "listing", "list")
+		output = strings.TrimSpace(output)
 		// Cobra might print extra info, so we look for the JSON part
 		if !strings.Contains(output, "[]") {
 			t.Errorf("Expected output to contain '[]', got %q", output)
@@ -37,15 +30,8 @@ func TestCLIJSONOutput(t *testing.T) {
 
 	// 2. Test category list --json
 	t.Run("category list --json", func(t *testing.T) {
-		buf := new(bytes.Buffer)
-		rootCmd.SetOut(buf)
-		rootCmd.SetArgs([]string{"category", "list"})
-
-		if err := rootCmd.Execute(); err != nil {
-			t.Fatalf("Execute failed: %v", err)
-		}
-
-		jsonPart := extractJSONFromOutput(t, buf.String())
+		output := executeCommand(t, "category", "list")
+		jsonPart := extractJSONFromOutput(t, output)
 		var categories []domain.CategoryData
 		if err := json.Unmarshal([]byte(jsonPart), &categories); err != nil {
 			t.Fatalf("Unmarshal failed: %v", err)
@@ -54,15 +40,8 @@ func TestCLIJSONOutput(t *testing.T) {
 
 	// 3. Test listing create --json
 	t.Run("listing create --json", func(t *testing.T) {
-		buf := new(bytes.Buffer)
-		rootCmd.SetOut(buf)
-		rootCmd.SetArgs([]string{"listing", "create", "--title", "JSON Test Listing"})
-
-		if err := rootCmd.Execute(); err != nil {
-			t.Fatalf("Execute failed: %v", err)
-		}
-
-		jsonPart := extractJSONFromOutput(t, buf.String())
+		output := executeCommand(t, "listing", "create", "--title", "JSON Test Listing")
+		jsonPart := extractJSONFromOutput(t, output)
 		var listing domain.Listing
 		if err := json.Unmarshal([]byte(jsonPart), &listing); err != nil {
 			t.Fatalf("Unmarshal failed: %v", err)
@@ -72,6 +51,19 @@ func TestCLIJSONOutput(t *testing.T) {
 			t.Errorf("Expected title 'JSON Test Listing', got %q", listing.Title)
 		}
 	})
+}
+
+func executeCommand(t *testing.T, args ...string) string {
+	t.Helper()
+	buf := new(bytes.Buffer)
+	rootCmd.SetOut(buf)
+	rootCmd.SetArgs(args)
+
+	if err := rootCmd.Execute(); err != nil {
+		t.Fatalf("Execute failed: %v", err)
+	}
+
+	return buf.String()
 }
 
 func extractJSONFromOutput(t *testing.T, output string) string {
