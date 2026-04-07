@@ -2,8 +2,7 @@ package env
 
 import (
 	"log/slog"
-	"sync"
-	"time"
+
 
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
@@ -18,34 +17,17 @@ type AppEnv struct {
 	CSVService   domain.CSVService
 	GeocodingSvc domain.GeocodingService
 	ImageSvc     domain.ImageService
-	ListingSvc   domain.ListingService
-	CatCache     *CategoryCache
+	ListingSvc      domain.ListingService
+	CategorizationSvc domain.CategorizationService
+	CatCache        *domain.CategoryCache
 }
 
-// CategoryCache is a simple thread-safe cache for category data.
-type CategoryCache struct {
-	mu         sync.RWMutex
-	categories []domain.CategoryData
-	expiration time.Time
-}
 
-func (c *CategoryCache) Get() ([]domain.CategoryData, bool) {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-	if time.Now().After(c.expiration) {
-		return nil, false
-	}
-	return c.categories, true
-}
+// CategoryCache is moved to domain/category.go to avoid circular dependencies
+// and because it's a domain-specific caching entity.
 
-func (c *CategoryCache) Set(categories []domain.CategoryData, ttl time.Duration) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	c.categories = categories
-	c.expiration = time.Now().Add(ttl)
-}
 
-func NewAppEnv(db domain.ListingRepository, cfg *config.Config, logger *slog.Logger, csv domain.CSVService, geo domain.GeocodingService, img domain.ImageService, listing domain.ListingService) *AppEnv {
+func NewAppEnv(db domain.ListingRepository, cfg *config.Config, logger *slog.Logger, csv domain.CSVService, geo domain.GeocodingService, img domain.ImageService, listing domain.ListingService, cat domain.CategorizationService) *AppEnv {
 	return &AppEnv{
 		DB:           db,
 		Cfg:          cfg,
@@ -53,7 +35,9 @@ func NewAppEnv(db domain.ListingRepository, cfg *config.Config, logger *slog.Log
 		CSVService:   csv,
 		GeocodingSvc: geo,
 		ImageSvc:     img,
-		ListingSvc:   listing,
-		CatCache:     &CategoryCache{},
+		ListingSvc:        listing,
+		CategorizationSvc: cat,
+		CatCache:          &domain.CategoryCache{},
 	}
 }
+

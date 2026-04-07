@@ -65,17 +65,11 @@ func Setup(cfg *config.Config) (*echo.Echo, func(), error) {
 	geocodingSvc := service.NewGoogleGeocodingService(cfg.GoogleMapsAPIKey)
 	csvSvc.Geocoding = geocodingSvc
 	imageSvc := service.NewLocalImageService(cfg.UploadDir)
+	catCache := &domain.CategoryCache{}
+	catSvc := service.NewCategorizationService(repo, catCache)
 
-	app := &env.AppEnv{
-		DB:           repo,
-		Cfg:          cfg,
-		Logger:       slog.Default(),
-		CSVService:   csvSvc,
-		GeocodingSvc: geocodingSvc,
-		ImageSvc:     imageSvc,
-		ListingSvc:   listingSvc,
-		CatCache:     &env.CategoryCache{},
-	}
+	app := env.NewAppEnv(repo, cfg, slog.Default(), csvSvc, geocodingSvc, imageSvc, listingSvc, catSvc)
+
 
 	renderer, err := ui.NewTemplateRenderer(
 		"ui/templates/*.html",

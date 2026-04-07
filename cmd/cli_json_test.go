@@ -45,17 +45,10 @@ func TestCLIJSONOutput(t *testing.T) {
 			t.Fatalf("Execute failed: %v", err)
 		}
 
-		output := buf.String()
-		// Find the JSON part (starts with [ or {)
-		start := strings.IndexAny(output, "[{")
-		if start == -1 {
-			t.Fatalf("No JSON found in output: %q", output)
-		}
-		jsonPart := output[start:]
-
+		jsonPart := extractJSONFromOutput(t, buf.String())
 		var categories []domain.CategoryData
 		if err := json.Unmarshal([]byte(jsonPart), &categories); err != nil {
-			t.Fatalf("Failed to unmarshal JSON output: %v\nOutput: %s", err, jsonPart)
+			t.Fatalf("Unmarshal failed: %v", err)
 		}
 	})
 
@@ -69,20 +62,22 @@ func TestCLIJSONOutput(t *testing.T) {
 			t.Fatalf("Execute failed: %v", err)
 		}
 
-		output := buf.String()
-		start := strings.IndexAny(output, "[{")
-		if start == -1 {
-			t.Fatalf("No JSON found in output: %q", output)
-		}
-		jsonPart := output[start:]
-
+		jsonPart := extractJSONFromOutput(t, buf.String())
 		var listing domain.Listing
 		if err := json.Unmarshal([]byte(jsonPart), &listing); err != nil {
-			t.Fatalf("Failed to unmarshal JSON output: %v\nOutput: %s", err, jsonPart)
+			t.Fatalf("Unmarshal failed: %v", err)
 		}
 
 		if listing.Title != "JSON Test Listing" {
 			t.Errorf("Expected title 'JSON Test Listing', got %q", listing.Title)
 		}
 	})
+}
+
+func extractJSONFromOutput(t *testing.T, output string) string {
+	start := strings.IndexAny(output, "[{")
+	if start == -1 {
+		t.Fatalf("No JSON found in output: %q", output)
+	}
+	return output[start:]
 }

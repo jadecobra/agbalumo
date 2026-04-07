@@ -11,7 +11,6 @@ import (
 	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
-
 func scanListing(s Scanner) (domain.Listing, error) {
 	var l domain.Listing
 	var deadline, eventStart, eventEnd, jobStart sql.NullTime

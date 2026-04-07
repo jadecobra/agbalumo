@@ -177,13 +177,14 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 
 	g.Go(func() error {
 		var err error
-		categories, err = h.App.DB.GetCategories(ctx, domain.CategoryFilter{})
+		categories, err = h.App.CategorizationSvc.GetCategories(ctx, domain.CategoryFilter{})
 		if err != nil {
-			c.Logger().Errorf("failed to get categories: %v", err)
+			c.Logger().Errorf("failed to get categories from service: %v", err)
 			categories = []domain.CategoryData{}
 		}
 		return nil // Don't fail the whole dashboard if categories fail
 	})
+
 
 	g.Go(func() error {
 		var err error
@@ -239,7 +240,7 @@ func (h *AdminHandler) HandleAddCategory(c echo.Context) error {
 	}
 
 	// Case-insensitive check for existing category
-	existing, err := h.App.DB.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: false})
+	existing, err := h.App.CategorizationSvc.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: false})
 	if err == nil {
 		for _, cat := range existing {
 			if strings.EqualFold(cat.Name, name) {
@@ -252,6 +253,7 @@ func (h *AdminHandler) HandleAddCategory(c echo.Context) error {
 			}
 		}
 	}
+
 
 	claimableStr := c.FormValue("claimable")
 	claimable := claimableStr == "true"

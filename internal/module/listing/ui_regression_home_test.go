@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -62,16 +63,24 @@ func TestTemplateTailwindCleanup(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to read template %s: %v", tmpl, err)
 		}
-		content := string(contentBytes)
+		checkTemplateStyles(t, tmpl, string(contentBytes))
+	}
+}
 
-		if strings.Contains(content, "bg-gray-") || strings.Contains(content, "text-gray-") || strings.Contains(content, "border-gray-") {
-			t.Errorf("Template %s contains raw 'gray' Tailwind classes. Use 'stone' or 'earth-...' tokens instead.", filepath.Base(tmpl))
-		}
-		if strings.Contains(content, "bg-primary") || strings.Contains(content, "text-primary") {
-			t.Errorf("Template %s contains legacy 'primary' class. Use 'earth-accent' instead.", filepath.Base(tmpl))
-		}
-		if strings.Contains(content, "bg-orange-") || strings.Contains(content, "text-orange-") {
-			t.Errorf("Template %s contains raw 'orange' class. Use 'earth-accent' instead.", filepath.Base(tmpl))
+func checkTemplateStyles(t *testing.T, tmpl string, content string) {
+	checks := []struct {
+		pattern string
+		msg     string
+	}{
+		{"class=\"[^\"]*gray-", "contains raw 'gray' Tailwind classes. Use 'stone' or 'earth-...' tokens instead."},
+		{"class=\"[^\"]*primary", "contains legacy 'primary' class. Use 'earth-accent' instead."},
+		{"class=\"[^\"]*orange-", "contains raw 'orange' class. Use 'earth-accent' instead."},
+	}
+
+	for _, c := range checks {
+		matched, _ := regexp.MatchString(c.pattern, content)
+		if matched {
+			t.Errorf("Template %s %s", filepath.Base(tmpl), c.msg)
 		}
 	}
 }

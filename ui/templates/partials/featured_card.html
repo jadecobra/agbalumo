@@ -5,12 +5,12 @@
     <!-- Background Image -->
     <div role="img" aria-label="{{ .Listing.Title }} featured visual" class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110
         {{ if not .Listing.ImageURL }}
-            {{ if eq .Listing.Type " Job" }}bg-gradient-to-br from-amber-400 to-orange-500 {{ else if eq
-        .Listing.Type "Food" }}bg-gradient-to-br from-orange-400 to-red-500 {{ else if eq .Listing.Type "Event"
-        }}bg-gradient-to-br from-rose-400 to-accent-star {{ else if eq .Listing.Type "Request" }}bg-gradient-to-br
-        from-lime-400 to-secondary {{ else if eq .Listing.Type "Business" }}bg-gradient-to-br from-orange-500
-        to-amber-700 {{ else if eq .Listing.Type "Service" }}bg-gradient-to-br from-yellow-400 to-secondary {{ else
-        }}bg-gradient-to-br from-orange-100 to-orange-200{{ end }} {{ end }}"
+            {{ if eq .Listing.Type "Job" }}bg-gradient-to-br from-earth-ochre to-earth-accent {{ else if eq
+        .Listing.Type "Food" }}bg-gradient-to-br from-earth-clay to-earth-accent {{ else if eq .Listing.Type "Event"
+        }}bg-gradient-to-br from-stone-400 to-earth-accent {{ else if eq .Listing.Type "Request" }}bg-gradient-to-br
+        from-earth-clay to-earth-ochre {{ else if eq .Listing.Type "Business" }}bg-gradient-to-br from-earth-accent
+        to-earth-dark {{ else if eq .Listing.Type "Service" }}bg-gradient-to-br from-earth-ochre to-earth-accent {{ else
+        }}bg-gradient-to-br from-earth-sand to-earth-cream{{ end }} {{ end }}"
         style="background-image: url('{{ if .Listing.ImageURL }}{{ .Listing.ImageURL }}{{ else }}/static/images/logo.png{{ end }}'); background-blend-mode: overlay;">
     </div>
 

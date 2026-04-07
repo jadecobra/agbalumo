@@ -41,7 +41,9 @@ func SetupTestAppEnv(t *testing.T) (*env.AppEnv, func()) {
 		&MockGeocodingService{},
 		&StubImageService{},
 		&MockListingService{},
+		&MockCategorizationService{},
 	)
+
 
 	return app, func() {
 		_ = repo.Close()

@@ -76,20 +76,13 @@ func TestListingHandler_FormParsing(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			app, cleanup := testutil.SetupTestAppEnv(t)
 			defer cleanup()
-			tt.setup(t, app.DB)
 
-			h := listmod.NewListingHandler(app)
 			c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
 			c.Set("User", domain.User{ID: "user-1"})
 
-			err := h.HandleCreate(c)
-			if err != nil {
-				t.Logf("HandleCreate error: %v", err)
-			}
+			_ = listmod.NewListingHandler(app).HandleCreate(c)
 
-			if rec.Code != tt.expectedStatus {
-				t.Fatalf("Test %s failed: expected %d, got %d. Body: %s", tt.name, tt.expectedStatus, rec.Code, rec.Body.String())
-			}
+			assert.Equal(t, tt.expectedStatus, rec.Code, "Response status mismatch")
 			if tt.verify != nil {
 				tt.verify(t, app.DB)
 			}

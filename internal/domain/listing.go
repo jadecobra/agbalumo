@@ -12,6 +12,37 @@ var (
 	ErrInvalidOrigin   = errors.New("owner origin must be an African country")
 )
 
+type validationRule struct {
+	condition func(*Listing) bool
+	err       string
+}
+
+var validationRules = []validationRule{
+	{condition: func(l *Listing) bool { return l.City == "" }, err: "city is required"},
+}
+
+var lengthRules = []struct {
+	field func(*Listing) int
+	limit int
+	err   string
+}{
+	{func(l *Listing) int { return len(l.Title) }, 100, "title cannot exceed 100 characters"},
+	{func(l *Listing) int { return len(l.Description) }, 2000, "description cannot exceed 2000 characters"},
+	{func(l *Listing) int { return len(l.Company) }, 100, "company name cannot exceed 100 characters"},
+	{func(l *Listing) int { return len(l.Address) }, 200, "address cannot exceed 200 characters"},
+}
+
+var jobFields = []struct {
+	field func(*Listing) string
+	err   string
+}{
+	{func(l *Listing) string { return l.Company }, "company name is required for job listings"},
+	{func(l *Listing) string { return l.Description }, "description is required"},
+	{func(l *Listing) string { return l.Skills }, "skills are required for job listings"},
+	{func(l *Listing) string { return l.PayRange }, "compensation/pay range is required"},
+	{func(l *Listing) string { return l.JobApplyURL }, "apply url is required"},
+}
+
 // Listing represents a directory entry or request.
 type Listing struct {
 	CreatedAt        time.Time     `json:"created_at" form:"created_at"`
@@ -119,6 +150,7 @@ var ValidOrigins = map[string]bool{
 
 // Validate enforces domain rules for the Listing.
 func (l *Listing) Validate() error {
+	// 1. Complex Rules (that return specific error variables)
 	if err := l.validateOrigin(); err != nil {
 		return err
 	}
@@ -128,14 +160,30 @@ func (l *Listing) Validate() error {
 	if err := l.validateContact(); err != nil {
 		return err
 	}
-	if l.City == "" {
-		return errors.New("city is required")
+
+	// 2. Simple Field & Length Rules
+	for _, rule := range validationRules {
+		if rule.condition(l) {
+			return errors.New(rule.err)
+		}
 	}
 
-	if err := l.validateTypeSpecific(); err != nil {
-		return err
+	for _, rule := range lengthRules {
+		if rule.field(l) > rule.limit {
+			return errors.New(rule.err)
+		}
 	}
-	return l.validateLengths()
+
+	// 3. Job Specific Required Fields
+	if l.Type == Job {
+		for _, f := range jobFields {
+			if f.field(l) == "" {
+				return errors.New(f.err)
+			}
+		}
+	}
+
+	return l.validateTypeSpecific()
 }
 
 func (l *Listing) validateOrigin() error {
@@ -207,42 +255,12 @@ func (l *Listing) validateEvent() error {
 }
 
 func (l *Listing) validateJob() error {
-	if l.Company == "" {
-		return errors.New("company name is required for job listings")
-	}
-	if l.Description == "" {
-		return errors.New("description is required")
-	}
-	if l.Skills == "" {
-		return errors.New("skills are required for job listings")
-	}
-	if l.PayRange == "" {
-		return errors.New("compensation/pay range is required")
-	}
 	if l.JobStartDate.IsZero() {
 		return errors.New("job start date is required")
 	}
 	if l.JobStartDate.Before(time.Now().Add(-24 * time.Hour)) {
 		return errors.New("job start date cannot be in the past")
 	}
-	if l.JobApplyURL == "" {
-		return errors.New("apply url is required")
-	}
 	return nil
 }
 
-func (l *Listing) validateLengths() error {
-	if len(l.Title) > 100 {
-		return errors.New("title cannot exceed 100 characters")
-	}
-	if len(l.Description) > 2000 {
-		return errors.New("description cannot exceed 2000 characters")
-	}
-	if len(l.Company) > 100 {
-		return errors.New("company name cannot exceed 100 characters")
-	}
-	if len(l.Address) > 200 {
-		return errors.New("address cannot exceed 200 characters")
-	}
-	return nil
-}

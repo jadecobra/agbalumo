@@ -134,3 +134,44 @@ func checkXSS(config AuditConfig) (bool, bool) {
 	out, _ := cmd.CombinedOutput()
 	return len(strings.TrimSpace(string(out))) == 0, false
 }
+
+// RunChiefCriticAudit performs a comprehensive code quality audit.
+func RunChiefCriticAudit(rootDir string) error {
+	fmt.Println("🚀 Starting ChiefCritic Robustness Audit...")
+
+	tools := []struct {
+		name string
+		cmd  []string
+	}{
+		{"Cognitive Complexity", []string{"go", "run", "github.com/uudashr/gocognit/cmd/gocognit", "-over", "10", "./cmd", "./internal"}},
+		{"Repeated Strings", []string{"go", "run", "github.com/jgautheron/goconst/cmd/goconst", "./cmd/...", "./internal/..."}},
+		{"Struct Alignment", []string{"go", "run", "golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment", "./internal/...", "./cmd/..."}},
+		{"Code Duplication", []string{"go", "run", "github.com/mibk/dupl", "-threshold", "15", "./cmd", "./internal"}},
+	}
+
+	failed := false
+	for i, t := range tools {
+		fmt.Printf("\n[%d/%d] Checking %s...\n", i+1, len(tools), t.name)
+		if err := runTool(rootDir, t.cmd[0], t.cmd[1:]...); err != nil {
+			fmt.Printf("❌ %s failed!\n", t.name)
+			if t.name == "Cognitive Complexity" {
+				failed = true
+			}
+		}
+	}
+
+	fmt.Println("\n✅ ChiefCritic Audit Complete!")
+	if failed {
+		return fmt.Errorf("robustness audit failed due to mandatory quality gate violations")
+	}
+	return nil
+}
+
+func runTool(dir, name string, args ...string) error {
+	//nolint:gosec // G204: Maintenance utility running trusted audit tools
+	cmd := exec.Command(name, args...)
+	cmd.Dir = dir
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}

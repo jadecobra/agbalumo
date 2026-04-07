@@ -53,3 +53,15 @@ type MockListingService struct{}
 func (m *MockListingService) ClaimListing(ctx context.Context, user domain.User, listingID string) (domain.ClaimRequest, error) {
 	return domain.ClaimRequest{}, nil
 }
+
+type MockCategorizationService struct{}
+
+func (m *MockCategorizationService) GetActiveCategories(ctx context.Context) ([]domain.CategoryData, error) {
+	return []domain.CategoryData{}, nil
+}
+
+func (m *MockCategorizationService) GetCategories(ctx context.Context, filter domain.CategoryFilter) ([]domain.CategoryData, error) {
+	return []domain.CategoryData{}, nil
+}
+
+

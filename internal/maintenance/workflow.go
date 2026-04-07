@@ -19,57 +19,58 @@ const (
 
 // InferCurrentPhase detects the workflow state from Git history and staged changes.
 func InferCurrentPhase(rootDir string) (WorkflowPhase, error) {
-	// 1. Get staged files
-	cmdDiff := exec.Command("git", "diff", "--cached", "--name-only")
-	cmdDiff.Dir = rootDir
-	stagedBytes, err := cmdDiff.Output()
+	staged, err := getStagedFiles(rootDir)
 	if err != nil {
-		return PhaseIdle, fmt.Errorf("failed to get staged files: %w", err)
+		return PhaseIdle, err
 	}
-	staged := strings.TrimSpace(string(stagedBytes))
-
-	// 2. Get last commit message
-	cmdLog := exec.Command("git", "log", "-1", "--pretty=%B")
-	cmdLog.Dir = rootDir
-	logBytes, err := cmdLog.Output()
-	if err != nil {
-		return PhaseIdle, fmt.Errorf("failed to get last commit: %w", err)
-	}
-	lastMsg := strings.TrimSpace(string(logBytes))
-
-	// Inference Logic:
-	// A. If no staged files...
 	if staged == "" {
 		return PhaseIdle, nil
 	}
 
-	// B. If staged files are ONLY tests...
-	isOnlyTests := true
-	lines := strings.Split(staged, "\n")
-	for _, l := range lines {
-		if l == "" {
-			continue
-		}
-		if !strings.HasSuffix(l, "_test.go") {
-			isOnlyTests = false
-			break
-		}
-	}
-	if isOnlyTests && len(lines) > 0 && lines[0] != "" {
+	if isOnlyTestsStaged(staged) {
 		return PhaseRed, nil
 	}
 
-	// C. If last commit was a test...
-	if strings.HasPrefix(lastMsg, "test") {
+	lastMsg, err := getLastCommitMsg(rootDir)
+	if err != nil {
+		return PhaseIdle, err
+	}
+
+	switch {
+	case strings.HasPrefix(lastMsg, "test"):
 		return PhaseGreen, nil
-	}
-
-	// D. If last commit was feat/fix...
-	if strings.HasPrefix(lastMsg, "feat") || strings.HasPrefix(lastMsg, "fix") {
+	case strings.HasPrefix(lastMsg, "feat"), strings.HasPrefix(lastMsg, "fix"):
 		return PhaseRefactor, nil
+	default:
+		return PhaseIdle, nil
 	}
+}
 
-	return PhaseIdle, nil
+func getStagedFiles(rootDir string) (string, error) {
+	cmd := exec.Command("git", "diff", "--cached", "--name-only")
+	cmd.Dir = rootDir
+	out, err := cmd.Output()
+	return strings.TrimSpace(string(out)), err
+}
+
+func getLastCommitMsg(rootDir string) (string, error) {
+	cmd := exec.Command("git", "log", "-1", "--pretty=%B")
+	cmd.Dir = rootDir
+	out, err := cmd.Output()
+	return strings.TrimSpace(string(out)), err
+}
+
+func isOnlyTestsStaged(staged string) bool {
+	lines := strings.Split(staged, "\n")
+	if len(lines) == 0 || lines[0] == "" {
+		return false
+	}
+	for _, l := range lines {
+		if l != "" && !strings.HasSuffix(l, "_test.go") {
+			return false
+		}
+	}
+	return true
 }
 
 // ExecuteGateChecks runs the quality gates appropriate for the current phase.
@@ -78,49 +79,51 @@ func ExecuteGateChecks(rootDir string, phase WorkflowPhase) error {
 
 	switch phase {
 	case PhaseRed:
-		// RED: Test MUST fail
-		fmt.Println("🔍 Verifying RED phase (staged test must fail)...")
-		if err := runTests(rootDir); err == nil {
-			return fmt.Errorf("RED phase violation: staged tests pass, but they should fail")
-		}
-		fmt.Println("✅ RED gate passed: Staged test fails as expected.")
-
+		return verifyRedGate(rootDir)
 	case PhaseGreen:
-		// GREEN: Implementation MUST pass and satisfy basic contract checks
-		fmt.Println("🔍 Verifying GREEN phase (implementation must pass tests)...")
-		if err := runTests(rootDir); err != nil {
-			return fmt.Errorf("GREEN phase violation: tests failed: %w", err)
-		}
-
-		fmt.Println("🔍 Checking API/CLI contract drift...")
-		// Use default paths for drift check
-		ctx := "."
-		if err := checkContractDrift(ctx); err != nil {
-			return fmt.Errorf("GREEN phase violation: contract drift detected: %w", err)
-		}
-		fmt.Println("✅ GREEN gate passed: Tests pass and contracts are in sync.")
-
+		return verifyGreenGate(rootDir)
 	case PhaseRefactor:
-		// REFACTOR: Must pass all quality gates including coverage and lint
-		fmt.Println("🔍 Verifying REFACTOR phase (full audit)...")
-		if err := runTests(rootDir); err != nil {
-			return err
-		}
-
-		// Coverage check
-		if err := CompareCoverageThreshold(".metrics/coverage"); err != nil {
-			// fallback to legacy
-			if e := CompareCoverageThreshold(".agents/coverage-threshold"); e != nil {
-				return fmt.Errorf("REFACTOR phase violation: coverage threshold not met: %w", e)
-			}
-		}
-
-		fmt.Println("✅ REFACTOR gate passed.")
-
+		return verifyRefactorGate(rootDir)
 	case PhaseIdle:
 		fmt.Println("ℹ️  No active feature or idle state. Skipping gates.")
 	}
 
+	return nil
+}
+
+func verifyRedGate(rootDir string) error {
+	fmt.Println("🔍 Verifying RED phase (staged test must fail)...")
+	if err := runTests(rootDir); err == nil {
+		return fmt.Errorf("RED phase violation: staged tests pass, but they should fail")
+	}
+	fmt.Println("✅ RED gate passed: Staged test fails as expected.")
+	return nil
+}
+
+func verifyGreenGate(rootDir string) error {
+	fmt.Println("🔍 Verifying GREEN phase (implementation must pass tests)...")
+	if err := runTests(rootDir); err != nil {
+		return fmt.Errorf("GREEN phase violation: tests failed: %w", err)
+	}
+	fmt.Println("🔍 Checking API/CLI contract drift...")
+	if err := checkContractDrift("."); err != nil {
+		return fmt.Errorf("GREEN phase violation: contract drift detected: %w", err)
+	}
+	fmt.Println("✅ GREEN gate passed: Tests pass and contracts are in sync.")
+	return nil
+}
+
+func verifyRefactorGate(rootDir string) error {
+	fmt.Println("🔍 Verifying REFACTOR phase (full audit)...")
+	if err := runTests(rootDir); err != nil {
+		return err
+	}
+	if err := CompareCoverageThreshold(".metrics/coverage"); err != nil {
+		if e := CompareCoverageThreshold(".agents/coverage-threshold"); e != nil {
+			return fmt.Errorf("REFACTOR phase violation: coverage threshold not met: %w", e)
+		}
+	}
+	fmt.Println("✅ REFACTOR gate passed.")
 	return nil
 }
 

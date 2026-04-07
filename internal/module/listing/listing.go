@@ -8,7 +8,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"sync"
-	"time"
+
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/labstack/echo/v4"
@@ -86,18 +86,12 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		locations, locationsErr = h.App.DB.GetLocations(ctx)
 	}()
 
-	var ok bool
-	categories, ok = h.App.CatCache.Get()
-	if !ok {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			categories, categoriesErr = h.App.DB.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: true})
-			if categoriesErr == nil {
-				h.App.CatCache.Set(categories, 5*time.Minute)
-			}
-		}()
-	}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		categories, categoriesErr = h.App.CategorizationSvc.GetActiveCategories(ctx)
+	}()
+
 
 	wg.Wait()
 
@@ -262,20 +256,14 @@ func (h *ListingHandler) renderWithBaseContext(c echo.Context, tmpl string, data
 	}
 
 	if !ok {
-		// Check Cache First
-		categories, ok = h.App.CatCache.Get()
-		if !ok {
-			var err error
-			categories, err = h.App.DB.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: true})
-			if err != nil {
-				c.Logger().Errorf("Failed to retrieve categories: %v", err)
-				categories = []domain.CategoryData{}
-			} else {
-				// Cache for 5 minutes
-				h.App.CatCache.Set(categories, 5*time.Minute)
-			}
+		var err error
+		categories, err = h.App.CategorizationSvc.GetActiveCategories(ctx)
+		if err != nil {
+			c.Logger().Errorf("Failed to retrieve categories: %v", err)
+			categories = []domain.CategoryData{}
 		}
 	}
+
 
 	data["Categories"] = categories
 	data["Env"] = h.App.Cfg.Env

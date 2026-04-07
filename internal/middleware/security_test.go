@@ -40,26 +40,22 @@ func TestSecureHeaders(t *testing.T) {
 		}
 	}
 
-	if csp := headers.Get("Content-Security-Policy"); csp == "" {
-		t.Error("Expected Content-Security-Policy header to be set")
+	if got := headers.Get("Content-Security-Policy"); got == "" {
+		t.Error("Expected Content-Security-Policy header")
 	} else {
-		if strings.Contains(csp, "script-src") && strings.Contains(csp, "'unsafe-inline'") {
-			// Extract script-src portion to check if unsafe-inline is in it
-			// Simple check: the full CSP should not have unsafe-inline in script-src
-			// Since style-src still has unsafe-inline, we need a targeted check
-			parts := strings.Split(csp, ";")
-			for _, part := range parts {
-				trimmed := strings.TrimSpace(part)
-				if strings.HasPrefix(trimmed, "script-src") {
-					if strings.Contains(trimmed, "'unsafe-inline'") {
-						t.Error("script-src should NOT contain 'unsafe-inline'")
-					}
-				}
-			}
-		}
+		checkScriptSrc(t, got)
 	}
 
 	if perm := headers.Get("Permissions-Policy"); perm == "" {
-		t.Error("Expected Permissions-Policy header to be set")
+		t.Error("Expected Permissions-Policy header")
+	}
+}
+
+func checkScriptSrc(t *testing.T, csp string) {
+	for _, part := range strings.Split(csp, ";") {
+		trimmed := strings.TrimSpace(part)
+		if strings.HasPrefix(trimmed, "script-src") && strings.Contains(trimmed, "'unsafe-inline'") {
+			t.Error("script-src should NOT contain 'unsafe-inline'")
+		}
 	}
 }

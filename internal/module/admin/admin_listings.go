@@ -1,14 +1,14 @@
 package admin
 
 import (
-	"github.com/jadecobra/agbalumo/internal/module/listing"
-
-	"github.com/jadecobra/agbalumo/internal/ui"
-
+	"context"
+	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/module/listing"
+	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
 )
 
@@ -80,20 +80,14 @@ func (h *AdminHandler) HandleToggleFeatured(c echo.Context) error {
 	featured := c.FormValue("featured") == "true"
 	ctx := c.Request().Context()
 
-	if featured {
-		listing, err := h.App.DB.FindByID(ctx, id)
-		if err != nil {
-			return ui.RespondError(c, err)
-		}
+	listing, err := h.App.DB.FindByID(ctx, id)
+	if err != nil {
+		return ui.RespondError(c, err)
+	}
 
-		if !listing.Featured {
-			featuredListings, err := h.App.DB.GetFeaturedListings(ctx, string(listing.Type))
-			if err != nil {
-				return ui.RespondError(c, err)
-			}
-			if len(featuredListings) >= 3 {
-				return ui.RespondJSONError(c, http.StatusBadRequest, "Maximum of 3 featured listings per category reached")
-			}
+	if featured {
+		if err := h.validateFeaturedLimit(ctx, listing); err != nil {
+			return ui.RespondJSONError(c, http.StatusBadRequest, err.Error())
 		}
 	}
 
@@ -101,10 +95,20 @@ func (h *AdminHandler) HandleToggleFeatured(c echo.Context) error {
 		return ui.RespondError(c, err)
 	}
 
-	updatedListing, err := h.App.DB.FindByID(ctx, id)
-	if err != nil {
-		return ui.RespondError(c, err)
-	}
-
+	updatedListing, _ := h.App.DB.FindByID(ctx, id)
 	return c.Render(http.StatusOK, "admin_listing_table_row", updatedListing)
+}
+
+func (h *AdminHandler) validateFeaturedLimit(ctx context.Context, listing domain.Listing) error {
+	if listing.Featured {
+		return nil
+	}
+	featured, err := h.App.DB.GetFeaturedListings(ctx, string(listing.Type))
+	if err != nil {
+		return err
+	}
+	if len(featured) >= 3 {
+		return fmt.Errorf("Maximum of 3 featured listings per category reached")
+	}
+	return nil
 }

@@ -179,8 +179,12 @@ func TestAdminDashboard_FlashMessages(t *testing.T) {
 
 func TestAdminDashboard_ErrorPaths(t *testing.T) {
 	mockRepo := NewMockRepository()
-	app := &env.AppEnv{DB: mockRepo}
+	app := &env.AppEnv{
+		DB:                mockRepo,
+		CategorizationSvc: &testutil.MockCategorizationService{},
+	}
 	h := admin.NewAdminHandler(app)
+
 
 	tests := []struct {
 		name    string

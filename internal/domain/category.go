@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"sync"
 	"time"
 )
 
@@ -18,7 +19,6 @@ const (
 	Event    Category = "Event"
 )
 
-
 // CategoryData represents a category entity in the system.
 type CategoryData struct {
 	ID                        string    `json:"id"`
@@ -35,3 +35,27 @@ type CategoryData struct {
 type CategoryFilter struct {
 	ActiveOnly bool
 }
+
+// CategoryCache is a simple thread-safe cache for category data.
+type CategoryCache struct {
+	mu         sync.RWMutex
+	categories []CategoryData
+	expiration time.Time
+}
+
+func (c *CategoryCache) Get() ([]CategoryData, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	if time.Now().After(c.expiration) {
+		return nil, false
+	}
+	return c.categories, true
+}
+
+func (c *CategoryCache) Set(categories []CategoryData, ttl time.Duration) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.categories = categories
+	c.expiration = time.Now().Add(ttl)
+}
+
