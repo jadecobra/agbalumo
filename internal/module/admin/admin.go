@@ -232,54 +232,33 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 // HandleAddCategory processes the form submission to add a new category
 func (h *AdminHandler) HandleAddCategory(c echo.Context) error {
 	ctx := c.Request().Context()
-
 	name := strings.TrimSpace(c.FormValue("name"))
 	if name == "" {
 		return c.Redirect(http.StatusFound, "/admin")
 	}
 
-	// Case-insensitive check for existing category
-	existing, err := h.App.CategorizationSvc.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: false})
-	if err == nil {
-		for _, cat := range existing {
-			if strings.EqualFold(cat.Name, name) {
-				sess := customMiddleware.GetSession(c)
-				if sess != nil {
-					sess.AddFlash(fmt.Sprintf("Category '%s' already exists!", cat.Name), "message")
-					_ = sess.Save(c.Request(), c.Response())
-				}
-				return c.Redirect(http.StatusFound, "/admin")
-			}
+	if existing, err := h.App.CategorizationSvc.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: false}); err == nil {
+		if hasDuplicateCategory(existing, name) {
+			return flashAndRedirect(c, fmt.Sprintf("Category '%s' already exists!", name), "/admin")
 		}
 	}
 
-	claimableStr := c.FormValue("claimable")
-	claimable := claimableStr == "true"
-
+	claimable := c.FormValue("claimable") == "true"
 	now := time.Now()
 	cat := domain.CategoryData{
 		ID:        strings.ToLower(strings.ReplaceAll(name, " ", "-")),
 		Name:      name,
 		Claimable: claimable,
-		IsSystem:  false,
 		Active:    true,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}
 
-	err = h.App.DB.SaveCategory(ctx, cat)
-	if err != nil {
+	if err := h.App.DB.SaveCategory(ctx, cat); err != nil {
 		c.Logger().Errorf("failed to save custom category: %v", err)
 	}
 
-	// Add success flash message
-	sess := customMiddleware.GetSession(c)
-	if sess != nil {
-		sess.AddFlash("Category added successfully!", "message")
-		_ = sess.Save(c.Request(), c.Response())
-	}
-
-	return c.Redirect(http.StatusFound, "/admin")
+	return flashAndRedirect(c, "Category added successfully!", "/admin")
 }
 
 // HandleUsers renders the list of users for admins.
@@ -321,4 +300,21 @@ func (h *AdminHandler) HandleExportListings(c echo.Context) error {
 
 	_, err = io.Copy(c.Response().Writer, reader)
 	return err
+}
+
+func hasDuplicateCategory(existing []domain.CategoryData, name string) bool {
+	for _, cat := range existing {
+		if strings.EqualFold(cat.Name, name) {
+			return true
+		}
+	}
+	return false
+}
+
+func flashAndRedirect(c echo.Context, msg, url string) error {
+	if sess := customMiddleware.GetSession(c); sess != nil {
+		sess.AddFlash(msg, "message")
+		_ = sess.Save(c.Request(), c.Response())
+	}
+	return c.Redirect(http.StatusFound, url)
 }
