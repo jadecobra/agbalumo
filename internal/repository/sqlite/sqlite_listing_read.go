@@ -11,15 +11,6 @@ import (
 	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
-const listingSelections = `
-	id, COALESCE(owner_id, ''), owner_origin, type, title, description,
-	COALESCE(city, ''), COALESCE(address, ''), COALESCE(hours_of_operation, ''), 
-	COALESCE(contact_email, ''), COALESCE(contact_phone, ''), COALESCE(contact_whatsapp, ''),
-	COALESCE(website_url, ''), COALESCE(image_url, ''), created_at, deadline, is_active,
-	event_start, event_end,
-	COALESCE(skills, ''), job_start_date, COALESCE(job_apply_url, ''),
-	COALESCE(company, ''), COALESCE(pay_range, ''), COALESCE(status, 'Approved'), featured
-`
 
 func scanListing(s Scanner) (domain.Listing, error) {
 	var l domain.Listing
@@ -66,7 +57,7 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 	order := r.buildOrderClause(sortField, sortOrder)
 
 	// #nosec G202 - Dynamic query construction with trusted internal fragments
-	query := `SELECT ` + listingSelections + ` FROM listings 
+	query := `SELECT ` + ListingSelectionsSQL + ` FROM listings 
 	          WHERE rowid IN (SELECT rowid FROM listings ` + where + ` ORDER BY ` + order + ` LIMIT ? OFFSET ?)
 	          ORDER BY ` + order
 	args = append(args, limit, offset)
@@ -89,11 +80,11 @@ func (r *SQLiteRepository) buildFindAllWhere(filterType, queryText string, inclu
 	var args []interface{}
 
 	if !includeInactive {
-		where += ` AND is_active = true AND status = 'Approved'`
+		where += ` AND ` + ListingActiveApprovedSQL
 	}
 
 	if filterType != "" {
-		where += ` AND type = ?`
+		where += ListingFilterTypeSQL
 		args = append(args, filterType)
 	}
 
@@ -168,7 +159,7 @@ func (r *SQLiteRepository) FindByID(ctx context.Context, id string) (domain.List
 	}()
 
 	query := `
-		SELECT ` + listingSelections + `
+		SELECT ` + ListingSelectionsSQL + `
 		FROM listings
 		WHERE id = ?
 	`
@@ -183,7 +174,7 @@ func (r *SQLiteRepository) FindByID(ctx context.Context, id string) (domain.List
 
 func (r *SQLiteRepository) FindByTitle(ctx context.Context, title string) ([]domain.Listing, error) {
 	query := `
-		SELECT ` + listingSelections + `
+		SELECT ` + ListingSelectionsSQL + `
 		FROM listings
 		WHERE title = ?
 	`
@@ -211,7 +202,7 @@ func (r *SQLiteRepository) FindAllByOwner(ctx context.Context, ownerID string, l
 		return nil, 0, err
 	}
 
-	query := `SELECT ` + listingSelections + `
+	query := `SELECT ` + ListingSelectionsSQL + `
               FROM listings 
               WHERE owner_id = ? 
               ORDER BY created_at DESC
@@ -237,8 +228,7 @@ func (r *SQLiteRepository) FindAllByOwner(ctx context.Context, ownerID string, l
 // TitleExists checks if a listing with the given title exists using an efficient EXISTS query.
 func (r *SQLiteRepository) TitleExists(ctx context.Context, title string) (bool, error) {
 	var exists bool
-	query := `SELECT EXISTS(SELECT 1 FROM listings WHERE title = ?)`
-	err := r.readDB.QueryRowContext(ctx, query, title).Scan(&exists)
+	err := r.readDB.QueryRowContext(ctx, ListingTitleExistsSQL, title).Scan(&exists)
 	return exists, err
 }
 
@@ -250,8 +240,7 @@ func (r *SQLiteRepository) GetCounts(ctx context.Context) (map[domain.Category]i
 		}
 	}()
 
-	query := `SELECT type, COUNT(*) FROM listings WHERE is_active = true AND status = 'Approved' GROUP BY type`
-	rows, err := r.readDB.QueryContext(ctx, query)
+	rows, err := r.readDB.QueryContext(ctx, ListingGetCountsSQL)
 	if err != nil {
 		return nil, err
 	}
@@ -270,8 +259,7 @@ func (r *SQLiteRepository) GetCounts(ctx context.Context) (map[domain.Category]i
 }
 
 func (r *SQLiteRepository) GetLocations(ctx context.Context) ([]string, error) {
-	query := `SELECT DISTINCT city FROM listings WHERE is_active = true AND status = 'Approved' AND city != '' ORDER BY city ASC`
-	rows, err := r.readDB.QueryContext(ctx, query)
+	rows, err := r.readDB.QueryContext(ctx, ListingGetLocationsSQL)
 	if err != nil {
 		return nil, err
 	}
@@ -294,13 +282,13 @@ func (r *SQLiteRepository) GetFeaturedListings(ctx context.Context, category str
 	var args []interface{}
 
 	if category != "" {
-		whereClause += " AND type = ?"
+		whereClause += ListingFilterTypeSQL
 		args = append(args, category)
 	}
 
 	// #nosec G202 - Dynamic query construction with trusted internal fragments
 	query := `
-		SELECT ` + listingSelections + `
+		SELECT ` + ListingSelectionsSQL + `
 		FROM listings 
 		` + whereClause + `
 		ORDER BY created_at DESC 

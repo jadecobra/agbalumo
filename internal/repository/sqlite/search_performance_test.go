@@ -30,33 +30,8 @@ func BenchmarkSearchPerformance(b *testing.B) {
 	}
 
 	b.Logf("Seeding %d listings...", numListings)
-	for i := 0; i < numListings; i++ {
-		l := domain.Listing{
-			ID:          fmt.Sprintf("listing-%d", i),
-			Title:       fmt.Sprintf("Business Listing %d", i),
-			Description: fmt.Sprintf("Description for business %d with some common keywords like food service ghana nigeria.", i),
-			Type:        domain.Business,
-			OwnerOrigin: "Nigeria",
-			City:        "Houston",
-			Address:     fmt.Sprintf("%d Main St", i),
-			IsActive:    true,
-			Status:      domain.ListingStatusApproved,
-			CreatedAt:   time.Now().Add(time.Duration(-i) * time.Hour),
-		}
-		// Occasionally change type and status
-		if i%5 == 0 {
-			l.Type = domain.Service
-		}
-		if i%10 == 0 {
-			l.Status = domain.ListingStatusPending
-		}
-		if i%20 == 0 {
-			l.IsActive = false
-		}
-
-		if err := repo.Save(ctx, l); err != nil {
-			b.Fatalf("Failed to seed listing %d: %v", i, err)
-		}
+	if err := seedBenchmarkData(ctx, repo, numListings); err != nil {
+		b.Fatalf("Failed to seed: %v", err)
 	}
 	b.Log("Seeding complete.")
 
@@ -89,4 +64,35 @@ func BenchmarkSearchPerformance(b *testing.B) {
 			_, _, _ = repo.FindAll(ctx, "", "", "", "", false, 30, 5000)
 		}
 	})
+}
+
+func seedBenchmarkData(ctx context.Context, repo *sqlite.SQLiteRepository, numListings int) error {
+	for i := 0; i < numListings; i++ {
+		l := domain.Listing{
+			ID:          fmt.Sprintf("listing-%d", i),
+			Title:       fmt.Sprintf("Business Listing %d", i),
+			Description: fmt.Sprintf("Description for business %d with some common keywords like food service ghana nigeria.", i),
+			Type:        domain.Business,
+			OwnerOrigin: "Nigeria",
+			City:        "Houston",
+			Address:     fmt.Sprintf("%d Main St", i),
+			IsActive:    true,
+			Status:      domain.ListingStatusApproved,
+			CreatedAt:   time.Now().Add(time.Duration(-i) * time.Hour),
+		}
+		if i%5 == 0 {
+			l.Type = domain.Service
+		}
+		if i%10 == 0 {
+			l.Status = domain.ListingStatusPending
+		}
+		if i%20 == 0 {
+			l.IsActive = false
+		}
+
+		if err := repo.Save(ctx, l); err != nil {
+			return err
+		}
+	}
+	return nil
 }

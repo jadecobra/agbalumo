@@ -1,5 +1,36 @@
 package sqlite
 
+// ListingSelectionsSQL is the shared column selection for reading listings.
+const ListingSelectionsSQL = `
+	id, COALESCE(owner_id, ''), owner_origin, type, title, description,
+	COALESCE(city, ''), COALESCE(address, ''), COALESCE(hours_of_operation, ''), 
+	COALESCE(contact_email, ''), COALESCE(contact_phone, ''), COALESCE(contact_whatsapp, ''),
+	COALESCE(website_url, ''), COALESCE(image_url, ''), created_at, deadline, is_active,
+	event_start, event_end,
+	COALESCE(skills, ''), job_start_date, COALESCE(job_apply_url, ''),
+	COALESCE(company, ''), COALESCE(pay_range, ''), COALESCE(status, 'Approved'), featured
+`
+
+// UserSelectionsSQL is the shared column selection for reading users.
+const UserSelectionsSQL = `id, google_id, email, name, avatar_url, COALESCE(role, 'User'), created_at`
+
+// CategorySelectionsSQL is the shared column selection for reading categories.
+const CategorySelectionsSQL = `id, name, claimable, is_system, active, requires_special_validation, created_at, updated_at`
+
+// Shared SQL fragments
+const (
+	ListingActiveApprovedSQL = `is_active = true AND status = 'Approved'`
+	ListingFilterTypeSQL     = ` AND type = ?`
+)
+
+// Shared Read Queries
+const (
+	ListingGetCountsSQL    = `SELECT type, COUNT(*) FROM listings WHERE ` + ListingActiveApprovedSQL + ` GROUP BY type`
+	ListingGetLocationsSQL = `SELECT DISTINCT city FROM listings WHERE ` + ListingActiveApprovedSQL + ` AND city != '' ORDER BY city ASC`
+	ListingTitleExistsSQL  = `SELECT EXISTS(SELECT 1 FROM listings WHERE title = ?)`
+	UserGetCountSQL        = `SELECT COUNT(*) FROM users`
+)
+
 const listingColumns = `(id, owner_id, title, description, type, owner_origin, city, address, hours_of_operation, is_active, created_at, image_url, contact_email, contact_phone, contact_whatsapp, website_url, deadline, event_start, event_end, skills, job_start_date, job_apply_url, company, pay_range, status, featured)`
 
 const listingUpsertUpdate = `ON CONFLICT(id) DO UPDATE SET

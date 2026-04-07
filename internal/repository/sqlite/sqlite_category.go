@@ -18,7 +18,7 @@ func (r *SQLiteRepository) SaveCategory(ctx context.Context, c domain.CategoryDa
 // GetCategories retrieves categories based on the provided filter.
 func (r *SQLiteRepository) GetCategories(ctx context.Context, filter domain.CategoryFilter) ([]domain.CategoryData, error) {
 	query := `
-		SELECT id, name, claimable, is_system, active, requires_special_validation, created_at, updated_at
+		SELECT ` + CategorySelectionsSQL + `
 		FROM categories
 		WHERE 1=1
 	`
@@ -66,7 +66,7 @@ func (r *SQLiteRepository) UpsertCoreCategory(ctx context.Context, c domain.Cate
 // GetCategory retrieves a single category by its name (ID).
 func (r *SQLiteRepository) GetCategory(ctx context.Context, name string) (domain.CategoryData, error) {
 	query := `
-		SELECT id, name, claimable, is_system, active, requires_special_validation, created_at, updated_at
+		SELECT ` + CategorySelectionsSQL + `
 		FROM categories
 		WHERE id = ?
 	`
