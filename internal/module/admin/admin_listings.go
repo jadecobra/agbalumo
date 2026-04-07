@@ -67,7 +67,7 @@ func (h *AdminHandler) HandleListingRow(c echo.Context) error {
 	if err != nil {
 		return ui.RespondError(c, err)
 	}
-	return c.Render(http.StatusOK, "admin_listing_table_row", listing)
+	return h.renderListingRow(c, listing)
 }
 
 // HandleToggleFeatured toggles the featured status of a listing.
@@ -96,7 +96,11 @@ func (h *AdminHandler) HandleToggleFeatured(c echo.Context) error {
 	}
 
 	updatedListing, _ := h.App.DB.FindByID(ctx, id)
-	return c.Render(http.StatusOK, "admin_listing_table_row", updatedListing)
+	return h.renderListingRow(c, updatedListing)
+}
+
+func (h *AdminHandler) renderListingRow(c echo.Context, listing domain.Listing) error {
+	return c.Render(http.StatusOK, "admin_listing_table_row", listing)
 }
 
 func (h *AdminHandler) validateFeaturedLimit(ctx context.Context, listing domain.Listing) error {

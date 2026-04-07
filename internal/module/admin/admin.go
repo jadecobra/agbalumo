@@ -6,6 +6,7 @@ import (
 	"github.com/jadecobra/agbalumo/internal/module/user"
 	"github.com/jadecobra/agbalumo/internal/ui"
 
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -16,7 +17,6 @@ import (
 	"github.com/jadecobra/agbalumo/internal/infra/env"
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/labstack/echo/v4"
-	"golang.org/x/sync/errgroup"
 	"golang.org/x/time/rate"
 )
 
@@ -65,9 +65,9 @@ func (h *AdminHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddleware
 // AdminMiddleware checks if the user is an admin.
 func (h *AdminHandler) AdminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		u, ok := user.GetUser(c)
-		if !ok || u == nil {
-			return c.Redirect(http.StatusTemporaryRedirect, "/auth/google/login")
+		u, err := user.RequireUser(c)
+		if err != nil || u == nil {
+			return err
 		}
 
 		if u.Role != domain.UserRoleAdmin {
@@ -87,8 +87,8 @@ func (h *AdminHandler) HandleLoginView(c echo.Context) error {
 			return c.Redirect(http.StatusTemporaryRedirect, "/admin")
 		}
 	}
-	// Pass empty map to avoid potential nil pointer issues in template engine
-	return c.Render(http.StatusOK, "admin_login.html", map[string]interface{}{})
+	// Pass empty string for no error message
+	return h.renderLoginView(c, "")
 }
 
 // HandleLoginAction processes the access code and promotes the user.
@@ -96,15 +96,13 @@ func (h *AdminHandler) HandleLoginAction(c echo.Context) error {
 	code := c.FormValue("code")
 
 	if code != h.App.Cfg.AdminCode {
-		return c.Render(http.StatusOK, "admin_login.html", map[string]interface{}{
-			"Error": "Invalid Access Code",
-		})
+		return h.renderLoginView(c, "Invalid Access Code")
 	}
 
 	// Promote User
-	u, ok := user.GetUser(c)
-	if !ok || u == nil {
-		return c.Redirect(http.StatusTemporaryRedirect, "/auth/google/login")
+	u, err := user.RequireUser(c)
+	if err != nil || u == nil {
+		return err
 	}
 
 	u.Role = domain.UserRoleAdmin
@@ -119,83 +117,8 @@ func (h *AdminHandler) HandleLoginAction(c echo.Context) error {
 // HandleDashboard renders the admin dashboard.
 func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 	ctx := c.Request().Context()
-	g, ctx := errgroup.WithContext(ctx)
-
-	var (
-		claimRequests  []domain.ClaimRequest
-		userCount      int
-		feedbackCounts map[domain.FeedbackType]int
-		listingGrowth  []domain.DailyMetric
-		userGrowth     []domain.DailyMetric
-		feedbacks      []domain.Feedback
-		counts         map[domain.Category]int
-		categories     []domain.CategoryData
-		users          []domain.User
-	)
-
-	g.Go(func() error {
-		var err error
-		claimRequests, err = h.App.DB.GetPendingClaimRequests(ctx)
-		return err
-	})
-
-	g.Go(func() error {
-		var err error
-		userCount, err = h.App.DB.GetUserCount(ctx)
-		return err
-	})
-
-	g.Go(func() error {
-		var err error
-		feedbackCounts, err = h.App.DB.GetFeedbackCounts(ctx)
-		return err
-	})
-
-	g.Go(func() error {
-		var err error
-		listingGrowth, err = h.App.DB.GetListingGrowth(ctx)
-		return err
-	})
-
-	g.Go(func() error {
-		var err error
-		userGrowth, err = h.App.DB.GetUserGrowth(ctx)
-		return err
-	})
-
-	g.Go(func() error {
-		var err error
-		feedbacks, err = h.App.DB.GetAllFeedback(ctx)
-		return err
-	})
-
-	g.Go(func() error {
-		// No error return expected for GetCounts as per original code
-		counts, _ = h.App.DB.GetCounts(ctx)
-		return nil
-	})
-
-	g.Go(func() error {
-		var err error
-		categories, err = h.App.CategorizationSvc.GetCategories(ctx, domain.CategoryFilter{})
-		if err != nil {
-			c.Logger().Errorf("failed to get categories from service: %v", err)
-			categories = []domain.CategoryData{}
-		}
-		return nil // Don't fail the whole dashboard if categories fail
-	})
-
-	g.Go(func() error {
-		var err error
-		users, err = h.App.DB.GetAllUsers(ctx, 10, 0)
-		if err != nil {
-			c.Logger().Errorf("failed to get users: %v", err)
-			users = []domain.User{}
-		}
-		return nil // Don't fail the whole dashboard if users fail
-	})
-
-	if err := g.Wait(); err != nil {
+	data, err := h.loadDashboardData(ctx, c)
+	if err != nil {
 		return ui.RespondError(c, err)
 	}
 
@@ -209,24 +132,93 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 		}
 	}
 
-	listingCount := 0
-	for _, count := range counts {
-		listingCount += count
-	}
-
 	return c.Render(http.StatusOK, "admin_dashboard.html", map[string]interface{}{
-		"ClaimRequests":  claimRequests,
-		"UserCount":      userCount,
-		"FeedbackCounts": feedbackCounts,
-		"ListingGrowth":  listingGrowth,
-		"UserGrowth":     userGrowth,
-		"Feedbacks":      feedbacks,
+		"ClaimRequests":  data.ClaimRequests,
+		"UserCount":      data.UserCount,
+		"FeedbackCounts": data.FeedbackCounts,
+		"ListingGrowth":  data.ListingGrowth,
+		"UserGrowth":     data.UserGrowth,
+		"Feedbacks":      data.Feedbacks,
 		"User":           c.Get("User"),
 		"FlashMessage":   flashMsg,
-		"ListingCount":   listingCount,
-		"Categories":     categories,
-		"Users":          users,
+		"ListingCount":   data.ListingCount,
+		"Categories":     data.Categories,
+		"Users":          data.Users,
 	})
+}
+
+type dashboardData struct {
+	ClaimRequests  []domain.ClaimRequest
+	UserCount      int
+	FeedbackCounts map[domain.FeedbackType]int
+	ListingGrowth  []domain.DailyMetric
+	UserGrowth     []domain.DailyMetric
+	Feedbacks      []domain.Feedback
+	ListingCount   int
+	Categories     []domain.CategoryData
+	Users          []domain.User
+}
+
+func (h *AdminHandler) loadDashboardData(ctx context.Context, c echo.Context) (dashboardData, error) {
+	var data dashboardData
+	var err error
+
+	data.ClaimRequests, err = h.App.DB.GetPendingClaimRequests(ctx)
+	if err != nil {
+		return data, err
+	}
+
+	data.UserCount, err = h.App.DB.GetUserCount(ctx)
+	if err != nil {
+		return data, err
+	}
+
+	data.FeedbackCounts, err = h.App.DB.GetFeedbackCounts(ctx)
+	if err != nil {
+		return data, err
+	}
+
+	data.ListingGrowth, err = h.App.DB.GetListingGrowth(ctx)
+	if err != nil {
+		return data, err
+	}
+
+	data.UserGrowth, err = h.App.DB.GetUserGrowth(ctx)
+	if err != nil {
+		return data, err
+	}
+
+	data.Feedbacks, err = h.App.DB.GetAllFeedback(ctx)
+	if err != nil {
+		return data, err
+	}
+
+	counts, _ := h.App.DB.GetCounts(ctx)
+	for _, count := range counts {
+		data.ListingCount += count
+	}
+
+	data.Categories, err = h.App.CategorizationSvc.GetCategories(ctx, domain.CategoryFilter{})
+	if err != nil {
+		c.Logger().Errorf("failed to get categories from service: %v", err)
+		data.Categories = []domain.CategoryData{}
+	}
+
+	data.Users, err = h.App.DB.GetAllUsers(ctx, 10, 0)
+	if err != nil {
+		c.Logger().Errorf("failed to get users: %v", err)
+		data.Users = []domain.User{}
+	}
+
+	return data, nil
+}
+
+func (h *AdminHandler) renderLoginView(c echo.Context, errMsg string) error {
+	data := map[string]interface{}{}
+	if errMsg != "" {
+		data["Error"] = errMsg
+	}
+	return c.Render(http.StatusOK, "admin_login.html", data)
 }
 
 // HandleAddCategory processes the form submission to add a new category

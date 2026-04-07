@@ -3,6 +3,7 @@ package user
 import (
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/labstack/echo/v4"
+	"net/http"
 )
 
 // GetUser retrieves the authenticated user from the context.
@@ -32,4 +33,14 @@ func MustUser(c echo.Context) *domain.User {
 		panic("user not authenticated")
 	}
 	return user
+}
+
+// RequireUser retrieves the authenticated user from the context.
+// Redirects to login and returns the redirect error if user is missing.
+func RequireUser(c echo.Context) (*domain.User, error) {
+	u, ok := GetUser(c)
+	if !ok || u == nil {
+		return nil, c.Redirect(http.StatusTemporaryRedirect, "/auth/google/login")
+	}
+	return u, nil
 }

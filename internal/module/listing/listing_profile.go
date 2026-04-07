@@ -4,15 +4,14 @@ import (
 	"github.com/jadecobra/agbalumo/internal/module/user"
 	"github.com/jadecobra/agbalumo/internal/ui"
 
-	"net/http"
 
 	"github.com/labstack/echo/v4"
 )
 
 func (h *ListingHandler) HandleProfile(c echo.Context) error {
-	u, ok := user.GetUser(c)
-	if !ok || u == nil {
-		return c.Redirect(http.StatusTemporaryRedirect, "/auth/google/login")
+	u, err := user.RequireUser(c)
+	if err != nil || u == nil {
+		return err
 	}
 
 	p := GetPagination(c, 50)
