@@ -209,6 +209,29 @@ func parseCategory(typeStr string) domain.Category {
 	return domain.Category(titleCas)
 }
 
+func validateParsedRow(title, desc, email, phone, whatsapp, website string) error {
+	if title == "" {
+		return fmt.Errorf("title is required")
+	}
+	if desc == "" {
+		return fmt.Errorf("description is required")
+	}
+	if email == "" && phone == "" && whatsapp == "" && website == "" {
+		return fmt.Errorf("at least one contact method (email, phone, whatsapp, or website) is required")
+	}
+	return nil
+}
+
+func resolveCity(s *CSVService, city, address string) string {
+	if city != "" || address == "" || s.Geocoding == nil {
+		return city
+	}
+	if foundCity, err := s.Geocoding.GetCity(context.Background(), address); err == nil && foundCity != "" {
+		return foundCity
+	}
+	return city
+}
+
 func (s *CSVService) parseRow(record []string, headerMap map[string]int) (*domain.Listing, error) {
 	get := func(col string) string {
 		if idx, ok := headerMap[col]; ok && idx < len(record) {
@@ -217,19 +240,11 @@ func (s *CSVService) parseRow(record []string, headerMap map[string]int) (*domai
 		return ""
 	}
 
-	title := get("title")
-	if title == "" {
-		return nil, fmt.Errorf("title is required")
-	}
-
-	desc := get("description")
-	if desc == "" {
-		return nil, fmt.Errorf("description is required")
-	}
-
+	title, desc := get("title"), get("description")
 	email, phone, whatsapp, website := get("email"), get("phone"), get("whatsapp"), get("website")
-	if email == "" && phone == "" && whatsapp == "" && website == "" {
-		return nil, fmt.Errorf("at least one contact method (email, phone, whatsapp, or website) is required")
+
+	if err := validateParsedRow(title, desc, email, phone, whatsapp, website); err != nil {
+		return nil, err
 	}
 
 	origin := get("origin")
@@ -237,17 +252,13 @@ func (s *CSVService) parseRow(record []string, headerMap map[string]int) (*domai
 		origin = "Nigeria"
 	}
 
-	address, city := get("address"), get("city")
-	if city == "" && address != "" && s.Geocoding != nil {
-		if foundCity, err := s.Geocoding.GetCity(context.Background(), address); err == nil && foundCity != "" {
-			city = foundCity
-		}
-	}
+	city := resolveCity(s, get("city"), get("address"))
 
 	return &domain.Listing{
 		ID: uuid.New().String(), Title: title, Type: parseCategory(get("type")),
 		Description: desc, OwnerOrigin: origin, ContactEmail: email, WebsiteURL: website,
-		ContactPhone: phone, ContactWhatsApp: whatsapp, Address: address, City: city,
+		ContactPhone: phone, ContactWhatsApp: whatsapp, Address: get("address"), City: city,
 		HoursOfOperation: get("hours"), CreatedAt: time.Now(),
 	}, nil
 }
+
