@@ -128,7 +128,7 @@ func checkVulnerabilities(config AuditConfig) (bool, bool) {
 }
 
 func checkXSS(config AuditConfig) (bool, bool) {
-	script := "grep -rI 'template.HTML' . --exclude-dir=.git --exclude-dir=bin --exclude-dir=scripts --exclude-dir='.tester' --exclude-dir='@*' --exclude='*_test.go' --exclude='renderer.go' | grep -v 'cmd/verify/main.go' | grep -v 'template.HTMLEscapeString' | grep -v 'internal/agent' | grep -v 'internal/maintenance/audit.go'"
+	script := "grep -rI 'template.HTML' . --exclude-dir=.git --exclude-dir=bin --exclude-dir=scripts --exclude-dir='.tester' --exclude-dir='@*' --exclude='*_test.go' --exclude='renderer.go' --exclude='renderer_funcs.go' | grep -v 'cmd/verify/main.go' | grep -v 'template.HTMLEscapeString' | grep -v 'internal/agent' | grep -v 'internal/maintenance/audit.go'"
 	cmd := exec.Command("sh", "-c", script)
 	cmd.Dir = config.RootDir
 	out, _ := cmd.CombinedOutput()

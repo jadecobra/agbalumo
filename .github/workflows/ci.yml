@@ -71,7 +71,9 @@ jobs:
           cache: true
 
       - name: Run Tests with Coverage
-        run: go test -race -cover -count=1 ./...
+        run: |
+          mkdir -p .tester/coverage
+          go test -race -coverprofile=.tester/coverage/coverage.out -count=1 ./...
 
       - name: Verify Coverage Threshold (Refactored)
         run: go run cmd/verify/main.go coverage
