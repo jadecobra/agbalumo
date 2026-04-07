@@ -2,8 +2,6 @@ package listing_test
 
 import (
 	listmod "github.com/jadecobra/agbalumo/internal/module/listing"
-
-	"context"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -25,12 +23,11 @@ func TestHomePageUIValues(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	ctx := context.Background()
 
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
-	_ = app.DB.Save(ctx, domain.Listing{ID: "1", Title: "Business A", Type: domain.Business, IsActive: true, CreatedAt: time.Now()})
-	_ = app.DB.Save(ctx, domain.Listing{ID: "2", Title: "Job B", Type: domain.Job, IsActive: true, CreatedAt: time.Now().Add(time.Second)})
+	saveTestListing(t, app.DB, "1", "Business A", func(l *domain.Listing) { l.CreatedAt = time.Now() })
+	saveTestListing(t, app.DB, "2", "Job B", func(l *domain.Listing) { l.Type = domain.Job; l.CreatedAt = time.Now().Add(time.Second) })
 
 	h := listmod.NewListingHandler(app)
 	if err := h.HandleHome(c); err != nil {

@@ -1,9 +1,9 @@
 package sqlite_test
 
 import (
-	"github.com/jadecobra/agbalumo/internal/testutil"
 	"context"
 	"fmt"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"

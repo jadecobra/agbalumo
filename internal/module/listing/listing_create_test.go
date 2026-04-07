@@ -3,7 +3,6 @@ package listing_test
 import (
 	listmod "github.com/jadecobra/agbalumo/internal/module/listing"
 
-	"context"
 	"net/http"
 	"strings"
 	"testing"
@@ -79,7 +78,7 @@ func TestHandleCreate_NoUser(t *testing.T) {
 func TestHandleCreate_DuplicateTitle(t *testing.T) {
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
-	_ = app.DB.Save(context.Background(), domain.Listing{ID: "x", Title: "Existing", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "123 St"})
+	saveTestListing(t, app.DB, "x", "Existing")
 	body := "title=Existing&type=Business&owner_origin=Nigeria&description=Cool&contact_email=test@example.com&city=Lagos&address=123+Street"
 	c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(body))
 	c.Set("User", domain.User{ID: "test-user-id"})

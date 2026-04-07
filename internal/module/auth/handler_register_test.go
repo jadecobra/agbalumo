@@ -3,31 +3,20 @@ package auth_test
 import (
 	"context"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
-	"github.com/gorilla/sessions"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/module/auth"
 	"github.com/jadecobra/agbalumo/internal/testutil"
-	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	testifyMock "github.com/stretchr/testify/mock"
 	"golang.org/x/oauth2"
 )
 
 func TestAuthHandler_GoogleCallback_SaveUserError(t *testing.T) {
-	e := echo.New()
-	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
-
-	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
+	c, _ := setupAuthContext(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code")
+	req := c.Request()
 	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "random-state"})
-	store := sessions.NewCookieStore([]byte("secret"))
-	sess, _ := store.Get(req, "session-name")
-	c.Set("session", sess)
 
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
@@ -46,17 +35,9 @@ func TestAuthHandler_GoogleCallback_SaveUserError(t *testing.T) {
 }
 
 func TestAuthHandler_GoogleCallback_UpdateProfile(t *testing.T) {
-	e := echo.New()
-	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
-
-	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
+	c, rec := setupAuthContext(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code")
+	req := c.Request()
 	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "random-state"})
-	store := sessions.NewCookieStore([]byte("secret"))
-	sess, _ := store.Get(req, "session-name")
-	c.Set("session", sess)
 
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
@@ -94,17 +75,9 @@ func TestAuthHandler_GoogleCallback_UpdateProfile(t *testing.T) {
 }
 
 func TestAuthHandler_GoogleCallback_UpdateProfileSaveError(t *testing.T) {
-	e := echo.New()
-	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
-
-	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
+	c, rec := setupAuthContext(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code")
+	req := c.Request()
 	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "random-state"})
-	store := sessions.NewCookieStore([]byte("secret"))
-	sess, _ := store.Get(req, "session-name")
-	c.Set("session", sess)
 
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
@@ -139,17 +112,9 @@ func TestAuthHandler_GoogleCallback_UpdateProfileSaveError(t *testing.T) {
 }
 
 func TestAuthHandler_GoogleCallback_UpdateProfile_NoChanges(t *testing.T) {
-	e := echo.New()
-	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
-
-	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
+	c, rec := setupAuthContext(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code")
+	req := c.Request()
 	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "random-state"})
-	store := sessions.NewCookieStore([]byte("secret"))
-	sess, _ := store.Get(req, "session-name")
-	c.Set("session", sess)
 
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
@@ -183,18 +148,9 @@ func TestAuthHandler_GoogleCallback_UpdateProfile_NoChanges(t *testing.T) {
 }
 
 func TestAuthHandler_GoogleCallback_CrossSiteCallback(t *testing.T) {
-	e := echo.New()
-	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
-
-	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
+	c, rec := setupAuthContext(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code")
+	req := c.Request()
 	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "random-state"})
-
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	store := sessions.NewCookieStore([]byte("secret"))
-	sess, _ := store.Get(req, "session-name")
-	c.Set("session", sess)
 
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()

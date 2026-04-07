@@ -4,8 +4,12 @@ import (
 	"html/template"
 	"io"
 	"net/http/httptest"
+	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/infra/env"
+	"github.com/jadecobra/agbalumo/internal/module/admin"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 )
 
@@ -36,6 +40,18 @@ func setupAdminTestContext(method, target string, body io.Reader) (echo.Context,
 	c := e.NewContext(req, rec)
 	return c, rec
 }
+
+func setupAdminAuth(c echo.Context) {
+	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
+}
+
+func setupAdminTest(t *testing.T) (*env.AppEnv, *admin.AdminHandler, func()) {
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	h := admin.NewAdminHandler(app)
+	return app, h, cleanup
+}
+
+
 
 // NewAdminTemplate returns a mock template for admin tests
 func NewAdminTemplate() *template.Template {

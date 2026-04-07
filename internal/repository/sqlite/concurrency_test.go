@@ -1,7 +1,7 @@
 package sqlite
 
 import (
-		"context"
+	"context"
 	"fmt"
 	"os"
 	"sync"

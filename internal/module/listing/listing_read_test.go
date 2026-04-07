@@ -23,16 +23,7 @@ func TestHandleHome(t *testing.T) {
 
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
-	_ = app.DB.Save(context.Background(), domain.Listing{
-		ID:           "1",
-		Title:        "Listing 1",
-		Type:         domain.Business,
-		IsActive:     true,
-		Status:       domain.ListingStatusApproved,
-		Address:      "Lagos",
-		ContactEmail: "test@example.com",
-		OwnerOrigin:  "Nigeria",
-	})
+	saveTestListing(t, app.DB, "1", "Listing 1")
 	_ = app.DB.SaveCategory(context.Background(), domain.CategoryData{ID: string(domain.Business), Name: "Business", Active: true})
 	h := listmod.NewListingHandler(app)
 	if err := h.HandleHome(c); err != nil {
@@ -54,16 +45,7 @@ func TestHandleDetail(t *testing.T) {
 
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
-	_ = app.DB.Save(context.Background(), domain.Listing{
-		ID:           "1",
-		Title:        "Detail View",
-		Type:         domain.Business,
-		Status:       domain.ListingStatusApproved,
-		IsActive:     true,
-		Address:      "Lagos",
-		ContactEmail: "test@example.com",
-		OwnerOrigin:  "Nigeria",
-	})
+	saveTestListing(t, app.DB, "1", "Detail View")
 	h := listmod.NewListingHandler(app)
 	if err := h.HandleDetail(c); err != nil {
 		t.Fatal(err)
@@ -84,17 +66,7 @@ func TestHandleProfile(t *testing.T) {
 
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
-	_ = app.DB.Save(context.Background(), domain.Listing{
-		ID:           "1",
-		Title:        "My Listing",
-		OwnerID:      "u1",
-		Status:       domain.ListingStatusApproved,
-		IsActive:     true,
-		Address:      "Lagos",
-		ContactEmail: "test@example.com",
-		OwnerOrigin:  "Nigeria",
-		Type:         domain.Business,
-	})
+	saveTestListing(t, app.DB, "1", "My Listing", func(l *domain.Listing) { l.OwnerID = "u1" })
 	h := listmod.NewListingHandler(app)
 	if err := h.HandleProfile(c); err != nil {
 		t.Fatal(err)
@@ -114,16 +86,7 @@ func TestHandleFragment(t *testing.T) {
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
 	for i := 1; i <= 31; i++ {
-		_ = app.DB.Save(context.Background(), domain.Listing{
-			ID:           strconv.Itoa(i),
-			Title:        "Search Result " + strconv.Itoa(i),
-			Type:         domain.Business,
-			Status:       domain.ListingStatusApproved,
-			IsActive:     true,
-			Address:      "Lagos",
-			ContactEmail: "test@example.com",
-			OwnerOrigin:  "Nigeria",
-		})
+		saveTestListing(t, app.DB, strconv.Itoa(i), "Search Result "+strconv.Itoa(i))
 	}
 	h := listmod.NewListingHandler(app)
 	if err := h.HandleFragment(c); err != nil {

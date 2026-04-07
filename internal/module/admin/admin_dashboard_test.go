@@ -6,17 +6,24 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jadecobra/agbalumo/internal/module/admin"
-
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAdminHandler_HandleDashboard_HappyPath(t *testing.T) {
-	app, cleanup := testutil.SetupTestAppEnv(t)
+func TestAdminHandler_HandleDashboard(t *testing.T) {
+	c, rec := setupAdminTestContext(http.MethodGet, "/admin", nil)
+	setupAdminAuth(c)
+	_, h, cleanup := setupAdminTest(t)
 	defer cleanup()
-	// Seed data for various components of the dashboard
+
+	err := h.HandleDashboard(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
+}
+
+func TestAdminHandler_HandleDashboard_HappyPath(t *testing.T) {
+	app, h, cleanup := setupAdminTest(t)
+	defer cleanup()
 	ctx := context.Background()
 
 	// 1. Users
@@ -36,9 +43,8 @@ func TestAdminHandler_HandleDashboard_HappyPath(t *testing.T) {
 	// 5. Categories
 	_ = app.DB.SaveCategory(ctx, domain.CategoryData{ID: "music", Name: "Music"})
 
-	h := admin.NewAdminHandler(app)
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin", nil)
-	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
+	setupAdminAuth(c)
 
 	err := h.HandleDashboard(c)
 
@@ -47,7 +53,7 @@ func TestAdminHandler_HandleDashboard_HappyPath(t *testing.T) {
 }
 
 func TestAdminHandler_HandleDashboard_GrowthMetrics(t *testing.T) {
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	app, h, cleanup := setupAdminTest(t)
 	defer cleanup()
 	ctx := context.Background()
 
@@ -56,9 +62,8 @@ func TestAdminHandler_HandleDashboard_GrowthMetrics(t *testing.T) {
 	_ = app.DB.SaveUser(ctx, domain.User{ID: "u1", CreatedAt: now})
 	_ = app.DB.Save(ctx, domain.Listing{ID: "l1", CreatedAt: now})
 
-	h := admin.NewAdminHandler(app)
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin", nil)
-	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
+	setupAdminAuth(c)
 
 	err := h.HandleDashboard(c)
 

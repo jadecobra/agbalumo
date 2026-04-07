@@ -7,23 +7,19 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/module/admin"
-
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAdminHandler_HandleAllListings(t *testing.T) {
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin/listings", nil)
-	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
-
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	setupAdminAuth(c)
+	app, h, cleanup := setupAdminTest(t)
 	defer cleanup()
+
 	// Seed a listing
 	_ = app.DB.Save(context.Background(), domain.Listing{ID: "1", Title: "Test Listing"})
 
-	h := admin.NewAdminHandler(app)
 	_ = h.HandleAllListings(c)
 	assert.Equal(t, http.StatusOK, rec.Code)
 }
@@ -106,17 +102,16 @@ func TestAdminHandler_HandleToggleFeatured(t *testing.T) {
 				urlPath = "/admin/listings/featured"
 			}
 			c, rec := setupAdminTestContext(http.MethodPost, urlPath, strings.NewReader(formData.Encode()))
+			setupAdminAuth(c)
 			if tt.id != "" {
 				c.SetParamNames("id")
 				c.SetParamValues(tt.id)
 			}
-			c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
-			app, cleanup := testutil.SetupTestAppEnv(t)
+			app, h, cleanup := setupAdminTest(t)
 			defer cleanup()
 			tt.setupData(t, app.DB)
 
-			h := admin.NewAdminHandler(app)
 			_ = h.HandleToggleFeatured(c)
 			assert.Equal(t, tt.expectCode, rec.Code)
 
@@ -138,34 +133,32 @@ func TestAdminHandler_HandleToggleFeatured(t *testing.T) {
 
 func TestAdminHandler_HandleApproveClaim(t *testing.T) {
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/claims/cr1/approve", nil)
+	setupAdminAuth(c)
 	c.SetParamNames("id")
 	c.SetParamValues("cr1")
-	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	app, h, cleanup := setupAdminTest(t)
 	defer cleanup()
+
 	// Seed a claim request
 	_ = app.DB.SaveClaimRequest(context.Background(), domain.ClaimRequest{ID: "cr1", UserID: "u1", ListingID: "l1", Status: domain.ClaimStatusPending})
 
-	h := admin.NewAdminHandler(app)
 	_ = h.HandleApproveClaim(c)
 	assert.Equal(t, http.StatusOK, rec.Code)
-
 	cr, _ := app.DB.GetClaimRequestByUserAndListing(context.Background(), "u1", "l1")
 	assert.Equal(t, domain.ClaimStatusApproved, cr.Status)
 }
 
 func TestAdminHandler_HandleListingRow(t *testing.T) {
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin/listings/1/row", nil)
+	setupAdminAuth(c)
 	c.SetParamNames("id")
 	c.SetParamValues("1")
-	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	app, h, cleanup := setupAdminTest(t)
 	defer cleanup()
 	_ = app.DB.Save(context.Background(), domain.Listing{ID: "1", Title: "Test Row Listing"})
 
-	h := admin.NewAdminHandler(app)
 	_ = h.HandleListingRow(c)
 	assert.Equal(t, http.StatusOK, rec.Code)
 }

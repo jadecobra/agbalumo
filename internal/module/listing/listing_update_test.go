@@ -3,7 +3,6 @@ package listing_test
 import (
 	listmod "github.com/jadecobra/agbalumo/internal/module/listing"
 
-	"context"
 	"net/http"
 	"strings"
 	"testing"
@@ -24,7 +23,7 @@ func TestHandleEdit(t *testing.T) {
 			name: "Success",
 			user: domain.User{ID: "owner-1"},
 			setup: func(t *testing.T, repo domain.ListingRepository) {
-				_ = repo.Save(context.Background(), domain.Listing{ID: "1", OwnerID: "owner-1", Title: "Title", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "123 St"})
+				saveTestListing(t, repo, "1", "Title", func(l *domain.Listing) { l.OwnerID = "owner-1" })
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -32,7 +31,7 @@ func TestHandleEdit(t *testing.T) {
 			name: "Forbidden",
 			user: domain.User{ID: "other-user", Role: domain.UserRoleUser},
 			setup: func(t *testing.T, repo domain.ListingRepository) {
-				_ = repo.Save(context.Background(), domain.Listing{ID: "1", OwnerID: "owner-1", Title: "Title", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "123 St"})
+				saveTestListing(t, repo, "1", "Title", func(l *domain.Listing) { l.OwnerID = "owner-1" })
 			},
 			expectedStatus: http.StatusForbidden,
 		},
@@ -70,7 +69,7 @@ func TestHandleUpdate(t *testing.T) {
 			user: domain.User{ID: "user1", Email: "owner@example.com"},
 			body: "title=Updated+Title&type=Business&owner_origin=Ghana&description=Updated&contact_email=new@example.com&city=Accra&address=123+St",
 			setup: func(t *testing.T, repo domain.ListingRepository) {
-				_ = repo.Save(context.Background(), domain.Listing{ID: "1", OwnerID: "user1", Title: "Old Title", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "123 St"})
+				saveTestListing(t, repo, "1", "Old Title", func(l *domain.Listing) { l.OwnerID = "user1" })
 			},
 			expectedStatus: http.StatusOK,
 		},
@@ -79,7 +78,7 @@ func TestHandleUpdate(t *testing.T) {
 			user: domain.User{ID: "user2", Email: "hacker@example.com", Role: domain.UserRoleUser},
 			body: "",
 			setup: func(t *testing.T, repo domain.ListingRepository) {
-				_ = repo.Save(context.Background(), domain.Listing{ID: "1", OwnerID: "user1", Title: "Old Title", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "123 St"})
+				saveTestListing(t, repo, "1", "Old Title", func(l *domain.Listing) { l.OwnerID = "user1" })
 			},
 			expectedStatus: http.StatusForbidden,
 		},
@@ -130,8 +129,8 @@ func TestHandleUpdate_NoUser(t *testing.T) {
 func TestHandleUpdate_DuplicateTitle(t *testing.T) {
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
-	_ = app.DB.Save(context.Background(), domain.Listing{ID: "1", OwnerID: "user1", Title: "Old", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "123 St"})
-	_ = app.DB.Save(context.Background(), domain.Listing{ID: "2", OwnerID: "user2", Title: "Taken Title", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "456 St"})
+	saveTestListing(t, app.DB, "1", "Old", func(l *domain.Listing) { l.OwnerID = "user1" })
+	saveTestListing(t, app.DB, "2", "Taken Title", func(l *domain.Listing) { l.OwnerID = "user2"; l.Address = "456 St" })
 	h := listmod.NewListingHandler(app)
 	c, rec := setupTestContext(http.MethodPost, "/listings/1", strings.NewReader("title=Taken+Title&type=Business&owner_origin=Ghana&description=Desc&contact_email=t@e.com&city=Kumasi&address=123+St"))
 	c.SetPath("/listings/:id")
