@@ -113,7 +113,7 @@ func extractRouteDefinitions(files []*ast.File, groupPaths map[string]string) []
 		ast.Inspect(node, func(n ast.Node) bool {
 			method, path := parseRouteCall(n, groupPaths)
 			if method != "" {
-				routes = append(routes, Route{Method: method, Path: NormalizePath(path)})
+				routes = append(routes, NewRoute(method, path))
 			}
 			return true
 		})

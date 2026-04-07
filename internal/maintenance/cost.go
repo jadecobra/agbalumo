@@ -85,7 +85,7 @@ func CalculateContextCost(dir string) (*CostReport, error) {
 
 func calculateFileCost(path string) (FileCost, error) {
 	// G304: Maintenance utility reads source files for token counting
-	content, err := os.ReadFile(path) //nolint:gosec // maintenance utility
+	content, err := readFileOrErr(path, "source file")
 	if err != nil {
 		return FileCost{}, err
 	}

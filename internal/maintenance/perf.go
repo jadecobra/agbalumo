@@ -80,9 +80,9 @@ func checkFileSizes(rootDir string) error {
 
 func checkSQLitePragmas(rootDir string) error {
 	sqlitePath := filepath.Join(rootDir, "internal/repository/sqlite/sqlite.go")
-	data, err := os.ReadFile(sqlitePath) //nolint:gosec // maintenance utility
+	data, err := readFileOrErr(sqlitePath, "SQLite repository file")
 	if err != nil {
-		return fmt.Errorf("could not read %s: %w", sqlitePath, err)
+		return err
 	}
 
 	content := string(data)

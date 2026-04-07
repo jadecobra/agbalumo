@@ -2,9 +2,6 @@ package cmd
 
 import (
 	"context"
-	"encoding/json"
-	"log/slog"
-	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -23,23 +20,9 @@ supports filtering and can output the results in a machine-readable JSON format.
 		repo := initRepo()
 
 		listings, _, err := repo.FindAll(context.Background(), "", "", "", "", false, 100, 0)
-		if err != nil {
-			slog.Error("Failed to list listings", "error", err)
-			os.Exit(1)
-		}
+		exitOnErr(err, "Failed to list listings")
 
-		if len(listings) == 0 {
-			if !flagText {
-				cmd.Println("[]")
-			} else {
-				cmd.Println("No listings found")
-			}
-			return
-		}
-
-		if !flagText {
-			data, _ := json.MarshalIndent(listings, "", "  ")
-			cmd.Println(string(data))
+		if printListResponse(cmd, listings, len(listings), "No listings found") {
 			return
 		}
 
@@ -58,15 +41,12 @@ var listingGetCmd = &cobra.Command{
 		repo := initRepo()
 
 		listing, err := repo.FindByID(context.Background(), args[0])
-		if err != nil {
-			slog.Error("Failed to get listing", "error", err)
-			os.Exit(1)
-		}
+		exitOnErr(err, "Failed to get listing")
 
 		if !flagText {
-			data, _ := json.MarshalIndent(listing, "", "  ")
-			cmd.Println(string(data))
-			return
+			if printListResponse(cmd, listing, 1, "") {
+				return
+			}
 		}
 
 		printListing(cmd, listing)

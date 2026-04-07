@@ -28,3 +28,11 @@ func NormalizePath(path string) string {
 	}
 	return p
 }
+
+// NewRoute creates a normalized Route.
+func NewRoute(method, path string) Route {
+	return Route{
+		Method: method,
+		Path:   NormalizePath(path),
+	}
+}

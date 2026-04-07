@@ -52,7 +52,7 @@ func shouldSkipPath(rootDir, path string) bool {
 
 func verifyGosecLines(path string) []string {
 	var invalid []string
-	content, err := os.ReadFile(filepath.Clean(path)) //nolint:gosec // maintenance utility reads local source files for analysis
+	content, err := readFileOrErr(filepath.Clean(path), "Go source file")
 	if err != nil {
 		return nil
 	}

@@ -3,8 +3,6 @@ package cmd
 import (
 	"context"
 	"encoding/json"
-	"log/slog"
-	"os"
 	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
@@ -19,10 +17,7 @@ var listingUpdateCmd = &cobra.Command{
 		repo := initRepo()
 
 		listing, err := repo.FindByID(context.Background(), args[0])
-		if err != nil {
-			slog.Error("Listing not found", "error", err)
-			os.Exit(1)
-		}
+		exitOnErr(err, "Listing not found")
 
 		if flagTitle != "" {
 			listing.Title = flagTitle
@@ -87,10 +82,7 @@ var listingUpdateCmd = &cobra.Command{
 			listing.PayRange = flagPayRange
 		}
 
-		if err := repo.Save(context.Background(), listing); err != nil {
-			slog.Error(domain.MsgFailedToUpdateListing, "error", err)
-			os.Exit(1)
-		}
+		exitOnErr(repo.Save(context.Background(), listing), domain.MsgFailedToUpdateListing)
 
 		if !flagText {
 			data, _ := json.MarshalIndent(listing, "", "  ")

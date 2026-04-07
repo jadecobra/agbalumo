@@ -1,8 +1,20 @@
 package maintenance
 
 import (
+	"fmt"
+	"os"
 	"sort"
+
+	"github.com/jadecobra/agbalumo/internal/util"
 )
+
+func readFileOrErr(path, label string) ([]byte, error) {
+	data, err := os.ReadFile(path) //nolint:gosec // maintenance utility
+	if err != nil {
+		return nil, fmt.Errorf("failed to read %s: %w", label, err)
+	}
+	return data, nil
+}
 
 func uniqueAndSort(routes []Route) []Route {
 	seen := make(map[string]bool)
@@ -24,14 +36,5 @@ func uniqueAndSort(routes []Route) []Route {
 }
 
 func uniqueStrings(strs []string) []string {
-	seen := make(map[string]bool)
-	var unique []string
-	for _, s := range strs {
-		if !seen[s] {
-			seen[s] = true
-			unique = append(unique, s)
-		}
-	}
-	sort.Strings(unique)
-	return unique
+	return util.UniqueStrings(strs)
 }

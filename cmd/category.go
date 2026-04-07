@@ -2,10 +2,7 @@ package cmd
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"log/slog"
-	"os"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/spf13/cobra"
@@ -39,11 +36,7 @@ properly classify and filter listings.`,
 			Active:    true,  // active by default
 		}
 
-		err := repo.SaveCategory(context.Background(), cat)
-		if err != nil {
-			slog.Error("Failed to save category", "error", err)
-			os.Exit(1)
-		}
+		exitOnErr(repo.SaveCategory(context.Background(), cat), "Failed to save category")
 
 		fmt.Printf("Successfully added category: '%s'\n", name)
 	},
@@ -56,23 +49,9 @@ var categoryListCmd = &cobra.Command{
 		repo := initRepo()
 
 		categories, err := repo.GetCategories(context.Background(), domain.CategoryFilter{ActiveOnly: false})
-		if err != nil {
-			slog.Error("Failed to get categories", "error", err)
-			os.Exit(1)
-		}
+		exitOnErr(err, "Failed to get categories")
 
-		if len(categories) == 0 {
-			if !flagText {
-				cmd.Println("[]")
-			} else {
-				cmd.Println("No categories found.")
-			}
-			return
-		}
-
-		if !flagText {
-			data, _ := json.MarshalIndent(categories, "", "  ")
-			cmd.Println(string(data))
+		if printListResponse(cmd, categories, len(categories), "No categories found.") {
 			return
 		}
 

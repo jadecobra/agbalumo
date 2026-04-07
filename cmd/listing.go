@@ -2,13 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"log/slog"
-	"os"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
 	"github.com/spf13/cobra"
 )
 
@@ -95,23 +92,6 @@ func init() {
 	listingUpdateCmd.Flags().StringVar(&flagPayRange, "pay-range", "", "New pay range")
 
 	_ = listingCreateCmd.MarkFlagRequired("title")
-}
-
-func initRepo() *sqlite.SQLiteRepository {
-	dbPath := getDatabaseURL()
-	repo, err := sqlite.NewSQLiteRepository(dbPath)
-	if err != nil {
-		slog.Error("Failed to connect to database", "error", err)
-		os.Exit(1)
-	}
-	return repo
-}
-
-func getDatabaseURL() string {
-	if dbURL := os.Getenv("DATABASE_URL"); dbURL != "" {
-		return dbURL
-	}
-	return ".tester/data/agbalumo.db"
 }
 
 func generateID() string {

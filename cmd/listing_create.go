@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"log/slog"
-	"os"
 	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
@@ -71,10 +70,7 @@ can be specified via flags.`,
 			}
 		}
 
-		if err := repo.Save(context.Background(), listing); err != nil {
-			slog.Error("Failed to create listing", "error", err)
-			os.Exit(1)
-		}
+		exitOnErr(repo.Save(context.Background(), listing), "Failed to create listing")
 
 		if !flagText {
 			data, _ := json.MarshalIndent(listing, "", "  ")

@@ -2,10 +2,7 @@ package cmd
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"log/slog"
-	"os"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/spf13/cobra"
@@ -27,16 +24,10 @@ var adminApproveCmd = &cobra.Command{
 		repo := initRepo()
 
 		listing, err := repo.FindByID(context.Background(), args[0])
-		if err != nil {
-			slog.Error("Listing not found", "error", err)
-			os.Exit(1)
-		}
+		exitOnErr(err, "Listing not found")
 
 		listing.Status = domain.ListingStatusApproved
-		if err := repo.Save(context.Background(), listing); err != nil {
-			slog.Error("Failed to approve listing", "error", err)
-			os.Exit(1)
-		}
+		exitOnErr(repo.Save(context.Background(), listing), "Failed to approve listing")
 
 		fmt.Printf("Listing approved: %s\n", args[0])
 	},
@@ -50,16 +41,10 @@ var adminRejectCmd = &cobra.Command{
 		repo := initRepo()
 
 		listing, err := repo.FindByID(context.Background(), args[0])
-		if err != nil {
-			slog.Error("Listing not found", "error", err)
-			os.Exit(1)
-		}
+		exitOnErr(err, "Listing not found")
 
 		listing.Status = domain.ListingStatusRejected
-		if err := repo.Save(context.Background(), listing); err != nil {
-			slog.Error("Failed to reject listing", "error", err)
-			os.Exit(1)
-		}
+		exitOnErr(repo.Save(context.Background(), listing), "Failed to reject listing")
 
 		fmt.Printf("Listing rejected: %s\n", args[0])
 	},
@@ -73,16 +58,10 @@ var adminFeaturedCmd = &cobra.Command{
 		repo := initRepo()
 
 		listing, err := repo.FindByID(context.Background(), args[0])
-		if err != nil {
-			slog.Error("Listing not found", "error", err)
-			os.Exit(1)
-		}
+		exitOnErr(err, "Listing not found")
 
 		listing.Featured = !listing.Featured
-		if err := repo.Save(context.Background(), listing); err != nil {
-			slog.Error(domain.MsgFailedToUpdateListing, "error", err)
-			os.Exit(1)
-		}
+		exitOnErr(repo.Save(context.Background(), listing), domain.MsgFailedToUpdateListing)
 
 		status := "featured"
 		if !listing.Featured {
@@ -99,23 +78,9 @@ var adminPendingClaimsCmd = &cobra.Command{
 		repo := initRepo()
 
 		claims, err := repo.GetPendingClaimRequests(context.Background())
-		if err != nil {
-			slog.Error("Failed to get pending claims", "error", err)
-			os.Exit(1)
-		}
+		exitOnErr(err, "Failed to get pending claims")
 
-		if len(claims) == 0 {
-			if !flagText {
-				fmt.Println("[]")
-			} else {
-				fmt.Println("No pending claim requests")
-			}
-			return
-		}
-
-		if !flagText {
-			data, _ := json.MarshalIndent(claims, "", "  ")
-			cmd.Println(string(data))
+		if printListResponse(cmd, claims, len(claims), "No pending claim requests") {
 			return
 		}
 
@@ -134,23 +99,9 @@ var adminUsersCmd = &cobra.Command{
 		repo := initRepo()
 
 		users, err := repo.GetAllUsers(context.Background(), 100, 0)
-		if err != nil {
-			slog.Error("Failed to get users", "error", err)
-			os.Exit(1)
-		}
+		exitOnErr(err, "Failed to get users")
 
-		if len(users) == 0 {
-			if !flagText {
-				fmt.Println("[]")
-			} else {
-				fmt.Println("No users found")
-			}
-			return
-		}
-
-		if !flagText {
-			data, _ := json.MarshalIndent(users, "", "  ")
-			cmd.Println(string(data))
+		if printListResponse(cmd, users, len(users), "No users found") {
 			return
 		}
 
@@ -173,16 +124,10 @@ var adminPromoteCmd = &cobra.Command{
 		repo := initRepo()
 
 		user, err := repo.FindUserByID(context.Background(), args[0])
-		if err != nil {
-			slog.Error("User not found", "error", err)
-			os.Exit(1)
-		}
+		exitOnErr(err, "User not found")
 
 		user.Role = domain.UserRoleAdmin
-		if err := repo.SaveUser(context.Background(), user); err != nil {
-			slog.Error("Failed to promote user", "error", err)
-			os.Exit(1)
-		}
+		exitOnErr(repo.SaveUser(context.Background(), user), "Failed to promote user")
 
 		fmt.Printf("User promoted to admin: %s\n", args[0])
 	},

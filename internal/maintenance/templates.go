@@ -9,10 +9,9 @@ import (
 
 // ExtractRendererFunctions extracts defined functions from the renderer.
 func ExtractRendererFunctions(path string) ([]string, error) {
-	// G304: Maintenance utility reads the renderer source file
-	data, err := os.ReadFile(path) //nolint:gosec // maintenance utility
+	data, err := readFileOrErr(path, "renderer file")
 	if err != nil {
-		return nil, fmt.Errorf("failed to read renderer file: %w", err)
+		return nil, err
 	}
 
 	lines := strings.Split(string(data), "\n")
@@ -40,7 +39,7 @@ func ExtractTemplateFunctionCalls(dir string) ([]string, error) {
 			return err
 		}
 
-		data, err := os.ReadFile(path) //nolint:gosec // maintenance utility
+		data, err := readFileOrErr(path, "template file")
 		if err != nil {
 			return err
 		}

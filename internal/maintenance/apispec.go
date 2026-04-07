@@ -26,10 +26,7 @@ func ExtractOpenAPIRoutes(content []byte) ([]Route, error) {
 		if matches := methodRe.FindStringSubmatch(line); len(matches) > 1 {
 			method := strings.ToUpper(matches[1])
 			if currentPath != "" {
-				routes = append(routes, Route{
-					Method: method,
-					Path:   NormalizePath(currentPath),
-				})
+				routes = append(routes, NewRoute(method, currentPath))
 			}
 		}
 	}
@@ -49,10 +46,7 @@ func ExtractMarkdownRoutes(content []byte) ([]Route, error) {
 		if len(matches) == 3 {
 			method := strings.ToUpper(matches[1])
 			path := matches[2]
-			routes = append(routes, Route{
-				Method: method,
-				Path:   NormalizePath(path),
-			})
+			routes = append(routes, NewRoute(method, path))
 		}
 	}
 
@@ -84,7 +78,7 @@ func extractCommandsFromCode(path string, info os.FileInfo, err error, re *regex
 		return nil, err
 	}
 
-	data, readErr := os.ReadFile(path) //nolint:gosec // maintenance utility
+	data, readErr := readFileOrErr(path, "code file")
 	if readErr != nil {
 		return nil, readErr
 	}
@@ -143,7 +137,7 @@ func extractFromMarkdownFile(path string) ([]string, error) {
 		return nil, nil
 	}
 
-	data, err := os.ReadFile(path) //nolint:gosec // maintenance utility
+	data, err := readFileOrErr(path, "markdown file")
 	if err != nil {
 		return nil, err
 	}

@@ -15,6 +15,34 @@ var rootCmd = &cobra.Command{
 	Short: "Agbalumo Maintenance and Verification Utility",
 }
 
+func makeSimpleCmd(use, short string, fn func() error) *cobra.Command {
+	return &cobra.Command{
+		Use:   use,
+		Short: short,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return fn()
+		},
+	}
+}
+
+func toSet(items []string) map[string]bool {
+	set := make(map[string]bool)
+	for _, item := range items {
+		set[item] = true
+	}
+	return set
+}
+
+func diffSets(items []string, against map[string]bool, format string) []string {
+	var drifts []string
+	for _, item := range items {
+		if !against[item] {
+			drifts = append(drifts, fmt.Sprintf(format, item))
+		}
+	}
+	return drifts
+}
+
 const errFmt = "❌ %s\n"
 
 var apiSpecCmd = &cobra.Command{
@@ -61,24 +89,11 @@ var apiSpecCmd = &cobra.Command{
 		if err == nil {
 			cliMDCmds, err := maintenance.ExtractCLIMarkdownCommands("docs/cli.md", "docs/cli")
 			if err == nil {
-				codeMap := make(map[string]bool)
-				for _, c := range cliCodeCmds {
-					codeMap[c] = true
-				}
-				mdMap := make(map[string]bool)
-				for _, c := range cliMDCmds {
-					mdMap[c] = true
-				}
-				for _, c := range cliCodeCmds {
-					if !mdMap[c] {
-						allDrifts = append(allDrifts, fmt.Sprintf("Missing in CLI Docs: %s (found in Code)", c))
-					}
-				}
-				for _, c := range cliMDCmds {
-					if !codeMap[c] {
-						allDrifts = append(allDrifts, fmt.Sprintf("Missing in Code: %s (found in CLI Docs)", c))
-					}
-				}
+				codeMap := toSet(cliCodeCmds)
+				mdMap := toSet(cliMDCmds)
+
+				allDrifts = append(allDrifts, diffSets(cliCodeCmds, mdMap, "Missing in CLI Docs: %s (found in Code)")...)
+				allDrifts = append(allDrifts, diffSets(cliMDCmds, codeMap, "Missing in Code: %s (found in CLI Docs)")...)
 			}
 		}
 
@@ -154,37 +169,21 @@ var auditCmd = &cobra.Command{
 	},
 }
 
-var verifyShasCmd = &cobra.Command{
-	Use:   "verify-shas",
-	Short: "Verify all GitHub Action SHAs are pinned",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return maintenance.VerifyActionSHAs(".")
-	},
-}
+var verifyShasCmd = makeSimpleCmd("verify-shas", "Verify all GitHub Action SHAs are pinned", func() error {
+	return maintenance.VerifyActionSHAs(".")
+})
 
-var ciToolsCmd = &cobra.Command{
-	Use:   "ci-tools",
-	Short: "Verify CI toolset availability and OS friendliness",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return maintenance.VerifyCITools(".")
-	},
-}
+var ciToolsCmd = makeSimpleCmd("ci-tools", "Verify CI toolset availability and OS friendliness", func() error {
+	return maintenance.VerifyCITools(".")
+})
 
-var gitleaksCmd = &cobra.Command{
-	Use:   "gitleaks",
-	Short: "Run gitleaks secret scan on staged files",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return maintenance.CheckGitleaks(".")
-	},
-}
+var gitleaksCmd = makeSimpleCmd("gitleaks", "Run gitleaks secret scan on staged files", func() error {
+	return maintenance.CheckGitleaks(".")
+})
 
-var ignoredFilesCmd = &cobra.Command{
-	Use:   "ignored-files",
-	Short: "Check for ignored files staged for commit",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return maintenance.CheckIgnoredFiles(".")
-	},
-}
+var ignoredFilesCmd = makeSimpleCmd("ignored-files", "Check for ignored files staged for commit", func() error {
+	return maintenance.CheckIgnoredFiles(".")
+})
 
 func reportDrift(label string, drifts []string, successMsg string) error {
 	if len(drifts) == 0 {
@@ -336,21 +335,13 @@ var precommitCmd = &cobra.Command{
 	},
 }
 
-var critiqueCmd = &cobra.Command{
-	Use:   "critique",
-	Short: "Run ChiefCritic robustness audit natively",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return maintenance.RunChiefCriticAudit(".")
-	},
-}
+var critiqueCmd = makeSimpleCmd("critique", "Run ChiefCritic robustness audit natively", func() error {
+	return maintenance.RunChiefCriticAudit(".")
+})
 
-var perfCmd = &cobra.Command{
-	Use:   "perf",
-	Short: "Run performance audit natively",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return maintenance.RunPerformanceAudit(".")
-	},
-}
+var perfCmd = makeSimpleCmd("perf", "Run performance audit natively", func() error {
+	return maintenance.RunPerformanceAudit(".")
+})
 
 var checkGatesCmd = &cobra.Command{
 	Use:   "check-gates",
