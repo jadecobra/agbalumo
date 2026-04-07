@@ -9,8 +9,11 @@ import (
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/config"
+	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/infra/env"
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
+	"context"
+	"time"
 )
 
 var (
@@ -81,5 +84,39 @@ func SetupTestAppEnv(t *testing.T) (*env.AppEnv, func()) {
 
 	return app, func() {
 		_ = repo.Close()
+	}
+}
+
+// SaveTestListing creates and saves a listing with the given identifier and title.
+func SaveTestListing(t testing.TB, db domain.ListingRepository, id, title string, extra ...func(*domain.Listing)) {
+	t.Helper()
+	l := domain.Listing{
+		ID:           id,
+		Title:        title,
+		Type:         domain.Business,
+		Status:       domain.ListingStatusApproved,
+		IsActive:     true,
+		Address:      "Lagos",
+		ContactEmail: "test@example.com",
+		OwnerOrigin:  "Nigeria",
+		CreatedAt:    time.Now(),
+	}
+	for _, f := range extra {
+		f(&l)
+	}
+	if err := db.Save(context.Background(), l); err != nil {
+		t.Fatalf("Failed to save test listing %s: %v", id, err)
+	}
+}
+
+// AssertFeaturedStatus verifies the featured status of a listing in the database.
+func AssertFeaturedStatus(t testing.TB, db domain.ListingRepository, id string, expected bool) {
+	t.Helper()
+	l, err := db.FindByID(context.Background(), id)
+	if err != nil {
+		t.Fatalf("listing %s retrieval failed: %v", id, err)
+	}
+	if l.Featured != expected {
+		t.Errorf("listing %s featured status mismatch: expected %v, got %v", id, expected, l.Featured)
 	}
 }

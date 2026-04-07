@@ -2,9 +2,12 @@ package auth_test
 
 import (
 	"context"
+	"net/http"
 	"net/http/httptest"
+	"testing"
 
 	"github.com/gorilla/sessions"
+	"github.com/jadecobra/agbalumo/internal/infra/env"
 	"github.com/jadecobra/agbalumo/internal/module/auth"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
@@ -50,4 +53,29 @@ func setupAuthContext(method, url string) (echo.Context, *httptest.ResponseRecor
 	c.Set("session", sess)
 
 	return c, rec
+}
+
+func performRegistration(t *testing.T, app *env.AppEnv, payload map[string]string) *httptest.ResponseRecorder {
+	c, rec := setupAuthContext(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code")
+	req := c.Request()
+	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "random-state"})
+
+	mockProvider := &MockGoogleProvider{}
+	h := auth.NewAuthHandler(app)
+	h.GoogleProvider = mockProvider
+
+	token := &oauth2.Token{AccessToken: "token"}
+	gUser := &auth.GoogleUser{
+		ID:      payload["id"],
+		Email:   payload["email"],
+		Name:    payload["name"],
+		Picture: payload["picture"],
+	}
+
+	mockProvider.On("Exchange", testifyMock.Anything, "valid-code", "http", "example.com").Return(token, nil)
+	mockProvider.On("GetUserInfo", testifyMock.Anything, token).Return(gUser, nil)
+
+	_ = h.GoogleCallback(c)
+
+	return rec
 }

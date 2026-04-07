@@ -12,7 +12,7 @@ import (
 
 func TestAdminHandler_HandleDashboard(t *testing.T) {
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin", nil)
-	setupAdminAuth(c)
+	setupAdminAuth(t, c)
 	_, h, cleanup := setupAdminTest(t)
 	defer cleanup()
 
@@ -44,7 +44,7 @@ func TestAdminHandler_HandleDashboard_HappyPath(t *testing.T) {
 	_ = app.DB.SaveCategory(ctx, domain.CategoryData{ID: "music", Name: "Music"})
 
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin", nil)
-	setupAdminAuth(c)
+	setupAdminAuth(t, c)
 
 	err := h.HandleDashboard(c)
 
@@ -63,7 +63,7 @@ func TestAdminHandler_HandleDashboard_GrowthMetrics(t *testing.T) {
 	_ = app.DB.Save(ctx, domain.Listing{ID: "l1", CreatedAt: now})
 
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin", nil)
-	setupAdminAuth(c)
+	setupAdminAuth(t, c)
 
 	err := h.HandleDashboard(c)
 

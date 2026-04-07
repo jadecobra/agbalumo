@@ -5,23 +5,16 @@ import (
 	"context"
 	"mime/multipart"
 	"net/http"
-	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/module/admin"
-
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/middleware"
-	"github.com/jadecobra/agbalumo/internal/service"
-	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAdminHandler_HandleBulkUpload(t *testing.T) {
-	e := echo.New()
 	// CSV headers: title,type,description,origin,email,phone,whatsapp
 	csvContent := "title,type,description,origin,email,phone,whatsapp\nTest Biz,Business,Description,Nigeria,test@test.com,,"
 
@@ -31,22 +24,9 @@ func TestAdminHandler_HandleBulkUpload(t *testing.T) {
 	_, _ = part.Write([]byte(csvContent))
 	_ = writer.Close()
 
-	req := httptest.NewRequest(http.MethodPost, "/admin/upload", body)
-	req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
-	c.Set("User", adminUser)
-
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	app, h, c, rec, cleanup := setupAdminBulkTest(t, http.MethodPost, "/admin/upload", body)
 	defer cleanup()
-	app.CSVService = service.NewCSVService()
-	h := admin.NewAdminHandler(app)
-
-	store := middleware.NewTestSessionStore()
-	session, _ := store.Get(c.Request(), "auth_session")
-	c.Set("session", session)
+	c.Request().Header.Set(echo.HeaderContentType, writer.FormDataContentType())
 
 	err := h.HandleBulkUpload(c)
 
@@ -61,7 +41,6 @@ func TestAdminHandler_HandleBulkUpload(t *testing.T) {
 }
 
 func TestAdminHandler_HandleBulkUpload_InvalidCSV(t *testing.T) {
-	e := echo.New()
 	// Junk content
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
@@ -69,43 +48,22 @@ func TestAdminHandler_HandleBulkUpload_InvalidCSV(t *testing.T) {
 	_, _ = part.Write([]byte("invalid,csv,data\n1,2,3"))
 	_ = writer.Close()
 
-	req := httptest.NewRequest(http.MethodPost, "/admin/upload", body)
-	req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
-
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	_, h, c, rec, cleanup := setupAdminBulkTest(t, http.MethodPost, "/admin/upload", body)
 	defer cleanup()
-	app.CSVService = service.NewCSVService()
-
-	// We need to inject a mock session store because HandleBulkUpload uses it for flash messages
-	h := admin.NewAdminHandler(app)
+	c.Request().Header.Set(echo.HeaderContentType, writer.FormDataContentType())
 	_ = h.HandleBulkUpload(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)
 }
 
 func TestAdminHandler_HandleBulkUpload_NoFile(t *testing.T) {
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	_, h, c, rec, cleanup := setupAdminBulkTest(t, http.MethodPost, "/admin/upload", nil)
 	defer cleanup()
-	app.CSVService = service.NewCSVService()
-
-	c, rec := setupAdminTestContext(http.MethodPost, "/admin/upload", nil)
-	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
-	c.Set("User", adminUser)
-
-	store := middleware.NewTestSessionStore()
-	session, _ := store.Get(c.Request(), "auth_session")
-	c.Set("session", session)
-
-	h := admin.NewAdminHandler(app)
 	_ = h.HandleBulkUpload(c)
 	assert.Equal(t, http.StatusFound, rec.Code)
 }
 
 func TestAdminHandler_HandleBulkUpload_ParseError(t *testing.T) {
-	e := echo.New()
 	// Missing required "description"
 	csvContent := "title,type,origin,email\nTest Biz,Business,Nigeria,test@test.com"
 
@@ -115,22 +73,9 @@ func TestAdminHandler_HandleBulkUpload_ParseError(t *testing.T) {
 	_, _ = part.Write([]byte(csvContent))
 	_ = writer.Close()
 
-	req := httptest.NewRequest(http.MethodPost, "/admin/upload", body)
-	req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	adminUser := domain.User{ID: "admin1", Role: domain.UserRoleAdmin}
-	c.Set("User", adminUser)
-
-	store := middleware.NewTestSessionStore()
-	session, _ := store.Get(c.Request(), "auth_session")
-	c.Set("session", session)
-
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	app, h, c, rec, cleanup := setupAdminBulkTest(t, http.MethodPost, "/admin/upload", body)
 	defer cleanup()
-	app.CSVService = service.NewCSVService()
-	h := admin.NewAdminHandler(app)
+	c.Request().Header.Set(echo.HeaderContentType, writer.FormDataContentType())
 	_ = h.HandleBulkUpload(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)
@@ -140,14 +85,10 @@ func TestAdminHandler_HandleBulkUpload_ParseError(t *testing.T) {
 }
 
 func TestHandleBulkAction_NoSelection(t *testing.T) {
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings/bulk", nil)
+	setupAdminAuth(t, c)
+	_, h, cleanup := setupAdminTest(t)
 	defer cleanup()
-	h := admin.NewAdminHandler(app)
-
-	req := httptest.NewRequest(http.MethodPost, "/admin/listings/bulk", nil)
-	rec := httptest.NewRecorder()
-	e := echo.New()
-	c := e.NewContext(req, rec)
 
 	if assert.NoError(t, h.HandleBulkAction(c)) {
 		assert.Equal(t, http.StatusFound, rec.Code)
@@ -156,20 +97,17 @@ func TestHandleBulkAction_NoSelection(t *testing.T) {
 }
 
 func TestHandleBulkAction_Approve(t *testing.T) {
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	app, h, cleanup := setupAdminTest(t)
 	defer cleanup()
-	h := admin.NewAdminHandler(app)
 
 	_ = app.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Status: domain.ListingStatusPending})
 
 	form := url.Values{}
 	form.Add("action", "approve")
 	form.Add("selectedListings", "l1")
-	req := httptest.NewRequest(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
-	rec := httptest.NewRecorder()
-	e := echo.New()
-	c := e.NewContext(req, rec)
+	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
+	setupAdminAuth(t, c)
+	c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 
 	if assert.NoError(t, h.HandleBulkAction(c)) {
 		assert.Equal(t, http.StatusFound, rec.Code)
@@ -179,20 +117,17 @@ func TestHandleBulkAction_Approve(t *testing.T) {
 }
 
 func TestHandleBulkAction_Reject(t *testing.T) {
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	app, h, cleanup := setupAdminTest(t)
 	defer cleanup()
-	h := admin.NewAdminHandler(app)
 
 	_ = app.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Status: domain.ListingStatusPending})
 
 	form := url.Values{}
 	form.Add("action", "reject")
 	form.Add("selectedListings", "l1")
-	req := httptest.NewRequest(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
-	rec := httptest.NewRecorder()
-	e := echo.New()
-	c := e.NewContext(req, rec)
+	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
+	setupAdminAuth(t, c)
+	c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 
 	if assert.NoError(t, h.HandleBulkAction(c)) {
 		assert.Equal(t, http.StatusFound, rec.Code)
@@ -202,18 +137,15 @@ func TestHandleBulkAction_Reject(t *testing.T) {
 }
 
 func TestHandleBulkAction_Delete(t *testing.T) {
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	_, h, cleanup := setupAdminTest(t)
 	defer cleanup()
-	h := admin.NewAdminHandler(app)
 
 	form := url.Values{}
 	form.Add("action", "delete")
 	form.Add("selectedListings", "l1")
-	req := httptest.NewRequest(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
-	rec := httptest.NewRecorder()
-	e := echo.New()
-	c := e.NewContext(req, rec)
+	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
+	setupAdminAuth(t, c)
+	c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 
 	if assert.NoError(t, h.HandleBulkAction(c)) {
 		assert.Equal(t, http.StatusFound, rec.Code)
@@ -222,9 +154,8 @@ func TestHandleBulkAction_Delete(t *testing.T) {
 }
 
 func TestHandleBulkAction_ChangeCategory(t *testing.T) {
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	app, h, cleanup := setupAdminTest(t)
 	defer cleanup()
-	h := admin.NewAdminHandler(app)
 
 	// Create listings with "Business" category
 	_ = app.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Type: domain.Business, City: "Lagos", OwnerOrigin: "Nigeria"})
@@ -236,11 +167,9 @@ func TestHandleBulkAction_ChangeCategory(t *testing.T) {
 	form.Add("selectedListings", "l2")
 	form.Add("new_category", string(domain.Job))
 
-	req := httptest.NewRequest(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
-	rec := httptest.NewRecorder()
-	e := echo.New()
-	c := e.NewContext(req, rec)
+	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
+	setupAdminAuth(t, c)
+	c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 
 	if assert.NoError(t, h.HandleBulkAction(c)) {
 		assert.Equal(t, http.StatusFound, rec.Code)
@@ -253,18 +182,16 @@ func TestHandleBulkAction_ChangeCategory(t *testing.T) {
 
 func TestHandleBulkAction_NoAction(t *testing.T) {
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/bulk", strings.NewReader("ids[]=1"))
-	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
+	setupAdminAuth(t, c)
 
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	_, h, cleanup := setupAdminTest(t)
 	defer cleanup()
-	h := admin.NewAdminHandler(app)
 	_ = h.HandleBulkAction(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)
 }
 
 func TestAdminHandler_HandleBulkUpload_ManyErrors(t *testing.T) {
-	e := echo.New()
 	// CSV with 4 invalid rows (missing title/desc)
 	csvContent := "title,type,description\n,,\n,,\n,,\n,,\n"
 	body := new(bytes.Buffer)
@@ -273,27 +200,17 @@ func TestAdminHandler_HandleBulkUpload_ManyErrors(t *testing.T) {
 	_, _ = part.Write([]byte(csvContent))
 	_ = writer.Close()
 
-	req := httptest.NewRequest(http.MethodPost, "/admin/upload", body)
-	req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-	store := middleware.NewTestSessionStore()
-	session, _ := store.Get(c.Request(), "auth_session")
-	c.Set("session", session)
-
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	_, h, c, rec, cleanup := setupAdminBulkTest(t, http.MethodPost, "/admin/upload", body)
 	defer cleanup()
-	app.CSVService = service.NewCSVService()
-	h := admin.NewAdminHandler(app)
+	c.Request().Header.Set(echo.HeaderContentType, writer.FormDataContentType())
 	_ = h.HandleBulkUpload(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)
 }
 
 func TestHandleBulkAction_ChangeToCustomCategory(t *testing.T) {
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	app, h, cleanup := setupAdminTest(t)
 	defer cleanup()
-	h := admin.NewAdminHandler(app)
 
 	// Add a custom category
 	customCategory := domain.CategoryData{
@@ -314,11 +231,9 @@ func TestHandleBulkAction_ChangeToCustomCategory(t *testing.T) {
 	// The frontend now sends the Category Name as the value
 	form.Add("new_category", customCategory.Name)
 
-	req := httptest.NewRequest(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
-	rec := httptest.NewRecorder()
-	e := echo.New()
-	c := e.NewContext(req, rec)
+	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
+	setupAdminAuth(t, c)
+	c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 
 	if assert.NoError(t, h.HandleBulkAction(c)) {
 		assert.Equal(t, http.StatusFound, rec.Code)

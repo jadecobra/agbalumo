@@ -6,9 +6,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/infra/env"
+	"github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/jadecobra/agbalumo/internal/module/admin"
+	"github.com/jadecobra/agbalumo/internal/service"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 )
@@ -41,8 +44,8 @@ func setupAdminTestContext(method, target string, body io.Reader) (echo.Context,
 	return c, rec
 }
 
-func setupAdminAuth(c echo.Context) {
-	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
+func setupAdminAuth(t *testing.T, c echo.Context) {
+	c.Set("User", domain.User{ID: "admin1", Role: domain.UserRoleAdmin})
 }
 
 func setupAdminTest(t *testing.T) (*env.AppEnv, *admin.AdminHandler, func()) {
@@ -51,7 +54,34 @@ func setupAdminTest(t *testing.T) (*env.AppEnv, *admin.AdminHandler, func()) {
 	return app, h, cleanup
 }
 
+func setupAdminMockTest(t *testing.T) (*env.AppEnv, *admin.AdminHandler, *MockListingRepository) {
+	mockRepo := NewMockRepository()
+	app := &env.AppEnv{
+		DB:  mockRepo,
+		Cfg: config.LoadConfig(),
+	}
+	h := admin.NewAdminHandler(app)
+	return app, h, mockRepo
+}
 
+func setupAdminBulkTest(t *testing.T, method, target string, body io.Reader) (*env.AppEnv, *admin.AdminHandler, echo.Context, *httptest.ResponseRecorder, func()) {
+	c, rec := setupAdminTestContext(method, target, body)
+	setupAdminAuth(t, c)
+	app, h, cleanup := setupAdminTest(t)
+	app.CSVService = service.NewCSVService()
+
+	// Set session
+	store := middleware.NewTestSessionStore()
+	session, _ := store.Get(c.Request(), "auth_session")
+	c.Set("session", session)
+
+	return app, h, c, rec, cleanup
+}
+
+// setupAdminAuthWithID sets a user with a specific ID as admin
+func setupAdminAuthWithID(c echo.Context, userID string) {
+	c.Set("User", domain.User{ID: userID, Role: domain.UserRoleAdmin})
+}
 
 // NewAdminTemplate returns a mock template for admin tests
 func NewAdminTemplate() *template.Template {

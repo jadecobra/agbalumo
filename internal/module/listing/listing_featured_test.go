@@ -15,8 +15,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-
-
 func TestHandleHome_FeaturedPrioritization(t *testing.T) {
 	e := echo.New()
 	t_temp := template.New("base")
@@ -30,15 +28,10 @@ func TestHandleHome_FeaturedPrioritization(t *testing.T) {
 	defer cleanup()
 
 	// Seed data
-	f1 := domain.Listing{ID: "f1", Title: "Featured 1", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
-	f2 := domain.Listing{ID: "f2", Title: "Featured 2", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
-	r1 := domain.Listing{ID: "r1", Title: "Regular 1", Featured: false, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
-	r2 := domain.Listing{ID: "r2", Title: "Regular 2", Featured: false, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
-
-	_ = app.DB.Save(context.Background(), f1)
-	_ = app.DB.Save(context.Background(), f2)
-	_ = app.DB.Save(context.Background(), r1)
-	_ = app.DB.Save(context.Background(), r2)
+	saveTestListing(t, app.DB, "f1", "Featured 1", func(l *domain.Listing) { l.Featured = true })
+	saveTestListing(t, app.DB, "f2", "Featured 2", func(l *domain.Listing) { l.Featured = true })
+	saveTestListing(t, app.DB, "r1", "Regular 1", func(l *domain.Listing) { l.Featured = false })
+	saveTestListing(t, app.DB, "r2", "Regular 2", func(l *domain.Listing) { l.Featured = false })
 
 	h := listmod.NewListingHandler(app)
 
@@ -77,15 +70,10 @@ func TestHandleHome_FeaturedListings_EmptyCategory(t *testing.T) {
 	defer cleanup()
 
 	// Seed data: Featured listings across MULTIPLE categories to verify HandleHome doesn't filter by a specific category
-	f1 := domain.Listing{ID: "f1", Title: "Featured Business", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
-	f2 := domain.Listing{ID: "f2", Title: "Featured Event", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "event", Address: "123 St"}
-	f3 := domain.Listing{ID: "f3", Title: "Featured Service", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "service", Address: "123 St"}
-	r1 := domain.Listing{ID: "r1", Title: "Regular Business", Featured: false, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
-
-	_ = app.DB.Save(context.Background(), f1)
-	_ = app.DB.Save(context.Background(), f2)
-	_ = app.DB.Save(context.Background(), f3)
-	_ = app.DB.Save(context.Background(), r1)
+	saveTestListing(t, app.DB, "f1", "Featured Business", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Business })
+	saveTestListing(t, app.DB, "f2", "Featured Event", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Event })
+	saveTestListing(t, app.DB, "f3", "Featured Service", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Service })
+	saveTestListing(t, app.DB, "r1", "Regular Business", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Business })
 
 	h := listmod.NewListingHandler(app)
 
@@ -118,11 +106,8 @@ func TestHandleFragment_FeaturedPrioritization(t *testing.T) {
 	defer cleanup()
 
 	// Seed data
-	f1 := domain.Listing{ID: "f1", Title: "Featured 1", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
-	r1 := domain.Listing{ID: "r1", Title: "Regular 1", Featured: false, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
-
-	_ = app.DB.Save(context.Background(), f1)
-	_ = app.DB.Save(context.Background(), r1)
+	saveTestListing(t, app.DB, "f1", "Featured 1", func(l *domain.Listing) { l.Featured = true })
+	saveTestListing(t, app.DB, "r1", "Regular 1", func(l *domain.Listing) { l.Featured = false })
 
 	h := listmod.NewListingHandler(app)
 
@@ -148,12 +133,8 @@ func TestHandleFragment_FeaturedPrioritization_Page2(t *testing.T) {
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
 
-	// Seed data
-	f1 := domain.Listing{ID: "f1", Title: "Featured 1", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
-	r1 := domain.Listing{ID: "r1", Title: "Regular 1", Featured: false, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
-
-	_ = app.DB.Save(context.Background(), f1)
-	_ = app.DB.Save(context.Background(), r1)
+	saveTestListing(t, app.DB, "f1", "Featured 1", func(l *domain.Listing) { l.Featured = true })
+	saveTestListing(t, app.DB, "r1", "Regular 1", func(l *domain.Listing) { l.Featured = false })
 
 	h := listmod.NewListingHandler(app)
 
@@ -170,8 +151,8 @@ func TestHandleFragment_FeaturedListings_CategoryFilter(t *testing.T) {
 	template.Must(t_temp.New("listing_list").Parse(`{{range .Listings}}{{.Title}},{{end}}`))
 	e.Renderer = &testutil.TestRenderer{Templates: t_temp}
 
-	// Requesting fragment for 'business' category, page 1
-	req := httptest.NewRequest(http.MethodGet, "/listings/fragment?type=business&page=1", nil)
+	// Requesting fragment for 'Business' category, page 1
+	req := httptest.NewRequest(http.MethodGet, "/listings/fragment?type=Business&page=1", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
@@ -179,13 +160,9 @@ func TestHandleFragment_FeaturedListings_CategoryFilter(t *testing.T) {
 	defer cleanup()
 
 	// Seed data: Featured listings across MULTIPLE categories
-	f1 := domain.Listing{ID: "f1", Title: "Featured Business", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
-	f2 := domain.Listing{ID: "f2", Title: "Featured Event", Featured: true, IsActive: true, OwnerOrigin: "Nigeria", Type: "event", Address: "123 St"}
-	r1 := domain.Listing{ID: "r1", Title: "Regular Business", Featured: false, IsActive: true, OwnerOrigin: "Nigeria", Type: "business", Address: "123 St"}
-
-	_ = app.DB.Save(context.Background(), f1)
-	_ = app.DB.Save(context.Background(), f2)
-	_ = app.DB.Save(context.Background(), r1)
+	saveTestListing(t, app.DB, "f1", "Featured Business", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Business })
+	saveTestListing(t, app.DB, "f2", "Featured Event", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Event })
+	saveTestListing(t, app.DB, "r1", "Regular Business", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Business })
 
 	h := listmod.NewListingHandler(app)
 
@@ -199,4 +176,11 @@ func TestHandleFragment_FeaturedListings_CategoryFilter(t *testing.T) {
 	assert.Contains(t, body, "Featured Business")
 	// Assert the featured listing for 'event' category is NOT present
 	assert.NotContains(t, body, "Featured Event")
+}
+
+func assertFeaturedStatus(t *testing.T, db domain.ListingRepository, id string, expected bool) {
+	t.Helper()
+	l, err := db.FindByID(context.Background(), id)
+	assert.NoError(t, err)
+	assert.Equal(t, expected, l.Featured, "Listing %s featured status mismatch", id)
 }

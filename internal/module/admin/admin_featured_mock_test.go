@@ -8,27 +8,21 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/config"
-	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/infra/env"
-	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAdminHandler_HandleToggleFeatured_Error(t *testing.T) {
-	mockRepo := NewMockRepository()
+	_, h, mockRepo := setupAdminMockTest(t)
 	mockRepo.ErrorOn["SetFeatured"] = fmt.Errorf("db error")
 
 	formData := url.Values{}
 	formData.Set("featured", "true")
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings/123/featured", strings.NewReader(formData.Encode()))
+	setupAdminAuth(t, c)
 	c.SetParamNames("id")
 	c.SetParamValues("123")
-	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
-	app := &env.AppEnv{DB: mockRepo, Cfg: config.LoadConfig()}
-	h := admin.NewAdminHandler(app)
 	err := h.HandleToggleFeatured(c)
 
 	assert.NoError(t, err)
@@ -36,16 +30,13 @@ func TestAdminHandler_HandleToggleFeatured_Error(t *testing.T) {
 }
 
 func TestAdminHandler_HandleToggleFeatured_BadRequest_MissingID(t *testing.T) {
-	mockRepo := NewMockRepository()
+	_, h, _ := setupAdminMockTest(t)
 
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings//featured", nil)
 	// Missing ID param
 	c.SetParamNames("id")
 	c.SetParamValues("")
-	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
-
-	app := &env.AppEnv{DB: mockRepo, Cfg: config.LoadConfig()}
-	h := admin.NewAdminHandler(app)
+	setupAdminAuth(t, c)
 
 	err := h.HandleToggleFeatured(c)
 	assert.NoError(t, err) // Echo handlers return nil and specify code in c.JSON

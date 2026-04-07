@@ -8,12 +8,13 @@ import (
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAdminHandler_HandleAllListings(t *testing.T) {
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin/listings", nil)
-	setupAdminAuth(c)
+	setupAdminAuth(t, c)
 	app, h, cleanup := setupAdminTest(t)
 	defer cleanup()
 
@@ -61,10 +62,10 @@ func TestAdminHandler_HandleToggleFeatured(t *testing.T) {
 			id:       "999",
 			featured: "true",
 			setupData: func(t *testing.T, repo domain.ListingRepository) {
-				_ = repo.Save(context.Background(), domain.Listing{ID: "1", Title: "F1", Type: domain.Business, Featured: true, IsActive: true})
-				_ = repo.Save(context.Background(), domain.Listing{ID: "2", Title: "F2", Type: domain.Business, Featured: true, IsActive: true})
-				_ = repo.Save(context.Background(), domain.Listing{ID: "3", Title: "F3", Type: domain.Business, Featured: true, IsActive: true})
-				_ = repo.Save(context.Background(), domain.Listing{ID: "999", Title: "New", Type: domain.Business, Featured: false, IsActive: true})
+				testutil.SaveTestListing(t, repo, "1", "F1", func(l *domain.Listing) { l.Featured = true })
+				testutil.SaveTestListing(t, repo, "2", "F2", func(l *domain.Listing) { l.Featured = true })
+				testutil.SaveTestListing(t, repo, "3", "F3", func(l *domain.Listing) { l.Featured = true })
+				testutil.SaveTestListing(t, repo, "999", "New", func(l *domain.Listing) { l.Featured = false })
 			},
 			expectCode: http.StatusBadRequest,
 		},
@@ -73,9 +74,9 @@ func TestAdminHandler_HandleToggleFeatured(t *testing.T) {
 			id:       "1",
 			featured: "false",
 			setupData: func(t *testing.T, repo domain.ListingRepository) {
-				_ = repo.Save(context.Background(), domain.Listing{ID: "1", Title: "F1", Type: domain.Business, Featured: true, IsActive: true})
-				_ = repo.Save(context.Background(), domain.Listing{ID: "2", Title: "F2", Type: domain.Business, Featured: true, IsActive: true})
-				_ = repo.Save(context.Background(), domain.Listing{ID: "3", Title: "F3", Type: domain.Business, Featured: true, IsActive: true})
+				testutil.SaveTestListing(t, repo, "1", "F1", func(l *domain.Listing) { l.Featured = true })
+				testutil.SaveTestListing(t, repo, "2", "F2", func(l *domain.Listing) { l.Featured = true })
+				testutil.SaveTestListing(t, repo, "3", "F3", func(l *domain.Listing) { l.Featured = true })
 			},
 			expectCode: http.StatusOK,
 		},
@@ -84,10 +85,10 @@ func TestAdminHandler_HandleToggleFeatured(t *testing.T) {
 			id:       "999",
 			featured: "true",
 			setupData: func(t *testing.T, repo domain.ListingRepository) {
-				_ = repo.Save(context.Background(), domain.Listing{ID: "1", Title: "F1", Type: domain.Business, Featured: true, IsActive: true})
-				_ = repo.Save(context.Background(), domain.Listing{ID: "2", Title: "F2", Type: domain.Business, Featured: true, IsActive: true})
-				_ = repo.Save(context.Background(), domain.Listing{ID: "3", Title: "F3", Type: domain.Business, Featured: true, IsActive: true})
-				_ = repo.Save(context.Background(), domain.Listing{ID: "999", Title: "New", Type: domain.Food, Featured: false, IsActive: true})
+				testutil.SaveTestListing(t, repo, "1", "F1", func(l *domain.Listing) { l.Featured = true })
+				testutil.SaveTestListing(t, repo, "2", "F2", func(l *domain.Listing) { l.Featured = true })
+				testutil.SaveTestListing(t, repo, "3", "F3", func(l *domain.Listing) { l.Featured = true })
+				testutil.SaveTestListing(t, repo, "999", "New", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Food })
 			},
 			expectCode: http.StatusOK,
 		},
@@ -102,7 +103,7 @@ func TestAdminHandler_HandleToggleFeatured(t *testing.T) {
 				urlPath = "/admin/listings/featured"
 			}
 			c, rec := setupAdminTestContext(http.MethodPost, urlPath, strings.NewReader(formData.Encode()))
-			setupAdminAuth(c)
+			setupAdminAuth(t, c)
 			if tt.id != "" {
 				c.SetParamNames("id")
 				c.SetParamValues(tt.id)
@@ -124,8 +125,7 @@ func TestAdminHandler_HandleToggleFeatured(t *testing.T) {
 			}
 
 			if tt.expectCode == http.StatusOK && tt.id == "123" {
-				l, _ := app.DB.FindByID(context.Background(), tt.id)
-				assert.True(t, l.Featured)
+				testutil.AssertFeaturedStatus(t, app.DB, tt.id, true)
 			}
 		})
 	}
@@ -133,7 +133,7 @@ func TestAdminHandler_HandleToggleFeatured(t *testing.T) {
 
 func TestAdminHandler_HandleApproveClaim(t *testing.T) {
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/claims/cr1/approve", nil)
-	setupAdminAuth(c)
+	setupAdminAuth(t, c)
 	c.SetParamNames("id")
 	c.SetParamValues("cr1")
 
@@ -151,7 +151,7 @@ func TestAdminHandler_HandleApproveClaim(t *testing.T) {
 
 func TestAdminHandler_HandleListingRow(t *testing.T) {
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin/listings/1/row", nil)
-	setupAdminAuth(c)
+	setupAdminAuth(t, c)
 	c.SetParamNames("id")
 	c.SetParamValues("1")
 
