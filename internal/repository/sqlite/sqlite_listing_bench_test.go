@@ -1,19 +1,16 @@
 package sqlite_test
 
 import (
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"context"
 	"fmt"
-	"path/filepath"
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
 )
 
 func BenchmarkSQLiteRepository_FindAll(b *testing.B) {
-	tmpDir := b.TempDir()
-	dbPath := filepath.Join(tmpDir, "bench.db")
-	repo, _ := sqlite.NewSQLiteRepository(dbPath + "?_time_format=sqlite")
+	repo, _ := testutil.SetupTestRepositoryUnique(b)
 	ctx := context.Background()
 
 	// Seed 100 listings
@@ -36,9 +33,7 @@ func BenchmarkSQLiteRepository_FindAll(b *testing.B) {
 }
 
 func BenchmarkSQLiteRepository_FindByTitle(b *testing.B) {
-	tmpDir := b.TempDir()
-	dbPath := filepath.Join(tmpDir, "bench_title.db")
-	repo, _ := sqlite.NewSQLiteRepository(dbPath + "?_time_format=sqlite")
+	repo, _ := testutil.SetupTestRepositoryUnique(b)
 	ctx := context.Background()
 
 	// Seed 100 listings

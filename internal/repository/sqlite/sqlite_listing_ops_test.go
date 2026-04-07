@@ -1,6 +1,7 @@
 package sqlite_test
 
 import (
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"context"
 	"database/sql"
 	"path/filepath"
@@ -12,7 +13,7 @@ import (
 )
 
 func TestGetCounts(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	_ = repo.Save(ctx, domain.Listing{ID: "1", Type: "Business", IsActive: true})
@@ -34,7 +35,7 @@ func TestGetCounts(t *testing.T) {
 }
 
 func TestExpireListings(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 	now := time.Now().UTC()
 
@@ -61,7 +62,7 @@ func TestExpireListings(t *testing.T) {
 }
 
 func TestGetPendingClaimRequests(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	// Save a listing so we can reference it
@@ -93,7 +94,7 @@ func TestGetPendingClaimRequests(t *testing.T) {
 }
 
 func TestUpdateClaimRequestStatus_Approve(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	// Create listing and a user
@@ -126,7 +127,7 @@ func TestUpdateClaimRequestStatus_Approve(t *testing.T) {
 }
 
 func TestGetClaimRequestByUserAndListing(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	userID := "u1"
@@ -158,7 +159,7 @@ func TestGetClaimRequestByUserAndListing(t *testing.T) {
 }
 
 func TestGetMetrics(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 	now := time.Now().UTC()
 

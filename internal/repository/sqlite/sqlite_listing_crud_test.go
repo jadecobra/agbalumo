@@ -1,6 +1,7 @@
 package sqlite_test
 
 import (
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"context"
 	"database/sql"
 	"testing"
@@ -11,7 +12,7 @@ import (
 )
 
 func TestSaveAndFindByID(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	l := domain.Listing{
 		ID:           "test-1",
 		Title:        "Original Title",
@@ -55,7 +56,7 @@ func TestSaveAndFindByID(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 	_ = repo.Save(ctx, domain.Listing{ID: "del-me", Title: "Delete Me"})
 
@@ -77,7 +78,7 @@ func TestDelete(t *testing.T) {
 }
 
 func TestHoursOfOperationPersistence(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	l := domain.Listing{

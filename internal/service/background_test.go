@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"context"
 	"testing"
 	"time"
@@ -9,7 +10,7 @@ import (
 )
 
 func TestBackgroundService_ExpireListings(t *testing.T) {
-	repo := setupTestRepo(t)
+	repo := testutil.SetupTestRepository(t)
 	// Seed an expired listing
 	expiredListing := domain.Listing{
 		ID:          "exp1",
@@ -38,7 +39,7 @@ func TestBackgroundService_ExpireListings(t *testing.T) {
 }
 
 func TestBackgroundService_ExpireListings_Error(t *testing.T) {
-	repo := setupTestRepo(t)
+	repo := testutil.SetupTestRepository(t)
 	service := NewBackgroundService(repo)
 
 	// Passing a canceled context to simulate a database query error or timeout
@@ -50,7 +51,7 @@ func TestBackgroundService_ExpireListings_Error(t *testing.T) {
 }
 
 func TestBackgroundService_StartTicker_Cancels(t *testing.T) {
-	repo := setupTestRepo(t)
+	repo := testutil.SetupTestRepository(t)
 
 	service := NewBackgroundService(repo)
 	ctx, cancel := context.WithCancel(context.Background())

@@ -1,6 +1,7 @@
 package sqlite_test
 
 import (
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"context"
 	"fmt"
 	"os"
@@ -13,12 +14,8 @@ import (
 )
 
 func BenchmarkSearchPerformance(b *testing.B) {
-	// Setup a unique in-memory DB for the benchmark
-	dbName := fmt.Sprintf("file:bench_%s?mode=memory&cache=shared&_time_format=sqlite", b.Name())
-	repo, err := sqlite.NewSQLiteRepository(dbName)
-	if err != nil {
-		b.Fatalf("Failed to create repo: %v", err)
-	}
+	// Setup a unique in-memory DB for the benchmark using standardized helper
+	repo, _ := testutil.SetupTestRepositoryUnique(b)
 	ctx := context.Background()
 
 	// Seed listings (default 10000, can be overridden for smoke tests)

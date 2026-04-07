@@ -1,6 +1,7 @@
 package sqlite_test
 
 import (
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"context"
 	"testing"
 	"time"
@@ -9,7 +10,7 @@ import (
 )
 
 func TestFindAll_Filtering(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	// Seed Data
@@ -52,7 +53,7 @@ func TestFindAll_Filtering(t *testing.T) {
 }
 
 func TestFindAll_Sorting_Featured(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	// Seed Data
@@ -90,7 +91,7 @@ func TestFindAll_Sorting_Featured(t *testing.T) {
 }
 
 func TestListingRepository_FTS(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	// Use trigram search (needs at least 3 chars usually)
@@ -116,7 +117,7 @@ func TestListingRepository_FTS(t *testing.T) {
 }
 
 func TestFindByTitle_CaseInsensitive(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	// Seed data
@@ -138,7 +139,7 @@ func TestFindByTitle_CaseInsensitive(t *testing.T) {
 }
 
 func TestTitleExists(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	title := "Unique Listing"
@@ -162,7 +163,7 @@ func TestTitleExists(t *testing.T) {
 }
 
 func TestFindAllByOwner(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	_ = repo.Save(ctx, domain.Listing{ID: "1", OwnerID: "user-1", Title: "L1"})

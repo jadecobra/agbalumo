@@ -7,15 +7,11 @@ import (
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/require"
 )
 
-func setupTestRepo(t *testing.T) *sqlite.SQLiteRepository {
-	repo, err := sqlite.NewSQLiteRepository(":memory:")
-	require.NoError(t, err)
-	return repo
-}
+// setupTestRepo removed and replaced with testutil.SetupTestRepository
 
 var testUser = domain.User{ID: "user-123", Name: "Test User", Email: "test@example.com"}
 
@@ -23,7 +19,7 @@ func TestListingService_ClaimListing(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("success creates pending claim request", func(t *testing.T) {
-		repo := setupTestRepo(t)
+		repo := testutil.SetupTestRepository(t)
 		svc := listmod.NewListingService(repo, repo, repo)
 
 		// Seed listing and category
@@ -43,7 +39,7 @@ func TestListingService_ClaimListing(t *testing.T) {
 	})
 
 	t.Run("missing user id", func(t *testing.T) {
-		repo := setupTestRepo(t)
+		repo := testutil.SetupTestRepository(t)
 		svc := listmod.NewListingService(repo, repo, repo)
 
 		_, err := svc.ClaimListing(ctx, domain.User{}, "loc-123")
@@ -52,7 +48,7 @@ func TestListingService_ClaimListing(t *testing.T) {
 	})
 
 	t.Run("listing not found", func(t *testing.T) {
-		repo := setupTestRepo(t)
+		repo := testutil.SetupTestRepository(t)
 		svc := listmod.NewListingService(repo, repo, repo)
 
 		_, err := svc.ClaimListing(ctx, testUser, "bad-id")
@@ -61,7 +57,7 @@ func TestListingService_ClaimListing(t *testing.T) {
 	})
 
 	t.Run("already owned", func(t *testing.T) {
-		repo := setupTestRepo(t)
+		repo := testutil.SetupTestRepository(t)
 		svc := listmod.NewListingService(repo, repo, repo)
 
 		_ = repo.Save(ctx, domain.Listing{ID: "loc-123", OwnerID: "someone-else", Type: domain.Business, Status: domain.ListingStatusApproved, OwnerOrigin: "Nigeria"})
@@ -72,7 +68,7 @@ func TestListingService_ClaimListing(t *testing.T) {
 	})
 
 	t.Run("unclaimable type", func(t *testing.T) {
-		repo := setupTestRepo(t)
+		repo := testutil.SetupTestRepository(t)
 		svc := listmod.NewListingService(repo, repo, repo)
 
 		_ = repo.Save(ctx, domain.Listing{ID: "loc-123", Type: domain.Job, Status: domain.ListingStatusApproved, OwnerOrigin: "Nigeria"})
@@ -84,7 +80,7 @@ func TestListingService_ClaimListing(t *testing.T) {
 	})
 
 	t.Run("duplicate pending claim rejected", func(t *testing.T) {
-		repo := setupTestRepo(t)
+		repo := testutil.SetupTestRepository(t)
 		svc := listmod.NewListingService(repo, repo, repo)
 
 		_ = repo.Save(ctx, domain.Listing{ID: "loc-123", Title: "Test", Type: domain.Business, Status: domain.ListingStatusApproved, OwnerOrigin: "Nigeria"})

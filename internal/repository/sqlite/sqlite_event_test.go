@@ -1,6 +1,7 @@
 package sqlite_test
 
 import (
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"context"
 	"testing"
 	"time"
@@ -9,7 +10,7 @@ import (
 )
 
 func TestSaveAndFindEvent(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 	now := time.Now().UTC().Truncate(time.Second) // Truncate to match SQLite precision
 

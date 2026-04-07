@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"context"
 	"encoding/csv"
 	"fmt"
@@ -20,7 +21,7 @@ func TestParseAndImport_Valid(t *testing.T) {
 Test Biz,Business,Desc 1,Ghana,test@test.com,example.com
 Test Svc,Service,Desc 2,Nigeria,svc@test.com,
 `
-	repo := setupTestRepo(t)
+	repo := testutil.SetupTestRepository(t)
 
 	result, err := svc.ParseAndImport(ctx, strings.NewReader(csvContent), repo)
 	assert.NoError(t, err)
@@ -34,7 +35,7 @@ func TestParseAndImport_MissingHeaders(t *testing.T) {
 	ctx := context.Background()
 	csvContent := `title,description
 Test,Desc`
-	repo := setupTestRepo(t)
+	repo := testutil.SetupTestRepository(t)
 	_, err := svc.ParseAndImport(ctx, strings.NewReader(csvContent), repo)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "missing required header")
@@ -53,7 +54,7 @@ MissingEmailHasPhone,Business,Desc,Ghana,,12345,
 MissingAllContact,Business,Desc,Ghana,,,
 MissingEmailPhoneHasWebsite,Business,Desc,Ghana,,,example.com`
 
-	repo := setupTestRepo(t)
+	repo := testutil.SetupTestRepository(t)
 
 	result, err := svc.ParseAndImport(ctx, strings.NewReader(csvContent), repo)
 	assert.NoError(t, err)
@@ -68,7 +69,7 @@ func TestParseAndImport_Duplicate(t *testing.T) {
 	csvContent := `title,type,description,origin,email,phone,address,city
 Dup Listing,Business,Same Desc,Ghana,dup@test.com,1234,123 St,Accra
 `
-	repo := setupTestRepo(t)
+	repo := testutil.SetupTestRepository(t)
 	// Seed duplicate
 	_ = repo.Save(ctx, domain.Listing{Title: "Dup Listing", Type: domain.Business, Description: "Same Desc", ContactEmail: "dup@test.com", OwnerOrigin: "Nigeria"})
 
@@ -88,7 +89,7 @@ Random Type,Random,Desc,a@b.com
 Dynamic Church,church,Desc,a@b.com
 UPPERCASE CHURCH,CHURCH,Desc,a@b.com
 `
-	repo := setupTestRepo(t)
+	repo := testutil.SetupTestRepository(t)
 
 	result, err := svc.ParseAndImport(ctx, strings.NewReader(csvContent), repo)
 	assert.NoError(t, err)
@@ -111,7 +112,7 @@ func TestParseAndImport_Geocoding(t *testing.T) {
 	csvContent := `title,type,description,email,address
 Geo Hub,Business,Test Geocode,test@geo.com,"1600 Amphitheatre Parkway, Mountain View, CA"
 `
-	repo := setupTestRepo(t)
+	repo := testutil.SetupTestRepository(t)
 	mockGeo := &mockGeocodingService{
 		GetCityFunc: func(ctx context.Context, addr string) (string, error) {
 			if strings.Contains(addr, "Mountain View") {
@@ -150,7 +151,7 @@ func FuzzParseAndImport(f *testing.F) {
 	f.Add("")
 
 	f.Fuzz(func(t *testing.T, data string) {
-		repo := setupTestRepo(t)
+		repo := testutil.SetupTestRepository(t)
 		_, _ = svc.ParseAndImport(ctx, strings.NewReader(data), repo)
 	})
 }
@@ -240,7 +241,7 @@ func (e *errReader) Read(p []byte) (n int, err error) {
 func TestParseAndImport_ReadError(t *testing.T) {
 	svc := NewCSVService()
 	ctx := context.Background()
-	repo := setupTestRepo(t)
+	repo := testutil.SetupTestRepository(t)
 
 	_, err := svc.ParseAndImport(ctx, &errReader{}, repo)
 	assert.Error(t, err)

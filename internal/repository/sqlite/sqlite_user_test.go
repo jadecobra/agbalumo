@@ -1,6 +1,7 @@
 package sqlite_test
 
 import (
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"context"
 	"testing"
 	"time"
@@ -9,7 +10,7 @@ import (
 )
 
 func TestGetUserCount(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	// Add Users
@@ -26,7 +27,7 @@ func TestGetUserCount(t *testing.T) {
 }
 
 func TestGetAllUsers(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	// Seed
@@ -47,7 +48,7 @@ func TestGetAllUsers(t *testing.T) {
 }
 
 func TestGetUserGrowth(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 	now := time.Now().UTC()
 
@@ -65,7 +66,7 @@ func TestGetUserGrowth(t *testing.T) {
 }
 
 func TestUserOperations(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	// Create User
@@ -118,7 +119,7 @@ func TestUserOperations(t *testing.T) {
 }
 
 func TestFindUser_NotFound(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	// By ID

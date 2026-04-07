@@ -1,6 +1,7 @@
 package sqlite_test
 
 import (
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"context"
 	"database/sql"
 	"testing"
@@ -11,7 +12,7 @@ import (
 )
 
 func TestReproCategoryRegression(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	// 1. Seed core categories (simulates startup/seeder)
@@ -64,7 +65,7 @@ func TestReproCategoryRegression(t *testing.T) {
 }
 
 func TestCategoryCaseSensitivity(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	// 1. Seed core category "Business"
@@ -90,7 +91,7 @@ func TestCategoryCaseSensitivity(t *testing.T) {
 }
 
 func TestUpsertCoreCategory_ActiveOverwrite(t *testing.T) {
-	repo, dbPath := newTestRepo(t)
+	repo, dbPath := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	// 1. Manually insert an INACTIVE core category

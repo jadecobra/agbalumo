@@ -8,11 +8,12 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	_ "modernc.org/sqlite"
 )
 
 func TestSaveCategory(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	cat := domain.CategoryData{
@@ -46,7 +47,7 @@ func TestSaveCategory(t *testing.T) {
 }
 
 func TestSaveCategory_Upsert(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	cat := domain.CategoryData{
@@ -84,7 +85,7 @@ func TestSaveCategory_Upsert(t *testing.T) {
 }
 
 func TestGetCategories(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	// Seed categories
@@ -124,7 +125,7 @@ func TestGetCategories(t *testing.T) {
 }
 
 func TestGetCategory_NotFound(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	_, err := repo.GetCategory(ctx, "non-existent")
@@ -134,7 +135,7 @@ func TestGetCategory_NotFound(t *testing.T) {
 }
 
 func TestUpsertCoreCategory(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	core := domain.CategoryData{
@@ -213,7 +214,7 @@ func TestCategoryErrors(t *testing.T) {
 }
 
 func TestGetLocations(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	// Seed listings with cities
@@ -242,7 +243,7 @@ func TestGetLocations(t *testing.T) {
 }
 
 func TestGetCategories_EmptyDB(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	cats, err := repo.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: true})
@@ -258,7 +259,7 @@ func TestGetCategories_EmptyDB(t *testing.T) {
 // does NOT overwrite pre-existing categories. This is the regression test for the
 // bug where HandleAddCategory used an empty ID, causing ON CONFLICT(id) overwrites.
 func TestSaveCategory_PreservesExistingCategories(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	// Seed the core categories (simulates what EnsureCategoriesSeeded does)

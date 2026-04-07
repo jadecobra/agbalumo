@@ -1,6 +1,7 @@
 package sqlite_test
 
 import (
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"context"
 	"database/sql"
 	"testing"
@@ -12,7 +13,7 @@ import (
 )
 
 func TestSaveFeedback(t *testing.T) {
-	repo, dbName := newTestRepo(t)
+	repo, dbName := testutil.SetupTestRepositoryUnique(t)
 	db, err := sql.Open("sqlite", dbName)
 	if err != nil {
 		t.Fatal(err)
@@ -63,7 +64,7 @@ func TestSaveFeedback(t *testing.T) {
 }
 
 func TestGetAllFeedback(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	// Seed Data
@@ -93,7 +94,7 @@ func TestGetAllFeedback(t *testing.T) {
 }
 
 func TestGetFeedbackCounts(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	// Seed Feedback

@@ -1,6 +1,7 @@
 package sqlite_test
 
 import (
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"context"
 	"testing"
 	"time"
@@ -10,7 +11,7 @@ import (
 )
 
 func TestGetFeaturedListings(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	listings := []domain.Listing{
@@ -67,7 +68,7 @@ func TestGetFeaturedListings(t *testing.T) {
 }
 
 func TestGetFeaturedListings_LimitThree(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	for i := 0; i < 5; i++ {
@@ -91,7 +92,7 @@ func TestGetFeaturedListings_LimitThree(t *testing.T) {
 }
 
 func TestGetFeaturedListings_CategoryFilter(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	listings := []domain.Listing{
@@ -144,7 +145,7 @@ func TestGetFeaturedListings_CategoryFilter(t *testing.T) {
 }
 
 func TestSetFeatured(t *testing.T) {
-	repo, _ := newTestRepo(t)
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
 	l := domain.Listing{

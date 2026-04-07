@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"context"
 	"net/http"
 	"net/http/httptest"
@@ -62,7 +63,7 @@ func TestCoverageBoost_Geocoding(t *testing.T) {
 }
 
 func TestCoverageBoost_Background(t *testing.T) {
-	repo := setupTestRepo(t)
+	repo := testutil.SetupTestRepository(t)
 	svc := NewBackgroundService(repo)
 	svc.Interval = 1 * time.Millisecond // Fast ticker
 
