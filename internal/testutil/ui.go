@@ -11,7 +11,24 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
+	"strings"
 )
+
+// AssertContainsPagination verifies that the response contains the pagination controls.
+func AssertContainsPagination(t testing.TB, body string) {
+	t.Helper()
+	if !strings.Contains(body, `hx-swap-oob="true"`) || !strings.Contains(body, `id="pagination-controls"`) {
+		t.Error("response missing pagination controls")
+	}
+}
+
+// AssertErrorPage verifies that the response contains the error page content.
+func AssertErrorPage(t testing.TB, body string) {
+	t.Helper()
+	if !strings.Contains(body, "Error Page") {
+		t.Error("response missing error page content")
+	}
+}
 
 // TestRenderer is a simple Template Renderer for testing with an in-memory template.
 type TestRenderer struct {

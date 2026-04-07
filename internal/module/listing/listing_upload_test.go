@@ -1,8 +1,6 @@
 package listing_test
 
 import (
-	listmod "github.com/jadecobra/agbalumo/internal/module/listing"
-
 	"bytes"
 	"context"
 	"image"
@@ -19,15 +17,13 @@ import (
 )
 
 func TestListingHandler_Upload_Malicious(t *testing.T) {
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	h, app, cleanup := setupListingHandler(t)
 	defer cleanup()
 
 	// Use MockImageService to simulate a validation failure
 	mockImg := &testutil.MockImageService{}
 	app.ImageSvc = mockImg
 	mockImg.On("UploadImage", testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).Return("", echo.NewHTTPError(http.StatusBadRequest, "invalid image format"))
-
-	h := listmod.NewListingHandler(app)
 
 	// Create a malicious file (text file disguised as jpg)
 	body := new(bytes.Buffer)
@@ -55,7 +51,7 @@ func TestListingHandler_Upload_Malicious(t *testing.T) {
 
 	c, rec := setupTestContext(http.MethodPost, "/listings", body)
 	c.Request().Header.Set(echo.HeaderContentType, writer.FormDataContentType())
-	c.Set("User", domain.User{ID: "user1", Email: "test@user.com"})
+	c.Set("User", newTestUser("user1", domain.UserRoleUser))
 
 	// Execute
 	_ = h.HandleCreate(c)
@@ -65,9 +61,8 @@ func TestListingHandler_Upload_Malicious(t *testing.T) {
 }
 
 func TestListingHandler_Upload_Valid(t *testing.T) {
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	h, app, cleanup := setupListingHandler(t)
 	defer cleanup()
-	h := listmod.NewListingHandler(app)
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
@@ -92,7 +87,7 @@ func TestListingHandler_Upload_Valid(t *testing.T) {
 
 	c, rec := setupTestContext(http.MethodPost, "/listings", body)
 	c.Request().Header.Set(echo.HeaderContentType, writer.FormDataContentType())
-	c.Set("User", domain.User{ID: "user1", Email: "test@user.com"})
+	c.Set("User", newTestUser("user1", domain.UserRoleUser))
 
 	// Execute
 	_ = h.HandleCreate(c)

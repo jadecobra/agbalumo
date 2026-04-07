@@ -1,8 +1,6 @@
 package listing_test
 
 import (
-	listmod "github.com/jadecobra/agbalumo/internal/module/listing"
-
 	"context"
 	"net/http"
 	"net/url"
@@ -12,15 +10,13 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/service"
-	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHandleCreate_EventParsing(t *testing.T) {
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	h, app, cleanup := setupListingHandler(t)
 	defer cleanup()
 	app.GeocodingSvc = &service.GoogleGeocodingService{}
-	h := listmod.NewListingHandler(app)
 
 	// Create form data
 	form := url.Values{}
@@ -33,7 +29,7 @@ func TestHandleCreate_EventParsing(t *testing.T) {
 	form.Set("event_end", "2026-12-25T14:00")
 
 	c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(form.Encode()))
-	c.Set("User", domain.User{ID: "event-user", Email: "event@example.com"})
+	c.Set("User", newTestUser("event-user", domain.UserRoleUser))
 
 	// Execute
 	err := h.HandleCreate(c)

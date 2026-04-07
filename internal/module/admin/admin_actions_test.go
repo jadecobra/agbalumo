@@ -3,6 +3,7 @@ package admin_test
 import (
 	"context"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
@@ -114,20 +115,25 @@ func TestAdminHandler_HandleToggleFeatured(t *testing.T) {
 			tt.setupData(t, app.DB)
 
 			_ = h.HandleToggleFeatured(c)
-			assert.Equal(t, tt.expectCode, rec.Code)
-
-			if tt.expectCode == http.StatusOK {
-				// The response must be the HTML row snippet for HTMX swapping.
-				// Not a JSON response.
-				htmlResponse := rec.Body.String()
-				assert.Contains(t, htmlResponse, "listing-row-")
-				assert.NotContains(t, htmlResponse, "{\"featured\":")
-			}
-
-			if tt.expectCode == http.StatusOK && tt.id == "123" {
-				testutil.AssertFeaturedStatus(t, app.DB, tt.id, true)
-			}
+			assertFeaturedResponse(t, rec, tt.expectCode, tt.id, app.DB)
 		})
+	}
+}
+
+func assertFeaturedResponse(t *testing.T, rec *httptest.ResponseRecorder, expectCode int, id string, repo domain.ListingRepository) {
+	t.Helper()
+	assert.Equal(t, expectCode, rec.Code)
+
+	if expectCode == http.StatusOK {
+		// The response must be the HTML row snippet for HTMX swapping.
+		// Not a JSON response.
+		htmlResponse := rec.Body.String()
+		assert.Contains(t, htmlResponse, "listing-row-")
+		assert.NotContains(t, htmlResponse, "{\"featured\":")
+	}
+
+	if expectCode == http.StatusOK && id == "123" {
+		testutil.AssertFeaturedStatus(t, repo, id, true)
 	}
 }
 

@@ -261,4 +261,3 @@ func (s *CSVService) parseRow(record []string, headerMap map[string]int) (*domai
 		HoursOfOperation: get("hours"), CreatedAt: time.Now(),
 	}, nil
 }
-

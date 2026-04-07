@@ -1,8 +1,6 @@
 package listing_test
 
 import (
-	listmod "github.com/jadecobra/agbalumo/internal/module/listing"
-
 	"bytes"
 	"context"
 	"errors"
@@ -21,7 +19,6 @@ import (
 )
 
 func TestHandleCreate_WithImage(t *testing.T) {
-
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
 	_ = writer.WriteField("title", "Image Listing")
@@ -40,10 +37,9 @@ func TestHandleCreate_WithImage(t *testing.T) {
 	c, rec := setupTestContext(http.MethodPost, "/listings", body)
 	c.Request().Header.Set(echo.HeaderContentType, writer.FormDataContentType())
 
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	h, app, cleanup := setupListingHandler(t)
 	defer cleanup()
-	h := listmod.NewListingHandler(app)
-	c.Set("User", domain.User{ID: "u1"})
+	c.Set("User", newTestUser("u1", domain.UserRoleUser))
 
 	if err := h.HandleCreate(c); err != nil {
 		t.Fatal(err)
@@ -72,11 +68,10 @@ func TestHandleCreate_InvalidDates(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			app, cleanup := testutil.SetupTestAppEnv(t)
+			h, _, cleanup := setupListingHandler(t)
 			defer cleanup()
 			c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
-			h := listmod.NewListingHandler(app)
-			c.Set("User", domain.User{ID: "u1"})
+			c.Set("User", newTestUser("u1", domain.UserRoleUser))
 			_ = h.HandleCreate(c)
 			assert.Equal(t, tt.expectedStatus, rec.Code)
 		})
@@ -84,26 +79,23 @@ func TestHandleCreate_InvalidDates(t *testing.T) {
 }
 
 func TestHandleCreate_ImageUploadError(t *testing.T) {
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	h, app, cleanup := setupListingHandler(t)
 	defer cleanup()
 	mockImageService := &testutil.MockImageService{}
 	app.ImageSvc = mockImageService
 	mockImageService.On("UploadImage", testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).Return("", errors.New("upload fail"))
 
 	c, rec := setupTestContext(http.MethodPost, "/listings", nil)
-
-	h := listmod.NewListingHandler(app)
-	c.Set("User", domain.User{ID: "u1"})
+	c.Set("User", newTestUser("u1", domain.UserRoleUser))
 
 	_ = h.HandleCreate(c)
 	assert.Equal(t, http.StatusInternalServerError, rec.Code)
 }
 
 func TestHandleProfile_NoUser(t *testing.T) {
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	h, _, cleanup := setupListingHandler(t)
 	defer cleanup()
 	c, rec := setupTestContext(http.MethodGet, "/profile", nil)
-	h := listmod.NewListingHandler(app)
 	_ = h.HandleProfile(c)
 	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
 }

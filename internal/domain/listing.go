@@ -188,8 +188,6 @@ func (l *Listing) applyRules() error {
 	return nil
 }
 
-
-
 func (l *Listing) validateOrigin() error {
 	if l.OwnerOrigin == "" {
 		return ErrMissingOrigin

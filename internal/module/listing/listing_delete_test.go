@@ -1,14 +1,10 @@
 package listing_test
 
 import (
-	listmod "github.com/jadecobra/agbalumo/internal/module/listing"
-
-	"context"
 	"net/http"
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,9 +17,9 @@ func TestHandleDelete(t *testing.T) {
 	}{
 		{
 			name: "Success",
-			user: domain.User{ID: "owner-1"},
+			user: newTestUser("owner-1", domain.UserRoleUser),
 			setup: func(t *testing.T, repo domain.ListingRepository) {
-				_ = repo.Save(context.Background(), domain.Listing{ID: "1", OwnerID: "owner-1", Title: "Title", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "123 St"})
+				saveTestListing(t, repo, "1", "Title", func(l *domain.Listing) { l.OwnerID = "owner-1" })
 			},
 			expectCode: http.StatusSeeOther,
 		},
@@ -35,22 +31,22 @@ func TestHandleDelete(t *testing.T) {
 		},
 		{
 			name: "NotFound",
-			user: domain.User{ID: "owner-1"},
+			user: newTestUser("owner-1", domain.UserRoleUser),
 			setup: func(t *testing.T, repo domain.ListingRepository) {
 			},
 			expectCode: http.StatusNotFound,
 		},
 		{
 			name: "Forbidden_NotOwner",
-			user: domain.User{ID: "other-user"},
+			user: newTestUser("other-user", domain.UserRoleUser),
 			setup: func(t *testing.T, repo domain.ListingRepository) {
-				_ = repo.Save(context.Background(), domain.Listing{ID: "1", OwnerID: "owner-1", Title: "Title", Status: domain.ListingStatusApproved, IsActive: true, OwnerOrigin: "Nigeria", ContactEmail: "test@example.com", Type: domain.Business, City: "Lagos", Address: "123 St"})
+				saveTestListing(t, repo, "1", "Title", func(l *domain.Listing) { l.OwnerID = "owner-1" })
 			},
 			expectCode: http.StatusForbidden,
 		},
 		{
 			name: "DeleteError",
-			user: domain.User{ID: "owner-1"},
+			user: newTestUser("owner-1", domain.UserRoleUser),
 			setup: func(t *testing.T, repo domain.ListingRepository) {
 				// We can't trigger a DB error easily with real SQLite without some trickery
 			},
@@ -71,10 +67,9 @@ func TestHandleDelete(t *testing.T) {
 				c.Set("User", tt.user)
 			}
 
-			app, cleanup := testutil.SetupTestAppEnv(t)
+			h, app, cleanup := setupListingHandler(t)
 			defer cleanup()
 			tt.setup(t, app.DB)
-			h := listmod.NewListingHandler(app)
 			_ = h.HandleDelete(c)
 
 			assert.Equal(t, tt.expectCode, rec.Code)

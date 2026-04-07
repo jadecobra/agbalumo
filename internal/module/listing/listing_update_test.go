@@ -1,14 +1,11 @@
 package listing_test
 
 import (
-	listmod "github.com/jadecobra/agbalumo/internal/module/listing"
-
 	"net/http"
 	"strings"
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,7 +18,7 @@ func TestHandleEdit(t *testing.T) {
 	}{
 		{
 			name: "Success",
-			user: domain.User{ID: "owner-1"},
+			user: newTestUser("owner-1", domain.UserRoleUser),
 			setup: func(t *testing.T, repo domain.ListingRepository) {
 				saveTestListing(t, repo, "1", "Title", func(l *domain.Listing) { l.OwnerID = "owner-1" })
 			},
@@ -29,7 +26,7 @@ func TestHandleEdit(t *testing.T) {
 		},
 		{
 			name: "Forbidden",
-			user: domain.User{ID: "other-user", Role: domain.UserRoleUser},
+			user: newTestUser("other-user", domain.UserRoleUser),
 			setup: func(t *testing.T, repo domain.ListingRepository) {
 				saveTestListing(t, repo, "1", "Title", func(l *domain.Listing) { l.OwnerID = "owner-1" })
 			},
@@ -45,10 +42,9 @@ func TestHandleEdit(t *testing.T) {
 			c.SetParamValues("1")
 			c.Set("User", tt.user)
 
-			app, cleanup := testutil.SetupTestAppEnv(t)
+			h, app, cleanup := setupListingHandler(t)
 			defer cleanup()
 			tt.setup(t, app.DB)
-			h := listmod.NewListingHandler(app)
 
 			_ = h.HandleEdit(c)
 
@@ -75,7 +71,7 @@ func TestHandleUpdate(t *testing.T) {
 		},
 		{
 			name: "Forbidden",
-			user: domain.User{ID: "user2", Email: "hacker@example.com", Role: domain.UserRoleUser},
+			user: newTestUser("user2", domain.UserRoleUser),
 			body: "",
 			setup: func(t *testing.T, repo domain.ListingRepository) {
 				saveTestListing(t, repo, "1", "Old Title", func(l *domain.Listing) { l.OwnerID = "user1" })
@@ -92,11 +88,10 @@ func TestHandleUpdate(t *testing.T) {
 			c.SetParamValues("1")
 			c.Set("User", tt.user)
 
-			app, cleanup := testutil.SetupTestAppEnv(t)
+			h, app, cleanup := setupListingHandler(t)
 			defer cleanup()
 			tt.setup(t, app.DB)
 
-			h := listmod.NewListingHandler(app)
 			_ = h.HandleUpdate(c)
 
 			assert.Equal(t, tt.expectedStatus, rec.Code)
@@ -104,21 +99,19 @@ func TestHandleUpdate(t *testing.T) {
 	}
 }
 func TestHandleUpdate_NotFound(t *testing.T) {
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	h, _, cleanup := setupListingHandler(t)
 	defer cleanup()
-	h := listmod.NewListingHandler(app)
 	c, rec := setupTestContext(http.MethodPost, "/listings/1", strings.NewReader(""))
 	c.SetPath("/listings/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("1")
-	c.Set("User", domain.User{ID: "user1"})
+	c.Set("User", newTestUser("user1", domain.UserRoleUser))
 	_ = h.HandleUpdate(c)
 	assert.Equal(t, http.StatusNotFound, rec.Code)
 }
 func TestHandleUpdate_NoUser(t *testing.T) {
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	h, _, cleanup := setupListingHandler(t)
 	defer cleanup()
-	h := listmod.NewListingHandler(app)
 	c, rec := setupTestContext(http.MethodPost, "/listings/1", strings.NewReader(""))
 	c.SetPath("/listings/:id")
 	c.SetParamNames("id")
@@ -127,16 +120,15 @@ func TestHandleUpdate_NoUser(t *testing.T) {
 	assert.Equal(t, http.StatusUnauthorized, rec.Code)
 }
 func TestHandleUpdate_DuplicateTitle(t *testing.T) {
-	app, cleanup := testutil.SetupTestAppEnv(t)
+	h, app, cleanup := setupListingHandler(t)
 	defer cleanup()
 	saveTestListing(t, app.DB, "1", "Old", func(l *domain.Listing) { l.OwnerID = "user1" })
 	saveTestListing(t, app.DB, "2", "Taken Title", func(l *domain.Listing) { l.OwnerID = "user2"; l.Address = "456 St" })
-	h := listmod.NewListingHandler(app)
 	c, rec := setupTestContext(http.MethodPost, "/listings/1", strings.NewReader("title=Taken+Title&type=Business&owner_origin=Ghana&description=Desc&contact_email=t@e.com&city=Kumasi&address=123+St"))
 	c.SetPath("/listings/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("1")
-	c.Set("User", domain.User{ID: "user1"})
+	c.Set("User", newTestUser("user1", domain.UserRoleUser))
 	_ = h.HandleUpdate(c)
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 }
