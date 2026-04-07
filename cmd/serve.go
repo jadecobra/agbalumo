@@ -25,29 +25,10 @@ type ServerConfig struct {
 
 // ResolveServerConfig determines the server configuration based on environment and file existence
 func ResolveServerConfig(env, port string, fileExists func(string) bool) ServerConfig {
-	certFile := "certs/cert.pem"
-	keyFile := "certs/key.pem"
+	const certFile = "certs/cert.pem"
+	const keyFile = "certs/key.pem"
 	hasCerts := fileExists(certFile) && fileExists(keyFile)
-
-	if port == "" {
-		// Try to extract port from APP_URL if available
-		if appURL := os.Getenv("APP_URL"); appURL != "" {
-			if strings.Contains(appURL, ":") {
-				parts := strings.Split(appURL, ":")
-				port = parts[len(parts)-1]
-				// Remove trailing slash if present
-				port = strings.TrimSuffix(port, "/")
-			}
-		}
-	}
-
-	if port == "" {
-		if hasCerts && env != "production" {
-			port = "8443"
-		} else {
-			port = "8080"
-		}
-	}
+	port = resolvePort(port, env, hasCerts)
 
 	// In production (Fly.io), TLS is handled by the proxy. We just listen on PORT.
 	if env == "production" {
@@ -65,6 +46,30 @@ func ResolveServerConfig(env, port string, fileExists func(string) bool) ServerC
 	}
 
 	return ServerConfig{Addr: ":" + port, TLS: false}
+}
+
+// resolvePort returns the effective port to listen on.
+// It checks: explicit arg → APP_URL env → cert-aware default.
+func resolvePort(port, env string, hasCerts bool) string {
+	if port != "" {
+		return port
+	}
+
+	if appURL := os.Getenv("APP_URL"); appURL != "" {
+		if strings.Contains(appURL, ":") {
+			parts := strings.Split(appURL, ":")
+			port = strings.TrimSuffix(parts[len(parts)-1], "/")
+			if port != "" {
+				return port
+			}
+		}
+	}
+
+	if hasCerts && env != "production" {
+		return "8443"
+	}
+
+	return "8080"
 }
 
 var serveCmd = &cobra.Command{
