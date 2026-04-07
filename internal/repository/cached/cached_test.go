@@ -34,6 +34,29 @@ func (s *stubListingStore) GetLocations(ctx context.Context) ([]string, error) {
 	return []string{"Lagos", "London"}, nil
 }
 
+func assertCacheCounts(t *testing.T, stub *stubListingStore, result map[domain.Category]int, wantCalls int) {
+	t.Helper()
+	if stub.getCountsCalls != wantCalls {
+		t.Errorf("expected %d call(s) to underlying store, got %d", wantCalls, stub.getCountsCalls)
+	}
+	if result[domain.Business] != 5 {
+		t.Errorf("expected Business=5, got %d", result[domain.Business])
+	}
+	if result[domain.Food] != 3 {
+		t.Errorf("expected Food=3, got %d", result[domain.Food])
+	}
+}
+
+func assertCacheLocations(t *testing.T, stub *stubListingStore, result []string, wantCalls int) {
+	t.Helper()
+	if stub.getLocationsCalls != wantCalls {
+		t.Errorf("expected %d call(s) to underlying store, got %d", wantCalls, stub.getLocationsCalls)
+	}
+	if len(result) != 2 || result[0] != "Lagos" || result[1] != "London" {
+		t.Errorf("unexpected locations: %v", result)
+	}
+}
+
 func TestCachedGetCounts_CacheMiss(t *testing.T) {
 	stub := &stubListingStore{}
 	cache := NewCachedListingStore(stub, 60*time.Second)
@@ -43,15 +66,7 @@ func TestCachedGetCounts_CacheMiss(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if stub.getCountsCalls != 1 {
-		t.Errorf("expected 1 call to underlying store, got %d", stub.getCountsCalls)
-	}
-	if counts[domain.Business] != 5 {
-		t.Errorf("expected Business=5, got %d", counts[domain.Business])
-	}
-	if counts[domain.Food] != 3 {
-		t.Errorf("expected Food=3, got %d", counts[domain.Food])
-	}
+	assertCacheCounts(t, stub, counts, 1)
 }
 
 func TestCachedGetCounts_CacheHit(t *testing.T) {
@@ -66,12 +81,7 @@ func TestCachedGetCounts_CacheHit(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if stub.getCountsCalls != 1 {
-		t.Errorf("expected 1 call to underlying store (cached), got %d", stub.getCountsCalls)
-	}
-	if counts[domain.Business] != 5 {
-		t.Errorf("expected Business=5, got %d", counts[domain.Business])
-	}
+	assertCacheCounts(t, stub, counts, 1)
 }
 
 func TestCachedGetCounts_CacheExpired(t *testing.T) {
@@ -83,14 +93,12 @@ func TestCachedGetCounts_CacheExpired(t *testing.T) {
 	// Wait for TTL to expire
 	time.Sleep(5 * time.Millisecond)
 	// Second call — cache expired, should fetch again
-	_, err := cache.GetCounts(context.Background())
+	counts, err := cache.GetCounts(context.Background())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if stub.getCountsCalls != 2 {
-		t.Errorf("expected 2 calls to underlying store (expired), got %d", stub.getCountsCalls)
-	}
+	assertCacheCounts(t, stub, counts, 2)
 }
 
 func TestCachedGetCounts_ErrorPassthrough(t *testing.T) {
@@ -132,12 +140,7 @@ func TestCachedGetLocations_CacheMiss(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if stub.getLocationsCalls != 1 {
-		t.Errorf("expected 1 call to underlying store, got %d", stub.getLocationsCalls)
-	}
-	if len(locs) != 2 || locs[0] != "Lagos" || locs[1] != "London" {
-		t.Errorf("unexpected locations: %v", locs)
-	}
+	assertCacheLocations(t, stub, locs, 1)
 }
 
 func TestCachedGetLocations_CacheHit(t *testing.T) {
@@ -152,12 +155,7 @@ func TestCachedGetLocations_CacheHit(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if stub.getLocationsCalls != 1 {
-		t.Errorf("expected 1 call to underlying store (cached), got %d", stub.getLocationsCalls)
-	}
-	if len(locs) != 2 || locs[0] != "Lagos" || locs[1] != "London" {
-		t.Errorf("unexpected locations: %v", locs)
-	}
+	assertCacheLocations(t, stub, locs, 1)
 }
 
 func TestCachedGetLocations_CacheExpired(t *testing.T) {
@@ -169,14 +167,12 @@ func TestCachedGetLocations_CacheExpired(t *testing.T) {
 	// Wait for TTL to expire
 	time.Sleep(5 * time.Millisecond)
 	// Second call — cache expired, should fetch again
-	_, err := cache.GetLocations(context.Background())
+	locs, err := cache.GetLocations(context.Background())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if stub.getLocationsCalls != 2 {
-		t.Errorf("expected 2 calls to underlying store (expired), got %d", stub.getLocationsCalls)
-	}
+	assertCacheLocations(t, stub, locs, 2)
 }
 
 func TestCachedGetLocations_ErrorPassthrough(t *testing.T) {

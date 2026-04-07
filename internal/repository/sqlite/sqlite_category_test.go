@@ -16,7 +16,7 @@ func TestSaveCategory(t *testing.T) {
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
-	cat := domain.CategoryData{
+	saveTestCategory(t, ctx, repo, domain.CategoryData{
 		ID:        "test-cat",
 		Name:      "Test Category",
 		Claimable: true,
@@ -24,11 +24,7 @@ func TestSaveCategory(t *testing.T) {
 		Active:    true,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
-	}
-
-	if err := repo.SaveCategory(ctx, cat); err != nil {
-		t.Fatalf("SaveCategory failed: %v", err)
-	}
+	})
 
 	// Verify it was saved
 	got, err := repo.GetCategory(ctx, "test-cat")
@@ -60,17 +56,13 @@ func TestSaveCategory_Upsert(t *testing.T) {
 		UpdatedAt: time.Now(),
 	}
 
-	if err := repo.SaveCategory(ctx, cat); err != nil {
-		t.Fatalf("SaveCategory failed: %v", err)
-	}
+	saveTestCategory(t, ctx, repo, cat)
 
 	// Update via upsert
 	cat.Name = "Updated"
 	cat.Claimable = true
 	cat.UpdatedAt = time.Now()
-	if err := repo.SaveCategory(ctx, cat); err != nil {
-		t.Fatalf("SaveCategory update failed: %v", err)
-	}
+	saveTestCategory(t, ctx, repo, cat)
 
 	got, err := repo.GetCategory(ctx, "upsert-cat")
 	if err != nil {
@@ -89,16 +81,9 @@ func TestGetCategories(t *testing.T) {
 	ctx := context.Background()
 
 	// Seed categories
-	cats := []domain.CategoryData{
-		{ID: "bus", Name: "Business", Active: true, CreatedAt: time.Now(), UpdatedAt: time.Now()},
-		{ID: "svc", Name: "Service", Active: true, CreatedAt: time.Now(), UpdatedAt: time.Now()},
-		{ID: "old", Name: "Old Category", Active: false, CreatedAt: time.Now(), UpdatedAt: time.Now()},
-	}
-	for _, c := range cats {
-		if err := repo.SaveCategory(ctx, c); err != nil {
-			t.Fatalf("Failed to seed category %s: %v", c.Name, err)
-		}
-	}
+	saveTestCategory(t, ctx, repo, domain.CategoryData{ID: "bus", Name: "Business", Active: true, CreatedAt: time.Now(), UpdatedAt: time.Now()})
+	saveTestCategory(t, ctx, repo, domain.CategoryData{ID: "svc", Name: "Service", Active: true, CreatedAt: time.Now(), UpdatedAt: time.Now()})
+	saveTestCategory(t, ctx, repo, domain.CategoryData{ID: "old", Name: "Old Category", Active: false, CreatedAt: time.Now(), UpdatedAt: time.Now()})
 
 	// Get all (no filter)
 	all, err := repo.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: false})
@@ -218,7 +203,7 @@ func TestGetLocations(t *testing.T) {
 	ctx := context.Background()
 
 	// Seed listings with cities
-	_ = repo.SaveCategory(ctx, domain.CategoryData{ID: "bus", Name: "Business", Active: true})
+	saveTestCategory(t, ctx, repo, domain.CategoryData{ID: "bus", Name: "Business", Active: true})
 	listings := []domain.Listing{
 		{ID: "1", Title: "Place A", City: "Houston", Type: "Business", IsActive: true},
 		{ID: "2", Title: "Place B", City: "Dallas", Type: "Business", IsActive: true},
@@ -227,9 +212,7 @@ func TestGetLocations(t *testing.T) {
 		{ID: "5", Title: "Place E", City: "Austin", Type: "Business", IsActive: false}, // inactive
 	}
 	for _, l := range listings {
-		if err := repo.Save(ctx, l); err != nil {
-			t.Fatalf("Failed to seed listing: %v", err)
-		}
+		saveTestListing(t, ctx, repo, l)
 	}
 
 	locations, err := repo.GetLocations(ctx)
@@ -269,9 +252,7 @@ func TestSaveCategory_PreservesExistingCategories(t *testing.T) {
 		{ID: "Food", Name: "Food", IsSystem: true, Active: true, CreatedAt: time.Now(), UpdatedAt: time.Now()},
 	}
 	for _, c := range coreCategories {
-		if err := repo.SaveCategory(ctx, c); err != nil {
-			t.Fatalf("Failed to seed core category %s: %v", c.ID, err)
-		}
+		saveTestCategory(t, ctx, repo, c)
 	}
 
 	// Now add a new admin-created category with a proper unique ID
@@ -283,9 +264,7 @@ func TestSaveCategory_PreservesExistingCategories(t *testing.T) {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	if err := repo.SaveCategory(ctx, newCat); err != nil {
-		t.Fatalf("Failed to save new category: %v", err)
-	}
+	saveTestCategory(t, ctx, repo, newCat)
 
 	// Verify ALL 4 categories exist
 	all, err := repo.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: false})

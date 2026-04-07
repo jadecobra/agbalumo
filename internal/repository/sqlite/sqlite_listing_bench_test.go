@@ -1,30 +1,12 @@
 package sqlite_test
 
 import (
-	"context"
-	"fmt"
-	"github.com/jadecobra/agbalumo/internal/testutil"
 	"testing"
-
-	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
 func BenchmarkSQLiteRepository_FindAll(b *testing.B) {
-	repo, _ := testutil.SetupTestRepositoryUnique(b)
-	ctx := context.Background()
-
-	// Seed 100 listings
-	for i := 0; i < 100; i++ {
-		_ = repo.Save(ctx, domain.Listing{
-			ID:          fmt.Sprintf("l%d", i),
-			Title:       fmt.Sprintf("Listing %d", i),
-			Type:        domain.Business,
-			OwnerOrigin: "Nigeria",
-			Address:     "123 St",
-			Description: "Desc",
-			IsActive:    true,
-		})
-	}
+	repo, ctx, cleanup := setupBenchmarkDB(b, 100)
+	defer cleanup()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -33,21 +15,8 @@ func BenchmarkSQLiteRepository_FindAll(b *testing.B) {
 }
 
 func BenchmarkSQLiteRepository_FindByTitle(b *testing.B) {
-	repo, _ := testutil.SetupTestRepositoryUnique(b)
-	ctx := context.Background()
-
-	// Seed 100 listings
-	for i := 0; i < 100; i++ {
-		_ = repo.Save(ctx, domain.Listing{
-			ID:          fmt.Sprintf("l%d", i),
-			Title:       fmt.Sprintf("Listing %d", i),
-			Type:        domain.Business,
-			OwnerOrigin: "Nigeria",
-			Address:     "123 St",
-			Description: "Desc",
-			IsActive:    true,
-		})
-	}
+	repo, ctx, cleanup := setupBenchmarkDB(b, 100)
+	defer cleanup()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

@@ -4,25 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
 	"github.com/jadecobra/agbalumo/internal/seeder"
 	_ "modernc.org/sqlite"
 )
 
 func TestEnsureCategoriesSeeded_Verification(t *testing.T) {
 	ctx := context.Background()
-	dbPath := filepath.Join(t.TempDir(), "test.db")
-	repo, err := sqlite.NewSQLiteRepository(dbPath)
-	if err != nil {
-		t.Fatalf("Failed to create repo: %v", err)
-	}
-
-	tmpDir := t.TempDir()
-	configPath := filepath.Join(tmpDir, "categories.json")
+	repo, configPath, cleanup := setupSeeder(t)
+	defer cleanup()
 
 	t.Run("MissingConfig", func(t *testing.T) {
 		err := seeder.EnsureCategoriesSeeded(ctx, repo, "non-existent.json")

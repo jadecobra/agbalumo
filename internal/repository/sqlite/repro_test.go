@@ -46,10 +46,7 @@ func TestReproCategoryRegression(t *testing.T) {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	err = repo.SaveCategory(ctx, newCat)
-	if err != nil {
-		t.Fatalf("Failed to save church category: %v", err)
-	}
+	saveTestCategory(t, ctx, repo, newCat)
 
 	// 4. Check if core categories are still active
 	activeAfter, err := repo.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: true})
@@ -76,9 +73,7 @@ func TestCategoryCaseSensitivity(t *testing.T) {
 
 	// 2. Add custom category "business"
 	custom := domain.CategoryData{ID: "business", Name: "business", IsSystem: false, Active: true}
-	if err := repo.SaveCategory(ctx, custom); err != nil {
-		t.Fatalf("Failed to save custom: %v", err)
-	}
+	saveTestCategory(t, ctx, repo, custom)
 
 	// 3. Check if both exist
 	all, _ := repo.GetCategories(ctx, domain.CategoryFilter{})

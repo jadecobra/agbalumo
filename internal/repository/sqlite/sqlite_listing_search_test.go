@@ -14,9 +14,9 @@ func TestFindAll_Filtering(t *testing.T) {
 	ctx := context.Background()
 
 	// Seed Data
-	_ = repo.Save(ctx, domain.Listing{ID: "1", Title: "Jollof Rice", Type: "Business", Status: domain.ListingStatusApproved, IsActive: true, CreatedAt: time.Now()})
-	_ = repo.Save(ctx, domain.Listing{ID: "2", Title: "Hair Braiding", Type: "Service", Status: domain.ListingStatusPending, IsActive: true, CreatedAt: time.Now()})
-	_ = repo.Save(ctx, domain.Listing{ID: "3", Title: "Deleted Item", Type: "Product", Status: domain.ListingStatusRejected, IsActive: false, CreatedAt: time.Now()})
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "1", Title: "Jollof Rice", Type: "Business", Status: domain.ListingStatusApproved, IsActive: true, CreatedAt: time.Now()})
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "2", Title: "Hair Braiding", Type: "Service", Status: domain.ListingStatusPending, IsActive: true, CreatedAt: time.Now()})
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "3", Title: "Deleted Item", Type: "Product", Status: domain.ListingStatusRejected, IsActive: false, CreatedAt: time.Now()})
 
 	// 1. Find All Active (Default for Public) - should only return Approved
 	res, _, err := repo.FindAll(ctx, "", "", "", "", false, 20, 0)
@@ -57,9 +57,9 @@ func TestFindAll_Sorting_Featured(t *testing.T) {
 	ctx := context.Background()
 
 	// Seed Data
-	_ = repo.Save(ctx, domain.Listing{ID: "1", Title: "A-Normal", Status: domain.ListingStatusApproved, IsActive: true, Featured: false, CreatedAt: time.Now()})
-	_ = repo.Save(ctx, domain.Listing{ID: "2", Title: "B-Featured", Status: domain.ListingStatusApproved, IsActive: true, Featured: true, CreatedAt: time.Now().Add(time.Second)})
-	_ = repo.Save(ctx, domain.Listing{ID: "3", Title: "C-Normal", Status: domain.ListingStatusApproved, IsActive: true, Featured: false, CreatedAt: time.Now().Add(2 * time.Second)})
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "1", Title: "A-Normal", Status: domain.ListingStatusApproved, IsActive: true, Featured: false, CreatedAt: time.Now()})
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "2", Title: "B-Featured", Status: domain.ListingStatusApproved, IsActive: true, Featured: true, CreatedAt: time.Now().Add(time.Second)})
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "3", Title: "C-Normal", Status: domain.ListingStatusApproved, IsActive: true, Featured: false, CreatedAt: time.Now().Add(2 * time.Second)})
 
 	// Test sort by featured DESC (Featured should be first)
 	res, _, err := repo.FindAll(ctx, "", "", "featured", "DESC", true, 10, 0)
@@ -95,8 +95,8 @@ func TestListingRepository_FTS(t *testing.T) {
 	ctx := context.Background()
 
 	// Use trigram search (needs at least 3 chars usually)
-	_ = repo.Save(ctx, domain.Listing{ID: "1", Title: "Jollof Rice", City: "Houston", IsActive: true})
-	_ = repo.Save(ctx, domain.Listing{ID: "2", Title: "Egusi Soup", City: "Dallas", IsActive: true})
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "1", Title: "Jollof Rice", City: "Houston", IsActive: true})
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "2", Title: "Egusi Soup", City: "Dallas", IsActive: true})
 
 	tests := []struct {
 		query string
@@ -121,9 +121,9 @@ func TestFindByTitle_CaseInsensitive(t *testing.T) {
 	ctx := context.Background()
 
 	// Seed data
-	_ = repo.Save(ctx, domain.Listing{ID: "1", Title: "Unique Title", Type: domain.Business, IsActive: true, CreatedAt: time.Now()})
-	_ = repo.Save(ctx, domain.Listing{ID: "2", Title: "Duplicate Title", Type: domain.Service, IsActive: true, CreatedAt: time.Now()})
-	_ = repo.Save(ctx, domain.Listing{ID: "3", Title: "Duplicate Title", Type: domain.Product, IsActive: true, CreatedAt: time.Now()})
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "1", Title: "Unique Title", Type: domain.Business, IsActive: true, CreatedAt: time.Now()})
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "2", Title: "Duplicate Title", Type: domain.Service, IsActive: true, CreatedAt: time.Now()})
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "3", Title: "Duplicate Title", Type: domain.Product, IsActive: true, CreatedAt: time.Now()})
 
 	// Test unique title
 	res, _ := repo.FindByTitle(ctx, "Unique Title")
@@ -143,7 +143,7 @@ func TestTitleExists(t *testing.T) {
 	ctx := context.Background()
 
 	title := "Unique Listing"
-	_ = repo.Save(ctx, domain.Listing{ID: "1", Title: title, IsActive: true})
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "1", Title: title, IsActive: true})
 
 	exists, err := repo.TitleExists(ctx, title)
 	if err != nil {
@@ -166,9 +166,9 @@ func TestFindAllByOwner(t *testing.T) {
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
-	_ = repo.Save(ctx, domain.Listing{ID: "1", OwnerID: "user-1", Title: "L1"})
-	_ = repo.Save(ctx, domain.Listing{ID: "2", OwnerID: "user-1", Title: "L2"})
-	_ = repo.Save(ctx, domain.Listing{ID: "3", OwnerID: "user-2", Title: "L3"})
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "1", OwnerID: "user-1", Title: "L1"})
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "2", OwnerID: "user-1", Title: "L2"})
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "3", OwnerID: "user-2", Title: "L3"})
 
 	res, _, err := repo.FindAllByOwner(ctx, "user-1", 10, 0)
 	if err != nil {
