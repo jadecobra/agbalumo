@@ -11,10 +11,10 @@ func TestResolveServerConfig(t *testing.T) {
 		name           string
 		env            string
 		port           string
-		filesExist     bool
 		expectedAddr   string
-		expectedTLS    bool
 		expectedConfig ServerConfig
+		filesExist     bool
+		expectedTLS    bool
 	}{
 		{
 			name:         "Production Default",

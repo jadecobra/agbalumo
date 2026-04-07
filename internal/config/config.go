@@ -10,16 +10,16 @@ import (
 type Config struct {
 	Env                  string
 	DatabaseURL          string
-	SessionSecret        string // #nosec G117 - Configuration holder for session signing secret
+	SessionSecret        string
 	AdminCode            string
 	DevAuthEmail         string
+	UploadDir            string
+	GoogleMapsAPIKey     string
 	RateLimitRate        int
 	RateLimitBurst       int
-	UploadDir            string
-	GoogleMapsAPIKey     string // #nosec G117 - Configuration holder for Maps API key
+	SlowQueryThresholdMs int
 	HasGoogleAuth        bool
 	MockAuth             bool
-	SlowQueryThresholdMs int
 }
 
 func LoadConfig() *Config {

@@ -10,9 +10,9 @@ import (
 
 func TestHandleDelete(t *testing.T) {
 	tests := []struct {
-		name       string
 		user       interface{}
 		setup      func(t *testing.T, repo domain.ListingRepository)
+		name       string
 		expectCode int
 	}{
 		{

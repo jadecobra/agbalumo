@@ -6,10 +6,10 @@ import (
 
 func TestResolveSeedConfig(t *testing.T) {
 	tests := []struct {
-		name     string
-		args     []string
 		env      map[string]string
+		name     string
 		expected string
+		args     []string
 	}{
 		{
 			name:     "Default",

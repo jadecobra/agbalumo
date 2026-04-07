@@ -12,10 +12,10 @@ import (
 // stubListingStore is a minimal stub satisfying domain.ListingStore for testing.
 type stubListingStore struct {
 	domain.ListingRepository
-	getCountsCalls    int
 	getCountsFunc     func() (map[domain.Category]int, error)
-	getLocationsCalls int
 	getLocationsFunc  func() ([]string, error)
+	getCountsCalls    int
+	getLocationsCalls int
 }
 
 func (s *stubListingStore) GetCounts(ctx context.Context) (map[domain.Category]int, error) {

@@ -21,14 +21,14 @@ const (
 
 // CategoryData represents a category entity in the system.
 type CategoryData struct {
+	CreatedAt                 time.Time `json:"created_at"`
+	UpdatedAt                 time.Time `json:"updated_at"`
 	ID                        string    `json:"id"`
 	Name                      string    `json:"name"`
 	Claimable                 bool      `json:"claimable"`
-	IsSystem                  bool      `json:"is_system"` // True for core categories (Job, Event, etc.)
+	IsSystem                  bool      `json:"is_system"`
 	Active                    bool      `json:"active"`
-	RequiresSpecialValidation bool      `json:"requires_special_validation"` // True for Job, Event, Request
-	CreatedAt                 time.Time `json:"created_at"`
-	UpdatedAt                 time.Time `json:"updated_at"`
+	RequiresSpecialValidation bool      `json:"requires_special_validation"`
 }
 
 // CategoryFilter options for querying categories
@@ -38,9 +38,9 @@ type CategoryFilter struct {
 
 // CategoryCache is a simple thread-safe cache for category data.
 type CategoryCache struct {
-	mu         sync.RWMutex
-	categories []CategoryData
 	expiration time.Time
+	categories []CategoryData
+	mu         sync.RWMutex
 }
 
 func (c *CategoryCache) Get() ([]CategoryData, bool) {

@@ -16,10 +16,10 @@ import (
 
 func TestAdminHandler_HandleLoginView(t *testing.T) {
 	tests := []struct {
-		name       string
 		user       interface{}
-		expectCode int
+		name       string
 		expectLoc  string
+		expectCode int
 	}{
 		{
 			name:       "AlreadyAdmin_RedirectsToDashboard",
@@ -61,13 +61,13 @@ func TestAdminHandler_HandleLoginView(t *testing.T) {
 
 func TestAdminHandler_HandleLoginAction(t *testing.T) {
 	tests := []struct {
+		user       *domain.User
+		verifyUser func(*testing.T, *admin.AdminHandler, string)
 		name       string
 		code       string
 		adminCode  string
-		user       *domain.User
-		expectCode int
 		expectLoc  string
-		verifyUser func(*testing.T, *admin.AdminHandler, string)
+		expectCode int
 	}{
 		{
 			name:       "WrongCode_RendersError",

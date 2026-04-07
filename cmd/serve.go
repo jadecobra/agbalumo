@@ -18,9 +18,9 @@ import (
 // ServerConfig holds the configuration for starting the server
 type ServerConfig struct {
 	Addr     string
-	TLS      bool
 	CertFile string
 	KeyFile  string
+	TLS      bool
 }
 
 // ResolveServerConfig determines the server configuration based on environment and file existence

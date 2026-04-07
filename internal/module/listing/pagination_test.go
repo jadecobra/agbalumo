@@ -10,8 +10,8 @@ import (
 func TestPagination_GetPageRange(t *testing.T) {
 	tests := []struct {
 		name       string
-		pagination Pagination
 		expected   []int
+		pagination Pagination
 	}{
 		{
 			name: "SinglePage",

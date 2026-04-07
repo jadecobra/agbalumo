@@ -11,11 +11,11 @@ import (
 
 func TestHandleCreate(t *testing.T) {
 	tests := []struct {
+		setup          func(t *testing.T, repo domain.ListingRepository)
 		name           string
 		body           string
-		setup          func(t *testing.T, repo domain.ListingRepository)
-		expectedStatus int
 		expectedBody   string
+		expectedStatus int
 	}{
 		{
 			name: "Success",

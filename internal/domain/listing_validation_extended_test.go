@@ -12,10 +12,10 @@ func TestValidateDeadline(t *testing.T) {
 	now := time.Now()
 
 	tests := []struct {
-		name     string
 		deadline time.Time
-		typeStr  Category
 		wantErr  error
+		name     string
+		typeStr  Category
 	}{
 		{
 			name:     "Valid Deadline (89 days)",
@@ -109,18 +109,18 @@ func TestHoursOfOperationRestriction(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			l := Listing{
-				ID:           "test-restrict",
-				OwnerOrigin:  "Ghana",
-				Type:         tt.lType,
-				Title:        "Test",
-				ContactEmail: "test@example.com",
-				Company:      "Acme",
-				Skills:       "Go",
-				JobStartDate: time.Now().Add(24 * time.Hour),
-				EventStart:   time.Now().Add(24 * time.Hour),
-				EventEnd:     time.Now().Add(25 * time.Hour),
-				Address:      "123 St",
-				City:         "Lome",
+				ID:               "test-restrict",
+				OwnerOrigin:      "Ghana",
+				Type:             tt.lType,
+				Title:            "Test",
+				ContactEmail:     "test@example.com",
+				Company:          "Acme",
+				Skills:           "Go",
+				JobStartDate:     time.Now().Add(24 * time.Hour),
+				EventStart:       time.Now().Add(24 * time.Hour),
+				EventEnd:         time.Now().Add(25 * time.Hour),
+				Address:          "123 St",
+				City:             "Lome",
 				HoursOfOperation: tt.hours,
 				CreatedAt:        time.Now(),
 			}

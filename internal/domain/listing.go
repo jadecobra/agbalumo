@@ -23,24 +23,24 @@ var validationRules = []validationRule{
 
 var lengthRules = []struct {
 	field func(*Listing) int
-	limit int
 	err   string
+	limit int
 }{
-	{func(l *Listing) int { return len(l.Title) }, 100, "title cannot exceed 100 characters"},
-	{func(l *Listing) int { return len(l.Description) }, 2000, "description cannot exceed 2000 characters"},
-	{func(l *Listing) int { return len(l.Company) }, 100, "company name cannot exceed 100 characters"},
-	{func(l *Listing) int { return len(l.Address) }, 200, "address cannot exceed 200 characters"},
+	{field: func(l *Listing) int { return len(l.Title) }, limit: 100, err: "title cannot exceed 100 characters"},
+	{field: func(l *Listing) int { return len(l.Description) }, limit: 2000, err: "description cannot exceed 2000 characters"},
+	{field: func(l *Listing) int { return len(l.Company) }, limit: 100, err: "company name cannot exceed 100 characters"},
+	{field: func(l *Listing) int { return len(l.Address) }, limit: 200, err: "address cannot exceed 200 characters"},
 }
 
 var jobFields = []struct {
 	field func(*Listing) string
 	err   string
 }{
-	{func(l *Listing) string { return l.Company }, "company name is required for job listings"},
-	{func(l *Listing) string { return l.Description }, "description is required"},
-	{func(l *Listing) string { return l.Skills }, "skills are required for job listings"},
-	{func(l *Listing) string { return l.PayRange }, "compensation/pay range is required"},
-	{func(l *Listing) string { return l.JobApplyURL }, "apply url is required"},
+	{field: func(l *Listing) string { return l.Company }, err: "company name is required for job listings"},
+	{field: func(l *Listing) string { return l.Description }, err: "description is required"},
+	{field: func(l *Listing) string { return l.Skills }, err: "skills are required for job listings"},
+	{field: func(l *Listing) string { return l.PayRange }, err: "compensation/pay range is required"},
+	{field: func(l *Listing) string { return l.JobApplyURL }, err: "apply url is required"},
 }
 
 // Listing represents a directory entry or request.

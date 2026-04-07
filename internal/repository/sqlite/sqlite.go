@@ -18,9 +18,9 @@ type Scanner interface {
 }
 
 type SQLiteRepository struct {
-	slowQueryThreshold time.Duration
 	writeDB            *sql.DB
 	readDB             *sql.DB
+	slowQueryThreshold time.Duration
 }
 
 // NewSQLiteRepositoryFromDB creates a new repository using an existing DB connection for both pools.

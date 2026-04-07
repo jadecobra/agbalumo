@@ -14,8 +14,8 @@ func TestPublicRoutes(t *testing.T) {
 		name           string
 		method         string
 		path           string
-		expectedStatus int
 		expectedBody   []string
+		expectedStatus int
 	}{
 		{
 			name:           "Home loads",

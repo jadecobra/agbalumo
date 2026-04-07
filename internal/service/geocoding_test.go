@@ -14,9 +14,9 @@ func TestGoogleGeocodingService_GetCity(t *testing.T) {
 		name           string
 		address        string
 		apiKey         string
-		responseStatus int
 		responseBody   string
 		expectedCity   string
+		responseStatus int
 		expectedError  bool
 	}{
 		{

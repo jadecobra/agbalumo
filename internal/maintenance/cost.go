@@ -20,13 +20,13 @@ type FileCost struct {
 }
 
 type CostReport struct {
+	TopFiles         []FileCost
 	TotalFiles       int
 	TotalLines       int
 	TotalTokens      int
 	RMS              float64
 	TokenRMS         float64
 	ContextWindowPct float64
-	TopFiles         []FileCost
 }
 
 var ignoredDirs = map[string]bool{

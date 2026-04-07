@@ -13,12 +13,12 @@ const (
 
 // ClaimRequest represents a user's request to claim ownership of an admin-created listing.
 type ClaimRequest struct {
+	CreatedAt    time.Time   `json:"created_at"`
 	ID           string      `json:"id"`
 	ListingID    string      `json:"listing_id"`
-	ListingTitle string      `json:"listing_title"` // denormalized for admin display
+	ListingTitle string      `json:"listing_title"`
 	UserID       string      `json:"user_id"`
-	UserName     string      `json:"user_name"`  // denormalized for admin display
-	UserEmail    string      `json:"user_email"` // denormalized for admin display
+	UserName     string      `json:"user_name"`
+	UserEmail    string      `json:"user_email"`
 	Status       ClaimStatus `json:"status"`
-	CreatedAt    time.Time   `json:"created_at"`
 }

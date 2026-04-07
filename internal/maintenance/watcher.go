@@ -14,9 +14,9 @@ import (
 )
 
 type watcherState struct {
+	currentCmd *exec.Cmd
 	cmdName    string
 	cmdArgs    []string
-	currentCmd *exec.Cmd
 }
 
 // Watch monitors the codebase for changes and executes a command (e.g., serve or test).

@@ -28,10 +28,10 @@ func TestAdminHandler_HandleAllListings(t *testing.T) {
 
 func TestAdminHandler_HandleToggleFeatured(t *testing.T) {
 	tests := []struct {
+		setupData  func(t *testing.T, repo domain.ListingRepository)
 		name       string
 		id         string
 		featured   string
-		setupData  func(t *testing.T, repo domain.ListingRepository)
 		expectCode int
 	}{
 		{

@@ -10,13 +10,13 @@ import (
 
 // CachedListingStore wraps a ListingRepository and caches GetCounts results with a TTL.
 type CachedListingStore struct {
-	domain.ListingRepository
-	mu            sync.RWMutex
-	counts        map[domain.Category]int
 	countsTime    time.Time
-	locations     []string
 	locationsTime time.Time
-	ttl           time.Duration
+	domain.ListingRepository
+	counts    map[domain.Category]int
+	locations []string
+	ttl       time.Duration
+	mu        sync.RWMutex
 }
 
 // NewCachedListingStore creates a new cached wrapper around a ListingRepository.

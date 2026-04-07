@@ -11,9 +11,9 @@ import (
 
 func TestHandleEdit(t *testing.T) {
 	tests := []struct {
-		name           string
-		user           domain.User
 		setup          func(t *testing.T, repo domain.ListingRepository)
+		user           domain.User
+		name           string
 		expectedStatus int
 	}{
 		{
@@ -54,10 +54,10 @@ func TestHandleEdit(t *testing.T) {
 }
 func TestHandleUpdate(t *testing.T) {
 	tests := []struct {
-		name           string
-		user           domain.User
-		body           string
 		setup          func(t *testing.T, repo domain.ListingRepository)
+		user           domain.User
+		name           string
+		body           string
 		expectedStatus int
 	}{
 		{

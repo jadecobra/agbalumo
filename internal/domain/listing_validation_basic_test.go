@@ -9,9 +9,9 @@ import (
 
 func TestOriginValidation(t *testing.T) {
 	tests := []struct {
+		wantErr error
 		name    string
 		origin  string
-		wantErr error
 	}{
 		{
 			name:    "Valid Origin - Nigeria",
