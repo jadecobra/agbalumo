@@ -150,7 +150,6 @@ var ValidOrigins = map[string]bool{
 
 // Validate enforces domain rules for the Listing.
 func (l *Listing) Validate() error {
-	// 1. Complex Rules (that return specific error variables)
 	if err := l.validateOrigin(); err != nil {
 		return err
 	}
@@ -160,31 +159,36 @@ func (l *Listing) Validate() error {
 	if err := l.validateContact(); err != nil {
 		return err
 	}
+	if err := l.applyRules(); err != nil {
+		return err
+	}
+	return l.validateTypeSpecific()
+}
 
-	// 2. Simple Field & Length Rules
+// applyRules runs the validationRules, lengthRules, and (for Job) jobFields in sequence.
+func (l *Listing) applyRules() error {
 	for _, rule := range validationRules {
 		if rule.condition(l) {
 			return errors.New(rule.err)
 		}
 	}
-
 	for _, rule := range lengthRules {
 		if rule.field(l) > rule.limit {
 			return errors.New(rule.err)
 		}
 	}
-
-	// 3. Job Specific Required Fields
-	if l.Type == Job {
-		for _, f := range jobFields {
-			if f.field(l) == "" {
-				return errors.New(f.err)
-			}
+	if l.Type != Job {
+		return nil
+	}
+	for _, f := range jobFields {
+		if f.field(l) == "" {
+			return errors.New(f.err)
 		}
 	}
-
-	return l.validateTypeSpecific()
+	return nil
 }
+
+
 
 func (l *Listing) validateOrigin() error {
 	if l.OwnerOrigin == "" {
