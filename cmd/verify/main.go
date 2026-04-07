@@ -30,8 +30,7 @@ var apiSpecCmd = &cobra.Command{
 		}
 
 		// 2. OpenAPI Routes
-		bundleCmd := exec.Command("npx", "-y", "swagger-cli", "bundle", "docs/openapi.yaml", "-r", "-t", "yaml")
-		openapiData, err := bundleCmd.Output()
+		openapiData, err := runCmdOutput("npx", "-y", "swagger-cli", "bundle", "docs/openapi.yaml", "-r", "-t", "yaml")
 		if err != nil {
 			return fmt.Errorf("failed to bundle openapi.yaml (ensure npx/swagger-cli is available): %w", err)
 		}
@@ -83,16 +82,7 @@ var apiSpecCmd = &cobra.Command{
 			}
 		}
 
-		if len(allDrifts) > 0 {
-			sort.Strings(allDrifts)
-			for _, d := range allDrifts {
-				fmt.Printf(errFmt, d)
-			}
-			return fmt.Errorf("contract drift detected (%d issues)", len(allDrifts))
-		}
-
-		fmt.Println("✅ API and CLI contracts are in sync.")
-		return nil
+		return reportDrift("Contract", allDrifts, "✅ API and CLI contracts are in sync.")
 	},
 }
 
@@ -112,15 +102,7 @@ var templateDriftCmd = &cobra.Command{
 		}
 
 		drifts := maintenance.CheckTemplateDrift(defined, used)
-		if len(drifts) > 0 {
-			for _, d := range drifts {
-				fmt.Printf(errFmt, d)
-			}
-			return fmt.Errorf("template function drift detected (%d issues)", len(drifts))
-		}
-
-		fmt.Println("✅ All template functions are defined.")
-		return nil
+		return reportDrift("Template function", drifts, "✅ All template functions are defined.")
 	},
 }
 
@@ -146,13 +128,7 @@ var coverageCmd = &cobra.Command{
 	Use:   "coverage",
 	Short: "Enforce coverage threshold anti-degradation",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		path := ".metrics/coverage"
-		if _, err := os.Stat(path); os.IsNotExist(err) {
-			// Check legacy path if new one doesn't exist
-			if _, e := os.Stat(".agents/coverage-threshold"); e == nil {
-				path = ".agents/coverage-threshold"
-			}
-		}
+		_, path := getVerificationOpts(cmd)
 		fmt.Printf("🛡️ Checking Coverage Anti-Degradation (%s)...\n", path)
 		if err := maintenance.CompareCoverageThreshold(path); err != nil {
 			fmt.Printf("❌ %v\n", err)
@@ -210,11 +186,29 @@ var ignoredFilesCmd = &cobra.Command{
 	},
 }
 
+func reportDrift(label string, drifts []string, successMsg string) error {
+	if len(drifts) == 0 {
+		if successMsg != "" {
+			fmt.Println(successMsg)
+		}
+		return nil
+	}
+	sort.Strings(drifts)
+	for _, d := range drifts {
+		fmt.Printf(errFmt, d)
+	}
+	return fmt.Errorf("%s drift detected (%d issues)", label, len(drifts))
+}
+
 func runCmd(name string, args ...string) error {
 	cmd := exec.Command(name, args...) //nolint:gosec // maintenance utility runs trusted commands
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
+}
+
+func runCmdOutput(name string, args ...string) ([]byte, error) {
+	return exec.Command(name, args...).Output() //nolint:gosec // maintenance utility runs trusted commands
 }
 
 var ciCmd = &cobra.Command{
@@ -269,7 +263,7 @@ var ciCmd = &cobra.Command{
 }
 
 func getStagedFiles(extension string) ([]string, error) {
-	out, err := exec.Command("git", "diff", "--cached", "--name-only", "--diff-filter=ACMR").Output()
+	out, err := runCmdOutput("git", "diff", "--cached", "--name-only", "--diff-filter=ACMR")
 	if err != nil {
 		return nil, err
 	}
@@ -303,7 +297,7 @@ var precommitCmd = &cobra.Command{
 		if err := runCmd("go", "mod", "tidy"); err != nil {
 			return fmt.Errorf("go mod tidy failed: %w", err)
 		}
-		if err := exec.Command("git", "diff", "--exit-code", "go.mod", "go.sum").Run(); err != nil {
+		if err := runCmd("git", "diff", "--exit-code", "go.mod", "go.sum"); err != nil {
 			return fmt.Errorf("drift detected in go.mod/go.sum. Please commit changes: %w", err)
 		}
 
@@ -346,28 +340,7 @@ var critiqueCmd = &cobra.Command{
 	Use:   "critique",
 	Short: "Run ChiefCritic robustness audit natively",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("🚀 Starting ChiefCritic Robustness Audit...")
-
-		fmt.Println("\n[1/4] Checking Cognitive Complexity (gocognit)...")
-		gocognitErr := runCmd("go", "run", "github.com/uudashr/gocognit/cmd/gocognit", "-over", "10", "./cmd", "./internal")
-		if gocognitErr != nil {
-			fmt.Println("❌ Complexity threshold exceeded!")
-		}
-
-		fmt.Println("\n[2/4] Checking Repeated Strings (goconst)...")
-		_ = runCmd("go", "run", "github.com/jgautheron/goconst/cmd/goconst", "./cmd/...", "./internal/...")
-
-		fmt.Println("\n[3/4] Checking Struct Alignment (fieldalignment)...")
-		_ = runCmd("go", "run", "golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment", "./internal/...", "./cmd/...")
-
-		fmt.Println("\n[4/4] Checking Code Duplication (dupl)...")
-		_ = runCmd("go", "run", "github.com/mibk/dupl", "-threshold", "15", "./cmd", "./internal")
-
-		fmt.Println("\n✅ ChiefCritic Audit Complete!")
-		if gocognitErr != nil {
-			return fmt.Errorf("robustness audit failed due to cognitive complexity")
-		}
-		return nil
+		return maintenance.RunChiefCriticAudit(".")
 	},
 }
 
@@ -399,18 +372,30 @@ var testCmd = &cobra.Command{
 		if len(args) > 0 {
 			pkg = args[0]
 		}
-		race, _ := cmd.Flags().GetBool("race")
-		thresholdPath, _ := cmd.Flags().GetString("threshold-path")
-		if thresholdPath == "" {
-			// Check .metrics/coverage then .agents/coverage-threshold
-			if _, err := os.Stat(".metrics/coverage"); err == nil {
-				thresholdPath = ".metrics/coverage"
-			} else if _, err := os.Stat(".agents/coverage-threshold"); err == nil {
-				thresholdPath = ".agents/coverage-threshold"
-			}
-		}
-		return maintenance.RunTests(pkg, race, thresholdPath)
+		race, path := getVerificationOpts(cmd)
+		return maintenance.RunTests(pkg, race, path)
 	},
+}
+
+func setupVerifyFlags(cmd *cobra.Command) {
+	cmd.Flags().Bool("race", true, "Enable race detection")
+	cmd.Flags().String("threshold-path", "", "Path to coverage threshold file")
+}
+
+func getVerificationOpts(cmd *cobra.Command) (bool, string) {
+	race, _ := cmd.Flags().GetBool("race")
+	path, _ := cmd.Flags().GetString("threshold-path")
+	if path == "" {
+		// Check .metrics/coverage then .agents/coverage-threshold
+		if _, err := os.Stat(".metrics/coverage"); err == nil {
+			path = ".metrics/coverage"
+		} else if _, err := os.Stat(".agents/coverage-threshold"); err == nil {
+			path = ".agents/coverage-threshold"
+		} else {
+			path = ".metrics/coverage"
+		}
+	}
+	return race, path
 }
 
 var watchCmd = &cobra.Command{
@@ -437,8 +422,10 @@ var gosecRationaleCmd = &cobra.Command{
 }
 
 func main() {
-	testCmd.Flags().Bool("race", true, "Enable race detection")
-	testCmd.Flags().String("threshold-path", "", "Path to coverage threshold file")
+	setupVerifyFlags(testCmd)
+	setupVerifyFlags(coverageCmd)
+	setupVerifyFlags(ciCmd)
+	setupVerifyFlags(precommitCmd)
 
 	rootCmd.AddCommand(
 		apiSpecCmd,
