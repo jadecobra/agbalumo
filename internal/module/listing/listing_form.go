@@ -80,43 +80,58 @@ func (h *ListingHandler) bindAndMapListing(c echo.Context, l *domain.Listing) er
 }
 
 func parseDeadline(req *ListingFormRequest, l *domain.Listing) error {
-	if l.Type == domain.Request && req.DeadlineDate != "" {
-		parsedTime, err := time.Parse("2006-01-02", req.DeadlineDate)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, "Invalid Date Format")
-		}
-		l.Deadline = parsedTime
+	if l.Type != domain.Request {
+		return nil
 	}
-	return nil
+	parsed, err := parseFormDate(req.DeadlineDate, "2006-01-02", "Invalid Date Format")
+	if err == nil && !parsed.IsZero() {
+		l.Deadline = parsed
+	}
+	return err
 }
 
 func parseEventDates(req *ListingFormRequest, l *domain.Listing) error {
-	if l.Type == domain.Event {
-		if req.EventStart != "" {
-			parsedTime, err := time.Parse("2006-01-02T15:04", req.EventStart)
-			if err != nil {
-				return echo.NewHTTPError(http.StatusBadRequest, "Invalid Start Date Format")
-			}
-			l.EventStart = parsedTime
-		}
-		if req.EventEnd != "" {
-			parsedTime, err := time.Parse("2006-01-02T15:04", req.EventEnd)
-			if err != nil {
-				return echo.NewHTTPError(http.StatusBadRequest, "Invalid End Date Format")
-			}
-			l.EventEnd = parsedTime
-		}
+	if l.Type != domain.Event {
+		return nil
 	}
+
+	start, err := parseFormDate(req.EventStart, "2006-01-02T15:04", "Invalid Start Date Format")
+	if err != nil {
+		return err
+	}
+	if !start.IsZero() {
+		l.EventStart = start
+	}
+
+	end, err := parseFormDate(req.EventEnd, "2006-01-02T15:04", "Invalid End Date Format")
+	if err != nil {
+		return err
+	}
+	if !end.IsZero() {
+		l.EventEnd = end
+	}
+
 	return nil
 }
 
 func parseJobStartDate(req *ListingFormRequest, l *domain.Listing) error {
-	if l.Type == domain.Job && req.JobStartDate != "" {
-		parsedTime, err := time.Parse("2006-01-02T15:04", req.JobStartDate)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, "Invalid Job Start Date Format")
-		}
-		l.JobStartDate = parsedTime
+	if l.Type != domain.Job {
+		return nil
 	}
-	return nil
+	parsed, err := parseFormDate(req.JobStartDate, "2006-01-02T15:04", "Invalid Job Start Date Format")
+	if err == nil && !parsed.IsZero() {
+		l.JobStartDate = parsed
+	}
+	return err
+}
+
+func parseFormDate(val, format, errMsg string) (time.Time, error) {
+	if val == "" {
+		return time.Time{}, nil
+	}
+	parsed, err := time.Parse(format, val)
+	if err != nil {
+		return time.Time{}, echo.NewHTTPError(http.StatusBadRequest, errMsg)
+	}
+	return parsed, nil
 }
