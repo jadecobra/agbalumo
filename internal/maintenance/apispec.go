@@ -80,12 +80,12 @@ func extractCommandsFromCode(path string, info os.FileInfo, err error, regexes [
 	if err != nil || info.IsDir() || filepath.Ext(path) != ".go" {
 		return nil, err
 	}
- 
+
 	data, readErr := readFileOrErr(path, "code file")
 	if readErr != nil {
 		return nil, readErr
 	}
- 
+
 	var found []string
 	for _, re := range regexes {
 		matches := re.FindAllStringSubmatch(string(data), -1)
