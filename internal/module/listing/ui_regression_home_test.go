@@ -21,7 +21,7 @@ import (
 
 func TestHomePageUIValues(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplate(t)}
+	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplate(t)}
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)

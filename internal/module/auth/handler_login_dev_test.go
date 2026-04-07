@@ -15,7 +15,7 @@ import (
 
 func TestAuthHandler_DevLogin_Production(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 
 	req := httptest.NewRequest(http.MethodGet, "/auth/dev", nil)
 	rec := httptest.NewRecorder()
@@ -33,7 +33,7 @@ func TestAuthHandler_DevLogin_Production(t *testing.T) {
 
 func TestAuthHandler_DevLogin_Success(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 
 	store := sessions.NewCookieStore([]byte("secret"))
 	req := httptest.NewRequest(http.MethodGet, "/auth/dev?email=test@dev.com", nil)

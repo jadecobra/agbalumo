@@ -86,7 +86,7 @@ func TestHandleCreate_InvalidDates(t *testing.T) {
 func TestHandleCreate_ImageUploadError(t *testing.T) {
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
-	mockImageService := &MockImageService{}
+	mockImageService := &testutil.MockImageService{}
 	app.ImageSvc = mockImageService
 	mockImageService.On("UploadImage", testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).Return("", errors.New("upload fail"))
 

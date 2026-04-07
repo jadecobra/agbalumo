@@ -6,13 +6,14 @@ import (
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestEditListingModal_ImageRemovalUI(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplate(t)}
+	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplate(t)}
 
 	listing := domain.Listing{
 		ID:       "test-ui-listing",

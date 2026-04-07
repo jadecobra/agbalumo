@@ -16,7 +16,7 @@ import (
 
 func TestHandleHome(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 	req := setupRequest(http.MethodGet, "/", nil)
 	rec := setupResponseRecorder()
 	c := e.NewContext(req, rec)
@@ -45,7 +45,7 @@ func TestHandleHome(t *testing.T) {
 
 func TestHandleDetail(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 	req := setupRequest(http.MethodGet, "/listings/1", nil)
 	rec := setupResponseRecorder()
 	c := e.NewContext(req, rec)
@@ -74,7 +74,7 @@ func TestHandleDetail(t *testing.T) {
 
 func TestHandleProfile(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 	req := setupRequest(http.MethodGet, "/profile", nil)
 	rec := setupResponseRecorder()
 	c := e.NewContext(req, rec)
@@ -105,7 +105,7 @@ func TestHandleProfile(t *testing.T) {
 
 func TestHandleFragment(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 	req := setupRequest(http.MethodGet, "/listings/fragment?q=Search", nil)
 	req.Header.Set("HX-Request", "true")
 	rec := setupResponseRecorder()

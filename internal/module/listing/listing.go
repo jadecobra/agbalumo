@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"sync"
 
-
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/labstack/echo/v4"
 )
@@ -91,7 +90,6 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		defer wg.Done()
 		categories, categoriesErr = h.App.CategorizationSvc.GetActiveCategories(ctx)
 	}()
-
 
 	wg.Wait()
 
@@ -263,7 +261,6 @@ func (h *ListingHandler) renderWithBaseContext(c echo.Context, tmpl string, data
 			categories = []domain.CategoryData{}
 		}
 	}
-
 
 	data["Categories"] = categories
 	data["Env"] = h.App.Cfg.Env

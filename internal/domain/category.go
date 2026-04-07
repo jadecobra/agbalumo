@@ -58,4 +58,3 @@ func (c *CategoryCache) Set(categories []CategoryData, ttl time.Duration) {
 	c.categories = categories
 	c.expiration = time.Now().Add(ttl)
 }
-

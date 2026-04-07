@@ -14,7 +14,7 @@ import (
 
 func TestAuthHandler_GoogleCallback_Errors(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 
 	t.Run("StateMismatch", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=wrong", nil)

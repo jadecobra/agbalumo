@@ -19,7 +19,7 @@ func TestHandleHome_FeaturedPrioritization(t *testing.T) {
 	e := echo.New()
 	t_temp := template.New("base")
 	template.Must(t_temp.New("index.html").Parse(`Listings: {{range .Listings}}{{.Title}},{{end}}`))
-	e.Renderer = &TestRenderer{templates: t_temp}
+	e.Renderer = &testutil.TestRenderer{Templates: t_temp}
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
@@ -66,7 +66,7 @@ func TestHandleHome_FeaturedListings_EmptyCategory(t *testing.T) {
 	e := echo.New()
 	t_temp := template.New("base")
 	template.Must(t_temp.New("index.html").Parse(`Listings: {{range .Listings}}{{.Title}},{{end}}`))
-	e.Renderer = &TestRenderer{templates: t_temp}
+	e.Renderer = &testutil.TestRenderer{Templates: t_temp}
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
@@ -105,7 +105,7 @@ func TestHandleFragment_FeaturedPrioritization(t *testing.T) {
 	e := echo.New()
 	t_temp := template.New("base")
 	template.Must(t_temp.New("listing_list").Parse(`{{range .Listings}}{{.Title}},{{end}}`))
-	e.Renderer = &TestRenderer{templates: t_temp}
+	e.Renderer = &testutil.TestRenderer{Templates: t_temp}
 
 	// Page 1, no filters
 	req := httptest.NewRequest(http.MethodGet, "/listings?page=1", nil)
@@ -136,7 +136,7 @@ func TestHandleFragment_FeaturedPrioritization_Page2(t *testing.T) {
 	e := echo.New()
 	t_temp := template.New("base")
 	template.Must(t_temp.New("listing_list").Parse(`{{range .Listings}}{{.Title}},{{end}}`))
-	e.Renderer = &TestRenderer{templates: t_temp}
+	e.Renderer = &testutil.TestRenderer{Templates: t_temp}
 
 	// Page 1, no filters (featured listings appear at the top of the feed)
 	req := httptest.NewRequest(http.MethodGet, "/listings/fragment?page=1", nil)
@@ -166,7 +166,7 @@ func TestHandleFragment_FeaturedListings_CategoryFilter(t *testing.T) {
 	e := echo.New()
 	t_temp := template.New("base")
 	template.Must(t_temp.New("listing_list").Parse(`{{range .Listings}}{{.Title}},{{end}}`))
-	e.Renderer = &TestRenderer{templates: t_temp}
+	e.Renderer = &testutil.TestRenderer{Templates: t_temp}
 
 	// Requesting fragment for 'business' category, page 1
 	req := httptest.NewRequest(http.MethodGet, "/listings/fragment?type=business&page=1", nil)

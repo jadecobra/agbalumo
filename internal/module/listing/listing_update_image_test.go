@@ -30,7 +30,7 @@ func TestHandleUpdate_ImageRemoval(t *testing.T) {
 		City:         "Lagos",
 		Address:      "123 Street",
 	}
-	mockImageService := &MockImageService{}
+	mockImageService := &testutil.MockImageService{}
 	// Expect DeleteImage to be called
 	mockImageService.On("DeleteImage", testifyMock.Anything, existingListing.ImageURL).Return(nil)
 	// UploadImage might be called with nil if no image is uploaded

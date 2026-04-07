@@ -52,7 +52,7 @@ func TestHandleAdminDeleteView(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/admin/listings/delete?id=listing1", nil)
 	rec := httptest.NewRecorder()
 	e := echo.New()
-	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplateForPage(t, "admin_delete_confirm.html")}
+	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplateForPage(t, "admin_delete_confirm.html")}
 	c := e.NewContext(req, rec)
 
 	if assert.NoError(t, h.HandleAdminDeleteView(c)) {

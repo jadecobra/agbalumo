@@ -12,5 +12,3 @@ type CategorizationService interface {
 	GetActiveCategories(ctx context.Context) ([]CategoryData, error)
 	GetCategories(ctx context.Context, filter CategoryFilter) ([]CategoryData, error)
 }
-
-

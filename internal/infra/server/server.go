@@ -70,7 +70,6 @@ func Setup(cfg *config.Config) (*echo.Echo, func(), error) {
 
 	app := env.NewAppEnv(repo, cfg, slog.Default(), csvSvc, geocodingSvc, imageSvc, listingSvc, catSvc)
 
-
 	renderer, err := ui.NewTemplateRenderer(
 		"ui/templates/*.html",
 		"ui/templates/partials/*.html",

@@ -42,4 +42,3 @@ func (s *categorizationService) GetCategories(ctx context.Context, filter domain
 
 	return cats, nil
 }
-

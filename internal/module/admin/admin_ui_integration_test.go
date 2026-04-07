@@ -20,7 +20,7 @@ import (
 
 func TestAdminDashboardFooterPosition(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplateForPage(t, "admin_dashboard.html")}
+	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplateForPage(t, "admin_dashboard.html")}
 
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
@@ -73,7 +73,7 @@ func TestAdminDashboardFooterPosition(t *testing.T) {
 
 func TestMetricCardsHaveModalTriggers(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplateForPage(t, "admin_dashboard.html")}
+	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplateForPage(t, "admin_dashboard.html")}
 
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
@@ -113,7 +113,7 @@ func TestMetricCardsHaveModalTriggers(t *testing.T) {
 
 func TestCategoryModalExists(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplateForPage(t, "admin_dashboard.html")}
+	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplateForPage(t, "admin_dashboard.html")}
 
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
@@ -152,7 +152,7 @@ func TestCategoryModalExists(t *testing.T) {
 
 func TestAdminDashboard_FlashMessages(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplateForPage(t, "admin_dashboard.html")}
+	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplateForPage(t, "admin_dashboard.html")}
 
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
@@ -185,7 +185,6 @@ func TestAdminDashboard_ErrorPaths(t *testing.T) {
 	}
 	h := admin.NewAdminHandler(app)
 
-
 	tests := []struct {
 		name    string
 		errOn   string
@@ -215,7 +214,7 @@ func TestAdminDashboard_ErrorPaths(t *testing.T) {
 }
 func TestAdminListings_ModalTrigger(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &RealTemplateRenderer{templates: NewRealTemplateForPage(t, "admin_listings.html")}
+	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplateForPage(t, "admin_listings.html")}
 
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()

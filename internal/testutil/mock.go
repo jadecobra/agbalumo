@@ -10,10 +10,13 @@ import (
 	testifyMock "github.com/stretchr/testify/mock"
 )
 
-type MockGeocodingService struct{}
+type MockGeocodingService struct {
+	testifyMock.Mock
+}
 
 func (m *MockGeocodingService) GetCity(ctx context.Context, address string) (string, error) {
-	return "Lagos", nil
+	args := m.Called(ctx, address)
+	return args.String(0), args.Error(1)
 }
 
 type MockImageService struct {
@@ -63,5 +66,3 @@ func (m *MockCategorizationService) GetActiveCategories(ctx context.Context) ([]
 func (m *MockCategorizationService) GetCategories(ctx context.Context, filter domain.CategoryFilter) ([]domain.CategoryData, error) {
 	return []domain.CategoryData{}, nil
 }
-
-

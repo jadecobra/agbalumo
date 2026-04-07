@@ -263,4 +263,3 @@ func (l *Listing) validateJob() error {
 	}
 	return nil
 }
-

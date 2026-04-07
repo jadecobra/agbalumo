@@ -18,7 +18,7 @@ import (
 
 func TestAuthHandler_GoogleCallback_SaveUserError(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 
 	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
 	rec := httptest.NewRecorder()
@@ -47,7 +47,7 @@ func TestAuthHandler_GoogleCallback_SaveUserError(t *testing.T) {
 
 func TestAuthHandler_GoogleCallback_UpdateProfile(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 
 	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
 	rec := httptest.NewRecorder()
@@ -95,7 +95,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfile(t *testing.T) {
 
 func TestAuthHandler_GoogleCallback_UpdateProfileSaveError(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 
 	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
 	rec := httptest.NewRecorder()
@@ -140,7 +140,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfileSaveError(t *testing.T) {
 
 func TestAuthHandler_GoogleCallback_UpdateProfile_NoChanges(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 
 	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
 	rec := httptest.NewRecorder()
@@ -184,7 +184,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfile_NoChanges(t *testing.T) {
 
 func TestAuthHandler_GoogleCallback_CrossSiteCallback(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 
 	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
 	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "random-state"})

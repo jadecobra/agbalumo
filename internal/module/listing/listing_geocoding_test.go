@@ -17,14 +17,8 @@ func TestHandleCreate_GeocodingFallback(t *testing.T) {
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
 
-	mockGeocoding := &MockGeocodingService{
-		GetCityFunc: func(ctx context.Context, address string) (string, error) {
-			if address == "1600 Amphitheatre Parkway, Mountain View, CA" {
-				return "Mountain View", nil
-			}
-			return "", nil
-		},
-	}
+	mockGeocoding := &testutil.MockGeocodingService{}
+	mockGeocoding.On("GetCity", context.Background(), "1600 Amphitheatre Parkway, Mountain View, CA").Return("Mountain View", nil)
 
 	app.GeocodingSvc = mockGeocoding
 	h := listmod.NewListingHandler(app)

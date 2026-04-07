@@ -185,7 +185,6 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 		return nil // Don't fail the whole dashboard if categories fail
 	})
 
-
 	g.Go(func() error {
 		var err error
 		users, err = h.App.DB.GetAllUsers(ctx, 10, 0)
@@ -253,7 +252,6 @@ func (h *AdminHandler) HandleAddCategory(c echo.Context) error {
 			}
 		}
 	}
-
 
 	claimableStr := c.FormValue("claimable")
 	claimable := claimableStr == "true"

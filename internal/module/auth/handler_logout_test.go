@@ -14,7 +14,7 @@ import (
 
 func TestAuthHandler_Logout(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 
 	req := httptest.NewRequest(http.MethodGet, "/auth/logout", nil)
 	rec := httptest.NewRecorder()
@@ -38,7 +38,7 @@ func TestAuthHandler_Logout(t *testing.T) {
 
 func TestAuthHandler_Logout_NoSession(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 
 	req := httptest.NewRequest(http.MethodGet, "/auth/logout", nil)
 	rec := httptest.NewRecorder()

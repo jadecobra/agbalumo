@@ -44,7 +44,6 @@ func SetupTestAppEnv(t *testing.T) (*env.AppEnv, func()) {
 		&MockCategorizationService{},
 	)
 
-
 	return app, func() {
 		_ = repo.Close()
 	}

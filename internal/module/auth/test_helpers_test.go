@@ -2,29 +2,11 @@ package auth_test
 
 import (
 	"context"
-	"html/template"
-	"io"
 
 	"github.com/jadecobra/agbalumo/internal/module/auth"
-	"github.com/jadecobra/agbalumo/internal/ui"
-	"github.com/labstack/echo/v4"
 	testifyMock "github.com/stretchr/testify/mock"
 	"golang.org/x/oauth2"
 )
-
-type TestRenderer struct {
-	templates *template.Template
-}
-
-func (t *TestRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	return t.templates.ExecuteTemplate(w, name, data)
-}
-
-func NewMainTemplate() *template.Template {
-	return template.Must(template.New("listing").Funcs(ui.BuildGlobalFuncMap()).Parse(`
-		{{define "error.html"}}Error Page: {{.Message}}{{end}}
-	`))
-}
 
 // MockGoogleProvider
 type MockGoogleProvider struct {

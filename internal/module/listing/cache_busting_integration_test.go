@@ -17,12 +17,12 @@ import (
 
 func TestListingHandler_HandleImageUpload_CacheBusting(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
-	mockImageService := &MockImageService{}
-	mockGeocodingService := &MockGeocodingService{}
+	mockImageService := &testutil.MockImageService{}
+	mockGeocodingService := &testutil.MockGeocodingService{}
 	app.ImageSvc = mockImageService
 	app.GeocodingSvc = mockGeocodingService
 

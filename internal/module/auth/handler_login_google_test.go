@@ -17,7 +17,7 @@ import (
 
 func TestAuthHandler_GoogleCallback_Success(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 
 	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code", nil)
 	rec := httptest.NewRecorder()
@@ -52,7 +52,7 @@ func TestAuthHandler_GoogleCallback_Success(t *testing.T) {
 
 func TestAuthHandler_GoogleLogin(t *testing.T) {
 	e := echo.New()
-	e.Renderer = &TestRenderer{templates: NewMainTemplate()}
+	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 
 	req := httptest.NewRequest(http.MethodGet, "/auth/google/login", nil)
 	rec := httptest.NewRecorder()
