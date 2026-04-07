@@ -110,7 +110,7 @@ func setupMiddleware(e *echo.Echo, cfg *config.Config) {
 		e.Use(rateLimiter.Middleware())
 	}
 
-	baseURL := os.Getenv("BASE_URL")
+	baseURL := os.Getenv(config.EnvBaseURL)
 	isSecure := cfg.Env == "production" || strings.HasPrefix(baseURL, "https://")
 
 	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{ //nolint:gosec // false positive for CSRF config

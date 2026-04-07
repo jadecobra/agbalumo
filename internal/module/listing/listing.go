@@ -123,7 +123,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		strCounts[string(cat)] = count
 	}
 
-	user := c.Get("User")
+	u := c.Get("User")
 
 	return h.renderWithBaseContext(c, "index.html", map[string]interface{}{
 		"Listings":         listings,
@@ -135,7 +135,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		"Categories":       categories,
 		"Category":         "",
 		"QueryText":        "",
-		"User":             user,
+		"User":             u,
 		"GoogleMapsApiKey": h.App.Cfg.GoogleMapsAPIKey,
 	})
 }

@@ -9,4 +9,6 @@ const (
 	MimeHTML = "text/html"
 	// MimeJSON is the standard JSON MIME type.
 	MimeJSON = "application/json"
+	// ErrMsgLoginRequired is the standard login required error message.
+	ErrMsgLoginRequired = "Login required"
 )

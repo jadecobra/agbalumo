@@ -14,6 +14,9 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+const errTitleExists = "Title already exists. Please choose a different title."
+const tmplListingCard = "listing_card"
+
 // Create Handler
 func (h *ListingHandler) HandleCreate(c echo.Context) error {
 	l := domain.Listing{
@@ -39,7 +42,7 @@ func (h *ListingHandler) HandleCreate(c echo.Context) error {
 	// Check for duplicate title
 	existing, err := h.App.DB.FindByTitle(c.Request().Context(), l.Title)
 	if err == nil && len(existing) > 0 {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Title already exists. Please choose a different title."))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusBadRequest, errTitleExists))
 	}
 
 	// Default deadline for requests if not provided
@@ -56,7 +59,7 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 
 	uRaw, ok := user.GetUser(c)
 	if !ok || uRaw == nil {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, "Login Required"))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, common.ErrMsgLoginRequired))
 	}
 
 	ctx := c.Request().Context()
@@ -116,7 +119,7 @@ func (h *ListingHandler) checkDuplicateTitle(ctx context.Context, title string, 
 	}
 	for _, ext := range existing {
 		if ext.ID != currentID {
-			return echo.NewHTTPError(http.StatusBadRequest, "Title already exists. Please choose a different title.")
+			return echo.NewHTTPError(http.StatusBadRequest, errTitleExists)
 		}
 	}
 	return nil
@@ -126,7 +129,7 @@ func (h *ListingHandler) HandleDelete(c echo.Context) error {
 	id := c.Param("id")
 	uRaw, ok := user.GetUser(c)
 	if !ok || uRaw == nil {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, "Login required"))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, common.ErrMsgLoginRequired))
 	}
 
 	ctx := c.Request().Context()
@@ -165,13 +168,13 @@ func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error
 		return c.NoContent(http.StatusOK)
 	}
 
-	var user interface{}
+	var usr interface{}
 	if u := c.Get("User"); u != nil {
-		user = u
+		usr = u
 	}
-	return h.renderWithBaseContext(c, "listing_card", map[string]interface{}{
+	return h.renderWithBaseContext(c, tmplListingCard, map[string]interface{}{
 		"Listing": l,
-		"User":    user,
+		"User":    usr,
 	})
 }
 

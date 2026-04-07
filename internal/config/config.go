@@ -7,6 +7,8 @@ import (
 	"strconv"
 )
 
+const EnvBaseURL = "BASE_URL"
+
 type Config struct {
 	Env                  string
 	DatabaseURL          string

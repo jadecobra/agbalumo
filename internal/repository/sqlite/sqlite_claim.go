@@ -3,7 +3,6 @@ package sqlite
 import (
 	"context"
 	"database/sql"
-	"errors"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 )
@@ -59,7 +58,7 @@ func (r *SQLiteRepository) UpdateClaimRequestStatus(ctx context.Context, id stri
 		return err
 	}
 	if rows == 0 {
-		return errors.New("claim request not found")
+		return ErrClaimRequestNotFound
 	}
 
 	if status == domain.ClaimStatusApproved {
@@ -91,7 +90,7 @@ func (r *SQLiteRepository) GetClaimRequestByUserAndListing(ctx context.Context, 
 	var cr domain.ClaimRequest
 	err := row.Scan(&cr.ID, &cr.ListingID, &cr.ListingTitle, &cr.UserID, &cr.UserName, &cr.UserEmail, &cr.Status, &cr.CreatedAt)
 	if err == sql.ErrNoRows {
-		return domain.ClaimRequest{}, errors.New("claim request not found")
+		return domain.ClaimRequest{}, ErrClaimRequestNotFound
 	}
 	return cr, err
 }

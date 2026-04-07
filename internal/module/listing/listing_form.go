@@ -8,6 +8,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+const datetimeLocalFormat = "2006-01-02T15:04"
+
 type ListingFormRequest struct {
 	Title            string `form:"title"`
 	Type             string `form:"type"`
@@ -95,7 +97,7 @@ func parseEventDates(req *ListingFormRequest, l *domain.Listing) error {
 		return nil
 	}
 
-	start, err := parseFormDate(req.EventStart, "2006-01-02T15:04", "Invalid Start Date Format")
+	start, err := parseFormDate(req.EventStart, datetimeLocalFormat, "Invalid Start Date Format")
 	if err != nil {
 		return err
 	}
@@ -103,7 +105,7 @@ func parseEventDates(req *ListingFormRequest, l *domain.Listing) error {
 		l.EventStart = start
 	}
 
-	end, err := parseFormDate(req.EventEnd, "2006-01-02T15:04", "Invalid End Date Format")
+	end, err := parseFormDate(req.EventEnd, datetimeLocalFormat, "Invalid End Date Format")
 	if err != nil {
 		return err
 	}
@@ -118,7 +120,7 @@ func parseJobStartDate(req *ListingFormRequest, l *domain.Listing) error {
 	if l.Type != domain.Job {
 		return nil
 	}
-	parsed, err := parseFormDate(req.JobStartDate, "2006-01-02T15:04", "Invalid Job Start Date Format")
+	parsed, err := parseFormDate(req.JobStartDate, datetimeLocalFormat, "Invalid Job Start Date Format")
 	if err == nil && !parsed.IsZero() {
 		l.JobStartDate = parsed
 	}

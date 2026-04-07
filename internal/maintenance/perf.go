@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+const errNotFoundFmt = "could not find %s: %w"
+
 // RunPerformanceAudit executes the performance audit checks.
 func RunPerformanceAudit(rootDir string) error {
 	fmt.Println("🚀  Starting Performance Audit...")
@@ -61,7 +63,7 @@ func checkFileSizes(rootDir string) error {
 
 	cssStat, err := os.Stat(cssPath)
 	if err != nil {
-		return fmt.Errorf("could not find %s: %w", cssPath, err)
+		return fmt.Errorf(errNotFoundFmt, cssPath, err)
 	}
 	if cssStat.Size() > 150*1024 {
 		return fmt.Errorf("output.css is too large: %d bytes (limit: 150KB)", cssStat.Size())
@@ -69,7 +71,7 @@ func checkFileSizes(rootDir string) error {
 
 	jsStat, err := os.Stat(jsPath)
 	if err != nil {
-		return fmt.Errorf("could not find %s: %w", jsPath, err)
+		return fmt.Errorf(errNotFoundFmt, jsPath, err)
 	}
 	if jsStat.Size() > 50*1024 {
 		return fmt.Errorf("app.js is too large: %d bytes (limit: 50KB)", jsStat.Size())

@@ -3,7 +3,6 @@ package sqlite
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"log/slog"
 	"strings"
 	"time"
@@ -166,7 +165,7 @@ func (r *SQLiteRepository) FindByID(ctx context.Context, id string) (domain.List
 
 	l, err := scanListing(row)
 	if err == sql.ErrNoRows {
-		return domain.Listing{}, errors.New("listing not found")
+		return domain.Listing{}, ErrListingNotFound
 	}
 	return l, err
 }

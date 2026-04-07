@@ -3,7 +3,6 @@ package sqlite
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"log/slog"
 	"time"
 
@@ -143,7 +142,7 @@ func (r *SQLiteRepository) Delete(ctx context.Context, id string) error {
 		return err
 	}
 	if rowsAffected == 0 {
-		return errors.New("listing not found")
+		return ErrListingNotFound
 	}
 	return nil
 }

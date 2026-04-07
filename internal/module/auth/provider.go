@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/jadecobra/agbalumo/internal/config"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -54,7 +55,7 @@ func NewRealGoogleProvider() *RealGoogleProvider {
 }
 
 func (p *RealGoogleProvider) getRedirectURL(scheme string, host string) string {
-	baseURL := os.Getenv("BASE_URL")
+	baseURL := os.Getenv(config.EnvBaseURL)
 	if baseURL != "" {
 		return fmt.Sprintf("%s/auth/google/callback", baseURL)
 	}

@@ -12,6 +12,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+const tmplListingTableRow = "admin_listing_table_row"
+
 // HandleAllListings renders the list of all listings for admins, with category filtering.
 func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 	ctx := c.Request().Context()
@@ -100,7 +102,7 @@ func (h *AdminHandler) HandleToggleFeatured(c echo.Context) error {
 }
 
 func (h *AdminHandler) renderListingRow(c echo.Context, listing domain.Listing) error {
-	return c.Render(http.StatusOK, "admin_listing_table_row", listing)
+	return c.Render(http.StatusOK, tmplListingTableRow, listing)
 }
 
 func (h *AdminHandler) validateFeaturedLimit(ctx context.Context, listing domain.Listing) error {

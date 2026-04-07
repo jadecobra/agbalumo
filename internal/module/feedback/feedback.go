@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jadecobra/agbalumo/internal/common"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/infra/env"
 	"github.com/jadecobra/agbalumo/internal/module/user"
@@ -36,7 +37,7 @@ func (h *FeedbackHandler) HandleModal(c echo.Context) error {
 func (h *FeedbackHandler) HandleSubmit(c echo.Context) error {
 	u, ok := user.GetUser(c)
 	if !ok || u == nil {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, "Login required"))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, common.ErrMsgLoginRequired))
 	}
 
 	contentType := c.QueryParam("type")
