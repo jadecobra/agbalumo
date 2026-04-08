@@ -12,13 +12,13 @@ func TestRunSecurityAuditStaticModeSkipsHeaders(t *testing.T) {
 	cfg := AuditConfig{
 		TargetURL: "https://127.0.0.1:19999", // nothing listening
 		RootDir:   "../..",
-		Mode:      "static", 
+		Mode:      "static",
 	}
-	
+
 	result := &auditResults{}
 	cfg2 := cfg
 	cfg2.HTTPClient = &http.Client{Timeout: 1 * time.Millisecond} // will fail instantly
-	
+
 	// Real behavior verified by running audit --mode=static once Mode is added
 	_ = result
 }
