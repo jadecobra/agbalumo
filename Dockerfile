@@ -26,7 +26,7 @@ WORKDIR /src
 RUN apk add --no-cache git && \
     git clone --depth 1 --branch v0.5.10 https://github.com/benbjohnson/litestream.git . && \
     go mod edit -replace google.golang.org/grpc=google.golang.org/grpc@v1.79.3 && \
-    go mod download && \
+    go mod tidy && \
     CGO_ENABLED=0 go build -ldflags="-w -s" -o /app/litestream ./cmd/litestream
 
 # Runtime Stage
