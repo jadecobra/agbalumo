@@ -33,3 +33,17 @@ func TestCheckVulnerabilitiesUsesGoRun(t *testing.T) {
 		t.Error("checkVulnerabilities should not skip; it should use 'go run' to execute govulncheck")
 	}
 }
+
+func TestCheckVulnerabilitiesExitsCleanOnCleanModule(t *testing.T) {
+	// This test verifies that checkVulnerabilities returns (true, false)
+	// when govulncheck finds no vulnerabilities.
+	// It will fail if the logic is inverted (always returning false).
+	cfg := AuditConfig{RootDir: "../.."}
+	passed, skip := checkVulnerabilities(cfg)
+	if skip {
+		t.Skip("govulncheck not available")
+	}
+	if !passed {
+		t.Error("checkVulnerabilities should pass on a clean module; got failed — logic may be inverted or CVE present")
+	}
+}

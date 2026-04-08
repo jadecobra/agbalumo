@@ -120,11 +120,9 @@ func checkFlyConfig(config AuditConfig) (bool, bool) {
 func checkVulnerabilities(config AuditConfig) (bool, bool) {
 	cmd := exec.Command("go", "run", "golang.org/x/vuln/cmd/govulncheck", "./...")
 	cmd.Dir = config.RootDir
-	out, err := cmd.CombinedOutput()
-	if err != nil && !strings.Contains(string(out), "No vulnerabilities found") {
-		return false, false
-	}
-	return true, false
+	cmd.Stdout = os.Stdout // surface govulncheck output in CI logs
+	cmd.Stderr = os.Stderr
+	return cmd.Run() == nil, false
 }
 
 func checkXSS(config AuditConfig) (bool, bool) {
