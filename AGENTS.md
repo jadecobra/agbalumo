@@ -28,6 +28,7 @@ Git is our only state tracker. You must execute atomic commits automatically aft
 * **When Fixing Bugs**: You MUST write a reproduction test that explicitly fails due to the reported bug. You are forbidden from modifying implementation code until this failing test is committed.
 * **When Refactoring**: Before modifying any logic, run existing tests. If coverage is low, write baseline safety tests first to capture current behavior.
 * **Contract Stability**: You are forbidden from breaking external API or CLI contracts during bugs or refactors unless explicitly authorized. You MUST autonomously verify this by running `npx swagger-cli bundle docs/openapi.yaml` and the project's standalone verification tool (`go run cmd/verify/main.go api-spec`) to prove no contracts were broken.
+* **Dockerfile Changes**: Any commit that modifies `Dockerfile` MUST be validated locally with `go run cmd/verify/main.go ci --with-docker` before push. This is mandatory, not optional.
 * **No Paperwork**: Do not generate human-readable progress files (e.g., `progress.md`, `state.json`) unless explicitly asked to draft a public-facing README. Your code and your Git commits are your proof of work.
 
 ## ARCHITECTURAL MEMORY (ADRs)

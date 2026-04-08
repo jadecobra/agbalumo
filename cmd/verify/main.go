@@ -212,6 +212,16 @@ func runCmdOutput(name string, args ...string) ([]byte, error) {
 	return exec.Command(name, args...).Output() //nolint:gosec // maintenance utility runs trusted commands
 }
 
+// runDockerBuild performs a local docker build to catch Dockerfile regressions before push.
+// It does not push or tag for any registry — build validation only.
+func runDockerBuild() error {
+	// Build CSS first (Dockerfile expects ui/styles.css to exist)
+	if err := runCmd("npm", "run", "build:css"); err != nil {
+		return fmt.Errorf("css build failed (required by Docker): %w", err)
+	}
+	return runCmd("docker", "build", "--no-cache", "-t", "agbalumo:local-ci-check", ".")
+}
+
 var ciCmd = &cobra.Command{
 	Use:   "ci",
 	Short: "Run the full CI pipeline natively in Go",
@@ -256,6 +266,14 @@ var ciCmd = &cobra.Command{
 		fmt.Println("\n=== 8. Checking Coverage Threshold ===")
 		if err := coverageCmd.RunE(cmd, args); err != nil {
 			return err
+		}
+
+		withDocker, _ := cmd.Flags().GetBool("with-docker")
+		if withDocker {
+			fmt.Println("\n=== 9. Docker Build Validation ===")
+			if err := runDockerBuild(); err != nil {
+				return fmt.Errorf("docker build failed: %w", err)
+			}
 		}
 
 		fmt.Println("\n✅ CI Pipeline Passed Successfully!")
@@ -414,12 +432,13 @@ var gosecRationaleCmd = &cobra.Command{
 	},
 }
 
-func main() {
+func init() {
 	setupVerifyFlags(testCmd)
 	setupVerifyFlags(coverageCmd)
 	setupVerifyFlags(ciCmd)
 	setupVerifyFlags(precommitCmd)
 	auditCmd.Flags().String("mode", "", "Audit mode: 'static' (no server required) or 'dynamic' (requires live server). Default runs all checks.")
+	ciCmd.Flags().Bool("with-docker", false, "Also run docker build as a final validation step (requires Docker)")
 
 	rootCmd.AddCommand(
 		apiSpecCmd,
@@ -440,6 +459,9 @@ func main() {
 		watchCmd,
 		gosecRationaleCmd,
 	)
+}
+
+func main() {
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
