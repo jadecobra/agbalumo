@@ -99,6 +99,7 @@ func Setup(cfg *config.Config) (*echo.Echo, func(), error) {
 }
 
 func setupMiddleware(e *echo.Echo, cfg *config.Config) {
+	e.Pre(customMiddleware.CanonicalPath)
 	e.Use(middleware.Gzip())
 	e.Use(customMiddleware.SecureHeaders)
 
