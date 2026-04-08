@@ -59,3 +59,70 @@ func checkScriptSrc(t *testing.T, csp string) {
 		}
 	}
 }
+
+func TestCanonicalPath(t *testing.T) {
+	e := echo.New()
+
+	tests := []struct {
+		name       string
+		path       string
+		wantStatus int
+	}{
+		{
+			name:       "valid path",
+			path:       "/healthz",
+			wantStatus: http.StatusOK,
+		},
+		{
+			name:       "valid root path",
+			path:       "/",
+			wantStatus: http.StatusOK,
+		},
+		{
+			name:       "malformed path - missing leading slash",
+			path:       "healthz",
+			wantStatus: http.StatusNotImplemented,
+		},
+		{
+			name:       "empty path",
+			path:       "",
+			wantStatus: http.StatusNotImplemented,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodGet, "https://localhost:8443", nil)
+			// Manually set the path since httptest.NewRequest might normalize it
+			req.URL.Path = tt.path
+
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+
+			h := middleware.CanonicalPath(func(c echo.Context) error {
+				return c.String(http.StatusOK, "ok")
+			})
+
+			err := h(c)
+			if tt.wantStatus == http.StatusOK {
+				if err != nil {
+					t.Errorf("expected no error, got %v", err)
+				}
+				if rec.Code != tt.wantStatus {
+					t.Errorf("expected status %d, got %d", tt.wantStatus, rec.Code)
+				}
+			} else {
+				if err == nil {
+					t.Errorf("expected error for path %q", tt.path)
+				} else {
+					he, ok := err.(*echo.HTTPError)
+					if !ok {
+						t.Errorf("expected echo.HTTPError, got %T", err)
+					} else if he.Code != tt.wantStatus {
+						t.Errorf("expected status %d, got %d", tt.wantStatus, he.Code)
+					}
+				}
+			}
+		})
+	}
+}
