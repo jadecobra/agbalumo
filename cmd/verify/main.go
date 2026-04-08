@@ -158,9 +158,11 @@ var auditCmd = &cobra.Command{
 	Use:   "audit",
 	Short: "Run comprehensive security and health audit",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		mode, _ := cmd.Flags().GetString("mode")
 		cfg := maintenance.AuditConfig{
 			TargetURL: os.Getenv("APP_URL"),
 			RootDir:   ".",
+			Mode:      mode,
 		}
 		if cfg.TargetURL == "" {
 			cfg.TargetURL = "https://localhost:8443"
@@ -417,6 +419,7 @@ func main() {
 	setupVerifyFlags(coverageCmd)
 	setupVerifyFlags(ciCmd)
 	setupVerifyFlags(precommitCmd)
+	auditCmd.Flags().String("mode", "", "Audit mode: 'static' (no server required) or 'dynamic' (requires live server). Default runs all checks.")
 
 	rootCmd.AddCommand(
 		apiSpecCmd,

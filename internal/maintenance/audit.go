@@ -16,6 +16,7 @@ type AuditConfig struct {
 	TargetURL  string
 	HTTPClient *http.Client
 	RootDir    string
+	Mode       string // "static" | "dynamic" | "" (default: both)
 }
 
 type auditResults struct {
@@ -30,10 +31,13 @@ func RunSecurityAudit(config AuditConfig) error {
 	fmt.Println("--------------------------------")
 
 	res.runCheck("Go Vet", func() (bool, bool) { return checkGoVet(config) })
-	res.runCheck("Headers", func() (bool, bool) { return checkHeaders(config.TargetURL, config.HTTPClient) })
 	res.runCheck("fly.toml", func() (bool, bool) { return checkFlyConfig(config) })
-	res.runCheck("govulncheck", func() (bool, bool) { return checkVulnerabilities(config) })
 	res.runCheck("XSS", func() (bool, bool) { return checkXSS(config) })
+	res.runCheck("govulncheck", func() (bool, bool) { return checkVulnerabilities(config) })
+
+	if config.Mode != "static" {
+		res.runCheck("Headers", func() (bool, bool) { return checkHeaders(config.TargetURL, config.HTTPClient) })
+	}
 
 	fmt.Println("--------------------------------")
 	if res.total <= 0 {
@@ -114,11 +118,7 @@ func checkFlyConfig(config AuditConfig) (bool, bool) {
 }
 
 func checkVulnerabilities(config AuditConfig) (bool, bool) {
-	if _, err := exec.LookPath("govulncheck"); err != nil {
-		return false, true
-	}
-
-	cmd := exec.Command("govulncheck", "./...")
+	cmd := exec.Command("go", "run", "golang.org/x/vuln/cmd/govulncheck", "./...")
 	cmd.Dir = config.RootDir
 	out, err := cmd.CombinedOutput()
 	if err != nil && !strings.Contains(string(out), "No vulnerabilities found") {

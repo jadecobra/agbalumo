@@ -53,7 +53,7 @@ jobs:
           cache: true
 
       - name: Pattern Checks (verify security-static)
-        run: go run cmd/verify/main.go audit
+        run: go run cmd/verify/main.go audit --mode=static
 
   test:
     name: Tests & Coverage
@@ -133,7 +133,7 @@ jobs:
           fi
 
       - name: Run Dynamic Security Audit
-        run: go run cmd/verify/main.go audit
+        run: go run cmd/verify/main.go audit --mode=dynamic
 
   drift_checks:
     name: Drift Verification
