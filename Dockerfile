@@ -19,6 +19,16 @@ COPY main.go .
 RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
     CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o server main.go
 
+# Build Stage for Litestream (to patch CVE-2026-33186 in gRPC dependency)
+FROM golang:1.25-alpine AS litestream-builder
+
+WORKDIR /src
+RUN apk add --no-cache git && \
+    git clone --depth 1 --branch v0.5.10 https://github.com/benbjohnson/litestream.git . && \
+    go mod edit -replace google.golang.org/grpc=google.golang.org/grpc@v1.79.3 && \
+    go mod download && \
+    CGO_ENABLED=0 go build -ldflags="-w -s" -o /app/litestream ./cmd/litestream
+
 # Runtime Stage
 FROM alpine:latest
 
@@ -40,8 +50,8 @@ RUN adduser -D -u 1000 appuser && \
     mkdir -p /data && \
     chown appuser:appuser /data /app
 
-# Copy binaries (Litestream from official image, app from local builder)
-COPY --from=litestream/litestream:0.5.10 --chown=appuser:appuser /usr/local/bin/litestream /usr/local/bin/litestream
+# Copy binaries (Litestream from source-build with gRPC patch, app from local builder)
+COPY --from=litestream-builder --chown=appuser:appuser /app/litestream /usr/local/bin/litestream
 COPY --from=builder --chown=appuser:appuser /app/server .
 
 # Copy UI assets (Templates & Static)

@@ -26,6 +26,7 @@ func SecureHeaders(next echo.HandlerFunc) echo.HandlerFunc {
 		return next(c)
 	}
 }
+
 // CanonicalPath ensures the request path has a leading slash, preventing
 // potential authorization bypasses via non-canonical paths (reference GHSA-p77j-4mvh-x3m3).
 func CanonicalPath(next echo.HandlerFunc) echo.HandlerFunc {
