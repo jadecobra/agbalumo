@@ -212,6 +212,8 @@ func runCmdOutput(name string, args ...string) ([]byte, error) {
 	return exec.Command(name, args...).Output() //nolint:gosec // maintenance utility runs trusted commands
 }
 
+const localCIImageTag = "agbalumo:local-ci-check"
+
 // runDockerBuild performs a local docker build to catch Dockerfile regressions before push.
 // It does not push or tag for any registry — build validation only.
 func runDockerBuild() error {
@@ -219,7 +221,25 @@ func runDockerBuild() error {
 	if err := runCmd("npm", "run", "build:css"); err != nil {
 		return fmt.Errorf("css build failed (required by Docker): %w", err)
 	}
-	return runCmd("docker", "build", "--no-cache", "-t", "agbalumo:local-ci-check", ".")
+	return runCmd("docker", "build", "--no-cache", "-t", localCIImageTag, ".")
+}
+
+// runTrivyScan runs Trivy against the locally built image with flags that mirror
+// production CI exactly (ci.yml lines 197–200). Fails hard if trivy is not installed.
+func runTrivyScan() error {
+	if _, err := exec.LookPath("trivy"); err != nil {
+		return fmt.Errorf(
+			"trivy is not installed — required for --with-docker.\n" +
+				"Install: brew install trivy  (mac) or https://aquasecurity.github.io/trivy/latest/getting-started/installation/",
+		)
+	}
+	return runCmd("trivy", "image",
+		"--exit-code", "1",
+		"--ignore-unfixed",
+		"--vuln-type", "os,library",
+		"--severity", "CRITICAL,HIGH",
+		localCIImageTag,
+	)
 }
 
 var ciCmd = &cobra.Command{
@@ -270,9 +290,14 @@ var ciCmd = &cobra.Command{
 
 		withDocker, _ := cmd.Flags().GetBool("with-docker")
 		if withDocker {
-			fmt.Println("\n=== 9. Docker Build Validation ===")
+			fmt.Println("\n=== 9. Docker Build ===")
 			if err := runDockerBuild(); err != nil {
 				return fmt.Errorf("docker build failed: %w", err)
+			}
+
+			fmt.Println("\n=== 10. Trivy Image Scan ===")
+			if err := runTrivyScan(); err != nil {
+				return fmt.Errorf("trivy scan failed: %w", err)
 			}
 		}
 
@@ -438,7 +463,7 @@ func init() {
 	setupVerifyFlags(ciCmd)
 	setupVerifyFlags(precommitCmd)
 	auditCmd.Flags().String("mode", "", "Audit mode: 'static' (no server required) or 'dynamic' (requires live server). Default runs all checks.")
-	ciCmd.Flags().Bool("with-docker", false, "Also run docker build as a final validation step (requires Docker)")
+	ciCmd.Flags().Bool("with-docker", false, "Run docker build + trivy image scan (mirrors production CI). Requires Docker and trivy.")
 
 	rootCmd.AddCommand(
 		apiSpecCmd,
