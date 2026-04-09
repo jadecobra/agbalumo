@@ -26,6 +26,8 @@ WORKDIR /src
 RUN apk add --no-cache git && \
     git clone --depth 1 --branch v0.5.10 https://github.com/benbjohnson/litestream.git . && \
     go mod edit -replace google.golang.org/grpc=google.golang.org/grpc@v1.79.3 && \
+    go get github.com/go-jose/go-jose/v4@v4.1.4 && \
+    go get go.opentelemetry.io/otel/sdk@v1.43.0 && \
     go mod tidy && \
     CGO_ENABLED=0 go build -ldflags="-w -s" -o /app/litestream ./cmd/litestream
 
