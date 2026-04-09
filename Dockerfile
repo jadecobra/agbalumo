@@ -1,6 +1,6 @@
 
 # Build Stage for App
-FROM golang:1.25-alpine AS builder
+FROM golang:1.26.2-alpine AS builder
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache
     CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o server main.go
 
 # Build Stage for Litestream (to patch CVE-2026-33186 in gRPC dependency)
-FROM golang:1.25-alpine AS litestream-builder
+FROM golang:1.26.2-alpine AS litestream-builder
 
 WORKDIR /src
 RUN apk add --no-cache git && \
