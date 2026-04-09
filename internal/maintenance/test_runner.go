@@ -11,10 +11,16 @@ import (
 
 // RunTests executes the Go test suite with race detection and coverage.
 // It also enforces the coverage threshold defined in .metrics/coverage or .agents/coverage-threshold.
-func RunTests(pkg string, race bool, thresholdPath string) error {
+func RunTests(pkg string, race bool, thresholdPath string, short bool, parallel int) error {
 	args := []string{"test", "-v", "-coverprofile=.tester/coverage/coverage.out"}
 	if race {
 		args = append(args, "-race")
+	}
+	if short {
+		args = append(args, "-short")
+	}
+	if parallel > 0 {
+		args = append(args, "-parallel", strconv.Itoa(parallel))
 	}
 	args = append(args, pkg)
 
@@ -23,7 +29,7 @@ func RunTests(pkg string, race bool, thresholdPath string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	fmt.Printf("🧪 Running tests for %s (race=%v)...\n", pkg, race)
+	fmt.Printf("🧪 Running tests for %s (race=%v, short=%v, parallel=%d)...\n", pkg, race, short, parallel)
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("tests failed: %w", err)
 	}

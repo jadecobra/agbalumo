@@ -409,13 +409,21 @@ var testCmd = &cobra.Command{
 			pkg = args[0]
 		}
 		race, path := getVerificationOpts(cmd)
-		return maintenance.RunTests(pkg, race, path)
+		short, _ := cmd.Flags().GetBool("short")
+		parallel, _ := cmd.Flags().GetInt("parallel")
+		return maintenance.RunTests(pkg, race, path, short, parallel)
 	},
 }
 
 func setupVerifyFlags(cmd *cobra.Command) {
 	cmd.Flags().Bool("race", true, "Enable race detection")
 	cmd.Flags().String("threshold-path", "", "Path to coverage threshold file")
+}
+
+func setupTestFlags(cmd *cobra.Command) {
+	setupVerifyFlags(cmd)
+	cmd.Flags().Bool("short", false, "Skip slow integration tests (e.g. govulncheck)")
+	cmd.Flags().Int("parallel", 0, "Max parallel tests per package (0 = Go default)")
 }
 
 func getVerificationOpts(cmd *cobra.Command) (bool, string) {
@@ -458,7 +466,7 @@ var gosecRationaleCmd = &cobra.Command{
 }
 
 func init() {
-	setupVerifyFlags(testCmd)
+	setupTestFlags(testCmd)
 	setupVerifyFlags(coverageCmd)
 	setupVerifyFlags(ciCmd)
 	setupVerifyFlags(precommitCmd)
