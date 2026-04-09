@@ -8,6 +8,7 @@ import (
 )
 
 func TestJobListingStrictValidation(t *testing.T) {
+	t.Parallel()
 	// Base Valid Job Listing
 	validJob := Listing{
 		ID:           "job-1",
@@ -97,6 +98,7 @@ func TestJobListingStrictValidation(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			l := validJob // Copy
 			tt.mutate(&l)
 			err := l.Validate()

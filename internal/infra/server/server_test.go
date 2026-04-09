@@ -10,6 +10,7 @@ import (
 )
 
 func TestStaticCacheHeaders(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	mw := StaticCacheHeaders()
 
@@ -32,6 +33,7 @@ func TestStaticCacheHeaders(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			req := httptest.NewRequest(http.MethodGet, tt.path, nil)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)

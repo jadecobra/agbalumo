@@ -6,6 +6,7 @@ import (
 )
 
 func TestGenerateStressListings(t *testing.T) {
+	t.Parallel()
 	count := 100
 	listings := seeder.GenerateStressListings(count)
 

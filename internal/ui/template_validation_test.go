@@ -8,6 +8,7 @@ import (
 )
 
 func TestAllTemplates_SyntaxAndEscaping(t *testing.T) {
+	t.Parallel()
 	// Initialize TemplateRenderer using the actual template paths relative to this test folder (internal/ui)
 	renderer, err := NewTemplateRenderer(
 		"../../ui/templates/*.html",
@@ -22,6 +23,7 @@ func TestAllTemplates_SyntaxAndEscaping(t *testing.T) {
 
 	for name, tmpl := range renderer.templates {
 		t.Run(name, func(t *testing.T) {
+			t.Parallel()
 			// Trigger the context-aware HTML escaper
 			err := tmpl.Execute(io.Discard, nil)
 			if err != nil {

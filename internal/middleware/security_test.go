@@ -11,6 +11,7 @@ import (
 )
 
 func TestSecureHeaders(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
@@ -61,6 +62,7 @@ func checkScriptSrc(t *testing.T, csp string) {
 }
 
 func TestCanonicalPath(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 
 	tests := []struct {
@@ -92,6 +94,7 @@ func TestCanonicalPath(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			req := httptest.NewRequest(http.MethodGet, "https://localhost:8443", nil)
 			// Manually set the path since httptest.NewRequest might normalize it
 			req.URL.Path = tt.path

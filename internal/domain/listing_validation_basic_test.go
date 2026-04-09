@@ -8,6 +8,7 @@ import (
 )
 
 func TestOriginValidation(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		wantErr error
 		name    string
@@ -47,6 +48,7 @@ func TestOriginValidation(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			l := Listing{
 				ID:           "3",
 				Type:         Product,
@@ -67,6 +69,7 @@ func TestOriginValidation(t *testing.T) {
 }
 
 func TestContactRequirement(t *testing.T) {
+	t.Parallel()
 	listing := Listing{
 		ID:          "2",
 		OwnerOrigin: "Ghana",
@@ -107,6 +110,7 @@ func TestContactRequirement(t *testing.T) {
 }
 
 func TestAddressValidation(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name    string
 		lType   Category
@@ -147,6 +151,7 @@ func TestAddressValidation(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			l := Listing{
 				ID:           "test-addr",
 				OwnerOrigin:  "Ghana",
@@ -169,6 +174,7 @@ func TestAddressValidation(t *testing.T) {
 }
 
 func TestCityRequirement(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name    string
 		lType   Category
@@ -208,6 +214,7 @@ func TestCityRequirement(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			l := Listing{
 				ID:           "test-city",
 				OwnerOrigin:  "Nigeria",

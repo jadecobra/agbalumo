@@ -8,6 +8,7 @@ import (
 )
 
 func TestNormalizeURL(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		input    string
 		expected string
@@ -21,6 +22,7 @@ func TestNormalizeURL(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {
+			t.Parallel()
 			assert.Equal(t, tt.expected, domain.NormalizeURL(tt.input))
 		})
 	}

@@ -11,6 +11,7 @@ import (
 )
 
 func TestLocalImageService_UploadImage(t *testing.T) {
+	t.Parallel()
 	svc, tempDir := setupTestImageService(t)
 
 	pngData := createValidPNG()
@@ -28,6 +29,7 @@ func TestLocalImageService_UploadImage(t *testing.T) {
 }
 
 func TestLocalImageService_UploadImage_Validation(t *testing.T) {
+	t.Parallel()
 	svc, _ := setupTestImageService(t, func(s *LocalImageService) {
 		s.MaxUploadSize = 100
 	})
@@ -54,6 +56,7 @@ func TestLocalImageService_UploadImage_Validation(t *testing.T) {
 }
 
 func TestLocalImageService_UploadImage_JPEG(t *testing.T) {
+	t.Parallel()
 	svc, _ := setupTestImageService(t)
 
 	jpegData := createValidJPEG()
@@ -67,6 +70,7 @@ func TestLocalImageService_UploadImage_JPEG(t *testing.T) {
 }
 
 func TestLocalImageService_UploadImage_GIF(t *testing.T) {
+	t.Parallel()
 	svc, _ := setupTestImageService(t)
 
 	gifData := createValidGIF()
@@ -80,6 +84,7 @@ func TestLocalImageService_UploadImage_GIF(t *testing.T) {
 }
 
 func TestLocalImageService_UploadImage_Compression(t *testing.T) {
+	t.Parallel()
 	svc, _ := setupTestImageService(t)
 	svc.InitialQuality = 50
 
@@ -97,6 +102,7 @@ func TestLocalImageService_UploadImage_Compression(t *testing.T) {
 }
 
 func TestLocalImageService_UploadImage_LargeImageCompression(t *testing.T) {
+	t.Parallel()
 	svc, _ := setupTestImageService(t, func(s *LocalImageService) {
 		s.MaxUploadSize = 5 * 1024 * 1024
 		s.InitialQuality = 85
@@ -111,6 +117,7 @@ func TestLocalImageService_UploadImage_LargeImageCompression(t *testing.T) {
 }
 
 func TestLocalImageService_UploadImage_Downscale(t *testing.T) {
+	t.Parallel()
 	svc, _ := setupTestImageService(t, func(s *LocalImageService) {
 		s.MaxFileSize = 500
 		s.InitialQuality = 20
@@ -126,6 +133,7 @@ func TestLocalImageService_UploadImage_Downscale(t *testing.T) {
 }
 
 func TestLocalImageService_UploadImage_ExtremeCompressionTrigger(t *testing.T) {
+	t.Parallel()
 	// Setup with a very low MaxFileSize to force iterative quality reduction
 	svc, _ := setupTestImageService(t, func(s *LocalImageService) {
 		s.MaxFileSize = 1024 // 1 KB
@@ -144,6 +152,7 @@ func TestLocalImageService_UploadImage_ExtremeCompressionTrigger(t *testing.T) {
 }
 
 func TestLocalImageService_UploadImage_DownscaleTrigger(t *testing.T) {
+	t.Parallel()
 	// Setup with a ridiculous MaxFileSize to force downscaling
 	svc, _ := setupTestImageService(t, func(s *LocalImageService) {
 		s.MaxFileSize = 100 // 100 bytes is extremely small for anything but tiny images
@@ -161,8 +170,10 @@ func TestLocalImageService_UploadImage_DownscaleTrigger(t *testing.T) {
 }
 
 func TestLocalImageService_UploadImage_Errors(t *testing.T) {
+	t.Parallel()
 	// ... (rest of the error tests)
 	t.Run("mkdir error", func(t *testing.T) {
+		t.Parallel()
 		tmpFile, err := os.CreateTemp("", "not-a-dir")
 		assert.NoError(t, err)
 		defer func() { _ = os.Remove(tmpFile.Name()) }()

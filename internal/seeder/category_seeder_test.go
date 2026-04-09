@@ -10,6 +10,7 @@ import (
 )
 
 func TestEnsureCategoriesSeeded_HappyPath(t *testing.T) {
+	t.Parallel()
 	repo, configPath, cleanup := setupSeeder(t)
 	defer cleanup()
 	ctx := context.Background()
@@ -39,6 +40,7 @@ func TestEnsureCategoriesSeeded_HappyPath(t *testing.T) {
 }
 
 func TestEnsureCategoriesSeeded_FileNotFound(t *testing.T) {
+	t.Parallel()
 	repo, _, cleanup := setupSeeder(t)
 	defer cleanup()
 	ctx := context.Background()
@@ -51,6 +53,7 @@ func TestEnsureCategoriesSeeded_FileNotFound(t *testing.T) {
 }
 
 func TestEnsureCategoriesSeeded_InvalidJSON(t *testing.T) {
+	t.Parallel()
 	repo, configPath, cleanup := setupSeeder(t)
 	defer cleanup()
 	ctx := context.Background()
@@ -66,6 +69,7 @@ func TestEnsureCategoriesSeeded_InvalidJSON(t *testing.T) {
 }
 
 func TestEnsureCategoriesSeeded_Idempotent(t *testing.T) {
+	t.Parallel()
 	repo, configPath, cleanup := setupSeeder(t)
 	defer cleanup()
 	ctx := context.Background()

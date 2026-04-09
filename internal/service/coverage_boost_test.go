@@ -12,12 +12,15 @@ import (
 )
 
 func TestCoverageBoost_ImageService(t *testing.T) {
+	t.Parallel()
 	t.Run("NewLocalImageService empty path", func(t *testing.T) {
+		t.Parallel()
 		svc := NewLocalImageService("")
 		assert.Equal(t, "ui/static/uploads", svc.UploadDir)
 	})
 
 	t.Run("DeleteImage variations", func(t *testing.T) {
+		t.Parallel()
 		svc, _ := setupTestImageService(t, nil)
 
 		// Empty URL
@@ -35,6 +38,7 @@ func TestCoverageBoost_ImageService(t *testing.T) {
 }
 
 func TestCoverageBoost_Geocoding(t *testing.T) {
+	t.Parallel()
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -63,6 +67,7 @@ func TestCoverageBoost_Geocoding(t *testing.T) {
 }
 
 func TestCoverageBoost_Background(t *testing.T) {
+	t.Parallel()
 	repo := testutil.SetupTestRepository(t)
 	svc := NewBackgroundService(repo)
 	svc.Interval = 1 * time.Millisecond // Fast ticker

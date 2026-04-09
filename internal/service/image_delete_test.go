@@ -10,6 +10,7 @@ import (
 )
 
 func TestLocalImageService_DeleteImage(t *testing.T) {
+	t.Parallel()
 	tempDir := t.TempDir()
 	svc := NewLocalImageService(tempDir)
 
@@ -31,6 +32,7 @@ func TestLocalImageService_DeleteImage(t *testing.T) {
 }
 
 func TestLocalImageService_DeleteImage_EdgeCases(t *testing.T) {
+	t.Parallel()
 	svc := NewLocalImageService(t.TempDir())
 
 	err := svc.DeleteImage(context.Background(), "/static/uploads/../../etc/passwd")

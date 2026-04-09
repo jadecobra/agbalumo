@@ -10,6 +10,7 @@ import (
 )
 
 func TestBackgroundService_ExpireListings(t *testing.T) {
+	t.Parallel()
 	repo := testutil.SetupTestRepository(t)
 	// Seed an expired listing
 	expiredListing := domain.Listing{
@@ -39,6 +40,7 @@ func TestBackgroundService_ExpireListings(t *testing.T) {
 }
 
 func TestBackgroundService_ExpireListings_Error(t *testing.T) {
+	t.Parallel()
 	repo := testutil.SetupTestRepository(t)
 	service := NewBackgroundService(repo)
 
@@ -51,6 +53,7 @@ func TestBackgroundService_ExpireListings_Error(t *testing.T) {
 }
 
 func TestBackgroundService_StartTicker_Cancels(t *testing.T) {
+	t.Parallel()
 	repo := testutil.SetupTestRepository(t)
 
 	service := NewBackgroundService(repo)

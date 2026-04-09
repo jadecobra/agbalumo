@@ -14,6 +14,7 @@ import (
 
 // GO-2026-4603: URLs in meta content attribute actions are not escaped in html/template
 func TestVuln_MetaContentEscaping(t *testing.T) {
+	t.Parallel()
 	tmpl, err := template.New("test").Parse(`<meta content="{{.URL}}">`)
 	assert.NoError(t, err)
 
@@ -31,6 +32,7 @@ func TestVuln_MetaContentEscaping(t *testing.T) {
 
 // GO-2026-4602: FileInfo can escape from a Root in os
 func TestVuln_OsFileInfoEscape(t *testing.T) {
+	t.Parallel()
 	// This vulnerability affects os.Root (introduced in 1.24)
 	// Even if we don't use os.Root directly, govulncheck flagged it via webp.Encode -> os.File.ReadDir
 	// We'll exercise the webp.Encode path to ensure it works.
@@ -45,6 +47,7 @@ func TestVuln_OsFileInfoEscape(t *testing.T) {
 
 // GO-2026-4601: Incorrect parsing of IPv6 host literals in net/url
 func TestVuln_IPv6Parsing(t *testing.T) {
+	t.Parallel()
 	// Vulnerable versions might incorrectly parse IPv6 host literals.
 	rawURL := "http://[2001:db8::1]:8080/path"
 	u, err := url.Parse(rawURL)
@@ -61,6 +64,7 @@ func TestVuln_IPv6Parsing(t *testing.T) {
 }
 
 func TestVuln_HttpHeaderCheck(t *testing.T) {
+	t.Parallel()
 	// Audit flagged http.Get in handler.RealGoogleProvider.GetUserInfo
 	// We'll just verify a basic http request structure doesn't crash or behave weirdly
 	// even if we don't actually hit the network.

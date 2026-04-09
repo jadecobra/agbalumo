@@ -11,9 +11,11 @@ import (
 )
 
 func TestTemplateRenderer_Render_Core(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 
 	t.Run("CSRF", func(t *testing.T) {
+		t.Parallel()
 		tmpl := template.New("test").Funcs(BuildGlobalFuncMap())
 		_, _ = tmpl.Parse(`{{.CSRF}}`)
 		renderer := &TemplateRenderer{templates: map[string]*template.Template{"test": tmpl}}

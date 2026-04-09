@@ -7,6 +7,7 @@ import (
 )
 
 func TestNewTemplateRenderer(t *testing.T) {
+	t.Parallel()
 	tempDir := t.TempDir()
 
 	tmplPath := filepath.Join(tempDir, "test.html")

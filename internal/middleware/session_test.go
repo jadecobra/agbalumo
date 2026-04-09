@@ -11,6 +11,7 @@ import (
 )
 
 func TestSessionMiddleware(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
@@ -47,6 +48,7 @@ func TestSessionMiddleware(t *testing.T) {
 }
 
 func TestGetSession_Fallback(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
@@ -60,6 +62,7 @@ func TestGetSession_Fallback(t *testing.T) {
 }
 
 func TestNewTestSessionStore(t *testing.T) {
+	t.Parallel()
 	store := middleware.NewTestSessionStore()
 	if store == nil {
 		t.Error("Expected non-nil store")

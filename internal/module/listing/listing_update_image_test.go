@@ -16,7 +16,7 @@ import (
 
 func TestHandleUpdate_ImageRemoval(t *testing.T) {
 
-t.Parallel()
+	t.Parallel()
 
 	// Existing listing with an image
 	existingListing := domain.Listing{

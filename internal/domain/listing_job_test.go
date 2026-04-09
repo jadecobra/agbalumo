@@ -6,6 +6,7 @@ import (
 )
 
 func TestListing_Validate_Job(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name    string
 		listing Listing
@@ -119,6 +120,7 @@ func TestListing_Validate_Job(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			err := tt.listing.Validate()
 			if err != nil {
 				t.Logf("Helper log: error was %v", err)

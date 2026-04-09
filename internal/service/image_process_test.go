@@ -13,6 +13,7 @@ import (
 )
 
 func TestLocalImageService_CompressImage(t *testing.T) {
+	t.Parallel()
 	svc, _ := setupTestImageService(t)
 
 	img := image.NewRGBA(image.Rect(0, 0, 10, 10))
@@ -27,6 +28,7 @@ func TestLocalImageService_CompressImage(t *testing.T) {
 }
 
 func TestLocalImageService_ConvertToWebP(t *testing.T) {
+	t.Parallel()
 	svc, _ := setupTestImageService(t)
 
 	img := image.NewRGBA(image.Rect(0, 0, 10, 10))
@@ -41,14 +43,17 @@ func TestLocalImageService_ConvertToWebP(t *testing.T) {
 }
 
 func TestLocalImageService_Errors(t *testing.T) {
+	t.Parallel()
 	svc, _ := setupTestImageService(t)
 
 	t.Run("CompressImage decode error", func(t *testing.T) {
+		t.Parallel()
 		_, err := svc.CompressImage(strings.NewReader("not-an-image"))
 		assert.Error(t, err)
 	})
 
 	t.Run("ConvertToWebP decode error", func(t *testing.T) {
+		t.Parallel()
 		_, err := svc.ConvertToWebP(strings.NewReader("not-an-image"))
 		assert.Error(t, err)
 	})

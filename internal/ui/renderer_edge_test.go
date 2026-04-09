@@ -13,12 +13,14 @@ import (
 )
 
 func TestTemplateRenderer_EdgeCases(t *testing.T) {
+	t.Parallel()
 	tempDir := t.TempDir()
 	e := echo.New()
 	c := e.NewContext(nil, nil)
 	buf := new(bytes.Buffer)
 
 	t.Run("Dict Helper Errors", func(t *testing.T) {
+		t.Parallel()
 		_ = os.WriteFile(filepath.Clean(filepath.Join(tempDir, "bad_dict.html")), []byte(`{{ dict "key" }}`), 0600)
 		renderer, _ := NewTemplateRenderer(filepath.Join(tempDir, "*.html"))
 		if err := renderer.Render(buf, "bad_dict.html", nil, c); err == nil {
@@ -27,6 +29,7 @@ func TestTemplateRenderer_EdgeCases(t *testing.T) {
 	})
 
 	t.Run("Template Not Found", func(t *testing.T) {
+		t.Parallel()
 		emptyRenderer := &TemplateRenderer{templates: make(map[string]*template.Template)}
 		rec := httptest.NewRecorder()
 		c2 := e.NewContext(httptest.NewRequest(http.MethodGet, "/", nil), rec)

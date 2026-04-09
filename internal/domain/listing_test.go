@@ -8,6 +8,7 @@ import (
 )
 
 func TestHoursOfOperationField(t *testing.T) {
+	t.Parallel()
 	// This test ensures the field exists and can be set.
 	l := Listing{
 		ID:               "test-hours",

@@ -12,11 +12,13 @@ import (
 )
 
 func TestTemplateRenderer_Funcs(t *testing.T) {
+	t.Parallel()
 	tempDir := t.TempDir()
 	e := echo.New()
 	c := e.NewContext(nil, nil)
 
 	t.Run("Basic Arithmetic", func(t *testing.T) {
+		t.Parallel()
 		tmplContent := `Add: {{ add 1 2 }} Sub: {{ sub 5 2 }} Mod: {{ mod 10 3 }} Seq: {{ seq 1 3 }} Dict: {{ $d := dict "k" "v" }}{{ $d.k }}`
 		renderer := setupRenderer(t, tempDir, "funcs.html", tmplContent)
 		buf := new(bytes.Buffer)
@@ -34,6 +36,7 @@ func TestTemplateRenderer_Funcs(t *testing.T) {
 
 func verifyOtherTemplateFuncs(t *testing.T, tempDir string, c echo.Context) {
 	t.Run("isNew", func(t *testing.T) {
+		t.Parallel()
 		tmplContent := `{{ if isNew .CreatedAt }}new{{ else }}old{{ end }}`
 		renderer := setupRenderer(t, tempDir, "isnew.html", tmplContent)
 
@@ -45,6 +48,7 @@ func verifyOtherTemplateFuncs(t *testing.T, tempDir string, c echo.Context) {
 	})
 
 	t.Run("toJson", func(t *testing.T) {
+		t.Parallel()
 		tmplContent := `<script>{{ toJson . }}</script>`
 		renderer := setupRenderer(t, tempDir, "tojson.html", tmplContent)
 		buf := new(bytes.Buffer)
@@ -55,6 +59,7 @@ func verifyOtherTemplateFuncs(t *testing.T, tempDir string, c echo.Context) {
 	})
 
 	t.Run("displayCity", func(t *testing.T) {
+		t.Parallel()
 		tmplContent := `City: {{ displayCity .City .Address }}`
 		renderer := setupRenderer(t, tempDir, "city.html", tmplContent)
 

@@ -8,6 +8,7 @@ import (
 )
 
 func TestExtractCityFromAddress(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		address  string
@@ -42,6 +43,7 @@ func TestExtractCityFromAddress(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			result := domain.ExtractCityFromAddress(tt.address)
 			assert.Equal(t, tt.expected, result)
 		})

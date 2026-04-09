@@ -12,6 +12,7 @@ import (
 )
 
 func TestRateLimiter(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	config := RateLimitConfig{
 		Rate:  10,
@@ -60,6 +61,7 @@ func TestRateLimiter(t *testing.T) {
 }
 
 func TestRateLimiter_CustomConfig(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	config := RateLimitConfig{
 		Rate:  rate.Limit(5),
@@ -83,6 +85,7 @@ func TestRateLimiter_CustomConfig(t *testing.T) {
 }
 
 func TestRateLimiter_Concurrency(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	rl := NewRateLimiter(RateLimitConfig{
 		Rate:  1000,
@@ -112,6 +115,7 @@ func TestRateLimiter_Concurrency(t *testing.T) {
 }
 
 func TestRateLimiter_Cleanup(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	rl := NewRateLimiter(RateLimitConfig{
 		Rate:  10,

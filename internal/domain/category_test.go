@@ -9,6 +9,7 @@ import (
 
 // Dummy test just to ensure compile and basic defaults
 func TestCategoryData(t *testing.T) {
+	t.Parallel()
 	cd := domain.CategoryData{
 		ID:        "Test",
 		Name:      "Test",

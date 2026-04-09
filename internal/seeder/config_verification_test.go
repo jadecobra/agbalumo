@@ -13,9 +13,10 @@ import (
 )
 
 func TestEnsureCategoriesSeeded_Verification(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 	repo, configPath, cleanup := setupSeeder(t)
-	defer cleanup()
+	t.Cleanup(cleanup)
 
 	t.Run("MissingConfig", func(t *testing.T) {
 		err := seeder.EnsureCategoriesSeeded(ctx, repo, "non-existent.json")

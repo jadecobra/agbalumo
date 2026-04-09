@@ -12,6 +12,7 @@ import (
 )
 
 func TestSeedAll(t *testing.T) {
+	t.Parallel()
 	repo := testutil.SetupTestRepository(t)
 
 	seeder.SeedAll(context.Background(), repo)
@@ -23,6 +24,7 @@ func TestSeedAll(t *testing.T) {
 }
 
 func TestEnsureSeeded_Empty(t *testing.T) {
+	t.Parallel()
 	repo := testutil.SetupTestRepository(t)
 
 	seeder.EnsureSeeded(context.Background(), repo)
@@ -34,6 +36,7 @@ func TestEnsureSeeded_Empty(t *testing.T) {
 }
 
 func TestEnsureSeeded_NotEmpty(t *testing.T) {
+	t.Parallel()
 	repo := testutil.SetupTestRepository(t)
 	// Seed one listing
 	l := domain.Listing{ID: "1", Title: "Existing", OwnerOrigin: "Ghana", Type: "Business", Address: "123 St"}

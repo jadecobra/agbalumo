@@ -6,6 +6,7 @@ import (
 )
 
 func TestSafeMkdir(t *testing.T) {
+	t.Parallel()
 	path := "testdir"
 	_ = os.RemoveAll(path)
 
@@ -30,6 +31,7 @@ func TestSafeMkdir(t *testing.T) {
 }
 
 func TestSafeWriteFile(t *testing.T) {
+	t.Parallel()
 	filename := "testfile"
 	data := []byte("hello world")
 	_ = os.Remove(filename)
@@ -60,6 +62,7 @@ func TestSafeWriteFile(t *testing.T) {
 }
 
 func TestSafeReadFile(t *testing.T) {
+	t.Parallel()
 	filename := "testreadfile"
 	data := []byte("safe read content")
 	err := os.WriteFile( /*nolint:gosec*/ filename, data, 0600)
@@ -78,6 +81,7 @@ func TestSafeReadFile(t *testing.T) {
 }
 
 func TestSafeRemove(t *testing.T) {
+	t.Parallel()
 	filename := "testremove"
 	data := []byte("remove content")
 	err := os.WriteFile( /*nolint:gosec*/ filename, data, 0600)
@@ -97,6 +101,7 @@ func TestSafeRemove(t *testing.T) {
 }
 
 func TestSafeStat(t *testing.T) {
+	t.Parallel()
 	filename := "teststat"
 	data := []byte("stat content")
 	err := os.WriteFile( /*nolint:gosec*/ filename, data, 0600)
@@ -115,7 +120,9 @@ func TestSafeStat(t *testing.T) {
 }
 
 func TestSafeIsNotExist(t *testing.T) {
+	t.Parallel()
 	t.Run("ExistingFile", func(t *testing.T) {
+		t.Parallel()
 		filename := "existing_test"
 		err := os.WriteFile( /*nolint:gosec*/ filename, []byte("data"), 0600)
 		if err != nil {
@@ -129,6 +136,7 @@ func TestSafeIsNotExist(t *testing.T) {
 	})
 
 	t.Run("NonExistentFile", func(t *testing.T) {
+		t.Parallel()
 		filename := "non_existent_test"
 		_, err := os.Stat(filename)
 		if !SafeIsNotExist(err) {
@@ -137,6 +145,7 @@ func TestSafeIsNotExist(t *testing.T) {
 	})
 
 	t.Run("NilError", func(t *testing.T) {
+		t.Parallel()
 		if SafeIsNotExist(nil) {
 			t.Error("Expected SafeIsNotExist to be false for nil error")
 		}
@@ -144,6 +153,7 @@ func TestSafeIsNotExist(t *testing.T) {
 }
 
 func TestSafeRename(t *testing.T) {
+	t.Parallel()
 	oldFile := "rename_old"
 	newFile := "rename_new"
 	data := []byte("rename test")
@@ -171,6 +181,7 @@ func TestSafeRename(t *testing.T) {
 }
 
 func TestSafeOpen(t *testing.T) {
+	t.Parallel()
 	filename := "open_test"
 	data := []byte("open test content")
 
@@ -197,6 +208,7 @@ func TestSafeOpen(t *testing.T) {
 }
 
 func TestUniqueStrings(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		input    []string
@@ -226,6 +238,7 @@ func TestUniqueStrings(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got := UniqueStrings(tt.input)
 			verifyUniqueStringsResult(t, got, tt.expected)
 		})

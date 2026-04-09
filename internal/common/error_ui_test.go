@@ -11,6 +11,7 @@ import (
 )
 
 func TestIsImageError(t *testing.T) {
+	t.Parallel()
 	assert.False(t, IsImageError(nil))
 	assert.True(t, IsImageError(errors.New("File size exceeds")))
 	assert.True(t, IsImageError(errors.New("Invalid file type")))
@@ -19,6 +20,7 @@ func TestIsImageError(t *testing.T) {
 }
 
 func TestRenderImageErrorToast(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()

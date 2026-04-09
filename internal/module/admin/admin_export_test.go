@@ -19,8 +19,8 @@ import (
 func TestAdminHandler_HandleExportListings(t *testing.T) {
 	t.Parallel()
 
-	// t.Parallel() requirement: subtests that call t.Parallel() must have their own setup 
-	// OR the parent must not return until they are done. 
+	// t.Parallel() requirement: subtests that call t.Parallel() must have their own setup
+	// OR the parent must not return until they are done.
 	// Moving setup inside subtests for isolation.
 
 	t.Run("Unauthorized access", func(t *testing.T) {

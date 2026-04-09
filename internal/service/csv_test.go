@@ -15,6 +15,7 @@ import (
 )
 
 func TestParseAndImport_Valid(t *testing.T) {
+	t.Parallel()
 	svc := NewCSVService()
 	ctx := context.Background()
 	csvContent := `title,type,description,origin,email,website
@@ -31,6 +32,7 @@ Test Svc,Service,Desc 2,Nigeria,svc@test.com,
 }
 
 func TestParseAndImport_MissingHeaders(t *testing.T) {
+	t.Parallel()
 	svc := NewCSVService()
 	ctx := context.Background()
 	csvContent := `title,description
@@ -42,6 +44,7 @@ Test,Desc`
 }
 
 func TestParseAndImport_PartialFailure(t *testing.T) {
+	t.Parallel()
 	svc := NewCSVService()
 	ctx := context.Background()
 	csvContent := `title,type,description,origin,email,phone,website
@@ -64,6 +67,7 @@ MissingEmailPhoneHasWebsite,Business,Desc,Ghana,,,example.com`
 }
 
 func TestParseAndImport_Duplicate(t *testing.T) {
+	t.Parallel()
 	svc := NewCSVService()
 	ctx := context.Background()
 	csvContent := `title,type,description,origin,email,phone,address,city
@@ -81,6 +85,7 @@ Dup Listing,Business,Same Desc,Ghana,dup@test.com,1234,123 St,Accra
 }
 
 func TestParseAndImport_CategoryEdgeCases(t *testing.T) {
+	t.Parallel()
 	svc := NewCSVService()
 	ctx := context.Background()
 	csvContent := `title,type,description,email
@@ -107,6 +112,7 @@ UPPERCASE CHURCH,CHURCH,Desc,a@b.com
 }
 
 func TestParseAndImport_Geocoding(t *testing.T) {
+	t.Parallel()
 	svc := NewCSVService()
 	ctx := context.Background()
 	csvContent := `title,type,description,email,address
@@ -171,6 +177,7 @@ func FuzzParseCategory(f *testing.F) {
 }
 
 func TestGenerateCSV_Empty(t *testing.T) {
+	t.Parallel()
 	svc := NewCSVService()
 	ctx := context.Background()
 
@@ -187,6 +194,7 @@ func TestGenerateCSV_Empty(t *testing.T) {
 }
 
 func TestGenerateCSV_FullMapping(t *testing.T) {
+	t.Parallel()
 	svc := NewCSVService()
 	ctx := context.Background()
 	now := time.Now().Truncate(time.Second)
@@ -239,6 +247,7 @@ func (e *errReader) Read(p []byte) (n int, err error) {
 }
 
 func TestParseAndImport_ReadError(t *testing.T) {
+	t.Parallel()
 	svc := NewCSVService()
 	ctx := context.Background()
 	repo := testutil.SetupTestRepository(t)

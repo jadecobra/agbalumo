@@ -6,12 +6,14 @@ import (
 )
 
 func TestNoopLogger(t *testing.T) {
+	t.Parallel()
 	n := &NoopLogger{}
 	n.Log("test")
 	n.Logf("test %s", "format")
 }
 
 func TestFailingLogger(t *testing.T) {
+	t.Parallel()
 	f := &FailingLogger{}
 	defer func() {
 		if r := recover(); r == nil {
@@ -22,6 +24,7 @@ func TestFailingLogger(t *testing.T) {
 }
 
 func TestFailingLogger_Logf(t *testing.T) {
+	t.Parallel()
 	f := &FailingLogger{}
 	defer func() {
 		if r := recover(); r == nil {
@@ -32,6 +35,7 @@ func TestFailingLogger_Logf(t *testing.T) {
 }
 
 func TestStubResolver(t *testing.T) {
+	t.Parallel()
 	// Case 1: Custom ResolveFunc
 	s := &StubResolver{
 		ResolveFunc: func(id string) (interface{}, error) {

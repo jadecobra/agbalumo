@@ -9,6 +9,7 @@ import (
 )
 
 func TestValidateDeadline(t *testing.T) {
+	t.Parallel()
 	now := time.Now()
 
 	tests := []struct {
@@ -51,6 +52,7 @@ func TestValidateDeadline(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			l := Listing{
 				ID:           "test-id",
 				OwnerOrigin:  "Nigeria",
@@ -74,6 +76,7 @@ func TestValidateDeadline(t *testing.T) {
 }
 
 func TestRequestRequiresOrigin(t *testing.T) {
+	t.Parallel()
 	l := Listing{
 		ID:           "req-1",
 		Type:         Request,
@@ -90,6 +93,7 @@ func TestRequestRequiresOrigin(t *testing.T) {
 }
 
 func TestHoursOfOperationRestriction(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name    string
 		lType   Category
@@ -108,6 +112,7 @@ func TestHoursOfOperationRestriction(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			l := Listing{
 				ID:               "test-restrict",
 				OwnerOrigin:      "Ghana",
@@ -135,6 +140,7 @@ func TestHoursOfOperationRestriction(t *testing.T) {
 }
 
 func TestListing_Validate_Length(t *testing.T) {
+	t.Parallel()
 	longString := func(n int) string {
 		b := make([]byte, n)
 		for i := range b {
@@ -212,6 +218,7 @@ func TestListing_Validate_Length(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			err := tt.listing.Validate()
 			if tt.wantErr {
 				assert.Error(t, err)
@@ -223,6 +230,7 @@ func TestListing_Validate_Length(t *testing.T) {
 }
 
 func TestValidate_Request_NoCreatedAt(t *testing.T) {
+	t.Parallel()
 	l := Listing{
 		Type:         Request,
 		Title:        "Help",
@@ -236,6 +244,7 @@ func TestValidate_Request_NoCreatedAt(t *testing.T) {
 }
 
 func TestValidate_Food_Success(t *testing.T) {
+	t.Parallel()
 	l := Listing{
 		Type:         Food,
 		Title:        "Jollof",

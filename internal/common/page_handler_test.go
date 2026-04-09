@@ -23,6 +23,7 @@ func (t *TestRenderer) Render(w io.Writer, name string, data interface{}, c echo
 }
 
 func TestHandleAbout(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 
 	// Setup simple template for testing

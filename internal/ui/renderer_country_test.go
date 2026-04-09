@@ -10,9 +10,11 @@ import (
 )
 
 func TestTemplateRenderer_CountryData(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 
 	t.Run("InjectedCountryData", func(t *testing.T) {
+		t.Parallel()
 		// Setup renderer with mock data and custom funcMap
 		renderer := &TemplateRenderer{
 			CountryRegions: []Region{
@@ -49,6 +51,7 @@ func TestTemplateRenderer_CountryData(t *testing.T) {
 	})
 
 	t.Run("CheckCategorizeFiles", func(t *testing.T) {
+		t.Parallel()
 		layouts, partials, pages := categorizeTemplateFiles([]string{
 			"ui/templates/base.html",
 			"ui/templates/components/foo.html",
