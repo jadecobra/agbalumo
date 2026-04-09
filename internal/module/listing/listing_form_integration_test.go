@@ -14,6 +14,7 @@ import (
 )
 
 func TestListingHandler_FormParsing(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		setup          func(t *testing.T, repo domain.ListingRepository)
 		verify         func(t *testing.T, repo domain.ListingRepository)
@@ -74,6 +75,7 @@ func TestListingHandler_FormParsing(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			app, cleanup := testutil.SetupTestAppEnv(t)
 			defer cleanup()
 
@@ -91,9 +93,7 @@ func TestListingHandler_FormParsing(t *testing.T) {
 }
 
 func TestListingHandler_URLNormalization(t *testing.T) {
-	app, cleanup := testutil.SetupTestAppEnv(t)
-	defer cleanup()
-	h := listmod.NewListingHandler(app)
+	t.Parallel()
 
 	tests := []struct {
 		name     string
@@ -108,6 +108,11 @@ func TestListingHandler_URLNormalization(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			app, cleanup := testutil.SetupTestAppEnv(t)
+			defer cleanup()
+			h := listmod.NewListingHandler(app)
+
 			body := "title=URL+Test+" + tt.name + "&type=Business&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St&city=Lagos&website_url=" + tt.url
 			c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(body))
 			c.Set("User", domain.User{ID: "user-1"})

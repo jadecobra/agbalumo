@@ -17,37 +17,45 @@ import (
 )
 
 func TestAdminHandler_HandleExportListings(t *testing.T) {
-	e := echo.New()
-	app, cleanup := testutil.SetupTestAppEnv(t)
-	defer cleanup()
+	t.Parallel()
 
-	h := admin.NewAdminHandler(app)
-	app.CSVService = service.NewCSVService()
-
-	ctx := context.Background()
-	// Seed some data
-	_ = app.DB.Save(ctx, domain.Listing{
-		ID:           "test-1",
-		Title:        "Test Listing",
-		Type:         domain.Business,
-		Description:  "Desc",
-		OwnerOrigin:  "Nigeria",
-		ContactEmail: "test@example.com",
-		City:         "Lagos",
-		IsActive:     true,
-		Status:       domain.ListingStatusApproved,
-	})
+	// t.Parallel() requirement: subtests that call t.Parallel() must have their own setup 
+	// OR the parent must not return until they are done. 
+	// Moving setup inside subtests for isolation.
 
 	t.Run("Unauthorized access", func(t *testing.T) {
+		t.Parallel()
 		req := httptest.NewRequest(http.MethodGet, "/admin/listings/export", nil)
 		rec := httptest.NewRecorder()
-		_ = e.NewContext(req, rec)
+		_ = echo.New().NewContext(req, rec)
+		// No user set, will fail in middleware (not actually tested here as we call handler directly)
 	})
 
 	t.Run("Successful Export", func(t *testing.T) {
+		t.Parallel()
+		app, cleanup := testutil.SetupTestAppEnv(t)
+		defer cleanup()
+
+		h := admin.NewAdminHandler(app)
+		app.CSVService = service.NewCSVService()
+
+		ctx := context.Background()
+		// Seed some data
+		_ = app.DB.Save(ctx, domain.Listing{
+			ID:           "test-1",
+			Title:        "Test Listing",
+			Type:         domain.Business,
+			Description:  "Desc",
+			OwnerOrigin:  "Nigeria",
+			ContactEmail: "test@example.com",
+			City:         "Lagos",
+			IsActive:     true,
+			Status:       domain.ListingStatusApproved,
+		})
+
 		req := httptest.NewRequest(http.MethodGet, "/admin/listings/export", nil)
 		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+		c := echo.New().NewContext(req, rec)
 
 		err := h.HandleExportListings(c)
 		assert.NoError(t, err)

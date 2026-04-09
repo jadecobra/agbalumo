@@ -13,6 +13,7 @@ import (
 )
 
 func TestAdminHandler_HandleToggleFeatured_Error(t *testing.T) {
+	t.Parallel()
 	_, h, mockRepo := setupAdminMockTest(t)
 	mockRepo.ErrorOn["SetFeatured"] = fmt.Errorf("db error")
 
@@ -30,6 +31,7 @@ func TestAdminHandler_HandleToggleFeatured_Error(t *testing.T) {
 }
 
 func TestAdminHandler_HandleToggleFeatured_BadRequest_MissingID(t *testing.T) {
+	t.Parallel()
 	_, h, _ := setupAdminMockTest(t)
 
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings//featured", nil)

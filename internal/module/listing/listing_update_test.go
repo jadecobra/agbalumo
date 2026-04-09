@@ -10,6 +10,7 @@ import (
 )
 
 func TestHandleEdit(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		setup          func(t *testing.T, repo domain.ListingRepository)
 		user           domain.User
@@ -36,6 +37,7 @@ func TestHandleEdit(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			c, rec := setupTestContext(http.MethodGet, "/listings/1/edit", nil)
 			c.SetPath("/listings/:id/edit")
 			c.SetParamNames("id")
@@ -53,6 +55,7 @@ func TestHandleEdit(t *testing.T) {
 	}
 }
 func TestHandleUpdate(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		setup          func(t *testing.T, repo domain.ListingRepository)
 		user           domain.User
@@ -82,6 +85,7 @@ func TestHandleUpdate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			c, rec := setupTestContext(http.MethodPost, "/listings/1", strings.NewReader(tt.body))
 			c.SetPath("/listings/:id")
 			c.SetParamNames("id")
@@ -99,6 +103,7 @@ func TestHandleUpdate(t *testing.T) {
 	}
 }
 func TestHandleUpdate_NotFound(t *testing.T) {
+	t.Parallel()
 	h, _, cleanup := setupListingHandler(t)
 	defer cleanup()
 	c, rec := setupTestContext(http.MethodPost, "/listings/1", strings.NewReader(""))
@@ -110,6 +115,7 @@ func TestHandleUpdate_NotFound(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, rec.Code)
 }
 func TestHandleUpdate_NoUser(t *testing.T) {
+	t.Parallel()
 	h, _, cleanup := setupListingHandler(t)
 	defer cleanup()
 	c, rec := setupTestContext(http.MethodPost, "/listings/1", strings.NewReader(""))
@@ -120,6 +126,7 @@ func TestHandleUpdate_NoUser(t *testing.T) {
 	assert.Equal(t, http.StatusUnauthorized, rec.Code)
 }
 func TestHandleUpdate_DuplicateTitle(t *testing.T) {
+	t.Parallel()
 	h, app, cleanup := setupListingHandler(t)
 	defer cleanup()
 	saveTestListing(t, app.DB, "1", "Old", func(l *domain.Listing) { l.OwnerID = "user1" })

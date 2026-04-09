@@ -14,6 +14,7 @@ import (
 )
 
 func TestAdminHandler_HandleAdminDeleteAction_Success(t *testing.T) {
+	t.Parallel()
 	formData := url.Values{}
 	formData.Set("admin_code", "secret")
 	formData.Add("id", "l1")
@@ -33,6 +34,7 @@ func TestAdminHandler_HandleAdminDeleteAction_Success(t *testing.T) {
 }
 
 func TestHandleAdminDeleteView(t *testing.T) {
+	t.Parallel()
 	app, h, cleanup := setupAdminTest(t)
 	defer cleanup()
 	_ = app.DB.Save(context.Background(), domain.Listing{ID: "listing1", Title: "To Delete", OwnerOrigin: "Nigeria", Type: "business"})
@@ -46,6 +48,7 @@ func TestHandleAdminDeleteView(t *testing.T) {
 }
 
 func TestHandleAdminDeleteView_NoIDs_Redirects(t *testing.T) {
+	t.Parallel()
 	_, h, cleanup := setupAdminTest(t)
 	defer cleanup()
 
@@ -57,6 +60,7 @@ func TestHandleAdminDeleteView_NoIDs_Redirects(t *testing.T) {
 }
 
 func TestHandleAdminDeleteView_FindByIDError_Returns404(t *testing.T) {
+	t.Parallel()
 	_, h, cleanup := setupAdminTest(t)
 	defer cleanup()
 	// No data seeded, so "bad-id" will not be found
@@ -68,6 +72,7 @@ func TestHandleAdminDeleteView_FindByIDError_Returns404(t *testing.T) {
 }
 
 func TestHandleAdminDeleteAction_NoIDs_Redirects(t *testing.T) {
+	t.Parallel()
 	formData := url.Values{}
 	formData.Set("admin_code", "secret")
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings/delete", strings.NewReader(formData.Encode()))
@@ -82,6 +87,7 @@ func TestHandleAdminDeleteAction_NoIDs_Redirects(t *testing.T) {
 }
 
 func TestHandleAdminDeleteAction_WrongCode_RendersConfirmWithError(t *testing.T) {
+	t.Parallel()
 	formData := url.Values{}
 	formData.Set("admin_code", "wrong")
 	formData.Add("id", "l1")
@@ -97,6 +103,7 @@ func TestHandleAdminDeleteAction_WrongCode_RendersConfirmWithError(t *testing.T)
 }
 
 func TestHandleAdminDeleteAction_PartialSuccess(t *testing.T) {
+	t.Parallel()
 	formData := url.Values{}
 	formData.Set("admin_code", "secret")
 	formData.Add("id", "l1")

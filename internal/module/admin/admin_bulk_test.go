@@ -15,6 +15,7 @@ import (
 )
 
 func TestAdminHandler_HandleBulkUpload(t *testing.T) {
+	t.Parallel()
 	// CSV headers: title,type,description,origin,email,phone,whatsapp
 	csvContent := "title,type,description,origin,email,phone,whatsapp\nTest Biz,Business,Description,Nigeria,test@test.com,,"
 
@@ -41,6 +42,7 @@ func TestAdminHandler_HandleBulkUpload(t *testing.T) {
 }
 
 func TestAdminHandler_HandleBulkUpload_InvalidCSV(t *testing.T) {
+	t.Parallel()
 	// Junk content
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
@@ -57,6 +59,7 @@ func TestAdminHandler_HandleBulkUpload_InvalidCSV(t *testing.T) {
 }
 
 func TestAdminHandler_HandleBulkUpload_NoFile(t *testing.T) {
+	t.Parallel()
 	_, h, c, rec, cleanup := setupAdminBulkTest(t, http.MethodPost, "/admin/upload", nil)
 	defer cleanup()
 	_ = h.HandleBulkUpload(c)
@@ -64,6 +67,7 @@ func TestAdminHandler_HandleBulkUpload_NoFile(t *testing.T) {
 }
 
 func TestAdminHandler_HandleBulkUpload_ParseError(t *testing.T) {
+	t.Parallel()
 	// Missing required "description"
 	csvContent := "title,type,origin,email\nTest Biz,Business,Nigeria,test@test.com"
 
@@ -85,6 +89,7 @@ func TestAdminHandler_HandleBulkUpload_ParseError(t *testing.T) {
 }
 
 func TestHandleBulkAction_NoSelection(t *testing.T) {
+	t.Parallel()
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings/bulk", nil)
 	setupAdminAuth(t, c)
 	_, h, cleanup := setupAdminTest(t)
@@ -97,6 +102,7 @@ func TestHandleBulkAction_NoSelection(t *testing.T) {
 }
 
 func TestHandleBulkAction_Approve(t *testing.T) {
+	t.Parallel()
 	app, h, cleanup := setupAdminTest(t)
 	defer cleanup()
 
@@ -117,6 +123,7 @@ func TestHandleBulkAction_Approve(t *testing.T) {
 }
 
 func TestHandleBulkAction_Reject(t *testing.T) {
+	t.Parallel()
 	app, h, cleanup := setupAdminTest(t)
 	defer cleanup()
 
@@ -137,6 +144,7 @@ func TestHandleBulkAction_Reject(t *testing.T) {
 }
 
 func TestHandleBulkAction_Delete(t *testing.T) {
+	t.Parallel()
 	_, h, cleanup := setupAdminTest(t)
 	defer cleanup()
 
@@ -154,6 +162,7 @@ func TestHandleBulkAction_Delete(t *testing.T) {
 }
 
 func TestHandleBulkAction_ChangeCategory(t *testing.T) {
+	t.Parallel()
 	app, h, cleanup := setupAdminTest(t)
 	defer cleanup()
 
@@ -181,6 +190,7 @@ func TestHandleBulkAction_ChangeCategory(t *testing.T) {
 }
 
 func TestHandleBulkAction_NoAction(t *testing.T) {
+	t.Parallel()
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/bulk", strings.NewReader("ids[]=1"))
 	setupAdminAuth(t, c)
 
@@ -192,6 +202,7 @@ func TestHandleBulkAction_NoAction(t *testing.T) {
 }
 
 func TestAdminHandler_HandleBulkUpload_ManyErrors(t *testing.T) {
+	t.Parallel()
 	// CSV with 4 invalid rows (missing title/desc)
 	csvContent := "title,type,description\n,,\n,,\n,,\n,,\n"
 	body := new(bytes.Buffer)
@@ -209,6 +220,7 @@ func TestAdminHandler_HandleBulkUpload_ManyErrors(t *testing.T) {
 }
 
 func TestHandleBulkAction_ChangeToCustomCategory(t *testing.T) {
+	t.Parallel()
 	app, h, cleanup := setupAdminTest(t)
 	defer cleanup()
 

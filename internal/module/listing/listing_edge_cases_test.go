@@ -19,6 +19,7 @@ import (
 )
 
 func TestHandleCreate_WithImage(t *testing.T) {
+	t.Parallel()
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
 	_ = writer.WriteField("title", "Image Listing")
@@ -54,6 +55,7 @@ func TestHandleCreate_WithImage(t *testing.T) {
 }
 
 func TestHandleCreate_InvalidDates(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name           string
 		body           string
@@ -68,6 +70,7 @@ func TestHandleCreate_InvalidDates(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			h, _, cleanup := setupListingHandler(t)
 			defer cleanup()
 			c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
@@ -79,6 +82,7 @@ func TestHandleCreate_InvalidDates(t *testing.T) {
 }
 
 func TestHandleCreate_ImageUploadError(t *testing.T) {
+	t.Parallel()
 	h, app, cleanup := setupListingHandler(t)
 	defer cleanup()
 	mockImageService := &testutil.MockImageService{}
@@ -93,6 +97,7 @@ func TestHandleCreate_ImageUploadError(t *testing.T) {
 }
 
 func TestHandleProfile_NoUser(t *testing.T) {
+	t.Parallel()
 	h, _, cleanup := setupListingHandler(t)
 	defer cleanup()
 	c, rec := setupTestContext(http.MethodGet, "/profile", nil)

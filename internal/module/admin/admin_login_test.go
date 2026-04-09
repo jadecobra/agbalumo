@@ -15,6 +15,7 @@ import (
 )
 
 func TestAdminHandler_HandleLoginView(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		user       interface{}
 		name       string
@@ -41,6 +42,7 @@ func TestAdminHandler_HandleLoginView(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			c, rec := setupAdminTestContext(http.MethodGet, "/admin/login", nil)
 			if tt.user != nil {
 				c.Set("User", tt.user)
@@ -60,6 +62,7 @@ func TestAdminHandler_HandleLoginView(t *testing.T) {
 }
 
 func TestAdminHandler_HandleLoginAction(t *testing.T) {
+	t.Parallel()
 	tests := []loginActionTest{
 		{
 			name:       "WrongCode_RendersError",
@@ -106,6 +109,7 @@ type loginActionTest struct {
 func runAdminLoginActionTests(t *testing.T, tests []loginActionTest) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			runSingleAdminLoginActionTest(t, tt)
 		})
 	}

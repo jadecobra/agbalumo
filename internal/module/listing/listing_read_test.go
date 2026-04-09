@@ -11,6 +11,7 @@ import (
 )
 
 func TestHandleHome(t *testing.T) {
+	t.Parallel()
 	c, rec := setupTestContext(http.MethodGet, "/", nil)
 	h, app, cleanup := setupListingHandler(t)
 	defer cleanup()
@@ -26,6 +27,7 @@ func TestHandleHome(t *testing.T) {
 }
 
 func TestHandleDetail(t *testing.T) {
+	t.Parallel()
 	c, rec := setupTestContext(http.MethodGet, "/listings/1", nil)
 	c.SetParamNames("id")
 	c.SetParamValues("1")
@@ -42,6 +44,7 @@ func TestHandleDetail(t *testing.T) {
 }
 
 func TestHandleProfile(t *testing.T) {
+	t.Parallel()
 	c, rec := setupTestContext(http.MethodGet, "/profile", nil)
 	user := newTestUser("u1", domain.UserRoleUser)
 	user.Name = "John Doe"
@@ -59,6 +62,7 @@ func TestHandleProfile(t *testing.T) {
 }
 
 func TestHandleFragment(t *testing.T) {
+	t.Parallel()
 	c, rec := setupTestContext(http.MethodGet, "/listings/fragment?q=Search", nil)
 	c.Request().Header.Set("HX-Request", "true")
 

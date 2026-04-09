@@ -15,6 +15,7 @@ import (
 // --- RealGoogleProvider.getRedirectURL Tests ---
 
 func TestRealGoogleProvider_getRedirectURL_BaseURL(t *testing.T) {
+	t.Parallel()
 	_ = os.Setenv("BASE_URL", "http://192.168.1.5:8080")
 	defer func() { _ = os.Unsetenv("BASE_URL") }()
 	_ = os.Unsetenv("GOOGLE_REDIRECT_URL")
@@ -26,6 +27,7 @@ func TestRealGoogleProvider_getRedirectURL_BaseURL(t *testing.T) {
 }
 
 func TestRealGoogleProvider_getRedirectURL_GoogleRedirectURL(t *testing.T) {
+	t.Parallel()
 	_ = os.Unsetenv("BASE_URL")
 	_ = os.Setenv("GOOGLE_REDIRECT_URL", "https://custom.example.com/callback")
 	defer func() { _ = os.Unsetenv("GOOGLE_REDIRECT_URL") }()
@@ -37,6 +39,7 @@ func TestRealGoogleProvider_getRedirectURL_GoogleRedirectURL(t *testing.T) {
 }
 
 func TestRealGoogleProvider_getRedirectURL_DynamicHTTPS(t *testing.T) {
+	t.Parallel()
 	_ = os.Unsetenv("BASE_URL")
 	_ = os.Unsetenv("GOOGLE_REDIRECT_URL")
 	_ = os.Unsetenv("AGBALUMO_ENV")
@@ -48,6 +51,7 @@ func TestRealGoogleProvider_getRedirectURL_DynamicHTTPS(t *testing.T) {
 }
 
 func TestRealGoogleProvider_getRedirectURL_DynamicHTTP(t *testing.T) {
+	t.Parallel()
 	_ = os.Unsetenv("BASE_URL")
 	_ = os.Unsetenv("GOOGLE_REDIRECT_URL")
 	_ = os.Unsetenv("AGBALUMO_ENV")
@@ -59,6 +63,7 @@ func TestRealGoogleProvider_getRedirectURL_DynamicHTTP(t *testing.T) {
 }
 
 func TestRealGoogleProvider_getRedirectURL_Production(t *testing.T) {
+	t.Parallel()
 	_ = os.Unsetenv("BASE_URL")
 	_ = os.Unsetenv("GOOGLE_REDIRECT_URL")
 	_ = os.Setenv("AGBALUMO_ENV", "production")
@@ -73,6 +78,7 @@ func TestRealGoogleProvider_getRedirectURL_Production(t *testing.T) {
 // --- RealGoogleProvider.GetAuthCodeURL Test ---
 
 func TestRealGoogleProvider_GetAuthCodeURL(t *testing.T) {
+	t.Parallel()
 	_ = os.Unsetenv("BASE_URL")
 	_ = os.Unsetenv("GOOGLE_REDIRECT_URL")
 	_ = os.Unsetenv("AGBALUMO_ENV")
@@ -88,6 +94,7 @@ func TestRealGoogleProvider_GetAuthCodeURL(t *testing.T) {
 // --- RealGoogleProvider.GetUserInfo Tests ---
 
 func TestRealGoogleProvider_GetUserInfo_Success(t *testing.T) {
+	t.Parallel()
 	expected := GoogleUser{
 		ID:      "123",
 		Email:   "test@example.com",
@@ -116,6 +123,7 @@ func TestRealGoogleProvider_GetUserInfo_Success(t *testing.T) {
 }
 
 func TestRealGoogleProvider_GetUserInfo_BadStatus(t *testing.T) {
+	t.Parallel()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = fmt.Fprint(w, "server error")
@@ -133,6 +141,7 @@ func TestRealGoogleProvider_GetUserInfo_BadStatus(t *testing.T) {
 }
 
 func TestRealGoogleProvider_GetUserInfo_BadJSON(t *testing.T) {
+	t.Parallel()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = fmt.Fprint(w, "not valid json{{{")

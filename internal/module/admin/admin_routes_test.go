@@ -24,6 +24,7 @@ func (m *mockAuthMiddleware) RequireAuth(next echo.HandlerFunc) echo.HandlerFunc
 }
 
 func TestAdminHandler_RegisterRoutes(t *testing.T) {
+	t.Parallel()
 	// Setup
 	e := echo.New()
 	handler := &admin.AdminHandler{}

@@ -13,10 +13,12 @@ import (
 )
 
 func TestAuthHandler_GoogleCallback_Errors(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 
 	t.Run("StateMismatch", func(t *testing.T) {
+		t.Parallel()
 		req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=wrong", nil)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
@@ -31,6 +33,7 @@ func TestAuthHandler_GoogleCallback_Errors(t *testing.T) {
 	})
 
 	t.Run("ExchangeError", func(t *testing.T) {
+		t.Parallel()
 		req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=s&code=c", nil)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)

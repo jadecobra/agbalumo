@@ -8,6 +8,7 @@ import (
 )
 
 func TestParseDeadline(t *testing.T) {
+	t.Parallel()
 	req := &ListingFormRequest{DeadlineDate: "2024-12-31"}
 	l := &domain.Listing{Type: domain.Request}
 
@@ -21,6 +22,7 @@ func TestParseDeadline(t *testing.T) {
 }
 
 func TestParseEventDates(t *testing.T) {
+	t.Parallel()
 	req := &ListingFormRequest{
 		EventStart: "2024-12-01T10:00",
 		EventEnd:   "2024-12-01T12:00",
@@ -42,6 +44,7 @@ func TestParseEventDates(t *testing.T) {
 }
 
 func TestParseJobStartDate(t *testing.T) {
+	t.Parallel()
 	req := &ListingFormRequest{JobStartDate: "2024-12-01T09:00"}
 	l := &domain.Listing{Type: domain.Job}
 

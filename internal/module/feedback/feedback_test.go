@@ -15,6 +15,7 @@ import (
 )
 
 func TestFeedbackHandler_HandleModal(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/feedback/modal", nil)
 	rec := httptest.NewRecorder()
@@ -32,6 +33,7 @@ func TestFeedbackHandler_HandleModal(t *testing.T) {
 }
 
 func TestFeedbackHandler_HandleSubmit_Success(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	formData := url.Values{}
 	formData.Set("type", "Issue")
@@ -64,6 +66,7 @@ func TestFeedbackHandler_HandleSubmit_Success(t *testing.T) {
 }
 
 func TestFeedbackHandler_HandleSubmit_NoAuth(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 	req := httptest.NewRequest(http.MethodPost, "/feedback", nil)
@@ -80,6 +83,7 @@ func TestFeedbackHandler_HandleSubmit_NoAuth(t *testing.T) {
 }
 
 func TestFeedbackHandler_HandleSubmit_EmptyContent(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 	formData := url.Values{}

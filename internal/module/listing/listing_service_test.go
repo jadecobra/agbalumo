@@ -14,9 +14,11 @@ import (
 var testSvcUser = domain.User{ID: "user-123", Name: "Test User", Email: "test@example.com"}
 
 func TestListingService_ClaimListing(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 
 	t.Run("success creates pending claim request", func(t *testing.T) {
+		t.Parallel()
 		repo := testutil.SetupTestRepository(t)
 		svc := listmod.NewListingService(repo, repo, repo)
 
@@ -37,6 +39,7 @@ func TestListingService_ClaimListing(t *testing.T) {
 	})
 
 	t.Run("missing user id", func(t *testing.T) {
+		t.Parallel()
 		repo := testutil.SetupTestRepository(t)
 		svc := listmod.NewListingService(repo, repo, repo)
 
@@ -46,6 +49,7 @@ func TestListingService_ClaimListing(t *testing.T) {
 	})
 
 	t.Run("listing not found", func(t *testing.T) {
+		t.Parallel()
 		repo := testutil.SetupTestRepository(t)
 		svc := listmod.NewListingService(repo, repo, repo)
 
@@ -55,6 +59,7 @@ func TestListingService_ClaimListing(t *testing.T) {
 	})
 
 	t.Run("already owned", func(t *testing.T) {
+		t.Parallel()
 		repo := testutil.SetupTestRepository(t)
 		svc := listmod.NewListingService(repo, repo, repo)
 
@@ -66,6 +71,7 @@ func TestListingService_ClaimListing(t *testing.T) {
 	})
 
 	t.Run("unclaimable type", func(t *testing.T) {
+		t.Parallel()
 		repo := testutil.SetupTestRepository(t)
 		svc := listmod.NewListingService(repo, repo, repo)
 
@@ -78,6 +84,7 @@ func TestListingService_ClaimListing(t *testing.T) {
 	})
 
 	t.Run("duplicate pending claim rejected", func(t *testing.T) {
+		t.Parallel()
 		repo := testutil.SetupTestRepository(t)
 		svc := listmod.NewListingService(repo, repo, repo)
 

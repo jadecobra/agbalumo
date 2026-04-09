@@ -11,6 +11,7 @@ import (
 )
 
 func TestAuthHandler_GoogleCallback_SaveUserError(t *testing.T) {
+	t.Parallel()
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
 
@@ -21,6 +22,7 @@ func TestAuthHandler_GoogleCallback_SaveUserError(t *testing.T) {
 }
 
 func TestAuthHandler_GoogleCallback_UpdateProfile(t *testing.T) {
+	t.Parallel()
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
 
@@ -47,6 +49,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfile(t *testing.T) {
 }
 
 func TestAuthHandler_GoogleCallback_UpdateProfileSaveError(t *testing.T) {
+	t.Parallel()
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
 
@@ -70,6 +73,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfileSaveError(t *testing.T) {
 }
 
 func TestAuthHandler_GoogleCallback_UpdateProfile_NoChanges(t *testing.T) {
+	t.Parallel()
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
 
@@ -92,6 +96,7 @@ func TestAuthHandler_GoogleCallback_UpdateProfile_NoChanges(t *testing.T) {
 }
 
 func TestAuthHandler_GoogleCallback_CrossSiteCallback(t *testing.T) {
+	t.Parallel()
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
 	app.Cfg.HasGoogleAuth = true

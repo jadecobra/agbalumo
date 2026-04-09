@@ -14,6 +14,7 @@ import (
 )
 
 func TestAuthHandler_GoogleCallback_Success(t *testing.T) {
+	t.Parallel()
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
 	app.Cfg.HasGoogleAuth = true
@@ -35,6 +36,7 @@ func TestAuthHandler_GoogleCallback_Success(t *testing.T) {
 }
 
 func TestAuthHandler_GoogleLogin(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 

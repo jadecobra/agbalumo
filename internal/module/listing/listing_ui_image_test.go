@@ -12,6 +12,7 @@ import (
 )
 
 func TestEditListingModal_ImageRemovalUI(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplate(t)}
 

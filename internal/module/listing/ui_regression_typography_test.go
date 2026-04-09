@@ -8,6 +8,7 @@ import (
 )
 
 func TestTypographyConstraints(t *testing.T) {
+	t.Parallel()
 	wd, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)

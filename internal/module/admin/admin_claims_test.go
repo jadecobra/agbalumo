@@ -13,6 +13,7 @@ import (
 )
 
 func TestHandleApproveClaim(t *testing.T) {
+	t.Parallel()
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
 	h := admin.NewAdminHandler(app)
@@ -35,6 +36,7 @@ func TestHandleApproveClaim(t *testing.T) {
 }
 
 func TestHandleApproveClaim_Error(t *testing.T) {
+	t.Parallel()
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
 	h := admin.NewAdminHandler(app)
@@ -50,6 +52,7 @@ func TestHandleApproveClaim_Error(t *testing.T) {
 }
 
 func TestHandleRejectClaim(t *testing.T) {
+	t.Parallel()
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
 	h := admin.NewAdminHandler(app)
@@ -72,6 +75,7 @@ func TestHandleRejectClaim(t *testing.T) {
 }
 
 func TestHandleRejectClaim_Error(t *testing.T) {
+	t.Parallel()
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
 	h := admin.NewAdminHandler(app)

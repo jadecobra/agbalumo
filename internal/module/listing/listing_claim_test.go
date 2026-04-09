@@ -10,6 +10,7 @@ import (
 )
 
 func TestHandleClaim(t *testing.T) {
+	t.Parallel()
 	h, app, cleanup := setupListingHandler(t)
 	defer cleanup()
 	saveTestListing(t, app.DB, "1", "Biz")

@@ -14,6 +14,7 @@ import (
 )
 
 func TestHandleCreate_EventParsing(t *testing.T) {
+	t.Parallel()
 	h, app, cleanup := setupListingHandler(t)
 	defer cleanup()
 	app.GeocodingSvc = &service.GoogleGeocodingService{}

@@ -15,6 +15,7 @@ import (
 )
 
 func TestHandleUpdate_JobSuccess(t *testing.T) {
+	t.Parallel()
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
 

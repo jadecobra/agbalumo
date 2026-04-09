@@ -16,6 +16,7 @@ import (
 )
 
 func TestListingHandler_HandleImageUpload_CacheBusting(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 

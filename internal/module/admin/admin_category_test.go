@@ -16,6 +16,7 @@ import (
 )
 
 func TestAdminHandler_HandleAddCategory_Success(t *testing.T) {
+	t.Parallel()
 	formData := url.Values{}
 	formData.Set("name", "Music")
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/categories/add", strings.NewReader(formData.Encode()))
@@ -43,6 +44,7 @@ func TestAdminHandler_HandleAddCategory_Success(t *testing.T) {
 }
 
 func TestAdminHandler_HandleAddCategory_EmptyName_Redirects(t *testing.T) {
+	t.Parallel()
 	formData := url.Values{}
 	formData.Set("name", "  ")
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/categories/add", strings.NewReader(formData.Encode()))
@@ -62,6 +64,7 @@ func TestAdminHandler_HandleAddCategory_EmptyName_Redirects(t *testing.T) {
 }
 
 func TestAdminHandler_HandleAddCategory_DuplicateName_Redirects(t *testing.T) {
+	t.Parallel()
 	formData := url.Values{}
 	formData.Set("name", "Music")
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/categories/add", strings.NewReader(formData.Encode()))
@@ -87,6 +90,7 @@ func TestAdminHandler_HandleAddCategory_DuplicateName_Redirects(t *testing.T) {
 }
 
 func TestAdminHandler_HandleAddCategory_Claimable(t *testing.T) {
+	t.Parallel()
 	formData := url.Values{}
 	formData.Set("name", "Services")
 	formData.Set("claimable", "true")

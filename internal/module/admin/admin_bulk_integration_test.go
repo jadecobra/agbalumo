@@ -20,12 +20,7 @@ import (
 )
 
 func TestAdminHandler_HandleBulkAction_MorePaths(t *testing.T) {
-	app, cleanup := testutil.SetupTestAppEnv(t)
-	defer cleanup()
-	h := admin.NewAdminHandler(app)
-
-	ctx := context.Background()
-	_ = app.DB.Save(ctx, domain.Listing{ID: "l1", Title: "L1", IsActive: true, Status: domain.ListingStatusApproved})
+	t.Parallel()
 
 	tests := []struct {
 		name     string
@@ -41,6 +36,14 @@ func TestAdminHandler_HandleBulkAction_MorePaths(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			app, cleanup := testutil.SetupTestAppEnv(t)
+			defer cleanup()
+			h := admin.NewAdminHandler(app)
+
+			ctx := context.Background()
+			_ = app.DB.Save(ctx, domain.Listing{ID: "l1", Title: "L1", IsActive: true, Status: domain.ListingStatusApproved})
+
 			form := url.Values{}
 			form.Set("action", tt.action)
 			for _, id := range tt.ids {
@@ -53,7 +56,7 @@ func TestAdminHandler_HandleBulkAction_MorePaths(t *testing.T) {
 			c := echo.New().NewContext(req, rec)
 
 			store := sessions.NewCookieStore([]byte("secret"))
-			sess, _ := store.Get(req, "session-name")
+			sess, _ := store.Get(req, req.Header.Get("Referer"))
 			c.Set("session", sess)
 
 			err := h.HandleBulkAction(c)
@@ -70,6 +73,7 @@ func TestAdminHandler_HandleBulkAction_MorePaths(t *testing.T) {
 }
 
 func TestAdminHandler_HandleBulkAction_Errors(t *testing.T) {
+	t.Parallel()
 	mockRepo := NewMockRepository()
 	app := &env.AppEnv{DB: mockRepo}
 	h := admin.NewAdminHandler(app)
@@ -95,6 +99,7 @@ func TestAdminHandler_HandleBulkAction_Errors(t *testing.T) {
 }
 
 func TestAdminHandler_HandleBulkUpload_Errors(t *testing.T) {
+	t.Parallel()
 	mockRepo := NewMockRepository()
 	app := &env.AppEnv{DB: mockRepo}
 	h := admin.NewAdminHandler(app)
@@ -128,6 +133,7 @@ func (m *MockCSVService) GenerateCSV(ctx context.Context, listings []domain.List
 }
 
 func TestAdminHandler_HandleBulkUpload_ResultFormatting(t *testing.T) {
+	t.Parallel()
 	// This test exercises the formatting logic in HandleBulkUpload
 	app := &env.AppEnv{CSVService: &service.CSVService{}}
 	h := admin.NewAdminHandler(app)

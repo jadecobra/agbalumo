@@ -14,6 +14,7 @@ import (
 )
 
 func TestAuthHandler_DevLogin_Production(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 
@@ -32,6 +33,7 @@ func TestAuthHandler_DevLogin_Production(t *testing.T) {
 }
 
 func TestAuthHandler_DevLogin_Success(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 

@@ -13,12 +13,7 @@ import (
 )
 
 func TestAdminHandler_HandleAllListings_Extended(t *testing.T) {
-	app, cleanup := testutil.SetupTestAppEnv(t)
-	defer cleanup()
-
-	// Seed listings for filtering and counts
-	_ = app.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "Test Business", Type: "business", Status: domain.ListingStatusApproved, OwnerOrigin: "Nigeria", Address: "123 Test St", City: "Lagos"})
-	_ = app.DB.Save(context.Background(), domain.Listing{ID: "l2", Title: "Test Event", Type: "events", Status: domain.ListingStatusApproved, OwnerOrigin: "Nigeria"})
+	t.Parallel()
 
 	tests := []struct {
 		name       string
@@ -69,6 +64,14 @@ func TestAdminHandler_HandleAllListings_Extended(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			app, cleanup := testutil.SetupTestAppEnv(t)
+			defer cleanup()
+
+			// Seed listings for filtering and counts
+			_ = app.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "Test Business", Type: "business", Status: domain.ListingStatusApproved, OwnerOrigin: "Nigeria", Address: "123 Test St", City: "Lagos"})
+			_ = app.DB.Save(context.Background(), domain.Listing{ID: "l2", Title: "Test Event", Type: "events", Status: domain.ListingStatusApproved, OwnerOrigin: "Nigeria"})
+
 			c, rec := setupAdminTestContext(http.MethodGet, "/admin/listings"+tt.query, nil)
 			c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
@@ -81,6 +84,7 @@ func TestAdminHandler_HandleAllListings_Extended(t *testing.T) {
 }
 
 func TestAdminHandler_HandleAllListings_Counts(t *testing.T) {
+	t.Parallel()
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
 	ctx := context.Background()
@@ -97,5 +101,4 @@ func TestAdminHandler_HandleAllListings_Counts(t *testing.T) {
 	_ = h.HandleAllListings(c)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
-	// We can't easily check the body without a real renderer, but we verified the repo calls worked.
 }

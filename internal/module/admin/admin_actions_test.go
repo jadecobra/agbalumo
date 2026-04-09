@@ -14,6 +14,7 @@ import (
 )
 
 func TestAdminHandler_HandleAllListings(t *testing.T) {
+	t.Parallel()
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin/listings", nil)
 	setupAdminAuth(t, c)
 	app, h, cleanup := setupAdminTest(t)
@@ -27,6 +28,7 @@ func TestAdminHandler_HandleAllListings(t *testing.T) {
 }
 
 func TestAdminHandler_HandleToggleFeatured(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		setupData  func(t *testing.T, repo domain.ListingRepository)
 		name       string
@@ -97,6 +99,7 @@ func TestAdminHandler_HandleToggleFeatured(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			formData := url.Values{}
 			formData.Set("featured", tt.featured)
 			urlPath := "/admin/listings/" + tt.id + "/featured"
@@ -138,6 +141,7 @@ func assertFeaturedResponse(t *testing.T, rec *httptest.ResponseRecorder, expect
 }
 
 func TestAdminHandler_HandleApproveClaim(t *testing.T) {
+	t.Parallel()
 	c, rec := setupAdminTestContext(http.MethodPost, "/admin/claims/cr1/approve", nil)
 	setupAdminAuth(t, c)
 	c.SetParamNames("id")
@@ -156,6 +160,7 @@ func TestAdminHandler_HandleApproveClaim(t *testing.T) {
 }
 
 func TestAdminHandler_HandleListingRow(t *testing.T) {
+	t.Parallel()
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin/listings/1/row", nil)
 	setupAdminAuth(t, c)
 	c.SetParamNames("id")

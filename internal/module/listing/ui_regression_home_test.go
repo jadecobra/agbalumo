@@ -18,6 +18,7 @@ import (
 )
 
 func TestHomePageUIValues(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplate(t)}
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -41,6 +42,7 @@ func TestHomePageUIValues(t *testing.T) {
 }
 
 func TestTemplateTailwindCleanup(t *testing.T) {
+	t.Parallel()
 	wd, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)
@@ -83,6 +85,7 @@ func checkTemplateStyles(t *testing.T, tmpl string, content string) {
 }
 
 func TestSearchBarTheme(t *testing.T) {
+	t.Parallel()
 	wd, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)

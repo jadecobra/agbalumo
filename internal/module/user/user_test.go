@@ -11,6 +11,7 @@ import (
 )
 
 func TestGetUser(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
@@ -42,6 +43,7 @@ func TestGetUser(t *testing.T) {
 }
 
 func TestMustUser(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()

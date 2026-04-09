@@ -10,6 +10,7 @@ import (
 )
 
 func TestHandleCreate(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		setup          func(t *testing.T, repo domain.ListingRepository)
 		name           string
@@ -48,6 +49,7 @@ func TestHandleCreate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
 			h, app, cleanup := setupListingHandler(t)
 			defer cleanup()
@@ -64,6 +66,7 @@ func TestHandleCreate(t *testing.T) {
 	}
 }
 func TestHandleCreate_NoUser(t *testing.T) {
+	t.Parallel()
 	h, _, cleanup := setupListingHandler(t)
 	defer cleanup()
 	c, rec := setupTestContext(http.MethodPost, "/listings", nil)
@@ -71,6 +74,7 @@ func TestHandleCreate_NoUser(t *testing.T) {
 	assert.Equal(t, http.StatusUnauthorized, rec.Code)
 }
 func TestHandleCreate_DuplicateTitle(t *testing.T) {
+	t.Parallel()
 	h, app, cleanup := setupListingHandler(t)
 	defer cleanup()
 	saveTestListing(t, app.DB, "x", "Existing")

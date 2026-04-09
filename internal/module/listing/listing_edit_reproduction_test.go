@@ -17,6 +17,7 @@ import (
 )
 
 func TestListingHandler_HandleUpdate_Reproduction(t *testing.T) {
+	t.Parallel()
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
 	ctx := context.Background()
@@ -78,6 +79,7 @@ func TestListingHandler_HandleUpdate_Reproduction(t *testing.T) {
 }
 
 func TestListingHandler_HandleUpdate_AdminSource(t *testing.T) {
+	t.Parallel()
 	app2, cleanup2 := testutil.SetupTestAppEnv(t)
 	defer cleanup2()
 	ctx := context.Background()

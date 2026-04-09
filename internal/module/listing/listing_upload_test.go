@@ -17,6 +17,7 @@ import (
 )
 
 func TestListingHandler_Upload_Malicious(t *testing.T) {
+	t.Parallel()
 	h, app, cleanup := setupListingHandler(t)
 	defer cleanup()
 
@@ -61,6 +62,7 @@ func TestListingHandler_Upload_Malicious(t *testing.T) {
 }
 
 func TestListingHandler_Upload_Valid(t *testing.T) {
+	t.Parallel()
 	h, app, cleanup := setupListingHandler(t)
 	defer cleanup()
 

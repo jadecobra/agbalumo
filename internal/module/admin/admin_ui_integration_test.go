@@ -19,6 +19,7 @@ import (
 )
 
 func TestAdminDashboardFooterPosition(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplateForPage(t, "admin_dashboard.html")}
 
@@ -72,6 +73,7 @@ func TestAdminDashboardFooterPosition(t *testing.T) {
 }
 
 func TestMetricCardsHaveModalTriggers(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplateForPage(t, "admin_dashboard.html")}
 
@@ -112,6 +114,7 @@ func TestMetricCardsHaveModalTriggers(t *testing.T) {
 }
 
 func TestCategoryModalExists(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplateForPage(t, "admin_dashboard.html")}
 
@@ -151,6 +154,7 @@ func TestCategoryModalExists(t *testing.T) {
 }
 
 func TestAdminDashboard_FlashMessages(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplateForPage(t, "admin_dashboard.html")}
 
@@ -178,12 +182,7 @@ func TestAdminDashboard_FlashMessages(t *testing.T) {
 }
 
 func TestAdminDashboard_ErrorPaths(t *testing.T) {
-	mockRepo := NewMockRepository()
-	app := &env.AppEnv{
-		DB:                mockRepo,
-		CategorizationSvc: &testutil.MockCategorizationService{},
-	}
-	h := admin.NewAdminHandler(app)
+	t.Parallel()
 
 	tests := []struct {
 		name    string
@@ -200,6 +199,15 @@ func TestAdminDashboard_ErrorPaths(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			mockRepo := NewMockRepository()
+			app := &env.AppEnv{
+				DB:                mockRepo,
+				CategorizationSvc: &testutil.MockCategorizationService{},
+			}
+			h := admin.NewAdminHandler(app)
+
 			mockRepo.ErrorOn = map[string]error{tt.errOn: assert.AnError}
 			req := httptest.NewRequest(http.MethodGet, "/admin", nil)
 			rec := httptest.NewRecorder()
@@ -213,6 +221,7 @@ func TestAdminDashboard_ErrorPaths(t *testing.T) {
 	}
 }
 func TestAdminListings_ModalTrigger(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplateForPage(t, "admin_listings.html")}
 

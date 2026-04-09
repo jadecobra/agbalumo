@@ -14,6 +14,7 @@ import (
 )
 
 func TestHandleCreate_GeocodingFallback(t *testing.T) {
+	t.Parallel()
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
 

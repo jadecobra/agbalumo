@@ -8,6 +8,7 @@ import (
 )
 
 func TestPagination_GetPageRange(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name       string
 		expected   []int
@@ -73,12 +74,14 @@ func TestPagination_GetPageRange(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			assert.Equal(t, tt.expected, tt.pagination.GetPageRange())
 		})
 	}
 }
 
 func TestConvertCounts(t *testing.T) {
+	t.Parallel()
 	counts := map[domain.Category]int{
 		domain.Business: 10,
 		domain.Job:      5,

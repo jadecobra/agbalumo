@@ -16,6 +16,7 @@ import (
 )
 
 func TestAuthMiddleware_RequireAuth_Redirect(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/protected", nil)
 	rec := httptest.NewRecorder()
@@ -40,6 +41,7 @@ func TestAuthMiddleware_RequireAuth_Redirect(t *testing.T) {
 }
 
 func TestAuthMiddleware_RequireAuth_Success(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/protected", nil)
 	rec := httptest.NewRecorder()
@@ -65,6 +67,7 @@ func TestAuthMiddleware_RequireAuth_Success(t *testing.T) {
 }
 
 func TestAuthMiddleware_OptionalAuth_Success(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/optional", nil)
 	rec := httptest.NewRecorder()
@@ -97,6 +100,7 @@ func TestAuthMiddleware_OptionalAuth_Success(t *testing.T) {
 }
 
 func TestAuthMiddleware_OptionalAuth_NoSession(t *testing.T) {
+	t.Parallel()
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/optional", nil)
 	rec := httptest.NewRecorder()

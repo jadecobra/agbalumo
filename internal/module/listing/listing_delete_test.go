@@ -9,6 +9,7 @@ import (
 )
 
 func TestHandleDelete(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		user       interface{}
 		setup      func(t *testing.T, repo domain.ListingRepository)
@@ -56,6 +57,7 @@ func TestHandleDelete(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			if tt.name == "DeleteError" {
 				t.Skip("Hard to trigger DB error with real SQLite")
 			}

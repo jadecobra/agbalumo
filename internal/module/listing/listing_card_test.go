@@ -12,6 +12,7 @@ import (
 
 // TestListingCardRendering verifies the logic within listing_card.html
 func TestListingCardRendering(t *testing.T) {
+	t.Parallel()
 	tmpl := template.New("listing_card.html").Funcs(ui.BuildGlobalFuncMap())
 
 	_, err := tmpl.ParseFiles(

@@ -12,6 +12,7 @@ import (
 )
 
 func TestAdminMiddleware_NoUser(t *testing.T) {
+	t.Parallel()
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin", nil)
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
@@ -29,6 +30,7 @@ func TestAdminMiddleware_NoUser(t *testing.T) {
 }
 
 func TestAdminMiddleware_AdminUser(t *testing.T) {
+	t.Parallel()
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin", nil)
 	c.Set("User", domain.User{ID: "admin1", Role: domain.UserRoleAdmin})
 	app, cleanup := testutil.SetupTestAppEnv(t)

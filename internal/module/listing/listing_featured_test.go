@@ -10,6 +10,7 @@ import (
 )
 
 func TestHandleHome_FeaturedPrioritization(t *testing.T) {
+	t.Parallel()
 	c, rec := setupTestContext(http.MethodGet, "/", nil)
 	h, app, cleanup := setupListingHandler(t)
 	defer cleanup()
@@ -31,6 +32,7 @@ func TestHandleHome_FeaturedPrioritization(t *testing.T) {
 }
 
 func TestHandleHome_FeaturedListings_EmptyCategory(t *testing.T) {
+	t.Parallel()
 	c, rec := setupTestContext(http.MethodGet, "/", nil)
 	h, app, cleanup := setupListingHandler(t)
 	defer cleanup()
@@ -56,6 +58,7 @@ func TestHandleHome_FeaturedListings_EmptyCategory(t *testing.T) {
 }
 
 func TestHandleFragment_FeaturedPrioritization(t *testing.T) {
+	t.Parallel()
 	// Page 1, no filters
 	c, rec := setupTestContext(http.MethodGet, "/listings?page=1", nil)
 	h, app, cleanup := setupListingHandler(t)
@@ -74,6 +77,7 @@ func TestHandleFragment_FeaturedPrioritization(t *testing.T) {
 }
 
 func TestHandleFragment_FeaturedPrioritization_Page2(t *testing.T) {
+	t.Parallel()
 	// Page 1, no filters (featured listings appear at the top of the feed)
 	c, rec := setupTestContext(http.MethodGet, "/listings/fragment?page=1", nil)
 	h, app, cleanup := setupListingHandler(t)
@@ -90,6 +94,7 @@ func TestHandleFragment_FeaturedPrioritization_Page2(t *testing.T) {
 }
 
 func TestHandleFragment_FeaturedListings_CategoryFilter(t *testing.T) {
+	t.Parallel()
 	// Requesting fragment for 'Business' category, page 1
 	c, rec := setupTestContext(http.MethodGet, "/listings/fragment?type=Business&page=1", nil)
 	h, app, cleanup := setupListingHandler(t)

@@ -11,6 +11,7 @@ import (
 )
 
 func TestAdminHandler_HandleDashboard(t *testing.T) {
+	t.Parallel()
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin", nil)
 	setupAdminAuth(t, c)
 	_, h, cleanup := setupAdminTest(t)
@@ -22,6 +23,7 @@ func TestAdminHandler_HandleDashboard(t *testing.T) {
 }
 
 func TestAdminHandler_HandleDashboard_HappyPath(t *testing.T) {
+	t.Parallel()
 	app, h, cleanup := setupAdminTest(t)
 	defer cleanup()
 	ctx := context.Background()
@@ -53,6 +55,7 @@ func TestAdminHandler_HandleDashboard_HappyPath(t *testing.T) {
 }
 
 func TestAdminHandler_HandleDashboard_GrowthMetrics(t *testing.T) {
+	t.Parallel()
 	app, h, cleanup := setupAdminTest(t)
 	defer cleanup()
 	ctx := context.Background()

@@ -13,6 +13,7 @@ import (
 )
 
 func TestAdminHandler_HandleUsers_Success(t *testing.T) {
+	t.Parallel()
 	c, rec := setupAdminTestContext(http.MethodGet, "/admin/users", nil)
 	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
 
