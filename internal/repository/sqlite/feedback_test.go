@@ -13,6 +13,7 @@ import (
 )
 
 func TestSaveFeedback(t *testing.T) {
+	t.Parallel()
 	repo, dbName := testutil.SetupTestRepositoryUnique(t)
 	db, err := sql.Open("sqlite", dbName)
 	if err != nil {
@@ -64,6 +65,7 @@ func TestSaveFeedback(t *testing.T) {
 }
 
 func TestGetAllFeedback(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -94,6 +96,7 @@ func TestGetAllFeedback(t *testing.T) {
 }
 
 func TestGetFeedbackCounts(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 

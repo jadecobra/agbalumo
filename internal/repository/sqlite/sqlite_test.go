@@ -14,6 +14,7 @@ import (
 // Local counter logic moved to testutil.
 
 func TestNewSQLiteRepositoryFromDB(t *testing.T) {
+	t.Parallel()
 	db := testutil.SetupTestDB(t)
 	defer func() { _ = db.Close() }()
 
@@ -31,6 +32,7 @@ func TestNewSQLiteRepositoryFromDB(t *testing.T) {
 }
 
 func TestSQLiteRepository_InitializationErrors(t *testing.T) {
+	t.Parallel()
 	tmpDir := t.TempDir()
 	filePath := filepath.Join(tmpDir, "file")
 	_ = os.WriteFile( /*nolint:gosec*/ filePath, []byte("content"), 0600)

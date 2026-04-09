@@ -13,6 +13,7 @@ import (
 )
 
 func TestSaveCategory(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -43,6 +44,7 @@ func TestSaveCategory(t *testing.T) {
 }
 
 func TestSaveCategory_Upsert(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -77,6 +79,7 @@ func TestSaveCategory_Upsert(t *testing.T) {
 }
 
 func TestGetCategories(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -110,6 +113,7 @@ func TestGetCategories(t *testing.T) {
 }
 
 func TestGetCategory_NotFound(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -120,6 +124,7 @@ func TestGetCategory_NotFound(t *testing.T) {
 }
 
 func TestUpsertCoreCategory(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -174,6 +179,7 @@ func TestUpsertCoreCategory(t *testing.T) {
 }
 
 func TestCategoryErrors(t *testing.T) {
+	t.Parallel()
 	db, err := sql.Open("sqlite", ":memory:")
 	if err != nil {
 		t.Fatalf("Failed to open db: %v", err)
@@ -199,6 +205,7 @@ func TestCategoryErrors(t *testing.T) {
 }
 
 func TestGetLocations(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -226,6 +233,7 @@ func TestGetLocations(t *testing.T) {
 }
 
 func TestGetCategories_EmptyDB(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -242,6 +250,7 @@ func TestGetCategories_EmptyDB(t *testing.T) {
 // does NOT overwrite pre-existing categories. This is the regression test for the
 // bug where HandleAddCategory used an empty ID, causing ON CONFLICT(id) overwrites.
 func TestSaveCategory_PreservesExistingCategories(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 

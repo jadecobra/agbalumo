@@ -11,6 +11,7 @@ import (
 )
 
 func TestGetFeaturedListings(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -68,6 +69,7 @@ func TestGetFeaturedListings(t *testing.T) {
 }
 
 func TestGetFeaturedListings_LimitThree(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -92,6 +94,7 @@ func TestGetFeaturedListings_LimitThree(t *testing.T) {
 }
 
 func TestGetFeaturedListings_CategoryFilter(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -145,6 +148,7 @@ func TestGetFeaturedListings_CategoryFilter(t *testing.T) {
 }
 
 func TestSetFeatured(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 

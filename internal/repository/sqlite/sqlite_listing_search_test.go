@@ -10,6 +10,7 @@ import (
 )
 
 func TestFindAll_Filtering(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -53,6 +54,7 @@ func TestFindAll_Filtering(t *testing.T) {
 }
 
 func TestFindAll_Sorting_Featured(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -91,6 +93,7 @@ func TestFindAll_Sorting_Featured(t *testing.T) {
 }
 
 func TestListingRepository_FTS(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -117,6 +120,7 @@ func TestListingRepository_FTS(t *testing.T) {
 }
 
 func TestFindByTitle_CaseInsensitive(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -139,6 +143,7 @@ func TestFindByTitle_CaseInsensitive(t *testing.T) {
 }
 
 func TestTitleExists(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -163,6 +168,7 @@ func TestTitleExists(t *testing.T) {
 }
 
 func TestFindAllByOwner(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 

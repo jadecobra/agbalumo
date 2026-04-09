@@ -10,6 +10,7 @@ import (
 )
 
 func TestGetUserCount(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -27,6 +28,7 @@ func TestGetUserCount(t *testing.T) {
 }
 
 func TestGetAllUsers(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -48,6 +50,7 @@ func TestGetAllUsers(t *testing.T) {
 }
 
 func TestGetUserGrowth(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 	now := time.Now().UTC()
@@ -66,6 +69,7 @@ func TestGetUserGrowth(t *testing.T) {
 }
 
 func TestUserOperations(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -119,6 +123,7 @@ func TestUserOperations(t *testing.T) {
 }
 
 func TestFindUser_NotFound(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 

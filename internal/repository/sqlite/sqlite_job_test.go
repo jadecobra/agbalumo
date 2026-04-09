@@ -10,6 +10,7 @@ import (
 )
 
 func TestSaveAndFindJob(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 

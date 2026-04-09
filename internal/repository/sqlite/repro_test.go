@@ -12,6 +12,7 @@ import (
 )
 
 func TestReproCategoryRegression(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -62,6 +63,7 @@ func TestReproCategoryRegression(t *testing.T) {
 }
 
 func TestCategoryCaseSensitivity(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -86,6 +88,7 @@ func TestCategoryCaseSensitivity(t *testing.T) {
 }
 
 func TestUpsertCoreCategory_ActiveOverwrite(t *testing.T) {
+	t.Parallel()
 	repo, dbPath := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 

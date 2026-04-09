@@ -9,6 +9,7 @@ import (
 )
 
 func TestFindListingWithNullEventDates(t *testing.T) {
+	t.Parallel()
 	// 1. Setup in-memory DB
 	repo, err := NewSQLiteRepository(":memory:")
 	assert.NoError(t, err)

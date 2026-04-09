@@ -12,6 +12,7 @@ import (
 )
 
 func TestSaveAndFindByID(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	l := domain.Listing{
 		ID:           "test-1",
@@ -56,6 +57,7 @@ func TestSaveAndFindByID(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 	_ = repo.Save(ctx, domain.Listing{ID: "del-me", Title: "Delete Me"})
@@ -78,6 +80,7 @@ func TestDelete(t *testing.T) {
 }
 
 func TestHoursOfOperationPersistence(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -97,6 +100,7 @@ func TestHoursOfOperationPersistence(t *testing.T) {
 }
 
 func TestCategoryErrors_Raw(t *testing.T) {
+	t.Parallel()
 	db, _ := sql.Open("sqlite", ":memory:")
 	repo := sqlite.NewSQLiteRepositoryFromDB(db)
 	_ = db.Close()

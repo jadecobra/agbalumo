@@ -13,6 +13,7 @@ import (
 )
 
 func TestGetCounts(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -35,6 +36,7 @@ func TestGetCounts(t *testing.T) {
 }
 
 func TestExpireListings(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 	now := time.Now().UTC()
@@ -62,6 +64,7 @@ func TestExpireListings(t *testing.T) {
 }
 
 func TestGetPendingClaimRequests(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -94,6 +97,7 @@ func TestGetPendingClaimRequests(t *testing.T) {
 }
 
 func TestUpdateClaimRequestStatus_Approve(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -127,6 +131,7 @@ func TestUpdateClaimRequestStatus_Approve(t *testing.T) {
 }
 
 func TestGetClaimRequestByUserAndListing(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
@@ -159,6 +164,7 @@ func TestGetClaimRequestByUserAndListing(t *testing.T) {
 }
 
 func TestGetMetrics(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 	now := time.Now().UTC()
@@ -183,6 +189,7 @@ func TestGetMetrics(t *testing.T) {
 }
 
 func TestMigrationBackfillCity(t *testing.T) {
+	t.Parallel()
 	// 1. Create a raw DB and insert a row with NULL/empty city
 	tmpDir := t.TempDir()
 	dbPath := filepath.Join(tmpDir, "backfill.db")

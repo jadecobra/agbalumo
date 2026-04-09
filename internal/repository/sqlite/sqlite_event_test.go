@@ -10,6 +10,7 @@ import (
 )
 
 func TestSaveAndFindEvent(t *testing.T) {
+	t.Parallel()
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 	now := time.Now().UTC().Truncate(time.Second) // Truncate to match SQLite precision

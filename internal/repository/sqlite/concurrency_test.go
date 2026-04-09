@@ -3,7 +3,7 @@ package sqlite
 import (
 	"context"
 	"fmt"
-	"os"
+	"path/filepath"
 	"sync"
 	"testing"
 	"time"
@@ -12,9 +12,9 @@ import (
 )
 
 func TestConcurrentWriteContention(t *testing.T) {
-	dbPath := "write_contention.db"
-	_ = os.Remove(dbPath)
-	defer func() { _ = os.Remove(dbPath) }()
+	t.Parallel()
+	tmpDir := t.TempDir()
+	dbPath := filepath.Join(tmpDir, "write_contention.db")
 
 	repo, err := NewSQLiteRepository(dbPath)
 	if err != nil {
