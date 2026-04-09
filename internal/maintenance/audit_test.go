@@ -35,6 +35,9 @@ func TestCheckVulnerabilitiesUsesGoRun(t *testing.T) {
 }
 
 func TestCheckVulnerabilitiesExitsCleanOnCleanModule(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping govulncheck integration test in -short mode")
+	}
 	// This test verifies that checkVulnerabilities returns (true, false)
 	// when govulncheck finds no vulnerabilities.
 	// It will fail if the logic is inverted (always returning false).
