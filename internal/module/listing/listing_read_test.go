@@ -15,8 +15,8 @@ func TestHandleHome(t *testing.T) {
 	c, rec := setupTestContext(http.MethodGet, "/", nil)
 	h, app, cleanup := setupListingHandler(t)
 	defer cleanup()
-	saveTestListing(t, app.DB, "1", "Listing 1")
-	_ = app.DB.SaveCategory(context.Background(), domain.CategoryData{ID: string(domain.Business), Name: "Business", Active: true})
+	saveTestListing(t, app.DB, "1", "Listing 1", func(l *domain.Listing) { l.Type = domain.Food })
+	_ = app.DB.SaveCategory(context.Background(), domain.CategoryData{ID: string(domain.Food), Name: "Food", Active: true})
 
 	if err := h.HandleHome(c); err != nil {
 		t.Fatal(err)

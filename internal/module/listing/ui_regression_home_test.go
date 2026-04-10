@@ -27,8 +27,8 @@ func TestHomePageUIValues(t *testing.T) {
 
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
-	saveTestListing(t, app.DB, "1", "Business A", func(l *domain.Listing) { l.CreatedAt = time.Now() })
-	saveTestListing(t, app.DB, "2", "Job B", func(l *domain.Listing) { l.Type = domain.Job; l.CreatedAt = time.Now().Add(time.Second) })
+	saveTestListing(t, app.DB, "1", "African Food A", func(l *domain.Listing) { l.Type = domain.Food; l.CreatedAt = time.Now() })
+	saveTestListing(t, app.DB, "2", "African Food B", func(l *domain.Listing) { l.Type = domain.Food; l.CreatedAt = time.Now().Add(time.Second) })
 
 	h := listmod.NewListingHandler(app)
 	if err := h.HandleHome(c); err != nil {
@@ -36,8 +36,8 @@ func TestHomePageUIValues(t *testing.T) {
 	}
 
 	body := rec.Body.String()
-	assert.Contains(t, body, "Business A")
-	assert.Contains(t, body, "Job B")
+	assert.Contains(t, body, "African Food A")
+	assert.Contains(t, body, "African Food B")
 	assert.Contains(t, body, "2 listings and growing")
 }
 

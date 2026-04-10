@@ -18,7 +18,7 @@
                 find what you want</h1>
             <p
                 class="text-lg md:text-xl font-light mx-auto max-w-xl opacity-90 leading-relaxed text-white drop-shadow-md">
-                businesses, services, products, events, agbalumo
+                high-quality african food locations in under 60 seconds
             </p>
             <p
                 class="uppercase tracking-[0.3em] text-[10px] md:text-xs font-bold text-earth-ochre drop-shadow-sm mt-12 mb-4 animate-in fade-in slide-in-from-bottom-4 duration-1000">
@@ -36,7 +36,7 @@
                         <span class="material-symbols-outlined text-white/50 mr-2 text-[20px]">search</span>
                         <input
                             class="w-full h-full bg-transparent border-none focus:ring-0 text-white placeholder:text-white/50 font-light text-base outline-none"
-                            placeholder="Search for 'Jollof', 'Mechanic'..." type="search" id="search" name="q"
+                            placeholder="Search for 'Jollof', 'Pounded Yam'..." type="search" id="search" name="q"
                             hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
                             hx-trigger="keyup changed delay:500ms, search">
                     </div>
@@ -79,14 +79,21 @@
                     </div>
                     <div class="flex flex-col w-full">
                         <button type="button" data-filter-type="category" data-filter-value=""
-                            class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-ochre text-white transition-colors w-full border-b border-earth-dark/5">
+                            class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-dark/5 hover:bg-earth-dark/10 text-earth-dark transition-colors w-full border-b border-earth-dark/5">
                             All Categories
                         </button>
+                        <!-- Prioritize Food Category for Ada -->
+                        <button type="button" data-filter-type="category" data-filter-value="Food"
+                            class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-ochre text-white transition-colors w-full border-b border-earth-dark/5">
+                            Food ({{ index $.Counts "Food" }})
+                        </button>
                         {{ range .Categories }}
+                        {{ if ne .Name "Food" }}
                         <button type="button" data-filter-type="category" data-filter-value="{{ .Name }}"
                             class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-dark/5 hover:bg-earth-dark/10 text-earth-dark transition-colors w-full border-b border-earth-dark/5">
                             {{ .Name }} ({{ index $.Counts .Name }})
                         </button>
+                        {{ end }}
                         {{ end }}
                     </div>
 

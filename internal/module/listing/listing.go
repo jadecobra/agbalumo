@@ -70,7 +70,8 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	wg.Add(4)
 	go func() {
 		defer wg.Done()
-		listings, totalCount, listingsErr = h.App.DB.FindAll(ctx, "", "", "", "", false, limit, offset)
+		// Default to Food category for the homepage to focus on Ada's primary goal
+		listings, totalCount, listingsErr = h.App.DB.FindAll(ctx, string(domain.Food), "", "", "", false, limit, offset)
 	}()
 	go func() {
 		defer wg.Done()
@@ -78,7 +79,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	}()
 	go func() {
 		defer wg.Done()
-		featured, featuredErr = h.App.DB.GetFeaturedListings(ctx, "")
+		featured, featuredErr = h.App.DB.GetFeaturedListings(ctx, string(domain.Food))
 	}()
 	go func() {
 		defer wg.Done()
@@ -133,7 +134,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		"Locations":        locations,
 		"TotalCount":       totalCount,
 		"Categories":       categories,
-		"Category":         "",
+		"Category":         string(domain.Food),
 		"QueryText":        "",
 		"User":             u,
 		"GoogleMapsApiKey": h.App.Cfg.GoogleMapsAPIKey,

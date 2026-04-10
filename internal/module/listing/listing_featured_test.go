@@ -15,11 +15,11 @@ func TestHandleHome_FeaturedPrioritization(t *testing.T) {
 	h, app, cleanup := setupListingHandler(t)
 	defer cleanup()
 
-	// Seed data
-	saveTestListing(t, app.DB, "f1", "Featured 1", func(l *domain.Listing) { l.Featured = true })
-	saveTestListing(t, app.DB, "f2", "Featured 2", func(l *domain.Listing) { l.Featured = true })
-	saveTestListing(t, app.DB, "r1", "Regular 1", func(l *domain.Listing) { l.Featured = false })
-	saveTestListing(t, app.DB, "r2", "Regular 2", func(l *domain.Listing) { l.Featured = false })
+	// Seed data (Defaulting to Food for Ada)
+	saveTestListing(t, app.DB, "f1", "Featured 1", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Food })
+	saveTestListing(t, app.DB, "f2", "Featured 2", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Food })
+	saveTestListing(t, app.DB, "r1", "Regular 1", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Food })
+	saveTestListing(t, app.DB, "r2", "Regular 2", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Food })
 
 	if err := h.HandleHome(c); err != nil {
 		t.Fatalf("HandleHome failed: %v", err)
@@ -37,11 +37,10 @@ func TestHandleHome_FeaturedListings_EmptyCategory(t *testing.T) {
 	h, app, cleanup := setupListingHandler(t)
 	defer cleanup()
 
-	// Seed data: Featured listings across MULTIPLE categories to verify HandleHome doesn't filter by a specific category
-	saveTestListing(t, app.DB, "f1", "Featured Business", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Business })
+	// Seed data: Featured listings across MULTIPLE categories (One Food, one Business, one Event)
+	saveTestListing(t, app.DB, "f1", "Featured Food", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Food })
 	saveTestListing(t, app.DB, "f2", "Featured Event", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Event })
-	saveTestListing(t, app.DB, "f3", "Featured Service", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Service })
-	saveTestListing(t, app.DB, "r1", "Regular Business", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Business })
+	saveTestListing(t, app.DB, "r1", "Regular Food", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Food })
 
 	if err := h.HandleHome(c); err != nil {
 		t.Fatalf("HandleHome failed: %v", err)
@@ -49,12 +48,9 @@ func TestHandleHome_FeaturedListings_EmptyCategory(t *testing.T) {
 
 	body := rec.Body.String()
 
-	// If HandleHome was passing a specific category string (e.g. "business") to GetFeaturedListings,
-	// then the "event" and "service" featured listings would NOT be present in the response.
-	// Since we assert they are all present, we verify it passes an empty string (or doesn't filter).
-	assert.Contains(t, body, "Featured Business")
-	assert.Contains(t, body, "Featured Event")
-	assert.Contains(t, body, "Featured Service")
+	// Since HandleHome now defaults to Food, only "Featured Food" should appear
+	assert.Contains(t, body, "Featured Food")
+	assert.NotContains(t, body, "Featured Event")
 }
 
 func TestHandleFragment_FeaturedPrioritization(t *testing.T) {

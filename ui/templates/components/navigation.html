@@ -43,7 +43,7 @@
                 <input
                     class="peer h-full w-full outline-none text-sm text-earth-cream bg-transparent pr-4 placeholder:text-white/40 font-medium focus:outline-none focus:ring-0 focus:border-0 focus:shadow-none"
                     style="box-shadow: none !important; outline: none !important;" id="search" name="q"
-                    placeholder="Search... (e.g. 'Jollof', 'Mechanic')" type="search" hx-get="/listings/fragment"
+                    placeholder="Search... (e.g. 'Jollof', 'Tailor')" type="search" hx-get="/listings/fragment"
                     hx-target="#listings-container" hx-indicator="#listings-loading"
                     hx-trigger="keyup changed delay:500ms, search" />
             </div>
@@ -67,12 +67,7 @@
 
             <!-- Action Buttons -->
             <div class="flex items-center gap-3 border-l border-stone-200 dark:border-stone-700 pl-4">
-                <button data-auth-action="modal" data-modal-id="create-request-modal"
-                    data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}" aria-label="Ask"
-                    class="flex items-center gap-2 bg-secondary/10 hover:bg-secondary/20 text-secondary dark:text-green-400 dark:hover:bg-green-900/30 px-4 h-11 transition-all font-semibold font-display text-sm border border-secondary/20 ">
-                    <span class="material-symbols-outlined text-[18px]">campaign</span>
-                    Ask
-                </button>
+                <!-- Removed Ask button for Ada focus -->
                 <button data-auth-action="modal" data-modal-id="create-listing-modal"
                     data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}" aria-label="Post"
                     class="flex items-center gap-2 bg-earth-accent hover:bg-earth-accent/90 shadow-md shadow-earth-accent/20 text-white px-5 h-11 transition-all active:scale-95 font-semibold font-display text-sm border border-earth-accent-light ">
@@ -113,11 +108,7 @@
 
         <!-- Mobile Action Buttons (Visible only on mobile header) -->
         <div class="flex md:hidden items-center gap-2">
-            <button data-auth-action="modal" data-modal-id="create-request-modal"
-                data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}" aria-label="Ask"
-                class="w-9 h-9 flex items-center justify-center bg-secondary/20 text-secondary  shadow-sm active:scale-95">
-                <span class="material-symbols-outlined text-[20px]">campaign</span>
-            </button>
+            <!-- Removed mobile Ask button for Ada focus -->
             <button data-auth-action="modal" data-modal-id="create-listing-modal"
                 data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}" aria-label="Post"
                 class="w-9 h-9 flex items-center justify-center bg-earth-accent text-white  shadow-sm active:scale-95">
