@@ -1,6 +1,9 @@
 package domain
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 // --- Focused Interfaces ---
 
@@ -72,6 +75,8 @@ type ClaimRequestStore interface {
 type AnalyticsStore interface {
 	GetListingGrowth(ctx context.Context) ([]DailyMetric, error)
 	GetUserGrowth(ctx context.Context) ([]DailyMetric, error)
+	SaveMetric(ctx context.Context, m Metric) error
+	GetAverageValue(ctx context.Context, eventType string, since time.Time) (float64, error)
 }
 
 // CategoryStore handles category persistence and retrieval.

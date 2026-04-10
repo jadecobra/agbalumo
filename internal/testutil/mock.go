@@ -66,3 +66,11 @@ func (m *MockCategorizationService) GetActiveCategories(ctx context.Context) ([]
 func (m *MockCategorizationService) GetCategories(ctx context.Context, filter domain.CategoryFilter) ([]domain.CategoryData, error) {
 	return []domain.CategoryData{}, nil
 }
+
+type MockMetricsService struct {
+	testifyMock.Mock
+}
+
+func (m *MockMetricsService) LogAndSave(ctx context.Context, eventType string, value float64, metadata map[string]interface{}) {
+	m.Called(ctx, eventType, value, metadata)
+}

@@ -31,7 +31,7 @@
         <!-- Scrollable Content -->
         <div class="p-6 overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
-                <a href="https://www.google.com/maps/search/?api=1&query={{ urlquery .Listing.Address }},{{ urlquery .Listing.City }}" target="_blank" class="flex items-start gap-2 text-earth-cream/70 hover:text-earth-accent transition-colors text-sm">
+                <a href="https://www.google.com/maps/search/?api=1&query={{ urlquery .Listing.Address }},{{ urlquery .Listing.City }}" target="_blank" data-ada-discovery="maps" class="flex items-start gap-2 text-earth-cream/70 hover:text-earth-accent transition-colors text-sm">
                     <span class="material-symbols-outlined text-[18px] mt-0.5">location_on</span>
                     <div class="flex flex-col">
                         <span class="font-bold text-earth-cream leading-tight">{{
@@ -139,7 +139,7 @@
             <h4 class="font-bold text-earth-cream mb-2 text-sm uppercase tracking-wide">Contact</h4>
             <div class="flex flex-col gap-3">
                 {{ if .Listing.ContactWhatsApp }}
-                <a href="https://wa.me/{{ .Listing.ContactWhatsApp }}" target="_blank"
+                <a href="https://wa.me/{{ .Listing.ContactWhatsApp }}" target="_blank" data-ada-discovery="whatsapp"
                     class="flex items-center gap-3 p-3  bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors border border-green-100 dark:border-green-800">
                     <span class="material-symbols-outlined">chat</span>
                     <span class="font-medium text-sm">WhatsApp</span>
@@ -147,7 +147,7 @@
                 {{ end }}
 
                 {{ if .Listing.ContactPhone }}
-                <a href="tel:{{ .Listing.ContactPhone }}"
+                <a href="tel:{{ .Listing.ContactPhone }}" data-ada-discovery="phone"
                     class="flex items-center gap-3 p-3  bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors border border-blue-100 dark:border-blue-800">
                     <span class="material-symbols-outlined">call</span>
                     <span class="font-medium text-sm">Call {{ .Listing.ContactPhone }}</span>
@@ -155,7 +155,7 @@
                 {{ end }}
 
                 {{ if .Listing.ContactEmail }}
-                <a href="mailto:{{ .Listing.ContactEmail }}"
+                <a href="mailto:{{ .Listing.ContactEmail }}" data-ada-discovery="email"
                     class="flex items-center gap-3 p-3  bg-white/5 text-earth-cream hover:bg-white/10 transition-colors border border-white/10">
                     <span class="material-symbols-outlined">mail</span>
                     <span class="font-medium text-sm">Email</span>
@@ -163,7 +163,7 @@
                 {{ end }}
 
                 {{ if .Listing.WebsiteURL }}
-                <a href="{{ .Listing.WebsiteURL }}" target="_blank"
+                <a href="{{ .Listing.WebsiteURL }}" target="_blank" data-ada-discovery="website"
                     class="flex items-center gap-3 p-3  bg-earth-accent/5 dark:bg-earth-accent/10 text-earth-accent hover:bg-earth-accent/10 dark:hover:bg-earth-accent/20 transition-colors border border-earth-accent/20">
                     <span class="material-symbols-outlined">language</span>
                     <span class="font-medium text-sm">Visit Website</span>
@@ -171,7 +171,7 @@
                 {{ end }}
 
                 {{ if .Listing.JobApplyURL }}
-                <a href="{{ .Listing.JobApplyURL }}" target="_blank"
+                <a href="{{ .Listing.JobApplyURL }}" target="_blank" data-ada-discovery="apply"
                     class="flex items-center gap-3 p-3  bg-earth-accent text-white hover:bg-earth-accent/90 transition-colors shadow-lg shadow-earth-accent/20">
                     <span class="material-symbols-outlined">rocket_launch</span>
                     <span class="font-medium text-sm">Apply Now</span>

@@ -148,15 +148,16 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 }
 
 type dashboardData struct {
-	ClaimRequests  []domain.ClaimRequest
-	FeedbackCounts map[domain.FeedbackType]int
-	ListingGrowth  []domain.DailyMetric
-	UserGrowth     []domain.DailyMetric
-	Feedbacks      []domain.Feedback
-	Categories     []domain.CategoryData
-	Users          []domain.User
-	UserCount      int
-	ListingCount   int
+	ClaimRequests   []domain.ClaimRequest
+	FeedbackCounts  map[domain.FeedbackType]int
+	ListingGrowth   []domain.DailyMetric
+	UserGrowth      []domain.DailyMetric
+	Feedbacks       []domain.Feedback
+	Categories      []domain.CategoryData
+	Users           []domain.User
+	UserCount       int
+	ListingCount    int
+	AdaDiscoveryAvg float64
 }
 
 func (h *AdminHandler) loadDashboardData(ctx context.Context, c echo.Context) (dashboardData, error) {
@@ -208,6 +209,13 @@ func (h *AdminHandler) loadDashboardData(ctx context.Context, c echo.Context) (d
 	if err != nil {
 		c.Logger().Errorf("failed to get users: %v", err)
 		data.Users = []domain.User{}
+	}
+
+	// Fetch Ada Metrics (Last 24h)
+	since := time.Now().Add(-24 * time.Hour)
+	data.AdaDiscoveryAvg, err = h.App.DB.GetAverageValue(ctx, "discovery_success", since)
+	if err != nil {
+		c.Logger().Errorf("failed to get Ada metrics: %v", err)
 	}
 
 	return data, nil

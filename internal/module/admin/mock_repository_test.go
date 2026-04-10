@@ -2,6 +2,7 @@ package admin_test
 
 import (
 	"context"
+	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 )
@@ -131,4 +132,12 @@ func (m *MockListingRepository) GetClaimRequestByUserAndListing(ctx context.Cont
 
 func (m *MockListingRepository) ExpireListings(ctx context.Context) (int64, error) {
 	return 0, m.ErrorOn["ExpireListings"]
+}
+
+func (m *MockListingRepository) SaveMetric(ctx context.Context, mt domain.Metric) error {
+	return m.ErrorOn["SaveMetric"]
+}
+
+func (m *MockListingRepository) GetAverageValue(ctx context.Context, eventType string, since time.Time) (float64, error) {
+	return 0, m.ErrorOn["GetAverageValue"]
 }

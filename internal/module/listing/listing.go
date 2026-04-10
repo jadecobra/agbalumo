@@ -29,6 +29,7 @@ func (h *ListingHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddlewa
 	e.GET("/", h.HandleHome)
 	e.GET("/listings/fragment", h.HandleFragment)
 	e.GET("/listings/:id", h.HandleDetail)
+	e.POST("/api/metrics", h.HandleMetricsIngestion)
 
 	// Authenticated Routes
 	authGroup := e.Group("", authMw.RequireAuth)

@@ -13,6 +13,7 @@ import (
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/infra/env"
+	"github.com/jadecobra/agbalumo/internal/infra/metrics"
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"github.com/jadecobra/agbalumo/internal/module/auth"
@@ -67,8 +68,9 @@ func Setup(cfg *config.Config) (*echo.Echo, func(), error) {
 	imageSvc := service.NewLocalImageService(cfg.UploadDir)
 	catCache := &domain.CategoryCache{}
 	catSvc := service.NewCategorizationService(repo, catCache)
+	metricsSvc := metrics.NewService(repo, slog.Default())
 
-	app := env.NewAppEnv(repo, cfg, slog.Default(), csvSvc, geocodingSvc, imageSvc, listingSvc, catSvc)
+	app := env.NewAppEnv(repo, cfg, slog.Default(), csvSvc, geocodingSvc, imageSvc, listingSvc, catSvc, metricsSvc)
 
 	renderer, err := ui.NewTemplateRenderer(
 		"ui/templates/*.html",

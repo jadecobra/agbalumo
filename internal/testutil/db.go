@@ -80,6 +80,7 @@ func SetupTestAppEnv(t *testing.T) (*env.AppEnv, func()) {
 		&StubImageService{},
 		&MockListingService{},
 		&MockCategorizationService{},
+		&MockMetricsService{},
 	)
 
 	return app, func() {

@@ -53,5 +53,10 @@ Before considering the feature complete, self-audit the code you just committed.
 4. **Contract Verification**: Before finishing, guarantee you did not introduce undetected regressions in templates or API drift by running:
     - `go run cmd/verify/main.go template-drift`
     - `go run cmd/verify/main.go api-spec`
+5. **Visual Integrity (UI Tasks Only)**:
+* If the task impacts the UI, you MUST run the `browser_subagent` autonomously.
+* Verify the "Final Truth" against the persona requirements (e.g., "Is the pivot visible?").
+* Capture and embed a screenshot of the primary landing page in the Walkthrough.
+
 
 **Completion**: When all phases are complete and the final commit is made, summarize the architectural decisions and test coverage for the user in a single, concise chat message.
