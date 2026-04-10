@@ -29,6 +29,9 @@ When receiving the `<idea>`, DO NOT write code immediately. HALT and execute the
 * Identify the critical path. Ensure the proposed architecture allows for the fastest possible execution and tightest test loop.
 5. **Automate**:
 * Only after Steps 1-4 are agreed upon collaboratively, proceed to Phase 2 to automate the implementation.
+6. **Task Initialization**:
+* You MUST create a `task.md` containing explicit sections for both **Phase 2 (Implementation)** and **Phase 3 (Audit & Resilience)**.
+* For UI tasks, the `task.md` MUST include a `[ ] Visual Integrity Check` item.
 
 ## Phase 2: Autonomous Execution Loop (TDD)
 Execute the Red-Green-Refactor loop natively using the terminal.
@@ -57,6 +60,7 @@ Before considering the feature complete, self-audit the code you just committed.
 * If the task impacts the UI, you MUST run the `browser_subagent` autonomously.
 * Verify the "Final Truth" against the persona requirements (e.g., "Is the pivot visible?").
 * Capture and embed a screenshot of the primary landing page in the Walkthrough.
+* **HARD GATE**: You are forbidden from drafting the `walkthrough.md` or summarizing completion until this step is documented with a screenshot and checked off in `task.md`.
 
 
 **Completion**: When all phases are complete and the final commit is made, summarize the architectural decisions and test coverage for the user in a single, concise chat message.

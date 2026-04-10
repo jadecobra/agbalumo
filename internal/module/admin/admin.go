@@ -144,6 +144,7 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 		"ListingCount":   data.ListingCount,
 		"Categories":     data.Categories,
 		"Users":          data.Users,
+		"AdaDiscoveryAvg": data.AdaDiscoveryAvg,
 	})
 }
 
