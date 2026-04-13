@@ -31,6 +31,9 @@ type ListingFormRequest struct {
 	Company          string `form:"company"`
 	PayRange         string `form:"pay_range"`
 	RemoveImage      bool   `form:"remove_image"`
+	HeatLevel        int    `form:"heat_level"`
+	RegionalSpecialty string `form:"regional_specialty"`
+	TopDish          string `form:"top_dish"`
 }
 
 // ToListing maps the DTO fields directly to the domain Listing and parses dates.
@@ -50,6 +53,9 @@ func (req *ListingFormRequest) ToListing(l *domain.Listing) error {
 	l.JobApplyURL = domain.NormalizeURL(req.JobApplyURL)
 	l.Company = req.Company
 	l.PayRange = req.PayRange
+	l.HeatLevel = req.HeatLevel
+	l.RegionalSpecialty = req.RegionalSpecialty
+	l.TopDish = req.TopDish
 
 	if err := parseDeadline(req, l); err != nil {
 		return err

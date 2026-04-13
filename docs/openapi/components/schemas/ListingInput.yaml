@@ -67,3 +67,11 @@ properties:
   remove_image:
     type: boolean
     description: Set to true to remove existing image
+  heat_level:
+    type: integer
+    minimum: 0
+    maximum: 5
+  regional_specialty:
+    type: string
+  top_dish:
+    type: string

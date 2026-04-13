@@ -13,7 +13,6 @@ import (
 func (r *SQLiteRepository) Save(ctx context.Context, l domain.Listing) error {
 	query := ListingUpsertSQL
 
-
 	_, err := r.writeDB.ExecContext(ctx, query,
 		l.ID, l.OwnerID, l.Title, l.Description, l.Type, l.OwnerOrigin, l.City, l.Address, l.HoursOfOperation, l.IsActive, l.CreatedAt,
 		l.ImageURL, l.ContactEmail, l.ContactPhone, l.ContactWhatsApp, l.WebsiteURL, l.Deadline, l.EventStart, l.EventEnd,

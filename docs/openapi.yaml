@@ -96,6 +96,9 @@ paths:
         '200':
           description: OK
 
+  /api/metrics:
+    $ref: './openapi/paths/metrics.yaml#/metrics'
+
   # Authentication Routes
   /auth/dev:
     $ref: './openapi/paths/auth.yaml#/dev'

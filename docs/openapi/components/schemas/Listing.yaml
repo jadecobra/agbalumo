@@ -86,3 +86,14 @@ properties:
   featured:
     type: boolean
     example: false
+  heat_level:
+    type: integer
+    minimum: 0
+    maximum: 5
+    example: 3
+  regional_specialty:
+    type: string
+    example: "Yoruba"
+  top_dish:
+    type: string
+    example: "Jollof Rice"

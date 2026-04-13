@@ -133,17 +133,17 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 	}
 
 	return c.Render(http.StatusOK, "admin_dashboard.html", map[string]interface{}{
-		"ClaimRequests":  data.ClaimRequests,
-		"UserCount":      data.UserCount,
-		"FeedbackCounts": data.FeedbackCounts,
-		"ListingGrowth":  data.ListingGrowth,
-		"UserGrowth":     data.UserGrowth,
-		"Feedbacks":      data.Feedbacks,
-		"User":           c.Get("User"),
-		"FlashMessage":   flashMsg,
-		"ListingCount":   data.ListingCount,
-		"Categories":     data.Categories,
-		"Users":          data.Users,
+		"ClaimRequests":   data.ClaimRequests,
+		"UserCount":       data.UserCount,
+		"FeedbackCounts":  data.FeedbackCounts,
+		"ListingGrowth":   data.ListingGrowth,
+		"UserGrowth":      data.UserGrowth,
+		"Feedbacks":       data.Feedbacks,
+		"User":            c.Get("User"),
+		"FlashMessage":    flashMsg,
+		"ListingCount":    data.ListingCount,
+		"Categories":      data.Categories,
+		"Users":           data.Users,
 		"AdaDiscoveryAvg": data.AdaDiscoveryAvg,
 	})
 }

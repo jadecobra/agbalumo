@@ -1,0 +1,23 @@
+metrics:
+  post:
+    summary: Ingest metrics
+    description: Ingests user interaction metrics (clicks, discovery time)
+    tags:
+      - Public
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              listing_id:
+                type: string
+              action:
+                type: string
+                enum: [view, contact_click]
+              discovery_time_ms:
+                type: integer
+    responses:
+      '200':
+        description: OK

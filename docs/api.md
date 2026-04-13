@@ -27,6 +27,7 @@ The API uses session-based authentication with cookies.
 | GET | `/auth/google/login` | Initiate Google OAuth |
 | GET | `/auth/google/callback` | Handle OAuth callback |
 | GET | `/healthz` | Health check (returns 200 OK) |
+| POST | `/api/metrics` | Ingest user interaction metrics |
 
 ## Public Endpoints
 
@@ -105,7 +106,10 @@ Requires authentication (session cookie).
   "company": "string (Job type)",
   "pay_range": "string (Job type)",
   "image": "file (multipart)",
-  "remove_image": "boolean (optional, for updates)"
+  "remove_image": "boolean (optional, for updates)",
+  "heat_level": "integer (0-5)",
+  "regional_specialty": "string",
+  "top_dish": "string"
 }
 ```
 

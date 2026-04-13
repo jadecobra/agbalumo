@@ -52,11 +52,18 @@
     <div class="flex flex-col flex-1 p-3 md:p-6 relative bg-white dark:bg-surface-dark">
         <div class="flex justify-between items-start mb-2 md:mb-3">
             <div class="flex flex-col gap-1">
-                <span class="text-[8px] md:text-[10px] uppercase font-bold tracking-[0.1em] text-earth-accent">{{
-                    .Listing.Type }}</span>
+                <div class="flex items-center gap-2">
+                    <span class="text-[8px] md:text-[10px] uppercase font-bold tracking-[0.1em] text-earth-accent">{{ .Listing.Type }}</span>
+                    {{ if .Listing.RegionalSpecialty }}
+                    <span class="text-[8px] md:text-[10px] bg-palm-green/5 text-palm-green font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-sm">{{ .Listing.RegionalSpecialty }}</span>
+                    {{ end }}
+                </div>
                 <h3
                     class="text-sm md:text-xl font-bold text-text-main dark:text-white leading-tight flex items-center gap-2">
                     {{ .Listing.Title }}
+                    {{ if .Listing.TopDish }}
+                    <span class="text-[10px] md:text-xs font-semibold text-earth-ochre bg-earth-ochre/5 px-1.5 py-0.5 rounded-full border border-earth-ochre/10">✨ {{ .Listing.TopDish }}</span>
+                    {{ end }}
                     {{ if .Listing.Featured }}
                     <span class="text-xs md:text-sm" title="Featured Listing">🍊</span>
                     {{ end }}

@@ -21,6 +21,9 @@
             {{ template "listing_form_image_fields" dict "ListingID" .Listing.ID "IDPrefix" "edit-" "ImageURL"
             .Listing.ImageURL }}
 
+            <!-- Ada Sensory Signals -->
+            {{ template "listing_form_ada_signals" .Listing }}
+
             <!-- Description -->
             {{ template "listing_form_description" dict "Value" .Listing.Description }}
 

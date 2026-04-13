@@ -17,6 +17,34 @@
     </div>
 </div>
 {{ end }}
+{{ define "listing_form_ada_signals" }}
+{{ $heatLevel := 0 }}{{ if . }}{{ $heatLevel = .HeatLevel }}{{ end }}
+{{ $regionalSpecialty := "" }}{{ if . }}{{ $regionalSpecialty = .RegionalSpecialty }}{{ end }}
+{{ $topDish := "" }}{{ if . }}{{ $topDish = .TopDish }}{{ end }}
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 border-l-4 border-palm-green bg-palm-green/5 p-4 mb-6">
+    <div class="flex flex-col gap-1.5">
+        <label class="text-[10px] font-bold uppercase tracking-widest text-palm-green ml-1">Heat Level (0-5)</label>
+        <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
+            <input name="heat_level" type="number" min="0" max="5" value="{{ $heatLevel }}" placeholder="0"
+                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
+        </div>
+    </div>
+    <div class="flex flex-col gap-1.5">
+        <label class="text-[10px] font-bold uppercase tracking-widest text-palm-green ml-1">Regional Specialty</label>
+        <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
+            <input name="regional_specialty" type="text" value="{{ $regionalSpecialty }}" placeholder="e.g. Yoruba"
+                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
+        </div>
+    </div>
+    <div class="flex flex-col gap-1.5">
+        <label class="text-[10px] font-bold uppercase tracking-widest text-palm-green ml-1">Top Dish</label>
+        <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
+            <input name="top_dish" type="text" value="{{ $topDish }}" placeholder="e.g. Jollof Rice"
+                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
+        </div>
+    </div>
+</div>
+{{ end }}
 
 {{ define "listing_form_location" }}
 <div class="grid grid-cols-1 gap-4">
