@@ -13,15 +13,12 @@ import (
 func (r *SQLiteRepository) Save(ctx context.Context, l domain.Listing) error {
 	query := ListingUpsertSQL
 
-	status := string(l.Status)
-	if status == "" {
-		status = string(domain.ListingStatusApproved)
-	}
 
 	_, err := r.writeDB.ExecContext(ctx, query,
 		l.ID, l.OwnerID, l.Title, l.Description, l.Type, l.OwnerOrigin, l.City, l.Address, l.HoursOfOperation, l.IsActive, l.CreatedAt,
 		l.ImageURL, l.ContactEmail, l.ContactPhone, l.ContactWhatsApp, l.WebsiteURL, l.Deadline, l.EventStart, l.EventEnd,
-		l.Skills, l.JobStartDate, l.JobApplyURL, l.Company, l.PayRange, status, l.Featured,
+		l.Skills, l.JobStartDate, l.JobApplyURL, l.Company, l.PayRange, r.ensureStatus(l.Status), l.Featured,
+		l.HeatLevel, l.RegionalSpecialty, l.TopDish,
 	)
 	return err
 }
@@ -43,15 +40,12 @@ func (r *SQLiteRepository) SaveBatch(ctx context.Context, listings []domain.List
 	defer func() { _ = stmt.Close() }()
 
 	for _, l := range listings {
-		status := string(l.Status)
-		if status == "" {
-			status = string(domain.ListingStatusApproved)
-		}
 
 		_, err := stmt.ExecContext(ctx,
 			l.ID, l.OwnerID, l.Title, l.Description, l.Type, l.OwnerOrigin, l.City, l.Address, l.HoursOfOperation, l.IsActive, l.CreatedAt,
 			l.ImageURL, l.ContactEmail, l.ContactPhone, l.ContactWhatsApp, l.WebsiteURL, l.Deadline, l.EventStart, l.EventEnd,
-			l.Skills, l.JobStartDate, l.JobApplyURL, l.Company, l.PayRange, status, l.Featured,
+			l.Skills, l.JobStartDate, l.JobApplyURL, l.Company, l.PayRange, r.ensureStatus(l.Status), l.Featured,
+			l.HeatLevel, l.RegionalSpecialty, l.TopDish,
 		)
 		if err != nil {
 			return err
@@ -93,18 +87,19 @@ func (r *SQLiteRepository) insertBatch(ctx context.Context, tx *sql.Tx, batch []
 
 func (r *SQLiteRepository) buildBulkInsertSQL(batch []domain.Listing) (string, []interface{}) {
 	query := `INSERT INTO listings ` + listingColumns + ` VALUES `
-	args := make([]interface{}, 0, len(batch)*26)
+	args := make([]interface{}, 0, len(batch)*29)
 
 	for i, l := range batch {
 		if i > 0 {
 			query += ", "
 		}
-		query += "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+		query += "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
 		args = append(args,
 			l.ID, l.OwnerID, l.Title, l.Description, l.Type, l.OwnerOrigin, l.City, l.Address, l.HoursOfOperation, l.IsActive, l.CreatedAt,
 			l.ImageURL, l.ContactEmail, l.ContactPhone, l.ContactWhatsApp, l.WebsiteURL, l.Deadline, l.EventStart, l.EventEnd,
 			l.Skills, l.JobStartDate, l.JobApplyURL, l.Company, l.PayRange, r.ensureStatus(l.Status), l.Featured,
+			l.HeatLevel, l.RegionalSpecialty, l.TopDish,
 		)
 	}
 

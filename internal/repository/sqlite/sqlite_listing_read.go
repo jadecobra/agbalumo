@@ -21,6 +21,7 @@ func scanListing(s Scanner) (domain.Listing, error) {
 		&eventStart, &eventEnd,
 		&l.Skills, &jobStart, &l.JobApplyURL,
 		&l.Company, &l.PayRange, &l.Status, &l.Featured,
+		&l.HeatLevel, &l.RegionalSpecialty, &l.TopDish,
 	)
 	if err != nil {
 		return domain.Listing{}, err

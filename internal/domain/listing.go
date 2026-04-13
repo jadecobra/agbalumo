@@ -72,6 +72,9 @@ type Listing struct {
 	Status           ListingStatus `json:"status" form:"status"`
 	IsActive         bool          `json:"is_active" form:"is_active"`
 	Featured         bool          `json:"featured" form:"featured"`
+	HeatLevel        int           `json:"heat_level" form:"heat_level"`
+	RegionalSpecialty string       `json:"regional_specialty" form:"regional_specialty"`
+	TopDish          string        `json:"top_dish" form:"top_dish"`
 }
 
 // ListingStatus represents the moderation state of a listing.
