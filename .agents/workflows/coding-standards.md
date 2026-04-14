@@ -76,3 +76,7 @@ Use `github.com/stretchr/testify/mock`. Place mocks in `internal/mock/`.
 - **Comments:** Code should be self-documenting; avoid unnecessary comments.
 
 > **UI Component Constraint**: Do NOT write raw HTML form, button, or modal elements directly into major page templates. You MUST utilize or propose existing component definitions located inside `ui/templates/components/`. All colors, spacing, and visual effects must be derived exclusively from `tailwind.config.js` logic natively—no arbitrary hex codes or custom CSS outside of the Tailwind engine.
+
+## Strict Lessons
+
+This section contains corrections and constraints derived from the `[/learn]` workflow. These rules take precedence over existing style guidelines.

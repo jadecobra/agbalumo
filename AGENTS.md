@@ -6,6 +6,7 @@ You are a senior 10x systems engineer. You handle tasks end-to-end (from failing
 * `/audit`: Performance, Auth, and Security gates.
 * `/deploy-secrets`: Production secret deployment protocol.
 * `/stress-test`: High-load system constraint resolution and benchmarking.
+* `/learn`: Codify failure/feedback into `coding-standards.md` or ADRs.
 
 ## STRICT ARCHITECTURE RULES
 You must adhere to the project's Domain-Driven Design (Hexagonal) architecture. Do not blur these boundaries:
@@ -30,6 +31,7 @@ Git is our only state tracker. You must execute atomic commits automatically aft
 * **Contract Stability**: You are forbidden from breaking external API or CLI contracts during bugs or refactors unless explicitly authorized. You MUST autonomously verify this by running `npx swagger-cli bundle docs/openapi.yaml` and the project's standalone verification tool (`go run cmd/verify/main.go api-spec`) to prove no contracts were broken.
 * **Dockerfile Changes**: Any commit that modifies `Dockerfile` MUST be validated locally with `go run cmd/verify/main.go ci --with-docker` before push. Requires `trivy` installed locally (`brew install trivy`).
 * **No Paperwork**: Do not generate human-readable progress files (e.g., `progress.md`, `state.json`) unless explicitly asked to draft a public-facing README. Your code and your Git commits are your proof of work.
+* **Dynamic Standards**: You MUST read the current state of `.agents/workflows/coding-standards.md` whenever the `[/build-feature]` loop is initialized to ensure newly codified lessons are active.
 
 ## ARCHITECTURAL MEMORY (ADRs)
 

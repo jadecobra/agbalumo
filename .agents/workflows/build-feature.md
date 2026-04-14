@@ -11,6 +11,9 @@ When the user types `/build-feature <idea>`, you act as a unified Senior Systems
 
 When receiving the `<idea>`, DO NOT write code immediately. HALT and execute the following interactive protocol.
 
+0. **Load Context**:
+* You MUST read [.agents/workflows/coding-standards.md](file:///Users/johnnyblase/gym/agbalumo/.agents/workflows/coding-standards.md) to ensure all project-specific style rules and `Strict Lessons` are loaded.
+
 1. **Question the Requirements (Make it less dumb)**:
 * Push back on the user. Why are we building this? Does the end-user actually need it?
 * The Interrogation Loop: Ask only one piercing question per turn to challenge the core assumption, strip away scope, or force the user to clarify their thinking.
