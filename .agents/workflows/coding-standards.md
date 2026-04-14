@@ -80,3 +80,5 @@ Use `github.com/stretchr/testify/mock`. Place mocks in `internal/mock/`.
 ## Strict Lessons
 
 This section contains corrections and constraints derived from the `[/learn]` workflow. These rules take precedence over existing style guidelines.
+
+* The agent MUST always execute the `critique` script during Phase 3 of the `build-feature` workflow to ensure codebase robustness.
