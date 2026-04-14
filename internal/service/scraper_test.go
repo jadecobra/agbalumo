@@ -58,18 +58,23 @@ func TestWebsiteScraper_Heuristics(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			signals := scraper.parseHTML(strings.NewReader(tt.html), "http://example.com")
-			if signals.HeatLevel != tt.expected.HeatLevel {
-				t.Errorf("%s: HeatLevel = %d, want %d", tt.name, signals.HeatLevel, tt.expected.HeatLevel)
-			}
-			if signals.PaymentMethods != tt.expected.PaymentMethods {
-				t.Errorf("%s: PaymentMethods = %q, want %q", tt.name, signals.PaymentMethods, tt.expected.PaymentMethods)
-			}
-			if signals.TopDish != tt.expected.TopDish {
-				t.Errorf("%s: TopDish = %q, want %q", tt.name, signals.TopDish, tt.expected.TopDish)
-			}
-			if signals.MenuURL != tt.expected.MenuURL {
-				t.Errorf("%s: MenuURL = %q, want %q", tt.name, signals.MenuURL, tt.expected.MenuURL)
-			}
+			assertAdaSignalsMatch(t, tt.name, signals, tt.expected)
 		})
+	}
+}
+
+func assertAdaSignalsMatch(t *testing.T, name string, got, want AdaSignals) {
+	t.Helper()
+	if got.HeatLevel != want.HeatLevel {
+		t.Errorf("%s: HeatLevel = %d, want %d", name, got.HeatLevel, want.HeatLevel)
+	}
+	if got.PaymentMethods != want.PaymentMethods {
+		t.Errorf("%s: PaymentMethods = %q, want %q", name, got.PaymentMethods, want.PaymentMethods)
+	}
+	if got.TopDish != want.TopDish {
+		t.Errorf("%s: TopDish = %q, want %q", name, got.TopDish, want.TopDish)
+	}
+	if got.MenuURL != want.MenuURL {
+		t.Errorf("%s: MenuURL = %q, want %q", name, got.MenuURL, want.MenuURL)
 	}
 }
