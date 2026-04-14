@@ -62,6 +62,10 @@ func (m *MockListingRepository) SetFeatured(ctx context.Context, id string, feat
 	return m.ErrorOn["SetFeatured"]
 }
 
+func (m *MockListingRepository) FindEnrichmentTargets(ctx context.Context, limit int) ([]domain.Listing, error) {
+	return nil, m.ErrorOn["FindEnrichmentTargets"]
+}
+
 func (m *MockListingRepository) SaveUser(ctx context.Context, user domain.User) error {
 	return m.ErrorOn["SaveUser"]
 }

@@ -17,6 +17,7 @@ type ListingReader interface {
 	GetCounts(ctx context.Context) (map[Category]int, error)
 	GetLocations(ctx context.Context) ([]string, error)
 	GetFeaturedListings(ctx context.Context, category string) ([]Listing, error)
+	FindEnrichmentTargets(ctx context.Context, limit int) ([]Listing, error)
 }
 
 // ListingWriter handles write operations for listings.

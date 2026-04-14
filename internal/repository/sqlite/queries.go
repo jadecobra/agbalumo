@@ -9,7 +9,8 @@ const ListingSelectionsSQL = `
 	event_start, event_end,
 	COALESCE(skills, ''), job_start_date, COALESCE(job_apply_url, ''),
 	COALESCE(company, ''), COALESCE(pay_range, ''), COALESCE(status, 'Approved'), featured,
-	COALESCE(heat_level, 0), COALESCE(regional_specialty, ''), COALESCE(top_dish, '')
+	COALESCE(heat_level, 0), COALESCE(regional_specialty, ''), COALESCE(top_dish, ''),
+	COALESCE(payment_methods, ''), COALESCE(menu_url, '')
 `
 
 // UserSelectionsSQL is the shared column selection for reading users.
@@ -32,7 +33,7 @@ const (
 	UserGetCountSQL        = `SELECT COUNT(*) FROM users`
 )
 
-const listingColumns = `(id, owner_id, title, description, type, owner_origin, city, address, hours_of_operation, is_active, created_at, image_url, contact_email, contact_phone, contact_whatsapp, website_url, deadline, event_start, event_end, skills, job_start_date, job_apply_url, company, pay_range, status, featured, heat_level, regional_specialty, top_dish)`
+const listingColumns = `(id, owner_id, title, description, type, owner_origin, city, address, hours_of_operation, is_active, created_at, image_url, contact_email, contact_phone, contact_whatsapp, website_url, deadline, event_start, event_end, skills, job_start_date, job_apply_url, company, pay_range, status, featured, heat_level, regional_specialty, top_dish, payment_methods, menu_url)`
 
 const listingUpsertUpdate = `ON CONFLICT(id) DO UPDATE SET
 		owner_id = excluded.owner_id,
@@ -61,11 +62,13 @@ const listingUpsertUpdate = `ON CONFLICT(id) DO UPDATE SET
 		featured = excluded.featured,
 		heat_level = excluded.heat_level,
 		regional_specialty = excluded.regional_specialty,
-		top_dish = excluded.top_dish;`
+		top_dish = excluded.top_dish,
+		payment_methods = excluded.payment_methods,
+		menu_url = excluded.menu_url;`
 
 // ListingUpsertSQL is the shared UPSERT query for both single and batch saves.
 const ListingUpsertSQL = `INSERT INTO listings ` + listingColumns + `
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	` + listingUpsertUpdate
 
 // CategoryUpsertSQL is the shared UPSERT query for category saving.

@@ -17,7 +17,7 @@ func (r *SQLiteRepository) Save(ctx context.Context, l domain.Listing) error {
 		l.ID, l.OwnerID, l.Title, l.Description, l.Type, l.OwnerOrigin, l.City, l.Address, l.HoursOfOperation, l.IsActive, l.CreatedAt,
 		l.ImageURL, l.ContactEmail, l.ContactPhone, l.ContactWhatsApp, l.WebsiteURL, l.Deadline, l.EventStart, l.EventEnd,
 		l.Skills, l.JobStartDate, l.JobApplyURL, l.Company, l.PayRange, r.ensureStatus(l.Status), l.Featured,
-		l.HeatLevel, l.RegionalSpecialty, l.TopDish,
+		l.HeatLevel, l.RegionalSpecialty, l.TopDish, l.PaymentMethods, l.MenuURL,
 	)
 	return err
 }
@@ -44,7 +44,7 @@ func (r *SQLiteRepository) SaveBatch(ctx context.Context, listings []domain.List
 			l.ID, l.OwnerID, l.Title, l.Description, l.Type, l.OwnerOrigin, l.City, l.Address, l.HoursOfOperation, l.IsActive, l.CreatedAt,
 			l.ImageURL, l.ContactEmail, l.ContactPhone, l.ContactWhatsApp, l.WebsiteURL, l.Deadline, l.EventStart, l.EventEnd,
 			l.Skills, l.JobStartDate, l.JobApplyURL, l.Company, l.PayRange, r.ensureStatus(l.Status), l.Featured,
-			l.HeatLevel, l.RegionalSpecialty, l.TopDish,
+			l.HeatLevel, l.RegionalSpecialty, l.TopDish, l.PaymentMethods, l.MenuURL,
 		)
 		if err != nil {
 			return err
@@ -86,19 +86,19 @@ func (r *SQLiteRepository) insertBatch(ctx context.Context, tx *sql.Tx, batch []
 
 func (r *SQLiteRepository) buildBulkInsertSQL(batch []domain.Listing) (string, []interface{}) {
 	query := `INSERT INTO listings ` + listingColumns + ` VALUES `
-	args := make([]interface{}, 0, len(batch)*29)
+	args := make([]interface{}, 0, len(batch)*31)
 
 	for i, l := range batch {
 		if i > 0 {
 			query += ", "
 		}
-		query += "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+		query += "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
 		args = append(args,
 			l.ID, l.OwnerID, l.Title, l.Description, l.Type, l.OwnerOrigin, l.City, l.Address, l.HoursOfOperation, l.IsActive, l.CreatedAt,
 			l.ImageURL, l.ContactEmail, l.ContactPhone, l.ContactWhatsApp, l.WebsiteURL, l.Deadline, l.EventStart, l.EventEnd,
 			l.Skills, l.JobStartDate, l.JobApplyURL, l.Company, l.PayRange, r.ensureStatus(l.Status), l.Featured,
-			l.HeatLevel, l.RegionalSpecialty, l.TopDish,
+			l.HeatLevel, l.RegionalSpecialty, l.TopDish, l.PaymentMethods, l.MenuURL,
 		)
 	}
 

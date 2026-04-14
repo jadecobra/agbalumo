@@ -1,0 +1,210 @@
+package service
+
+import (
+	"context"
+	"io"
+	"net/http"
+	"net/url"
+	"strings"
+	"time"
+
+	"golang.org/x/net/html"
+)
+
+type AdaSignals struct {
+	HeatLevel      int
+	PaymentMethods string
+	MenuURL        string
+	TopDish        string
+}
+
+type WebsiteScraper struct {
+	client *http.Client
+}
+
+func NewWebsiteScraper() *WebsiteScraper {
+	return &WebsiteScraper{
+		client: &http.Client{
+			Timeout: 15 * time.Second,
+		},
+	}
+}
+
+func (s *WebsiteScraper) ScrapeListing(ctx context.Context, websiteURL string) (AdaSignals, error) {
+	if websiteURL == "" {
+		return AdaSignals{}, nil
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "GET", websiteURL, nil)
+	if err != nil {
+		return AdaSignals{}, err
+	}
+	req.Header.Set("User-Agent", "AgbalumoScraper/1.0 (Ada Enrichment)")
+
+	resp, err := s.client.Do(req)
+	if err != nil {
+		return AdaSignals{}, err
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode != http.StatusOK {
+		return AdaSignals{}, nil
+	}
+
+	// Limit reader to 512KB to prevent memory exhaustion
+	limitBody := io.LimitReader(resp.Body, 512*1024)
+
+	return s.parseHTML(limitBody, websiteURL), nil
+}
+
+type scrapeState struct {
+	heatCount       int
+	foundPayments   []string
+	heatKeywords    []string
+	paymentKeywords []string
+}
+
+func (s *WebsiteScraper) parseHTML(r io.Reader, baseURL string) AdaSignals {
+	var signals AdaSignals
+	z := html.NewTokenizer(r)
+	parsedBase, _ := url.Parse(baseURL)
+
+	state := &scrapeState{
+		heatKeywords:    []string{"spicy", "hot", "pepper", "habanero", "scotch bonnet", "chili"},
+		paymentKeywords: []string{"zelle", "venmo", "cashapp", "cash app"},
+	}
+
+	for {
+		tt := z.Next()
+		if tt == html.ErrorToken {
+			break
+		}
+		s.processToken(z, tt, parsedBase, state, &signals)
+	}
+
+	signals.HeatLevel = s.mapHeatLevel(state.heatCount)
+	signals.PaymentMethods = strings.Join(state.foundPayments, ", ")
+	return signals
+}
+
+func (s *WebsiteScraper) processToken(z *html.Tokenizer, tt html.TokenType, base *url.URL, state *scrapeState, signals *AdaSignals) {
+	switch tt {
+	case html.StartTagToken, html.SelfClosingTagToken:
+		s.handleTag(z, base, signals)
+	case html.TextToken:
+		s.handleText(z, state)
+	}
+}
+
+func (s *WebsiteScraper) handleTag(z *html.Tokenizer, base *url.URL, signals *AdaSignals) {
+	tn, hasAttr := z.TagName()
+	tagName := string(tn)
+
+	switch tagName {
+	case "h1", "h2":
+		s.handleHeading(z, signals)
+	case "a":
+		if hasAttr {
+			s.handleAnchor(z, base, signals)
+		}
+	}
+}
+
+func (s *WebsiteScraper) handleHeading(z *html.Tokenizer, signals *AdaSignals) {
+	if signals.TopDish != "" {
+		return
+	}
+	z.Next()
+	text := strings.TrimSpace(string(z.Text()))
+	if s.isLikelySignature(text) {
+		signals.TopDish = text
+	}
+}
+
+func (s *WebsiteScraper) handleAnchor(z *html.Tokenizer, base *url.URL, signals *AdaSignals) {
+	for {
+		key, val, more := z.TagAttr()
+		if string(key) == "href" {
+			link := string(val)
+			if s.isMenuLink(link) {
+				signals.MenuURL = s.resolveURL(base, link)
+			}
+		}
+		if !more {
+			break
+		}
+	}
+}
+
+func (s *WebsiteScraper) handleText(z *html.Tokenizer, state *scrapeState) {
+	text := strings.ToLower(string(z.Text()))
+	for _, kw := range state.heatKeywords {
+		state.heatCount += strings.Count(text, kw)
+	}
+	for _, kw := range state.paymentKeywords {
+		if strings.Contains(text, kw) {
+			found := s.capitalizeKeyword(kw)
+			if !s.contains(state.foundPayments, found) {
+				state.foundPayments = append(state.foundPayments, found)
+			}
+		}
+	}
+}
+
+func (s *WebsiteScraper) mapHeatLevel(count int) int {
+	if count > 5 {
+		return 5
+	}
+	return count
+}
+
+func (s *WebsiteScraper) isLikelySignature(text string) bool {
+	lower := strings.ToLower(text)
+	indicators := []string{"signature", "special", "popular", "recommended", "famous", "dish"}
+	for _, ind := range indicators {
+		if strings.Contains(lower, ind) {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *WebsiteScraper) isMenuLink(link string) bool {
+	lower := strings.ToLower(link)
+	return strings.Contains(lower, "menu") || strings.HasSuffix(lower, ".pdf") || strings.HasSuffix(lower, ".jpg") || strings.HasSuffix(lower, ".jpeg")
+}
+
+func (s *WebsiteScraper) resolveURL(base *url.URL, link string) string {
+	if base == nil {
+		return link
+	}
+	u, err := url.Parse(link)
+	if err != nil {
+		return link
+	}
+	return base.ResolveReference(u).String()
+}
+
+func (s *WebsiteScraper) capitalizeKeyword(kw string) string {
+	switch kw {
+	case "zelle":
+		return "Zelle"
+	case "venmo":
+		return "Venmo"
+	case "cashapp":
+		return "CashApp"
+	case "cash app":
+		return "CashApp"
+	default:
+		return kw
+	}
+}
+
+func (s *WebsiteScraper) contains(slice []string, val string) bool {
+	for _, item := range slice {
+		if item == val {
+			return true
+		}
+	}
+	return false
+}

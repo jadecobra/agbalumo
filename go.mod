@@ -18,6 +18,7 @@ require (
 	github.com/uudashr/gocognit v1.2.1
 	github.com/zricethezav/gitleaks/v8 v8.30.1
 	golang.org/x/image v0.38.0
+	golang.org/x/net v0.52.0
 	golang.org/x/oauth2 v0.34.0
 	golang.org/x/time v0.14.0
 	golang.org/x/tools v0.43.0
@@ -260,7 +261,6 @@ require (
 	golang.org/x/exp v0.0.0-20251023183803-a4bb9ffd2546 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20260209203927-2842357ff358 // indirect
 	golang.org/x/mod v0.34.0 // indirect
-	golang.org/x/net v0.52.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.42.0 // indirect
 	golang.org/x/telemetry v0.0.0-20260311193753-579e4da9a98c // indirect

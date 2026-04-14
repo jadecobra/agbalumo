@@ -22,6 +22,7 @@ func scanListing(s Scanner) (domain.Listing, error) {
 		&l.Skills, &jobStart, &l.JobApplyURL,
 		&l.Company, &l.PayRange, &l.Status, &l.Featured,
 		&l.HeatLevel, &l.RegionalSpecialty, &l.TopDish,
+		&l.PaymentMethods, &l.MenuURL,
 	)
 	if err != nil {
 		return domain.Listing{}, err
@@ -308,4 +309,21 @@ func (r *SQLiteRepository) GetFeaturedListings(ctx context.Context, category str
 		listings = append(listings, l)
 	}
 	return listings, rows.Err()
+}
+
+func (r *SQLiteRepository) FindEnrichmentTargets(ctx context.Context, limit int) ([]domain.Listing, error) {
+	query := `
+		SELECT ` + ListingSelectionsSQL + `
+		FROM listings
+		WHERE website_url != '' 
+		AND (heat_level = 0 AND menu_url = '' AND payment_methods = '')
+		LIMIT ?
+	`
+	rows, err := r.readDB.QueryContext(ctx, query, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+
+	return scanListings(rows)
 }

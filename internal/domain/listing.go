@@ -75,6 +75,8 @@ type Listing struct {
 	HeatLevel         int           `json:"heat_level" form:"heat_level"`
 	RegionalSpecialty string        `json:"regional_specialty" form:"regional_specialty"`
 	TopDish           string        `json:"top_dish" form:"top_dish"`
+	PaymentMethods    string        `json:"payment_methods" form:"payment_methods"`
+	MenuURL           string        `json:"menu_url" form:"menu_url"`
 }
 
 // ListingStatus represents the moderation state of a listing.
