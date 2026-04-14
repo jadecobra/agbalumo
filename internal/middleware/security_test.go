@@ -96,7 +96,6 @@ func TestCanonicalPath(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			req := httptest.NewRequest(http.MethodGet, "https://localhost:8443", nil)
-			// Manually set the path since httptest.NewRequest might normalize it
 			req.URL.Path = tt.path
 
 			rec := httptest.NewRecorder()
@@ -107,25 +106,30 @@ func TestCanonicalPath(t *testing.T) {
 			})
 
 			err := h(c)
-			if tt.wantStatus == http.StatusOK {
-				if err != nil {
-					t.Errorf("expected no error, got %v", err)
-				}
-				if rec.Code != tt.wantStatus {
-					t.Errorf("expected status %d, got %d", tt.wantStatus, rec.Code)
-				}
-			} else {
-				if err == nil {
-					t.Errorf("expected error for path %q", tt.path)
-				} else {
-					he, ok := err.(*echo.HTTPError)
-					if !ok {
-						t.Errorf("expected echo.HTTPError, got %T", err)
-					} else if he.Code != tt.wantStatus {
-						t.Errorf("expected status %d, got %d", tt.wantStatus, he.Code)
-					}
-				}
-			}
+			assertCanonicalPathResult(t, tt.path, tt.wantStatus, err, rec)
 		})
+	}
+}
+
+func assertCanonicalPathResult(t *testing.T, path string, wantStatus int, err error, rec *httptest.ResponseRecorder) {
+	t.Helper()
+	if wantStatus == http.StatusOK {
+		if err != nil {
+			t.Errorf("expected no error for path %q, got %v", path, err)
+		}
+		if rec.Code != wantStatus {
+			t.Errorf("expected status %d for path %q, got %d", wantStatus, path, rec.Code)
+		}
+	} else {
+		if err == nil {
+			t.Errorf("expected error for path %q", path)
+		} else {
+			he, ok := err.(*echo.HTTPError)
+			if !ok {
+				t.Errorf("expected echo.HTTPError for path %q, got %T", path, err)
+			} else if he.Code != wantStatus {
+				t.Errorf("expected status %d for path %q, got %d", wantStatus, path, he.Code)
+			}
+		}
 	}
 }

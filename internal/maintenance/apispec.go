@@ -86,19 +86,29 @@ func extractCommandsFromCode(path string, info os.FileInfo, err error, regexes [
 		return nil, readErr
 	}
 
+	return extractFromDataUsingRegex(string(data), regexes), nil
+}
+
+func extractFromDataUsingRegex(data string, regexes []*regexp.Regexp) []string {
 	var found []string
 	for _, re := range regexes {
-		matches := re.FindAllStringSubmatch(string(data), -1)
-		for _, match := range matches {
-			if len(match) > 1 {
-				cmd := strings.TrimSpace(match[1])
-				if cmd != "" && cmd != "agbalumo" {
-					found = append(found, cmd)
-				}
+		found = append(found, findCommandMatches(data, re)...)
+	}
+	return found
+}
+
+func findCommandMatches(data string, re *regexp.Regexp) []string {
+	var found []string
+	matches := re.FindAllStringSubmatch(data, -1)
+	for _, match := range matches {
+		if len(match) > 1 {
+			cmd := strings.TrimSpace(match[1])
+			if cmd != "" && cmd != "agbalumo" {
+				found = append(found, cmd)
 			}
 		}
 	}
-	return found, nil
+	return found
 }
 
 // ExtractCLIMarkdownCommands extracts CLI commands from Markdown documentation.
