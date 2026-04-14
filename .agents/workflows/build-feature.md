@@ -31,6 +31,7 @@ When receiving the `<idea>`, DO NOT write code immediately. HALT and execute the
 * Only after Steps 1-4 are agreed upon collaboratively, proceed to Phase 2 to automate the implementation.
 6. **Task Initialization**:
 * You MUST create a `task.md` containing explicit sections for both **Phase 2 (Implementation)** and **Phase 3 (Audit & Resilience)**.
+* **CRITICAL**: The Phase 3 section of `task.md` MUST include explicit checkboxes for running `critique`, `template-drift`, and `api-spec`. You MUST NOT check these off until you have executed them and pasted their success output into your response.
 * For UI tasks, the `task.md` MUST include a `[ ] Visual Integrity Check` item.
 
 ## Phase 2: Autonomous Execution Loop (TDD)
@@ -64,3 +65,4 @@ Before considering the feature complete, self-audit the code you just committed.
 
 
 **Completion**: When all phases are complete and the final commit is made, summarize the architectural decisions and test coverage for the user in a single, concise chat message.
+**HARD GATE ENFORCEMENT**: You are strictly FORBIDDEN from reporting completion to the user until you have pasted the exact terminal success output of `go run cmd/verify/main.go critique`, `template-drift`, and `api-spec` into your final response. If you skip Phase 3, you have failed the workflow completely.
