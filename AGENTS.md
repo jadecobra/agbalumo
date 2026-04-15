@@ -20,7 +20,7 @@ You must adhere to the project's Domain-Driven Design (Hexagonal) architecture. 
 Git is our only state tracker. You must execute atomic commits automatically after passing tests.
 * **Convention**: Use strict Conventional Commits format (type(scope): description).
   - **Valid types**: `feat`, `fix`, `test`, `refactor`, `chore`.
-* Run CI locally before pushing using `go run cmd/verify/main.go ci`.
+* Run CI locally before pushing using `go run cmd/verify/main.go ci --with-docker`.
 * NEVER remove files from `.gitignore` without explicit approval.
 
 ## EXECUTION & TDD RULES
@@ -29,7 +29,7 @@ Git is our only state tracker. You must execute atomic commits automatically aft
 * **When Fixing Bugs**: You MUST write a reproduction test that explicitly fails due to the reported bug. You are forbidden from modifying implementation code until this failing test is committed.
 * **When Refactoring**: Before modifying any logic, run existing tests. If coverage is low, write baseline safety tests first to capture current behavior.
 * **Contract Stability**: You are forbidden from breaking external API or CLI contracts during bugs or refactors unless explicitly authorized. You MUST autonomously verify this by running `npx swagger-cli bundle docs/openapi.yaml` and the project's standalone verification tool (`go run cmd/verify/main.go api-spec`) to prove no contracts were broken.
-* **Dockerfile Changes**: Any commit that modifies `Dockerfile` MUST be validated locally with `go run cmd/verify/main.go ci --with-docker` before push. Requires `trivy` installed locally (`brew install trivy`).
+* **Mandatory Scan**: The final CI pipeline run MUST include the `--with-docker` flag (Trivy scan) before every `git push`, regardless of whether codebase or `Dockerfile` was modified, to catch dynamic base image vulnerabilities. Requires `trivy` installed locally (`brew install trivy`).
 * **No Paperwork**: Do not generate human-readable progress files (e.g., `progress.md`, `state.json`) unless explicitly asked to draft a public-facing README. Your code and your Git commits are your proof of work.
 * **Dynamic Standards**: You MUST read the current state of `.agents/workflows/coding-standards.md` whenever the `[/build-feature]` loop is initialized to ensure newly codified lessons are active.
 

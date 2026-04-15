@@ -42,7 +42,7 @@ WORKDIR /app
 # We explicitly upgrade libcrypto3 and libssl3 to resolve CVE-2024-13176
 RUN apk --no-cache upgrade && \
     apk --no-cache add ca-certificates tzdata wget bash su-exec libc6-compat && \
-    apk add --no-cache --upgrade libcrypto3 libssl3
+    apk add --no-cache --upgrade libcrypto3 libssl3 musl
 
 # Set time zone
 ENV TZ=UTC

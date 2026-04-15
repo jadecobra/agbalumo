@@ -83,3 +83,4 @@ This section contains corrections and constraints derived from the `[/learn]` wo
 
 * The agent MUST always execute the `critique` script during Phase 3 of the `build-feature` workflow to ensure codebase robustness.
 * The agent MUST always use the `browser_subagent` to verify UI changes and manual testing scenarios, as it provides the most accurate simulation of the 'Ada' persona's interaction with the platform.
+* The agent MUST always run the local CI pipeline with the `--with-docker` flag (`go run cmd/verify/main.go ci --with-docker`) as the final gate before pushing any commits to remote, to catch upstream base image vulnerabilities that evolve independently of the codebase.
