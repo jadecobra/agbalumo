@@ -82,3 +82,4 @@ Use `github.com/stretchr/testify/mock`. Place mocks in `internal/mock/`.
 This section contains corrections and constraints derived from the `[/learn]` workflow. These rules take precedence over existing style guidelines.
 
 * The agent MUST always execute the `critique` script during Phase 3 of the `build-feature` workflow to ensure codebase robustness.
+* The agent MUST always use the `browser_subagent` to verify UI changes and manual testing scenarios, as it provides the most accurate simulation of the 'Ada' persona's interaction with the platform.
