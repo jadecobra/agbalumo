@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/joho/godotenv"
+	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
+	"github.com/jadecobra/agbalumo/internal/service"
 	"github.com/jadecobra/agbalumo/internal/maintenance"
 	"github.com/spf13/cobra"
 	"os"
@@ -186,6 +189,35 @@ var gitleaksCmd = makeSimpleCmd("gitleaks", "Run gitleaks secret scan on staged 
 var ignoredFilesCmd = makeSimpleCmd("ignored-files", "Check for ignored files staged for commit", func() error {
 	return maintenance.CheckIgnoredFiles(".")
 })
+
+var enrichCmd = &cobra.Command{
+	Use:   "enrich",
+	Short: "Run the scraper job manually to enrich listings",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		// Load .env if present
+		_ = godotenv.Load(".env")
+		dbURL := os.Getenv("DATABASE_URL")
+		if dbURL == "" {
+			dbURL = ".tester/data/agbalumo.db"
+		}
+		repo, err := sqlite.NewSQLiteRepository(dbURL)
+		if err != nil {
+			return err
+		}
+		defer func() { _ = repo.Close() }()
+
+		scraper := service.NewWebsiteScraper()
+		job := service.NewScraperJob(repo, scraper)
+
+		fmt.Println("🚀 Starting Manual Enrichment Job...")
+		count, err := job.EnrichListings(cmd.Context(), 10)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("✅ Success! Enriched %d listings with sensory signals.\n", count)
+		return nil
+	},
+}
 
 func reportDrift(label string, drifts []string, successMsg string) error {
 	if len(drifts) == 0 {
@@ -490,6 +522,7 @@ func init() {
 		checkGatesCmd,
 		testCmd,
 		watchCmd,
+		enrichCmd,
 		gosecRationaleCmd,
 	)
 }

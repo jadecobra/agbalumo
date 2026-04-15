@@ -24,7 +24,7 @@ func TestBackgroundService_ExpireListings(t *testing.T) {
 	}
 	_ = repo.Save(context.Background(), expiredListing)
 
-	service := NewBackgroundService(repo)
+	service := NewBackgroundService(repo, nil)
 
 	// Since expireListings is private but we are in package service, we can call it.
 	service.expireListings(context.Background())
@@ -42,7 +42,7 @@ func TestBackgroundService_ExpireListings(t *testing.T) {
 func TestBackgroundService_ExpireListings_Error(t *testing.T) {
 	t.Parallel()
 	repo := testutil.SetupTestRepository(t)
-	service := NewBackgroundService(repo)
+	service := NewBackgroundService(repo, nil)
 
 	// Passing a canceled context to simulate a database query error or timeout
 	ctx, cancel := context.WithCancel(context.Background())
@@ -56,7 +56,7 @@ func TestBackgroundService_StartTicker_Cancels(t *testing.T) {
 	t.Parallel()
 	repo := testutil.SetupTestRepository(t)
 
-	service := NewBackgroundService(repo)
+	service := NewBackgroundService(repo, nil)
 	ctx, cancel := context.WithCancel(context.Background())
 
 	// Run Ticker in goroutine

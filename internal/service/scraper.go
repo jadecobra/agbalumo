@@ -12,10 +12,11 @@ import (
 )
 
 type AdaSignals struct {
-	HeatLevel      int
-	PaymentMethods string
-	MenuURL        string
-	TopDish        string
+	PaymentMethods    string
+	MenuURL           string
+	TopDish           string
+	RegionalSpecialty string
+	HeatLevel         int
 }
 
 type WebsiteScraper struct {
@@ -58,10 +59,12 @@ func (s *WebsiteScraper) ScrapeListing(ctx context.Context, websiteURL string) (
 }
 
 type scrapeState struct {
-	heatCount       int
-	foundPayments   []string
-	heatKeywords    []string
-	paymentKeywords []string
+	foundPayments    []string
+	heatKeywords     []string
+	paymentKeywords  []string
+	regionalCounts   map[string]int
+	regionalKeywords map[string][]string
+	heatCount        int
 }
 
 func (s *WebsiteScraper) parseHTML(r io.Reader, baseURL string) AdaSignals {
@@ -72,6 +75,14 @@ func (s *WebsiteScraper) parseHTML(r io.Reader, baseURL string) AdaSignals {
 	state := &scrapeState{
 		heatKeywords:    []string{"spicy", "hot", "pepper", "habanero", "scotch bonnet", "chili"},
 		paymentKeywords: []string{"zelle", "venmo", "cashapp", "cash app"},
+		regionalCounts:   make(map[string]int),
+		regionalKeywords: map[string][]string{
+			"Nigerian":      {"nigeria", "jollof", "egusi", "suya", "lagos", "naija"},
+			"Ghanaian":      {"ghana", "waakye", "shito", "kenkey", "accra"},
+			"Senegalese":    {"senegal", "thieboudienne", "yassa", "dakar"},
+			"Ethiopian":     {"ethiopia", "injera", "wat", "addis"},
+			"South African": {"south africa", "braai", "biltong", "bobotie"},
+		},
 	}
 
 	for {
@@ -84,7 +95,20 @@ func (s *WebsiteScraper) parseHTML(r io.Reader, baseURL string) AdaSignals {
 
 	signals.HeatLevel = s.mapHeatLevel(state.heatCount)
 	signals.PaymentMethods = strings.Join(state.foundPayments, ", ")
+	signals.RegionalSpecialty = s.inferRegionalSpecialty(state)
 	return signals
+}
+
+func (s *WebsiteScraper) inferRegionalSpecialty(state *scrapeState) string {
+	maxCount := 0
+	bestRegion := ""
+	for region, count := range state.regionalCounts {
+		if count > maxCount {
+			maxCount = count
+			bestRegion = region
+		}
+	}
+	return bestRegion
 }
 
 func (s *WebsiteScraper) processToken(z *html.Tokenizer, tt html.TokenType, base *url.URL, state *scrapeState, signals *AdaSignals) {
@@ -147,6 +171,11 @@ func (s *WebsiteScraper) handleText(z *html.Tokenizer, state *scrapeState) {
 			if !s.contains(state.foundPayments, found) {
 				state.foundPayments = append(state.foundPayments, found)
 			}
+		}
+	}
+	for region, keywords := range state.regionalKeywords {
+		for _, kw := range keywords {
+			state.regionalCounts[region] += strings.Count(text, kw)
 		}
 	}
 }

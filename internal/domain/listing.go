@@ -68,15 +68,15 @@ type Listing struct {
 	JobApplyURL       string        `json:"job_apply_url" form:"job_apply_url"`
 	Company           string        `json:"company" form:"company"`
 	PayRange          string        `json:"pay_range" form:"pay_range"`
-	Type              Category      `json:"type" form:"type"`
-	Status            ListingStatus `json:"status" form:"status"`
-	IsActive          bool          `json:"is_active" form:"is_active"`
-	Featured          bool          `json:"featured" form:"featured"`
-	HeatLevel         int           `json:"heat_level" form:"heat_level"`
 	RegionalSpecialty string        `json:"regional_specialty" form:"regional_specialty"`
 	TopDish           string        `json:"top_dish" form:"top_dish"`
 	PaymentMethods    string        `json:"payment_methods" form:"payment_methods"`
 	MenuURL           string        `json:"menu_url" form:"menu_url"`
+	Type              Category      `json:"type" form:"type"`
+	Status            ListingStatus `json:"status" form:"status"`
+	HeatLevel         int           `json:"heat_level" form:"heat_level"`
+	IsActive          bool          `json:"is_active" form:"is_active"`
+	Featured          bool          `json:"featured" form:"featured"`
 }
 
 // ListingStatus represents the moderation state of a listing.

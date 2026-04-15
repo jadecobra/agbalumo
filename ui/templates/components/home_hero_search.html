@@ -88,7 +88,7 @@
                             Food ({{ index $.Counts "Food" }})
                         </button>
                         {{ range .Categories }}
-                        {{ if ne .Name "Food" }}
+                        {{ if and (ne .Name "Food") (ne .Name "Request") }}
                         <button type="button" data-filter-type="category" data-filter-value="{{ .Name }}"
                             class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-dark/5 hover:bg-earth-dark/10 text-earth-dark transition-colors w-full border-b border-earth-dark/5">
                             {{ .Name }} ({{ index $.Counts .Name }})

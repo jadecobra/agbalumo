@@ -60,7 +60,7 @@ func (j *ScraperJob) enrichSingle(ctx context.Context, l domain.Listing) bool {
 }
 
 func (j *ScraperJob) isEmpty(s AdaSignals) bool {
-	return s.HeatLevel == 0 && s.PaymentMethods == "" && s.MenuURL == "" && s.TopDish == ""
+	return s.HeatLevel == 0 && s.PaymentMethods == "" && s.MenuURL == "" && s.TopDish == "" && s.RegionalSpecialty == ""
 }
 
 func (j *ScraperJob) applySignals(l *domain.Listing, signals AdaSignals) {
@@ -69,5 +69,8 @@ func (j *ScraperJob) applySignals(l *domain.Listing, signals AdaSignals) {
 	l.MenuURL = signals.MenuURL
 	if signals.TopDish != "" {
 		l.TopDish = signals.TopDish
+	}
+	if signals.RegionalSpecialty != "" {
+		l.RegionalSpecialty = signals.RegionalSpecialty
 	}
 }

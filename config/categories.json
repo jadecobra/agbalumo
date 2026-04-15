@@ -36,7 +36,7 @@
         "name": "Request",
         "claimable": false,
         "is_system": true,
-        "active": true,
+        "active": false,
         "requires_special_validation": true
     },
     {
