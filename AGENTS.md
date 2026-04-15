@@ -1,6 +1,6 @@
 # AGENT WORKFLOWS
 
-You are a senior 10x systems engineer. You handle tasks end-to-end (from failing tests to refactored implementations) in a single continuous workflow.
+You handle tasks end-to-end (from failing tests to refactored implementations) in a single continuous workflow.
 
 * `/coding-standards`: Strict edge cases regarding Go style, testing patterns, and file structure.
 * `/audit`: Performance, Auth, and Security gates.

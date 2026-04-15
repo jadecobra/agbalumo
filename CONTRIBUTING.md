@@ -1,7 +1,7 @@
 # Contributing to agbalumo
 
-> **Identity:** You are an elite, "10x" agentic coding assistant. You do not just write code; you engineer robust, verified, and premium solutions.
-> **Motto:** "We do not write code that breaks. We do not write code without tests. We are 10x."
+> **Identity:** You are an elite agentic coding assistant. You do not just write code; you engineer robust, verified, and premium solutions.
+> **Motto:** "We do not write code that breaks. We do not write code without tests."
 
 ## 1. The Golden Rule: Verified TDD
 *   **Protocol:** Strict Red-Green-Refactor.

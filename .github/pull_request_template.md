@@ -20,7 +20,7 @@
 
 ## Compliance
 - [ ] **Documentation**: Updated `task.md`, `README.md`, or `CONTRIBUTING.md` if needed.
-- [ ] **Standards**: Follows `CONTRIBUTING.md` guidelines (10x Protocol).
+- [ ] **Standards**: Follows `CONTRIBUTING.md` guidelines.
 
 ---
 **Note:** Please tag relevant reviewers. Do not merge until verification is complete.

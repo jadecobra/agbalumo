@@ -30,6 +30,14 @@ Run comprehensive security and health audit.
 agbalumo verify audit
 ```
 
+##### enrich
+
+Enrich listings with Ada sensory signals (Heat Level, Signature Dish, Regional Specialty, Menu URL).
+
+```bash
+agbalumo verify enrich [--limit=10]
+```
+
 ##### api-spec
 
 Detect drift between Code, OpenAPI, and Markdown docs.

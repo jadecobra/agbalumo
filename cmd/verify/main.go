@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/joho/godotenv"
+	"github.com/jadecobra/agbalumo/internal/maintenance"
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
 	"github.com/jadecobra/agbalumo/internal/service"
-	"github.com/jadecobra/agbalumo/internal/maintenance"
+	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 	"os"
 	"os/exec"

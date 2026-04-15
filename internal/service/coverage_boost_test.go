@@ -69,7 +69,7 @@ func TestCoverageBoost_Geocoding(t *testing.T) {
 func TestCoverageBoost_Background(t *testing.T) {
 	t.Parallel()
 	repo := testutil.SetupTestRepository(t)
-	svc := NewBackgroundService(repo)
+	svc := NewBackgroundService(repo, nil)
 	svc.Interval = 1 * time.Millisecond // Fast ticker
 
 	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)

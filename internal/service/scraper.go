@@ -75,7 +75,7 @@ func (s *WebsiteScraper) parseHTML(r io.Reader, baseURL string) AdaSignals {
 	state := &scrapeState{
 		heatKeywords:    []string{"spicy", "hot", "pepper", "habanero", "scotch bonnet", "chili"},
 		paymentKeywords: []string{"zelle", "venmo", "cashapp", "cash app"},
-		regionalCounts:   make(map[string]int),
+		regionalCounts:  make(map[string]int),
 		regionalKeywords: map[string][]string{
 			"Nigerian":      {"nigeria", "jollof", "egusi", "suya", "lagos", "naija"},
 			"Ghanaian":      {"ghana", "waakye", "shito", "kenkey", "accra"},

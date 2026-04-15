@@ -36,7 +36,7 @@ fi
 # Creates pre-commit hook with sequential fast-checks
 cat > "$PRE_COMMIT_HOOK" <<EOF
 #!/bin/sh
-# agbalumo 10x Engineer Pre-commit Hook
+# agbalumo Pre-commit Hook
 # Native Go verification engine for maximum precision and drift avoidance.
 
 go run cmd/verify/main.go precommit
@@ -48,7 +48,7 @@ echo "✅ Git pre-commit hook installed successfully!"
 # Creates pre-push hook with full CI validation
 cat > "$PRE_PUSH_HOOK" <<EOF
 #!/bin/sh
-# agbalumo 10x Engineer Pre-push Hook
+# agbalumo Pre-push Hook
 # Runs the full native Go CI suite before pushing to remote.
 # Bypass using: git push --no-verify
 echo "🚀 Running comprehensive CI verification before push..."

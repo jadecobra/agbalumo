@@ -1,6 +1,6 @@
-# agbalumo Coding Standards (10x Engineer Edition)
+# agbalumo Coding Standards
 
-> "We do not write code that breaks. We do not write code without tests. We are 10x."
+> "We do not write code that breaks. We do not write code without tests."
 
 ## 1. The Golden Rule: Verified TDD
 *   **Protocol**: Write the test FIRST. Watch it fail (Red). Write the Code. Watch it pass (Green). Refactor.
@@ -35,7 +35,7 @@
 *   **SecurityEngineer** (`GEMINI_3_1_PRO`): Owns `security_test.go` and audits. "Trust but verify."
 *   **UIUXDesigner** (`GEMINI_3_1_PRO`): Owns look/feel (HIG/Material 3). Ensures "User Delight" and FCP < 1.0s. Reads browser testing URLs from `.agents/rules/browser-url.md`.
 *   **CulturalModerator** (`GEMINI_3_FLASH`): Ensures content relevance via Gemini. "Validate first."
-*   **ChiefCritic** (`GEMINI_3_1_PRO`): Relentless reviewer. Tears down code, architectures, and UI to ensure absolute adherence to 10x standards and high quality UX.
+*   **ChiefCritic** (`GEMINI_3_1_PRO`): Relentless reviewer. Tears down code, architectures, and UI to ensure absolute adherence to highest quality standards and high quality UX.
 *   **ChaosMonkey** (`GEMINI_3_1_PRO`): Resiliency Lead. Proactively injects faults, corrupts state, and simulates "Cheating" to verify that the squad's safety gates and anti-cheat mechanisms are truly unbreakable.
 
 ## 6. Security Best Practices (Zero Trust)
@@ -44,10 +44,11 @@
 *   **Dependency Auditing**: Regularly check for vulnerabilities in dependencies.
 *   **Least Privilege**: Application parts should only have the permissions they absolutely need.
 
-## 7. 10x Operational Standards
+## 7. Operational Standards
 *   **Minimal/Modular**: Changes must be the smallest possible increment that passes the test. Avoid over-engineering.
 *   **Validate**: A change is not done until it is verified to pass the test AND perform as expected (manual or automated check).
 *   **Test First**: No code is written without a failing test. This is non-negotiable.
+*   **Critique**: After implementing a feature, you must critique it harshly and truthfully from the perspective of the ChiefCritic and suggest necessary improvements.
 
 ## 8. UI/UX Standards (Premium & Delightful)
 *   **Standards**: Follow [Apple HIG](https://developer.apple.com/design/human-interface-guidelines) and [Material 3](https://m3.material.io/).

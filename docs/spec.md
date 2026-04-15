@@ -112,14 +112,14 @@ agbalumo uses a "Juicy Fruit" design aesthetic, inspired by Yoruba roots and com
 * **Shapes:** `rounded-3xl` (32px) for a soft, premium feel; `rounded-xl` for interactive elements.
 * **Motion:** `juice-bounce` (scale 0.94 → 1.02) on clicks; `gentle-pulse` for verified status and new badges.
 * **Shadows:** `shadow-juicy` (orange tinted) and `shadow-lifted` for tactile depth.
-* **Accessibility & Ergonomics (The 10x Standard):**
+* **Accessibility & Ergonomics:**
   - Semantic Landmark: `<h1>` logo wrap for screen-reader navigation.
   - Color Contrast: Listing descriptions meet WCAG AA (4.5:1 ratio).
   - Touch Targets: All primary mobile targets (chips, search, nav) are at least 44px.
   - Interaction: High-visibility 3px orange focus rings for keyboard users.
   - ARIA: Placeholders and images include roles and descriptive labels.
 
-### 8. Security & 10x Auditing
+### 8. Security & Auditing
 
 agbalumo maintains a "Zero Trust" security posture by enforcing automated vulnerability scans (`govulncheck`), container security scans (`aquasecurity/trivy-action`), and custom security and drift audits natively integrated into the CI/CD pipeline via `cmd/verify`. The project targets the latest secure Go versions (currently `1.25.8`) to mitigate standard library risks.
 
