@@ -176,11 +176,19 @@
                 </a>
                 {{ end }}
 
+                {{ if .Listing.MenuURL }}
+                <a href="{{ .Listing.MenuURL }}" target="_blank" data-ada-discovery="menu"
+                    class="flex items-center gap-3 p-3 bg-palm-green/5 dark:bg-palm-green/10 text-palm-green hover:bg-palm-green/10 dark:hover:bg-palm-green/20 transition-colors border border-palm-green/20">
+                    <span class="material-symbols-outlined">restaurant_menu</span>
+                    <span class="font-medium text-sm">Menu</span>
+                </a>
+                {{ end }}
+
                 {{ if .Listing.WebsiteURL }}
                 <a href="{{ .Listing.WebsiteURL }}" target="_blank" data-ada-discovery="website"
                     class="flex items-center gap-3 p-3  bg-earth-accent/5 dark:bg-earth-accent/10 text-earth-accent hover:bg-earth-accent/10 dark:hover:bg-earth-accent/20 transition-colors border border-earth-accent/20">
                     <span class="material-symbols-outlined">language</span>
-                    <span class="font-medium text-sm">Visit Website</span>
+                    <span class="font-medium text-sm">Website</span>
                 </a>
                 {{ end }}
 

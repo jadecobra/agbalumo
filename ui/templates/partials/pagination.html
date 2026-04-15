@@ -1,3 +1,4 @@
+{{ define "pagination" }}
 <div id="pagination" class="flex items-center justify-center space-x-2 py-8" hx-boost="true" hx-swap-oob="true">
 {{ if .Pagination.TotalPages }}
 {{ if gt .Pagination.TotalPages 1 }}
@@ -13,7 +14,7 @@
         </svg>
     </a>
     {{ end }}
-
+ 
     {{ range .Pagination.GetPageRange }}
     <a href="?page={{ . }}{{ if $.Category }}&type={{ $.Category }}{{ end }}{{ if $.QueryText }}&q={{ $.QueryText }}{{ end }}" 
        class="flex items-center justify-center w-10 h-10 border {{ if eq . $.Pagination.Page }}border-earth-accent bg-earth-accent text-earth-dark{{ else }}border-white/20 text-earth-cream hover:bg-white/10{{ end }} transition-all duration-300 font-medium"
@@ -24,14 +25,14 @@
         {{ . }}
     </a>
     {{ end }}
-
+ 
     {{ if .Pagination.HasNextPage }}
     <a href="?page={{ add .Pagination.Page 1 }}{{ if .Category }}&type={{ .Category }}{{ end }}{{ if .QueryText }}&q={{ .QueryText }}{{ end }}" 
        class="flex items-center justify-center w-10 h-10 border border-white/20 text-earth-cream hover:bg-white/10 transition-all duration-300"
        hx-get="/listings/fragment?page={{ add .Pagination.Page 1 }}{{ if .Category }}&type={{ $.Category }}{{ end }}{{ if .QueryText }}&q={{ $.QueryText }}{{ end }}"
        hx-target="#listings-container"
        hx-indicator="#listings-loading"
-       hx-push-url="?page={{ add .Pagination.Page 1 }}{{ if .Category }}&type={{ .Category }}{{ end }}{{ if .QueryText }}&q={{ .QueryText }}{{ end }}">
+       hx-push-url="?page={{ add .Pagination.Page 1 }}{{ if .Category }}&type={{ .Category }}{{ end }}{{ if .QueryText }}&q={{ $.QueryText }}{{ end }}">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
         </svg>
@@ -40,3 +41,4 @@
 {{ end }}
 {{ end }}
 </div>
+{{ end }}

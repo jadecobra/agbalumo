@@ -195,6 +195,6 @@ func setupBackgroundServices(ctx context.Context, cfg *config.Config, repo *sqli
 		seeder.EnsureSeeded(ctx, repo)
 	}
 
-	bgService := service.NewBackgroundService(repo)
+	bgService := service.NewBackgroundService(repo, service.NewScraperJob(repo, service.NewWebsiteScraper()))
 	go bgService.StartTicker(ctx)
 }
