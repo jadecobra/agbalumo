@@ -104,43 +104,33 @@ var apiSpecCmd = &cobra.Command{
 	},
 }
 
-var templateDriftCmd = &cobra.Command{
-	Use:   "template-drift",
-	Short: "Detect undefined template functions in HTML templates",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("🔍 Checking Template Function Drift...")
+var templateDriftCmd = makeSimpleCmd("template-drift", "Detect undefined template functions in HTML templates", func() error {
+	fmt.Println("🔍 Checking Template Function Drift...")
+	defined, err := maintenance.ExtractRendererFunctions("internal/ui/renderer.go")
+	if err != nil {
+		return err
+	}
+	used, err := maintenance.ExtractTemplateFunctionCalls("ui/templates")
+	if err != nil {
+		return err
+	}
+	drifts := maintenance.CheckTemplateDrift(defined, used)
+	return reportDrift("Template function", drifts, "✅ All template functions are defined.")
+})
 
-		defined, err := maintenance.ExtractRendererFunctions("internal/ui/renderer.go")
-		if err != nil {
-			return err
-		}
-		used, err := maintenance.ExtractTemplateFunctionCalls("ui/templates")
-		if err != nil {
-			return err
-		}
-
-		drifts := maintenance.CheckTemplateDrift(defined, used)
-		return reportDrift("Template function", drifts, "✅ All template functions are defined.")
-	},
-}
-
-var costCmd = &cobra.Command{
-	Use:   "context-cost",
-	Short: "Calculate codebase token density and context window usage",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("📊 Calculating Context Cost...")
-		report, err := maintenance.CalculateContextCost(".")
-		if err != nil {
-			return err
-		}
-		fmt.Printf("Total Files:  %d\n", report.TotalFiles)
-		fmt.Printf("Total Lines:  %d\n", report.TotalLines)
-		fmt.Printf("Total Tokens: %d\n", report.TotalTokens)
-		fmt.Printf("RMS (Lines):  %.2f\n", report.RMS)
-		fmt.Printf("Context Usage: %.2f%% of Claude Sonnet window (200k)\n", report.ContextWindowPct)
-		return nil
-	},
-}
+var costCmd = makeSimpleCmd("context-cost", "Calculate codebase token density and context window usage", func() error {
+	fmt.Println("📊 Calculating Context Cost...")
+	report, err := maintenance.CalculateContextCost(".")
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Total Files:  %d\n", report.TotalFiles)
+	fmt.Printf("Total Lines:  %d\n", report.TotalLines)
+	fmt.Printf("Total Tokens: %d\n", report.TotalTokens)
+	fmt.Printf("RMS (Lines):  %.2f\n", report.RMS)
+	fmt.Printf("Context Usage: %.2f%% of Claude Sonnet window (200k)\n", report.ContextWindowPct)
+	return nil
+})
 
 var coverageCmd = &cobra.Command{
 	Use:   "coverage",
@@ -280,44 +270,31 @@ var ciCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("🚀 Starting Native CI Pipeline...")
 
-		fmt.Println("\n=== 1. Verifying GitHub Action SHAs ===")
-		if err := maintenance.VerifyActionSHAs("."); err != nil {
-			return err
+		steps := []struct {
+			name string
+			fn   func() error
+		}{
+			{"Verifying GitHub Action SHAs", func() error { return maintenance.VerifyActionSHAs(".") }},
+			{"Verifying CI Toolset", func() error { return maintenance.VerifyCITools(".") }},
+			{"Running Lint", func() error {
+				return runCmd("go", "run", "github.com/golangci/golangci-lint/v2/cmd/golangci-lint", "run")
+			}},
+			{"Running Tests", func() error {
+				return runCmd("go", "test", "-race", "-cover", "-count=1", "./...")
+			}},
+			{"Running Vulncheck", func() error {
+				return runCmd("go", "run", "golang.org/x/vuln/cmd/govulncheck", "./...")
+			}},
+			{"Checking API/CLI Contract Drift", func() error { return apiSpecCmd.RunE(cmd, args) }},
+			{"Checking Template Drift", func() error { return templateDriftCmd.RunE(cmd, args) }},
+			{"Checking Coverage Threshold", func() error { return coverageCmd.RunE(cmd, args) }},
 		}
 
-		fmt.Println("\n=== 2. Verifying CI Toolset ===")
-		if err := maintenance.VerifyCITools("."); err != nil {
-			return err
-		}
-
-		fmt.Println("\n=== 3. Running Lint ===")
-		if err := runCmd("go", "run", "github.com/golangci/golangci-lint/v2/cmd/golangci-lint", "run"); err != nil {
-			return fmt.Errorf("lint failed: %w", err)
-		}
-
-		fmt.Println("\n=== 4. Running Tests ===")
-		if err := runCmd("go", "test", "-race", "-cover", "-count=1", "./..."); err != nil {
-			return fmt.Errorf("tests failed: %w", err)
-		}
-
-		fmt.Println("\n=== 5. Running Vulncheck ===")
-		if err := runCmd("go", "run", "golang.org/x/vuln/cmd/govulncheck", "./..."); err != nil {
-			return fmt.Errorf("vulncheck failed: %w", err)
-		}
-
-		fmt.Println("\n=== 6. Checking API/CLI Contract Drift ===")
-		if err := apiSpecCmd.RunE(cmd, args); err != nil {
-			return err
-		}
-
-		fmt.Println("\n=== 7. Checking Template Drift ===")
-		if err := templateDriftCmd.RunE(cmd, args); err != nil {
-			return err
-		}
-
-		fmt.Println("\n=== 8. Checking Coverage Threshold ===")
-		if err := coverageCmd.RunE(cmd, args); err != nil {
-			return err
+		for i, s := range steps {
+			fmt.Printf("\n=== %d. %s ===\n", i+1, s.name)
+			if err := s.fn(); err != nil {
+				return err
+			}
 		}
 
 		withDocker, _ := cmd.Flags().GetBool("with-docker")
@@ -488,14 +465,10 @@ var watchCmd = &cobra.Command{
 	},
 }
 
-var gosecRationaleCmd = &cobra.Command{
-	Use:   "gosec-rationale",
-	Short: "Verify that all #nosec directives include a rationale comment",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("🔍 Checking for mandatory rationale in #nosec directives...")
-		return maintenance.CheckGosecRationale(".")
-	},
-}
+var gosecRationaleCmd = makeSimpleCmd("gosec-rationale", "Verify that all #nosec directives include a rationale comment", func() error {
+	fmt.Println("🔍 Checking for mandatory rationale in #nosec directives...")
+	return maintenance.CheckGosecRationale(".")
+})
 
 func init() {
 	setupTestFlags(testCmd)
