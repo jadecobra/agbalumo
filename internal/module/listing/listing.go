@@ -100,25 +100,10 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	}
 	hasNextPage := offset+len(listings) < totalCount
 
-	if countsErr != nil {
-		c.Logger().Errorf("failed to get listing counts: %v", countsErr)
-		counts = make(map[domain.Category]int)
-	}
-
-	if featuredErr != nil {
-		c.Logger().Errorf("failed to get featured listings: %v", featuredErr)
-		featured = []domain.Listing{} // Graceful fallback
-	}
-
-	if locationsErr != nil {
-		c.Logger().Errorf("failed to get locations: %v", locationsErr)
-		locations = []string{}
-	}
-
-	if categoriesErr != nil {
-		c.Logger().Errorf("failed to get categories in HandleHome: %v", categoriesErr)
-		categories = []domain.CategoryData{}
-	}
+	h.logError(c, "failed to get listing counts", countsErr)
+	h.logError(c, "failed to get featured listings", featuredErr)
+	h.logError(c, "failed to get locations", locationsErr)
+	h.logError(c, "failed to get categories in HandleHome", categoriesErr)
 
 	strCounts := make(map[string]int)
 	for cat, count := range counts {
@@ -268,4 +253,10 @@ func (h *ListingHandler) renderWithBaseContext(c echo.Context, tmpl string, data
 	data["Env"] = h.App.Cfg.Env
 	data["HasGoogleAuth"] = h.App.Cfg.HasGoogleAuth
 	return c.Render(http.StatusOK, tmpl, data)
+}
+
+func (h *ListingHandler) logError(c echo.Context, msg string, err error) {
+	if err != nil {
+		c.Logger().Errorf("%s: %v", msg, err)
+	}
 }

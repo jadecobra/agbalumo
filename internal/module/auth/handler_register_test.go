@@ -3,9 +3,11 @@ package auth_test
 import (
 	"context"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/infra/env"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
@@ -26,16 +28,13 @@ func TestAuthHandler_GoogleCallback_UpdateProfile(t *testing.T) {
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
 
-	existingUser := domain.User{
+	rec := setupExistingUserAndRegister(t, app, domain.User{
 		ID:        "u1",
 		GoogleID:  "g1",
 		Email:     "test@example.com",
 		Name:      "Old Name",
 		AvatarURL: "http://old-pic.com",
-	}
-	_ = app.DB.SaveUser(context.Background(), existingUser)
-
-	rec := performRegistration(t, app, map[string]string{
+	}, map[string]string{
 		"id":      "g1",
 		"email":   "test@example.com",
 		"name":    "New Name",
@@ -53,16 +52,13 @@ func TestAuthHandler_GoogleCallback_UpdateProfileSaveError(t *testing.T) {
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
 
-	existingUser := domain.User{
+	rec := setupExistingUserAndRegister(t, app, domain.User{
 		ID:        "u-update-err",
 		GoogleID:  "g-update-err",
 		Email:     "user@test.com",
 		Name:      "Old Name",
 		AvatarURL: "http://old-pic.com",
-	}
-	_ = app.DB.SaveUser(context.Background(), existingUser)
-
-	rec := performRegistration(t, app, map[string]string{
+	}, map[string]string{
 		"id":      "g-update-err",
 		"email":   "user@test.com",
 		"name":    "New Name",
@@ -77,16 +73,13 @@ func TestAuthHandler_GoogleCallback_UpdateProfile_NoChanges(t *testing.T) {
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
 
-	existingUser := domain.User{
+	rec := setupExistingUserAndRegister(t, app, domain.User{
 		ID:        "u1",
 		GoogleID:  "g1",
 		Email:     "test@example.com",
 		Name:      "Same Name",
 		AvatarURL: "http://same-pic.com",
-	}
-	_ = app.DB.SaveUser(context.Background(), existingUser)
-
-	rec := performRegistration(t, app, map[string]string{
+	}, map[string]string{
 		"id":      "g1",
 		"email":   "test@example.com",
 		"name":    "Same Name",
@@ -110,4 +103,9 @@ func TestAuthHandler_GoogleCallback_CrossSiteCallback(t *testing.T) {
 
 	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
 	assert.Equal(t, "/", rec.Header().Get("Location"))
+}
+
+func setupExistingUserAndRegister(t *testing.T, app *env.AppEnv, user domain.User, payload map[string]string) *httptest.ResponseRecorder {
+	_ = app.DB.SaveUser(context.Background(), user)
+	return performRegistration(t, app, payload)
 }

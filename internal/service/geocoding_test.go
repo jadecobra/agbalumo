@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -24,31 +25,16 @@ func TestGoogleGeocodingService_GetCity(t *testing.T) {
 			address:        "1600 Amphitheatre Parkway, Mountain View, CA",
 			apiKey:         "valid-key",
 			responseStatus: http.StatusOK,
-			responseBody: `{
-				"status": "OK",
-				"results": [{
-					"address_components": [
-						{"long_name": "Mountain View", "types": ["locality", "political"]},
-						{"long_name": "Santa Clara County", "types": ["administrative_area_level_2", "political"]}
-					]
-				}]
-			}`,
-			expectedCity: "Mountain View",
+			responseBody:   geocodeResponse("OK", comp("Mountain View", "locality", "political"), comp("Santa Clara County", "administrative_area_level_2", "political")),
+			expectedCity:   "Mountain View",
 		},
 		{
 			name:           "Sublocality Fallback",
 			address:        "Some Sublocality",
 			apiKey:         "valid-key",
 			responseStatus: http.StatusOK,
-			responseBody: `{
-				"status": "OK",
-				"results": [{
-					"address_components": [
-						{"long_name": "Sublocality Info", "types": ["sublocality", "political"]}
-					]
-				}]
-			}`,
-			expectedCity: "Sublocality Info",
+			responseBody:   geocodeResponse("OK", comp("Sublocality Info", "sublocality", "political")),
+			expectedCity:   "Sublocality Info",
 		},
 		{
 			name:          "Empty API Key",
@@ -61,7 +47,7 @@ func TestGoogleGeocodingService_GetCity(t *testing.T) {
 			address:        "Middle of nowhere",
 			apiKey:         "valid-key",
 			responseStatus: http.StatusOK,
-			responseBody:   `{"status": "ZERO_RESULTS", "results": []}`,
+			responseBody:   geocodeResponse("ZERO_RESULTS"),
 			expectedCity:   "",
 		},
 		{
@@ -69,45 +55,24 @@ func TestGoogleGeocodingService_GetCity(t *testing.T) {
 			address:        "UK Address",
 			apiKey:         "valid-key",
 			responseStatus: http.StatusOK,
-			responseBody: `{
-				"status": "OK",
-				"results": [{
-					"address_components": [
-						{"long_name": "London Town", "types": ["postal_town"]}
-					]
-				}]
-			}`,
-			expectedCity: "London Town",
+			responseBody:   geocodeResponse("OK", comp("London Town", "postal_town")),
+			expectedCity:   "London Town",
 		},
 		{
 			name:           "Neighborhood Fallback",
 			address:        "NY Address",
 			apiKey:         "valid-key",
 			responseStatus: http.StatusOK,
-			responseBody: `{
-				"status": "OK",
-				"results": [{
-					"address_components": [
-						{"long_name": "Brooklyn", "types": ["neighborhood"]}
-					]
-				}]
-			}`,
-			expectedCity: "Brooklyn",
+			responseBody:   geocodeResponse("OK", comp("Brooklyn", "neighborhood")),
+			expectedCity:   "Brooklyn",
 		},
 		{
 			name:           "Admin Area Level 2 Fallback",
 			address:        "County Level",
 			apiKey:         "valid-key",
 			responseStatus: http.StatusOK,
-			responseBody: `{
-				"status": "OK",
-				"results": [{
-					"address_components": [
-						{"long_name": "Some County", "types": ["administrative_area_level_2"]}
-					]
-				}]
-			}`,
-			expectedCity: "Some County",
+			responseBody:   geocodeResponse("OK", comp("Some County", "administrative_area_level_2")),
+			expectedCity:   "Some County",
 		},
 		{
 			name:           "API Error Status",
@@ -145,15 +110,8 @@ func TestGoogleGeocodingService_GetCity(t *testing.T) {
 			address:        "Any",
 			apiKey:         "valid-key",
 			responseStatus: http.StatusOK,
-			responseBody: `{
-				"status": "OK",
-				"results": [{
-					"address_components": [
-						{"long_name": "USA", "types": ["country"]}
-					]
-				}]
-			}`,
-			expectedCity: "",
+			responseBody:   geocodeResponse("OK", comp("USA", "country")),
+			expectedCity:   "",
 		},
 	}
 
@@ -178,4 +136,29 @@ func TestGoogleGeocodingService_GetCity(t *testing.T) {
 			}
 		})
 	}
+}
+
+func geocodeResponse(status string, components ...string) string {
+	comps := ""
+	for i, c := range components {
+		if i > 0 {
+			comps += ","
+		}
+		comps += c
+	}
+	if comps == "" {
+		return fmt.Sprintf(`{"status": "%s", "results": []}`, status)
+	}
+	return fmt.Sprintf(`{"status": "%s", "results": [{"address_components": [%s]}]}`, status, comps)
+}
+
+func comp(name string, types ...string) string {
+	quotedTypes := ""
+	for i, t := range types {
+		if i > 0 {
+			quotedTypes += ","
+		}
+		quotedTypes += fmt.Sprintf(`"%s"`, t)
+	}
+	return fmt.Sprintf(`{"long_name": "%s", "types": [%s]}`, name, quotedTypes)
 }
