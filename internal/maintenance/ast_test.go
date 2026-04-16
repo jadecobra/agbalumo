@@ -65,3 +65,51 @@ func verifyExtractedRoutes(t *testing.T, expected, routes []Route) {
 		t.Logf("Found routes: %v", routes)
 	}
 }
+
+func TestExtractRoutes_WithDomainConstants(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "extract_routes_domain_test")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer func() { _ = os.RemoveAll(tmpDir) }()
+
+	goCode := `
+package test
+import (
+	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/labstack/echo/v4"
+)
+func Register(e *echo.Echo) {
+	admin := e.Group(domain.PathAdmin)
+	admin.GET(domain.PathLogin, nil)
+	admin.POST(domain.PathLogin, nil)
+	
+	e.GET(domain.PathListingID, nil)
+	e.GET(domain.PathListingID+"/edit", nil)
+	
+	auth := e.Group("", nil)
+	auth.DELETE(domain.PathListingID, nil)
+	auth.POST(domain.PathListingID+"/claim", nil)
+}
+`
+	err = os.WriteFile(filepath.Join(tmpDir, "routes.go"), []byte(goCode), 0600)
+	if err != nil {
+		t.Fatalf("failed to write test file: %v", err)
+	}
+
+	routes, err := ExtractRoutes(tmpDir)
+	if err != nil {
+		t.Fatalf("ExtractRoutes failed: %v", err)
+	}
+
+	expected := []Route{
+		{Method: "GET", Path: "/admin/login"},
+		{Method: "POST", Path: "/admin/login"},
+		{Method: "GET", Path: "/listings/:id"},
+		{Method: "GET", Path: "/listings/:id/edit"},
+		{Method: "DELETE", Path: "/listings/:id"},
+		{Method: "POST", Path: "/listings/:id/claim"},
+	}
+
+	verifyExtractedRoutes(t, expected, routes)
+}

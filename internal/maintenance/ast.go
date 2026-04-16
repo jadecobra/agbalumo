@@ -114,20 +114,49 @@ func parseGroupCall(n ast.Node) (ident, receiver, prefix string) {
 }
 
 func resolveArgString(arg ast.Expr) (string, bool) {
-	if argLit, ok := arg.(*ast.BasicLit); ok && argLit.Kind == token.STRING {
-		return strings.Trim(argLit.Value, "\""), true
-	}
-	if selExpr, ok := arg.(*ast.SelectorExpr); ok {
-		if ident, ok := selExpr.X.(*ast.Ident); ok && ident.Name == "domain" {
-			switch selExpr.Sel.Name {
-			case "PathAdmin":
-				return "/admin", true
-			case "PathListings":
-				return "/listings", true
-			case "PathProfile":
-				return "/profile", true
-			}
+	switch a := arg.(type) {
+	case *ast.BasicLit:
+		if a.Kind == token.STRING {
+			return strings.Trim(a.Value, "\""), true
 		}
+	case *ast.SelectorExpr:
+		return resolveDomainConstant(a)
+	case *ast.BinaryExpr:
+		return resolveBinaryExpr(a)
+	}
+	return "", false
+}
+
+func resolveDomainConstant(sel *ast.SelectorExpr) (string, bool) {
+	ident, ok := sel.X.(*ast.Ident)
+	if !ok || ident.Name != "domain" {
+		return "", false
+	}
+	switch sel.Sel.Name {
+	case "PathAdmin":
+		return "/admin", true
+	case "PathAdminListings":
+		return "/admin/listings", true
+	case "PathListings":
+		return "/listings", true
+	case "PathProfile":
+		return "/profile", true
+	case "PathLogin":
+		return "/login", true
+	case "PathListingID":
+		return "/listings/:id", true
+	}
+	return "", false
+}
+
+func resolveBinaryExpr(bin *ast.BinaryExpr) (string, bool) {
+	if bin.Op != token.ADD {
+		return "", false
+	}
+	left, leftOk := resolveArgString(bin.X)
+	right, rightOk := resolveArgString(bin.Y)
+	if leftOk && rightOk {
+		return left + right, true
 	}
 	return "", false
 }
