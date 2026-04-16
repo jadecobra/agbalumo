@@ -59,11 +59,11 @@ func (s *WebsiteScraper) ScrapeListing(ctx context.Context, websiteURL string) (
 }
 
 type scrapeState struct {
+	regionalCounts   map[string]int
+	regionalKeywords map[string][]string
 	foundPayments    []string
 	heatKeywords     []string
 	paymentKeywords  []string
-	regionalCounts   map[string]int
-	regionalKeywords map[string][]string
 	heatCount        int
 }
 

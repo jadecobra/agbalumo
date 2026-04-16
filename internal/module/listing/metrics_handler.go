@@ -7,9 +7,9 @@ import (
 )
 
 type MetricRequest struct {
+	Metadata map[string]interface{} `json:"metadata"`
 	Event    string                 `json:"event"`
 	Value    float64                `json:"value"`
-	Metadata map[string]interface{} `json:"metadata"`
 }
 
 // HandleMetricsIngestion receives frontend metrics and logs/saves them.

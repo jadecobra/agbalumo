@@ -6,11 +6,11 @@ import (
 )
 
 type Metric struct {
+	CreatedAt time.Time `json:"created_at"`
 	ID        string    `json:"id"`
 	EventType string    `json:"event_type"`
+	Metadata  string    `json:"metadata"`
 	Value     float64   `json:"value"`
-	Metadata  string    `json:"metadata"` // JSON blob
-	CreatedAt time.Time `json:"created_at"`
 }
 
 type MetricsRepository interface {

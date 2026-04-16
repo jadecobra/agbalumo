@@ -11,29 +11,29 @@ import (
 const datetimeLocalFormat = "2006-01-02T15:04"
 
 type ListingFormRequest struct {
-	Title             string `form:"title"`
-	Type              string `form:"type"`
+	WebsiteURL        string `form:"website_url"`
+	ContactPhone      string `form:"contact_phone"`
 	OwnerOrigin       string `form:"owner_origin"`
 	Description       string `form:"description"`
 	City              string `form:"city"`
 	Address           string `form:"address"`
 	HoursOfOperation  string `form:"hours_of_operation"`
-	ContactEmail      string `form:"contact_email"`
-	ContactPhone      string `form:"contact_phone"`
-	ContactWhatsApp   string `form:"contact_whatsapp"`
-	WebsiteURL        string `form:"website_url"`
-	DeadlineDate      string `form:"deadline_date"`
 	EventStart        string `form:"event_start"`
+	DeadlineDate      string `form:"deadline_date"`
+	ContactWhatsApp   string `form:"contact_whatsapp"`
+	Type              string `form:"type"`
+	Title             string `form:"title"`
+	ContactEmail      string `form:"contact_email"`
 	EventEnd          string `form:"event_end"`
 	Skills            string `form:"skills"`
 	JobStartDate      string `form:"job_start_date"`
 	JobApplyURL       string `form:"job_apply_url"`
 	Company           string `form:"company"`
 	PayRange          string `form:"pay_range"`
-	RemoveImage       bool   `form:"remove_image"`
-	HeatLevel         int    `form:"heat_level"`
-	RegionalSpecialty string `form:"regional_specialty"`
 	TopDish           string `form:"top_dish"`
+	RegionalSpecialty string `form:"regional_specialty"`
+	HeatLevel         int    `form:"heat_level"`
+	RemoveImage       bool   `form:"remove_image"`
 }
 
 // ToListing maps the DTO fields directly to the domain Listing and parses dates.
