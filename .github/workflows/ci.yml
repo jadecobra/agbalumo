@@ -17,12 +17,53 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  quality_lint:
-    name: Lint Check
+  build:
+    name: Build Artifacts
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version: '1.26.x'
+          cache: true
+
+      - name: Setup Node
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Build CSS
+        run: |
+          npm ci
+          npm run build:css
+
+      - name: Build Server
+        run: go build -o server .
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: build-assets
+          path: |
+            server
+            ui/styles.css
+          retention-days: 1
+
+  quality_lint:
+    name: Lint Check
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@6b208ae046db98c579e8a594ee23ae901ea009f4 # v7.0.0
+        with:
+          name: build-assets
 
       - name: Setup Go
         uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
@@ -47,6 +88,7 @@ jobs:
 
   security_static:
     name: Security Static Analysis
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -63,6 +105,7 @@ jobs:
 
   test:
     name: Tests & Coverage
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -93,10 +136,16 @@ jobs:
 
   security_dynamic:
     name: Security Dynamic Audit
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@6b208ae046db98c579e8a594ee23ae901ea009f4 # v7.0.0
+        with:
+          name: build-assets
 
       - name: Setup Go
         uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
@@ -104,21 +153,9 @@ jobs:
           go-version: '1.26.x'
           cache: true
 
-      - name: Setup Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Build CSS
-        run: |
-          npm ci
-          npm run build:css
-
-      - name: Build Server
-        run: go build -o server .
-
       - name: Start Server (Background)
         run: |
+          chmod +x server
           mkdir -p .tester/data .tester/servers certs
           openssl req -x509 -newkey rsa:4096 -keyout certs/key.pem -out certs/cert.pem -days 365 -nodes -subj "/CN=localhost"
           export AGBALUMO_ENV=development
@@ -143,10 +180,16 @@ jobs:
 
   drift_checks:
     name: Drift Verification
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@6b208ae046db98c579e8a594ee23ae901ea009f4 # v7.0.0
+        with:
+          name: build-assets
 
       - name: Setup Node
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -167,21 +210,16 @@ jobs:
 
   docker:
     name: Docker Build & Scan
-    needs: [quality_lint, security_static, test, security_dynamic, drift_checks]
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Setup Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@6b208ae046db98c579e8a594ee23ae901ea009f4 # v7.0.0
         with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Build CSS
-        run: |
-          npm ci
-          npm run build:css
+          name: build-assets
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
@@ -207,7 +245,7 @@ jobs:
 
   deploy:
     name: Deploy to Fly.io
-    needs: docker
+    needs: [quality_lint, security_static, test, security_dynamic, drift_checks, docker]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     concurrency: deploy-group

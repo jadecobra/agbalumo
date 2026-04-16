@@ -266,59 +266,48 @@ func runTrivyScan() error {
 
 var ciCmd = &cobra.Command{
 	Use:   "ci",
-	Short: "Run the full CI pipeline natively in Go",
+	Short: "Run the full CI pipeline in parallel with dynamic concurrency",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("🚀 Starting Native CI Pipeline...")
-
-		steps := []struct {
-			fn   func() error
-			name string
-		}{
-			{name: "Verifying GitHub Action SHAs", fn: func() error { return maintenance.VerifyActionSHAs(".") }},
-			{name: "Verifying CI Toolset", fn: func() error { return maintenance.VerifyCITools(".") }},
-			{name: "Running Lint", fn: func() error {
+		ctx := cmd.Context()
+		
+		tasks := []maintenance.CITask{
+			{Name: "Verifying GitHub Action SHAs", Fn: func() error { return maintenance.VerifyActionSHAs(".") }},
+			{Name: "Verifying CI Toolset", Fn: func() error { return maintenance.VerifyCITools(".") }},
+			{Name: "Running Lint", Fn: func() error {
 				return runCmd("go", "run", "github.com/golangci/golangci-lint/v2/cmd/golangci-lint", "run")
 			}},
-			{name: "Enforcing Struct Alignment", fn: func() error {
-				err := runCmd("go", "run", "golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest", "./...")
-				if err != nil {
-					return fmt.Errorf("struct alignment failed, run 'go run golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest -fix ./...' to auto-fix: %w", err)
-				}
-				return nil
+			{Name: "Enforcing Struct Alignment", Fn: func() error {
+				return runCmd("go", "run", "golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest", "./...")
 			}},
-			{name: "Running Tests", fn: func() error {
-				return runCmd("go", "test", "-race", "-cover", "-count=1", "./...")
-			}},
-			{name: "Running Vulncheck", fn: func() error {
+			{Name: "Running Vulncheck", Fn: func() error {
 				return runCmd("go", "run", "golang.org/x/vuln/cmd/govulncheck", "./...")
 			}},
-			{name: "Checking ChiefCritic Robustness", fn: func() error { return critiqueCmd.RunE(cmd, args) }},
-			{name: "Checking API/CLI Contract Drift", fn: func() error { return apiSpecCmd.RunE(cmd, args) }},
-			{name: "Checking Template Drift", fn: func() error { return templateDriftCmd.RunE(cmd, args) }},
-			{name: "Checking Coverage Threshold", fn: func() error { return coverageCmd.RunE(cmd, args) }},
+			{Name: "Running Heavy Tests (with -race)", Fn: func() error {
+				return runCmd("go", "test", "-race", "-cover", "-count=1", "./...")
+			}},
+			{Name: "Checking ChiefCritic Robustness", Fn: func() error { return maintenance.RunChiefCriticAudit(".") }},
+			{Name: "Checking API/CLI Contract Drift", Fn: func() error { return apiSpecCmd.RunE(cmd, args) }},
+			{Name: "Checking Template Drift", Fn: func() error { return templateDriftCmd.RunE(cmd, args) }},
+			{Name: "Checking Coverage Threshold", Fn: func() error { return coverageCmd.RunE(cmd, args) }},
+			{Name: "Running Performance Audit (Benchmarks)", Fn: func() error { return perfCmd.RunE(cmd, args) }},
 		}
 
-		for i, s := range steps {
-			fmt.Printf("\n=== %d. %s ===\n", i+1, s.name)
-			if err := s.fn(); err != nil {
-				return err
-			}
+		// Run group 1: All checks in parallel (scaled by NumCPU)
+		if err := maintenance.RunParallelCI(ctx, tasks); err != nil {
+			return err
 		}
 
 		withDocker, _ := cmd.Flags().GetBool("with-docker")
 		if withDocker {
-			fmt.Println("\n=== 9. Docker Build ===")
+			fmt.Println("\n=== Docker Build & Security Scan ===")
 			if err := runDockerBuild(); err != nil {
 				return fmt.Errorf("docker build failed: %w", err)
 			}
-
-			fmt.Println("\n=== 10. Trivy Image Scan ===")
 			if err := runTrivyScan(); err != nil {
 				return fmt.Errorf("trivy scan failed: %w", err)
 			}
 		}
 
-		fmt.Println("\n✅ CI Pipeline Passed Successfully!")
 		return nil
 	},
 }

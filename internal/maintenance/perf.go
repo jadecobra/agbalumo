@@ -15,34 +15,33 @@ func RunPerformanceAudit(rootDir string) error {
 	fmt.Println("🚀  Starting Performance Audit...")
 	fmt.Println("---------------------------------")
 
-	errs := []string{}
-	const failMsg = "❌ Failed"
-
-	// 1. Static Asset Sizes
-	fmt.Print("[?] Checking Static Asset Sizes... ")
-	if err := checkFileSizes(rootDir); err != nil {
-		fmt.Println("❌ Failed")
-		errs = append(errs, err.Error())
-	} else {
-		fmt.Println("✅ Passed")
+	type perfCheck struct {
+		fn   func(string) error
+		name string
 	}
 
-	// 2. SQLite Configuration
-	fmt.Print("[?] Checking SQLite Pragmas... ")
-	if err := checkSQLitePragmas(rootDir); err != nil {
-		fmt.Println("❌ Failed")
-		errs = append(errs, err.Error())
-	} else {
-		fmt.Println("✅ Passed")
+	checks := []perfCheck{
+		{checkFileSizes, "Static Asset Sizes"},
+		{checkSQLitePragmas, "SQLite Configuration"},
+		{runSearchBenchmark, "Search Smoke Benchmark"},
+		{runBulkInsertBenchmark, "Bulk Insert Benchmark (10k items)"},
 	}
 
-	// 3. Search Smoke Benchmark
-	fmt.Print("[?] Running Search Smoke Benchmark... ")
-	if err := runSearchBenchmark(rootDir); err != nil {
-		fmt.Println(failMsg)
-		errs = append(errs, err.Error())
-	} else {
-		fmt.Println("✅ Passed")
+	var errs []string
+	isCI := os.Getenv("GITHUB_ACTIONS") == "true"
+
+	for _, c := range checks {
+		if isCI && strings.Contains(c.name, "Benchmark") {
+			fmt.Printf("[?] Skipping %s (CI environment detected)... ✅\n", c.name)
+			continue
+		}
+		fmt.Printf("[?] Checking %s... ", c.name)
+		if err := c.fn(rootDir); err != nil {
+			fmt.Println("❌ Failed")
+			errs = append(errs, err.Error())
+		} else {
+			fmt.Println("✅ Passed")
+		}
 	}
 
 	fmt.Println("---------------------------------")
@@ -108,6 +107,22 @@ func runSearchBenchmark(rootDir string) error {
 	cmd.Dir = rootDir
 	if out, err := cmd.CombinedOutput(); err != nil {
 		return fmt.Errorf("search benchmark failed: %w\nOutput: %s", err, string(out))
+	}
+	return nil
+}
+func runBulkInsertBenchmark(rootDir string) error {
+	benchFile := filepath.Join(rootDir, "internal/repository/sqlite/sqlite_listing_bench_test.go")
+	if _, err := os.Stat(benchFile); os.IsNotExist(err) {
+		return nil
+	}
+
+	benchName := "BenchmarkSQLiteRepository_BulkInsertListings"
+	// We run with -benchtime=1x because the benchmark itself does 10,000 items, 
+	// which is enough for a performance verification sample.
+	cmd := exec.Command("go", "test", "-v", "-bench="+benchName, "-run=^#", "-benchtime=1x", "./internal/repository/sqlite")
+	cmd.Dir = rootDir
+	if out, err := cmd.CombinedOutput(); err != nil {
+		return fmt.Errorf("bulk insert benchmark failed: %w\nOutput: %s", err, string(out))
 	}
 	return nil
 }

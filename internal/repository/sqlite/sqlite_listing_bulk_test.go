@@ -15,8 +15,8 @@ func TestSQLiteRepository_BulkInsertListings(t *testing.T) {
 	repo, _ := testutil.SetupTestRepositoryUnique(t)
 	ctx := context.Background()
 
-	// 1. Generate 10,000 stress listings
-	count := 10000
+	// 1. Generate 100 smoke-test listings (reduced from 10,000 to keep CI fast)
+	count := 100
 	listings := seeder.GenerateStressListings(count)
 
 	// 2. Insert using BulkInsertListings

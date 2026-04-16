@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
@@ -32,32 +33,60 @@ func RunSecurityAudit(config AuditConfig) error {
 	fmt.Println("🛡️  Starting Security Audit...")
 	fmt.Println(domain.SeparatorLine)
 
-	res.runCheck("Go Vet", func() (bool, bool) { return checkGoVet(config) })
-	res.runCheck("fly.toml", func() (bool, bool) { return checkFlyConfig(config) })
-	res.runCheck("XSS", func() (bool, bool) { return checkXSS(config) })
-	res.runCheck("govulncheck", func() (bool, bool) { return checkVulnerabilities(config) })
-
-	if config.Mode != "static" {
-		res.runCheck("Headers", func() (bool, bool) { return checkHeaders(config.TargetURL, config.HTTPClient) })
+	checks := []auditCheck{
+		{func() (bool, bool) { return checkGoVet(config) }, "Go Vet"},
+		{func() (bool, bool) { return checkFlyConfig(config) }, "fly.toml"},
+		{func() (bool, bool) { return checkXSS(config) }, "XSS"},
+		{func() (bool, bool) { return checkVulnerabilities(config) }, "govulncheck"},
 	}
 
+	executeChecks(res, checks)
+	if config.Mode != "static" {
+		res.runDynamicCheck(config.TargetURL, config.HTTPClient)
+	}
+	return res.reportResults()
+}
+
+func executeChecks(res *auditResults, checks []auditCheck) {
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+	for _, c := range checks {
+		wg.Add(1)
+		go func(name string, fn func() (bool, bool)) {
+			defer wg.Done()
+			passed, skip := fn()
+			mu.Lock()
+			res.recordResult(name, passed, skip)
+			mu.Unlock()
+		}(c.name, c.fn)
+	}
+	wg.Wait()
+}
+
+func (r *auditResults) runDynamicCheck(url string, client *http.Client) {
+	passed, skip := checkHeaders(url, client)
+	r.recordResult("Headers", passed, skip)
+}
+
+func (r *auditResults) reportResults() error {
 	fmt.Println(domain.SeparatorLine)
-	if res.total <= 0 {
+	if r.total <= 0 {
 		return fmt.Errorf("no security checks could be performed")
 	}
-
-	finalScore := (float64(res.score) / float64(res.total)) * 100
-	fmt.Printf("🔒 Security Score: %.0f/100\n", finalScore)
-
-	if finalScore < 100 {
-		return fmt.Errorf("security score too low: %.0f/100", finalScore)
+	fmt.Printf("Audit Score: %d/%d (%.0f%%)\n", r.score, r.total, (float64(r.score)/float64(r.total))*100)
+	if r.score < r.total {
+		return fmt.Errorf("security audit did not pass all checks (%d/%d)", r.score, r.total)
 	}
 	return nil
 }
 
-func (r *auditResults) runCheck(name string, check func() (bool, bool)) {
-	fmt.Printf("[?] Running '%s'... ", name)
-	passed, skip := check()
+type auditCheck struct {
+	fn   func() (bool, bool)
+	name string
+}
+
+func (r *auditResults) recordResult(name string, passed, skip bool) {
+	fmt.Printf("[?] Finished '%s'... ", name)
 	if skip {
 		fmt.Println("⚠️  Skipped")
 		return
@@ -138,7 +167,15 @@ func checkXSS(config AuditConfig) (bool, bool) {
 // RunChiefCriticAudit performs a comprehensive code quality audit.
 func RunChiefCriticAudit(rootDir string) error {
 	fmt.Println("🚀 Starting ChiefCritic Robustness Audit...")
+	failed := executeAuditTools(rootDir)
+	fmt.Println("\n✅ ChiefCritic Audit Complete!")
+	if failed {
+		return fmt.Errorf("robustness audit failed due to mandatory quality gate violations")
+	}
+	return nil
+}
 
+func executeAuditTools(rootDir string) bool {
 	tools := []struct {
 		name string
 		cmd  []string
@@ -149,22 +186,27 @@ func RunChiefCriticAudit(rootDir string) error {
 		{"Code Duplication", []string{"go", "run", "github.com/mibk/dupl", "-threshold", "15", "./cmd", "./internal"}},
 	}
 
+	var mu sync.Mutex
+	var wg sync.WaitGroup
 	failed := false
-	for i, t := range tools {
-		fmt.Printf("\n[%d/%d] Checking %s...\n", i+1, len(tools), t.name)
-		if err := runTool(rootDir, t.cmd[0], t.cmd[1:]...); err != nil {
-			fmt.Printf("❌ %s failed!\n", t.name)
-			if t.name == "Cognitive Complexity" {
-				failed = true
-			}
-		}
-	}
 
-	fmt.Println("\n✅ ChiefCritic Audit Complete!")
-	if failed {
-		return fmt.Errorf("robustness audit failed due to mandatory quality gate violations")
+	for i, t := range tools {
+		wg.Add(1)
+		go func(idx int, name string, command []string) {
+			defer wg.Done()
+			fmt.Printf("\n[%d/%d] Checking %s...\n", idx+1, len(tools), name)
+			if err := runTool(rootDir, command[0], command[1:]...); err != nil {
+				fmt.Printf("❌ %s failed!\n", name)
+				if name == "Cognitive Complexity" {
+					mu.Lock()
+					failed = true
+					mu.Unlock()
+				}
+			}
+		}(i, t.name, t.cmd)
 	}
-	return nil
+	wg.Wait()
+	return failed
 }
 
 func runTool(dir, name string, args ...string) error {
