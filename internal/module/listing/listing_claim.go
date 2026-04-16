@@ -24,15 +24,15 @@ func (h *ListingHandler) HandleClaim(c echo.Context) error {
 	_, err := h.App.ListingSvc.ClaimListing(c.Request().Context(), *u, id)
 	if err != nil {
 		if errors.Is(err, domain.ErrListingNotFound) {
-			return ui.RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
+			return ui.RespondErrorMsg(c, http.StatusNotFound, domain.ErrListingNotFound.Error())
 		}
 		if errors.Is(err, domain.ErrListingOwned) || errors.Is(err, domain.ErrListingNotClaimable) {
-			return ui.RespondError(c, echo.NewHTTPError(http.StatusForbidden, err.Error()))
+			return ui.RespondErrorMsg(c, http.StatusForbidden, err.Error())
 		}
 		if errors.Is(err, domain.ErrPendingClaimExists) {
-			return ui.RespondError(c, echo.NewHTTPError(http.StatusConflict, err.Error()))
+			return ui.RespondErrorMsg(c, http.StatusConflict, err.Error())
 		}
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Failed to submit claim: "+err.Error()))
+		return ui.RespondErrorMsg(c, http.StatusInternalServerError, "Failed to submit claim: "+err.Error())
 	}
 
 	// HTMX: replace the claim button with a pending-approval notice

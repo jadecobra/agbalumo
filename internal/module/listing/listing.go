@@ -139,7 +139,7 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 
 	listings, totalCount, err := h.App.DB.FindAll(c.Request().Context(), filterType, queryText, "", "", false, limit, offset)
 	if err != nil {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, err.Error()))
+		return ui.RespondErrorMsg(c, http.StatusInternalServerError, err.Error())
 	}
 	hasNextPage := offset+len(listings) < totalCount
 
@@ -154,12 +154,7 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 		"User":       c.Get("User"),
 	}
 
-	// If HTMX request, render only the listing list partial
-	if c.Request().Header.Get("HX-Request") == "true" {
-		return c.Render(http.StatusOK, "listing_list", data)
-	}
-
-	// For non-HTMX requests, render the full home page with the filtered listings
+	// Render the listing list partial (works for both HTMX and full-page requests)
 	return c.Render(http.StatusOK, "listing_list", data)
 }
 
@@ -170,7 +165,7 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 
 	listing, err := h.App.DB.FindByID(ctx, id)
 	if err != nil {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusNotFound, domain.ErrListingNotFound.Error()))
+		return ui.RespondErrorMsg(c, http.StatusNotFound, domain.ErrListingNotFound.Error())
 	}
 
 	// Fetch category data to check if claimable
@@ -189,17 +184,16 @@ func (h *ListingHandler) HandleEdit(c echo.Context) error {
 	id := c.Param("id")
 	userRaw, ok := user.GetUser(c)
 	if !ok {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, "Login required"))
+		return ui.RespondErrorMsg(c, http.StatusUnauthorized, domain.ErrLoginRequired.Error())
 	}
 
 	listing, err := h.App.DB.FindByID(c.Request().Context(), id)
 	if err != nil {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusNotFound, domain.ErrListingNotFound.Error()))
+		return ui.RespondErrorMsg(c, http.StatusNotFound, domain.ErrListingNotFound.Error())
 	}
-
 	// Authorization Check (Owner or Admin)
-	if listing.OwnerID != userRaw.ID && userRaw.Role != domain.UserRoleAdmin {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusForbidden, "You are not the owner of this listing"))
+	if err := h.checkListingAuth(c, listing, userRaw); err != nil {
+		return err
 	}
 
 	targetID := c.QueryParam("target")

@@ -2,11 +2,12 @@ package service
 
 import (
 	"context"
-	"github.com/jadecobra/agbalumo/internal/testutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/jadecobra/agbalumo/internal/testutil"
 
 	"github.com/stretchr/testify/assert"
 )

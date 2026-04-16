@@ -1,8 +1,9 @@
 package seeder_test
 
 import (
-	"github.com/jadecobra/agbalumo/internal/seeder"
 	"testing"
+
+	"github.com/jadecobra/agbalumo/internal/seeder"
 )
 
 func TestGenerateStressListings(t *testing.T) {

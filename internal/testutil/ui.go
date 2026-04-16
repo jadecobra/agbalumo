@@ -9,9 +9,10 @@ import (
 	"path/filepath"
 	"testing"
 
+	"strings"
+
 	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
-	"strings"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 )

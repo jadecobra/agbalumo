@@ -16,38 +16,29 @@ the agbalumo platform, including approving listings, managing users,
 and viewing claim requests.`,
 }
 
+func runListingStatusCmd(status domain.ListingStatus, action string) func(*cobra.Command, []string) {
+	return func(cmd *cobra.Command, args []string) {
+		repo := initRepo()
+		listing, err := repo.FindByID(context.Background(), args[0])
+		exitOnErr(err, "Listing not found")
+		listing.Status = status
+		exitOnErr(repo.Save(context.Background(), listing), fmt.Sprintf("Failed to %s listing", action))
+		fmt.Printf("Listing %sd: %s\n", action, args[0])
+	}
+}
+
 var adminApproveCmd = &cobra.Command{
 	Use:   "approve [id]",
 	Short: "Approve a listing",
 	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		repo := initRepo()
-
-		listing, err := repo.FindByID(context.Background(), args[0])
-		exitOnErr(err, "Listing not found")
-
-		listing.Status = domain.ListingStatusApproved
-		exitOnErr(repo.Save(context.Background(), listing), "Failed to approve listing")
-
-		fmt.Printf("Listing approved: %s\n", args[0])
-	},
+	Run:   runListingStatusCmd(domain.ListingStatusApproved, "approve"),
 }
 
 var adminRejectCmd = &cobra.Command{
 	Use:   "reject [id]",
 	Short: "Reject a listing",
 	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		repo := initRepo()
-
-		listing, err := repo.FindByID(context.Background(), args[0])
-		exitOnErr(err, "Listing not found")
-
-		listing.Status = domain.ListingStatusRejected
-		exitOnErr(repo.Save(context.Background(), listing), "Failed to reject listing")
-
-		fmt.Printf("Listing rejected: %s\n", args[0])
-	},
+	Run:   runListingStatusCmd(domain.ListingStatusRejected, "reject"),
 }
 
 var adminFeaturedCmd = &cobra.Command{

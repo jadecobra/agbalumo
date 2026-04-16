@@ -2,9 +2,10 @@ package sqlite_test
 
 import (
 	"context"
-	"github.com/jadecobra/agbalumo/internal/testutil"
 	"testing"
 	"time"
+
+	"github.com/jadecobra/agbalumo/internal/testutil"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/stretchr/testify/assert"

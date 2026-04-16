@@ -15,6 +15,8 @@ import (
 //go:embed migrations/*.sql
 var migrationFS embed.FS
 
+const defaultSlowQueryThreshold = 50 * time.Millisecond
+
 type Scanner interface {
 	Scan(dest ...interface{}) error
 }
@@ -30,7 +32,7 @@ func NewSQLiteRepositoryFromDB(db *sql.DB) *SQLiteRepository {
 	return &SQLiteRepository{
 		writeDB:            db,
 		readDB:             db,
-		slowQueryThreshold: 50 * time.Millisecond,
+		slowQueryThreshold: defaultSlowQueryThreshold,
 	}
 }
 
@@ -59,7 +61,7 @@ func NewSQLiteRepository(dbPath string) (*SQLiteRepository, error) {
 	repo := &SQLiteRepository{
 		writeDB:            writeDB,
 		readDB:             readDB,
-		slowQueryThreshold: 50 * time.Millisecond,
+		slowQueryThreshold: defaultSlowQueryThreshold,
 	}
 	if err := repo.migrate(); err != nil {
 		return nil, err

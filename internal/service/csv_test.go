@@ -4,11 +4,12 @@ import (
 	"context"
 	"encoding/csv"
 	"fmt"
-	"github.com/jadecobra/agbalumo/internal/testutil"
 	"io"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/jadecobra/agbalumo/internal/testutil"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/stretchr/testify/assert"

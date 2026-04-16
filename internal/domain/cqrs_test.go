@@ -1,8 +1,9 @@
 package domain_test
 
 import (
-	"github.com/jadecobra/agbalumo/internal/domain"
 	"testing"
+
+	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
 // TestListingStore_IsSegregated verifies that ListingStore is now composed of

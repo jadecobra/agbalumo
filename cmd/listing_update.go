@@ -3,10 +3,29 @@ package cmd
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/spf13/cobra"
 )
+
+// applyDate sets *dst to the parsed date only if the flag is non-empty and parseable.
+func applyDate(flag, name string, dst *time.Time) {
+	if flag != "" {
+		if t := parseDate(flag, name); !t.IsZero() {
+			*dst = t
+		}
+	}
+}
+
+// applyDateTime sets *dst to the parsed datetime only if the flag is non-empty and parseable.
+func applyDateTime(flag, name string, dst *time.Time) {
+	if flag != "" {
+		if t := parseDateTime(flag, name); !t.IsZero() {
+			*dst = t
+		}
+	}
+}
 
 var listingUpdateCmd = &cobra.Command{
 	Use:   "update [id]",
@@ -48,28 +67,12 @@ var listingUpdateCmd = &cobra.Command{
 		if flagRemoveImage {
 			listing.ImageURL = ""
 		}
-		if flagDeadline != "" {
-			if t := parseDate(flagDeadline, "deadline"); !t.IsZero() {
-				listing.Deadline = t
-			}
-		}
-		if flagEventStart != "" {
-			if t := parseDateTime(flagEventStart, "event-start"); !t.IsZero() {
-				listing.EventStart = t
-			}
-		}
-		if flagEventEnd != "" {
-			if t := parseDateTime(flagEventEnd, "event-end"); !t.IsZero() {
-				listing.EventEnd = t
-			}
-		}
+		applyDate(flagDeadline, "deadline", &listing.Deadline)
+		applyDateTime(flagEventStart, "event-start", &listing.EventStart)
+		applyDateTime(flagEventEnd, "event-end", &listing.EventEnd)
+		applyDateTime(flagJobStart, "job-start", &listing.JobStartDate)
 		if flagSkills != "" {
 			listing.Skills = flagSkills
-		}
-		if flagJobStart != "" {
-			if t := parseDateTime(flagJobStart, "job-start"); !t.IsZero() {
-				listing.JobStartDate = t
-			}
 		}
 		if flagApplyURL != "" {
 			listing.JobApplyURL = flagApplyURL

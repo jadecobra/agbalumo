@@ -35,14 +35,14 @@ func (h *ListingHandler) HandleCreate(c echo.Context) error {
 
 	uRaw, ok := user.GetUser(c)
 	if !ok || uRaw == nil {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, "Authentication required to post listings"))
+		return ui.RespondErrorMsg(c, http.StatusUnauthorized, "Authentication required to post listings")
 	}
 	l.OwnerID = uRaw.ID
 
 	// Check for duplicate title
 	existing, err := h.App.DB.FindByTitle(c.Request().Context(), l.Title)
 	if err == nil && len(existing) > 0 {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusBadRequest, errTitleExists))
+		return ui.RespondErrorMsg(c, http.StatusBadRequest, errTitleExists)
 	}
 
 	// Default deadline for requests if not provided
@@ -59,18 +59,18 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 
 	uRaw, ok := user.GetUser(c)
 	if !ok || uRaw == nil {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, common.ErrMsgLoginRequired))
+		return ui.RespondErrorMsg(c, http.StatusUnauthorized, common.ErrMsgLoginRequired)
 	}
 
 	ctx := c.Request().Context()
 	listing, err := h.App.DB.FindByID(ctx, id)
 	if err != nil {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
+		return ui.RespondErrorMsg(c, http.StatusNotFound, domain.ErrListingNotFound.Error())
 	}
 
 	// Authorization Check (Owner or Admin)
-	if err := h.checkListingAuth(listing, uRaw); err != nil {
-		return ui.RespondError(c, err)
+	if err := h.checkListingAuth(c, listing, uRaw); err != nil {
+		return err
 	}
 
 	// Save original image URL BEFORE bindAndMapListing may modify it
@@ -92,9 +92,9 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 	return h.processAndSave(c, &listing)
 }
 
-func (h *ListingHandler) checkListingAuth(listing domain.Listing, uRaw *domain.User) error {
+func (h *ListingHandler) checkListingAuth(c echo.Context, listing domain.Listing, uRaw *domain.User) error {
 	if listing.OwnerID != uRaw.ID && uRaw.Role != domain.UserRoleAdmin {
-		return echo.NewHTTPError(http.StatusForbidden, "You are not the owner of this listing")
+		return ui.RespondErrorMsg(c, http.StatusForbidden, "You are not the owner of this listing")
 	}
 	return nil
 }
@@ -129,17 +129,17 @@ func (h *ListingHandler) HandleDelete(c echo.Context) error {
 	id := c.Param("id")
 	uRaw, ok := user.GetUser(c)
 	if !ok || uRaw == nil {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusUnauthorized, common.ErrMsgLoginRequired))
+		return ui.RespondErrorMsg(c, http.StatusUnauthorized, common.ErrMsgLoginRequired)
 	}
 
 	ctx := c.Request().Context()
 	listing, err := h.App.DB.FindByID(ctx, id)
 	if err != nil {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
+		return ui.RespondErrorMsg(c, http.StatusNotFound, domain.ErrListingNotFound.Error())
 	}
 
-	if listing.OwnerID != uRaw.ID {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusForbidden, "You are not the owner of this listing"))
+	if err := h.checkListingAuth(c, listing, uRaw); err != nil {
+		return err
 	}
 
 	if err := h.App.DB.Delete(ctx, id); err != nil {
@@ -153,7 +153,7 @@ func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error
 	h.autoPopulateCity(c.Request().Context(), l)
 
 	if err := l.Validate(); err != nil {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "Validation Error: "+err.Error()))
+		return ui.RespondErrorMsg(c, http.StatusBadRequest, "Validation Error: "+err.Error())
 	}
 
 	if err := h.App.DB.Save(c.Request().Context(), *l); err != nil {

@@ -1,7 +1,6 @@
 package listing_test
 
 import (
-	listmod "github.com/jadecobra/agbalumo/internal/module/listing"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -10,6 +9,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	listmod "github.com/jadecobra/agbalumo/internal/module/listing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/testutil"

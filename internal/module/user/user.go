@@ -1,9 +1,10 @@
 package user
 
 import (
+	"net/http"
+
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/labstack/echo/v4"
-	"net/http"
 )
 
 // GetUser retrieves the authenticated user from the context.

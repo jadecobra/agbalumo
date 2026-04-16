@@ -2,11 +2,12 @@ package seeder
 
 import (
 	"fmt"
-	"github.com/jadecobra/agbalumo/internal/domain"
 	"math/rand/v2"
 	"runtime"
 	"sync"
 	"time"
+
+	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
 var origins []string

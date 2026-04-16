@@ -3,9 +3,10 @@ package sqlite_test
 import (
 	"context"
 	"database/sql"
-	"github.com/jadecobra/agbalumo/internal/testutil"
 	"testing"
 	"time"
+
+	"github.com/jadecobra/agbalumo/internal/testutil"
 
 	"github.com/google/uuid"
 	"github.com/jadecobra/agbalumo/internal/domain"

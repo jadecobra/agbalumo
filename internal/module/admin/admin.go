@@ -240,7 +240,7 @@ func (h *AdminHandler) HandleAddCategory(c echo.Context) error {
 
 	if existing, err := h.App.CategorizationSvc.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: false}); err == nil {
 		if hasDuplicateCategory(existing, name) {
-			return flashAndRedirect(c, fmt.Sprintf("Category '%s' already exists!", name), domain.PathAdmin)
+			return h.redirectWithFlash(c, fmt.Sprintf("Category '%s' already exists!", name), domain.PathAdmin)
 		}
 	}
 
@@ -259,7 +259,7 @@ func (h *AdminHandler) HandleAddCategory(c echo.Context) error {
 		c.Logger().Errorf("failed to save custom category: %v", err)
 	}
 
-	return flashAndRedirect(c, "Category added successfully!", domain.PathAdmin)
+	return h.redirectWithFlash(c, "Category added successfully!", domain.PathAdmin)
 }
 
 // HandleUsers renders the list of users for admins.
@@ -310,12 +310,4 @@ func hasDuplicateCategory(existing []domain.CategoryData, name string) bool {
 		}
 	}
 	return false
-}
-
-func flashAndRedirect(c echo.Context, msg, url string) error {
-	if sess := customMiddleware.GetSession(c); sess != nil {
-		sess.AddFlash(msg, "message")
-		_ = sess.Save(c.Request(), c.Response())
-	}
-	return c.Redirect(http.StatusFound, url)
 }

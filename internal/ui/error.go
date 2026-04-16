@@ -31,3 +31,9 @@ func RespondError(c echo.Context, err error) error {
 		"Message": message,
 	})
 }
+
+// RespondErrorMsg is a convenient shorthand for returning an HTTPError with a specific message.
+// This reduces code duplication across handlers.
+func RespondErrorMsg(c echo.Context, code int, message string) error {
+	return RespondError(c, echo.NewHTTPError(code, message))
+}

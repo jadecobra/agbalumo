@@ -46,18 +46,19 @@ func InferCurrentPhase(rootDir string) (WorkflowPhase, error) {
 	}
 }
 
-func getStagedFiles(rootDir string) (string, error) {
-	cmd := exec.Command("git", "diff", "--cached", "--name-only")
+func runGitCommand(rootDir string, args ...string) (string, error) {
+	cmd := exec.Command("git", args...) //nolint:gosec // "git" is a hard-coded literal; args are controlled subcommand flags
 	cmd.Dir = rootDir
 	out, err := cmd.Output()
 	return strings.TrimSpace(string(out)), err
 }
 
+func getStagedFiles(rootDir string) (string, error) {
+	return runGitCommand(rootDir, "diff", "--cached", "--name-only")
+}
+
 func getLastCommitMsg(rootDir string) (string, error) {
-	cmd := exec.Command("git", "log", "-1", "--pretty=%B")
-	cmd.Dir = rootDir
-	out, err := cmd.Output()
-	return strings.TrimSpace(string(out)), err
+	return runGitCommand(rootDir, "log", "-1", "--pretty=%B")
 }
 
 func isOnlyTestsStaged(staged string) bool {

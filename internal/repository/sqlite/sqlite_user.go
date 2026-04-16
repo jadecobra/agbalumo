@@ -72,7 +72,7 @@ func (r *SQLiteRepository) FindUserByID(ctx context.Context, id string) (domain.
 
 	u, err := scanUser(row)
 	if err == sql.ErrNoRows {
-		return domain.User{}, errors.New("user not found")
+		return domain.User{}, errors.New(domain.ErrUserNotFound.Error())
 	}
 	return u, err
 }

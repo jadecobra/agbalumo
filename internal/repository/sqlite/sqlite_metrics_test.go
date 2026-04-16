@@ -2,10 +2,11 @@ package sqlite
 
 import (
 	"context"
-	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMetricsLifecycle(t *testing.T) {

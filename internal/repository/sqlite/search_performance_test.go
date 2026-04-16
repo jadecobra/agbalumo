@@ -3,11 +3,12 @@ package sqlite_test
 import (
 	"context"
 	"fmt"
-	"github.com/jadecobra/agbalumo/internal/testutil"
 	"os"
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/jadecobra/agbalumo/internal/testutil"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"

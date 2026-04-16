@@ -271,31 +271,31 @@ var ciCmd = &cobra.Command{
 		fmt.Println("🚀 Starting Native CI Pipeline...")
 
 		steps := []struct {
-			name string
 			fn   func() error
+			name string
 		}{
-			{"Verifying GitHub Action SHAs", func() error { return maintenance.VerifyActionSHAs(".") }},
-			{"Verifying CI Toolset", func() error { return maintenance.VerifyCITools(".") }},
-			{"Running Lint", func() error {
+			{name: "Verifying GitHub Action SHAs", fn: func() error { return maintenance.VerifyActionSHAs(".") }},
+			{name: "Verifying CI Toolset", fn: func() error { return maintenance.VerifyCITools(".") }},
+			{name: "Running Lint", fn: func() error {
 				return runCmd("go", "run", "github.com/golangci/golangci-lint/v2/cmd/golangci-lint", "run")
 			}},
-			{"Enforcing Struct Alignment", func() error {
+			{name: "Enforcing Struct Alignment", fn: func() error {
 				err := runCmd("go", "run", "golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest", "./...")
 				if err != nil {
 					return fmt.Errorf("struct alignment failed, run 'go run golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest -fix ./...' to auto-fix: %w", err)
 				}
 				return nil
 			}},
-			{"Running Tests", func() error {
+			{name: "Running Tests", fn: func() error {
 				return runCmd("go", "test", "-race", "-cover", "-count=1", "./...")
 			}},
-			{"Running Vulncheck", func() error {
+			{name: "Running Vulncheck", fn: func() error {
 				return runCmd("go", "run", "golang.org/x/vuln/cmd/govulncheck", "./...")
 			}},
-			{"Checking ChiefCritic Robustness", func() error { return critiqueCmd.RunE(cmd, args) }},
-			{"Checking API/CLI Contract Drift", func() error { return apiSpecCmd.RunE(cmd, args) }},
-			{"Checking Template Drift", func() error { return templateDriftCmd.RunE(cmd, args) }},
-			{"Checking Coverage Threshold", func() error { return coverageCmd.RunE(cmd, args) }},
+			{name: "Checking ChiefCritic Robustness", fn: func() error { return critiqueCmd.RunE(cmd, args) }},
+			{name: "Checking API/CLI Contract Drift", fn: func() error { return apiSpecCmd.RunE(cmd, args) }},
+			{name: "Checking Template Drift", fn: func() error { return templateDriftCmd.RunE(cmd, args) }},
+			{name: "Checking Coverage Threshold", fn: func() error { return coverageCmd.RunE(cmd, args) }},
 		}
 
 		for i, s := range steps {

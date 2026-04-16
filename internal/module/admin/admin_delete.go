@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/jadecobra/agbalumo/internal/domain"
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/labstack/echo/v4"
 )
@@ -26,7 +27,7 @@ func (h *AdminHandler) HandleAdminDeleteView(c echo.Context) error {
 	// by pagination (e.g. 50 items) and SQLite connection overhead is negligible.
 	for _, id := range ids {
 		if _, err := h.App.DB.FindByID(ctx, id); err != nil {
-			return c.String(http.StatusNotFound, "Listing not found")
+			return c.String(http.StatusNotFound, domain.ErrListingNotFound.Error())
 		}
 	}
 

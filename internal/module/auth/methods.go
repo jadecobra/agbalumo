@@ -22,7 +22,7 @@ func (h *AuthHandler) DevLogin(c echo.Context) error {
 	}
 
 	if h.App.Cfg.Env != domain.EnvDevelopment {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusForbidden, "Dev login disabled in production"))
+		return ui.RespondErrorMsg(c, http.StatusForbidden, "Dev login disabled in production")
 	}
 
 	googleID := "dev-" + email
@@ -31,20 +31,23 @@ func (h *AuthHandler) DevLogin(c echo.Context) error {
 
 	user, err := h.findOrCreateUser(c.Request().Context(), googleID, email, name, avatar)
 	if err != nil {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, domain.MsgFailedToLogin))
+		return ui.RespondErrorMsg(c, http.StatusInternalServerError, domain.MsgFailedToLogin)
 	}
 
 	return h.setSessionAndRedirect(c, user.ID)
 }
 
+func isSecureCookie(c echo.Context, env string) bool {
+	baseURL := os.Getenv("BASE_URL")
+	return env == domain.EnvProduction || strings.HasPrefix(baseURL, "https://") || c.Scheme() == "https"
+}
+
 func (h *AuthHandler) GoogleLogin(c echo.Context) error {
 	if !h.App.Cfg.HasGoogleAuth {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusServiceUnavailable, "Google OAuth is not configured"))
+		return ui.RespondErrorMsg(c, http.StatusServiceUnavailable, "Google OAuth is not configured")
 	}
 
 	state := uuid.New().String()
-	baseURL := os.Getenv("BASE_URL")
-	isSecure := h.App.Cfg.Env == domain.EnvProduction || strings.HasPrefix(baseURL, "https://")
 
 	cookie := new(http.Cookie)
 	cookie.Name = "oauth_state"
@@ -52,7 +55,7 @@ func (h *AuthHandler) GoogleLogin(c echo.Context) error {
 	cookie.Path = "/"
 	cookie.MaxAge = 10 * 60
 	cookie.HttpOnly = true
-	cookie.Secure = c.Scheme() == "https" || isSecure
+	cookie.Secure = isSecureCookie(c, h.App.Cfg.Env)
 	cookie.SameSite = http.SameSiteLaxMode
 	c.SetCookie(cookie)
 
@@ -97,22 +100,19 @@ func (h *AuthHandler) findOrCreateUser(ctx context.Context, googleID, email, nam
 func (h *AuthHandler) setSessionAndRedirect(c echo.Context, userID string) error {
 	sess := customMiddleware.GetSession(c)
 	if sess == nil {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Session Store Missing"))
+		return ui.RespondErrorMsg(c, http.StatusInternalServerError, "Session Store Missing")
 	}
-
-	baseURL := os.Getenv("BASE_URL")
-	isSecure := h.App.Cfg.Env == domain.EnvProduction || strings.HasPrefix(baseURL, "https://")
 
 	sess.Options = &sessions.Options{
 		Path:     "/",
 		MaxAge:   86400 * 7,
 		HttpOnly: true,
-		Secure:   c.Scheme() == "https" || isSecure,
+		Secure:   isSecureCookie(c, h.App.Cfg.Env),
 		SameSite: http.SameSiteLaxMode,
 	}
 	sess.Values["user_id"] = userID
 	if err := sess.Save(c.Request(), c.Response()); err != nil {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Failed to save session"))
+		return ui.RespondErrorMsg(c, http.StatusInternalServerError, "Failed to save session")
 	}
 
 	return c.Redirect(http.StatusTemporaryRedirect, "/")
@@ -122,7 +122,7 @@ func (h *AuthHandler) GoogleCallback(c echo.Context) error {
 
 	stateCookie, err := c.Cookie("oauth_state")
 	if err != nil || stateCookie.Value != state {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusBadRequest, "States don't match or expired"))
+		return ui.RespondErrorMsg(c, http.StatusBadRequest, "States don't match or expired")
 	}
 
 	deleteCookie := new(http.Cookie)
@@ -135,17 +135,17 @@ func (h *AuthHandler) GoogleCallback(c echo.Context) error {
 	code := c.QueryParam("code")
 	token, err := h.GoogleProvider.Exchange(c.Request().Context(), code, c.Scheme(), c.Request().Host)
 	if err != nil {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "Code exchange failed"))
+		return ui.RespondErrorMsg(c, http.StatusInternalServerError, "Code exchange failed")
 	}
 
 	gUser, err := h.GoogleProvider.GetUserInfo(c.Request().Context(), token)
 	if err != nil {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, "User data fetch failed"))
+		return ui.RespondErrorMsg(c, http.StatusInternalServerError, "User data fetch failed")
 	}
 
 	user, err := h.findOrCreateUser(c.Request().Context(), gUser.ID, gUser.Email, gUser.Name, gUser.Picture)
 	if err != nil {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusInternalServerError, domain.MsgFailedToLogin))
+		return ui.RespondErrorMsg(c, http.StatusInternalServerError, domain.MsgFailedToLogin)
 	}
 
 	return h.setSessionAndRedirect(c, user.ID)
