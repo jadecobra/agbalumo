@@ -39,6 +39,12 @@ jobs:
       - name: Verify GitHub Action SHAs
         run: go run cmd/verify/main.go verify-shas
 
+      - name: Enforce Field Alignment
+        run: go run golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest ./...
+
+      - name: Codebase Critique
+        run: go run cmd/verify/main.go critique
+
   security_static:
     name: Security Static Analysis
     runs-on: ubuntu-latest

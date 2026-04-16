@@ -279,12 +279,20 @@ var ciCmd = &cobra.Command{
 			{"Running Lint", func() error {
 				return runCmd("go", "run", "github.com/golangci/golangci-lint/v2/cmd/golangci-lint", "run")
 			}},
+			{"Enforcing Struct Alignment", func() error {
+				err := runCmd("go", "run", "golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest", "./...")
+				if err != nil {
+					return fmt.Errorf("struct alignment failed, run 'go run golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest -fix ./...' to auto-fix: %w", err)
+				}
+				return nil
+			}},
 			{"Running Tests", func() error {
 				return runCmd("go", "test", "-race", "-cover", "-count=1", "./...")
 			}},
 			{"Running Vulncheck", func() error {
 				return runCmd("go", "run", "golang.org/x/vuln/cmd/govulncheck", "./...")
 			}},
+			{"Checking ChiefCritic Robustness", func() error { return critiqueCmd.RunE(cmd, args) }},
 			{"Checking API/CLI Contract Drift", func() error { return apiSpecCmd.RunE(cmd, args) }},
 			{"Checking Template Drift", func() error { return templateDriftCmd.RunE(cmd, args) }},
 			{"Checking Coverage Threshold", func() error { return coverageCmd.RunE(cmd, args) }},
