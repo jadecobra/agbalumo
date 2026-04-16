@@ -1,0 +1,9 @@
+# github.com/jadecobra/agbalumo/internal/maintenance
+internal/maintenance/perf.go:24:4: cannot use "Static Asset Sizes" (untyped string constant) as func(string) error value in struct literal
+internal/maintenance/perf.go:24:26: cannot use checkFileSizes (value of type func(rootDir string) error) as string value in struct literal
+internal/maintenance/perf.go:25:4: cannot use "SQLite Configuration" (untyped string constant) as func(string) error value in struct literal
+internal/maintenance/perf.go:25:28: cannot use checkSQLitePragmas (value of type func(rootDir string) error) as string value in struct literal
+internal/maintenance/perf.go:26:4: cannot use "Search Smoke Benchmark" (untyped string constant) as func(string) error value in struct literal
+internal/maintenance/perf.go:26:30: cannot use runSearchBenchmark (value of type func(rootDir string) error) as string value in struct literal
+internal/maintenance/perf.go:27:4: cannot use "Bulk Insert Benchmark (10k items)" (untyped string constant) as func(string) error value in struct literal
+internal/maintenance/perf.go:27:41: cannot use runBulkInsertBenchmark (value of type func(rootDir string) error) as string value in struct literal

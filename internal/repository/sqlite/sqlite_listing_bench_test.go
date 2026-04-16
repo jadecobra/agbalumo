@@ -2,9 +2,9 @@ package sqlite_test
 
 import (
 	"context"
-	"testing"
-	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/jadecobra/agbalumo/internal/seeder"
+	"github.com/jadecobra/agbalumo/internal/testutil"
+	"testing"
 )
 
 func BenchmarkSQLiteRepository_BulkInsertListings(b *testing.B) {

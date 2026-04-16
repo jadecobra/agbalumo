@@ -269,7 +269,7 @@ var ciCmd = &cobra.Command{
 	Short: "Run the full CI pipeline in parallel with dynamic concurrency",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := cmd.Context()
-		
+
 		tasks := []maintenance.CITask{
 			{Name: "Verifying GitHub Action SHAs", Fn: func() error { return maintenance.VerifyActionSHAs(".") }},
 			{Name: "Verifying CI Toolset", Fn: func() error { return maintenance.VerifyCITools(".") }},

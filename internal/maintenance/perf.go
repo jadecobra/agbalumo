@@ -117,7 +117,7 @@ func runBulkInsertBenchmark(rootDir string) error {
 	}
 
 	benchName := "BenchmarkSQLiteRepository_BulkInsertListings"
-	// We run with -benchtime=1x because the benchmark itself does 10,000 items, 
+	// We run with -benchtime=1x because the benchmark itself does 10,000 items,
 	// which is enough for a performance verification sample.
 	cmd := exec.Command("go", "test", "-v", "-bench="+benchName, "-run=^#", "-benchtime=1x", "./internal/repository/sqlite")
 	cmd.Dir = rootDir

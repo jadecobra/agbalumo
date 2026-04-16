@@ -1,0 +1,27 @@
+?   	github.com/jadecobra/agbalumo	[no test files]
+ok  	github.com/jadecobra/agbalumo/cmd	(cached)
+ok  	github.com/jadecobra/agbalumo/cmd/aglog	(cached)
+ok  	github.com/jadecobra/agbalumo/cmd/verify	1.418s
+ok  	github.com/jadecobra/agbalumo/internal/common	(cached)
+ok  	github.com/jadecobra/agbalumo/internal/config	(cached)
+ok  	github.com/jadecobra/agbalumo/internal/domain	(cached)
+ok  	github.com/jadecobra/agbalumo/internal/history	(cached)
+?   	github.com/jadecobra/agbalumo/internal/infra/env	[no test files]
+?   	github.com/jadecobra/agbalumo/internal/infra/metrics	[no test files]
+ok  	github.com/jadecobra/agbalumo/internal/infra/server	(cached)
+ok  	github.com/jadecobra/agbalumo/internal/maintenance	12.274s
+ok  	github.com/jadecobra/agbalumo/internal/middleware	(cached)
+ok  	github.com/jadecobra/agbalumo/internal/module/admin	(cached)
+ok  	github.com/jadecobra/agbalumo/internal/module/auth	(cached)
+ok  	github.com/jadecobra/agbalumo/internal/module/feedback	(cached)
+ok  	github.com/jadecobra/agbalumo/internal/module/listing	(cached)
+ok  	github.com/jadecobra/agbalumo/internal/module/user	(cached)
+ok  	github.com/jadecobra/agbalumo/internal/repository/cached	(cached)
+ok  	github.com/jadecobra/agbalumo/internal/repository/sqlite	(cached)
+ok  	github.com/jadecobra/agbalumo/internal/security	(cached)
+ok  	github.com/jadecobra/agbalumo/internal/seeder	(cached)
+ok  	github.com/jadecobra/agbalumo/internal/service	(cached)
+?   	github.com/jadecobra/agbalumo/internal/testutil	[no test files]
+ok  	github.com/jadecobra/agbalumo/internal/testutil/stubs	(cached)
+ok  	github.com/jadecobra/agbalumo/internal/ui	(cached)
+ok  	github.com/jadecobra/agbalumo/internal/util	1.585s
