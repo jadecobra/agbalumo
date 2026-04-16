@@ -19,16 +19,20 @@ COPY main.go .
 RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
     CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o server main.go
 
-# Build Stage for Litestream (to patch CVE-2026-33186 in gRPC dependency)
+# Build Stage for Litestream (to patch CVE-2024-45337 & CVE-2024-44111 in older gRPC/otel)
 FROM golang:1.26-alpine AS litestream-builder
-
 WORKDIR /src
-RUN apk add --no-cache git && \
-    git clone --depth 1 --branch v0.5.10 https://github.com/benbjohnson/litestream.git . && \
+RUN apk add --no-cache git
+RUN git clone --depth 1 --branch v0.5.10 https://github.com/benbjohnson/litestream.git .
+
+# Patch dependencies and build with caching
+RUN --mount=type=cache,target=/go/pkg/mod \
     go mod edit -replace google.golang.org/grpc=google.golang.org/grpc@v1.79.3 && \
     go get github.com/go-jose/go-jose/v4@v4.1.4 && \
     go get go.opentelemetry.io/otel/sdk@v1.43.0 && \
-    go mod tidy && \
+    go mod tidy
+
+RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
     CGO_ENABLED=0 go build -ldflags="-w -s" -o /app/litestream ./cmd/litestream
 
 # Runtime Stage

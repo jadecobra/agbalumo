@@ -243,7 +243,13 @@ func runDockerBuild() error {
 	if err := runCmd("npm", "run", "build:css"); err != nil {
 		return fmt.Errorf("css build failed (required by Docker): %w", err)
 	}
-	return runCmd("docker", "build", "--no-cache", "-t", localCIImageTag, ".")
+
+	// Enable BuildKit for cache mounts and use --pull to ensure latest base images
+	cmd := exec.Command("docker", "build", "--pull", "-t", localCIImageTag, ".")
+	cmd.Env = append(os.Environ(), "DOCKER_BUILDKIT=1")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
 }
 
 // runTrivyScan runs Trivy against the locally built image with flags that mirror
