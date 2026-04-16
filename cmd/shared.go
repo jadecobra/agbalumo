@@ -139,6 +139,51 @@ func parseDateTime(val string, label string) time.Time {
 	return t
 }
 
+func applyStringField(flag string, dst *string) {
+	if flag != "" {
+		*dst = flag
+	}
+}
+
+func applyDate(flag, name string, dst *time.Time) {
+	if flag != "" {
+		if t := parseDate(flag, name); !t.IsZero() {
+			*dst = t
+		}
+	}
+}
+
+func applyDateTime(flag, name string, dst *time.Time) {
+	if flag != "" {
+		if t := parseDateTime(flag, name); !t.IsZero() {
+			*dst = t
+		}
+	}
+}
+
+func applyListingUpdates(listing *domain.Listing) {
+	applyStringField(flagTitle, &listing.Title)
+	applyStringField(flagDescription, &listing.Description)
+	applyStringField(flagCity, &listing.City)
+	applyStringField(flagAddress, &listing.Address)
+	applyStringField(flagEmail, &listing.ContactEmail)
+	applyStringField(flagPhone, &listing.ContactPhone)
+	applyStringField(flagWhatsApp, &listing.ContactWhatsApp)
+	applyStringField(flagWebsite, &listing.WebsiteURL)
+	applyStringField(flagImageURL, &listing.ImageURL)
+	if flagRemoveImage {
+		listing.ImageURL = ""
+	}
+	applyDate(flagDeadline, domain.FieldDeadline, &listing.Deadline)
+	applyDateTime(flagEventStart, domain.FieldEventStart, &listing.EventStart)
+	applyDateTime(flagEventEnd, domain.FieldEventEnd, &listing.EventEnd)
+	applyDateTime(flagJobStart, domain.FieldJobStart, &listing.JobStartDate)
+	applyStringField(flagSkills, &listing.Skills)
+	applyStringField(flagApplyURL, &listing.JobApplyURL)
+	applyStringField(flagCompany, &listing.Company)
+	applyStringField(flagPayRange, &listing.PayRange)
+}
+
 func printListResponse(cmd *cobra.Command, items any, count int, emptyMsg string) bool {
 	if count == 0 {
 		if !flagText {

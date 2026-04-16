@@ -40,10 +40,10 @@ func (h *AdminHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddleware
 
 	adminGroup := e.Group(domain.PathAdmin)
 	adminGroup.Use(authMw.OptionalAuth)
-	adminGroup.GET("/login", h.HandleLoginView)
+	adminGroup.GET(domain.PathLogin, h.HandleLoginView)
 
 	// Admin login POST with strict rate limiting
-	adminLoginGroup := adminGroup.Group("/login")
+	adminLoginGroup := adminGroup.Group(domain.PathLogin)
 	adminLoginGroup.Use(adminAuthLimiter.Middleware())
 	adminLoginGroup.POST("", h.HandleLoginAction)
 	adminGroup.Use(h.AdminMiddleware)
@@ -126,7 +126,7 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 	sess := customMiddleware.GetSession(c)
 	var flashMsg interface{}
 	if sess != nil {
-		if flashes := sess.Flashes("message"); len(flashes) > 0 {
+		if flashes := sess.Flashes(domain.FlashMessageKey); len(flashes) > 0 {
 			flashMsg = flashes[0]
 			_ = sess.Save(c.Request(), c.Response())
 		}
@@ -301,6 +301,15 @@ func (h *AdminHandler) HandleExportListings(c echo.Context) error {
 
 	_, err = io.Copy(c.Response().Writer, reader)
 	return err
+}
+
+func (h *AdminHandler) redirectWithFlash(c echo.Context, msg, targetURL string) error {
+	sess := customMiddleware.GetSession(c)
+	if sess != nil {
+		sess.AddFlash(msg, domain.FlashMessageKey)
+		_ = sess.Save(c.Request(), c.Response())
+	}
+	return c.Redirect(http.StatusFound, targetURL)
 }
 
 func hasDuplicateCategory(existing []domain.CategoryData, name string) bool {

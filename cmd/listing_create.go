@@ -24,32 +24,16 @@ can be specified via flags.`,
 		repo := initRepo()
 
 		listing := domain.Listing{
-			ID:              generateID(),
-			OwnerID:         flagOwnerID,
-			OwnerOrigin:     flagOrigin,
-			Type:            domain.Category(flagType),
-			Title:           flagTitle,
-			Description:     flagDescription,
-			City:            flagCity,
-			Address:         flagAddress,
-			ContactEmail:    flagEmail,
-			ContactPhone:    flagPhone,
-			ContactWhatsApp: flagWhatsApp,
-			WebsiteURL:      flagWebsite,
-			ImageURL:        flagImageURL,
-			CreatedAt:       time.Now(),
-			IsActive:        true,
-			Status:          domain.ListingStatusApproved,
-			Skills:          flagSkills,
-			JobApplyURL:     flagApplyURL,
-			Company:         flagCompany,
-			PayRange:        flagPayRange,
+			ID:          generateID(),
+			OwnerID:     flagOwnerID,
+			OwnerOrigin: flagOrigin,
+			Type:        domain.Category(flagType),
+			CreatedAt:   time.Now(),
+			IsActive:    true,
+			Status:      domain.ListingStatusApproved,
 		}
 
-		listing.Deadline = parseDate(flagDeadline, "deadline")
-		listing.EventStart = parseDateTime(flagEventStart, "event-start")
-		listing.EventEnd = parseDateTime(flagEventEnd, "event-end")
-		listing.JobStartDate = parseDateTime(flagJobStart, "job-start")
+		applyListingUpdates(&listing)
 
 		exitOnErr(repo.Save(context.Background(), listing), domain.MsgFailedToCreateListing)
 

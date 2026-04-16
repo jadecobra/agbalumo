@@ -30,6 +30,8 @@ var (
 )
 
 const (
+	// FlashMessageKey is the session key used for flash messages.
+	FlashMessageKey = "message"
 	// MsgFailedToOpenDB is a common error message for database connection failures.
 	MsgFailedToOpenDB = "Failed to open DB"
 	// MsgFailedToUpdateListing is a common error message for listing update failures.

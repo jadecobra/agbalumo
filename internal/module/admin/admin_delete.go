@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
-	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/labstack/echo/v4"
 )
 
@@ -19,7 +18,7 @@ func (h *AdminHandler) HandleAdminDeleteView(c echo.Context) error {
 	}
 
 	if len(ids) == 0 {
-		return c.Redirect(http.StatusFound, "/admin/listings")
+		return c.Redirect(http.StatusFound, domain.PathAdminListings)
 	}
 
 	ctx := c.Request().Context()
@@ -45,7 +44,7 @@ func (h *AdminHandler) HandleAdminDeleteAction(c echo.Context) error {
 	ids := c.Request().PostForm["id"]
 
 	if len(ids) == 0 {
-		return c.Redirect(http.StatusFound, "/admin/listings")
+		return c.Redirect(http.StatusFound, domain.PathAdminListings)
 	}
 
 	if adminCode != h.App.Cfg.AdminCode {
@@ -66,11 +65,5 @@ func (h *AdminHandler) HandleAdminDeleteAction(c echo.Context) error {
 		}
 	}
 
-	sess := customMiddleware.GetSession(c)
-	if sess != nil {
-		sess.AddFlash(fmt.Sprintf("Successfully deleted %d listings", successCount), "message")
-		_ = sess.Save(c.Request(), c.Response())
-	}
-
-	return c.Redirect(http.StatusFound, "/admin/listings")
+	return h.redirectWithFlash(c, fmt.Sprintf("Successfully deleted %d listings", successCount), domain.PathAdminListings)
 }

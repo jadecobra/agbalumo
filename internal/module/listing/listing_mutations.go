@@ -146,7 +146,7 @@ func (h *ListingHandler) HandleDelete(c echo.Context) error {
 		return ui.RespondError(c, err)
 	}
 
-	return c.Redirect(http.StatusSeeOther, "/profile")
+	return c.Redirect(http.StatusSeeOther, domain.PathProfile)
 }
 
 func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error {

@@ -28,18 +28,18 @@ func (h *ListingHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddlewa
 	// Public Routes
 	e.GET("/", h.HandleHome)
 	e.GET("/listings/fragment", h.HandleFragment)
-	e.GET("/listings/:id", h.HandleDetail)
+	e.GET(domain.PathListingID, h.HandleDetail)
 	e.POST("/api/metrics", h.HandleMetricsIngestion)
 
 	// Authenticated Routes
 	authGroup := e.Group("", authMw.RequireAuth)
 	authGroup.POST(domain.PathListings, h.HandleCreate)
-	authGroup.GET("/listings/:id/edit", h.HandleEdit)
-	authGroup.PUT("/listings/:id", h.HandleUpdate)
-	authGroup.POST("/listings/:id", h.HandleUpdate)
-	authGroup.DELETE("/listings/:id", h.HandleDelete)
+	authGroup.GET(domain.PathListingID+"/edit", h.HandleEdit)
+	authGroup.PUT(domain.PathListingID, h.HandleUpdate)
+	authGroup.POST(domain.PathListingID, h.HandleUpdate)
+	authGroup.DELETE(domain.PathListingID, h.HandleDelete)
 	authGroup.GET(domain.PathProfile, h.HandleProfile)
-	authGroup.POST("/listings/:id/claim", h.HandleClaim)
+	authGroup.POST(domain.PathListingID+"/claim", h.HandleClaim)
 }
 
 // Home Handler

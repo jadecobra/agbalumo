@@ -10,6 +10,17 @@ import (
 	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
+type ListingFilters struct {
+	Type            string
+	QueryText       string
+	OwnerID         string
+	City            string
+	WebsiteURL      string
+	ListingStatus   domain.ListingStatus
+	IncludeInactive bool
+	FeaturedOnly    bool
+}
+
 func scanListing(s Scanner) (domain.Listing, error) {
 	var l domain.Listing
 	var deadline, eventStart, eventEnd, jobStart sql.NullTime
@@ -47,7 +58,12 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 	start := time.Now()
 	defer r.logSlowQuery("FindAll", start)
 
-	where, args := r.buildFindAllWhere(filterType, queryText, includeInactive)
+	filters := ListingFilters{
+		Type:            filterType,
+		QueryText:       queryText,
+		IncludeInactive: includeInactive,
+	}
+	where, args := r.buildListingWhere(filters)
 
 	totalCount, err := r.getCount(ctx, "listings", where, args)
 	if err != nil {
@@ -56,41 +72,70 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 
 	order := r.buildOrderClause(sortField, sortOrder)
 
-	// #nosec G202 - Dynamic query construction with trusted internal fragments
-	query := `SELECT ` + ListingSelectionsSQL + ` FROM listings 
-	          WHERE rowid IN (SELECT rowid FROM listings ` + where + ` ORDER BY ` + order + ` LIMIT ? OFFSET ?)
-	          ORDER BY ` + order
-	args = append(args, limit, offset)
-
-	rows, err := r.readDB.QueryContext(ctx, query, args...)
-	if err != nil {
-		return nil, 0, err
-	}
-	defer func() { _ = rows.Close() }()
-
-	listings, err := scanListings(rows)
+	listings, err := r.queryListingsPaginated(ctx, where, order, args, limit, offset)
 	if err != nil {
 		return nil, 0, err
 	}
 	return listings, totalCount, nil
 }
 
-func (r *SQLiteRepository) buildFindAllWhere(filterType, queryText string, includeInactive bool) (string, []interface{}) {
+func (r *SQLiteRepository) queryListingsPaginated(ctx context.Context, where, order string, baseArgs []interface{}, limit, offset int) ([]domain.Listing, error) {
+	args := make([]interface{}, 0, len(baseArgs)+2)
+	args = append(args, baseArgs...)
+	args = append(args, limit, offset)
+
+	// #nosec G202 - Dynamic query construction with trusted internal fragments
+	query := `SELECT ` + r.buildListingColumns() + ` FROM listings 
+	          WHERE rowid IN (SELECT rowid FROM listings ` + where + ` ORDER BY ` + order + ` LIMIT ? OFFSET ?)
+	          ORDER BY ` + order
+
+	rows, err := r.readDB.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+
+	return scanListings(rows)
+}
+
+func (r *SQLiteRepository) buildListingColumns() string {
+	return ListingSelectionsSQL
+}
+
+func (r *SQLiteRepository) buildListingWhere(filters ListingFilters) (string, []interface{}) {
 	where := " WHERE 1=1"
 	var args []interface{}
 
-	if !includeInactive {
+	if !filters.IncludeInactive {
 		where += ` AND ` + ListingActiveApprovedSQL
 	}
 
-	if filterType != "" {
+	if filters.Type != "" {
 		where += ListingFilterTypeSQL
-		args = append(args, filterType)
+		args = append(args, filters.Type)
 	}
 
-	if queryText != "" {
+	if filters.OwnerID != "" {
+		where += ` AND owner_id = ?`
+		args = append(args, filters.OwnerID)
+	}
+
+	if filters.City != "" {
+		where += ` AND city = ?`
+		args = append(args, filters.City)
+	}
+
+	if filters.FeaturedOnly {
+		where += ` AND featured = 1`
+	}
+
+	if filters.WebsiteURL != "" {
+		where += ` AND website_url != ''`
+	}
+
+	if filters.QueryText != "" {
 		where += ` AND rowid IN (SELECT rowid FROM listings_fts WHERE listings_fts MATCH ?)`
-		args = append(args, queryText)
+		args = append(args, filters.QueryText)
 	}
 
 	return where, args
@@ -154,11 +199,8 @@ func (r *SQLiteRepository) FindByID(ctx context.Context, id string) (domain.List
 	start := time.Now()
 	defer r.logSlowQuery("FindByID", start)
 
-	query := `
-		SELECT ` + ListingSelectionsSQL + `
-		FROM listings
-		WHERE id = ?
-	`
+	// #nosec G202 - Dynamic query construction with trusted internal fragments
+	query := `SELECT ` + r.buildListingColumns() + ` FROM listings WHERE id = ?`
 	row := r.readDB.QueryRowContext(ctx, query, id)
 
 	l, err := scanListing(row)
@@ -169,41 +211,35 @@ func (r *SQLiteRepository) FindByID(ctx context.Context, id string) (domain.List
 }
 
 func (r *SQLiteRepository) FindByTitle(ctx context.Context, title string) ([]domain.Listing, error) {
-	query := `
-		SELECT ` + ListingSelectionsSQL + `
-		FROM listings
-		WHERE title = ?
-	`
-	rows, err := r.readDB.QueryContext(ctx, query, title)
+	return r.queryListingsSimple(ctx, "WHERE title = ?", title)
+}
+
+func (r *SQLiteRepository) FindAllByOwner(ctx context.Context, ownerID string, limit int, offset int) ([]domain.Listing, int, error) {
+	filters := ListingFilters{OwnerID: ownerID, IncludeInactive: true}
+	where, args := r.buildListingWhere(filters)
+
+	totalCount, err := r.getCount(ctx, "listings", where, args)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	listings, err := r.queryListingsSimple(ctx, where+" ORDER BY created_at DESC LIMIT ? OFFSET ?", append(args, limit, offset)...)
+	if err != nil {
+		return nil, 0, err
+	}
+	return listings, totalCount, nil
+}
+
+func (r *SQLiteRepository) queryListingsSimple(ctx context.Context, where string, args ...interface{}) ([]domain.Listing, error) {
+	// #nosec G202 - Dynamic query construction with trusted internal fragments
+	query := `SELECT ` + r.buildListingColumns() + ` FROM listings ` + where
+	rows, err := r.readDB.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
 	defer func() { _ = rows.Close() }()
 
 	return scanListings(rows)
-}
-
-func (r *SQLiteRepository) FindAllByOwner(ctx context.Context, ownerID string, limit int, offset int) ([]domain.Listing, int, error) {
-	var totalCount int
-	err := r.readDB.QueryRowContext(ctx, "SELECT COUNT(*) FROM listings WHERE owner_id = ?", ownerID).Scan(&totalCount)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	query := `SELECT ` + ListingSelectionsSQL + `
-              FROM listings 
-              WHERE owner_id = ? 
-              ORDER BY created_at DESC
-              LIMIT ? OFFSET ?`
-
-	rows, err := r.readDB.QueryContext(ctx, query, ownerID, limit, offset)
-	if err != nil {
-		return nil, 0, err
-	}
-	defer func() { _ = rows.Close() }()
-
-	listings, err := scanListings(rows)
-	return listings, totalCount, err
 }
 
 // TitleExists checks if a listing with the given title exists using an efficient EXISTS query.
@@ -255,44 +291,16 @@ func (r *SQLiteRepository) GetLocations(ctx context.Context) ([]string, error) {
 
 // GetFeaturedListings returns featured listings set by admin, optionally filtered by category.
 func (r *SQLiteRepository) GetFeaturedListings(ctx context.Context, category string) ([]domain.Listing, error) {
-	whereClause := "WHERE featured = 1 AND is_active = 1"
-	var args []interface{}
-
-	if category != "" {
-		whereClause += ListingFilterTypeSQL
-		args = append(args, category)
+	filters := ListingFilters{
+		Type:         category,
+		FeaturedOnly: true,
 	}
-
-	// #nosec G202 - Dynamic query construction with trusted internal fragments
-	query := `
-		SELECT ` + ListingSelectionsSQL + `
-		FROM listings 
-		` + whereClause + `
-		ORDER BY created_at DESC 
-		LIMIT 3
-	`
-	rows, err := r.readDB.QueryContext(ctx, query, args...)
-	if err != nil {
-		return nil, err
-	}
-	defer func() { _ = rows.Close() }()
-
-	return scanListings(rows)
+	where, args := r.buildListingWhere(filters)
+	return r.queryListingsSimple(ctx, where+" ORDER BY created_at DESC LIMIT 3", args...)
 }
 
 func (r *SQLiteRepository) FindEnrichmentTargets(ctx context.Context, limit int) ([]domain.Listing, error) {
-	query := `
-		SELECT ` + ListingSelectionsSQL + `
-		FROM listings
-		WHERE website_url != '' 
-		AND (heat_level = 0 AND menu_url = '' AND payment_methods = '')
-		LIMIT ?
-	`
-	rows, err := r.readDB.QueryContext(ctx, query, limit)
-	if err != nil {
-		return nil, err
-	}
-	defer func() { _ = rows.Close() }()
-
-	return scanListings(rows)
+	// Custom WHERE for enrichment, still uses queryListingsSimple for scan logic
+	where := "WHERE website_url != '' AND (heat_level = 0 AND menu_url = '' AND payment_methods = '') LIMIT ?"
+	return r.queryListingsSimple(ctx, where, limit)
 }

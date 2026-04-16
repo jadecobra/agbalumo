@@ -168,7 +168,7 @@ func TestAdminDashboard_FlashMessages(t *testing.T) {
 	// Set up a session with a flash message
 	store := sessions.NewCookieStore([]byte("secret"))
 	sess, _ := store.Get(req, "session-name")
-	sess.AddFlash("Success message", "message")
+	sess.AddFlash("Success message", domain.FlashMessageKey)
 	_ = sess.Save(req, rec)
 	c.Set("session", sess)
 

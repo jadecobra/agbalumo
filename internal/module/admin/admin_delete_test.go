@@ -108,7 +108,7 @@ func TestHandleAdminDeleteAction_PartialSuccess(t *testing.T) {
 
 	// Verify flash message
 	sess := middleware.GetSession(c)
-	flashes := sess.Flashes("message")
+	flashes := sess.Flashes(domain.FlashMessageKey)
 	assert.Len(t, flashes, 1)
 	assert.Contains(t, flashes[0], "Successfully deleted 1 listings")
 }

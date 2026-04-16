@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
 // ExtractRendererFunctions extracts defined functions from the renderer.
@@ -35,7 +37,7 @@ func ExtractRendererFunctions(path string) ([]string, error) {
 func ExtractTemplateFunctionCalls(dir string) ([]string, error) {
 	var used []string
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".html") {
+		if err != nil || info.IsDir() || !strings.HasSuffix(path, domain.ExtHTML) {
 			return err
 		}
 

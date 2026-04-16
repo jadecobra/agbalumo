@@ -29,43 +29,44 @@ type Config struct {
 func LoadConfig() *Config {
 	env := getEnv(domain.EnvKeyAppEnv, domain.EnvDevelopment)
 
-	uploadDir := getEnv("UPLOAD_DIR", "ui/static/uploads")
+	uploadDir := getEnv(domain.EnvKeyUploadDir, domain.DefaultUploadDir)
 	if !filepath.IsAbs(uploadDir) {
 		if cwd, err := os.Getwd(); err == nil {
 			uploadDir = filepath.Join(cwd, uploadDir)
 		}
 	}
 
-	clientID := os.Getenv("GOOGLE_CLIENT_ID")
-	clientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
+	clientID := os.Getenv(domain.EnvKeyGoogleClientID)
+	clientSecret := os.Getenv(domain.EnvKeyGoogleClientSecret)
 	hasGoogleAuth := clientID != "" && clientSecret != ""
+	MockAuth := os.Getenv(domain.EnvKeyMockAuth) == "true"
 
 	return &Config{
 		Env:                  env,
 		DatabaseURL:          getEnv(domain.EnvKeyDatabaseURL, domain.DefaultDatabaseURL),
-		SessionSecret:        getEnv("SESSION_SECRET", "dev-secret-key"),
+		SessionSecret:        getEnv(domain.EnvKeySessionSecret, "dev-secret-key"),
 		AdminCode:            getAdminCode(env),
-		DevAuthEmail:         getEnv("DEV_AUTH_EMAIL", "dev@agbalumo.com"),
-		RateLimitRate:        getEnvAsInt("RATE_LIMIT_RATE", 20),
-		RateLimitBurst:       getEnvAsInt("RATE_LIMIT_BURST", 40),
+		DevAuthEmail:         getEnv(domain.EnvKeyDevAuthEmail, "dev@agbalumo.com"),
+		RateLimitRate:        getEnvAsInt(domain.EnvKeyRateLimitRate, 20),
+		RateLimitBurst:       getEnvAsInt(domain.EnvKeyRateLimitBurst, 40),
 		UploadDir:            uploadDir,
-		GoogleMapsAPIKey:     getEnv("GOOGLE_MAPS_API_KEY", ""),
-		HasGoogleAuth:        hasGoogleAuth || os.Getenv("MOCK_AUTH") == "true",
-		MockAuth:             os.Getenv("MOCK_AUTH") == "true",
-		SlowQueryThresholdMs: getEnvAsInt("SLOW_QUERY_THRESHOLD_MS", 50),
+		GoogleMapsAPIKey:     getEnv(domain.EnvKeyGoogleMapsAPIKey, ""),
+		HasGoogleAuth:        hasGoogleAuth || MockAuth,
+		MockAuth:             MockAuth,
+		SlowQueryThresholdMs: getEnvAsInt(domain.EnvKeySlowQueryThreshold, 50),
 	}
 }
 
 func getAdminCode(env string) string {
-	code := os.Getenv("ADMIN_CODE")
+	code := os.Getenv(domain.EnvKeyAdminCode)
 
 	if env == domain.EnvProduction && code == "" {
-		slog.Error("ADMIN_CODE environment variable is required in production")
+		slog.Error(domain.EnvKeyAdminCode + " environment variable is required in production")
 		os.Exit(1)
 	}
 
 	if code == "" {
-		slog.Warn("Using default admin code - set ADMIN_CODE for production")
+		slog.Warn("Using default admin code - set " + domain.EnvKeyAdminCode + " for production")
 		code = "agbalumo2024"
 	}
 

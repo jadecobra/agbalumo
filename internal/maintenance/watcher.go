@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
 type watcherState struct {
@@ -117,5 +118,5 @@ func isInterestingFile(event fsnotify.Event) bool {
 		return false
 	}
 	ext := filepath.Ext(event.Name)
-	return ext == ".go" || ext == ".html" || ext == ".css"
+	return ext == domain.ExtGo || ext == domain.ExtHTML || ext == domain.ExtCSS
 }

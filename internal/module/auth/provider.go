@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/jadecobra/agbalumo/internal/config"
+	"github.com/jadecobra/agbalumo/internal/domain"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -35,11 +36,11 @@ type RealGoogleProvider struct {
 }
 
 func NewRealGoogleProvider() *RealGoogleProvider {
-	clientID := os.Getenv("GOOGLE_CLIENT_ID")
-	clientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
+	clientID := os.Getenv(domain.EnvKeyGoogleClientID)
+	clientSecret := os.Getenv(domain.EnvKeyGoogleClientSecret)
 
 	if clientID == "" || clientSecret == "" {
-		fmt.Fprintf(os.Stderr, "WARNING: GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET not set. OAuth will fail.\n")
+		fmt.Fprintf(os.Stderr, "WARNING: %s or %s not set. OAuth will fail.\n", domain.EnvKeyGoogleClientID, domain.EnvKeyGoogleClientSecret)
 	}
 
 	config := &oauth2.Config{

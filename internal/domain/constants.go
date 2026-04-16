@@ -6,10 +6,27 @@ const (
 	EnvDevelopment = "development"
 
 	// Env var keys
-	EnvKeyDatabaseURL = "DATABASE_URL"
-	EnvKeyAppEnv      = "AGBALUMO_ENV"
-	EnvKeyAppURL      = "APP_URL"
-	EnvKeyBaseURL     = "BASE_URL"
+	EnvKeyDatabaseURL        = "DATABASE_URL"
+	EnvKeyAppEnv             = "AGBALUMO_ENV"
+	EnvKeyAppURL             = "APP_URL"
+	EnvKeyBaseURL            = "BASE_URL"
+	EnvKeyGoogleClientID     = "GOOGLE_CLIENT_ID"
+	EnvKeyGoogleClientSecret = "GOOGLE_CLIENT_SECRET"
+	EnvKeyGoogleMapsAPIKey   = "GOOGLE_MAPS_API_KEY" // #nosec G101 - This is an env var name, not a credential
+	EnvKeyAdminCode          = "ADMIN_CODE"
+	EnvKeyMockAuth           = "MOCK_AUTH"
+	EnvKeySessionSecret      = "SESSION_SECRET"
+	EnvKeyDevAuthEmail       = "DEV_AUTH_EMAIL"
+	EnvKeyUploadDir          = "UPLOAD_DIR"
+	EnvKeyRateLimitRate      = "RATE_LIMIT_RATE"
+	EnvKeyRateLimitBurst     = "RATE_LIMIT_BURST"
+	EnvKeySlowQueryThreshold = "SLOW_QUERY_THRESHOLD_MS"
+
+	// Audit
+	SeparatorLine = "--------------------------------"
+
+	// File paths
+	DefaultUploadDir = "ui/static/uploads"
 
 	// Database
 	DefaultDatabaseURL = ".tester/data/agbalumo.db"
@@ -26,9 +43,20 @@ const (
 	TemplateIndex = "index.html"
 
 	// Paths/Routes
-	PathAdmin    = "/admin"
-	PathListings = "/listings"
-	PathProfile  = "/profile"
+	PathAdmin         = "/admin"
+	PathAdminListings = "/admin/listings"
+	PathListings      = "/listings"
+	PathProfile       = "/profile"
+	PathLogin         = "/login"
+	PathListingID     = "/listings/:id"
+
+	// File extensions
+	ExtJPG      = ".jpg"
+	ExtJPEG     = ".jpeg"
+	ExtCSS      = ".css"
+	ExtHTML     = ".html"
+	ExtGo       = ".go"
+	ExtMarkdown = ".md"
 
 	// Field names (reused in CLI/Forms)
 	FieldTitle       = "title"

@@ -175,9 +175,9 @@ func StaticCacheHeaders() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			path := c.Request().URL.Path
-			if strings.HasSuffix(path, ".css") || strings.HasSuffix(path, ".js") ||
-				strings.HasSuffix(path, ".png") || strings.HasSuffix(path, ".jpg") ||
-				strings.HasSuffix(path, ".jpeg") || strings.HasSuffix(path, ".svg") ||
+			if strings.HasSuffix(path, domain.ExtCSS) || strings.HasSuffix(path, ".js") ||
+				strings.HasSuffix(path, ".png") || strings.HasSuffix(path, domain.ExtJPG) ||
+				strings.HasSuffix(path, domain.ExtJPEG) || strings.HasSuffix(path, ".svg") ||
 				strings.HasSuffix(path, ".woff2") || strings.HasSuffix(path, ".woff") {
 				c.Response().Header().Set("Cache-Control", "public, max-age=31536000, immutable")
 			}

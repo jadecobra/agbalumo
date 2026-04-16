@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
 // AuditConfig holds the necessary configurations for a security audit.
@@ -28,7 +30,7 @@ type auditResults struct {
 func RunSecurityAudit(config AuditConfig) error {
 	res := &auditResults{total: 0, score: 0}
 	fmt.Println("🛡️  Starting Security Audit...")
-	fmt.Println("--------------------------------")
+	fmt.Println(domain.SeparatorLine)
 
 	res.runCheck("Go Vet", func() (bool, bool) { return checkGoVet(config) })
 	res.runCheck("fly.toml", func() (bool, bool) { return checkFlyConfig(config) })
@@ -39,7 +41,7 @@ func RunSecurityAudit(config AuditConfig) error {
 		res.runCheck("Headers", func() (bool, bool) { return checkHeaders(config.TargetURL, config.HTTPClient) })
 	}
 
-	fmt.Println("--------------------------------")
+	fmt.Println(domain.SeparatorLine)
 	if res.total <= 0 {
 		return fmt.Errorf("no security checks could be performed")
 	}

@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/pkoukk/tiktoken-go"
 )
 
@@ -35,8 +36,8 @@ var ignoredDirs = map[string]bool{
 }
 
 var validExts = map[string]bool{
-	".go": true, ".html": true, ".css": true, ".js": true, ".json": true,
-	".md": true, ".sh": true, ".yml": true, ".yaml": true, ".sql": true,
+	domain.ExtGo: true, domain.ExtHTML: true, domain.ExtCSS: true, ".js": true, ".json": true,
+	domain.ExtMarkdown: true, ".sh": true, ".yml": true, ".yaml": true, ".sql": true,
 }
 
 var ignoredFiles = map[string]bool{

@@ -7,7 +7,6 @@ import (
 	"net/url"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
-	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/labstack/echo/v4"
 )
 
@@ -18,7 +17,7 @@ func (h *AdminHandler) HandleBulkAction(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	if len(selectedIDs) == 0 {
-		return h.redirectWithFlash(c, "No listings selected", "/admin/listings")
+		return h.redirectWithFlash(c, "No listings selected", domain.PathAdminListings)
 	}
 
 	if action == "delete" {
@@ -28,7 +27,7 @@ func (h *AdminHandler) HandleBulkAction(c echo.Context) error {
 	newCategory := c.FormValue("new_category")
 	successCount := h.processBulkListings(ctx, selectedIDs, action, newCategory)
 
-	return h.redirectWithFlash(c, fmt.Sprintf("Successfully processed %d listings", successCount), "/admin/listings")
+	return h.redirectWithFlash(c, fmt.Sprintf("Successfully processed %d listings", successCount), domain.PathAdminListings)
 }
 
 func (h *AdminHandler) redirectToBulkDeleteConfirm(c echo.Context, ids []string) error {
@@ -36,7 +35,7 @@ func (h *AdminHandler) redirectToBulkDeleteConfirm(c echo.Context, ids []string)
 	for _, id := range ids {
 		query.Add("id", id)
 	}
-	return c.Redirect(http.StatusFound, "/admin/listings/delete-confirm?"+query.Encode())
+	return c.Redirect(http.StatusFound, domain.PathAdminListings+"/delete-confirm?"+query.Encode())
 }
 
 func (h *AdminHandler) processBulkListings(ctx context.Context, ids []string, action, newCategory string) int {
@@ -82,19 +81,19 @@ func (h *AdminHandler) HandleBulkUpload(c echo.Context) error {
 	// 1. Get File
 	file, err := c.FormFile("csv_file")
 	if err != nil {
-		return h.redirectWithFlash(c, "Please select a valid CSV file", "/admin")
+		return h.redirectWithFlash(c, "Please select a valid CSV file", domain.PathAdmin)
 	}
 
 	src, err := file.Open()
 	if err != nil {
-		return h.redirectWithFlash(c, "Failed to open file: "+err.Error(), "/admin")
+		return h.redirectWithFlash(c, "Failed to open file: "+err.Error(), domain.PathAdmin)
 	}
 	defer func() { _ = src.Close() }()
 
 	// 2. Parse and Import
 	result, err := h.App.CSVService.ParseAndImport(c.Request().Context(), src, h.App.DB)
 	if err != nil {
-		return h.redirectWithFlash(c, "Failed to process CSV: "+err.Error(), "/admin")
+		return h.redirectWithFlash(c, "Failed to process CSV: "+err.Error(), domain.PathAdmin)
 	}
 
 	// 3. Render Result / Redirect
@@ -106,14 +105,5 @@ func (h *AdminHandler) HandleBulkUpload(c echo.Context) error {
 			msg += fmt.Sprintf(". Errors: %v", result.Errors)
 		}
 	}
-	return h.redirectWithFlash(c, msg, "/admin")
-}
-
-func (h *AdminHandler) redirectWithFlash(c echo.Context, msg, targetURL string) error {
-	sess := customMiddleware.GetSession(c)
-	if sess != nil {
-		sess.AddFlash(msg, "message")
-		_ = sess.Save(c.Request(), c.Response())
-	}
-	return c.Redirect(http.StatusFound, targetURL)
+	return h.redirectWithFlash(c, msg, domain.PathAdmin)
 }

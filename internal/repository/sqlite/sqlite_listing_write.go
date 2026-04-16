@@ -13,12 +13,7 @@ import (
 func (r *SQLiteRepository) Save(ctx context.Context, l domain.Listing) error {
 	query := ListingUpsertSQL
 
-	_, err := r.writeDB.ExecContext(ctx, query,
-		l.ID, l.OwnerID, l.Title, l.Description, l.Type, l.OwnerOrigin, l.City, l.Address, l.HoursOfOperation, l.IsActive, l.CreatedAt,
-		l.ImageURL, l.ContactEmail, l.ContactPhone, l.ContactWhatsApp, l.WebsiteURL, l.Deadline, l.EventStart, l.EventEnd,
-		l.Skills, l.JobStartDate, l.JobApplyURL, l.Company, l.PayRange, r.ensureStatus(l.Status), l.Featured,
-		l.HeatLevel, l.RegionalSpecialty, l.TopDish, l.PaymentMethods, l.MenuURL,
-	)
+	_, err := r.writeDB.ExecContext(ctx, query, r.listingArgs(l)...)
 	return err
 }
 
@@ -40,12 +35,7 @@ func (r *SQLiteRepository) SaveBatch(ctx context.Context, listings []domain.List
 
 	for _, l := range listings {
 
-		_, err := stmt.ExecContext(ctx,
-			l.ID, l.OwnerID, l.Title, l.Description, l.Type, l.OwnerOrigin, l.City, l.Address, l.HoursOfOperation, l.IsActive, l.CreatedAt,
-			l.ImageURL, l.ContactEmail, l.ContactPhone, l.ContactWhatsApp, l.WebsiteURL, l.Deadline, l.EventStart, l.EventEnd,
-			l.Skills, l.JobStartDate, l.JobApplyURL, l.Company, l.PayRange, r.ensureStatus(l.Status), l.Featured,
-			l.HeatLevel, l.RegionalSpecialty, l.TopDish, l.PaymentMethods, l.MenuURL,
-		)
+		_, err := stmt.ExecContext(ctx, r.listingArgs(l)...)
 		if err != nil {
 			return err
 		}
@@ -94,17 +84,21 @@ func (r *SQLiteRepository) buildBulkInsertSQL(batch []domain.Listing) (string, [
 		}
 		query += "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
-		args = append(args,
-			l.ID, l.OwnerID, l.Title, l.Description, l.Type, l.OwnerOrigin, l.City, l.Address, l.HoursOfOperation, l.IsActive, l.CreatedAt,
-			l.ImageURL, l.ContactEmail, l.ContactPhone, l.ContactWhatsApp, l.WebsiteURL, l.Deadline, l.EventStart, l.EventEnd,
-			l.Skills, l.JobStartDate, l.JobApplyURL, l.Company, l.PayRange, r.ensureStatus(l.Status), l.Featured,
-			l.HeatLevel, l.RegionalSpecialty, l.TopDish, l.PaymentMethods, l.MenuURL,
-		)
+		args = append(args, r.listingArgs(l)...)
 	}
 
 	query += ` ` + listingUpsertUpdate + `;`
 
 	return query, args
+}
+
+func (r *SQLiteRepository) listingArgs(l domain.Listing) []interface{} {
+	return []interface{}{
+		l.ID, l.OwnerID, l.Title, l.Description, l.Type, l.OwnerOrigin, l.City, l.Address, l.HoursOfOperation, l.IsActive, l.CreatedAt,
+		l.ImageURL, l.ContactEmail, l.ContactPhone, l.ContactWhatsApp, l.WebsiteURL, l.Deadline, l.EventStart, l.EventEnd,
+		l.Skills, l.JobStartDate, l.JobApplyURL, l.Company, l.PayRange, r.ensureStatus(l.Status), l.Featured,
+		l.HeatLevel, l.RegionalSpecialty, l.TopDish, l.PaymentMethods, l.MenuURL,
+	}
 }
 
 func (r *SQLiteRepository) ensureStatus(s domain.ListingStatus) string {
