@@ -8,13 +8,12 @@ import (
 
 func TestResolveServerConfig(t *testing.T) {
 	tests := []struct {
-		name           string
-		env            string
-		port           string
-		expectedAddr   string
-		expectedConfig ServerConfig
-		filesExist     bool
-		expectedTLS    bool
+		name         string
+		env          string
+		port         string
+		expectedAddr string
+		filesExist   bool
+		expectedTLS  bool
 	}{
 		{
 			name:         "Production Default",
@@ -73,13 +72,16 @@ func TestResolveServerConfig(t *testing.T) {
 			}
 
 			config := ResolveServerConfig(tt.env, tt.port, mockFileExists)
-
-			assert.Equal(t, tt.expectedAddr, config.Addr)
-			assert.Equal(t, tt.expectedTLS, config.TLS)
-			if tt.expectedTLS {
-				assert.Equal(t, "certs/cert.pem", config.CertFile)
-				assert.Equal(t, "certs/key.pem", config.KeyFile)
-			}
+			assertServerConfig(t, config, tt.expectedAddr, tt.expectedTLS)
 		})
+	}
+}
+
+func assertServerConfig(t *testing.T, config ServerConfig, expectedAddr string, expectedTLS bool) {
+	assert.Equal(t, expectedAddr, config.Addr)
+	assert.Equal(t, expectedTLS, config.TLS)
+	if expectedTLS {
+		assert.Equal(t, "certs/cert.pem", config.CertFile)
+		assert.Equal(t, "certs/key.pem", config.KeyFile)
 	}
 }
