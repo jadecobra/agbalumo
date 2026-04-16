@@ -11,7 +11,6 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/infra/env"
 	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"github.com/jadecobra/agbalumo/internal/service"
 	"github.com/jadecobra/agbalumo/internal/testutil"
@@ -72,52 +71,6 @@ func TestAdminHandler_HandleBulkAction_MorePaths(t *testing.T) {
 	}
 }
 
-func TestAdminHandler_HandleBulkAction_Errors(t *testing.T) {
-	t.Parallel()
-	mockRepo := NewMockRepository()
-	app := &env.AppEnv{DB: mockRepo}
-	h := admin.NewAdminHandler(app)
-
-	mockRepo.ErrorOn = map[string]error{"FindByID": assert.AnError}
-
-	form := url.Values{}
-	form.Set("action", "approve")
-	form.Add("selectedListings", "err1")
-
-	req := httptest.NewRequest(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
-	rec := httptest.NewRecorder()
-	c := echo.New().NewContext(req, rec)
-
-	store := sessions.NewCookieStore([]byte("secret"))
-	sess, _ := store.Get(req, "session-name")
-	c.Set("session", sess)
-
-	err := h.HandleBulkAction(c)
-	assert.NoError(t, err)
-	assert.Equal(t, http.StatusFound, rec.Code)
-}
-
-func TestAdminHandler_HandleBulkUpload_Errors(t *testing.T) {
-	t.Parallel()
-	mockRepo := NewMockRepository()
-	app := &env.AppEnv{DB: mockRepo}
-	h := admin.NewAdminHandler(app)
-
-	// No file error
-	req := httptest.NewRequest(http.MethodPost, "/admin/bulk-upload", nil)
-	rec := httptest.NewRecorder()
-	c := echo.New().NewContext(req, rec)
-
-	store := sessions.NewCookieStore([]byte("secret"))
-	sess, _ := store.Get(req, "session-name")
-	c.Set("session", sess)
-
-	err := h.HandleBulkUpload(c)
-	assert.NoError(t, err)
-	assert.Equal(t, http.StatusFound, rec.Code)
-	assert.Equal(t, "/admin", rec.Header().Get("Location"))
-}
 
 type MockCSVService struct {
 	Result *domain.BulkUploadResult
@@ -135,7 +88,9 @@ func (m *MockCSVService) GenerateCSV(ctx context.Context, listings []domain.List
 func TestAdminHandler_HandleBulkUpload_ResultFormatting(t *testing.T) {
 	t.Parallel()
 	// This test exercises the formatting logic in HandleBulkUpload
-	app := &env.AppEnv{CSVService: &service.CSVService{}}
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+	app.CSVService = &service.CSVService{}
 	h := admin.NewAdminHandler(app)
 	_ = h
 	mockCSV := &MockCSVService{

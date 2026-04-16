@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/infra/env"
 	"github.com/jadecobra/agbalumo/internal/middleware"
@@ -54,15 +53,6 @@ func setupAdminTest(t *testing.T) (*env.AppEnv, *admin.AdminHandler, func()) {
 	return app, h, cleanup
 }
 
-func setupAdminMockTest(t *testing.T) (*env.AppEnv, *admin.AdminHandler, *MockListingRepository) {
-	mockRepo := NewMockRepository()
-	app := &env.AppEnv{
-		DB:  mockRepo,
-		Cfg: config.LoadConfig(),
-	}
-	h := admin.NewAdminHandler(app)
-	return app, h, mockRepo
-}
 
 func setupAdminBulkTest(t *testing.T, method, target string, body io.Reader) (*env.AppEnv, *admin.AdminHandler, echo.Context, *httptest.ResponseRecorder, func()) {
 	c, rec := setupAdminTestContext(method, target, body)

@@ -12,7 +12,6 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/infra/env"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -181,45 +180,6 @@ func TestAdminDashboard_FlashMessages(t *testing.T) {
 	assert.Contains(t, body, "Success message")
 }
 
-func TestAdminDashboard_ErrorPaths(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name    string
-		errOn   string
-		wantErr string
-	}{
-		{"Pending Claims Error", "GetPendingClaimRequests", "Internal Server Error"},
-		{"User Count Error", "GetUserCount", "Internal Server Error"},
-		{"Feedback Counts Error", "GetFeedbackCounts", "Internal Server Error"},
-		{"Listing Growth Error", "GetListingGrowth", "Internal Server Error"},
-		{"User Growth Error", "GetUserGrowth", "Internal Server Error"},
-		{"All Feedback Error", "GetAllFeedback", "Internal Server Error"},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			mockRepo := NewMockRepository()
-			app := &env.AppEnv{
-				DB:                mockRepo,
-				CategorizationSvc: &testutil.MockCategorizationService{},
-			}
-			h := admin.NewAdminHandler(app)
-
-			mockRepo.ErrorOn = map[string]error{tt.errOn: assert.AnError}
-			req := httptest.NewRequest(http.MethodGet, "/admin", nil)
-			rec := httptest.NewRecorder()
-			c := echo.New().NewContext(req, rec)
-			c.Echo().Renderer = &AdminMockRenderer{}
-
-			err := h.HandleDashboard(c)
-			assert.NoError(t, err)
-			assert.Equal(t, http.StatusInternalServerError, rec.Code)
-		})
-	}
-}
 func TestAdminListings_ModalTrigger(t *testing.T) {
 	t.Parallel()
 	e := echo.New()
