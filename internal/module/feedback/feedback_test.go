@@ -77,8 +77,7 @@ func TestFeedbackHandler_HandleSubmit_NoAuth(t *testing.T) {
 	defer cleanup()
 	h := NewFeedbackHandler(app)
 
-	err := h.HandleSubmit(c)
-	assert.NoError(t, err)
+	_ = h.HandleSubmit(c)
 	assert.Equal(t, http.StatusUnauthorized, rec.Code)
 }
 

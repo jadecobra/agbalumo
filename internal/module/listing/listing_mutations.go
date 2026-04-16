@@ -63,9 +63,9 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	listing, err := h.App.DB.FindByID(ctx, id)
+	listing, err := h.findListing(c, id)
 	if err != nil {
-		return ui.RespondErrorMsg(c, http.StatusNotFound, domain.ErrListingNotFound.Error())
+		return err
 	}
 
 	// Authorization Check (Owner or Admin)
@@ -133,9 +133,9 @@ func (h *ListingHandler) HandleDelete(c echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	listing, err := h.App.DB.FindByID(ctx, id)
+	listing, err := h.findListing(c, id)
 	if err != nil {
-		return ui.RespondErrorMsg(c, http.StatusNotFound, domain.ErrListingNotFound.Error())
+		return err
 	}
 
 	if err := h.checkListingAuth(c, listing, uRaw); err != nil {

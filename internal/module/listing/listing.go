@@ -163,9 +163,9 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 	id := c.Param("id")
 	ctx := c.Request().Context()
 
-	listing, err := h.App.DB.FindByID(ctx, id)
+	listing, err := h.findListing(c, id)
 	if err != nil {
-		return ui.RespondErrorMsg(c, http.StatusNotFound, domain.ErrListingNotFound.Error())
+		return err
 	}
 
 	// Fetch category data to check if claimable
@@ -182,14 +182,14 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 // HandleEdit renders the edit modal
 func (h *ListingHandler) HandleEdit(c echo.Context) error {
 	id := c.Param("id")
-	userRaw, ok := user.GetUser(c)
-	if !ok {
-		return ui.RespondErrorMsg(c, http.StatusUnauthorized, domain.ErrLoginRequired.Error())
+	userRaw, err := user.RequireUserAPI(c)
+	if err != nil {
+		return err
 	}
 
-	listing, err := h.App.DB.FindByID(c.Request().Context(), id)
+	listing, err := h.findListing(c, id)
 	if err != nil {
-		return ui.RespondErrorMsg(c, http.StatusNotFound, domain.ErrListingNotFound.Error())
+		return err
 	}
 	// Authorization Check (Owner or Admin)
 	if err := h.checkListingAuth(c, listing, userRaw); err != nil {
@@ -253,4 +253,16 @@ func (h *ListingHandler) logError(c echo.Context, msg string, err error) {
 	if err != nil {
 		c.Logger().Errorf("%s: %v", msg, err)
 	}
+}
+
+// findListing fetches a listing by ID from the database.
+// If the listing does not exist, it writes a 404 response to c and returns echo.ErrNotFound.
+// Callers must return the sentinel immediately; the response is already committed.
+func (h *ListingHandler) findListing(c echo.Context, id string) (domain.Listing, error) {
+	listing, err := h.App.DB.FindByID(c.Request().Context(), id)
+	if err != nil {
+		_ = ui.RespondErrorMsg(c, http.StatusNotFound, domain.ErrListingNotFound.Error())
+		return domain.Listing{}, echo.ErrNotFound
+	}
+	return listing, nil
 }

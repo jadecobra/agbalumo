@@ -49,12 +49,15 @@ func RequireUser(c echo.Context) (*domain.User, error) {
 }
 
 // RequireUserAPI retrieves the authenticated user from the context.
-// Returns a 401 error response (not a redirect) when the user is absent.
+// Returns echo.ErrUnauthorized (always non-nil) when the user is absent,
+// after writing the 401 response via ui.RespondErrorMsg so the caller can
+// safely return the sentinel without writing a second response.
 // Use for HTMX and API handlers where browser redirects break partial-page updates.
 func RequireUserAPI(c echo.Context) (*domain.User, error) {
 	u, ok := GetUser(c)
 	if !ok || u == nil {
-		return nil, ui.RespondErrorMsg(c, http.StatusUnauthorized, common.ErrMsgLoginRequired)
+		_ = ui.RespondErrorMsg(c, http.StatusUnauthorized, common.ErrMsgLoginRequired)
+		return nil, echo.ErrUnauthorized
 	}
 	return u, nil
 }

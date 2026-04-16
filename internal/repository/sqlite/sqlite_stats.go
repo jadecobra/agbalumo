@@ -3,6 +3,7 @@ package sqlite
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 )
@@ -49,24 +50,24 @@ func (r *SQLiteRepository) queryDailyMetrics(ctx context.Context, query string) 
 	return metrics, nil
 }
 
-// GetListingGrowth returns the count of new listings per day for the last 30 days.
-func (r *SQLiteRepository) GetListingGrowth(ctx context.Context) ([]domain.DailyMetric, error) {
-	return r.queryDailyMetrics(ctx, `
+// dailyGrowthSQL returns the SQL query for counting new rows per day over the last 30 days.
+// table is always a compile-time constant ("listings" or "users") — never user input.
+func dailyGrowthSQL(table string) string { //nolint:gosec // table is always a compile-time constant ("listings" or "users"), never user input
+	return fmt.Sprintf(`
 		SELECT date(created_at) as day, COUNT(*) as count
-		FROM listings
+		FROM %s
 		WHERE created_at IS NOT NULL AND created_at != '' AND created_at >= date('now', '-30 days')
 		GROUP BY day
 		ORDER BY day ASC
-	`)
+	`, table)
+}
+
+// GetListingGrowth returns the count of new listings per day for the last 30 days.
+func (r *SQLiteRepository) GetListingGrowth(ctx context.Context) ([]domain.DailyMetric, error) {
+	return r.queryDailyMetrics(ctx, dailyGrowthSQL("listings"))
 }
 
 // GetUserGrowth returns the count of new users per day for the last 30 days.
 func (r *SQLiteRepository) GetUserGrowth(ctx context.Context) ([]domain.DailyMetric, error) {
-	return r.queryDailyMetrics(ctx, `
-		SELECT date(created_at) as day, COUNT(*) as count
-		FROM users
-		WHERE created_at IS NOT NULL AND created_at != '' AND created_at >= date('now', '-30 days')
-		GROUP BY day
-		ORDER BY day ASC
-	`)
+	return r.queryDailyMetrics(ctx, dailyGrowthSQL("users"))
 }

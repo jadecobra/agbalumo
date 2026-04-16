@@ -81,3 +81,16 @@ func TestHandleFragment(t *testing.T) {
 	// Verify it contains the OOB swap for pagination
 	assertContainsPagination(t, rec.Body.String())
 }
+
+func TestHandleDetail_NotFound(t *testing.T) {
+	t.Parallel()
+	c, rec := setupTestContext(http.MethodGet, "/listings/nonexistent", nil)
+	c.SetParamNames("id")
+	c.SetParamValues("nonexistent")
+
+	h, _, cleanup := setupListingHandler(t)
+	defer cleanup()
+
+	_ = h.HandleDetail(c)
+	assert.Equal(t, http.StatusNotFound, rec.Code)
+}

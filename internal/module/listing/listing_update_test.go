@@ -54,6 +54,22 @@ func TestHandleEdit(t *testing.T) {
 		})
 	}
 }
+
+func TestHandleEdit_NoUser(t *testing.T) {
+	t.Parallel()
+	c, rec := setupTestContext(http.MethodGet, "/listings/1/edit", nil)
+	c.SetPath("/listings/:id/edit")
+	c.SetParamNames("id")
+	c.SetParamValues("1")
+	// no user in context — must return 401
+
+	h, _, cleanup := setupListingHandler(t)
+	defer cleanup()
+
+	_ = h.HandleEdit(c)
+	assert.Equal(t, http.StatusUnauthorized, rec.Code)
+}
+
 func TestHandleUpdate(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
