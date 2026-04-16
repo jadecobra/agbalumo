@@ -12,6 +12,8 @@ import (
 	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
 	"strings"
+
+	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
 // AssertContainsPagination verifies that the response contains the pagination controls.
@@ -51,7 +53,7 @@ func (t *RealTemplateRenderer) Render(w io.Writer, name string, data interface{}
 // NewMainTemplate returns a minimal template for use in unit tests.
 func NewMainTemplate() *template.Template {
 	return template.Must(template.New("main").Funcs(ui.BuildGlobalFuncMap()).Parse(`
-		{{define "index.html"}}{{.TotalCount}} {{range .Listings}}{{.Title}}{{end}}{{end}}
+		{{define "` + domain.TemplateIndex + `"}}{{.TotalCount}} {{range .Listings}}{{.Title}}{{end}}{{end}}
 		{{define "modal_detail"}}{{.Listing.Title}}{{end}}
 		{{define "listing_list"}}{{range .Listings}}{{.Title}}{{end}}{{template "pagination_controls" dict "OOB" true}}{{end}}
 		{{define "pagination_controls"}}{{if .OOB}}hx-swap-oob="true" id="pagination-controls"{{end}}{{end}}
@@ -60,7 +62,7 @@ func NewMainTemplate() *template.Template {
 		{{define "modal_profile"}}{{.User.Name}}{{end}}
 		{{define "profile.html"}}{{.User.Name}}{{end}}
 		{{define "about.html"}}About agbalumo{{end}}
-		{{define "error.html"}}Error Page: {{.Message}}{{end}}
+		{{define "` + domain.TemplateError + `"}}Error Page: {{.Message}}{{end}}
 		{{define "admin_listings.html"}}{{range .Listings}}{{.Title}}{{end}}{{end}}
 		{{define "admin_listing_table_row"}}<tr id="listing-row-{{.ID}}"><input type="checkbox" /></tr>{{end}}
 		{{define "admin_dashboard.html"}}Admin Dashboard{{end}}
@@ -84,7 +86,7 @@ func SetupTestContext(method, target string, body io.Reader) (echo.Context, *htt
 // NewRealTemplate returns a template object parsed from actual filesystem files.
 // It includes all templates, partials, and components.
 func NewRealTemplate(t *testing.T) *template.Template {
-	return NewRealTemplateForPage(t, "index.html")
+	return NewRealTemplateForPage(t, domain.TemplateIndex)
 }
 
 // NewRealTemplateForPage returns a template object for a specific page.
@@ -103,11 +105,11 @@ func NewRealTemplateForPage(t *testing.T, pageName string) *template.Template {
 	tmpl := template.New("base").Funcs(funcMap)
 
 	paths := []string{
-		filepath.Join(projectRoot, "ui", "templates", "base.html"),
-		filepath.Join(projectRoot, "ui", "templates", "error.html"),
+		filepath.Join(projectRoot, "ui", "templates", domain.TemplateBase),
+		filepath.Join(projectRoot, "ui", "templates", domain.TemplateError),
 	}
 
-	if pageName != "base.html" && pageName != "error.html" {
+	if pageName != domain.TemplateBase && pageName != domain.TemplateError {
 		paths = append(paths, filepath.Join(projectRoot, "ui", "templates", pageName))
 	}
 

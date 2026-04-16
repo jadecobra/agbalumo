@@ -38,7 +38,7 @@ func (h *AdminHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddleware
 		Burst: 10,
 	})
 
-	adminGroup := e.Group("/admin")
+	adminGroup := e.Group(domain.PathAdmin)
 	adminGroup.Use(authMw.OptionalAuth)
 	adminGroup.GET("/login", h.HandleLoginView)
 
@@ -49,7 +49,7 @@ func (h *AdminHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddleware
 	adminGroup.Use(h.AdminMiddleware)
 	adminGroup.GET("", h.HandleDashboard)
 	adminGroup.GET("/users", h.HandleUsers)
-	adminGroup.GET("/listings", h.HandleAllListings)
+	adminGroup.GET(domain.PathListings, h.HandleAllListings)
 	adminGroup.POST("/claims/:id/approve", h.HandleApproveClaim)
 	adminGroup.POST("/claims/:id/reject", h.HandleRejectClaim)
 	adminGroup.POST("/listings/bulk", h.HandleBulkAction)
@@ -84,7 +84,7 @@ func (h *AdminHandler) HandleLoginView(c echo.Context) error {
 	// If already admin, redirect to dashboard
 	if u, ok := user.GetUser(c); ok && u != nil {
 		if u.Role == domain.UserRoleAdmin {
-			return c.Redirect(http.StatusTemporaryRedirect, "/admin")
+			return c.Redirect(http.StatusTemporaryRedirect, domain.PathAdmin)
 		}
 	}
 	// Pass empty string for no error message
@@ -111,7 +111,7 @@ func (h *AdminHandler) HandleLoginAction(c echo.Context) error {
 		return ui.RespondError(c, err)
 	}
 
-	return c.Redirect(http.StatusFound, "/admin")
+	return c.Redirect(http.StatusFound, domain.PathAdmin)
 }
 
 // HandleDashboard renders the admin dashboard.
@@ -235,12 +235,12 @@ func (h *AdminHandler) HandleAddCategory(c echo.Context) error {
 	ctx := c.Request().Context()
 	name := strings.TrimSpace(c.FormValue("name"))
 	if name == "" {
-		return c.Redirect(http.StatusFound, "/admin")
+		return c.Redirect(http.StatusFound, domain.PathAdmin)
 	}
 
 	if existing, err := h.App.CategorizationSvc.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: false}); err == nil {
 		if hasDuplicateCategory(existing, name) {
-			return flashAndRedirect(c, fmt.Sprintf("Category '%s' already exists!", name), "/admin")
+			return flashAndRedirect(c, fmt.Sprintf("Category '%s' already exists!", name), domain.PathAdmin)
 		}
 	}
 
@@ -259,7 +259,7 @@ func (h *AdminHandler) HandleAddCategory(c echo.Context) error {
 		c.Logger().Errorf("failed to save custom category: %v", err)
 	}
 
-	return flashAndRedirect(c, "Category added successfully!", "/admin")
+	return flashAndRedirect(c, "Category added successfully!", domain.PathAdmin)
 }
 
 // HandleUsers renders the list of users for admins.

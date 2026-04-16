@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+
+	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
 const EnvBaseURL = "BASE_URL"
@@ -25,7 +27,7 @@ type Config struct {
 }
 
 func LoadConfig() *Config {
-	env := getEnv("AGBALUMO_ENV", "development")
+	env := getEnv(domain.EnvKeyAppEnv, domain.EnvDevelopment)
 
 	uploadDir := getEnv("UPLOAD_DIR", "ui/static/uploads")
 	if !filepath.IsAbs(uploadDir) {
@@ -40,7 +42,7 @@ func LoadConfig() *Config {
 
 	return &Config{
 		Env:                  env,
-		DatabaseURL:          getEnv("DATABASE_URL", ".tester/data/agbalumo.db"),
+		DatabaseURL:          getEnv(domain.EnvKeyDatabaseURL, domain.DefaultDatabaseURL),
 		SessionSecret:        getEnv("SESSION_SECRET", "dev-secret-key"),
 		AdminCode:            getAdminCode(env),
 		DevAuthEmail:         getEnv("DEV_AUTH_EMAIL", "dev@agbalumo.com"),
@@ -57,7 +59,7 @@ func LoadConfig() *Config {
 func getAdminCode(env string) string {
 	code := os.Getenv("ADMIN_CODE")
 
-	if env == "production" && code == "" {
+	if env == domain.EnvProduction && code == "" {
 		slog.Error("ADMIN_CODE environment variable is required in production")
 		os.Exit(1)
 	}

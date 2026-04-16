@@ -13,6 +13,8 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
+
+	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
 // ServerConfig holds the configuration for starting the server
@@ -31,7 +33,7 @@ func ResolveServerConfig(env, port string, fileExists func(string) bool) ServerC
 	port = resolvePort(port, env, hasCerts)
 
 	// In production (Fly.io), TLS is handled by the proxy. We just listen on PORT.
-	if env == "production" {
+	if env == domain.EnvProduction {
 		return ServerConfig{Addr: ":" + port, TLS: false}
 	}
 
@@ -55,7 +57,7 @@ func resolvePort(port, env string, hasCerts bool) string {
 		return port
 	}
 
-	if appURL := os.Getenv("APP_URL"); appURL != "" {
+	if appURL := os.Getenv(domain.EnvKeyAppURL); appURL != "" {
 		if strings.Contains(appURL, ":") {
 			parts := strings.Split(appURL, ":")
 			port = strings.TrimSuffix(parts[len(parts)-1], "/")
@@ -65,7 +67,7 @@ func resolvePort(port, env string, hasCerts bool) string {
 		}
 	}
 
-	if hasCerts && env != "production" {
+	if hasCerts && env != domain.EnvProduction {
 		return "8443"
 	}
 
@@ -80,7 +82,7 @@ var serveCmd = &cobra.Command{
 		_ = godotenv.Load(".env")
 
 		// Environment Configuration
-		env := os.Getenv("AGBALUMO_ENV")
+		env := os.Getenv(domain.EnvKeyAppEnv)
 		port := os.Getenv("PORT")
 
 		// Setup Server
@@ -111,7 +113,7 @@ var serveCmd = &cobra.Command{
 				}
 			} else {
 				mode := "DEV"
-				if env == "production" {
+				if env == domain.EnvProduction {
 					mode = "PRODUCTION"
 				}
 				slog.Info("Starting Server (HTTP)", "mode", mode, "addr", config.Addr)

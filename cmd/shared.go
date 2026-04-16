@@ -9,6 +9,8 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
 	"github.com/spf13/cobra"
+
+	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
 var (
@@ -36,8 +38,8 @@ var (
 )
 
 const (
-	layoutDate     = "2006-01-02"
-	layoutDateTime = "2006-01-02T15:04"
+	layoutDate     = domain.DateFormat
+	layoutDateTime = domain.DateTimeFormat
 
 	defaultOrigin = "Nigeria"
 	defaultType   = "Business"
@@ -54,10 +56,10 @@ func initRepo() *sqlite.SQLiteRepository {
 }
 
 func getDatabaseURL() string {
-	if dbURL := os.Getenv("DATABASE_URL"); dbURL != "" {
+	if dbURL := os.Getenv(domain.EnvKeyDatabaseURL); dbURL != "" {
 		return dbURL
 	}
-	return ".tester/data/agbalumo.db"
+	return domain.DefaultDatabaseURL
 }
 
 func exitOnErr(err error, msg string) {
@@ -71,45 +73,45 @@ func exitOnErr(err error, msg string) {
 func bindListingFlags(cmd *cobra.Command, isUpdate bool) {
 	f := cmd.Flags()
 	if isUpdate {
-		f.StringVarP(&flagTitle, "title", "t", "", "New title")
-		f.StringVarP(&flagDescription, "description", "d", "", "New description")
-		f.StringVarP(&flagCity, "city", "c", "", "New city")
-		f.StringVarP(&flagAddress, "address", "a", "", "New address")
-		f.StringVarP(&flagEmail, "email", "e", "", "New email")
-		f.StringVarP(&flagPhone, "phone", "p", "", "New phone")
-		f.StringVarP(&flagWhatsApp, "whatsapp", "w", "", "New WhatsApp")
-		f.StringVarP(&flagWebsite, "website", "s", "", "New website")
-		f.StringVarP(&flagImageURL, "image-url", "i", "", "New image URL")
+		f.StringVarP(&flagTitle, domain.FieldTitle, "t", "", "New title")
+		f.StringVarP(&flagDescription, domain.FieldDescription, "d", "", "New description")
+		f.StringVarP(&flagCity, domain.FieldCity, "c", "", "New city")
+		f.StringVarP(&flagAddress, domain.FieldAddress, "a", "", "New address")
+		f.StringVarP(&flagEmail, domain.FieldEmail, "e", "", "New email")
+		f.StringVarP(&flagPhone, domain.FieldPhone, "p", "", "New phone")
+		f.StringVarP(&flagWhatsApp, domain.FieldWhatsApp, "w", "", "New WhatsApp")
+		f.StringVarP(&flagWebsite, domain.FieldWebsite, "s", "", "New website")
+		f.StringVarP(&flagImageURL, domain.FieldImageURL, "i", "", "New image URL")
 		f.BoolVar(&flagRemoveImage, "remove-image", false, "Remove listing image")
-		f.StringVar(&flagDeadline, "deadline", "", "New deadline (YYYY-MM-DD)")
-		f.StringVar(&flagEventStart, "event-start", "", "New event start")
-		f.StringVar(&flagEventEnd, "event-end", "", "New event end")
-		f.StringVar(&flagSkills, "skills", "", "New skills")
-		f.StringVar(&flagJobStart, "job-start", "", "New job start")
-		f.StringVar(&flagApplyURL, "apply-url", "", "New apply URL")
-		f.StringVar(&flagCompany, "company", "", "New company")
-		f.StringVar(&flagPayRange, "pay-range", "", "New pay range")
+		f.StringVar(&flagDeadline, domain.FieldDeadline, "", "New deadline (YYYY-MM-DD)")
+		f.StringVar(&flagEventStart, domain.FieldEventStart, "", "New event start")
+		f.StringVar(&flagEventEnd, domain.FieldEventEnd, "", "New event end")
+		f.StringVar(&flagSkills, domain.FieldSkills, "", "New skills")
+		f.StringVar(&flagJobStart, domain.FieldJobStart, "", "New job start")
+		f.StringVar(&flagApplyURL, domain.FieldApplyURL, "", "New apply URL")
+		f.StringVar(&flagCompany, domain.FieldCompany, "", "New company")
+		f.StringVar(&flagPayRange, domain.FieldPayRange, "", "New pay range")
 	} else {
-		f.StringVarP(&flagTitle, "title", "t", "", "Listing title (required)")
-		f.StringVarP(&flagType, "type", "y", defaultType, "Listing type (Business, Service, Product, Food, Event, Job, Request)")
+		f.StringVarP(&flagTitle, domain.FieldTitle, "t", "", "Listing title (required)")
+		f.StringVarP(&flagType, domain.FieldType, "y", defaultType, "Listing type (Business, Service, Product, Food, Event, Job, Request)")
 		f.StringVarP(&flagOrigin, "origin", "o", defaultOrigin, "Owner origin/country")
-		f.StringVarP(&flagDescription, "description", "d", "", "Listing description")
-		f.StringVarP(&flagCity, "city", "c", "", "City")
-		f.StringVarP(&flagAddress, "address", "a", "", "Address")
-		f.StringVarP(&flagEmail, "email", "e", "", "Contact email")
-		f.StringVarP(&flagPhone, "phone", "p", "", "Contact phone")
-		f.StringVarP(&flagWhatsApp, "whatsapp", "w", "", "WhatsApp number")
-		f.StringVarP(&flagWebsite, "website", "s", "", "Website URL")
-		f.StringVarP(&flagImageURL, "image-url", "i", "", "Image URL")
+		f.StringVarP(&flagDescription, domain.FieldDescription, "d", "", "Listing description")
+		f.StringVarP(&flagCity, domain.FieldCity, "c", "", "City")
+		f.StringVarP(&flagAddress, domain.FieldAddress, "a", "", "Address")
+		f.StringVarP(&flagEmail, domain.FieldEmail, "e", "", "Contact email")
+		f.StringVarP(&flagPhone, domain.FieldPhone, "p", "", "Contact phone")
+		f.StringVarP(&flagWhatsApp, domain.FieldWhatsApp, "w", "", "WhatsApp number")
+		f.StringVarP(&flagWebsite, domain.FieldWebsite, "s", "", "Website URL")
+		f.StringVarP(&flagImageURL, domain.FieldImageURL, "i", "", "Image URL")
 		f.StringVarP(&flagOwnerID, "owner-id", "", "", "Owner user ID")
-		f.StringVar(&flagDeadline, "deadline", "", "Deadline (YYYY-MM-DD)")
-		f.StringVar(&flagEventStart, "event-start", "", "Event start (YYYY-MM-DDTHH:MM)")
-		f.StringVar(&flagEventEnd, "event-end", "", "Event end (YYYY-MM-DDTHH:MM)")
-		f.StringVar(&flagSkills, "skills", "", "Required skills")
-		f.StringVar(&flagJobStart, "job-start", "", "Job start date (YYYY-MM-DDTHH:MM)")
-		f.StringVar(&flagApplyURL, "apply-url", "", "Job application URL")
-		f.StringVar(&flagCompany, "company", "", "Company name")
-		f.StringVar(&flagPayRange, "pay-range", "", "Pay range")
+		f.StringVar(&flagDeadline, domain.FieldDeadline, "", "Deadline (YYYY-MM-DD)")
+		f.StringVar(&flagEventStart, domain.FieldEventStart, "", "Event start (YYYY-MM-DDTHH:MM)")
+		f.StringVar(&flagEventEnd, domain.FieldEventEnd, "", "Event end (YYYY-MM-DDTHH:MM)")
+		f.StringVar(&flagSkills, domain.FieldSkills, "", "Required skills")
+		f.StringVar(&flagJobStart, domain.FieldJobStart, "", "Job start date (YYYY-MM-DDTHH:MM)")
+		f.StringVar(&flagApplyURL, domain.FieldApplyURL, "", "Job application URL")
+		f.StringVar(&flagCompany, domain.FieldCompany, "", "Company name")
+		f.StringVar(&flagPayRange, domain.FieldPayRange, "", "Pay range")
 	}
 }
 

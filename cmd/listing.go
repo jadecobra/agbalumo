@@ -32,7 +32,7 @@ func init() {
 	bindListingFlags(listingCreateCmd, false)
 	bindListingFlags(listingUpdateCmd, true)
 
-	_ = listingCreateCmd.MarkFlagRequired("title")
+	_ = listingCreateCmd.MarkFlagRequired(domain.FieldTitle)
 }
 
 func generateID() string {
@@ -58,7 +58,7 @@ func printListing(cmd *cobra.Command, l domain.Listing) {
 	cmd.Printf("Image URL:       %s\n", l.ImageURL)
 	cmd.Printf("Created:         %s\n", l.CreatedAt.Format(time.RFC3339))
 	if !l.Deadline.IsZero() {
-		cmd.Printf("Deadline:        %s\n", l.Deadline.Format("2006-01-02"))
+		cmd.Printf("Deadline:        %s\n", l.Deadline.Format(domain.DateFormat))
 	}
 	if !l.EventStart.IsZero() {
 		cmd.Printf("Event Start:     %s\n", l.EventStart.Format(time.RFC3339))

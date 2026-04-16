@@ -7,6 +7,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+
+	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
 // GoogleGeocodingService implements domain.GeocodingService using Google Maps API.
@@ -57,7 +59,7 @@ func (s *GoogleGeocodingService) buildURL(address string) (string, error) {
 	}
 
 	q := baseURL.Query()
-	q.Set("address", address)
+	q.Set(domain.FieldAddress, address)
 	q.Set("key", s.APIKey)
 	baseURL.RawQuery = q.Encode()
 	return baseURL.String(), nil

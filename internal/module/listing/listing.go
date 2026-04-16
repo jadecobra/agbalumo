@@ -33,12 +33,12 @@ func (h *ListingHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddlewa
 
 	// Authenticated Routes
 	authGroup := e.Group("", authMw.RequireAuth)
-	authGroup.POST("/listings", h.HandleCreate)
+	authGroup.POST(domain.PathListings, h.HandleCreate)
 	authGroup.GET("/listings/:id/edit", h.HandleEdit)
 	authGroup.PUT("/listings/:id", h.HandleUpdate)
 	authGroup.POST("/listings/:id", h.HandleUpdate)
 	authGroup.DELETE("/listings/:id", h.HandleDelete)
-	authGroup.GET("/profile", h.HandleProfile)
+	authGroup.GET(domain.PathProfile, h.HandleProfile)
 	authGroup.POST("/listings/:id/claim", h.HandleClaim)
 }
 
@@ -112,7 +112,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 
 	u := c.Get("User")
 
-	return h.renderWithBaseContext(c, "index.html", map[string]interface{}{
+	return h.renderWithBaseContext(c, domain.TemplateIndex, map[string]interface{}{
 		"Listings":         listings,
 		"Pagination":       Pagination{Page: page, TotalPages: (totalCount + limit - 1) / limit, HasNextPage: hasNextPage, TotalCount: totalCount},
 		"FeaturedListings": featured,
@@ -170,7 +170,7 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 
 	listing, err := h.App.DB.FindByID(ctx, id)
 	if err != nil {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusNotFound, domain.ErrListingNotFound.Error()))
 	}
 
 	// Fetch category data to check if claimable
@@ -194,7 +194,7 @@ func (h *ListingHandler) HandleEdit(c echo.Context) error {
 
 	listing, err := h.App.DB.FindByID(c.Request().Context(), id)
 	if err != nil {
-		return ui.RespondError(c, echo.NewHTTPError(http.StatusNotFound, "Listing not found"))
+		return ui.RespondError(c, echo.NewHTTPError(http.StatusNotFound, domain.ErrListingNotFound.Error()))
 	}
 
 	// Authorization Check (Owner or Admin)

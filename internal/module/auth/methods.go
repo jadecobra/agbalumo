@@ -21,7 +21,7 @@ func (h *AuthHandler) DevLogin(c echo.Context) error {
 		email = h.App.Cfg.DevAuthEmail
 	}
 
-	if h.App.Cfg.Env != "development" {
+	if h.App.Cfg.Env != domain.EnvDevelopment {
 		return ui.RespondError(c, echo.NewHTTPError(http.StatusForbidden, "Dev login disabled in production"))
 	}
 
@@ -44,7 +44,7 @@ func (h *AuthHandler) GoogleLogin(c echo.Context) error {
 
 	state := uuid.New().String()
 	baseURL := os.Getenv("BASE_URL")
-	isSecure := h.App.Cfg.Env == "production" || strings.HasPrefix(baseURL, "https://")
+	isSecure := h.App.Cfg.Env == domain.EnvProduction || strings.HasPrefix(baseURL, "https://")
 
 	cookie := new(http.Cookie)
 	cookie.Name = "oauth_state"
@@ -101,7 +101,7 @@ func (h *AuthHandler) setSessionAndRedirect(c echo.Context, userID string) error
 	}
 
 	baseURL := os.Getenv("BASE_URL")
-	isSecure := h.App.Cfg.Env == "production" || strings.HasPrefix(baseURL, "https://")
+	isSecure := h.App.Cfg.Env == domain.EnvProduction || strings.HasPrefix(baseURL, "https://")
 
 	sess.Options = &sessions.Options{
 		Path:     "/",

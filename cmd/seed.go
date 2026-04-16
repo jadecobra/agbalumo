@@ -37,14 +37,14 @@ func init() {
 
 // ResolveSeedConfig determines the database path from arguments or environment variables.
 func ResolveSeedConfig(args []string, getEnv func(string) string) string {
-	dbPath := ".tester/data/agbalumo.db"
+	dbPath := domain.DefaultDatabaseURL
 	if len(args) > 0 {
 		dbPath = args[0]
 	}
 
 	// Also check env var if not argument provided (or default is used)
-	if dbPath == ".tester/data/agbalumo.db" {
-		if envPath := getEnv("DATABASE_URL"); envPath != "" {
+	if dbPath == domain.DefaultDatabaseURL {
+		if envPath := getEnv(domain.EnvKeyDatabaseURL); envPath != "" {
 			dbPath = envPath
 		}
 	}

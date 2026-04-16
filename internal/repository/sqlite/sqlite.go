@@ -8,6 +8,8 @@ import (
 	"time"
 
 	_ "modernc.org/sqlite" // register driver
+
+	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
 //go:embed migrations/*.sql
@@ -33,7 +35,7 @@ func NewSQLiteRepositoryFromDB(db *sql.DB) *SQLiteRepository {
 }
 
 func NewSQLiteRepository(dbPath string) (*SQLiteRepository, error) {
-	writeDB, err := sql.Open("sqlite", dbPath)
+	writeDB, err := sql.Open(domain.SQLiteDriver, dbPath)
 	if err != nil {
 		return nil, err
 	}
@@ -42,8 +44,8 @@ func NewSQLiteRepository(dbPath string) (*SQLiteRepository, error) {
 	}
 
 	readDB := writeDB
-	if dbPath != ":memory:" {
-		readDB, err = sql.Open("sqlite", dbPath)
+	if dbPath != domain.SQLiteMemory {
+		readDB, err = sql.Open(domain.SQLiteDriver, dbPath)
 		if err != nil {
 			return nil, err
 		}
@@ -52,7 +54,7 @@ func NewSQLiteRepository(dbPath string) (*SQLiteRepository, error) {
 		}
 	}
 
-	configurePools(writeDB, readDB, dbPath == ":memory:")
+	configurePools(writeDB, readDB, dbPath == domain.SQLiteMemory)
 
 	repo := &SQLiteRepository{
 		writeDB:            writeDB,
