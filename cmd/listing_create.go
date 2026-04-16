@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"encoding/json"
-	"log/slog"
 	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
@@ -47,30 +46,12 @@ can be specified via flags.`,
 			PayRange:        flagPayRange,
 		}
 
-		if flagDeadline != "" {
-			if t, err := time.Parse("2006-01-02", flagDeadline); err == nil {
-				listing.Deadline = t
-			} else {
-				slog.Warn("Invalid deadline format, expected YYYY-MM-DD", "error", err)
-			}
-		}
-		if flagEventStart != "" {
-			if t, err := time.Parse("2006-01-02T15:04", flagEventStart); err == nil {
-				listing.EventStart = t
-			}
-		}
-		if flagEventEnd != "" {
-			if t, err := time.Parse("2006-01-02T15:04", flagEventEnd); err == nil {
-				listing.EventEnd = t
-			}
-		}
-		if flagJobStart != "" {
-			if t, err := time.Parse("2006-01-02T15:04", flagJobStart); err == nil {
-				listing.JobStartDate = t
-			}
-		}
+		listing.Deadline = parseDate(flagDeadline, "deadline")
+		listing.EventStart = parseDateTime(flagEventStart, "event-start")
+		listing.EventEnd = parseDateTime(flagEventEnd, "event-end")
+		listing.JobStartDate = parseDateTime(flagJobStart, "job-start")
 
-		exitOnErr(repo.Save(context.Background(), listing), "Failed to create listing")
+		exitOnErr(repo.Save(context.Background(), listing), domain.MsgFailedToCreateListing)
 
 		if !flagText {
 			data, _ := json.MarshalIndent(listing, "", "  ")

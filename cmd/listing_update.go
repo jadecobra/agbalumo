@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"encoding/json"
-	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/spf13/cobra"
@@ -50,17 +49,17 @@ var listingUpdateCmd = &cobra.Command{
 			listing.ImageURL = ""
 		}
 		if flagDeadline != "" {
-			if t, err := time.Parse("2006-01-02", flagDeadline); err == nil {
+			if t := parseDate(flagDeadline, "deadline"); !t.IsZero() {
 				listing.Deadline = t
 			}
 		}
 		if flagEventStart != "" {
-			if t, err := time.Parse("2006-01-02T15:04", flagEventStart); err == nil {
+			if t := parseDateTime(flagEventStart, "event-start"); !t.IsZero() {
 				listing.EventStart = t
 			}
 		}
 		if flagEventEnd != "" {
-			if t, err := time.Parse("2006-01-02T15:04", flagEventEnd); err == nil {
+			if t := parseDateTime(flagEventEnd, "event-end"); !t.IsZero() {
 				listing.EventEnd = t
 			}
 		}
@@ -68,7 +67,7 @@ var listingUpdateCmd = &cobra.Command{
 			listing.Skills = flagSkills
 		}
 		if flagJobStart != "" {
-			if t, err := time.Parse("2006-01-02T15:04", flagJobStart); err == nil {
+			if t := parseDateTime(flagJobStart, "job-start"); !t.IsZero() {
 				listing.JobStartDate = t
 			}
 		}

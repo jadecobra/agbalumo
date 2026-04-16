@@ -9,29 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	flagTitle       string
-	flagType        string
-	flagOrigin      string
-	flagDescription string
-	flagCity        string
-	flagAddress     string
-	flagEmail       string
-	flagPhone       string
-	flagWhatsApp    string
-	flagWebsite     string
-	flagOwnerID     string
-	flagImageURL    string
-	flagRemoveImage bool
-	flagDeadline    string
-	flagEventStart  string
-	flagEventEnd    string
-	flagSkills      string
-	flagJobStart    string
-	flagApplyURL    string
-	flagCompany     string
-	flagPayRange    string
-)
+// Listing flags are now defined in shared.go
 
 var listingCmd = &cobra.Command{
 	Use:   "listing",
@@ -51,45 +29,8 @@ func init() {
 
 	rootCmd.AddCommand(listingCmd)
 
-	listingCreateCmd.Flags().StringVarP(&flagTitle, "title", "t", "", "Listing title (required)")
-	listingCreateCmd.Flags().StringVarP(&flagType, "type", "y", "Business", "Listing type (Business, Service, Product, Food, Event, Job, Request)")
-	listingCreateCmd.Flags().StringVarP(&flagOrigin, "origin", "o", "Nigeria", "Owner origin/country")
-	listingCreateCmd.Flags().StringVarP(&flagDescription, "description", "d", "", "Listing description")
-	listingCreateCmd.Flags().StringVarP(&flagCity, "city", "c", "", "City")
-	listingCreateCmd.Flags().StringVarP(&flagAddress, "address", "a", "", "Address")
-	listingCreateCmd.Flags().StringVarP(&flagEmail, "email", "e", "", "Contact email")
-	listingCreateCmd.Flags().StringVarP(&flagPhone, "phone", "p", "", "Contact phone")
-	listingCreateCmd.Flags().StringVarP(&flagWhatsApp, "whatsapp", "w", "", "WhatsApp number")
-	listingCreateCmd.Flags().StringVarP(&flagWebsite, "website", "s", "", "Website URL")
-	listingCreateCmd.Flags().StringVarP(&flagImageURL, "image-url", "i", "", "Image URL")
-	listingCreateCmd.Flags().StringVarP(&flagOwnerID, "owner-id", "", "", "Owner user ID")
-	listingCreateCmd.Flags().StringVar(&flagDeadline, "deadline", "", "Deadline (YYYY-MM-DD)")
-	listingCreateCmd.Flags().StringVar(&flagEventStart, "event-start", "", "Event start (YYYY-MM-DDTHH:MM)")
-	listingCreateCmd.Flags().StringVar(&flagEventEnd, "event-end", "", "Event end (YYYY-MM-DDTHH:MM)")
-	listingCreateCmd.Flags().StringVar(&flagSkills, "skills", "", "Required skills")
-	listingCreateCmd.Flags().StringVar(&flagJobStart, "job-start", "", "Job start date (YYYY-MM-DDTHH:MM)")
-	listingCreateCmd.Flags().StringVar(&flagApplyURL, "apply-url", "", "Job application URL")
-	listingCreateCmd.Flags().StringVar(&flagCompany, "company", "", "Company name")
-	listingCreateCmd.Flags().StringVar(&flagPayRange, "pay-range", "", "Pay range")
-
-	listingUpdateCmd.Flags().StringVarP(&flagTitle, "title", "t", "", "New title")
-	listingUpdateCmd.Flags().StringVarP(&flagDescription, "description", "d", "", "New description")
-	listingUpdateCmd.Flags().StringVarP(&flagCity, "city", "c", "", "New city")
-	listingUpdateCmd.Flags().StringVarP(&flagAddress, "address", "a", "", "New address")
-	listingUpdateCmd.Flags().StringVarP(&flagEmail, "email", "e", "", "New email")
-	listingUpdateCmd.Flags().StringVarP(&flagPhone, "phone", "p", "", "New phone")
-	listingUpdateCmd.Flags().StringVarP(&flagWhatsApp, "whatsapp", "w", "", "New WhatsApp")
-	listingUpdateCmd.Flags().StringVarP(&flagWebsite, "website", "s", "", "New website")
-	listingUpdateCmd.Flags().StringVarP(&flagImageURL, "image-url", "i", "", "New image URL")
-	listingUpdateCmd.Flags().BoolVar(&flagRemoveImage, "remove-image", false, "Remove listing image")
-	listingUpdateCmd.Flags().StringVar(&flagDeadline, "deadline", "", "New deadline (YYYY-MM-DD)")
-	listingUpdateCmd.Flags().StringVar(&flagEventStart, "event-start", "", "New event start")
-	listingUpdateCmd.Flags().StringVar(&flagEventEnd, "event-end", "", "New event end")
-	listingUpdateCmd.Flags().StringVar(&flagSkills, "skills", "", "New skills")
-	listingUpdateCmd.Flags().StringVar(&flagJobStart, "job-start", "", "New job start")
-	listingUpdateCmd.Flags().StringVar(&flagApplyURL, "apply-url", "", "New apply URL")
-	listingUpdateCmd.Flags().StringVar(&flagCompany, "company", "", "New company")
-	listingUpdateCmd.Flags().StringVar(&flagPayRange, "pay-range", "", "New pay range")
+	bindListingFlags(listingCreateCmd, false)
+	bindListingFlags(listingUpdateCmd, true)
 
 	_ = listingCreateCmd.MarkFlagRequired("title")
 }
