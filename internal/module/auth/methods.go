@@ -29,12 +29,16 @@ func (h *AuthHandler) DevLogin(c echo.Context) error {
 	name := "Dev User"
 	avatar := "https://ui-avatars.com/api/?name=Dev+User&background=random"
 
-	user, err := h.findOrCreateUser(c.Request().Context(), googleID, email, name, avatar)
+	return h.loginWith(c, googleID, email, name, avatar)
+}
+
+// loginWith looks up or creates the user then sets the session and redirects.
+func (h *AuthHandler) loginWith(c echo.Context, googleID, email, name, avatar string) error {
+	u, err := h.findOrCreateUser(c.Request().Context(), googleID, email, name, avatar)
 	if err != nil {
 		return ui.RespondErrorMsg(c, http.StatusInternalServerError, domain.MsgFailedToLogin)
 	}
-
-	return h.setSessionAndRedirect(c, user.ID)
+	return h.setSessionAndRedirect(c, u.ID)
 }
 
 func isSecureCookie(c echo.Context, env string) bool {
@@ -143,10 +147,5 @@ func (h *AuthHandler) GoogleCallback(c echo.Context) error {
 		return ui.RespondErrorMsg(c, http.StatusInternalServerError, "User data fetch failed")
 	}
 
-	user, err := h.findOrCreateUser(c.Request().Context(), gUser.ID, gUser.Email, gUser.Name, gUser.Picture)
-	if err != nil {
-		return ui.RespondErrorMsg(c, http.StatusInternalServerError, domain.MsgFailedToLogin)
-	}
-
-	return h.setSessionAndRedirect(c, user.ID)
+	return h.loginWith(c, gUser.ID, gUser.Email, gUser.Name, gUser.Picture)
 }

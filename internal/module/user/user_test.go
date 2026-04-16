@@ -1,6 +1,8 @@
 package user
 
 import (
+	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -9,6 +11,15 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
+
+// testRenderer is a minimal echo.Renderer for unit tests that
+// need ui.RespondErrorMsg to write a response without a real template engine.
+type testRenderer struct{}
+
+func (r *testRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	_, err := fmt.Fprintf(w, "<%s>", name)
+	return err
+}
 
 func TestGetUser(t *testing.T) {
 	t.Parallel()
@@ -59,4 +70,32 @@ func TestMustUser(t *testing.T) {
 	c.Set("User", mockUser)
 	user := MustUser(c)
 	assert.Equal(t, mockUser, user)
+}
+
+func TestRequireUserAPI(t *testing.T) {
+	t.Parallel()
+	e := echo.New()
+	e.Renderer = &testRenderer{}
+
+	t.Run("no user returns 401", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+
+		u, _ := RequireUserAPI(c)
+		assert.Nil(t, u)
+		assert.Equal(t, http.StatusUnauthorized, rec.Code)
+	})
+
+	t.Run("user present returns user and no error", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		mockUser := &domain.User{ID: "u1"}
+		c.Set("User", mockUser)
+
+		u, err := RequireUserAPI(c)
+		assert.NoError(t, err)
+		assert.Equal(t, mockUser, u)
+	})
 }

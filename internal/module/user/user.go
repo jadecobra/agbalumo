@@ -3,7 +3,9 @@ package user
 import (
 	"net/http"
 
+	"github.com/jadecobra/agbalumo/internal/common"
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
 )
 
@@ -42,6 +44,17 @@ func RequireUser(c echo.Context) (*domain.User, error) {
 	u, ok := GetUser(c)
 	if !ok || u == nil {
 		return nil, c.Redirect(http.StatusTemporaryRedirect, "/auth/google/login")
+	}
+	return u, nil
+}
+
+// RequireUserAPI retrieves the authenticated user from the context.
+// Returns a 401 error response (not a redirect) when the user is absent.
+// Use for HTMX and API handlers where browser redirects break partial-page updates.
+func RequireUserAPI(c echo.Context) (*domain.User, error) {
+	u, ok := GetUser(c)
+	if !ok || u == nil {
+		return nil, ui.RespondErrorMsg(c, http.StatusUnauthorized, common.ErrMsgLoginRequired)
 	}
 	return u, nil
 }

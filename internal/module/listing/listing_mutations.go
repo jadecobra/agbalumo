@@ -57,9 +57,9 @@ func (h *ListingHandler) HandleCreate(c echo.Context) error {
 func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 	id := c.Param("id")
 
-	uRaw, ok := user.GetUser(c)
-	if !ok || uRaw == nil {
-		return ui.RespondErrorMsg(c, http.StatusUnauthorized, common.ErrMsgLoginRequired)
+	uRaw, err := user.RequireUserAPI(c)
+	if err != nil {
+		return err
 	}
 
 	ctx := c.Request().Context()
@@ -127,9 +127,9 @@ func (h *ListingHandler) checkDuplicateTitle(ctx context.Context, title string, 
 
 func (h *ListingHandler) HandleDelete(c echo.Context) error {
 	id := c.Param("id")
-	uRaw, ok := user.GetUser(c)
-	if !ok || uRaw == nil {
-		return ui.RespondErrorMsg(c, http.StatusUnauthorized, common.ErrMsgLoginRequired)
+	uRaw, err := user.RequireUserAPI(c)
+	if err != nil {
+		return err
 	}
 
 	ctx := c.Request().Context()
