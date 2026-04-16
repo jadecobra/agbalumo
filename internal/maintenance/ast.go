@@ -105,12 +105,31 @@ func parseGroupCall(n ast.Node) (ident, receiver, prefix string) {
 		return "", "", ""
 	}
 
-	argLit, ok := callExpr.Args[0].(*ast.BasicLit)
-	if !ok || argLit.Kind != token.STRING {
+	val, ok := resolveArgString(callExpr.Args[0])
+	if !ok {
 		return "", "", ""
 	}
 
-	return lhs.Name, recv.Name, strings.Trim(argLit.Value, "\"")
+	return lhs.Name, recv.Name, val
+}
+
+func resolveArgString(arg ast.Expr) (string, bool) {
+	if argLit, ok := arg.(*ast.BasicLit); ok && argLit.Kind == token.STRING {
+		return strings.Trim(argLit.Value, "\""), true
+	}
+	if selExpr, ok := arg.(*ast.SelectorExpr); ok {
+		if ident, ok := selExpr.X.(*ast.Ident); ok && ident.Name == "domain" {
+			switch selExpr.Sel.Name {
+			case "PathAdmin":
+				return "/admin", true
+			case "PathListings":
+				return "/listings", true
+			case "PathProfile":
+				return "/profile", true
+			}
+		}
+	}
+	return "", false
 }
 
 func extractRouteDefinitions(files []*ast.File, groupPaths map[string]string) []Route {
@@ -143,13 +162,12 @@ func parseRouteCall(n ast.Node, groupPaths map[string]string) (method, path stri
 		return "", ""
 	}
 
-	argLit, ok := callExpr.Args[0].(*ast.BasicLit)
-	if !ok || argLit.Kind != token.STRING {
+	val, ok := resolveArgString(callExpr.Args[0])
+	if !ok {
 		return "", ""
 	}
 
-	suffix := strings.Trim(argLit.Value, "\"")
-	return selExpr.Sel.Name, groupPaths[receiver.Name] + suffix
+	return selExpr.Sel.Name, groupPaths[receiver.Name] + val
 }
 
 func isHttpMethod(method string) bool {

@@ -5,15 +5,17 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"os"
 	"sync"
 	"testing"
 
 	"context"
+	"time"
+
 	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/infra/env"
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
-	"time"
 )
 
 var (
@@ -68,6 +70,7 @@ func SetupTestAppEnv(t *testing.T) (*env.AppEnv, func()) {
 		t.Fatalf("failed to create in-memory sqlite repository: %v", err)
 	}
 
+	_ = os.Setenv("ADMIN_CODE", "test-admin-code")
 	cfg := config.LoadConfig()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 
