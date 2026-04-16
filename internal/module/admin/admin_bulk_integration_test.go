@@ -71,7 +71,6 @@ func TestAdminHandler_HandleBulkAction_MorePaths(t *testing.T) {
 	}
 }
 
-
 type MockCSVService struct {
 	Result *domain.BulkUploadResult
 	Err    error

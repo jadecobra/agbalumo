@@ -53,7 +53,6 @@ func setupAdminTest(t *testing.T) (*env.AppEnv, *admin.AdminHandler, func()) {
 	return app, h, cleanup
 }
 
-
 func setupAdminBulkTest(t *testing.T, method, target string, body io.Reader) (*env.AppEnv, *admin.AdminHandler, echo.Context, *httptest.ResponseRecorder, func()) {
 	c, rec := setupAdminTestContext(method, target, body)
 	setupAdminAuth(t, c)

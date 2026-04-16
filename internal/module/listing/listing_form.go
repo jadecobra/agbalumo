@@ -91,11 +91,7 @@ func parseDeadline(req *ListingFormRequest, l *domain.Listing) error {
 	if l.Type != domain.Request {
 		return nil
 	}
-	parsed, err := parseFormDate(req.DeadlineDate, "2006-01-02", "Invalid Date Format")
-	if err == nil && !parsed.IsZero() {
-		l.Deadline = parsed
-	}
-	return err
+	return assignFormDate(req.DeadlineDate, "2006-01-02", "Invalid Date Format", &l.Deadline)
 }
 
 func parseEventDates(req *ListingFormRequest, l *domain.Listing) error {
@@ -103,32 +99,23 @@ func parseEventDates(req *ListingFormRequest, l *domain.Listing) error {
 		return nil
 	}
 
-	start, err := parseFormDate(req.EventStart, datetimeLocalFormat, "Invalid Start Date Format")
-	if err != nil {
+	if err := assignFormDate(req.EventStart, datetimeLocalFormat, "Invalid Start Date Format", &l.EventStart); err != nil {
 		return err
 	}
-	if !start.IsZero() {
-		l.EventStart = start
-	}
-
-	end, err := parseFormDate(req.EventEnd, datetimeLocalFormat, "Invalid End Date Format")
-	if err != nil {
-		return err
-	}
-	if !end.IsZero() {
-		l.EventEnd = end
-	}
-
-	return nil
+	return assignFormDate(req.EventEnd, datetimeLocalFormat, "Invalid End Date Format", &l.EventEnd)
 }
 
 func parseJobStartDate(req *ListingFormRequest, l *domain.Listing) error {
 	if l.Type != domain.Job {
 		return nil
 	}
-	parsed, err := parseFormDate(req.JobStartDate, datetimeLocalFormat, "Invalid Job Start Date Format")
+	return assignFormDate(req.JobStartDate, datetimeLocalFormat, "Invalid Job Start Date Format", &l.JobStartDate)
+}
+
+func assignFormDate(val, format, errMsg string, target *time.Time) error {
+	parsed, err := parseFormDate(val, format, errMsg)
 	if err == nil && !parsed.IsZero() {
-		l.JobStartDate = parsed
+		*target = parsed
 	}
 	return err
 }

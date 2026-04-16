@@ -152,11 +152,7 @@ func scanListings(rows *sql.Rows) ([]domain.Listing, error) {
 
 func (r *SQLiteRepository) FindByID(ctx context.Context, id string) (domain.Listing, error) {
 	start := time.Now()
-	defer func() {
-		if duration := time.Since(start); duration > r.slowQueryThreshold {
-			slog.Info("Slow query detected", slog.String("query", "FindByID"), slog.Int64("duration_ms", duration.Milliseconds()))
-		}
-	}()
+	defer r.logSlowQuery("FindByID", start)
 
 	query := `
 		SELECT ` + ListingSelectionsSQL + `
@@ -184,15 +180,7 @@ func (r *SQLiteRepository) FindByTitle(ctx context.Context, title string) ([]dom
 	}
 	defer func() { _ = rows.Close() }()
 
-	var listings []domain.Listing
-	for rows.Next() {
-		l, err := scanListing(rows)
-		if err != nil {
-			return nil, err
-		}
-		listings = append(listings, l)
-	}
-	return listings, rows.Err()
+	return scanListings(rows)
 }
 
 func (r *SQLiteRepository) FindAllByOwner(ctx context.Context, ownerID string, limit int, offset int) ([]domain.Listing, int, error) {
@@ -214,15 +202,8 @@ func (r *SQLiteRepository) FindAllByOwner(ctx context.Context, ownerID string, l
 	}
 	defer func() { _ = rows.Close() }()
 
-	var listings []domain.Listing
-	for rows.Next() {
-		l, err := scanListing(rows)
-		if err != nil {
-			return nil, 0, err
-		}
-		listings = append(listings, l)
-	}
-	return listings, totalCount, rows.Err()
+	listings, err := scanListings(rows)
+	return listings, totalCount, err
 }
 
 // TitleExists checks if a listing with the given title exists using an efficient EXISTS query.
@@ -234,11 +215,7 @@ func (r *SQLiteRepository) TitleExists(ctx context.Context, title string) (bool,
 
 func (r *SQLiteRepository) GetCounts(ctx context.Context) (map[domain.Category]int, error) {
 	start := time.Now()
-	defer func() {
-		if duration := time.Since(start); duration > r.slowQueryThreshold {
-			slog.Info("Slow query detected", slog.String("query", "GetCounts"), slog.Int64("duration_ms", duration.Milliseconds()))
-		}
-	}()
+	defer r.logSlowQuery("GetCounts", start)
 
 	rows, err := r.readDB.QueryContext(ctx, ListingGetCountsSQL)
 	if err != nil {
@@ -300,15 +277,7 @@ func (r *SQLiteRepository) GetFeaturedListings(ctx context.Context, category str
 	}
 	defer func() { _ = rows.Close() }()
 
-	var listings []domain.Listing
-	for rows.Next() {
-		l, err := scanListing(rows)
-		if err != nil {
-			return nil, err
-		}
-		listings = append(listings, l)
-	}
-	return listings, rows.Err()
+	return scanListings(rows)
 }
 
 func (r *SQLiteRepository) FindEnrichmentTargets(ctx context.Context, limit int) ([]domain.Listing, error) {
