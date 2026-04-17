@@ -3,6 +3,7 @@ package ui
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"html/template"
 	"io"
 	"log/slog"
@@ -11,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
 // Country represents a country with a name and flag emoji.
@@ -145,6 +147,11 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 		token := c.Get("csrf")
 		viewContext["CSRF"] = token
 		viewContext["CountryRegions"] = t.CountryRegions
+	}
+
+	// Semantic Tagging for Agentic Discovery (Non-Production Only)
+	if os.Getenv(domain.EnvKeyAppEnv) != domain.EnvProduction {
+		_, _ = fmt.Fprintf(w, "<!-- BEGIN TEMPLATE: %s -->", name)
 	}
 
 	tmpl, ok := t.templates[name]

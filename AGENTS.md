@@ -32,6 +32,7 @@ Git is our only state tracker. You must execute atomic commits automatically aft
 * **Mandatory Scan**: The final CI pipeline run MUST include the `--with-docker` flag (Trivy scan) before every `git push`, regardless of whether codebase or `Dockerfile` was modified, to catch dynamic base image vulnerabilities. Requires `trivy` installed locally (`brew install trivy`).
 * **No Paperwork**: Do not generate human-readable progress files (e.g., `progress.md`, `state.json`) unless explicitly asked to draft a public-facing README. Your code and your Git commits are your proof of work.
 * **Dynamic Standards**: You MUST read the current state of `.agents/workflows/coding-standards.md` whenever the `[/build-feature]` loop is initialized to ensure newly codified lessons are active.
+* **Recursive Context**: Whenever you enter a subdirectory for the first time, you MUST check if a local `AGENTS.md` file exists. If it does, you must read it to understand package-specific constraints that override or extend the global standards.
 
 ## ARCHITECTURAL MEMORY (ADRs)
 
