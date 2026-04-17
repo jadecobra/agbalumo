@@ -4,14 +4,22 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
 )
 
+var shaCache = make(map[string]bool)
+
 // VerifyActionSHAs checks for correctly pinned SHAs in .github/workflows and .github/actions.
+// It requires the 'gh' CLI to be installed and authenticated to verify SHAs against GitHub.
 func VerifyActionSHAs(rootDir string) error {
-	fmt.Println("🔍 Verifying GitHub Action SHA pinning...")
+	fmt.Println("🔍 Verifying GitHub Action SHA pinning (Remote-First)...")
+
+	if _, err := exec.LookPath("gh"); err != nil {
+		return fmt.Errorf("HARD FAILURE: 'gh' CLI is required for infrastructure verification but was not found in PATH")
+	}
 
 	files := collectActionFiles(rootDir)
 	errorCount := 0
@@ -25,10 +33,10 @@ func VerifyActionSHAs(rootDir string) error {
 	}
 
 	if errorCount > 0 {
-		return fmt.Errorf("infrastructure drift detected: %d action(s) are not pinned to a SHA", errorCount)
+		return fmt.Errorf("infrastructure drift detected: %d action(s) failed verification (corrupted SHAs or missing pins)", errorCount)
 	}
 
-	fmt.Println("✅ All GitHub Actions are correctly pinned to SHAs.")
+	fmt.Println("✅ All GitHub Actions are correctly pinned and verified against remote.")
 	return nil
 }
 
@@ -91,16 +99,53 @@ func verifyLineSHA(file string, lineNum int, line string, shaRegex, usesRegex *r
 	actionSpec := strings.Trim(match[1], "\"'")
 	errorCount := 0
 
+	// 1. Syntax Check
 	if !shaRegex.MatchString(actionSpec) {
 		fmt.Printf("❌ Error in %s (Line %d): Action '%s' must be pinned to a 40-character SHA.\n", file, lineNum, actionSpec)
-		errorCount++
+		return 1
 	}
 
 	if !strings.Contains(line, "# v") {
 		fmt.Printf("⚠️  Warning in %s (Line %d): Action '%s' is missing a version comment (e.g. # v1.0.0).\n", file, lineNum, actionSpec)
 	}
 
+	// 2. Remote Verification Check (Mandatory)
+	if !verifyRemoteSHA(file, lineNum, actionSpec) {
+		errorCount++
+	}
+
 	return errorCount
+}
+
+func verifyRemoteSHA(file string, lineNum int, actionSpec string) bool {
+	if verified, ok := shaCache[actionSpec]; ok {
+		return verified
+	}
+
+	parts := strings.Split(actionSpec, "@")
+	fullRepo := parts[0]
+	sha := parts[1]
+
+	// Extract {owner}/{repo} from {owner}/{repo}/{path}
+	repoParts := strings.Split(fullRepo, "/")
+	if len(repoParts) < 2 {
+		fmt.Printf("❌ Error in %s (Line %d): Invalid action repo spec '%s'\n", file, lineNum, fullRepo)
+		shaCache[actionSpec] = false
+		return false
+	}
+	repo := repoParts[0] + "/" + repoParts[1]
+
+	// Use gh api to verify commit existence
+	endpoint := fmt.Sprintf("repos/%s/commits/%s", repo, sha)
+	cmd := exec.Command("gh", "api", endpoint, "--silent") //nolint:gosec // G204: Maintenance utility runs trusted commands
+	if err := cmd.Run(); err != nil {
+		fmt.Printf("❌ Error in %s (Line %d): Action SHA @%s not found in repo %s (Verified via GitHub API)\n", file, lineNum, sha, repo)
+		shaCache[actionSpec] = false
+		return false
+	}
+
+	shaCache[actionSpec] = true
+	return true
 }
 
 // VerifyCITools ensures only approved CI tools are used in ci.yml.
