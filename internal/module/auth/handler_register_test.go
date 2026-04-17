@@ -102,4 +102,3 @@ func TestAuthHandler_GoogleCallback_CrossSiteCallback(t *testing.T) {
 	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
 	assert.Equal(t, "/", rec.Header().Get("Location"))
 }
-

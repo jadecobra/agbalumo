@@ -38,18 +38,18 @@ const (
 	DateTimeFormat = "2006-01-02T15:04"
 
 	// Templates
-	TemplateError = "error.html"
-	TemplateBase  = "base.html"
+	TemplateError          = "error.html"
+	TemplateBase           = "base.html"
 	TemplateIndex          = "index.html"
 	TemplateAdminDashboard = "admin_dashboard.html"
 	TemplateAdminListings  = "admin_listings.html"
 
 	// Paths/Routes
-	PathAdmin         = "/admin"
-	PathAdminListings = "/admin/listings"
-	PathListings      = "/listings"
-	PathProfile       = "/profile"
-	PathLogin         = "/login"
+	PathAdmin           = "/admin"
+	PathAdminListings   = "/admin/listings"
+	PathListings        = "/listings"
+	PathProfile         = "/profile"
+	PathLogin           = "/login"
 	PathListingID       = "/listings/:id"
 	PathAdminCategories = "/admin/categories"
 

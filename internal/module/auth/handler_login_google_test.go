@@ -51,4 +51,3 @@ func TestAuthHandler_GoogleLogin(t *testing.T) {
 	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
 	assert.Equal(t, "http://google.com/auth", rec.Header().Get("Location"))
 }
-

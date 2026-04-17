@@ -73,7 +73,6 @@ func reportAuditErrors(errs []string) error {
 	return nil
 }
 
-
 func checkFileSizes(rootDir string) error {
 	cssPath := filepath.Join(rootDir, "ui/static/css/output.css")
 	jsPath := filepath.Join(rootDir, "ui/static/js/app.js")

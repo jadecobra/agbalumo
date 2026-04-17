@@ -45,4 +45,3 @@ func TestAuthHandler_GoogleCallback_Errors(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	})
 }
-
