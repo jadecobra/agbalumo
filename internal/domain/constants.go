@@ -40,7 +40,9 @@ const (
 	// Templates
 	TemplateError = "error.html"
 	TemplateBase  = "base.html"
-	TemplateIndex = "index.html"
+	TemplateIndex          = "index.html"
+	TemplateAdminDashboard = "admin_dashboard.html"
+	TemplateAdminListings  = "admin_listings.html"
 
 	// Paths/Routes
 	PathAdmin         = "/admin"
@@ -48,7 +50,8 @@ const (
 	PathListings      = "/listings"
 	PathProfile       = "/profile"
 	PathLogin         = "/login"
-	PathListingID     = "/listings/:id"
+	PathListingID       = "/listings/:id"
+	PathAdminCategories = "/admin/categories"
 
 	// File extensions
 	ExtJPG      = ".jpg"
@@ -111,7 +114,15 @@ const (
 
 	// Protocols
 	ProtoHTTPS = "https://"
+
+	// Modals
+	ModalModeration = "moderationModal"
+	ModalCategory   = "categoryModal"
+	ModalUsers      = "usersModal"
+
+	// Actions
+	ActionOpenModal = "open-modal"
+
+	// CSS Classes
+	ClassFooter = "footer-fruit"
 )
-
-
-

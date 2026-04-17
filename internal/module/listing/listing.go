@@ -113,7 +113,6 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 
 	u := c.Get(domain.CtxKeyUser)
 
-
 	return h.RenderWithBaseContext(c, domain.TemplateIndex, map[string]interface{}{
 		"Listings":         listings,
 		"Pagination":       Pagination{Page: page, TotalPages: (totalCount + limit - 1) / limit, HasNextPage: hasNextPage, TotalCount: totalCount},
@@ -134,7 +133,6 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	filterType := c.QueryParam(domain.FieldType)
 	queryText := c.QueryParam("q")
 	city := c.QueryParam(domain.FieldCity)
-
 
 	p := GetPagination(c, 30)
 	page := p.Page

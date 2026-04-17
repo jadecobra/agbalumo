@@ -133,13 +133,13 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 	}
 
 	return c.Render(http.StatusOK, "admin_dashboard.html", map[string]interface{}{
-		"ClaimRequests":   data.ClaimRequests,
-		"UserCount":       data.UserCount,
-		"FeedbackCounts":  data.FeedbackCounts,
-		"ListingGrowth":   data.ListingGrowth,
-		"UserGrowth":      data.UserGrowth,
-		"Feedbacks":       data.Feedbacks,
-		"User":            c.Get(domain.CtxKeyUser),
+		"ClaimRequests":  data.ClaimRequests,
+		"UserCount":      data.UserCount,
+		"FeedbackCounts": data.FeedbackCounts,
+		"ListingGrowth":  data.ListingGrowth,
+		"UserGrowth":     data.UserGrowth,
+		"Feedbacks":      data.Feedbacks,
+		"User":           c.Get(domain.CtxKeyUser),
 
 		"FlashMessage":    flashMsg,
 		"ListingCount":    data.ListingCount,
@@ -274,8 +274,8 @@ func (h *AdminHandler) HandleUsers(c echo.Context) error {
 	p.HasNextPage = len(users) == p.Limit
 
 	return c.Render(http.StatusOK, "admin_users.html", map[string]interface{}{
-		"Users":      users,
-		"User":       c.Get(domain.CtxKeyUser),
+		"Users": users,
+		"User":  c.Get(domain.CtxKeyUser),
 
 		"Pagination": p,
 	})

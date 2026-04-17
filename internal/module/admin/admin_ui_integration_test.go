@@ -3,7 +3,6 @@ package admin_test
 import (
 	"context"
 	"net/http"
-	"net/http/httptest"
 	"strings"
 	"testing"
 	"time"
@@ -11,17 +10,15 @@ import (
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"github.com/jadecobra/agbalumo/internal/testutil"
-	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAdminDashboardFooterPosition(t *testing.T) {
 	t.Parallel()
-	e := echo.New()
-	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplateForPage(t, "admin_dashboard.html")}
-
 	env := testutil.SetupTestModuleEnv(t)
 	defer env.Cleanup()
+
+	c, rec := testutil.SetupAdminIntegrationContext(t, http.MethodGet, domain.PathAdmin, nil, domain.TemplateAdminDashboard)
 	h := admin.NewAdminHandler(env.App)
 
 	// Seed some feedback
@@ -38,10 +35,6 @@ func TestAdminDashboardFooterPosition(t *testing.T) {
 		CreatedAt: time.Now(),
 	})
 
-	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
 	if err := h.HandleDashboard(c); err != nil {
 		t.Fatalf("HandleDashboard failed: %v", err)
 	}
@@ -49,9 +42,9 @@ func TestAdminDashboardFooterPosition(t *testing.T) {
 	body := rec.Body.String()
 
 	// The footer has class "footer-fruit"
-	footerIdx := strings.Index(body, "footer-fruit")
+	footerIdx := strings.Index(body, domain.ClassFooter)
 	if footerIdx == -1 {
-		t.Fatal("Footer with class 'footer-fruit' not found in rendered HTML")
+		t.Fatalf("Footer with class '%s' not found in rendered HTML", domain.ClassFooter)
 	}
 
 	// All feedback items must appear BEFORE the footer
@@ -70,17 +63,12 @@ func TestAdminDashboardFooterPosition(t *testing.T) {
 
 func TestMetricCardsHaveModalTriggers(t *testing.T) {
 	t.Parallel()
-	e := echo.New()
-	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplateForPage(t, "admin_dashboard.html")}
-
 	env := testutil.SetupTestModuleEnv(t)
 	defer env.Cleanup()
 	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "1", Title: "Business A", Type: domain.Business, IsActive: true})
-	h := admin.NewAdminHandler(env.App)
 
-	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+	c, rec := testutil.SetupAdminIntegrationContext(t, http.MethodGet, domain.PathAdmin, nil, domain.TemplateAdminDashboard)
+	h := admin.NewAdminHandler(env.App)
 
 	if err := h.HandleDashboard(c); err != nil {
 		t.Fatalf("HandleDashboard failed: %v", err)
@@ -89,38 +77,33 @@ func TestMetricCardsHaveModalTriggers(t *testing.T) {
 	body := rec.Body.String()
 
 	// Total Listings metric → /admin/listings link
-	if !strings.Contains(body, `href="/admin/listings"`) {
-		t.Error("Expected Total Listings metric card to link to /admin/listings")
+	if !strings.Contains(body, `href="`+domain.PathAdminListings+`"`) {
+		t.Errorf("Expected Total Listings metric card to link to %s", domain.PathAdminListings)
 	}
 
 	// Pending metric → moderationModal
-	if !strings.Contains(body, `data-modal-target="moderationModal"`) {
-		t.Error("Expected Pending metric card to have data-modal-target=\"moderationModal\"")
+	if !strings.Contains(body, `data-modal-target="`+domain.ModalModeration+`"`) {
+		t.Errorf("Expected Pending metric card to have data-modal-target=\"%s\"", domain.ModalModeration)
 	}
 
 	// Total Users metric → usersModal
-	if !strings.Contains(body, `data-modal-target="usersModal"`) {
-		t.Error("Expected Total Users metric card to have data-modal-target=\"usersModal\"")
+	if !strings.Contains(body, `data-modal-target="`+domain.ModalUsers+`"`) {
+		t.Errorf("Expected Total Users metric card to have data-modal-target=\"%s\"", domain.ModalUsers)
 	}
 
 	// Metric cards should be clickable (have open-modal action)
-	if !strings.Contains(body, `data-action="open-modal"`) {
-		t.Error("Expected metric cards to have data-action=\"open-modal\"")
+	if !strings.Contains(body, `data-action="`+domain.ActionOpenModal+`"`) {
+		t.Errorf("Expected metric cards to have data-action=\"%s\"", domain.ActionOpenModal)
 	}
 }
 
 func TestCategoryModalExists(t *testing.T) {
 	t.Parallel()
-	e := echo.New()
-	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplateForPage(t, "admin_dashboard.html")}
-
 	env := testutil.SetupTestModuleEnv(t)
 	defer env.Cleanup()
-	h := admin.NewAdminHandler(env.App)
 
-	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+	c, rec := testutil.SetupAdminIntegrationContext(t, http.MethodGet, domain.PathAdmin, nil, domain.TemplateAdminDashboard)
+	h := admin.NewAdminHandler(env.App)
 
 	if err := h.HandleDashboard(c); err != nil {
 		t.Fatalf("HandleDashboard failed: %v", err)
@@ -129,13 +112,13 @@ func TestCategoryModalExists(t *testing.T) {
 	body := rec.Body.String()
 
 	// categoryModal div must exist
-	if !strings.Contains(body, `id="categoryModal"`) {
-		t.Error("Expected categoryModal div to exist in the rendered dashboard")
+	if !strings.Contains(body, `id="`+domain.ModalCategory+`"`) {
+		t.Errorf("Expected %s div to exist in the rendered dashboard", domain.ModalCategory)
 	}
 
 	// Form must post to /admin/categories
-	if !strings.Contains(body, `action="/admin/categories"`) {
-		t.Error("Expected add-category form with action=\"/admin/categories\"")
+	if !strings.Contains(body, `action="`+domain.PathAdminCategories+`"`) {
+		t.Errorf("Expected add-category form with action=\"%s\"", domain.PathAdminCategories)
 	}
 
 	// Name input must be present
@@ -144,22 +127,18 @@ func TestCategoryModalExists(t *testing.T) {
 	}
 
 	// Categories button in admin tools grid must target categoryModal
-	if !strings.Contains(body, `data-target="categoryModal"`) {
-		t.Error("Expected Categories admin tool button to target categoryModal")
+	if !strings.Contains(body, `data-target="`+domain.ModalCategory+`"`) {
+		t.Errorf("Expected Categories admin tool button to target %s", domain.ModalCategory)
 	}
 }
 
 func TestAdminDashboard_FlashMessages(t *testing.T) {
 	t.Parallel()
-	e := echo.New()
-	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplateForPage(t, "admin_dashboard.html")}
-
 	env := testutil.SetupTestModuleEnv(t)
 	defer env.Cleanup()
-	h := admin.NewAdminHandler(env.App)
 
-	c, rec := testutil.SetupAdminContext(http.MethodGet, "/admin", nil)
-	c.Echo().Renderer = e.Renderer
+	c, rec := testutil.SetupAdminIntegrationContext(t, http.MethodGet, domain.PathAdmin, nil, domain.TemplateAdminDashboard)
+	h := admin.NewAdminHandler(env.App)
 
 	// Set up a session with a flash message
 	sess, _ := testutil.GetAuthSession(c)
@@ -176,17 +155,12 @@ func TestAdminDashboard_FlashMessages(t *testing.T) {
 
 func TestAdminListings_ModalTrigger(t *testing.T) {
 	t.Parallel()
-	e := echo.New()
-	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplateForPage(t, "admin_listings.html")}
-
 	env := testutil.SetupTestModuleEnv(t)
 	defer env.Cleanup()
 	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "listing1", Title: "Business A", Type: domain.Business, IsActive: true})
 
+	c, rec := testutil.SetupAdminIntegrationContext(t, http.MethodGet, domain.PathAdminListings, nil, domain.TemplateAdminListings)
 	h := admin.NewAdminHandler(env.App)
-
-	c, rec := testutil.SetupAdminContext(http.MethodGet, "/admin/listings", nil)
-	c.Echo().Renderer = e.Renderer
 
 	if err := h.HandleAllListings(c); err != nil {
 		t.Fatalf("HandleAllListings failed: %v", err)

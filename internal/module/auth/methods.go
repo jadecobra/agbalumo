@@ -63,7 +63,6 @@ func (h *AuthHandler) GoogleLogin(c echo.Context) error {
 	cookie.SameSite = http.SameSiteLaxMode
 	c.SetCookie(cookie)
 
-
 	url := h.GoogleProvider.GetAuthCodeURL(state, c.Scheme(), c.Request().Host)
 	return c.Redirect(http.StatusTemporaryRedirect, url)
 }
@@ -137,7 +136,6 @@ func (h *AuthHandler) GoogleCallback(c echo.Context) error {
 	deleteCookie.Path = "/"
 	deleteCookie.MaxAge = -1
 	c.SetCookie(deleteCookie)
-
 
 	code := c.QueryParam("code")
 	token, err := h.GoogleProvider.Exchange(c.Request().Context(), code, c.Scheme(), c.Request().Host)

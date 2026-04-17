@@ -58,7 +58,6 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 		"Categories": categories,
 		"TotalCount": totalCountRows, // Use totalCountRows from FindAll for consistent count
 		"User":       c.Get(domain.CtxKeyUser),
-
 	})
 }
 

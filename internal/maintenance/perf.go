@@ -15,26 +15,37 @@ func RunPerformanceAudit(rootDir string) error {
 	fmt.Println("🚀  Starting Performance Audit...")
 	fmt.Println("---------------------------------")
 
-	type perfCheck struct {
-		fn   func(string) error
-		name string
-	}
+	checks := getPerfChecks()
+	errs := runPerfChecks(rootDir, checks)
 
-	checks := []perfCheck{
+	fmt.Println("---------------------------------")
+	return reportAuditErrors(errs)
+}
+
+type perfCheck struct {
+	fn   func(string) error
+	name string
+}
+
+func getPerfChecks() []perfCheck {
+	return []perfCheck{
 		{checkFileSizes, "Static Asset Sizes"},
 		{checkSQLitePragmas, "SQLite Configuration"},
 		{runSearchBenchmark, "Search Smoke Benchmark"},
 		{runBulkInsertBenchmark, "Bulk Insert Benchmark (10k items)"},
 	}
+}
 
+func runPerfChecks(rootDir string, checks []perfCheck) []string {
 	var errs []string
 	isCI := os.Getenv("GITHUB_ACTIONS") == "true"
 
 	for _, c := range checks {
-		if isCI && strings.Contains(c.name, "Benchmark") {
+		if shouldSkipCheck(isCI, c.name) {
 			fmt.Printf("[?] Skipping %s (CI environment detected)... ✅\n", c.name)
 			continue
 		}
+
 		fmt.Printf("[?] Checking %s... ", c.name)
 		if err := c.fn(rootDir); err != nil {
 			fmt.Println("❌ Failed")
@@ -43,8 +54,14 @@ func RunPerformanceAudit(rootDir string) error {
 			fmt.Println("✅ Passed")
 		}
 	}
+	return errs
+}
 
-	fmt.Println("---------------------------------")
+func shouldSkipCheck(isCI bool, name string) bool {
+	return isCI && strings.Contains(name, "Benchmark")
+}
+
+func reportAuditErrors(errs []string) error {
 	if len(errs) > 0 {
 		for _, e := range errs {
 			fmt.Printf("❌ %s\n", e)
@@ -55,6 +72,7 @@ func RunPerformanceAudit(rootDir string) error {
 	fmt.Println("✅ Performance Audit Passed Successfully!")
 	return nil
 }
+
 
 func checkFileSizes(rootDir string) error {
 	cssPath := filepath.Join(rootDir, "ui/static/css/output.css")

@@ -49,7 +49,7 @@ func TestAdminHandler_HandleLoginView(t *testing.T) {
 
 			c, rec := testutil.SetupModuleContext(http.MethodGet, "/admin/login", nil)
 			if tt.user != nil {
-		c.Set(domain.CtxKeyUser, tt.user)
+				c.Set(domain.CtxKeyUser, tt.user)
 
 			}
 

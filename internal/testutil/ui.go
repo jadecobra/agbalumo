@@ -91,7 +91,6 @@ func SetupTestContextWithSession(method, target string, body io.Reader) (echo.Co
 	return c, rec
 }
 
-
 // GetAuthSession returns the session associated with the context.
 func GetAuthSession(c echo.Context) (*sessions.Session, error) {
 	s, ok := c.Get("session").(*sessions.Session)
@@ -146,6 +145,20 @@ func NewRealTemplateForPage(t *testing.T, pageName string) *template.Template {
 	}
 
 	return tmpl
+}
+
+// SetupTestRendererForPage returns a RealTemplateRenderer for a specific page.
+func SetupTestRendererForPage(t *testing.T, pageName string) *RealTemplateRenderer {
+	t.Helper()
+	return &RealTemplateRenderer{Templates: NewRealTemplateForPage(t, pageName)}
+}
+
+// SetupAdminIntegrationContext prepares an Echo context with an admin session and a real template renderer.
+func SetupAdminIntegrationContext(t *testing.T, method, target string, body io.Reader, pageName string) (echo.Context, *httptest.ResponseRecorder) {
+	t.Helper()
+	c, rec := SetupAdminContext(method, target, body)
+	c.Echo().Renderer = SetupTestRendererForPage(t, pageName)
+	return c, rec
 }
 
 func findProjectRoot(t *testing.T, wd string) string {

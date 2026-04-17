@@ -150,7 +150,6 @@ func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error
 		return c.NoContent(http.StatusOK)
 	}
 
-
 	var usr interface{}
 	if u := c.Get(domain.CtxKeyUser); u != nil {
 		usr = u

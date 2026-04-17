@@ -3,12 +3,10 @@ package auth_test
 import (
 	"context"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/module/auth"
 	"github.com/jadecobra/agbalumo/internal/testutil"
-	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	testifyMock "github.com/stretchr/testify/mock"
 )
@@ -37,17 +35,12 @@ func TestAuthHandler_GoogleCallback_Success(t *testing.T) {
 
 func TestAuthHandler_GoogleLogin(t *testing.T) {
 	t.Parallel()
-	e := echo.New()
-	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
-
-	req := httptest.NewRequest(http.MethodGet, "/auth/google/login", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+	c, rec := testutil.SetupTestContextWithSession(http.MethodGet, "/auth/google/login", nil)
 
 	app, cleanup := testutil.SetupTestAppEnv(t)
 	defer cleanup()
 	app.Cfg.HasGoogleAuth = true
-	mockProvider := &MockGoogleProvider{}
+	mockProvider := &testutil.MockGoogleProvider{}
 	h := auth.NewAuthHandler(app)
 	h.GoogleProvider = mockProvider
 
@@ -58,3 +51,4 @@ func TestAuthHandler_GoogleLogin(t *testing.T) {
 	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
 	assert.Equal(t, "http://google.com/auth", rec.Header().Get("Location"))
 }
+

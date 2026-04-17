@@ -3,11 +3,9 @@ package auth_test
 import (
 	"context"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/infra/env"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
@@ -105,7 +103,3 @@ func TestAuthHandler_GoogleCallback_CrossSiteCallback(t *testing.T) {
 	assert.Equal(t, "/", rec.Header().Get("Location"))
 }
 
-func setupExistingUserAndRegister(t *testing.T, app *env.AppEnv, user domain.User, payload map[string]string) *httptest.ResponseRecorder {
-	_ = app.DB.SaveUser(context.Background(), user)
-	return performRegistration(t, app, payload)
-}

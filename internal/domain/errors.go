@@ -28,6 +28,3 @@ var (
 	// ErrFailedToSaveClaim is returned when a claim record cannot be persisted.
 	ErrFailedToSaveClaim = errors.New("failed to save claim request")
 )
-
-
-
