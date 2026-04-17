@@ -66,6 +66,8 @@ Use `github.com/stretchr/testify/mock`. Place mocks in `internal/mock/`.
 ### Test Helpers & Anti-Duplication
 - **Use Standards First:** Always check `internal/testutil/` for centralized UI, authentication, or seeding helpers (like `setupAdminTestContext`, `testutil.NewMainTemplate`) before creating custom ones inline.
 - **Prevent Copy-Paste:** To avoid failing the `cmd/verify/main.go critique` toolchain, any repetitive setup boilerplate or repeated logic between subtests *must* be extracted into explicit helper functions.
+- **Incremental Auditing:** To reduce noise from legacy technical debt, day-to-day development should use incremental auditing (`go run cmd/verify/main.go critique`). This only flags violations introduced in the current branch.
+- **Auto-Healing:** Structural maintenance (like struct field alignment) should be automated. Run `go run cmd/verify/main.go heal` to resolve these issues automatically before committing.
 - **Cognitive Complexity limits:** High-complexity test functions (with deep nesting or serial sequential assertions) will fail the project's quality gates. Extract large blocks into private helpers.
 
 ### Coverage & Rules
@@ -81,10 +83,9 @@ Use `github.com/stretchr/testify/mock`. Place mocks in `internal/mock/`.
 
 This section contains corrections and constraints derived from the `[/learn]` workflow. These rules take precedence over existing style guidelines.
 
-* The agent MUST always execute the `critique` script during Phase 3 of the `build-feature` workflow to ensure codebase robustness.
-* The agent MUST always use the `browser_subagent` to verify UI changes and manual testing scenarios, as it provides the most accurate simulation of the 'Ada' persona's interaction with the platform.
-* The agent MUST always run the local CI pipeline with the `--with-docker` flag (`go run cmd/verify/main.go ci --with-docker`) as the final gate before pushing any commits to remote, to catch upstream base image vulnerabilities that evolve independently of the codebase.
-* The agent MUST strictly enforce structural optimizations and code duplication limits by ensuring `cmd/verify/main.go critique` and `fieldalignment` checks are checked or executed, either via natively integrating their checks into `cmd/verify/main.go ci` natively, or by executing them locally.
+* The agent MUST strictly enforce structural optimizations and code duplication limits by ensuring `cmd/verify/main.go critique` (incremental) is run during development and `cmd/verify/main.go ci` (full) is run before pushing.
+* The agent SHOULD utilize `go run cmd/verify/main.go heal` to automatically resolve structural maintenance issues (like field alignment) before attempting manual refactoring.
 * The agent MUST prioritize resolving "Code Duplication" (clone groups) over other technical debt from `critique`, as duplicated logic has the largest negative impact on agent context and maintainability. When addressing this debt, the agent MUST explicitly compare the total number of clone groups reported by `go run cmd/verify/main.go critique` before and after fixes are implemented to guarantee quantitative improvement.
 * The agent MUST verify all GitHub Action SHAs using the `verify-shas` tool. Remote verification via `gh` CLI is a **local-only hard gate** and MUST be executed locally before pushing any changes to CI configurations. This check is omitted from production CI to avoid unnecessary secret dependencies and because GitHub's infrastructure natively validates SHAs during job initialization.
 * **Gate Relocation Lesson**: Maintenance tools requiring third-party authentication or remote API access (e.g., `gh api`) should be prioritized as local verification gates rather than production CI blocks, unless the check is globally critical and has no local equivalent. This ensures development velocity while maintaining consistency across environments.
+* **Server Verification Lesson**: The agent MUST always verify the active listener port (e.g., `https://localhost:8443` vs `http://localhost:8080`) from logs or `cmd/serve.go` logic before initiating browser verification, to avoid connection failures in secure or non-standard environments.

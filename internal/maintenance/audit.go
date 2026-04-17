@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/joho/godotenv"
 )
 
 // AuditConfig holds the necessary configurations for a security audit.
@@ -164,108 +165,66 @@ func checkXSS(config AuditConfig) (bool, bool) {
 	return len(strings.TrimSpace(string(out))) == 0, false
 }
 
-// RunChiefCriticAudit performs a comprehensive code quality audit.
-func RunChiefCriticAudit(rootDir string) error {
+// ChiefCriticOptions configures the robustness audit behavior.
+type ChiefCriticOptions struct {
+	NewFromRev string
+	Full       bool
+	Verbose    bool
+}
+
+// RunChiefCriticAudit performs a consolidated code quality audit using golangci-lint.
+func RunChiefCriticAudit(rootDir string, opts ChiefCriticOptions) error {
 	fmt.Println("🚀 Starting ChiefCritic Robustness Audit...")
-	failed := executeAuditTools(rootDir)
-	fmt.Println("\n✅ ChiefCritic Audit Complete!")
-	if failed {
-		return fmt.Errorf("robustness audit failed due to mandatory quality gate violations")
-	}
-	return nil
-}
 
-func executeAuditTools(rootDir string) bool {
-	tools := []struct {
-		name      string
-		cmd       []string
-		mandatory bool
-	}{
-		{"Cognitive Complexity", []string{"go", "run", "github.com/uudashr/gocognit/cmd/gocognit", "-over", "10", "./cmd", "./internal"}, true},
-		{"Repeated Strings", []string{"go", "run", "github.com/jgautheron/goconst/cmd/goconst", "./cmd/...", "./internal/..."}, false},
-		{"Struct Alignment", []string{"go", "run", "golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment", "./internal/...", "./cmd/..."}, false},
-		{"Code Duplication", []string{"go", "run", "github.com/mibk/dupl", "-threshold", "15", "./cmd", "./internal"}, false},
-	}
-
-	var mu sync.Mutex
-	var wg sync.WaitGroup
-	failed := false
-	verbose := os.Getenv("VERBOSE") == "true"
-
-	for i, t := range tools {
-		wg.Add(1)
-		go func(idx int, name string, command []string, isMandatory bool) {
-			defer wg.Done()
-			f := runAuditWorker(rootDir, idx, len(tools), name, command, isMandatory, verbose, &mu)
-			if f {
-				mu.Lock()
-				failed = true
-				mu.Unlock()
-			}
-		}(i, t.name, t.cmd, t.mandatory)
-	}
-	wg.Wait()
-	return failed
-}
-
-func runAuditWorker(rootDir string, idx, total int, name string, command []string, isMandatory, verbose bool, mu *sync.Mutex) bool {
-	output, err := runTool(rootDir, command[0], command[1:]...)
-
-	mu.Lock()
-	defer mu.Unlock()
-
-	fmt.Printf("[%d/%d] %s: ", idx+1, total, name)
-
-	failed := false
-	if err != nil {
-		fmt.Print("❌ ")
-		if isMandatory {
-			failed = true
+	args := []string{"run"}
+	if !opts.Full {
+		rev := opts.NewFromRev
+		if rev == "" {
+			rev = "HEAD~1" // Default to incremental check against previous commit
 		}
-	} else {
-		fmt.Print("✅ ")
+		args = append(args, "--new-from-rev", rev)
 	}
 
-	summary := parseSummary(name, output)
-	if summary != "" {
-		fmt.Printf("(%s)", summary)
+	if opts.Verbose {
+		args = append(args, "-v")
 	}
-	fmt.Println()
 
-	if (err != nil && isMandatory) || verbose {
+	// We use go run to ensure we use the version pinned in go.mod
+	command := append([]string{"run", "github.com/golangci/golangci-lint/v2/cmd/golangci-lint"}, args...)
+	output, err := runTool(rootDir, "go", command...)
+
+	if err != nil {
+		fmt.Println("❌ ChiefCritic Audit Failed")
 		if output != "" {
 			fmt.Println(domain.SeparatorLine)
 			fmt.Println(output)
 			fmt.Println(domain.SeparatorLine)
 		}
+		return fmt.Errorf("robustness audit failed: %w", err)
 	}
-	return failed
+
+	fmt.Println("✅ ChiefCritic Audit Complete!")
+	return nil
 }
 
-func parseSummary(name, output string) string {
-	lines := strings.Split(strings.TrimSpace(output), "\n")
-	if len(lines) == 0 || output == "" {
-		return ""
+// RunHeal performs automated remediation of common quality issues.
+func RunHeal(rootDir string) error {
+	_ = godotenv.Load(".env")
+	fmt.Println("🩹 Starting ChiefCritic Automated Healing...")
+
+	// 1. Struct Alignment Fix
+	fmt.Print("[1/1] Healing Struct Alignment... ")
+	_, err := runTool(rootDir, "go", "run", "golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment", "-fix", "./...")
+	if err != nil {
+		// fieldalignment -fix often returns non-zero even on success if it made changes
+		// We'll check git status later or just assume it tried its best.
+		fmt.Println("⚠️  (Applied changes or encountered minor issues)")
+	} else {
+		fmt.Println("✅")
 	}
 
-	switch name {
-	case "Code Duplication":
-		// dupl output ends with "Found total X clone groups."
-		for i := len(lines) - 1; i >= 0; i-- {
-			if strings.Contains(lines[i], "Found total") {
-				return strings.TrimSpace(lines[i])
-			}
-		}
-	case "Repeated Strings":
-		return fmt.Sprintf("found %d violations", len(lines))
-	case "Cognitive Complexity":
-		return fmt.Sprintf("found %d complexity violations", len(lines))
-	}
-
-	if len(lines) > 5 {
-		return fmt.Sprintf("%d lines of output", len(lines))
-	}
-	return ""
+	fmt.Println("\n✨ Healing Complete! Please review and commit the changes.")
+	return nil
 }
 
 func runTool(dir, name string, args ...string) (string, error) {

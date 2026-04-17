@@ -291,7 +291,9 @@ var ciCmd = &cobra.Command{
 			{Name: "Running Heavy Tests (with -race)", Fn: func() error {
 				return runCmd("go", "test", "-race", "-cover", "-count=1", "./...")
 			}},
-			{Name: "Checking ChiefCritic Robustness", Fn: func() error { return maintenance.RunChiefCriticAudit(".") }},
+			{Name: "Checking ChiefCritic Robustness", Fn: func() error {
+				return maintenance.RunChiefCriticAudit(".", maintenance.ChiefCriticOptions{Full: true})
+			}},
 			{Name: "Checking API/CLI Contract Drift", Fn: func() error { return apiSpecCmd.RunE(cmd, args) }},
 			{Name: "Checking Template Drift", Fn: func() error { return templateDriftCmd.RunE(cmd, args) }},
 			{Name: "Checking Coverage Threshold", Fn: func() error { return coverageCmd.RunE(cmd, args) }},
@@ -378,8 +380,9 @@ var precommitCmd = &cobra.Command{
 
 		// 5. Lint Stage (diff only)
 		fmt.Println("🛡️ Running staged-only lint...")
-		if err := runCmd("go", "run", "github.com/golangci/golangci-lint/v2/cmd/golangci-lint", "run", "--new-from-rev=HEAD"); err != nil {
-			return fmt.Errorf("lint stage failed: %w", err)
+		opts := maintenance.ChiefCriticOptions{Full: false, NewFromRev: "HEAD", Verbose: false}
+		if err := maintenance.RunChiefCriticAudit(".", opts); err != nil {
+			return fmt.Errorf("robustness audit failed: %w", err)
 		}
 
 		// 6. Coverage gate check (optional for pre-commit but good for anti-degradation)
@@ -392,8 +395,22 @@ var precommitCmd = &cobra.Command{
 	},
 }
 
-var critiqueCmd = makeSimpleCmd("critique", "Run ChiefCritic robustness audit natively", func() error {
-	return maintenance.RunChiefCriticAudit(".")
+var critiqueCmd = &cobra.Command{
+	Use:   "critique",
+	Short: "Run ChiefCritic robustness audit natively",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		full, _ := cmd.Flags().GetBool("full")
+		rev, _ := cmd.Flags().GetString("baseline")
+		return maintenance.RunChiefCriticAudit(".", maintenance.ChiefCriticOptions{
+			Full:       full,
+			NewFromRev: rev,
+			Verbose:    true,
+		})
+	},
+}
+
+var healCmd = makeSimpleCmd("heal", "Perform automated remediation of quality violations", func() error {
+	return maintenance.RunHeal(".")
 })
 
 var perfCmd = makeSimpleCmd("perf", "Run performance audit natively", func() error {
@@ -404,18 +421,25 @@ var checkGatesCmd = &cobra.Command{
 	Use:   "check-gates",
 	Short: "Verify TDD workflow gates based on Git history and staged changes",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		phase, err := maintenance.InferCurrentPhase(".")
-		if err != nil {
-			return err
-		}
-		return maintenance.ExecuteGateChecks(".", phase)
+		return runVerifyGatedTask(cmd)
 	},
+}
+
+func runVerifyGatedTask(cmd *cobra.Command) error {
+	phase, err := maintenance.InferCurrentPhase(".")
+	if err != nil {
+		return err
+	}
+	return maintenance.ExecuteGateChecks(".", phase)
 }
 
 var testCmd = &cobra.Command{
 	Use:   "test [pkg]",
 	Short: "Run tests with race detection and coverage enforcement",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if err := runVerifyGatedTask(cmd); err != nil {
+			return err
+		}
 		pkg := "./..."
 		if len(args) > 0 {
 			pkg = args[0]
@@ -480,6 +504,8 @@ func init() {
 	setupVerifyFlags(precommitCmd)
 	auditCmd.Flags().String("mode", "", "Audit mode: 'static' (no server required) or 'dynamic' (requires live server). Default runs all checks.")
 	ciCmd.Flags().Bool("with-docker", false, "Run docker build + trivy image scan (mirrors production CI). Requires Docker and trivy.")
+	critiqueCmd.Flags().Bool("full", false, "Run full audit instead of incremental")
+	critiqueCmd.Flags().String("baseline", "", "Git revision to compare against (default: HEAD~1)")
 
 	rootCmd.AddCommand(
 		apiSpecCmd,
@@ -494,6 +520,7 @@ func init() {
 		gitleaksCmd,
 		ignoredFilesCmd,
 		critiqueCmd,
+		healCmd,
 		perfCmd,
 		checkGatesCmd,
 		testCmd,

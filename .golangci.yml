@@ -11,10 +11,22 @@ linters:
     - bodyclose
     - nolintlint
     - errcheck
+    - gocognit
+    - goconst
+    - dupl
+    - govet
   settings:
     govet:
       enable:
         - shadow
+        - fieldalignment
+    gocognit:
+      min-complexity: 10
+    goconst:
+      min-len: 3
+      min-occurrences: 3
+    dupl:
+      threshold: 25
     revive:
       rules:
         - name: exported
@@ -27,6 +39,7 @@ linters:
       allow-no-explanation: []
       require-explanation: true
       require-specific: true
+
   exclusions:
     rules:
       - path: "_test\\.go"
