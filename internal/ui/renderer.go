@@ -11,8 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/labstack/echo/v4"
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/labstack/echo/v4"
 )
 
 // Country represents a country with a name and flag emoji.
