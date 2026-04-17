@@ -14,17 +14,17 @@ import (
 
 func TestAdminHandler_HandleUsers_Success(t *testing.T) {
 	t.Parallel()
-	c, rec := setupAdminTestContext(http.MethodGet, "/admin/users", nil)
-	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
 
-	app, cleanup := testutil.SetupTestAppEnv(t)
-	defer cleanup()
+	c, rec := testutil.SetupAdminContext(http.MethodGet, "/admin/users", nil)
+
 	// Seed a user
 	user := domain.User{ID: "u1", Name: "Test User", Email: "test@test.com", Role: domain.UserRoleUser}
-	err := app.DB.SaveUser(c.Request().Context(), user)
+	err := env.App.DB.SaveUser(c.Request().Context(), user)
 	require.NoError(t, err)
 
-	h := admin.NewAdminHandler(app)
 	_ = h.HandleUsers(c)
 
 	assert.Equal(t, http.StatusOK, rec.Code)

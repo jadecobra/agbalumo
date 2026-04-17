@@ -10,16 +10,17 @@ import (
 	"sync"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/module"
 	"github.com/labstack/echo/v4"
 )
 
 type ListingHandler struct {
-	App *env.AppEnv
+	module.BaseHandler
 }
 
 func NewListingHandler(app *env.AppEnv) *ListingHandler {
 	return &ListingHandler{
-		App: app,
+		BaseHandler: module.BaseHandler{App: app},
 	}
 }
 
@@ -100,10 +101,10 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	}
 	hasNextPage := offset+len(listings) < totalCount
 
-	h.logError(c, "failed to get listing counts", countsErr)
-	h.logError(c, "failed to get featured listings", featuredErr)
-	h.logError(c, "failed to get locations", locationsErr)
-	h.logError(c, "failed to get categories in HandleHome", categoriesErr)
+	h.LogError(c, "failed to get listing counts", countsErr)
+	h.LogError(c, "failed to get featured listings", featuredErr)
+	h.LogError(c, "failed to get locations", locationsErr)
+	h.LogError(c, "failed to get categories in HandleHome", categoriesErr)
 
 	strCounts := make(map[string]int)
 	for cat, count := range counts {
@@ -112,7 +113,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 
 	u := c.Get("User")
 
-	return h.renderWithBaseContext(c, domain.TemplateIndex, map[string]interface{}{
+	return h.RenderWithBaseContext(c, domain.TemplateIndex, map[string]interface{}{
 		"Listings":         listings,
 		"Pagination":       Pagination{Page: page, TotalPages: (totalCount + limit - 1) / limit, HasNextPage: hasNextPage, TotalCount: totalCount},
 		"FeaturedListings": featured,
@@ -209,7 +210,7 @@ func (h *ListingHandler) HandleEdit(c echo.Context) error {
 	}
 	source := c.QueryParam("source")
 
-	return h.renderWithBaseContext(c, "modal_edit_listing", map[string]interface{}{
+	return h.RenderWithBaseContext(c, "modal_edit_listing", map[string]interface{}{
 		"Listing":          listing,
 		"TargetID":         targetID,
 		"Source":           source,
@@ -227,40 +228,6 @@ func (h *ListingHandler) getFileHeader(c echo.Context, key string) *multipart.Fi
 	return file
 }
 
-func (h *ListingHandler) renderWithBaseContext(c echo.Context, tmpl string, data map[string]interface{}) error {
-	ctx := c.Request().Context()
-
-	var categories []domain.CategoryData
-	var ok bool
-
-	// Check if already provided in data
-	if providedCats, exists := data["Categories"]; exists {
-		if cats, typeOk := providedCats.([]domain.CategoryData); typeOk {
-			categories = cats
-			ok = true
-		}
-	}
-
-	if !ok {
-		var err error
-		categories, err = h.App.CategorizationSvc.GetActiveCategories(ctx)
-		if err != nil {
-			c.Logger().Errorf("Failed to retrieve categories: %v", err)
-			categories = []domain.CategoryData{}
-		}
-	}
-
-	data["Categories"] = categories
-	data["Env"] = h.App.Cfg.Env
-	data["HasGoogleAuth"] = h.App.Cfg.HasGoogleAuth
-	return c.Render(http.StatusOK, tmpl, data)
-}
-
-func (h *ListingHandler) logError(c echo.Context, msg string, err error) {
-	if err != nil {
-		c.Logger().Errorf("%s: %v", msg, err)
-	}
-}
 
 // findListing fetches a listing by ID from the database.
 // If the listing does not exist, it writes a 404 response to c and returns echo.ErrNotFound.

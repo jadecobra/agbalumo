@@ -13,10 +13,10 @@ import (
 
 func TestAdminMiddleware_NoUser(t *testing.T) {
 	t.Parallel()
-	c, rec := setupAdminTestContext(http.MethodGet, "/admin", nil)
-	app, cleanup := testutil.SetupTestAppEnv(t)
-	defer cleanup()
-	h := admin.NewAdminHandler(app)
+	c, rec := testutil.SetupModuleContext(http.MethodGet, "/admin", nil)
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
 
 	called := false
 	mdw := h.AdminMiddleware(func(c echo.Context) error {
@@ -31,11 +31,11 @@ func TestAdminMiddleware_NoUser(t *testing.T) {
 
 func TestAdminMiddleware_AdminUser(t *testing.T) {
 	t.Parallel()
-	c, rec := setupAdminTestContext(http.MethodGet, "/admin", nil)
+	c, rec := testutil.SetupModuleContext(http.MethodGet, "/admin", nil)
 	c.Set("User", domain.User{ID: "admin1", Role: domain.UserRoleAdmin})
-	app, cleanup := testutil.SetupTestAppEnv(t)
-	defer cleanup()
-	h := admin.NewAdminHandler(app)
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
 
 	called := false
 	mdw := h.AdminMiddleware(func(c echo.Context) error {

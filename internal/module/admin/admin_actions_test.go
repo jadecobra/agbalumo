@@ -9,19 +9,22 @@ import (
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"github.com/jadecobra/agbalumo/internal/testutil"
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAdminHandler_HandleAllListings(t *testing.T) {
 	t.Parallel()
-	c, rec := setupAdminTestContext(http.MethodGet, "/admin/listings", nil)
-	setupAdminAuth(t, c)
-	app, h, cleanup := setupAdminTest(t)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
+
+	c, rec := testutil.SetupAdminContext(http.MethodGet, "/admin/listings", nil)
 
 	// Seed a listing
-	_ = app.DB.Save(context.Background(), domain.Listing{ID: "1", Title: "Test Listing"})
+	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "1", Title: "Test Listing"})
 
 	_ = h.HandleAllListings(c)
 	assert.Equal(t, http.StatusOK, rec.Code)
@@ -100,25 +103,27 @@ func TestAdminHandler_HandleToggleFeatured(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
+			env := testutil.SetupTestModuleEnv(t)
+			defer env.Cleanup()
+			h := admin.NewAdminHandler(env.App)
+
 			formData := url.Values{}
 			formData.Set("featured", tt.featured)
 			urlPath := "/admin/listings/" + tt.id + "/featured"
 			if tt.id == "" {
 				urlPath = "/admin/listings/featured"
 			}
-			c, rec := setupAdminTestContext(http.MethodPost, urlPath, strings.NewReader(formData.Encode()))
-			setupAdminAuth(t, c)
+			c, rec := testutil.SetupAdminContext(http.MethodPost, urlPath, strings.NewReader(formData.Encode()))
+			c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 			if tt.id != "" {
 				c.SetParamNames("id")
 				c.SetParamValues(tt.id)
 			}
 
-			app, h, cleanup := setupAdminTest(t)
-			defer cleanup()
-			tt.setupData(t, app.DB)
+			tt.setupData(t, env.App.DB)
 
 			_ = h.HandleToggleFeatured(c)
-			assertFeaturedResponse(t, rec, tt.expectCode, tt.id, app.DB)
+			assertFeaturedResponse(t, rec, tt.expectCode, tt.id, env.App.DB)
 		})
 	}
 }
@@ -142,33 +147,34 @@ func assertFeaturedResponse(t *testing.T, rec *httptest.ResponseRecorder, expect
 
 func TestAdminHandler_HandleApproveClaim(t *testing.T) {
 	t.Parallel()
-	c, rec := setupAdminTestContext(http.MethodPost, "/admin/claims/cr1/approve", nil)
-	setupAdminAuth(t, c)
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
+
+	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/claims/cr1/approve", nil)
 	c.SetParamNames("id")
 	c.SetParamValues("cr1")
 
-	app, h, cleanup := setupAdminTest(t)
-	defer cleanup()
-
 	// Seed a claim request
-	_ = app.DB.SaveClaimRequest(context.Background(), domain.ClaimRequest{ID: "cr1", UserID: "u1", ListingID: "l1", Status: domain.ClaimStatusPending})
+	_ = env.App.DB.SaveClaimRequest(context.Background(), domain.ClaimRequest{ID: "cr1", UserID: "u1", ListingID: "l1", Status: domain.ClaimStatusPending})
 
 	_ = h.HandleApproveClaim(c)
 	assert.Equal(t, http.StatusOK, rec.Code)
-	cr, _ := app.DB.GetClaimRequestByUserAndListing(context.Background(), "u1", "l1")
+	cr, _ := env.App.DB.GetClaimRequestByUserAndListing(context.Background(), "u1", "l1")
 	assert.Equal(t, domain.ClaimStatusApproved, cr.Status)
 }
 
 func TestAdminHandler_HandleListingRow(t *testing.T) {
 	t.Parallel()
-	c, rec := setupAdminTestContext(http.MethodGet, "/admin/listings/1/row", nil)
-	setupAdminAuth(t, c)
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
+
+	c, rec := testutil.SetupAdminContext(http.MethodGet, "/admin/listings/1/row", nil)
 	c.SetParamNames("id")
 	c.SetParamValues("1")
 
-	app, h, cleanup := setupAdminTest(t)
-	defer cleanup()
-	_ = app.DB.Save(context.Background(), domain.Listing{ID: "1", Title: "Test Row Listing"})
+	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "1", Title: "Test Row Listing"})
 
 	_ = h.HandleListingRow(c)
 	assert.Equal(t, http.StatusOK, rec.Code)

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"mime/multipart"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
@@ -17,17 +16,14 @@ import (
 
 func TestListingHandler_HandleImageUpload_CacheBusting(t *testing.T) {
 	t.Parallel()
-	e := echo.New()
-	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
-
-	app, cleanup := testutil.SetupTestAppEnv(t)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
 	mockImageService := &testutil.MockImageService{}
 	mockGeocodingService := &testutil.MockGeocodingService{}
-	app.ImageSvc = mockImageService
-	app.GeocodingSvc = mockGeocodingService
+	env.App.ImageSvc = mockImageService
+	env.App.GeocodingSvc = mockGeocodingService
 
-	h := listmod.NewListingHandler(app)
+	h := listmod.NewListingHandler(env.App)
 
 	// Mock successful upload returning a clean URL
 	mockImageService.On("UploadImage", testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).
@@ -47,10 +43,8 @@ func TestListingHandler_HandleImageUpload_CacheBusting(t *testing.T) {
 	_, _ = part.Write([]byte("fake image content"))
 	_ = writer.Close()
 
-	req := httptest.NewRequest(http.MethodPost, "/listings", body)
-	req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+	c, _ := testutil.SetupModuleContext(http.MethodPost, "/listings", body)
+	c.Request().Header.Set(echo.HeaderContentType, writer.FormDataContentType())
 	c.Set("User", domain.User{ID: "u1"})
 
 	// Execute
@@ -58,7 +52,7 @@ func TestListingHandler_HandleImageUpload_CacheBusting(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Fetch from DB to check ImageURL
-	all, _, _ := app.DB.FindAll(c.Request().Context(), "", "", "", "", "", false, 10, 0)
+	all, _, _ := env.App.DB.FindAll(c.Request().Context(), "", "", "", "", "", false, 10, 0)
 	assert.Equal(t, 1, len(all))
 	assert.Contains(t, all[0].ImageURL, "/static/uploads/test.webp?t=")
 

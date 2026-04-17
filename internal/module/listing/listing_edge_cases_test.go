@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/module/listing"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -35,12 +36,13 @@ func TestHandleCreate_WithImage(t *testing.T) {
 	_ = png.Encode(part, img)
 	_ = writer.Close()
 
-	c, rec := setupTestContext(http.MethodPost, "/listings", body)
+	c, rec := testutil.SetupModuleContext(http.MethodPost, "/listings", body)
 	c.Request().Header.Set(echo.HeaderContentType, writer.FormDataContentType())
 
-	h, app, cleanup := setupListingHandler(t)
-	defer cleanup()
-	c.Set("User", newTestUser("u1", domain.UserRoleUser))
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
+	c.Set("User", domain.User{ID: "u1", Role: domain.UserRoleUser})
 
 	if err := h.HandleCreate(c); err != nil {
 		t.Fatal(err)
@@ -49,7 +51,7 @@ func TestHandleCreate_WithImage(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 
 	// Verify DB state
-	listings, _ := app.DB.FindByTitle(context.Background(), "Image Listing")
+	listings, _ := env.App.DB.FindByTitle(context.Background(), "Image Listing")
 	assert.Len(t, listings, 1)
 	assert.NotEmpty(t, listings[0].ImageURL)
 }
@@ -71,10 +73,12 @@ func TestHandleCreate_InvalidDates(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			h, _, cleanup := setupListingHandler(t)
-			defer cleanup()
-			c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
-			c.Set("User", newTestUser("u1", domain.UserRoleUser))
+			env := testutil.SetupTestModuleEnv(t)
+			defer env.Cleanup()
+			h := listing.NewListingHandler(env.App)
+			c, rec := testutil.SetupModuleContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
+			c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+			c.Set("User", domain.User{ID: "u1", Role: domain.UserRoleUser})
 			_ = h.HandleCreate(c)
 			assert.Equal(t, tt.expectedStatus, rec.Code)
 		})
@@ -83,14 +87,15 @@ func TestHandleCreate_InvalidDates(t *testing.T) {
 
 func TestHandleCreate_ImageUploadError(t *testing.T) {
 	t.Parallel()
-	h, app, cleanup := setupListingHandler(t)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
 	mockImageService := &testutil.MockImageService{}
-	app.ImageSvc = mockImageService
+	env.App.ImageSvc = mockImageService
 	mockImageService.On("UploadImage", testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).Return("", errors.New("upload fail"))
 
-	c, rec := setupTestContext(http.MethodPost, "/listings", nil)
-	c.Set("User", newTestUser("u1", domain.UserRoleUser))
+	c, rec := testutil.SetupModuleContext(http.MethodPost, "/listings", nil)
+	c.Set("User", domain.User{ID: "u1", Role: domain.UserRoleUser})
 
 	_ = h.HandleCreate(c)
 	assert.Equal(t, http.StatusInternalServerError, rec.Code)
@@ -98,9 +103,10 @@ func TestHandleCreate_ImageUploadError(t *testing.T) {
 
 func TestHandleProfile_NoUser(t *testing.T) {
 	t.Parallel()
-	h, _, cleanup := setupListingHandler(t)
-	defer cleanup()
-	c, rec := setupTestContext(http.MethodGet, "/profile", nil)
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
+	c, rec := testutil.SetupModuleContext(http.MethodGet, "/profile", nil)
 	_ = h.HandleProfile(c)
 	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
 }

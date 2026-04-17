@@ -10,6 +10,9 @@ import (
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/module/admin"
+	"github.com/jadecobra/agbalumo/internal/service"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
@@ -25,8 +28,11 @@ func TestAdminHandler_HandleBulkUpload(t *testing.T) {
 	_, _ = part.Write([]byte(csvContent))
 	_ = writer.Close()
 
-	app, h, c, rec, cleanup := setupAdminBulkTest(t, http.MethodPost, "/admin/upload", body)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	env.App.CSVService = service.NewCSVService()
+	h := admin.NewAdminHandler(env.App)
+	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/upload", body)
 	c.Request().Header.Set(echo.HeaderContentType, writer.FormDataContentType())
 
 	err := h.HandleBulkUpload(c)
@@ -36,7 +42,7 @@ func TestAdminHandler_HandleBulkUpload(t *testing.T) {
 	assert.Equal(t, "/admin", rec.Header().Get("Location"))
 
 	// Verify listing was saved
-	listings, _ := app.DB.FindByTitle(context.Background(), "Test Biz")
+	listings, _ := env.App.DB.FindByTitle(context.Background(), "Test Biz")
 	assert.Len(t, listings, 1)
 	assert.Equal(t, "Test Biz", listings[0].Title)
 }
@@ -50,8 +56,11 @@ func TestAdminHandler_HandleBulkUpload_InvalidCSV(t *testing.T) {
 	_, _ = part.Write([]byte("invalid,csv,data\n1,2,3"))
 	_ = writer.Close()
 
-	_, h, c, rec, cleanup := setupAdminBulkTest(t, http.MethodPost, "/admin/upload", body)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	env.App.CSVService = service.NewCSVService()
+	h := admin.NewAdminHandler(env.App)
+	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/upload", body)
 	c.Request().Header.Set(echo.HeaderContentType, writer.FormDataContentType())
 	_ = h.HandleBulkUpload(c)
 
@@ -60,8 +69,10 @@ func TestAdminHandler_HandleBulkUpload_InvalidCSV(t *testing.T) {
 
 func TestAdminHandler_HandleBulkUpload_NoFile(t *testing.T) {
 	t.Parallel()
-	_, h, c, rec, cleanup := setupAdminBulkTest(t, http.MethodPost, "/admin/upload", nil)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
+	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/upload", nil)
 	_ = h.HandleBulkUpload(c)
 	assert.Equal(t, http.StatusFound, rec.Code)
 }
@@ -77,23 +88,27 @@ func TestAdminHandler_HandleBulkUpload_ParseError(t *testing.T) {
 	_, _ = part.Write([]byte(csvContent))
 	_ = writer.Close()
 
-	app, h, c, rec, cleanup := setupAdminBulkTest(t, http.MethodPost, "/admin/upload", body)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	env.App.CSVService = service.NewCSVService()
+	h := admin.NewAdminHandler(env.App)
+	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/upload", body)
 	c.Request().Header.Set(echo.HeaderContentType, writer.FormDataContentType())
 	_ = h.HandleBulkUpload(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)
 	// Verify no listing was saved
-	listings, _, _ := app.DB.FindAll(context.Background(), "", "", "", "", "", true, 10, 0)
+	listings, _, _ := env.App.DB.FindAll(context.Background(), "", "", "", "", "", true, 10, 0)
 	assert.Empty(t, listings)
 }
 
 func TestHandleBulkAction_NoSelection(t *testing.T) {
 	t.Parallel()
-	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings/bulk", nil)
-	setupAdminAuth(t, c)
-	_, h, cleanup := setupAdminTest(t)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
+
+	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/listings/bulk", nil)
 
 	if assert.NoError(t, h.HandleBulkAction(c)) {
 		assert.Equal(t, http.StatusFound, rec.Code)
@@ -103,56 +118,56 @@ func TestHandleBulkAction_NoSelection(t *testing.T) {
 
 func TestHandleBulkAction_Approve(t *testing.T) {
 	t.Parallel()
-	app, h, cleanup := setupAdminTest(t)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
 
-	_ = app.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Status: domain.ListingStatusPending})
+	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Status: domain.ListingStatusPending})
 
 	form := url.Values{}
 	form.Add("action", "approve")
 	form.Add("selectedListings", "l1")
-	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
-	setupAdminAuth(t, c)
+	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
 	c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 
 	if assert.NoError(t, h.HandleBulkAction(c)) {
 		assert.Equal(t, http.StatusFound, rec.Code)
-		l, _ := app.DB.FindByID(context.Background(), "l1")
+		l, _ := env.App.DB.FindByID(context.Background(), "l1")
 		assert.Equal(t, domain.ListingStatusApproved, l.Status)
 	}
 }
 
 func TestHandleBulkAction_Reject(t *testing.T) {
 	t.Parallel()
-	app, h, cleanup := setupAdminTest(t)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
 
-	_ = app.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Status: domain.ListingStatusPending})
+	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Status: domain.ListingStatusPending})
 
 	form := url.Values{}
 	form.Add("action", "reject")
 	form.Add("selectedListings", "l1")
-	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
-	setupAdminAuth(t, c)
+	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
 	c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 
 	if assert.NoError(t, h.HandleBulkAction(c)) {
 		assert.Equal(t, http.StatusFound, rec.Code)
-		l, _ := app.DB.FindByID(context.Background(), "l1")
+		l, _ := env.App.DB.FindByID(context.Background(), "l1")
 		assert.Equal(t, domain.ListingStatusRejected, l.Status)
 	}
 }
 
 func TestHandleBulkAction_Delete(t *testing.T) {
 	t.Parallel()
-	_, h, cleanup := setupAdminTest(t)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
 
 	form := url.Values{}
 	form.Add("action", "delete")
 	form.Add("selectedListings", "l1")
-	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
-	setupAdminAuth(t, c)
+	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
 	c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 
 	if assert.NoError(t, h.HandleBulkAction(c)) {
@@ -163,12 +178,13 @@ func TestHandleBulkAction_Delete(t *testing.T) {
 
 func TestHandleBulkAction_ChangeCategory(t *testing.T) {
 	t.Parallel()
-	app, h, cleanup := setupAdminTest(t)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
 
 	// Create listings with "Business" category
-	_ = app.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Type: domain.Business, City: "Lagos", OwnerOrigin: "Nigeria"})
-	_ = app.DB.Save(context.Background(), domain.Listing{ID: "l2", Title: "L2", Type: domain.Business, City: "Accra", OwnerOrigin: "Ghana"})
+	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Type: domain.Business, City: "Lagos", OwnerOrigin: "Nigeria"})
+	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "l2", Title: "L2", Type: domain.Business, City: "Accra", OwnerOrigin: "Ghana"})
 
 	form := url.Values{}
 	form.Add("action", "change_category")
@@ -176,14 +192,13 @@ func TestHandleBulkAction_ChangeCategory(t *testing.T) {
 	form.Add("selectedListings", "l2")
 	form.Add("new_category", string(domain.Job))
 
-	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
-	setupAdminAuth(t, c)
+	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
 	c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 
 	if assert.NoError(t, h.HandleBulkAction(c)) {
 		assert.Equal(t, http.StatusFound, rec.Code)
-		l1, _ := app.DB.FindByID(context.Background(), "l1")
-		l2, _ := app.DB.FindByID(context.Background(), "l2")
+		l1, _ := env.App.DB.FindByID(context.Background(), "l1")
+		l2, _ := env.App.DB.FindByID(context.Background(), "l2")
 		assert.Equal(t, domain.Job, l1.Type)
 		assert.Equal(t, domain.Job, l2.Type)
 	}
@@ -191,11 +206,12 @@ func TestHandleBulkAction_ChangeCategory(t *testing.T) {
 
 func TestHandleBulkAction_NoAction(t *testing.T) {
 	t.Parallel()
-	c, rec := setupAdminTestContext(http.MethodPost, "/admin/bulk", strings.NewReader("ids[]=1"))
-	setupAdminAuth(t, c)
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
 
-	_, h, cleanup := setupAdminTest(t)
-	defer cleanup()
+	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/bulk", strings.NewReader("ids[]=1"))
+
 	_ = h.HandleBulkAction(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)
@@ -211,8 +227,11 @@ func TestAdminHandler_HandleBulkUpload_ManyErrors(t *testing.T) {
 	_, _ = part.Write([]byte(csvContent))
 	_ = writer.Close()
 
-	_, h, c, rec, cleanup := setupAdminBulkTest(t, http.MethodPost, "/admin/upload", body)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	env.App.CSVService = service.NewCSVService()
+	h := admin.NewAdminHandler(env.App)
+	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/upload", body)
 	c.Request().Header.Set(echo.HeaderContentType, writer.FormDataContentType())
 	_ = h.HandleBulkUpload(c)
 
@@ -221,8 +240,9 @@ func TestAdminHandler_HandleBulkUpload_ManyErrors(t *testing.T) {
 
 func TestHandleBulkAction_ChangeToCustomCategory(t *testing.T) {
 	t.Parallel()
-	app, h, cleanup := setupAdminTest(t)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
 
 	// Add a custom category
 	customCategory := domain.CategoryData{
@@ -230,11 +250,11 @@ func TestHandleBulkAction_ChangeToCustomCategory(t *testing.T) {
 		Name:   "Tech Startups",
 		Active: true,
 	}
-	_ = app.DB.SaveCategory(context.Background(), customCategory)
+	_ = env.App.DB.SaveCategory(context.Background(), customCategory)
 
 	// Create listings with "Business" category
-	_ = app.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Type: domain.Business, City: "Lagos", OwnerOrigin: "Nigeria"})
-	_ = app.DB.Save(context.Background(), domain.Listing{ID: "l2", Title: "L2", Type: domain.Business, City: "Accra", OwnerOrigin: "Ghana"})
+	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Type: domain.Business, City: "Lagos", OwnerOrigin: "Nigeria"})
+	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "l2", Title: "L2", Type: domain.Business, City: "Accra", OwnerOrigin: "Ghana"})
 
 	form := url.Values{}
 	form.Add("action", "change_category")
@@ -243,14 +263,13 @@ func TestHandleBulkAction_ChangeToCustomCategory(t *testing.T) {
 	// The frontend now sends the Category Name as the value
 	form.Add("new_category", customCategory.Name)
 
-	c, rec := setupAdminTestContext(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
-	setupAdminAuth(t, c)
+	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
 	c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 
 	if assert.NoError(t, h.HandleBulkAction(c)) {
 		assert.Equal(t, http.StatusFound, rec.Code)
-		l1, _ := app.DB.FindByID(context.Background(), "l1")
-		l2, _ := app.DB.FindByID(context.Background(), "l2")
+		l1, _ := env.App.DB.FindByID(context.Background(), "l1")
+		l2, _ := env.App.DB.FindByID(context.Background(), "l2")
 		// Assert that the listing type is now the Category Name
 		assert.Equal(t, domain.Category("Tech Startups"), l1.Type)
 		assert.Equal(t, domain.Category("Tech Startups"), l2.Type)

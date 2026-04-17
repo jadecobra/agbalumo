@@ -9,15 +9,17 @@ import (
 	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/service"
+	"github.com/jadecobra/agbalumo/internal/module/listing"
+	"github.com/jadecobra/agbalumo/internal/testutil"
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHandleCreate_EventParsing(t *testing.T) {
 	t.Parallel()
-	h, app, cleanup := setupListingHandler(t)
-	defer cleanup()
-	app.GeocodingSvc = &service.GoogleGeocodingService{}
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
 
 	// Create form data
 	form := url.Values{}
@@ -29,8 +31,9 @@ func TestHandleCreate_EventParsing(t *testing.T) {
 	form.Set("event_start", "2026-12-25T10:00") // standard datetime-local format
 	form.Set("event_end", "2026-12-25T14:00")
 
-	c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(form.Encode()))
-	c.Set("User", newTestUser("event-user", domain.UserRoleUser))
+	c, rec := testutil.SetupModuleContext(http.MethodPost, "/listings", strings.NewReader(form.Encode()))
+	c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+	c.Set("User", domain.User{ID: "event-user", Role: domain.UserRoleUser})
 
 	// Execute
 	err := h.HandleCreate(c)
@@ -38,7 +41,7 @@ func TestHandleCreate_EventParsing(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 
 	// Verify DB state
-	listings, _ := app.DB.FindByTitle(context.Background(), "Test Event")
+	listings, _ := env.App.DB.FindByTitle(context.Background(), "Test Event")
 	assert.Len(t, listings, 1)
 	l := listings[0]
 	assert.Equal(t, domain.Event, l.Type)

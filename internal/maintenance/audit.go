@@ -242,7 +242,6 @@ func runAuditWorker(rootDir string, idx, total int, name string, command []strin
 	return failed
 }
 
-
 func parseSummary(name, output string) string {
 	lines := strings.Split(strings.TrimSpace(output), "\n")
 	if len(lines) == 0 || output == "" {
@@ -276,4 +275,3 @@ func runTool(dir, name string, args ...string) (string, error) {
 	out, err := cmd.CombinedOutput()
 	return string(out), err
 }
-

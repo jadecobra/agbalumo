@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/module/listing"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,9 +20,9 @@ func TestHandleDelete(t *testing.T) {
 	}{
 		{
 			name: "Success",
-			user: newTestUser("owner-1", domain.UserRoleUser),
+			user: domain.User{ID: "owner-1", Role: domain.UserRoleUser},
 			setup: func(t *testing.T, repo domain.ListingRepository) {
-				saveTestListing(t, repo, "1", "Title", func(l *domain.Listing) { l.OwnerID = "owner-1" })
+				testutil.SaveTestListing(t, repo, "1", "Title", func(l *domain.Listing) { l.OwnerID = "owner-1" })
 			},
 			expectCode: http.StatusSeeOther,
 		},
@@ -32,22 +34,22 @@ func TestHandleDelete(t *testing.T) {
 		},
 		{
 			name: "NotFound",
-			user: newTestUser("owner-1", domain.UserRoleUser),
+			user: domain.User{ID: "owner-1", Role: domain.UserRoleUser},
 			setup: func(t *testing.T, repo domain.ListingRepository) {
 			},
 			expectCode: http.StatusNotFound,
 		},
 		{
 			name: "Forbidden_NotOwner",
-			user: newTestUser("other-user", domain.UserRoleUser),
+			user: domain.User{ID: "other-user", Role: domain.UserRoleUser},
 			setup: func(t *testing.T, repo domain.ListingRepository) {
-				saveTestListing(t, repo, "1", "Title", func(l *domain.Listing) { l.OwnerID = "owner-1" })
+				testutil.SaveTestListing(t, repo, "1", "Title", func(l *domain.Listing) { l.OwnerID = "owner-1" })
 			},
 			expectCode: http.StatusForbidden,
 		},
 		{
 			name: "DeleteError",
-			user: newTestUser("owner-1", domain.UserRoleUser),
+			user: domain.User{ID: "owner-1", Role: domain.UserRoleUser},
 			setup: func(t *testing.T, repo domain.ListingRepository) {
 				// We can't trigger a DB error easily with real SQLite without some trickery
 			},
@@ -61,7 +63,7 @@ func TestHandleDelete(t *testing.T) {
 			if tt.name == "DeleteError" {
 				t.Skip("Hard to trigger DB error with real SQLite")
 			}
-			c, rec := setupTestContext(http.MethodDelete, "/listings/1", nil)
+			c, rec := testutil.SetupModuleContext(http.MethodDelete, "/listings/1", nil)
 			c.SetPath("/listings/:id")
 			c.SetParamNames("id")
 			c.SetParamValues("1")
@@ -69,9 +71,10 @@ func TestHandleDelete(t *testing.T) {
 				c.Set("User", tt.user)
 			}
 
-			h, app, cleanup := setupListingHandler(t)
-			defer cleanup()
-			tt.setup(t, app.DB)
+			env := testutil.SetupTestModuleEnv(t)
+			defer env.Cleanup()
+			h := listing.NewListingHandler(env.App)
+			tt.setup(t, env.App.DB)
 			_ = h.HandleDelete(c)
 
 			assert.Equal(t, tt.expectCode, rec.Code)

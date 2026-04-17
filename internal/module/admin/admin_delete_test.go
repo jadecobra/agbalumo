@@ -3,13 +3,11 @@ package admin_test
 import (
 	"context"
 	"net/http"
-	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/infra/env"
 	"github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"github.com/jadecobra/agbalumo/internal/testutil"
@@ -19,26 +17,35 @@ import (
 
 func TestAdminHandler_HandleAdminDeleteAction_Success(t *testing.T) {
 	t.Parallel()
-	app, h, c, rec, cleanup := setupAdminDeleteTest(t, "secret", "l1")
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
+	env.App.Cfg.AdminCode = "secret"
 
-	seedListing(t, app, "l1")
+	formData := url.Values{}
+	formData.Set("admin_code", "secret")
+	formData.Add("id", "l1")
+	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/listings/delete", strings.NewReader(formData.Encode()))
+	c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+
+	testutil.SaveTestListing(t, env.App.DB, "l1", "To Delete")
 
 	_ = h.HandleAdminDeleteAction(c)
 	assert.Equal(t, http.StatusFound, rec.Code)
 
 	// Verify deletion
-	_, err := app.DB.FindByID(context.Background(), "l1")
+	_, err := env.App.DB.FindByID(context.Background(), "l1")
 	assert.Error(t, err) // Should not be found
 }
 
 func TestHandleAdminDeleteView(t *testing.T) {
 	t.Parallel()
-	app, h, cleanup := setupAdminTest(t)
-	defer cleanup()
-	seedListing(t, app, "listing1")
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
+	testutil.SaveTestListing(t, env.App.DB, "listing1", "To Delete")
 
-	c, rec := setupAdminTestContext(http.MethodGet, "/admin/listings/delete?id=listing1", nil)
+	c, rec := testutil.SetupAdminContext(http.MethodGet, "/admin/listings/delete?id=listing1", nil)
 	c.Echo().Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplateForPage(t, "admin_delete_confirm.html")}
 
 	if assert.NoError(t, h.HandleAdminDeleteView(c)) {
@@ -48,10 +55,11 @@ func TestHandleAdminDeleteView(t *testing.T) {
 
 func TestHandleAdminDeleteView_NoIDs_Redirects(t *testing.T) {
 	t.Parallel()
-	_, h, cleanup := setupAdminTest(t)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
 
-	c, rec := setupAdminTestContext(http.MethodGet, "/admin/listings/delete", nil)
+	c, rec := testutil.SetupAdminContext(http.MethodGet, "/admin/listings/delete", nil)
 
 	_ = h.HandleAdminDeleteView(c)
 	assert.Equal(t, http.StatusFound, rec.Code)
@@ -60,11 +68,12 @@ func TestHandleAdminDeleteView_NoIDs_Redirects(t *testing.T) {
 
 func TestHandleAdminDeleteView_FindByIDError_Returns404(t *testing.T) {
 	t.Parallel()
-	_, h, cleanup := setupAdminTest(t)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
 	// No data seeded, so "bad-id" will not be found
 
-	c, rec := setupAdminTestContext(http.MethodGet, "/admin/listings/delete?id=bad-id", nil)
+	c, rec := testutil.SetupAdminContext(http.MethodGet, "/admin/listings/delete?id=bad-id", nil)
 
 	_ = h.HandleAdminDeleteView(c)
 	assert.Equal(t, http.StatusNotFound, rec.Code)
@@ -72,8 +81,12 @@ func TestHandleAdminDeleteView_FindByIDError_Returns404(t *testing.T) {
 
 func TestHandleAdminDeleteAction_NoIDs_Redirects(t *testing.T) {
 	t.Parallel()
-	_, h, c, rec, cleanup := setupAdminDeleteTest(t, "secret")
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
+
+	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/listings/delete", nil)
+	c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 
 	_ = h.HandleAdminDeleteAction(c)
 	assert.Equal(t, http.StatusFound, rec.Code)
@@ -82,11 +95,18 @@ func TestHandleAdminDeleteAction_NoIDs_Redirects(t *testing.T) {
 
 func TestHandleAdminDeleteAction_WrongCode_RendersConfirmWithError(t *testing.T) {
 	t.Parallel()
-	app, h, c, rec, cleanup := setupAdminDeleteTest(t, "wrong", "l1")
-	defer cleanup()
-	app.Cfg.AdminCode = "correct"
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	env.App.Cfg.AdminCode = "correct"
+	h := admin.NewAdminHandler(env.App)
 
-	seedListing(t, app, "l1")
+	formData := url.Values{}
+	formData.Set("admin_code", "wrong")
+	formData.Add("id", "l1")
+	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/listings/delete", strings.NewReader(formData.Encode()))
+	c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+
+	testutil.SaveTestListing(t, env.App.DB, "l1", "To Delete")
 
 	_ = h.HandleAdminDeleteAction(c)
 	assert.Equal(t, http.StatusOK, rec.Code)
@@ -94,16 +114,25 @@ func TestHandleAdminDeleteAction_WrongCode_RendersConfirmWithError(t *testing.T)
 
 func TestHandleAdminDeleteAction_PartialSuccess(t *testing.T) {
 	t.Parallel()
-	app, h, c, rec, cleanup := setupAdminDeleteTest(t, "secret", "l1", "l2")
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	env.App.Cfg.AdminCode = "secret"
+	h := admin.NewAdminHandler(env.App)
 
-	seedListing(t, app, "l1")
+	formData := url.Values{}
+	formData.Set("admin_code", "secret")
+	formData.Add("id", "l1")
+	formData.Add("id", "l2")
+	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/listings/delete", strings.NewReader(formData.Encode()))
+	c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+
+	testutil.SaveTestListing(t, env.App.DB, "l1", "To Delete")
 
 	_ = h.HandleAdminDeleteAction(c)
 	assert.Equal(t, http.StatusFound, rec.Code)
 
 	// Verify l1 deleted
-	_, err := app.DB.FindByID(context.Background(), "l1")
+	_, err := env.App.DB.FindByID(context.Background(), "l1")
 	assert.Error(t, err)
 
 	// Verify flash message
@@ -111,27 +140,4 @@ func TestHandleAdminDeleteAction_PartialSuccess(t *testing.T) {
 	flashes := sess.Flashes(domain.FlashMessageKey)
 	assert.Len(t, flashes, 1)
 	assert.Contains(t, flashes[0], "Successfully deleted 1 listings")
-}
-
-func setupAdminDeleteTest(t *testing.T, adminCode string, ids ...string) (*env.AppEnv, *admin.AdminHandler, echo.Context, *httptest.ResponseRecorder, func()) {
-	formData := url.Values{}
-	if adminCode != "" {
-		formData.Set("admin_code", adminCode)
-	}
-	for _, id := range ids {
-		formData.Add("id", id)
-	}
-	app, h, c, rec, cleanup := setupAdminBulkTest(t, http.MethodPost, "/admin/listings/delete", strings.NewReader(formData.Encode()))
-	app.Cfg.AdminCode = "secret"
-	return app, h, c, rec, cleanup
-}
-
-func seedListing(t *testing.T, app *env.AppEnv, id string) {
-	err := app.DB.Save(context.Background(), domain.Listing{
-		ID:          id,
-		Title:       "To Delete",
-		OwnerOrigin: "Nigeria",
-		Type:        "business",
-	})
-	assert.NoError(t, err)
 }

@@ -7,16 +7,19 @@ import (
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/module/listing"
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHandleHome(t *testing.T) {
 	t.Parallel()
-	c, rec := setupTestContext(http.MethodGet, "/", nil)
-	h, app, cleanup := setupListingHandler(t)
-	defer cleanup()
-	saveTestListing(t, app.DB, "1", "Listing 1", func(l *domain.Listing) { l.Type = domain.Food })
-	_ = app.DB.SaveCategory(context.Background(), domain.CategoryData{ID: string(domain.Food), Name: "Food", Active: true})
+	c, rec := testutil.SetupModuleContext(http.MethodGet, "/", nil)
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
+	testutil.SaveTestListing(t, env.App.DB, "1", "Listing 1", func(l *domain.Listing) { l.Type = domain.Food })
+	_ = env.App.DB.SaveCategory(context.Background(), domain.CategoryData{ID: string(domain.Food), Name: "Food", Active: true})
 
 	if err := h.HandleHome(c); err != nil {
 		t.Fatal(err)
@@ -28,13 +31,14 @@ func TestHandleHome(t *testing.T) {
 
 func TestHandleDetail(t *testing.T) {
 	t.Parallel()
-	c, rec := setupTestContext(http.MethodGet, "/listings/1", nil)
+	c, rec := testutil.SetupModuleContext(http.MethodGet, "/listings/1", nil)
 	c.SetParamNames("id")
 	c.SetParamValues("1")
 
-	h, app, cleanup := setupListingHandler(t)
-	defer cleanup()
-	saveTestListing(t, app.DB, "1", "Detail View")
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
+	testutil.SaveTestListing(t, env.App.DB, "1", "Detail View")
 
 	if err := h.HandleDetail(c); err != nil {
 		t.Fatal(err)
@@ -45,14 +49,14 @@ func TestHandleDetail(t *testing.T) {
 
 func TestHandleProfile(t *testing.T) {
 	t.Parallel()
-	c, rec := setupTestContext(http.MethodGet, "/profile", nil)
-	user := newTestUser("u1", domain.UserRoleUser)
-	user.Name = "John Doe"
+	c, rec := testutil.SetupModuleContext(http.MethodGet, "/profile", nil)
+	user := domain.User{ID: "u1", Name: "John Doe", Role: domain.UserRoleUser}
 	c.Set("User", user)
 
-	h, app, cleanup := setupListingHandler(t)
-	defer cleanup()
-	saveTestListing(t, app.DB, "1", "My Listing", func(l *domain.Listing) { l.OwnerID = "u1" })
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
+	testutil.SaveTestListing(t, env.App.DB, "1", "My Listing", func(l *domain.Listing) { l.OwnerID = "u1" })
 
 	if err := h.HandleProfile(c); err != nil {
 		t.Fatal(err)
@@ -63,13 +67,14 @@ func TestHandleProfile(t *testing.T) {
 
 func TestHandleFragment(t *testing.T) {
 	t.Parallel()
-	c, rec := setupTestContext(http.MethodGet, "/listings/fragment?q=Search", nil)
+	c, rec := testutil.SetupModuleContext(http.MethodGet, "/listings/fragment?q=Search", nil)
 	c.Request().Header.Set("HX-Request", "true")
 
-	h, app, cleanup := setupListingHandler(t)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
 	for i := 1; i <= 31; i++ {
-		saveTestListing(t, app.DB, strconv.Itoa(i), "Search Result "+strconv.Itoa(i))
+		testutil.SaveTestListing(t, env.App.DB, strconv.Itoa(i), "Search Result "+strconv.Itoa(i))
 	}
 
 	if err := h.HandleFragment(c); err != nil {
@@ -79,17 +84,18 @@ func TestHandleFragment(t *testing.T) {
 	// Verify fragment contains results
 	assert.Contains(t, rec.Body.String(), "Search Result 1")
 	// Verify it contains the OOB swap for pagination
-	assertContainsPagination(t, rec.Body.String())
+	testutil.AssertContainsPagination(t, rec.Body.String())
 }
 
 func TestHandleDetail_NotFound(t *testing.T) {
 	t.Parallel()
-	c, rec := setupTestContext(http.MethodGet, "/listings/nonexistent", nil)
+	c, rec := testutil.SetupModuleContext(http.MethodGet, "/listings/nonexistent", nil)
 	c.SetParamNames("id")
 	c.SetParamValues("nonexistent")
 
-	h, _, cleanup := setupListingHandler(t)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
 
 	_ = h.HandleDetail(c)
 	assert.Equal(t, http.StatusNotFound, rec.Code)
@@ -97,17 +103,18 @@ func TestHandleDetail_NotFound(t *testing.T) {
 
 func TestHandleFragment_AdaDefaulting(t *testing.T) {
 	t.Parallel()
-	h, app, cleanup := setupListingHandler(t)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
 
 	// Seed: One food in Houston, one service in Houston
-	saveTestListing(t, app.DB, "1", "Houston Jollof", func(l *domain.Listing) {
+	testutil.SaveTestListing(t, env.App.DB, "1", "Houston Jollof", func(l *domain.Listing) {
 		l.Type = domain.Food
 		l.City = "Houston"
 		l.Status = domain.ListingStatusApproved
 		l.IsActive = true
 	})
-	saveTestListing(t, app.DB, "2", "Houston Hair", func(l *domain.Listing) {
+	testutil.SaveTestListing(t, env.App.DB, "2", "Houston Hair", func(l *domain.Listing) {
 		l.Type = domain.Service
 		l.City = "Houston"
 		l.Status = domain.ListingStatusApproved
@@ -115,7 +122,7 @@ func TestHandleFragment_AdaDefaulting(t *testing.T) {
 	})
 
 	// Case 1: Filter by City only (no type) -> should default to Food
-	c, rec := setupTestContext(http.MethodGet, "/listings/fragment?city=Houston", nil)
+	c, rec := testutil.SetupModuleContext(http.MethodGet, "/listings/fragment?city=Houston", nil)
 	c.Request().Header.Set("HX-Request", "true")
 	if err := h.HandleFragment(c); err != nil {
 		t.Fatal(err)
@@ -124,7 +131,7 @@ func TestHandleFragment_AdaDefaulting(t *testing.T) {
 	assert.NotContains(t, rec.Body.String(), "Houston Hair")
 
 	// Case 2: Filter by City AND specify Type -> should respect Type
-	c2, rec2 := setupTestContext(http.MethodGet, "/listings/fragment?city=Houston&type=Service", nil)
+	c2, rec2 := testutil.SetupModuleContext(http.MethodGet, "/listings/fragment?city=Houston&type=Service", nil)
 	c2.Request().Header.Set("HX-Request", "true")
 	if err := h.HandleFragment(c2); err != nil {
 		t.Fatal(err)

@@ -26,8 +26,8 @@ func (h *ListingHandler) HandleProfile(c echo.Context) error {
 	}
 
 	if c.Request().Header.Get("HX-Request") == "true" {
-		return h.renderWithBaseContext(c, "modal_profile", data)
+		return h.RenderWithBaseContext(c, "modal_profile", data)
 	}
 
-	return h.renderWithBaseContext(c, "profile.html", data)
+	return h.RenderWithBaseContext(c, "profile.html", data)
 }

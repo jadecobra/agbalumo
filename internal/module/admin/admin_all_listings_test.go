@@ -65,17 +65,16 @@ func TestAdminHandler_HandleAllListings_Extended(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			app, cleanup := testutil.SetupTestAppEnv(t)
-			defer cleanup()
+			env := testutil.SetupTestModuleEnv(t)
+			defer env.Cleanup()
 
 			// Seed listings for filtering and counts
-			_ = app.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "Test Business", Type: "business", Status: domain.ListingStatusApproved, OwnerOrigin: "Nigeria", Address: "123 Test St", City: "Lagos"})
-			_ = app.DB.Save(context.Background(), domain.Listing{ID: "l2", Title: "Test Event", Type: "events", Status: domain.ListingStatusApproved, OwnerOrigin: "Nigeria"})
+			_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "Test Business", Type: "business", Status: domain.ListingStatusApproved, OwnerOrigin: "Nigeria", Address: "123 Test St", City: "Lagos"})
+			_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "l2", Title: "Test Event", Type: "events", Status: domain.ListingStatusApproved, OwnerOrigin: "Nigeria"})
 
-			c, rec := setupAdminTestContext(http.MethodGet, "/admin/listings"+tt.query, nil)
-			c.Set("User", domain.User{Role: domain.UserRoleAdmin})
+			c, rec := testutil.SetupAdminContext(http.MethodGet, "/admin/listings"+tt.query, nil)
 
-			h := admin.NewAdminHandler(app)
+			h := admin.NewAdminHandler(env.App)
 			_ = h.HandleAllListings(c)
 
 			assert.Equal(t, tt.expectCode, rec.Code)
@@ -85,19 +84,18 @@ func TestAdminHandler_HandleAllListings_Extended(t *testing.T) {
 
 func TestAdminHandler_HandleAllListings_Counts(t *testing.T) {
 	t.Parallel()
-	app, cleanup := testutil.SetupTestAppEnv(t)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
 	ctx := context.Background()
 
 	// Seed multiple categories
-	_ = app.DB.Save(ctx, domain.Listing{ID: "l1", Title: "B1", Type: "business", Status: domain.ListingStatusApproved, OwnerOrigin: "Nigeria"})
-	_ = app.DB.Save(ctx, domain.Listing{ID: "l2", Title: "B2", Type: "business", Status: domain.ListingStatusApproved, OwnerOrigin: "Nigeria"})
-	_ = app.DB.Save(ctx, domain.Listing{ID: "l3", Title: "E1", Type: "events", Status: domain.ListingStatusApproved, OwnerOrigin: "Nigeria"})
+	_ = env.App.DB.Save(ctx, domain.Listing{ID: "l1", Title: "B1", Type: "business", Status: domain.ListingStatusApproved, OwnerOrigin: "Nigeria"})
+	_ = env.App.DB.Save(ctx, domain.Listing{ID: "l2", Title: "B2", Type: "business", Status: domain.ListingStatusApproved, OwnerOrigin: "Nigeria"})
+	_ = env.App.DB.Save(ctx, domain.Listing{ID: "l3", Title: "E1", Type: "events", Status: domain.ListingStatusApproved, OwnerOrigin: "Nigeria"})
 
-	c, rec := setupAdminTestContext(http.MethodGet, "/admin/listings", nil)
-	c.Set("User", domain.User{Role: domain.UserRoleAdmin})
+	c, rec := testutil.SetupAdminContext(http.MethodGet, "/admin/listings", nil)
 
-	h := admin.NewAdminHandler(app)
+	h := admin.NewAdminHandler(env.App)
 	_ = h.HandleAllListings(c)
 
 	assert.Equal(t, http.StatusOK, rec.Code)

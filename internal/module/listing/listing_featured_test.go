@@ -5,21 +5,23 @@ import (
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/module/listing"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHandleHome_FeaturedPrioritization(t *testing.T) {
 	t.Parallel()
-	c, rec := setupTestContext(http.MethodGet, "/", nil)
-	h, app, cleanup := setupListingHandler(t)
-	defer cleanup()
+	c, rec := testutil.SetupModuleContext(http.MethodGet, "/", nil)
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
 
 	// Seed data (Defaulting to Food for Ada)
-	saveTestListing(t, app.DB, "f1", "Featured 1", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Food })
-	saveTestListing(t, app.DB, "f2", "Featured 2", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Food })
-	saveTestListing(t, app.DB, "r1", "Regular 1", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Food })
-	saveTestListing(t, app.DB, "r2", "Regular 2", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Food })
+	testutil.SaveTestListing(t, env.App.DB, "f1", "Featured 1", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Food })
+	testutil.SaveTestListing(t, env.App.DB, "f2", "Featured 2", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Food })
+	testutil.SaveTestListing(t, env.App.DB, "r1", "Regular 1", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Food })
+	testutil.SaveTestListing(t, env.App.DB, "r2", "Regular 2", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Food })
 
 	if err := h.HandleHome(c); err != nil {
 		t.Fatalf("HandleHome failed: %v", err)
@@ -33,14 +35,15 @@ func TestHandleHome_FeaturedPrioritization(t *testing.T) {
 
 func TestHandleHome_FeaturedListings_EmptyCategory(t *testing.T) {
 	t.Parallel()
-	c, rec := setupTestContext(http.MethodGet, "/", nil)
-	h, app, cleanup := setupListingHandler(t)
-	defer cleanup()
+	c, rec := testutil.SetupModuleContext(http.MethodGet, "/", nil)
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
 
 	// Seed data: Featured listings across MULTIPLE categories (One Food, one Business, one Event)
-	saveTestListing(t, app.DB, "f1", "Featured Food", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Food })
-	saveTestListing(t, app.DB, "f2", "Featured Event", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Event })
-	saveTestListing(t, app.DB, "r1", "Regular Food", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Food })
+	testutil.SaveTestListing(t, env.App.DB, "f1", "Featured Food", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Food })
+	testutil.SaveTestListing(t, env.App.DB, "f2", "Featured Event", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Event })
+	testutil.SaveTestListing(t, env.App.DB, "r1", "Regular Food", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Food })
 
 	if err := h.HandleHome(c); err != nil {
 		t.Fatalf("HandleHome failed: %v", err)
@@ -55,14 +58,14 @@ func TestHandleHome_FeaturedListings_EmptyCategory(t *testing.T) {
 
 func TestHandleFragment_FeaturedPrioritization(t *testing.T) {
 	t.Parallel()
-	// Page 1, no filters
-	c, rec := setupTestContext(http.MethodGet, "/listings?page=1", nil)
-	h, app, cleanup := setupListingHandler(t)
-	defer cleanup()
+	c, rec := testutil.SetupModuleContext(http.MethodGet, "/listings?page=1", nil)
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
 
 	// Seed data
-	saveTestListing(t, app.DB, "f1", "Featured 1", func(l *domain.Listing) { l.Featured = true })
-	saveTestListing(t, app.DB, "r1", "Regular 1", func(l *domain.Listing) { l.Featured = false })
+	testutil.SaveTestListing(t, env.App.DB, "f1", "Featured 1", func(l *domain.Listing) { l.Featured = true })
+	testutil.SaveTestListing(t, env.App.DB, "r1", "Regular 1", func(l *domain.Listing) { l.Featured = false })
 
 	if err := h.HandleFragment(c); err != nil {
 		t.Fatalf("HandleFragment failed: %v", err)
@@ -74,13 +77,13 @@ func TestHandleFragment_FeaturedPrioritization(t *testing.T) {
 
 func TestHandleFragment_FeaturedPrioritization_Page2(t *testing.T) {
 	t.Parallel()
-	// Page 1, no filters (featured listings appear at the top of the feed)
-	c, rec := setupTestContext(http.MethodGet, "/listings/fragment?page=1", nil)
-	h, app, cleanup := setupListingHandler(t)
-	defer cleanup()
+	c, rec := testutil.SetupModuleContext(http.MethodGet, "/listings/fragment?page=1", nil)
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
 
-	saveTestListing(t, app.DB, "f1", "Featured 1", func(l *domain.Listing) { l.Featured = true })
-	saveTestListing(t, app.DB, "r1", "Regular 1", func(l *domain.Listing) { l.Featured = false })
+	testutil.SaveTestListing(t, env.App.DB, "f1", "Featured 1", func(l *domain.Listing) { l.Featured = true })
+	testutil.SaveTestListing(t, env.App.DB, "r1", "Regular 1", func(l *domain.Listing) { l.Featured = false })
 
 	if err := h.HandleFragment(c); err != nil {
 		t.Fatalf("HandleFragment failed: %v", err)
@@ -92,14 +95,15 @@ func TestHandleFragment_FeaturedPrioritization_Page2(t *testing.T) {
 func TestHandleFragment_FeaturedListings_CategoryFilter(t *testing.T) {
 	t.Parallel()
 	// Requesting fragment for 'Business' category, page 1
-	c, rec := setupTestContext(http.MethodGet, "/listings/fragment?type=Business&page=1", nil)
-	h, app, cleanup := setupListingHandler(t)
-	defer cleanup()
+	c, rec := testutil.SetupModuleContext(http.MethodGet, "/listings/fragment?type=Business&page=1", nil)
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
 
 	// Seed data: Featured listings across MULTIPLE categories
-	saveTestListing(t, app.DB, "f1", "Featured Business", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Business })
-	saveTestListing(t, app.DB, "f2", "Featured Event", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Event })
-	saveTestListing(t, app.DB, "r1", "Regular Business", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Business })
+	testutil.SaveTestListing(t, env.App.DB, "f1", "Featured Business", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Business })
+	testutil.SaveTestListing(t, env.App.DB, "f2", "Featured Event", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Event })
+	testutil.SaveTestListing(t, env.App.DB, "r1", "Regular Business", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Business })
 
 	if err := h.HandleFragment(c); err != nil {
 		t.Fatalf("HandleFragment failed: %v", err)

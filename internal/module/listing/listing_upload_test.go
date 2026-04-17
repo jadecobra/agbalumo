@@ -9,8 +9,9 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/module/listing"
 	"github.com/jadecobra/agbalumo/internal/testutil"
+	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	testifyMock "github.com/stretchr/testify/mock"
@@ -18,12 +19,13 @@ import (
 
 func TestListingHandler_Upload_Malicious(t *testing.T) {
 	t.Parallel()
-	h, app, cleanup := setupListingHandler(t)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
 
 	// Use MockImageService to simulate a validation failure
 	mockImg := &testutil.MockImageService{}
-	app.ImageSvc = mockImg
+	env.App.ImageSvc = mockImg
 	mockImg.On("UploadImage", testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).Return("", echo.NewHTTPError(http.StatusBadRequest, "invalid image format"))
 
 	// Create a malicious file (text file disguised as jpg)
@@ -50,9 +52,9 @@ func TestListingHandler_Upload_Malicious(t *testing.T) {
 
 	_ = writer.Close()
 
-	c, rec := setupTestContext(http.MethodPost, "/listings", body)
+	c, rec := testutil.SetupModuleContext(http.MethodPost, "/listings", body)
 	c.Request().Header.Set(echo.HeaderContentType, writer.FormDataContentType())
-	c.Set("User", newTestUser("user1", domain.UserRoleUser))
+	c.Set("User", domain.User{ID: "user1", Role: domain.UserRoleUser})
 
 	// Execute
 	_ = h.HandleCreate(c)
@@ -63,8 +65,9 @@ func TestListingHandler_Upload_Malicious(t *testing.T) {
 
 func TestListingHandler_Upload_Valid(t *testing.T) {
 	t.Parallel()
-	h, app, cleanup := setupListingHandler(t)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
@@ -87,9 +90,9 @@ func TestListingHandler_Upload_Valid(t *testing.T) {
 
 	_ = writer.Close()
 
-	c, rec := setupTestContext(http.MethodPost, "/listings", body)
+	c, rec := testutil.SetupModuleContext(http.MethodPost, "/listings", body)
 	c.Request().Header.Set(echo.HeaderContentType, writer.FormDataContentType())
-	c.Set("User", newTestUser("user1", domain.UserRoleUser))
+	c.Set("User", domain.User{ID: "user1", Role: domain.UserRoleUser})
 
 	// Execute
 	_ = h.HandleCreate(c)
@@ -98,7 +101,7 @@ func TestListingHandler_Upload_Valid(t *testing.T) {
 	assert.Contains(t, []int{http.StatusOK, http.StatusCreated, http.StatusFound}, rec.Code)
 
 	// Verify DB
-	listings, _ := app.DB.FindByTitle(context.Background(), "Valid Title")
+	listings, _ := env.App.DB.FindByTitle(context.Background(), "Valid Title")
 	assert.Len(t, listings, 1)
 	assert.NotEmpty(t, listings[0].ImageURL)
 }

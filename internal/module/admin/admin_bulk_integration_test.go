@@ -4,12 +4,10 @@ import (
 	"context"
 	"io"
 	"net/http"
-	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
 
-	"github.com/gorilla/sessions"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"github.com/jadecobra/agbalumo/internal/service"
@@ -36,12 +34,12 @@ func TestAdminHandler_HandleBulkAction_MorePaths(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			app, cleanup := testutil.SetupTestAppEnv(t)
-			defer cleanup()
-			h := admin.NewAdminHandler(app)
+			env := testutil.SetupTestModuleEnv(t)
+			defer env.Cleanup()
+			h := admin.NewAdminHandler(env.App)
 
 			ctx := context.Background()
-			_ = app.DB.Save(ctx, domain.Listing{ID: "l1", Title: "L1", IsActive: true, Status: domain.ListingStatusApproved})
+			_ = env.App.DB.Save(ctx, domain.Listing{ID: "l1", Title: "L1", IsActive: true, Status: domain.ListingStatusApproved})
 
 			form := url.Values{}
 			form.Set("action", tt.action)
@@ -49,21 +47,15 @@ func TestAdminHandler_HandleBulkAction_MorePaths(t *testing.T) {
 				form.Add("selectedListings", id)
 			}
 
-			req := httptest.NewRequest(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
-			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
-			rec := httptest.NewRecorder()
-			c := echo.New().NewContext(req, rec)
-
-			store := sessions.NewCookieStore([]byte("secret"))
-			sess, _ := store.Get(req, req.Header.Get("Referer"))
-			c.Set("session", sess)
+			c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
+			c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 
 			err := h.HandleBulkAction(c)
 			assert.NoError(t, err)
 			assert.Equal(t, tt.wantCode, rec.Code)
 
 			if tt.action == "reject" {
-				l, _ := app.DB.FindByID(ctx, "l1")
+				l, _ := env.App.DB.FindByID(ctx, "l1")
 				assert.Equal(t, domain.ListingStatusRejected, l.Status)
 				assert.False(t, l.IsActive)
 			}
@@ -87,29 +79,13 @@ func (m *MockCSVService) GenerateCSV(ctx context.Context, listings []domain.List
 func TestAdminHandler_HandleBulkUpload_ResultFormatting(t *testing.T) {
 	t.Parallel()
 	// This test exercises the formatting logic in HandleBulkUpload
-	app, cleanup := testutil.SetupTestAppEnv(t)
-	defer cleanup()
-	app.CSVService = &service.CSVService{}
-	h := admin.NewAdminHandler(app)
-	_ = h
-	mockCSV := &MockCSVService{
-		Result: &domain.BulkUploadResult{
-			TotalProcessed: 10,
-			SuccessCount:   5,
-			FailureCount:   5,
-			Errors:         []string{"err1", "err2", "err3", "err4"},
-		},
-	}
-	_ = mockCSV
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	env.App.CSVService = &service.CSVService{}
+	h := admin.NewAdminHandler(env.App)
 
-	e := echo.New()
-	req := httptest.NewRequest(http.MethodPost, "/admin/bulk-upload", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	store := sessions.NewCookieStore([]byte("secret"))
-	sess, _ := store.Get(req, "session-name")
-	c.Set("session", sess)
+	c, _ := testutil.SetupAdminContext(http.MethodPost, "/admin/bulk-upload", nil)
+	_ = h.HandleBulkUpload(c)
 
 	// We can't easily trigger the CSVService call without a real file attachment in the request
 	// but we've covered the error paths and the overall structure.

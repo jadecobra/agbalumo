@@ -10,6 +10,7 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/testutil"
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	testifyMock "github.com/stretchr/testify/mock"
 )
@@ -38,16 +39,17 @@ func TestHandleUpdate_ImageRemoval(t *testing.T) {
 	// UploadImage might be called with nil if no image is uploaded
 	mockImageService.On("UploadImage", testifyMock.Anything, testifyMock.Anything, testifyMock.Anything).Return("", nil).Maybe()
 
-	app, cleanup := testutil.SetupTestAppEnv(t)
-	defer cleanup()
-	app.ImageSvc = mockImageService
-	_ = app.DB.Save(context.Background(), existingListing)
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	env.App.ImageSvc = mockImageService
+	_ = env.App.DB.Save(context.Background(), existingListing)
 
-	h := listmod.NewListingHandler(app)
+	h := listmod.NewListingHandler(env.App)
 
 	// Body with remove_image=true and required fields
 	body := "title=New+Title&remove_image=true&owner_origin=Nigeria&description=Cool&contact_email=test@test.com&city=Lagos&address=123+Street&type=Business"
-	c, rec := setupTestContext(http.MethodPut, "/listings/listing-123", strings.NewReader(body))
+	c, rec := testutil.SetupModuleContext(http.MethodPut, "/listings/listing-123", strings.NewReader(body))
+	c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 	c.SetPath("/listings/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("listing-123")
@@ -61,7 +63,7 @@ func TestHandleUpdate_ImageRemoval(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 
 	// Verify DB state
-	updated, _ := app.DB.FindByID(context.Background(), "listing-123")
+	updated, _ := env.App.DB.FindByID(context.Background(), "listing-123")
 	assert.Empty(t, updated.ImageURL)
 	assert.Equal(t, "New Title", updated.Title)
 

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/testutil"
@@ -15,11 +14,10 @@ import (
 
 func TestHandleMetricsIngestion(t *testing.T) {
 	t.Parallel()
-	app, cleanup := testutil.SetupTestAppEnv(t)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
 
-	h := NewListingHandler(app)
-	e := echo.New()
+	h := NewListingHandler(env.App)
 
 	t.Run("Valid Metric", func(t *testing.T) {
 		reqBody := MetricRequest{
@@ -30,13 +28,11 @@ func TestHandleMetricsIngestion(t *testing.T) {
 			},
 		}
 		body, _ := json.Marshal(reqBody)
-		req := httptest.NewRequest(http.MethodPost, "/api/metrics", bytes.NewReader(body))
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+		c, rec := testutil.SetupModuleContext(http.MethodPost, "/api/metrics", bytes.NewReader(body))
+		c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 		// Mock Metrics Service
-		mockMetrics := app.MetricsSvc.(*testutil.MockMetricsService)
+		mockMetrics := env.App.MetricsSvc.(*testutil.MockMetricsService)
 		mockMetrics.On("LogAndSave", mock.Anything, "test_event", 12.3, mock.Anything).Once()
 
 		err := h.HandleMetricsIngestion(c)
@@ -46,10 +42,8 @@ func TestHandleMetricsIngestion(t *testing.T) {
 	})
 
 	t.Run("Invalid Payload", func(t *testing.T) {
-		req := httptest.NewRequest(http.MethodPost, "/api/metrics", bytes.NewReader([]byte("not json")))
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+		c, rec := testutil.SetupModuleContext(http.MethodPost, "/api/metrics", bytes.NewReader([]byte("not json")))
+		c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 		err := h.HandleMetricsIngestion(c)
 		assert.NoError(t, err)

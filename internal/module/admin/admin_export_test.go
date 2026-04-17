@@ -33,15 +33,15 @@ func TestAdminHandler_HandleExportListings(t *testing.T) {
 
 	t.Run("Successful Export", func(t *testing.T) {
 		t.Parallel()
-		app, cleanup := testutil.SetupTestAppEnv(t)
-		defer cleanup()
+		env := testutil.SetupTestModuleEnv(t)
+		defer env.Cleanup()
 
-		h := admin.NewAdminHandler(app)
-		app.CSVService = service.NewCSVService()
+		h := admin.NewAdminHandler(env.App)
+		env.App.CSVService = service.NewCSVService()
 
 		ctx := context.Background()
 		// Seed some data
-		_ = app.DB.Save(ctx, domain.Listing{
+		_ = env.App.DB.Save(ctx, domain.Listing{
 			ID:           "test-1",
 			Title:        "Test Listing",
 			Type:         domain.Business,
@@ -53,9 +53,7 @@ func TestAdminHandler_HandleExportListings(t *testing.T) {
 			Status:       domain.ListingStatusApproved,
 		})
 
-		req := httptest.NewRequest(http.MethodGet, "/admin/listings/export", nil)
-		rec := httptest.NewRecorder()
-		c := echo.New().NewContext(req, rec)
+		c, rec := testutil.SetupAdminContext(http.MethodGet, "/admin/listings/export", nil)
 
 		err := h.HandleExportListings(c)
 		assert.NoError(t, err)

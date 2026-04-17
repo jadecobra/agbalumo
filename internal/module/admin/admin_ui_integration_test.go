@@ -8,10 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jadecobra/agbalumo/internal/module/admin"
-
-	"github.com/gorilla/sessions"
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -22,24 +20,23 @@ func TestAdminDashboardFooterPosition(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplateForPage(t, "admin_dashboard.html")}
 
-	app, cleanup := testutil.SetupTestAppEnv(t)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
 
 	// Seed some feedback
-	_ = app.DB.SaveFeedback(context.Background(), domain.Feedback{
+	_ = env.App.DB.SaveFeedback(context.Background(), domain.Feedback{
 		ID:        "fb-1",
 		Content:   "Great App bug",
 		Type:      "Issue",
 		CreatedAt: time.Now(),
 	})
-	_ = app.DB.SaveFeedback(context.Background(), domain.Feedback{
+	_ = env.App.DB.SaveFeedback(context.Background(), domain.Feedback{
 		ID:        "fb-2",
 		Content:   "Another feedback",
 		Type:      "Feature",
 		CreatedAt: time.Now(),
 	})
-
-	h := admin.NewAdminHandler(app)
 
 	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
 	rec := httptest.NewRecorder()
@@ -76,10 +73,10 @@ func TestMetricCardsHaveModalTriggers(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplateForPage(t, "admin_dashboard.html")}
 
-	app, cleanup := testutil.SetupTestAppEnv(t)
-	defer cleanup()
-	_ = app.DB.Save(context.Background(), domain.Listing{ID: "1", Title: "Business A", Type: domain.Business, IsActive: true})
-	h := admin.NewAdminHandler(app)
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "1", Title: "Business A", Type: domain.Business, IsActive: true})
+	h := admin.NewAdminHandler(env.App)
 
 	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
 	rec := httptest.NewRecorder()
@@ -117,9 +114,9 @@ func TestCategoryModalExists(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplateForPage(t, "admin_dashboard.html")}
 
-	app, cleanup := testutil.SetupTestAppEnv(t)
-	defer cleanup()
-	h := admin.NewAdminHandler(app)
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
 
 	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
 	rec := httptest.NewRecorder()
@@ -157,20 +154,17 @@ func TestAdminDashboard_FlashMessages(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplateForPage(t, "admin_dashboard.html")}
 
-	app, cleanup := testutil.SetupTestAppEnv(t)
-	defer cleanup()
-	h := admin.NewAdminHandler(app)
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
 
-	req := httptest.NewRequest(http.MethodGet, "/admin", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+	c, rec := testutil.SetupAdminContext(http.MethodGet, "/admin", nil)
+	c.Echo().Renderer = e.Renderer
 
 	// Set up a session with a flash message
-	store := sessions.NewCookieStore([]byte("secret"))
-	sess, _ := store.Get(req, "session-name")
+	sess, _ := testutil.GetAuthSession(c)
 	sess.AddFlash("Success message", domain.FlashMessageKey)
-	_ = sess.Save(req, rec)
-	c.Set("session", sess)
+	_ = sess.Save(c.Request(), rec)
 
 	if err := h.HandleDashboard(c); err != nil {
 		t.Fatalf("HandleDashboard failed: %v", err)
@@ -185,15 +179,14 @@ func TestAdminListings_ModalTrigger(t *testing.T) {
 	e := echo.New()
 	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplateForPage(t, "admin_listings.html")}
 
-	app, cleanup := testutil.SetupTestAppEnv(t)
-	defer cleanup()
-	_ = app.DB.Save(context.Background(), domain.Listing{ID: "listing1", Title: "Business A", Type: domain.Business, IsActive: true})
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "listing1", Title: "Business A", Type: domain.Business, IsActive: true})
 
-	h := admin.NewAdminHandler(app)
+	h := admin.NewAdminHandler(env.App)
 
-	req := httptest.NewRequest(http.MethodGet, "/admin/listings", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+	c, rec := testutil.SetupAdminContext(http.MethodGet, "/admin/listings", nil)
+	c.Echo().Renderer = e.Renderer
 
 	if err := h.HandleAllListings(c); err != nil {
 		t.Fatalf("HandleAllListings failed: %v", err)

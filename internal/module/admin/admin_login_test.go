@@ -7,10 +7,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/module/admin"
-
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"github.com/jadecobra/agbalumo/internal/testutil"
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -43,14 +43,15 @@ func TestAdminHandler_HandleLoginView(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			c, rec := setupAdminTestContext(http.MethodGet, "/admin/login", nil)
+			env := testutil.SetupTestModuleEnv(t)
+			defer env.Cleanup()
+			h := admin.NewAdminHandler(env.App)
+
+			c, rec := testutil.SetupModuleContext(http.MethodGet, "/admin/login", nil)
 			if tt.user != nil {
 				c.Set("User", tt.user)
 			}
 
-			app, cleanup := testutil.SetupTestAppEnv(t)
-			defer cleanup()
-			h := admin.NewAdminHandler(app)
 			_ = h.HandleLoginView(c)
 
 			assert.Equal(t, tt.expectCode, rec.Code)
@@ -118,20 +119,21 @@ func runAdminLoginActionTests(t *testing.T, tests []loginActionTest) {
 func runSingleAdminLoginActionTest(t *testing.T, tt loginActionTest) {
 	formData := url.Values{}
 	formData.Set("code", tt.code)
-	c, rec := setupAdminTestContext(http.MethodPost, "/admin/login", strings.NewReader(formData.Encode()))
+	c, rec := testutil.SetupModuleContext(http.MethodPost, "/admin/login", strings.NewReader(formData.Encode()))
+	c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 
-	app, cleanup := testutil.SetupTestAppEnv(t)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
 	if tt.user != nil {
-		err := app.DB.SaveUser(context.Background(), *tt.user)
+		err := env.App.DB.SaveUser(context.Background(), *tt.user)
 		assert.NoError(t, err)
 		c.Set("User", *tt.user)
 	}
 
-	cfg := app.Cfg
+	cfg := env.App.Cfg
 	cfg.AdminCode = tt.adminCode
 
-	h := admin.NewAdminHandler(app)
+	h := admin.NewAdminHandler(env.App)
 	_ = h.HandleLoginAction(c)
 
 	assert.Equal(t, tt.expectCode, rec.Code)
@@ -140,7 +142,7 @@ func runSingleAdminLoginActionTest(t *testing.T, tt loginActionTest) {
 	}
 
 	if tt.name == "ValidCode_PromotesUser" && tt.user != nil {
-		updatedUser, err := app.DB.FindUserByID(context.Background(), tt.user.ID)
+		updatedUser, err := env.App.DB.FindUserByID(context.Background(), tt.user.ID)
 		assert.NoError(t, err)
 		assert.Equal(t, domain.UserRoleAdmin, updatedUser.Role)
 	}

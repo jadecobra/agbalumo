@@ -6,6 +6,9 @@ import (
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/module/listing"
+	"github.com/jadecobra/agbalumo/internal/testutil"
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -50,11 +53,13 @@ func TestHandleCreate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
-			h, app, cleanup := setupListingHandler(t)
-			defer cleanup()
-			tt.setup(t, app.DB)
-			c.Set("User", newTestUser("test-user-id", domain.UserRoleUser))
+			c, rec := testutil.SetupModuleContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
+			c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+			env := testutil.SetupTestModuleEnv(t)
+			defer env.Cleanup()
+			h := listing.NewListingHandler(env.App)
+			tt.setup(t, env.App.DB)
+			c.Set("User", domain.User{ID: "test-user-id", Role: domain.UserRoleUser})
 
 			_ = h.HandleCreate(c)
 
@@ -67,20 +72,23 @@ func TestHandleCreate(t *testing.T) {
 }
 func TestHandleCreate_NoUser(t *testing.T) {
 	t.Parallel()
-	h, _, cleanup := setupListingHandler(t)
-	defer cleanup()
-	c, rec := setupTestContext(http.MethodPost, "/listings", nil)
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
+	c, rec := testutil.SetupModuleContext(http.MethodPost, "/listings", nil)
 	_ = h.HandleCreate(c)
 	assert.Equal(t, http.StatusUnauthorized, rec.Code)
 }
 func TestHandleCreate_DuplicateTitle(t *testing.T) {
 	t.Parallel()
-	h, app, cleanup := setupListingHandler(t)
-	defer cleanup()
-	saveTestListing(t, app.DB, "x", "Existing")
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
+	testutil.SaveTestListing(t, env.App.DB, "x", "Existing")
 	body := "title=Existing&type=Business&owner_origin=Nigeria&description=Cool&contact_email=test@example.com&city=Lagos&address=123+Street"
-	c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(body))
-	c.Set("User", newTestUser("test-user-id", domain.UserRoleUser))
+	c, rec := testutil.SetupModuleContext(http.MethodPost, "/listings", strings.NewReader(body))
+	c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+	c.Set("User", domain.User{ID: "test-user-id", Role: domain.UserRoleUser})
 	_ = h.HandleCreate(c)
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 }

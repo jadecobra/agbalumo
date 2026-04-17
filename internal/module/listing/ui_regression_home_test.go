@@ -2,7 +2,6 @@ package listing_test
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -22,16 +21,16 @@ func TestHomePageUIValues(t *testing.T) {
 	t.Parallel()
 	e := echo.New()
 	e.Renderer = &testutil.RealTemplateRenderer{Templates: testutil.NewRealTemplate(t)}
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
 
-	app, cleanup := testutil.SetupTestAppEnv(t)
-	defer cleanup()
-	saveTestListing(t, app.DB, "1", "African Food A", func(l *domain.Listing) { l.Type = domain.Food; l.CreatedAt = time.Now() })
-	saveTestListing(t, app.DB, "2", "African Food B", func(l *domain.Listing) { l.Type = domain.Food; l.CreatedAt = time.Now().Add(time.Second) })
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	testutil.SaveTestListing(t, env.App.DB, "1", "African Food A", func(l *domain.Listing) { l.Type = domain.Food; l.CreatedAt = time.Now() })
+	testutil.SaveTestListing(t, env.App.DB, "2", "African Food B", func(l *domain.Listing) { l.Type = domain.Food; l.CreatedAt = time.Now().Add(time.Second) })
 
-	h := listmod.NewListingHandler(app)
+	c, rec := testutil.SetupModuleContext(http.MethodGet, "/", nil)
+	c.Echo().Renderer = e.Renderer
+
+	h := listmod.NewListingHandler(env.App)
 	if err := h.HandleHome(c); err != nil {
 		t.Fatal(err)
 	}

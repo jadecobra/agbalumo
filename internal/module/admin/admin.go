@@ -1,8 +1,8 @@
 package admin
 
 import (
+	"github.com/jadecobra/agbalumo/internal/module"
 	"github.com/jadecobra/agbalumo/internal/module/listing"
-
 	"github.com/jadecobra/agbalumo/internal/module/user"
 	"github.com/jadecobra/agbalumo/internal/ui"
 
@@ -21,12 +21,12 @@ import (
 )
 
 type AdminHandler struct {
-	App *env.AppEnv
+	module.BaseHandler
 }
 
 func NewAdminHandler(app *env.AppEnv) *AdminHandler {
 	return &AdminHandler{
-		App: app,
+		BaseHandler: module.BaseHandler{App: app},
 	}
 }
 

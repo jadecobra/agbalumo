@@ -11,13 +11,14 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/testutil"
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHandleUpdate_JobSuccess(t *testing.T) {
 	t.Parallel()
-	app, cleanup := testutil.SetupTestAppEnv(t)
-	defer cleanup()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
 
 	// Existing Job Listing
 	existingListing := domain.Listing{
@@ -37,16 +38,17 @@ func TestHandleUpdate_JobSuccess(t *testing.T) {
 		IsActive:     true,
 		ContactEmail: "old@example.com",
 	}
-	_ = app.DB.Save(context.Background(), existingListing)
+	_ = env.App.DB.Save(context.Background(), existingListing)
 
 	jobStart := time.Now().Add(48 * time.Hour).Format("2006-01-02T15:04")
 
-	h := listmod.NewListingHandler(app)
+	h := listmod.NewListingHandler(env.App)
 
 	formData := "title=Senior+Go+Dev+Updated&type=Job&owner_origin=Nigeria&description=Updated+Desc&contact_email=job@example.com&city=Lagos" +
 		"&company=Updated+Corp&skills=Go,+Rust&pay_range=200k&job_apply_url=https://updated.com&job_start_date=" + jobStart
 
-	c, rec := setupTestContext(http.MethodPost, "/listings/job-1", strings.NewReader(formData))
+	c, rec := testutil.SetupModuleContext(http.MethodPost, "/listings/job-1", strings.NewReader(formData))
+	c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 	c.SetPath("/listings/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("job-1")
@@ -59,7 +61,7 @@ func TestHandleUpdate_JobSuccess(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 
 	// Verify DB state
-	updated, _ := app.DB.FindByID(context.Background(), "job-1")
+	updated, _ := env.App.DB.FindByID(context.Background(), "job-1")
 	assert.Equal(t, "Senior Go Dev Updated", updated.Title)
 	assert.Equal(t, "Updated Corp", updated.Company)
 	assert.Equal(t, "Go, Rust", updated.Skills)

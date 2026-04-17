@@ -3,7 +3,7 @@ package testutil
 import (
 	"html/template"
 	"io"
-	"net/http"
+	"github.com/gorilla/sessions"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
@@ -15,6 +15,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/middleware"
 )
 
 // AssertContainsPagination verifies that the response contains the pagination controls.
@@ -71,17 +72,32 @@ func NewMainTemplate() *template.Template {
 	`))
 }
 
-// SetupTestContext prepares a common Echo context and recorder.
+// SetupTestContext prepares a basic Echo context for testing.
 func SetupTestContext(method, target string, body io.Reader) (echo.Context, *httptest.ResponseRecorder) {
 	e := echo.New()
 	e.Renderer = &TestRenderer{Templates: NewMainTemplate()}
 	req := httptest.NewRequest(method, target, body)
-	if method == http.MethodPost || method == http.MethodPut {
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
-	}
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	return c, rec
+}
+ 
+// SetupTestContextWithSession prepares an Echo context with a functional session store.
+func SetupTestContextWithSession(method, target string, body io.Reader) (echo.Context, *httptest.ResponseRecorder) {
+	c, rec := SetupTestContext(method, target, body)
+	store := middleware.NewTestSessionStore()
+	session, _ := store.Get(c.Request(), "auth_session")
+	c.Set("session", session)
+	return c, rec
+}
+
+// GetAuthSession returns the session associated with the context.
+func GetAuthSession(c echo.Context) (*sessions.Session, error) {
+	s, ok := c.Get("session").(*sessions.Session)
+	if !ok {
+		return nil, domain.ErrLoginRequired
+	}
+	return s, nil
 }
 
 // NewRealTemplate returns a template object parsed from actual filesystem files.

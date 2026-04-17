@@ -10,6 +10,7 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/testutil"
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -76,17 +77,18 @@ func TestListingHandler_FormParsing(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			app, cleanup := testutil.SetupTestAppEnv(t)
-			defer cleanup()
+			env := testutil.SetupTestModuleEnv(t)
+			defer env.Cleanup()
 
-			c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
+			c, rec := testutil.SetupModuleContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
+			c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 			c.Set("User", domain.User{ID: "user-1"})
 
-			_ = listmod.NewListingHandler(app).HandleCreate(c)
+			_ = listmod.NewListingHandler(env.App).HandleCreate(c)
 
 			assert.Equal(t, tt.expectedStatus, rec.Code, "Response status mismatch")
 			if tt.verify != nil {
-				tt.verify(t, app.DB)
+				tt.verify(t, env.App.DB)
 			}
 		})
 	}
@@ -109,18 +111,19 @@ func TestListingHandler_URLNormalization(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			app, cleanup := testutil.SetupTestAppEnv(t)
-			defer cleanup()
-			h := listmod.NewListingHandler(app)
+			env := testutil.SetupTestModuleEnv(t)
+			defer env.Cleanup()
+			h := listmod.NewListingHandler(env.App)
 
 			body := "title=URL+Test+" + tt.name + "&type=Business&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St&city=Lagos&website_url=" + tt.url
-			c, rec := setupTestContext(http.MethodPost, "/listings", strings.NewReader(body))
+			c, rec := testutil.SetupModuleContext(http.MethodPost, "/listings", strings.NewReader(body))
+			c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 			c.Set("User", domain.User{ID: "user-1"})
 
 			_ = h.HandleCreate(c)
 
 			assert.Equal(t, http.StatusOK, rec.Code)
-			listings, _, err := app.DB.FindAll(context.Background(), "", "URL Test "+tt.name, "", "", "", false, 1, 0)
+			listings, _, err := env.App.DB.FindAll(context.Background(), "", "URL Test "+tt.name, "", "", "", false, 1, 0)
 			assert.NoError(t, err)
 			if assert.Len(t, listings, 1) {
 				assert.Equal(t, tt.expected, listings[0].WebsiteURL)

@@ -172,7 +172,7 @@ func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error
 	if u := c.Get("User"); u != nil {
 		usr = u
 	}
-	return h.renderWithBaseContext(c, tmplListingCard, map[string]interface{}{
+	return h.RenderWithBaseContext(c, tmplListingCard, map[string]interface{}{
 		"Listing": l,
 		"User":    usr,
 	})
