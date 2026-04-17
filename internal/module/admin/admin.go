@@ -139,7 +139,8 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 		"ListingGrowth":   data.ListingGrowth,
 		"UserGrowth":      data.UserGrowth,
 		"Feedbacks":       data.Feedbacks,
-		"User":            c.Get("User"),
+		"User":            c.Get(domain.CtxKeyUser),
+
 		"FlashMessage":    flashMsg,
 		"ListingCount":    data.ListingCount,
 		"Categories":      data.Categories,
@@ -274,7 +275,8 @@ func (h *AdminHandler) HandleUsers(c echo.Context) error {
 
 	return c.Render(http.StatusOK, "admin_users.html", map[string]interface{}{
 		"Users":      users,
-		"User":       c.Get("User"),
+		"User":       c.Get(domain.CtxKeyUser),
+
 		"Pagination": p,
 	})
 }
@@ -285,7 +287,8 @@ func (h *AdminHandler) HandleExportListings(c echo.Context) error {
 
 	// Fetch all listings. Using a large limit for export.
 	// In a very large system, we might want to stream this from the DB directly.
-	listings, _, err := h.App.DB.FindAll(ctx, "", "", "", "created_at", "desc", true, 10000, 0)
+	listings, _, err := h.App.DB.FindAll(ctx, "", "", "", domain.FieldCreatedAt, "desc", true, 10000, 0)
+
 	if err != nil {
 		return ui.RespondError(c, err)
 	}

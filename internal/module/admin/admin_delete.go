@@ -32,7 +32,8 @@ func (h *AdminHandler) HandleAdminDeleteView(c echo.Context) error {
 
 	return c.Render(http.StatusOK, "admin_delete_confirm.html", map[string]interface{}{
 		"IDs":  ids,
-		"User": c.Get("User"),
+		"User": c.Get(domain.CtxKeyUser),
+
 	})
 }
 
@@ -51,7 +52,8 @@ func (h *AdminHandler) HandleAdminDeleteAction(c echo.Context) error {
 		return c.Render(http.StatusOK, "admin_delete_confirm.html", map[string]interface{}{
 			"IDs":   ids,
 			"Error": "Invalid Admin Code. Deletion aborted.",
-			"User":  c.Get("User"),
+			"User":  c.Get(domain.CtxKeyUser),
+
 		})
 	}
 

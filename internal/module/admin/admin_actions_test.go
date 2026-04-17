@@ -108,7 +108,8 @@ func TestAdminHandler_HandleToggleFeatured(t *testing.T) {
 			h := admin.NewAdminHandler(env.App)
 
 			formData := url.Values{}
-			formData.Set("featured", tt.featured)
+			formData.Set(domain.FieldFeatured, tt.featured)
+
 			urlPath := "/admin/listings/" + tt.id + "/featured"
 			if tt.id == "" {
 				urlPath = "/admin/listings/featured"

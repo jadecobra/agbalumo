@@ -57,7 +57,8 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 		"Counts":     strCounts,
 		"Categories": categories,
 		"TotalCount": totalCountRows, // Use totalCountRows from FindAll for consistent count
-		"User":       c.Get("User"),
+		"User":       c.Get(domain.CtxKeyUser),
+
 	})
 }
 
@@ -79,7 +80,8 @@ func (h *AdminHandler) HandleToggleFeatured(c echo.Context) error {
 		return ui.RespondJSONError(c, http.StatusBadRequest, "Listing ID is required")
 	}
 
-	featured := c.FormValue("featured") == "true"
+	featured := c.FormValue(domain.FieldFeatured) == "true"
+
 	ctx := c.Request().Context()
 
 	listing, err := h.App.DB.FindByID(ctx, id)

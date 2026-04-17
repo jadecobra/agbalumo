@@ -5,8 +5,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/module/auth"
 	"github.com/jadecobra/agbalumo/internal/testutil"
+
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	testifyMock "github.com/stretchr/testify/mock"
@@ -22,7 +24,8 @@ func TestAuthHandler_GoogleCallback_Errors(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=wrong", nil)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-		req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "valid"})
+		req.AddCookie(&http.Cookie{Name: domain.SessionKeyOAuthState, Value: "valid"})
+
 
 		app, cleanup := testutil.SetupTestAppEnv(t)
 		defer cleanup()
@@ -37,7 +40,8 @@ func TestAuthHandler_GoogleCallback_Errors(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=s&code=c", nil)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-		req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "s"})
+		req.AddCookie(&http.Cookie{Name: domain.SessionKeyOAuthState, Value: "s"})
+
 
 		app, cleanup := testutil.SetupTestAppEnv(t)
 		defer cleanup()

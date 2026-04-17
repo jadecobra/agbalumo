@@ -7,9 +7,11 @@ import (
 	"testing"
 
 	"github.com/gorilla/sessions"
+	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/infra/env"
 	"github.com/jadecobra/agbalumo/internal/module/auth"
 	"github.com/jadecobra/agbalumo/internal/testutil"
+
 	"github.com/labstack/echo/v4"
 	testifyMock "github.com/stretchr/testify/mock"
 	"golang.org/x/oauth2"
@@ -58,7 +60,8 @@ func setupAuthContext(method, url string) (echo.Context, *httptest.ResponseRecor
 func performRegistration(t *testing.T, app *env.AppEnv, payload map[string]string) *httptest.ResponseRecorder {
 	c, rec := setupAuthContext(http.MethodGet, "/auth/google/callback?state=random-state&code=valid-code")
 	req := c.Request()
-	req.AddCookie(&http.Cookie{Name: "oauth_state", Value: "random-state"})
+	req.AddCookie(&http.Cookie{Name: domain.SessionKeyOAuthState, Value: "random-state"})
+
 
 	mockProvider := &MockGoogleProvider{}
 	h := auth.NewAuthHandler(app)

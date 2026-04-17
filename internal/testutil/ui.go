@@ -86,10 +86,11 @@ func SetupTestContext(method, target string, body io.Reader) (echo.Context, *htt
 func SetupTestContextWithSession(method, target string, body io.Reader) (echo.Context, *httptest.ResponseRecorder) {
 	c, rec := SetupTestContext(method, target, body)
 	store := middleware.NewTestSessionStore()
-	session, _ := store.Get(c.Request(), "auth_session")
+	session, _ := store.Get(c.Request(), domain.SessionName)
 	c.Set("session", session)
 	return c, rec
 }
+
 
 // GetAuthSession returns the session associated with the context.
 func GetAuthSession(c echo.Context) (*sessions.Session, error) {

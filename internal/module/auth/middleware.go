@@ -23,10 +23,12 @@ func (m *AuthMiddleware) OptionalAuth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		sess := middleware.GetSession(c)
 		if sess != nil {
-			if userID, ok := sess.Values["user_id"].(string); ok {
+			if userID, ok := sess.Values[domain.SessionKeyUserID].(string); ok {
+
 				user, err := m.Repo.FindUserByID(c.Request().Context(), userID)
 				if err == nil {
-					c.Set("User", &user)
+					c.Set(domain.CtxKeyUser, &user)
+
 				}
 			}
 		}

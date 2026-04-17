@@ -2,8 +2,10 @@ package middleware
 
 import (
 	"github.com/gorilla/sessions"
+	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/labstack/echo/v4"
 )
+
 
 const sessionContextKey = "session" // #nosec - context key is not a secret
 
@@ -12,7 +14,8 @@ func SessionMiddleware(store sessions.Store) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			// Get session
-			session, _ := store.Get(c.Request(), "auth_session")
+			session, _ := store.Get(c.Request(), domain.SessionName)
+
 			// Make session available in context
 			c.Set(sessionContextKey, session)
 

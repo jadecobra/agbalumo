@@ -49,7 +49,8 @@ func TestAdminHandler_HandleLoginView(t *testing.T) {
 
 			c, rec := testutil.SetupModuleContext(http.MethodGet, "/admin/login", nil)
 			if tt.user != nil {
-				c.Set("User", tt.user)
+		c.Set(domain.CtxKeyUser, tt.user)
+
 			}
 
 			_ = h.HandleLoginView(c)
@@ -127,7 +128,8 @@ func runSingleAdminLoginActionTest(t *testing.T, tt loginActionTest) {
 	if tt.user != nil {
 		err := env.App.DB.SaveUser(context.Background(), *tt.user)
 		assert.NoError(t, err)
-		c.Set("User", *tt.user)
+		c.Set(domain.CtxKeyUser, *tt.user)
+
 	}
 
 	cfg := env.App.Cfg

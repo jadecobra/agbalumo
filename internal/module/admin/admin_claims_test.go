@@ -68,4 +68,3 @@ func testClaimAction(t *testing.T, action string, initialStatus, expectedStatus 
 		assert.Equal(t, expectedStatus, claim.Status)
 	}
 }
-

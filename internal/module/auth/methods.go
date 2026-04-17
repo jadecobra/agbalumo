@@ -54,7 +54,7 @@ func (h *AuthHandler) GoogleLogin(c echo.Context) error {
 	state := uuid.New().String()
 
 	cookie := new(http.Cookie)
-	cookie.Name = "oauth_state"
+	cookie.Name = domain.SessionKeyOAuthState
 	cookie.Value = state
 	cookie.Path = "/"
 	cookie.MaxAge = 10 * 60
@@ -62,6 +62,7 @@ func (h *AuthHandler) GoogleLogin(c echo.Context) error {
 	cookie.Secure = isSecureCookie(c, h.App.Cfg.Env)
 	cookie.SameSite = http.SameSiteLaxMode
 	c.SetCookie(cookie)
+
 
 	url := h.GoogleProvider.GetAuthCodeURL(state, c.Scheme(), c.Request().Host)
 	return c.Redirect(http.StatusTemporaryRedirect, url)
@@ -114,7 +115,8 @@ func (h *AuthHandler) setSessionAndRedirect(c echo.Context, userID string) error
 		Secure:   isSecureCookie(c, h.App.Cfg.Env),
 		SameSite: http.SameSiteLaxMode,
 	}
-	sess.Values["user_id"] = userID
+	sess.Values[domain.SessionKeyUserID] = userID
+
 	if err := sess.Save(c.Request(), c.Response()); err != nil {
 		return ui.RespondErrorMsg(c, http.StatusInternalServerError, "Failed to save session")
 	}
@@ -124,17 +126,18 @@ func (h *AuthHandler) setSessionAndRedirect(c echo.Context, userID string) error
 func (h *AuthHandler) GoogleCallback(c echo.Context) error {
 	state := c.QueryParam("state")
 
-	stateCookie, err := c.Cookie("oauth_state")
+	stateCookie, err := c.Cookie(domain.SessionKeyOAuthState)
 	if err != nil || stateCookie.Value != state {
 		return ui.RespondErrorMsg(c, http.StatusBadRequest, "States don't match or expired")
 	}
 
 	deleteCookie := new(http.Cookie)
-	deleteCookie.Name = "oauth_state"
+	deleteCookie.Name = domain.SessionKeyOAuthState
 	deleteCookie.Value = ""
 	deleteCookie.Path = "/"
 	deleteCookie.MaxAge = -1
 	c.SetCookie(deleteCookie)
+
 
 	code := c.QueryParam("code")
 	token, err := h.GoogleProvider.Exchange(c.Request().Context(), code, c.Scheme(), c.Request().Host)

@@ -111,7 +111,8 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		strCounts[string(cat)] = count
 	}
 
-	u := c.Get("User")
+	u := c.Get(domain.CtxKeyUser)
+
 
 	return h.RenderWithBaseContext(c, domain.TemplateIndex, map[string]interface{}{
 		"Listings":         listings,
@@ -130,9 +131,10 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 
 // Fragment Handler (HTMX)
 func (h *ListingHandler) HandleFragment(c echo.Context) error {
-	filterType := c.QueryParam("type")
+	filterType := c.QueryParam(domain.FieldType)
 	queryText := c.QueryParam("q")
-	city := c.QueryParam("city")
+	city := c.QueryParam(domain.FieldCity)
+
 
 	p := GetPagination(c, 30)
 	page := p.Page
@@ -199,7 +201,7 @@ func (h *ListingHandler) HandleEdit(c echo.Context) error {
 	if targetID == "" {
 		targetID = "listing-" + listing.ID
 	}
-	source := c.QueryParam("source")
+	source := c.QueryParam(domain.ParamSource)
 
 	return h.RenderWithBaseContext(c, "modal_edit_listing", map[string]interface{}{
 		"Listing":          listing,
@@ -207,8 +209,8 @@ func (h *ListingHandler) HandleEdit(c echo.Context) error {
 		"Source":           source,
 		"GoogleMapsApiKey": h.App.Cfg.GoogleMapsAPIKey,
 	})
-}
 
+}
 
 // Helper methods
 
@@ -247,4 +249,3 @@ func (h *ListingHandler) findAndAuthListing(c echo.Context, id string) (domain.L
 	}
 	return listing, uRaw, nil
 }
-

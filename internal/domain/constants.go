@@ -77,4 +77,41 @@ const (
 	FieldPayRange    = "pay-range"
 	FieldType        = "type"
 	FieldCity        = "city"
+
+	// Context Keys
+	CtxKeyUser = "User"
+
+	// Sessions
+	SessionName          = "auth_session"
+	SessionKeyOAuthState = "oauth_state"
+
+	// Fields (Additional)
+	FieldStatus    = "status"
+	FieldFeatured  = "featured"
+	FieldCreatedAt = "created_at"
+
+	// Headers
+	HeaderHXTrigger = "HX-Trigger"
+
+	// HTMX
+	TriggerListingUpdatedPrefix = "listing-updated-"
+
+	// Params
+	ParamSource      = "source"
+	ParamSourceAdmin = "admin"
+
+	SessionKeyUserID = "user_id"
+	FlashMessageKey  = "message"
+
+	// Messages
+	MsgFailedToOpenDB        = "Failed to open DB"
+	MsgFailedToUpdateListing = "Failed to update listing"
+	MsgFailedToCreateListing = "Failed to create listing"
+	MsgFailedToLogin         = "Failed to login"
+
+	// Protocols
+	ProtoHTTPS = "https://"
 )
+
+
+

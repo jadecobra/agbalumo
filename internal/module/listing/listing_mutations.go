@@ -48,7 +48,6 @@ func (h *ListingHandler) HandleCreate(c echo.Context) error {
 	return h.processAndSave(c, &l)
 }
 
-
 // HandleUpdate updates the listing
 func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 	id := c.Param("id")
@@ -74,7 +73,6 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 
 	return h.processAndSave(c, &listing)
 }
-
 
 func (h *ListingHandler) checkListingAuth(c echo.Context, listing domain.Listing, uRaw *domain.User) error {
 	if listing.OwnerID != uRaw.ID && uRaw.Role != domain.UserRoleAdmin {
@@ -133,7 +131,6 @@ func (h *ListingHandler) bindAndMapWithImageCheck(c echo.Context, l *domain.List
 	return nil
 }
 
-
 func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error {
 	h.autoPopulateCity(c.Request().Context(), l)
 
@@ -146,17 +143,19 @@ func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error
 	}
 
 	// Trigger an HTMX event so other components (like admin table rows) can update themselves
-	c.Response().Header().Add("HX-Trigger", fmt.Sprintf("listing-updated-%s", l.ID))
+	c.Response().Header().Add(domain.HeaderHXTrigger, fmt.Sprintf("%s%s", domain.TriggerListingUpdatedPrefix, l.ID))
 
 	// If the request came from the admin dashboard, return no content and let the HX-Trigger handle updates
-	if c.QueryParam("source") == "admin" {
+	if c.QueryParam(domain.ParamSource) == domain.ParamSourceAdmin {
 		return c.NoContent(http.StatusOK)
 	}
 
+
 	var usr interface{}
-	if u := c.Get("User"); u != nil {
+	if u := c.Get(domain.CtxKeyUser); u != nil {
 		usr = u
 	}
+
 	return h.RenderWithBaseContext(c, tmplListingCard, map[string]interface{}{
 		"Listing": l,
 		"User":    usr,

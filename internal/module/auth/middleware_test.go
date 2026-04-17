@@ -49,7 +49,8 @@ func TestAuthMiddleware_RequireAuth_Success(t *testing.T) {
 
 	store := sessions.NewCookieStore([]byte("secret"))
 	sess, _ := store.Get(req, "session-name")
-	sess.Values["user_id"] = "user-123"
+	sess.Values[domain.SessionKeyUserID] = "user-123"
+
 	c.Set("session", sess)
 
 	repo := testutil.SetupTestRepository(t)
@@ -75,7 +76,8 @@ func TestAuthMiddleware_OptionalAuth_Success(t *testing.T) {
 
 	store := sessions.NewCookieStore([]byte("secret"))
 	sess, _ := store.Get(req, "session-name")
-	sess.Values["user_id"] = "user-123"
+	sess.Values[domain.SessionKeyUserID] = "user-123"
+
 	c.Set("session", sess)
 
 	repo := testutil.SetupTestRepository(t)
@@ -86,7 +88,8 @@ func TestAuthMiddleware_OptionalAuth_Success(t *testing.T) {
 	authMw := auth.NewAuthMiddleware(repo)
 
 	handlerFunc := authMw.OptionalAuth(func(c echo.Context) error {
-		u := c.Get("User")
+		u := c.Get(domain.CtxKeyUser)
+
 		if u == nil {
 			return c.String(http.StatusOK, "No User")
 		}
@@ -110,7 +113,8 @@ func TestAuthMiddleware_OptionalAuth_NoSession(t *testing.T) {
 	authMw := auth.NewAuthMiddleware(repo)
 
 	handlerFunc := authMw.OptionalAuth(func(c echo.Context) error {
-		u := c.Get("User")
+		u := c.Get(domain.CtxKeyUser)
+
 		if u == nil {
 			return c.String(http.StatusOK, "No User")
 		}

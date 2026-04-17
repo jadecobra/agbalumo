@@ -29,15 +29,5 @@ var (
 	ErrFailedToSaveClaim = errors.New("failed to save claim request")
 )
 
-const (
-	// FlashMessageKey is the session key used for flash messages.
-	FlashMessageKey = "message"
-	// MsgFailedToOpenDB is a common error message for database connection failures.
-	MsgFailedToOpenDB = "Failed to open DB"
-	// MsgFailedToUpdateListing is a common error message for listing update failures.
-	MsgFailedToUpdateListing = "Failed to update listing"
-	// MsgFailedToCreateListing is a common error message for listing creation failures.
-	MsgFailedToCreateListing = "Failed to create listing"
-	// MsgFailedToLogin is a common error message for authentication failures.
-	MsgFailedToLogin = "Failed to login"
-)
+
+
