@@ -54,13 +54,14 @@ func scanListing(s Scanner) (domain.Listing, error) {
 	return l, nil
 }
 
-func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, queryText string, sortField string, sortOrder string, includeInactive bool, limit int, offset int) ([]domain.Listing, int, error) {
+func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, queryText string, city string, sortField string, sortOrder string, includeInactive bool, limit int, offset int) ([]domain.Listing, int, error) {
 	start := time.Now()
 	defer r.logSlowQuery("FindAll", start)
 
 	filters := ListingFilters{
 		Type:            filterType,
 		QueryText:       queryText,
+		City:            city,
 		IncludeInactive: includeInactive,
 	}
 	where, args := r.buildListingWhere(filters)
@@ -289,10 +290,11 @@ func (r *SQLiteRepository) GetLocations(ctx context.Context) ([]string, error) {
 	return locations, rows.Err()
 }
 
-// GetFeaturedListings returns featured listings set by admin, optionally filtered by category.
-func (r *SQLiteRepository) GetFeaturedListings(ctx context.Context, category string) ([]domain.Listing, error) {
+// GetFeaturedListings returns featured listings set by admin, optionally filtered by category and city.
+func (r *SQLiteRepository) GetFeaturedListings(ctx context.Context, category string, city string) ([]domain.Listing, error) {
 	filters := ListingFilters{
 		Type:         category,
+		City:         city,
 		FeaturedOnly: true,
 	}
 	where, args := r.buildListingWhere(filters)

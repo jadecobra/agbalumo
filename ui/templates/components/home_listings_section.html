@@ -13,6 +13,24 @@
             <div class="animate-spin  h-12 w-12 border-b-2 border-earth-ochre"></div>
         </div>
 
+        <!-- Featured Section (Ada focus) -->
+        <div id="featured-section" hx-swap-oob="true">
+            {{ if .FeaturedListings }}
+            <div class="mb-12">
+                <div class="flex items-center justify-between mb-8 px-1">
+                    <h3 class="text-xs font-bold uppercase tracking-[0.4em] text-earth-ochre">Featured Selection</h3>
+                    <div class="h-px flex-1 bg-white/10 mx-6"></div>
+                </div>
+                <!-- Horizontal Scroll Container -->
+                <div class="flex gap-4 overflow-x-auto pb-8 snap-x no-scrollbar">
+                    {{ range .FeaturedListings }}
+                        {{ template "featured_card" dict "Listing" . "User" $.User }}
+                    {{ end }}
+                </div>
+            </div>
+            {{ end }}
+        </div>
+
         <div id="listings-container"
             class="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 auto-rows-[280px] md:auto-rows-[400px] grid-flow-dense transition-opacity duration-300">
             {{ range $i, $e := .Listings }}

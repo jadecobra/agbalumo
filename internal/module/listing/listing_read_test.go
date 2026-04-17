@@ -94,3 +94,41 @@ func TestHandleDetail_NotFound(t *testing.T) {
 	_ = h.HandleDetail(c)
 	assert.Equal(t, http.StatusNotFound, rec.Code)
 }
+
+func TestHandleFragment_AdaDefaulting(t *testing.T) {
+	t.Parallel()
+	h, app, cleanup := setupListingHandler(t)
+	defer cleanup()
+
+	// Seed: One food in Houston, one service in Houston
+	saveTestListing(t, app.DB, "1", "Houston Jollof", func(l *domain.Listing) {
+		l.Type = domain.Food
+		l.City = "Houston"
+		l.Status = domain.ListingStatusApproved
+		l.IsActive = true
+	})
+	saveTestListing(t, app.DB, "2", "Houston Hair", func(l *domain.Listing) {
+		l.Type = domain.Service
+		l.City = "Houston"
+		l.Status = domain.ListingStatusApproved
+		l.IsActive = true
+	})
+
+	// Case 1: Filter by City only (no type) -> should default to Food
+	c, rec := setupTestContext(http.MethodGet, "/listings/fragment?city=Houston", nil)
+	c.Request().Header.Set("HX-Request", "true")
+	if err := h.HandleFragment(c); err != nil {
+		t.Fatal(err)
+	}
+	assert.Contains(t, rec.Body.String(), "Houston Jollof")
+	assert.NotContains(t, rec.Body.String(), "Houston Hair")
+
+	// Case 2: Filter by City AND specify Type -> should respect Type
+	c2, rec2 := setupTestContext(http.MethodGet, "/listings/fragment?city=Houston&type=Service", nil)
+	c2.Request().Header.Set("HX-Request", "true")
+	if err := h.HandleFragment(c2); err != nil {
+		t.Fatal(err)
+	}
+	assert.NotContains(t, rec2.Body.String(), "Houston Jollof")
+	assert.Contains(t, rec2.Body.String(), "Houston Hair")
+}

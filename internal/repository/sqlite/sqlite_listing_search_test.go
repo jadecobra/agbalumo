@@ -21,7 +21,7 @@ func TestFindAll_Filtering(t *testing.T) {
 	saveTestListing(t, ctx, repo, domain.Listing{ID: "3", Title: "Deleted Item", Type: "Product", Status: domain.ListingStatusRejected, IsActive: false, CreatedAt: time.Now()})
 
 	// 1. Find All Active (Default for Public) - should only return Approved
-	res, _, err := repo.FindAll(ctx, "", "", "", "", false, 20, 0)
+	res, _, err := repo.FindAll(ctx, "", "", "", "", "", false, 20, 0)
 	if err != nil {
 		t.Fatalf("FindAll failed: %v", err)
 	}
@@ -30,25 +30,25 @@ func TestFindAll_Filtering(t *testing.T) {
 	}
 
 	// 2. Filter by Type
-	res, _, _ = repo.FindAll(ctx, "Business", "", "", "", false, 20, 0)
+	res, _, _ = repo.FindAll(ctx, "Business", "", "", "", "", false, 20, 0)
 	if len(res) != 1 || res[0].Title != "Jollof Rice" {
 		t.Errorf("Type filtering failed")
 	}
 
 	// 3. Search text (public) - should NOT find Pending "Braiding"
-	res, _, _ = repo.FindAll(ctx, "", "Braiding", "", "", false, 20, 0)
+	res, _, _ = repo.FindAll(ctx, "", "Braiding", "", "", "", false, 20, 0)
 	if len(res) != 0 {
 		t.Errorf("Expected 0 results for public search of pending listing, got %d", len(res))
 	}
 
 	// 3b. Search text (admin) - should find Pending "Braiding"
-	res, _, _ = repo.FindAll(ctx, "", "Braiding", "", "", true, 20, 0)
+	res, _, _ = repo.FindAll(ctx, "", "Braiding", "", "", "", true, 20, 0)
 	if len(res) != 1 {
 		t.Errorf("Expected 1 result for admin search of pending listing, got %d", len(res))
 	}
 
 	// 4. Include Inactive (Admin view)
-	res, _, _ = repo.FindAll(ctx, "", "", "", "", true, 20, 0)
+	res, _, _ = repo.FindAll(ctx, "", "", "", "", "", true, 20, 0)
 	if len(res) != 3 {
 		t.Errorf("Expected 3 listings including inactive, got %d", len(res))
 	}
@@ -65,7 +65,7 @@ func TestFindAll_Sorting_Featured(t *testing.T) {
 	saveTestListing(t, ctx, repo, domain.Listing{ID: "3", Title: "C-Normal", Status: domain.ListingStatusApproved, IsActive: true, Featured: false, CreatedAt: time.Now().Add(2 * time.Second)})
 
 	// Test sort by featured DESC (Featured should be first)
-	res, _, err := repo.FindAll(ctx, "", "", "featured", "DESC", true, 10, 0)
+	res, _, err := repo.FindAll(ctx, "", "", "", "featured", "DESC", true, 10, 0)
 	if err != nil {
 		t.Fatalf("FindAll failed: %v", err)
 	}
@@ -79,7 +79,7 @@ func TestFindAll_Sorting_Featured(t *testing.T) {
 	}
 
 	// Test sort by featured ASC (Featured should be last)
-	resAsc, _, errAsc := repo.FindAll(ctx, "", "", "featured", "ASC", true, 10, 0)
+	resAsc, _, errAsc := repo.FindAll(ctx, "", "", "", "featured", "ASC", true, 10, 0)
 	if errAsc != nil {
 		t.Fatalf("FindAll failed: %v", errAsc)
 	}
@@ -113,7 +113,7 @@ func TestListingRepository_FTS(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		res, _, _ := repo.FindAll(ctx, "", tt.query, "", "", false, 10, 0)
+		res, _, _ := repo.FindAll(ctx, "", tt.query, "", "", "", false, 10, 0)
 		if len(res) != 1 || res[0].ID != tt.want {
 			t.Errorf("FTS query %q failed: got %d results, want ID %s", tt.query, len(res), tt.want)
 		}

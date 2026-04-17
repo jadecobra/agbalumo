@@ -35,7 +35,7 @@ func BenchmarkSearchPerformance(b *testing.B) {
 
 	b.Run("FindAll_Default_Page1", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			_, _, _ = repo.FindAll(ctx, "", "", "", "", false, 30, 0)
+			_, _, _ = repo.FindAll(ctx, "", "", "", "", "", false, 30, 0)
 		}
 	})
 	runRemainingSearchBenchmarks(b, repo, ctx)
@@ -44,25 +44,25 @@ func BenchmarkSearchPerformance(b *testing.B) {
 func runRemainingSearchBenchmarks(b *testing.B, repo *sqlite.SQLiteRepository, ctx context.Context) {
 	b.Run("FindAll_Search_Page1", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			_, _, _ = repo.FindAll(ctx, "", "ghana", "", "", false, 30, 0)
+			_, _, _ = repo.FindAll(ctx, "", "ghana", "", "", "", false, 30, 0)
 		}
 	})
 
 	b.Run("FindAll_Filter_Page1", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			_, _, _ = repo.FindAll(ctx, string(domain.Business), "", "", "", false, 30, 0)
+			_, _, _ = repo.FindAll(ctx, string(domain.Business), "", "", "", "", false, 30, 0)
 		}
 	})
 
 	b.Run("FindAll_Search_Filter_Page1", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			_, _, _ = repo.FindAll(ctx, string(domain.Business), "ghana", "", "", false, 30, 0)
+			_, _, _ = repo.FindAll(ctx, string(domain.Business), "ghana", "", "", "", false, 30, 0)
 		}
 	})
 
 	b.Run("FindAll_Deep_Pagination", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			_, _, _ = repo.FindAll(ctx, "", "", "", "", false, 30, 5000)
+			_, _, _ = repo.FindAll(ctx, "", "", "", "", "", false, 30, 5000)
 		}
 	})
 }

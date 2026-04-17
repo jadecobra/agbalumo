@@ -37,7 +37,7 @@ func TestStressCmd_Success(t *testing.T) {
 		t.Fatalf("failed to open test database: %v", err)
 	}
 
-	listings, _, err := repo.FindAll(context.Background(), "", "", "", "", false, 100, 0)
+	listings, _, err := repo.FindAll(context.Background(), "", "", "", "", "", false, 100, 0)
 	if err != nil {
 		t.Fatalf("failed to query test database: %v", err)
 	}

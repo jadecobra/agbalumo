@@ -60,7 +60,7 @@ func TestGetFeaturedListings(t *testing.T) {
 		assert.NoError(t, err)
 	}
 
-	featured, err := repo.GetFeaturedListings(ctx, "")
+	featured, err := repo.GetFeaturedListings(ctx, "", "")
 	assert.NoError(t, err)
 
 	assert.Len(t, featured, 2)
@@ -88,7 +88,7 @@ func TestGetFeaturedListings_LimitThree(t *testing.T) {
 		assert.NoError(t, err)
 	}
 
-	featured, err := repo.GetFeaturedListings(ctx, "")
+	featured, err := repo.GetFeaturedListings(ctx, "", "")
 	assert.NoError(t, err)
 
 	assert.Len(t, featured, 3, "GetFeaturedListings should return exactly 3 items limit")
@@ -123,27 +123,27 @@ func TestGetFeaturedListings_CategoryFilter(t *testing.T) {
 	}
 
 	// Filter by Business
-	bizFeatured, err := repo.GetFeaturedListings(ctx, string(domain.Business))
+	bizFeatured, err := repo.GetFeaturedListings(ctx, string(domain.Business), "")
 	assert.NoError(t, err)
 	assert.Len(t, bizFeatured, 2)
 	assert.Equal(t, domain.Business, bizFeatured[0].Type)
 	assert.Equal(t, domain.Business, bizFeatured[1].Type)
 
 	// Filter by Event
-	eventFeatured, err := repo.GetFeaturedListings(ctx, string(domain.Event))
+	eventFeatured, err := repo.GetFeaturedListings(ctx, string(domain.Event), "")
 	assert.NoError(t, err)
 	assert.Len(t, eventFeatured, 2)
 	assert.Equal(t, domain.Event, eventFeatured[0].Type)
 	assert.Equal(t, domain.Event, eventFeatured[1].Type)
 
 	// Filter by Job
-	jobFeatured, err := repo.GetFeaturedListings(ctx, string(domain.Job))
+	jobFeatured, err := repo.GetFeaturedListings(ctx, string(domain.Job), "")
 	assert.NoError(t, err)
 	assert.Len(t, jobFeatured, 1)
 	assert.Equal(t, domain.Job, jobFeatured[0].Type)
 
 	// No filter, should return 3 items (mixed limit)
-	allFeatured, err := repo.GetFeaturedListings(ctx, "")
+	allFeatured, err := repo.GetFeaturedListings(ctx, "", "")
 	assert.NoError(t, err)
 	assert.Len(t, allFeatured, 3)
 }
@@ -168,7 +168,7 @@ func TestSetFeatured(t *testing.T) {
 	err = repo.SetFeatured(ctx, "feat-test", true)
 	assert.NoError(t, err)
 
-	featured, err := repo.GetFeaturedListings(ctx, "")
+	featured, err := repo.GetFeaturedListings(ctx, "", "")
 	assert.NoError(t, err)
 	assert.Len(t, featured, 1)
 	assert.Equal(t, "feat-test", featured[0].ID)
@@ -176,7 +176,7 @@ func TestSetFeatured(t *testing.T) {
 	err = repo.SetFeatured(ctx, "feat-test", false)
 	assert.NoError(t, err)
 
-	featured, err = repo.GetFeaturedListings(ctx, "")
+	featured, err = repo.GetFeaturedListings(ctx, "", "")
 	assert.NoError(t, err)
 	assert.Len(t, featured, 0)
 }

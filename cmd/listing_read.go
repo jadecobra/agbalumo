@@ -19,7 +19,7 @@ supports filtering and can output the results in a machine-readable JSON format.
 	Run: func(cmd *cobra.Command, args []string) {
 		repo := initRepo()
 
-		listings, _, err := repo.FindAll(context.Background(), "", "", "", "", false, 100, 0)
+		listings, _, err := repo.FindAll(context.Background(), "", "", "", "", "", false, 100, 0)
 		exitOnErr(err, "Failed to list listings")
 
 		if printListResponse(cmd, listings, len(listings), "No listings found") {

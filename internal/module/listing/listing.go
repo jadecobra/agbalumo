@@ -72,7 +72,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	go func() {
 		defer wg.Done()
 		// Default to Food category for the homepage to focus on Ada's primary goal
-		listings, totalCount, listingsErr = h.App.DB.FindAll(ctx, string(domain.Food), "", "", "", false, limit, offset)
+		listings, totalCount, listingsErr = h.App.DB.FindAll(ctx, string(domain.Food), "", "", "", "", false, limit, offset)
 	}()
 	go func() {
 		defer wg.Done()
@@ -80,7 +80,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	}()
 	go func() {
 		defer wg.Done()
-		featured, featuredErr = h.App.DB.GetFeaturedListings(ctx, string(domain.Food))
+		featured, featuredErr = h.App.DB.GetFeaturedListings(ctx, string(domain.Food), "")
 	}()
 	go func() {
 		defer wg.Done()
@@ -131,27 +131,34 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	filterType := c.QueryParam("type")
 	queryText := c.QueryParam("q")
+	city := c.QueryParam("city")
 
 	p := GetPagination(c, 30)
 	page := p.Page
 	limit := p.Limit
 	offset := p.Offset
 
-	listings, totalCount, err := h.App.DB.FindAll(c.Request().Context(), filterType, queryText, "", "", false, limit, offset)
+	// Ada focus: If location is picked but no category, default to Food
+	if city != "" && filterType == "" {
+		filterType = string(domain.Food)
+	}
+
+	listings, totalCount, err := h.App.DB.FindAll(c.Request().Context(), filterType, queryText, city, "", "", false, limit, offset)
 	if err != nil {
 		return ui.RespondErrorMsg(c, http.StatusInternalServerError, err.Error())
 	}
 	hasNextPage := offset+len(listings) < totalCount
 
-	// For the main feed (no search query), listings already prioritize featured due to SQL optimization.
-	finalListings := listings
+	// Fetch featured listings for the selected city and category to support Ada's discovery flow
+	featured, _ := h.App.DB.GetFeaturedListings(c.Request().Context(), filterType, city)
 
 	data := map[string]interface{}{
-		"Listings":   finalListings,
-		"Pagination": Pagination{Page: page, TotalPages: (totalCount + limit - 1) / limit, HasNextPage: hasNextPage, TotalCount: totalCount},
-		"Category":   filterType,
-		"QueryText":  queryText,
-		"User":       c.Get("User"),
+		"Listings":         listings,
+		"Pagination":       Pagination{Page: page, TotalPages: (totalCount + limit - 1) / limit, HasNextPage: hasNextPage, TotalCount: totalCount},
+		"FeaturedListings": featured,
+		"Category":         filterType,
+		"QueryText":        queryText,
+		"User":             c.Get("User"),
 	}
 
 	// Render the listing list partial (works for both HTMX and full-page requests)

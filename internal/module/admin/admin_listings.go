@@ -26,7 +26,7 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 	queryText := strings.TrimSpace(c.QueryParam("q"))
 
 	// Fetch all listings with the given category filter, including inactive ones.
-	listings, totalCountRows, err := h.App.DB.FindAll(ctx, category, queryText, sortField, sortOrder, true, pagination.Limit, pagination.Offset)
+	listings, totalCountRows, err := h.App.DB.FindAll(ctx, category, queryText, "", sortField, sortOrder, true, pagination.Limit, pagination.Offset)
 	if err != nil {
 		return ui.RespondError(c, err)
 	}
@@ -109,7 +109,7 @@ func (h *AdminHandler) validateFeaturedLimit(ctx context.Context, listing domain
 	if listing.Featured {
 		return nil
 	}
-	featured, err := h.App.DB.GetFeaturedListings(ctx, string(listing.Type))
+	featured, err := h.App.DB.GetFeaturedListings(ctx, string(listing.Type), "")
 	if err != nil {
 		return err
 	}

@@ -28,7 +28,7 @@ func TestListingHandler_FormParsing(t *testing.T) {
 			setup:          func(t *testing.T, repo domain.ListingRepository) {},
 			expectedStatus: http.StatusOK,
 			verify: func(t *testing.T, repo domain.ListingRepository) {
-				listings, _, err := repo.FindAll(context.Background(), "", "Event Test", "", "", false, 1, 0)
+				listings, _, err := repo.FindAll(context.Background(), "", "Event Test", "", "", "", false, 1, 0)
 				assert.NoError(t, err)
 				if assert.Len(t, listings, 1) {
 					assert.Equal(t, 2027, listings[0].EventStart.Year())
@@ -43,7 +43,7 @@ func TestListingHandler_FormParsing(t *testing.T) {
 			setup:          func(t *testing.T, repo domain.ListingRepository) {},
 			expectedStatus: http.StatusOK,
 			verify: func(t *testing.T, repo domain.ListingRepository) {
-				listings, _, err := repo.FindAll(context.Background(), "", "Job Test", "", "", false, 1, 0)
+				listings, _, err := repo.FindAll(context.Background(), "", "Job Test", "", "", "", false, 1, 0)
 				assert.NoError(t, err)
 				if assert.Len(t, listings, 1) {
 					assert.Equal(t, 2027, listings[0].JobStartDate.Year())
@@ -57,7 +57,7 @@ func TestListingHandler_FormParsing(t *testing.T) {
 			setup:          func(t *testing.T, repo domain.ListingRepository) {},
 			expectedStatus: http.StatusOK,
 			verify: func(t *testing.T, repo domain.ListingRepository) {
-				listings, _, err := repo.FindAll(context.Background(), "", "Request Test", "", "", false, 1, 0)
+				listings, _, err := repo.FindAll(context.Background(), "", "Request Test", "", "", "", false, 1, 0)
 				assert.NoError(t, err)
 				if assert.Len(t, listings, 1) {
 					assert.Equal(t, 2026, listings[0].Deadline.Year())
@@ -120,7 +120,7 @@ func TestListingHandler_URLNormalization(t *testing.T) {
 			_ = h.HandleCreate(c)
 
 			assert.Equal(t, http.StatusOK, rec.Code)
-			listings, _, err := app.DB.FindAll(context.Background(), "", "URL Test "+tt.name, "", "", false, 1, 0)
+			listings, _, err := app.DB.FindAll(context.Background(), "", "URL Test "+tt.name, "", "", "", false, 1, 0)
 			assert.NoError(t, err)
 			if assert.Len(t, listings, 1) {
 				assert.Equal(t, tt.expected, listings[0].WebsiteURL)

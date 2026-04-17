@@ -52,12 +52,12 @@ var benchmarkCmd = &cobra.Command{
 		for _, s := range scenarios {
 			if warmup {
 				for i := 0; i < 5; i++ {
-					_, _, _ = repo.FindAll(ctx, s.filterType, s.queryText, s.sortField, s.sortOrder, false, s.limit, s.offset)
+					_, _, _ = repo.FindAll(ctx, s.filterType, s.queryText, "", s.sortField, s.sortOrder, false, s.limit, s.offset)
 				}
 			}
 
 			start := time.Now()
-			listings, _, err := repo.FindAll(ctx, s.filterType, s.queryText, s.sortField, s.sortOrder, false, s.limit, s.offset)
+			listings, _, err := repo.FindAll(ctx, s.filterType, s.queryText, "", s.sortField, s.sortOrder, false, s.limit, s.offset)
 			duration := time.Since(start)
 
 			if err != nil {

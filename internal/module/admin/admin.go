@@ -285,7 +285,7 @@ func (h *AdminHandler) HandleExportListings(c echo.Context) error {
 
 	// Fetch all listings. Using a large limit for export.
 	// In a very large system, we might want to stream this from the DB directly.
-	listings, _, err := h.App.DB.FindAll(ctx, "", "", "created_at", "desc", true, 10000, 0)
+	listings, _, err := h.App.DB.FindAll(ctx, "", "", "", "created_at", "desc", true, 10000, 0)
 	if err != nil {
 		return ui.RespondError(c, err)
 	}
