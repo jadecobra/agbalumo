@@ -1,57 +1,51 @@
-# Triage & Technical Debt Remediation Plan (Agent Optimized)
+# State Checkpoint: Technical Debt Remediation
 
-This plan prioritizes **structural consolidation** to reduce the Agent's context window usage and eliminate the "noise" of duplicate logic.
+**Status**: Phase 2 Complete | **Next**: Phase 3 (Auth Stabilization)
 
-## User Review Required
+## 🚀 Work Completed (Phase 2)
 
-> [!IMPORTANT]
-> This plan shifts away from "clean logs first" to "clean structure first." We will consolidate large clones (Phase 1) before addressing remaining string literals (Phase 2). This reduces total LoC and token counts more effectively.
+### 1. Literal Consolidation
+Systematically replaced hardcoded strings with centralized constants in `internal/domain/constants.go`:
+- **Session Keys**: `SessionName`, `SessionKeyOAuthState`, `SessionKeyUserID`, `FlashMessageKey`.
+- **Field Names**: `FieldStatus`, `FieldFeatured`, `FieldCreatedAt`.
+- **HTMX Triggers**: `HeaderHXTrigger`, `TriggerListingUpdatedPrefix`.
+- **Context Keys**: `CtxKeyUser`.
 
-## Proposed Changes
+### 2. Infrastructure Security
+- Upgraded Trivy vulnerability scanner to **v0.70.0** in the CI pipeline (`.github/workflows/ci.yml`).
 
-### [Phase 1] Structural Consolidation (Clones)
-Address major clone groups in tests and business logic to compress the context window.
+### 3. Quantitative Progress
+| Metric | Baseline | Current | Delta |
+| :--- | :--- | :--- | :--- |
+| **Repeated Strings**| 172 | **162** | 📉 -10 |
+| **Clone Groups** | 364 | **359** | 📉 -5 |
 
-#### [MODIFY] [admin_claims_test.go](file:///Users/johnnyblase/gym/agbalumo/internal/module/admin/admin_claims_test.go)
-*   Consolidate `TestHandleApproveClaim` and `TestHandleRejectClaim` logic into a shared helper within `testutil` or the local test file.
-#### [MODIFY] [listing_mutations.go](file:///Users/johnnyblase/gym/agbalumo/internal/module/listing/listing_mutations.go)
-*   Deduplicate repeating mutation logic patterns identified by ChiefCritic.
+---
+
+## ⚠️ Errors Encountered & Resolved
+
+### Build Failures (Redeclarations)
+- **Issue**: `FlashMessageKey` was redeclared in `internal/domain/errors.go` and `internal/domain/constants.go`.
+- **Fix**: Consolidated all messages and keys into `internal/domain/constants.go` and removed the const block from `errors.go`.
+
+### Typecheck Failures (Missing Imports)
+- **Issue**: Multiple files encountered `undefined: domain` errors after switching to constants because the `domain` package was not imported.
+- **Affected Files**:
+    - `internal/middleware/session.go`
+    - `internal/module/auth/handler_login_errors_test.go`
+    - `internal/module/auth/test_helpers_test.go`
+- **Fix**: Added `"github.com/jadecobra/agbalumo/internal/domain"` to the import sections of the affected files.
 
 ---
 
-### [Phase 2] Literal Deduplication (String Noise)
-Consolidate remaining highly repeated strings identified by `goconst` (172 violations).
-
-#### [MODIFY] [constants.go](file:///Users/johnnyblase/gym/agbalumo/internal/domain/constants.go)
-*   Add globally reused strings: `".env"`, `"oauth_state"`, `"Listing not found"`.
-#### [MODIFY] [main.go](file:///Users/johnnyblase/gym/agbalumo/cmd/verify/main.go)
-*   Update verification tool to use domain/testutil constants.
-
----
+## 🛠️ Next Steps
 
 ### [Phase 3] Auth Module Test Stabilization
-Remove legacy test helpers and standardize on `testutil`.
+Transition the authentication module's testing infrastructure to use the centralized `testutil` system.
+- **Move Mocks**: Relocate `MockGoogleProvider` from `internal/module/auth/test_helpers_test.go` to `internal/testutil/auth_mock.go`.
+- **Cleanup**: Delete `internal/module/auth/test_helpers_test.go` once fully superseded.
+- **Standardize**: Update `handler_google_test.go` and `handler_register_test.go` to use `testutil.SetupTestAppEnv`.
 
-#### [DELETE] [test_helpers_test.go](file:///Users/johnnyblase/gym/agbalumo/internal/module/auth/test_helpers_test.go)
-#### [NEW] [auth_mock.go](file:///Users/johnnyblase/gym/agbalumo/internal/testutil/auth_mock.go)
-*   Relocate `MockGoogleProvider` here to follow repository standards.
-#### [MODIFY] [handler_google_test.go](file:///Users/johnnyblase/gym/agbalumo/internal/module/auth/handler_google_test.go)
-#### [MODIFY] [handler_register_test.go](file:///Users/johnnyblase/gym/agbalumo/internal/module/auth/handler_register_test.go)
-
----
-
-### [Phase 4] Cognitive Complexity
-Resolve failure in the maintenance audit.
-
-#### [MODIFY] [perf.go](file:///Users/johnnyblase/gym/agbalumo/internal/maintenance/perf.go)
-*   Decompose `RunPerformanceAudit` into smaller functions.
-
-## Open Questions
-
-- None.
-
-## Verification Plan
-
-### Automated Tests
-- `go run cmd/verify/main.go ci`: Run the full CI pipeline.
-- `go run cmd/verify/main.go critique`: Verify clones and repeated strings are reduced.
+### [Phase 4] Maintenance Code Refactor
+- Resolve cognitive complexity violations in `internal/maintenance/perf.go`.
+- Final verification of the CI pipeline with the `--with-docker` flag.
