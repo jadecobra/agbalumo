@@ -79,12 +79,16 @@ jobs:
 
       - name: Verify GitHub Action SHAs
         run: go run cmd/verify/main.go verify-shas
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Enforce Field Alignment
         run: go run golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest ./...
 
       - name: Codebase Critique
         run: go run cmd/verify/main.go critique
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   security_static:
     name: Security Static Analysis
