@@ -18,7 +18,7 @@ func (h *BaseHandler) LogError(c echo.Context, msg string, err error) {
 	}
 }
 
-// RenderWithBaseContext is a shared helper that injects common data (Categories, Env, etc.) 
+// RenderWithBaseContext is a shared helper that injects common data (Categories, Env, etc.)
 // into the data map before rendering.
 func (h *BaseHandler) RenderWithBaseContext(c echo.Context, tmpl string, data map[string]interface{}) error {
 	ctx := c.Request().Context()
@@ -36,7 +36,7 @@ func (h *BaseHandler) RenderWithBaseContext(c echo.Context, tmpl string, data ma
 
 	data["Env"] = h.App.Cfg.Env
 	data["HasGoogleAuth"] = h.App.Cfg.HasGoogleAuth
-	
+
 	// Add User if present in context
 	if u := c.Get("User"); u != nil {
 		data["User"] = u

@@ -29,7 +29,7 @@ func SetupTestModuleEnv(t *testing.T) ModuleTestEnv {
 func SetupModuleContext(method, target string, body io.Reader) (echo.Context, *httptest.ResponseRecorder) {
 	return SetupTestContext(method, target, body)
 }
- 
+
 // SetupAdminContext prepares an Echo context with an admin user and session.
 func SetupAdminContext(method, target string, body io.Reader) (echo.Context, *httptest.ResponseRecorder) {
 	c, rec := SetupTestContextWithSession(method, target, body)
@@ -47,9 +47,8 @@ func AssertHTMXResponse(t testing.TB, body string) {
 }
 
 func containsHTMXMarkers(body string) bool {
-	return (len(body) > 0) && (
-		(contains(body, `hx-swap-oob="true"`)) || 
-		(contains(body, `hx-target`)) || 
+	return (len(body) > 0) && ((contains(body, `hx-swap-oob="true"`)) ||
+		(contains(body, `hx-target`)) ||
 		(contains(body, `hx-trigger`)))
 }
 

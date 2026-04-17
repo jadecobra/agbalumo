@@ -9,9 +9,9 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/module/listing"
 	"github.com/jadecobra/agbalumo/internal/testutil"
-	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	testifyMock "github.com/stretchr/testify/mock"

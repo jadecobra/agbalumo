@@ -190,17 +190,8 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 // HandleEdit renders the edit modal
 func (h *ListingHandler) HandleEdit(c echo.Context) error {
 	id := c.Param("id")
-	userRaw, err := user.RequireUserAPI(c)
+	listing, _, err := h.findAndAuthListing(c, id)
 	if err != nil {
-		return err
-	}
-
-	listing, err := h.findListing(c, id)
-	if err != nil {
-		return err
-	}
-	// Authorization Check (Owner or Admin)
-	if err := h.checkListingAuth(c, listing, userRaw); err != nil {
 		return err
 	}
 
@@ -218,6 +209,7 @@ func (h *ListingHandler) HandleEdit(c echo.Context) error {
 	})
 }
 
+
 // Helper methods
 
 func (h *ListingHandler) getFileHeader(c echo.Context, key string) *multipart.FileHeader {
@@ -228,15 +220,31 @@ func (h *ListingHandler) getFileHeader(c echo.Context, key string) *multipart.Fi
 	return file
 }
 
-
 // findListing fetches a listing by ID from the database.
 // If the listing does not exist, it writes a 404 response to c and returns echo.ErrNotFound.
 // Callers must return the sentinel immediately; the response is already committed.
 func (h *ListingHandler) findListing(c echo.Context, id string) (domain.Listing, error) {
 	listing, err := h.App.DB.FindByID(c.Request().Context(), id)
 	if err != nil {
-		_ = ui.RespondErrorMsg(c, http.StatusNotFound, domain.ErrListingNotFound.Error())
+		_ = ui.RespondErrorMsg(c, http.StatusNotFound, (domain.ErrListingNotFound).Error())
 		return domain.Listing{}, echo.ErrNotFound
 	}
 	return listing, nil
 }
+
+// findAndAuthListing combines user requirement, listing retrieval, and authorization check.
+func (h *ListingHandler) findAndAuthListing(c echo.Context, id string) (domain.Listing, *domain.User, error) {
+	uRaw, err := user.RequireUserAPI(c)
+	if err != nil {
+		return domain.Listing{}, nil, err
+	}
+	listing, err := h.findListing(c, id)
+	if err != nil {
+		return domain.Listing{}, nil, err
+	}
+	if err := h.checkListingAuth(c, listing, uRaw); err != nil {
+		return domain.Listing{}, nil, err
+	}
+	return listing, uRaw, nil
+}
+

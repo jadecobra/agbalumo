@@ -1,9 +1,9 @@
 package testutil
 
 import (
+	"github.com/gorilla/sessions"
 	"html/template"
 	"io"
-	"github.com/gorilla/sessions"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
@@ -81,7 +81,7 @@ func SetupTestContext(method, target string, body io.Reader) (echo.Context, *htt
 	c := e.NewContext(req, rec)
 	return c, rec
 }
- 
+
 // SetupTestContextWithSession prepares an Echo context with a functional session store.
 func SetupTestContextWithSession(method, target string, body io.Reader) (echo.Context, *httptest.ResponseRecorder) {
 	c, rec := SetupTestContext(method, target, body)

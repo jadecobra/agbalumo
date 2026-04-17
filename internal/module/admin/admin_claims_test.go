@@ -13,74 +13,59 @@ import (
 )
 
 func TestHandleApproveClaim(t *testing.T) {
-	t.Parallel()
-	env := testutil.SetupTestModuleEnv(t)
-	defer env.Cleanup()
-	h := admin.NewAdminHandler(env.App)
-
-	// Seed data
-	_ = env.App.DB.SaveClaimRequest(context.Background(), domain.ClaimRequest{ID: "claim1", UserID: "u1", ListingID: "l1", Status: domain.ClaimStatusPending})
-
-	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/claims/claim1/approve", nil)
-	c.SetParamNames("id")
-	c.SetParamValues("claim1")
-
-	if assert.NoError(t, h.HandleApproveClaim(c)) {
-		assert.Equal(t, http.StatusOK, rec.Code)
-		// Verify database state
-		claim, err := env.App.DB.GetClaimRequestByUserAndListing(context.Background(), "u1", "l1")
-		assert.NoError(t, err)
-		assert.Equal(t, domain.ClaimStatusApproved, claim.Status)
-	}
+	testClaimAction(t, "approve", domain.ClaimStatusPending, domain.ClaimStatusApproved, http.StatusOK)
 }
 
 func TestHandleApproveClaim_Error(t *testing.T) {
-	t.Parallel()
-	env := testutil.SetupTestModuleEnv(t)
-	defer env.Cleanup()
-	h := admin.NewAdminHandler(env.App)
-
-	// No data seeded for "bad" ID should result in error when trying to update
-	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/claims/bad/approve", nil)
-	c.SetParamNames("id")
-	c.SetParamValues("bad")
-
-	_ = h.HandleApproveClaim(c)
-	assert.Equal(t, http.StatusNotFound, rec.Code)
+	testClaimAction(t, "approve", "", "", http.StatusNotFound)
 }
 
 func TestHandleRejectClaim(t *testing.T) {
-	t.Parallel()
-	env := testutil.SetupTestModuleEnv(t)
-	defer env.Cleanup()
-	h := admin.NewAdminHandler(env.App)
-
-	// Seed data
-	_ = env.App.DB.SaveClaimRequest(context.Background(), domain.ClaimRequest{ID: "claim1", UserID: "u1", ListingID: "l1", Status: domain.ClaimStatusPending})
-
-	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/claims/claim1/reject", nil)
-	c.SetParamNames("id")
-	c.SetParamValues("claim1")
-
-	if assert.NoError(t, h.HandleRejectClaim(c)) {
-		assert.Equal(t, http.StatusOK, rec.Code)
-		// Verify database state
-		claim, err := env.App.DB.GetClaimRequestByUserAndListing(context.Background(), "u1", "l1")
-		assert.NoError(t, err)
-		assert.Equal(t, domain.ClaimStatusRejected, claim.Status)
-	}
+	testClaimAction(t, "reject", domain.ClaimStatusPending, domain.ClaimStatusRejected, http.StatusOK)
 }
 
 func TestHandleRejectClaim_Error(t *testing.T) {
-	t.Parallel()
+	testClaimAction(t, "reject", "", "", http.StatusNotFound)
+}
+
+func testClaimAction(t *testing.T, action string, initialStatus, expectedStatus domain.ClaimStatus, expectedCode int) {
+	t.Helper()
 	env := testutil.SetupTestModuleEnv(t)
 	defer env.Cleanup()
 	h := admin.NewAdminHandler(env.App)
 
-	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/claims/bad/reject", nil)
-	c.SetParamNames("id")
-	c.SetParamValues("bad")
+	claimID := "claim1"
+	if expectedCode == http.StatusNotFound {
+		claimID = "bad"
+	} else {
+		// Seed data
+		_ = env.App.DB.SaveClaimRequest(context.Background(), domain.ClaimRequest{
+			ID:        claimID,
+			UserID:    "u1",
+			ListingID: "l1",
+			Status:    initialStatus,
+		})
+	}
 
-	_ = h.HandleRejectClaim(c)
-	assert.Equal(t, http.StatusNotFound, rec.Code)
+	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/claims/"+claimID+"/"+action, nil)
+	c.SetParamNames("id")
+	c.SetParamValues(claimID)
+
+	var err error
+	if action == "approve" {
+		err = h.HandleApproveClaim(c)
+	} else {
+		err = h.HandleRejectClaim(c)
+	}
+
+	assert.NoError(t, err)
+	assert.Equal(t, expectedCode, rec.Code)
+
+	if expectedCode == http.StatusOK {
+		// Verify database state
+		claim, err := env.App.DB.GetClaimRequestByUserAndListing(context.Background(), "u1", "l1")
+		assert.NoError(t, err)
+		assert.Equal(t, expectedStatus, claim.Status)
+	}
 }
+

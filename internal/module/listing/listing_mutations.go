@@ -26,11 +26,8 @@ func (h *ListingHandler) HandleCreate(c echo.Context) error {
 		Status:    domain.ListingStatusApproved,
 	}
 
-	if err := h.bindAndMapListing(c, &l); err != nil {
-		if common.IsImageError(err) {
-			return common.RenderImageErrorToast(c, err)
-		}
-		return ui.RespondError(c, err)
+	if err := h.bindAndMapWithImageCheck(c, &l); err != nil {
+		return err
 	}
 
 	uRaw, ok := user.GetUser(c)
@@ -39,10 +36,8 @@ func (h *ListingHandler) HandleCreate(c echo.Context) error {
 	}
 	l.OwnerID = uRaw.ID
 
-	// Check for duplicate title
-	existing, err := h.App.DB.FindByTitle(c.Request().Context(), l.Title)
-	if err == nil && len(existing) > 0 {
-		return ui.RespondErrorMsg(c, http.StatusBadRequest, errTitleExists)
+	if err := h.checkDuplicateTitle(c.Request().Context(), l.Title, ""); err != nil {
+		return ui.RespondError(c, err)
 	}
 
 	// Default deadline for requests if not provided
@@ -53,34 +48,22 @@ func (h *ListingHandler) HandleCreate(c echo.Context) error {
 	return h.processAndSave(c, &l)
 }
 
+
 // HandleUpdate updates the listing
 func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 	id := c.Param("id")
 
-	uRaw, err := user.RequireUserAPI(c)
+	listing, _, err := h.findAndAuthListing(c, id)
 	if err != nil {
 		return err
 	}
 
 	ctx := c.Request().Context()
-	listing, err := h.findListing(c, id)
-	if err != nil {
-		return err
-	}
-
-	// Authorization Check (Owner or Admin)
-	if err := h.checkListingAuth(c, listing, uRaw); err != nil {
-		return err
-	}
-
 	// Save original image URL BEFORE bindAndMapListing may modify it
 	originalImageURL := listing.ImageURL
 
-	if err := h.bindAndMapListing(c, &listing); err != nil {
-		if common.IsImageError(err) {
-			return common.RenderImageErrorToast(c, err)
-		}
-		return ui.RespondError(c, err)
+	if err := h.bindAndMapWithImageCheck(c, &listing); err != nil {
+		return err
 	}
 
 	h.handleImageRemoval(c, &listing, originalImageURL)
@@ -91,6 +74,7 @@ func (h *ListingHandler) HandleUpdate(c echo.Context) error {
 
 	return h.processAndSave(c, &listing)
 }
+
 
 func (h *ListingHandler) checkListingAuth(c echo.Context, listing domain.Listing, uRaw *domain.User) error {
 	if listing.OwnerID != uRaw.ID && uRaw.Role != domain.UserRoleAdmin {
@@ -127,27 +111,28 @@ func (h *ListingHandler) checkDuplicateTitle(ctx context.Context, title string, 
 
 func (h *ListingHandler) HandleDelete(c echo.Context) error {
 	id := c.Param("id")
-	uRaw, err := user.RequireUserAPI(c)
+	_, _, err := h.findAndAuthListing(c, id)
 	if err != nil {
 		return err
 	}
 
-	ctx := c.Request().Context()
-	listing, err := h.findListing(c, id)
-	if err != nil {
-		return err
-	}
-
-	if err := h.checkListingAuth(c, listing, uRaw); err != nil {
-		return err
-	}
-
-	if err := h.App.DB.Delete(ctx, id); err != nil {
+	if err := h.App.DB.Delete(c.Request().Context(), id); err != nil {
 		return ui.RespondError(c, err)
 	}
 
 	return c.Redirect(http.StatusSeeOther, domain.PathProfile)
 }
+
+func (h *ListingHandler) bindAndMapWithImageCheck(c echo.Context, l *domain.Listing) error {
+	if err := h.bindAndMapListing(c, l); err != nil {
+		if common.IsImageError(err) {
+			return common.RenderImageErrorToast(c, err)
+		}
+		return ui.RespondError(c, err)
+	}
+	return nil
+}
+
 
 func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error {
 	h.autoPopulateCity(c.Request().Context(), l)
