@@ -177,43 +177,103 @@ func RunChiefCriticAudit(rootDir string) error {
 
 func executeAuditTools(rootDir string) bool {
 	tools := []struct {
-		name string
-		cmd  []string
+		name      string
+		cmd       []string
+		mandatory bool
 	}{
-		{"Cognitive Complexity", []string{"go", "run", "github.com/uudashr/gocognit/cmd/gocognit", "-over", "10", "./cmd", "./internal"}},
-		{"Repeated Strings", []string{"go", "run", "github.com/jgautheron/goconst/cmd/goconst", "./cmd/...", "./internal/..."}},
-		{"Struct Alignment", []string{"go", "run", "golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment", "./internal/...", "./cmd/..."}},
-		{"Code Duplication", []string{"go", "run", "github.com/mibk/dupl", "-threshold", "15", "./cmd", "./internal"}},
+		{"Cognitive Complexity", []string{"go", "run", "github.com/uudashr/gocognit/cmd/gocognit", "-over", "10", "./cmd", "./internal"}, true},
+		{"Repeated Strings", []string{"go", "run", "github.com/jgautheron/goconst/cmd/goconst", "./cmd/...", "./internal/..."}, false},
+		{"Struct Alignment", []string{"go", "run", "golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment", "./internal/...", "./cmd/..."}, false},
+		{"Code Duplication", []string{"go", "run", "github.com/mibk/dupl", "-threshold", "15", "./cmd", "./internal"}, false},
 	}
 
 	var mu sync.Mutex
 	var wg sync.WaitGroup
 	failed := false
+	verbose := os.Getenv("VERBOSE") == "true"
 
 	for i, t := range tools {
 		wg.Add(1)
-		go func(idx int, name string, command []string) {
+		go func(idx int, name string, command []string, isMandatory bool) {
 			defer wg.Done()
-			fmt.Printf("\n[%d/%d] Checking %s...\n", idx+1, len(tools), name)
-			if err := runTool(rootDir, command[0], command[1:]...); err != nil {
-				fmt.Printf("❌ %s failed!\n", name)
-				if name == "Cognitive Complexity" {
-					mu.Lock()
-					failed = true
-					mu.Unlock()
-				}
+			f := runAuditWorker(rootDir, idx, len(tools), name, command, isMandatory, verbose, &mu)
+			if f {
+				mu.Lock()
+				failed = true
+				mu.Unlock()
 			}
-		}(i, t.name, t.cmd)
+		}(i, t.name, t.cmd, t.mandatory)
 	}
 	wg.Wait()
 	return failed
 }
 
-func runTool(dir, name string, args ...string) error {
+func runAuditWorker(rootDir string, idx, total int, name string, command []string, isMandatory, verbose bool, mu *sync.Mutex) bool {
+	output, err := runTool(rootDir, command[0], command[1:]...)
+
+	mu.Lock()
+	defer mu.Unlock()
+
+	fmt.Printf("[%d/%d] %s: ", idx+1, total, name)
+
+	failed := false
+	if err != nil {
+		fmt.Print("❌ ")
+		if isMandatory {
+			failed = true
+		}
+	} else {
+		fmt.Print("✅ ")
+	}
+
+	summary := parseSummary(name, output)
+	if summary != "" {
+		fmt.Printf("(%s)", summary)
+	}
+	fmt.Println()
+
+	if (err != nil && isMandatory) || verbose {
+		if output != "" {
+			fmt.Println(domain.SeparatorLine)
+			fmt.Println(output)
+			fmt.Println(domain.SeparatorLine)
+		}
+	}
+	return failed
+}
+
+
+func parseSummary(name, output string) string {
+	lines := strings.Split(strings.TrimSpace(output), "\n")
+	if len(lines) == 0 || output == "" {
+		return ""
+	}
+
+	switch name {
+	case "Code Duplication":
+		// dupl output ends with "Found total X clone groups."
+		for i := len(lines) - 1; i >= 0; i-- {
+			if strings.Contains(lines[i], "Found total") {
+				return strings.TrimSpace(lines[i])
+			}
+		}
+	case "Repeated Strings":
+		return fmt.Sprintf("found %d violations", len(lines))
+	case "Cognitive Complexity":
+		return fmt.Sprintf("found %d complexity violations", len(lines))
+	}
+
+	if len(lines) > 5 {
+		return fmt.Sprintf("%d lines of output", len(lines))
+	}
+	return ""
+}
+
+func runTool(dir, name string, args ...string) (string, error) {
 	//nolint:gosec // G204: Maintenance utility running trusted audit tools
 	cmd := exec.Command(name, args...)
 	cmd.Dir = dir
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	return cmd.Run()
+	out, err := cmd.CombinedOutput()
+	return string(out), err
 }
+
