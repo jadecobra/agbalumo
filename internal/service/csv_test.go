@@ -15,40 +15,37 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestParseAndImport_Valid(t *testing.T) {
-	t.Parallel()
+func setupCSVTest(t *testing.T) (*CSVService, context.Context, domain.ListingRepository) {
+	t.Helper()
 	svc := NewCSVService()
 	ctx := context.Background()
-	csvContent := `title,type,description,origin,email,website
+	repo := testutil.SetupTestRepository(t)
+	return svc, ctx, repo
+}
+
+func TestParseAndImport_Table(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name     string
+		csv      string
+		total    int
+		success  int
+		failures int
+		wantErr  bool
+	}{
+		{
+			name: "Valid Listings",
+			csv: `title,type,description,origin,email,website
 Test Biz,Business,Desc 1,Ghana,test@test.com,example.com
 Test Svc,Service,Desc 2,Nigeria,svc@test.com,
-`
-	repo := testutil.SetupTestRepository(t)
-
-	result, err := svc.ParseAndImport(ctx, strings.NewReader(csvContent), repo)
-	assert.NoError(t, err)
-	assert.Equal(t, 2, result.TotalProcessed)
-	assert.Equal(t, 2, result.SuccessCount)
-	assert.Equal(t, 0, result.FailureCount)
-}
-
-func TestParseAndImport_MissingHeaders(t *testing.T) {
-	t.Parallel()
-	svc := NewCSVService()
-	ctx := context.Background()
-	csvContent := `title,description
-Test,Desc`
-	repo := testutil.SetupTestRepository(t)
-	_, err := svc.ParseAndImport(ctx, strings.NewReader(csvContent), repo)
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "missing required header")
-}
-
-func TestParseAndImport_PartialFailure(t *testing.T) {
-	t.Parallel()
-	svc := NewCSVService()
-	ctx := context.Background()
-	csvContent := `title,type,description,origin,email,phone,website
+`,
+			total:    2,
+			success:  2,
+			failures: 0,
+		},
+		{
+			name: "Partial Failures",
+			csv: `title,type,description,origin,email,phone,website
 Good,Business,Desc,Ghana,a@b.com,,
 BadTypeDefaultsToBusiness,InvalidType,Desc,Ghana,a@b.com,,
 MissingDesc,Business,,Ghana,a@b.com,,
@@ -56,15 +53,39 @@ MissingDesc,Business,,Ghana,a@b.com,,
 MissingOrigin,Business,Desc,,a@b.com,,
 MissingEmailHasPhone,Business,Desc,Ghana,,12345,
 MissingAllContact,Business,Desc,Ghana,,,
-MissingEmailPhoneHasWebsite,Business,Desc,Ghana,,,example.com`
+MissingEmailPhoneHasWebsite,Business,Desc,Ghana,,,example.com`,
+			total:    8,
+			success:  5,
+			failures: 3,
+		},
+	}
 
-	repo := testutil.SetupTestRepository(t)
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			svc, ctx, repo := setupCSVTest(t)
+			result, err := svc.ParseAndImport(ctx, strings.NewReader(tt.csv), repo)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tt.total, result.TotalProcessed)
+			assert.Equal(t, tt.success, result.SuccessCount)
+			assert.Equal(t, tt.failures, result.FailureCount)
+		})
+	}
+}
 
-	result, err := svc.ParseAndImport(ctx, strings.NewReader(csvContent), repo)
-	assert.NoError(t, err)
-	assert.Equal(t, 8, result.TotalProcessed)
-	assert.Equal(t, 5, result.SuccessCount)
-	assert.Equal(t, 3, result.FailureCount)
+func TestParseAndImport_MissingHeaders(t *testing.T) {
+	t.Parallel()
+	svc, ctx, repo := setupCSVTest(t)
+	csvContent := `title,description
+Test,Desc`
+	_, err := svc.ParseAndImport(ctx, strings.NewReader(csvContent), repo)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "missing required header")
 }
 
 func TestParseAndImport_Duplicate(t *testing.T) {
