@@ -252,7 +252,8 @@ func parseLinterOutput(output string) (map[string][]linterIssue, int) {
 		}
 
 		parts := strings.Split(line, ":")
-		if len(parts) < 4 {
+		// Validation: line must start with file:line: and parts[1] must be numeric
+		if len(parts) < 3 || !isNumeric(parts[1]) {
 			continue
 		}
 
@@ -260,7 +261,7 @@ func parseLinterOutput(output string) (map[string][]linterIssue, int) {
 		issue := linterIssue{
 			file:    parts[0],
 			line:    parts[1],
-			message: strings.Join(parts[3:], ":"),
+			message: strings.Join(parts[2:], ":"),
 			linter:  linter,
 			raw:     line,
 		}
@@ -269,6 +270,18 @@ func parseLinterOutput(output string) (map[string][]linterIssue, int) {
 		totalIssues++
 	}
 	return issuesByLinter, totalIssues
+}
+
+func isNumeric(s string) bool {
+	if len(s) == 0 {
+		return false
+	}
+	for _, char := range s {
+		if char < '0' || char > '9' {
+			return false
+		}
+	}
+	return true
 }
 
 const linterUnknown = "unknown"
