@@ -23,7 +23,8 @@ duration-300{{ end }}
                 class="peer h-full w-full outline-none text-sm text-white bg-transparent pr-4 placeholder:text-white/40 font-medium"
                 id="search-header" name="q" placeholder="Search... (e.g. 'Jollof', 'Tailor')" type="search"
                 hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
-                hx-trigger="keyup changed delay:500ms, search" />
+                hx-trigger="keyup changed delay:500ms, search"
+                hx-vals='js:{type: filterState.type, city: filterState.city}' />
         </div>
     </div>
 

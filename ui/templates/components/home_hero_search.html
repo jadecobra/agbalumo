@@ -38,7 +38,8 @@
                             class="w-full h-full bg-transparent border-none focus:ring-0 text-white placeholder:text-white/50 font-light text-base outline-none"
                             placeholder="Search for 'Jollof', 'Pounded Yam'..." type="search" id="search" name="q"
                             hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
-                            hx-trigger="keyup changed delay:500ms, search">
+                            hx-trigger="keyup changed delay:500ms, search"
+                            hx-vals='js:{type: window.filterState.type, city: window.filterState.city}'>
                     </div>
 
                     <!-- Search Button (Inside Bar for Desktop, hidden on Mobile) -->
@@ -78,18 +79,18 @@
                             class="text-[9px] font-bold uppercase tracking-widest text-earth-clay opacity-80">Category</span>
                     </div>
                     <div class="flex flex-col w-full">
-                        <button type="button" data-filter-type="category" data-filter-value=""
+                        <button type="button" data-filter-type="type" data-filter-value=""
                             class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-dark/5 hover:bg-earth-dark/10 text-earth-dark transition-colors w-full border-b border-earth-dark/5">
                             All Categories
                         </button>
                         <!-- Prioritize Food Category for Ada -->
-                        <button type="button" data-filter-type="category" data-filter-value="Food"
+                        <button type="button" data-filter-type="type" data-filter-value="Food"
                             class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-ochre text-white transition-colors w-full border-b border-earth-dark/5">
                             Food ({{ index $.Counts "Food" }})
                         </button>
                         {{ range .Categories }}
                         {{ if and (ne .Name "Food") (ne .Name "Request") }}
-                        <button type="button" data-filter-type="category" data-filter-value="{{ .Name }}"
+                        <button type="button" data-filter-type="type" data-filter-value="{{ .Name }}"
                             class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-dark/5 hover:bg-earth-dark/10 text-earth-dark transition-colors w-full border-b border-earth-dark/5">
                             {{ .Name }} ({{ index $.Counts .Name }})
                         </button>

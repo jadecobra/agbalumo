@@ -1,6 +1,6 @@
-// Combined filter state
-const filterState = {
-    category: 'Food', // Default for Ada
+// Combined filter state - keys match backend query parameters
+window.filterState = {
+    type: 'Food', // Default for Ada
     city: ''
 };
 
@@ -75,11 +75,11 @@ function setupFilterToggle() {
 
             // Trigger HTMX request
             const params = new URLSearchParams();
-            if (filterState.category) params.set('type', filterState.category);
+            if (filterState.type) params.set('type', filterState.type);
             if (filterState.city) params.set('city', filterState.city);
             
-            // Include search query if present
-            const searchInput = document.getElementById('search');
+            // Gather search query from ANY search input on the page
+            const searchInput = document.getElementById('search') || document.getElementById('search-header');
             if (searchInput && searchInput.value) {
                 params.set('q', searchInput.value);
             }
