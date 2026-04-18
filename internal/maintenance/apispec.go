@@ -58,7 +58,8 @@ func ExtractCLICodeCommands(dir string) ([]string, error) {
 	var cmds []string
 	regexes := []*regexp.Regexp{
 		regexp.MustCompile(`(?m)Use:\s*"([^ "\n]+)`),
-		regexp.MustCompile(`(?m)makeSimpleCmd\("([^"]+)"`),
+		regexp.MustCompile(`(?m)makeSimpleCmd\("([^ "]+)`),
+		regexp.MustCompile(`(?m)makeAdminStatusCmd\("([^ "]+)`),
 	}
 
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {

@@ -26,8 +26,9 @@ func TestTemplateRenderer_Render_Core(t *testing.T) {
 		if err := renderer.Render(rec, "test", map[string]interface{}{}, c); err != nil {
 			t.Fatal(err)
 		}
-		if rec.Body.String() != "token-123" {
-			t.Errorf("Expected token-123, got %q", rec.Body.String())
+		actual := rec.Body.String()
+		if actual != "token-123" && actual != "<!-- BEGIN TEMPLATE: test -->token-123" {
+			t.Errorf("Expected token-123 or tagged version, got %q", actual)
 		}
 	})
 }

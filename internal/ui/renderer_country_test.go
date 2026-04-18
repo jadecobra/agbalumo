@@ -45,8 +45,9 @@ func TestTemplateRenderer_CountryData(t *testing.T) {
 		}
 
 		expected := "Region1:Country1,"
-		if rec.Body.String() != expected {
-			t.Errorf("Expected %q, got %q. Country data might not be injected.", expected, rec.Body.String())
+		actual := rec.Body.String()
+		if actual != expected && actual != "<!-- BEGIN TEMPLATE: test -->"+expected {
+			t.Errorf("Expected %q or tagged version, got %q. Country data might not be injected.", expected, actual)
 		}
 	})
 

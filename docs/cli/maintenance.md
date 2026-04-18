@@ -36,10 +36,3 @@ Run system stress tests.
 agbalumo stress
 ```
 
-### aglog
-
-Capture squad decisions.
-
-```bash
-agbalumo aglog --feature "Name" --summary "Decision"
-```
