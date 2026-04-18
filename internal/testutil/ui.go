@@ -34,23 +34,20 @@ func AssertErrorPage(t testing.TB, body string) {
 	}
 }
 
-// TestRenderer is a simple Template Renderer for testing with an in-memory template.
-type TestRenderer struct {
+// TemplateRenderer is a generic renderer for testing and real templates.
+type TemplateRenderer struct {
 	Templates *template.Template
 }
 
-func (t *TestRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
 	return t.Templates.ExecuteTemplate(w, name, data)
 }
 
-// RealTemplateRenderer parses actual files from ui/templates
-type RealTemplateRenderer struct {
-	Templates *template.Template
-}
+// TestRenderer aliases TemplateRenderer for backward compatibility.
+type TestRenderer = TemplateRenderer
 
-func (t *RealTemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	return t.Templates.ExecuteTemplate(w, name, data)
-}
+// RealTemplateRenderer aliases TemplateRenderer for backward compatibility.
+type RealTemplateRenderer = TemplateRenderer
 
 // NewMainTemplate returns a minimal template for use in unit tests.
 func NewMainTemplate() *template.Template {

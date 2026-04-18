@@ -151,12 +151,12 @@ func (r *SQLiteRepository) buildOrderClause(sortField, sortOrder string) string 
 	switch sortField {
 	case "title":
 		field = "title"
-	case "status":
-		field = "status"
-	case "featured":
-		field = "featured"
-	case "type":
-		field = "type"
+	case domain.FieldStatus:
+		field = domain.FieldStatus
+	case domain.FieldFeatured:
+		field = domain.FieldFeatured
+	case domain.FieldType:
+		field = domain.FieldType
 	}
 
 	order := "DESC"
@@ -164,10 +164,10 @@ func (r *SQLiteRepository) buildOrderClause(sortField, sortOrder string) string 
 		order = "ASC"
 	}
 
-	if field == "featured" {
-		return "featured " + order + ", created_at DESC"
+	if field == domain.FieldFeatured {
+		return domain.FieldFeatured + " " + order + ", created_at DESC"
 	}
-	return "featured DESC, " + field + " " + order
+	return domain.FieldFeatured + " DESC, " + field + " " + order
 }
 
 func (r *SQLiteRepository) getCount(ctx context.Context, table, where string, args []interface{}) (int, error) {

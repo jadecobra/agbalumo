@@ -292,7 +292,11 @@ var ciCmd = &cobra.Command{
 				return runCmd("go", "test", "-race", "-cover", "-count=1", "./...")
 			}},
 			{Name: "Checking ChiefCritic Robustness", Fn: func() error {
-				return maintenance.RunChiefCriticAudit(".", maintenance.ChiefCriticOptions{Full: true})
+				verbose, _ := cmd.Flags().GetBool("verbose")
+				return maintenance.RunChiefCriticAudit(".", maintenance.ChiefCriticOptions{
+					Full:    true,
+					Verbose: verbose,
+				})
 			}},
 			{Name: "Checking API/CLI Contract Drift", Fn: func() error { return apiSpecCmd.RunE(cmd, args) }},
 			{Name: "Checking Template Drift", Fn: func() error { return templateDriftCmd.RunE(cmd, args) }},
@@ -401,10 +405,11 @@ var critiqueCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		full, _ := cmd.Flags().GetBool("full")
 		rev, _ := cmd.Flags().GetString("baseline")
+		verbose, _ := cmd.Flags().GetBool("verbose")
 		return maintenance.RunChiefCriticAudit(".", maintenance.ChiefCriticOptions{
 			Full:       full,
 			NewFromRev: rev,
-			Verbose:    true,
+			Verbose:    verbose,
 		})
 	},
 }
@@ -506,6 +511,8 @@ func init() {
 	ciCmd.Flags().Bool("with-docker", false, "Run docker build + trivy image scan (mirrors production CI). Requires Docker and trivy.")
 	critiqueCmd.Flags().Bool("full", false, "Run full audit instead of incremental")
 	critiqueCmd.Flags().String("baseline", "", "Git revision to compare against (default: HEAD~1)")
+	critiqueCmd.Flags().Bool("verbose", false, "Restore full linter logs (disables summarization)")
+	ciCmd.Flags().Bool("verbose", false, "Restore full linter logs in summary steps")
 
 	rootCmd.AddCommand(
 		apiSpecCmd,

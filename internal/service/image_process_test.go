@@ -46,15 +46,19 @@ func TestLocalImageService_Errors(t *testing.T) {
 	t.Parallel()
 	svc, _ := setupTestImageService(t)
 
-	t.Run("CompressImage decode error", func(t *testing.T) {
-		t.Parallel()
-		_, err := svc.CompressImage(strings.NewReader("not-an-image"))
-		assert.Error(t, err)
-	})
+	testCases := []struct {
+		fn   func(io.Reader) (io.Reader, error)
+		name string
+	}{
+		{fn: svc.CompressImage, name: "CompressImage"},
+		{fn: svc.ConvertToWebP, name: "ConvertToWebP"},
+	}
 
-	t.Run("ConvertToWebP decode error", func(t *testing.T) {
-		t.Parallel()
-		_, err := svc.ConvertToWebP(strings.NewReader("not-an-image"))
-		assert.Error(t, err)
-	})
+	for _, tc := range testCases {
+		t.Run(tc.name+" decode error", func(t *testing.T) {
+			t.Parallel()
+			_, err := tc.fn(strings.NewReader("not-an-image"))
+			assert.Error(t, err)
+		})
+	}
 }

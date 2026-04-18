@@ -59,7 +59,8 @@ func (s *LocalImageService) UploadImage(ctx context.Context, file *multipart.Fil
 		return "", err
 	}
 
-	if err := util.SafeMkdir(s.UploadDir); err != nil {
+	err = util.SafeMkdir(s.UploadDir)
+	if err != nil {
 		return "", err
 	}
 
@@ -119,9 +120,11 @@ func (s *LocalImageService) compressAndScaleImage(img image.Image) (*bytes.Buffe
 
 	for {
 		buf.Reset()
-		if err := webp.Encode(&buf, img, webp.Options{Quality: quality}); err != nil {
+		ebuf, err := s.encodeToBuffer(img, quality)
+		if err != nil {
 			return nil, err
 		}
+		buf = *ebuf
 
 		if buf.Len() <= int(s.MaxFileSize) || quality <= s.MinQuality {
 			break
@@ -136,8 +139,8 @@ func (s *LocalImageService) compressAndScaleImage(img image.Image) (*bytes.Buffe
 }
 
 func (s *LocalImageService) downscaleAndRecompress(img image.Image) (*bytes.Buffer, error) {
-	var buf bytes.Buffer
-	if err := webp.Encode(&buf, img, webp.Options{Quality: s.MinQuality}); err != nil {
+	buf, err := s.encodeToBuffer(img, s.MinQuality)
+	if err != nil {
 		return nil, err
 	}
 
@@ -156,8 +159,12 @@ func (s *LocalImageService) downscaleAndRecompress(img image.Image) (*bytes.Buff
 		}
 	}
 
-	buf.Reset()
-	if err := webp.Encode(&buf, newImg, webp.Options{Quality: s.MinQuality}); err != nil {
+	return s.encodeToBuffer(newImg, s.MinQuality)
+}
+
+func (s *LocalImageService) encodeToBuffer(img image.Image, quality int) (*bytes.Buffer, error) {
+	var buf bytes.Buffer
+	if err := webp.Encode(&buf, img, webp.Options{Quality: quality}); err != nil {
 		return nil, err
 	}
 	return &buf, nil
@@ -188,12 +195,11 @@ func (s *LocalImageService) CompressImage(src io.Reader) (io.Reader, error) {
 		return nil, err
 	}
 
-	var buf bytes.Buffer
-	err = webp.Encode(&buf, img, webp.Options{Quality: s.InitialQuality})
+	ebuf, err := s.encodeToBuffer(img, s.InitialQuality)
 	if err != nil {
 		return nil, err
 	}
-	return &buf, nil
+	return ebuf, nil
 }
 
 // ConvertToWebP converts any image to WebP format

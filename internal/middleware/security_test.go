@@ -10,6 +10,10 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+func okHandler(c echo.Context) error {
+	return c.String(http.StatusOK, "ok")
+}
+
 func TestSecureHeaders(t *testing.T) {
 	t.Parallel()
 	e := echo.New()
@@ -17,9 +21,7 @@ func TestSecureHeaders(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	h := middleware.SecureHeaders(func(c echo.Context) error {
-		return c.String(http.StatusOK, "test")
-	})
+	h := middleware.SecureHeaders(okHandler)
 
 	if err := h(c); err != nil {
 		t.Fatalf("Middleware failed: %v", err)
@@ -101,9 +103,7 @@ func TestCanonicalPath(t *testing.T) {
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 
-			h := middleware.CanonicalPath(func(c echo.Context) error {
-				return c.String(http.StatusOK, "ok")
-			})
+			h := middleware.CanonicalPath(okHandler)
 
 			err := h(c)
 			assertCanonicalPathResult(t, tt.path, tt.wantStatus, err, rec)

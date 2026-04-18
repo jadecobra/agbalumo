@@ -33,7 +33,7 @@ import (
 func Setup(cfg *config.Config) (*echo.Echo, func(), error) {
 	// Initialize Structured Logging
 	var logger *slog.Logger
-	if cfg.Env == "production" {
+	if cfg.Env == domain.EnvProduction {
 		logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	} else {
 		logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
@@ -114,7 +114,7 @@ func setupMiddleware(e *echo.Echo, cfg *config.Config) {
 	}
 
 	baseURL := os.Getenv(config.EnvBaseURL)
-	isSecure := cfg.Env == "production" || strings.HasPrefix(baseURL, "https://")
+	isSecure := cfg.Env == domain.EnvProduction || strings.HasPrefix(baseURL, "https://")
 
 	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{ //nolint:gosec // false positive for CSRF config
 		TokenLookup:    "header:X-CSRF-Token,form:_csrf",
@@ -191,7 +191,7 @@ func setupBackgroundServices(ctx context.Context, cfg *config.Config, repo *sqli
 		slog.Error("Failed to seed categories", "error", err)
 	}
 
-	if cfg.Env != "production" {
+	if cfg.Env != domain.EnvProduction {
 		seeder.EnsureSeeded(ctx, repo)
 	}
 

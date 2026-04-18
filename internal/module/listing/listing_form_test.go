@@ -7,6 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const testInvalid = "invalid"
+
 func TestParseDeadline(t *testing.T) {
 	t.Parallel()
 	req := &ListingFormRequest{DeadlineDate: "2024-12-31"}
@@ -16,7 +18,7 @@ func TestParseDeadline(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 2024, l.Deadline.Year())
 
-	req.DeadlineDate = "invalid"
+	req.DeadlineDate = testInvalid
 	err = parseDeadline(req, l)
 	assert.Error(t, err)
 }
@@ -33,12 +35,12 @@ func TestParseEventDates(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 2024, l.EventStart.Year())
 
-	req.EventStart = "invalid"
+	req.EventStart = testInvalid
 	err = parseEventDates(req, l)
 	assert.Error(t, err)
 
 	req.EventStart = "2024-12-01T10:00"
-	req.EventEnd = "invalid"
+	req.EventEnd = testInvalid
 	err = parseEventDates(req, l)
 	assert.Error(t, err)
 }
@@ -52,7 +54,7 @@ func TestParseJobStartDate(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 2024, l.JobStartDate.Year())
 
-	req.JobStartDate = "invalid"
+	req.JobStartDate = testInvalid
 	err = parseJobStartDate(req, l)
 	assert.Error(t, err)
 }

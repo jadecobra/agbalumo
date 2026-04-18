@@ -27,19 +27,18 @@ func runListingStatusCmd(status domain.ListingStatus, action string) func(*cobra
 	}
 }
 
-var adminApproveCmd = &cobra.Command{
-	Use:   "approve [id]",
-	Short: "Approve a listing",
-	Args:  cobra.ExactArgs(1),
-	Run:   runListingStatusCmd(domain.ListingStatusApproved, "approve"),
+func makeAdminStatusCmd(use, short, action string, status domain.ListingStatus) *cobra.Command {
+	return &cobra.Command{
+		Use:   use,
+		Short: short,
+		Args:  cobra.ExactArgs(1),
+		Run:   runListingStatusCmd(status, action),
+	}
 }
 
-var adminRejectCmd = &cobra.Command{
-	Use:   "reject [id]",
-	Short: "Reject a listing",
-	Args:  cobra.ExactArgs(1),
-	Run:   runListingStatusCmd(domain.ListingStatusRejected, "reject"),
-}
+var adminApproveCmd = makeAdminStatusCmd("approve [id]", "Approve a listing", "approve", domain.ListingStatusApproved)
+
+var adminRejectCmd = makeAdminStatusCmd("reject [id]", "Reject a listing", "reject", domain.ListingStatusRejected)
 
 var adminFeaturedCmd = &cobra.Command{
 	Use:   "featured [id]",

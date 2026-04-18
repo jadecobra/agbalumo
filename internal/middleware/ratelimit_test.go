@@ -11,18 +11,22 @@ import (
 	"golang.org/x/time/rate"
 )
 
+func setupHandler(rl *RateLimiter) echo.HandlerFunc {
+	return rl.Middleware()(func(c echo.Context) error {
+		return c.String(http.StatusOK, "test")
+	})
+}
+
 func TestRateLimiter(t *testing.T) {
 	t.Parallel()
 	e := echo.New()
+
 	config := RateLimitConfig{
 		Rate:  10,
 		Burst: 20,
 	}
 	rl := NewRateLimiter(config)
-	mw := rl.Middleware()
-	h := mw(func(c echo.Context) error {
-		return c.String(http.StatusOK, "test")
-	})
+	h := setupHandler(rl)
 
 	t.Run("allow requests within limit", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -39,10 +43,7 @@ func TestRateLimiter(t *testing.T) {
 			Rate:  1,
 			Burst: 1,
 		})
-		strictMw := strictRl.Middleware()
-		strictH := strictMw(func(c echo.Context) error {
-			return c.String(http.StatusOK, "test")
-		})
+		strictH := setupHandler(strictRl)
 
 		// First request allowed
 		req1 := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -71,10 +72,7 @@ func TestRateLimiter_CustomConfig(t *testing.T) {
 	assert.Equal(t, rate.Limit(5), rl.config.Rate)
 	assert.Equal(t, 10, rl.config.Burst)
 
-	mw := rl.Middleware()
-	h := mw(func(c echo.Context) error {
-		return c.String(http.StatusOK, "test")
-	})
+	h := setupHandler(rl)
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
@@ -91,10 +89,7 @@ func TestRateLimiter_Concurrency(t *testing.T) {
 		Rate:  1000,
 		Burst: 1000,
 	})
-	mw := rl.Middleware()
-	h := mw(func(c echo.Context) error {
-		return c.String(http.StatusOK, "test")
-	})
+	h := setupHandler(rl)
 
 	const numRequests = 100
 	done := make(chan bool)
@@ -121,15 +116,8 @@ func TestRateLimiter_Cleanup(t *testing.T) {
 		Rate:  10,
 		Burst: 20,
 	})
-	// Mock time or wait for entries to expire is hard,
-	// but we can verify the map grows and then we manually trigger cleanup if exposed.
-	// Current implementation doesn't expose cleanup, but uses a background goroutine or similar?
-	// Actually, let's just verify basic functionality.
 
-	mw := rl.Middleware()
-	h := mw(func(c echo.Context) error {
-		return c.String(http.StatusOK, "test")
-	})
+	h := setupHandler(rl)
 
 	for i := 0; i < 5; i++ {
 		req := httptest.NewRequest(http.MethodGet, "/", nil)

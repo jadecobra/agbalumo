@@ -55,32 +55,29 @@ func TestLocalImageService_UploadImage_Validation(t *testing.T) {
 	assert.Contains(t, err.Error(), "Invalid file type")
 }
 
-func TestLocalImageService_UploadImage_JPEG(t *testing.T) {
+func TestLocalImageService_UploadImage_Formats(t *testing.T) {
 	t.Parallel()
 	svc, _ := setupTestImageService(t)
 
-	jpegData := createValidJPEG()
-	assert.NotNil(t, jpegData, "failed to create test JPEG")
+	tests := []struct {
+		name     string
+		filename string
+		data     []byte
+	}{
+		{"JPEG", "test.jpg", createValidJPEG()},
+		{"GIF", "test.gif", createValidGIF()},
+	}
 
-	fileHeader := createMultipartImageRequest(t, "image", "test.jpg", jpegData)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.NotNil(t, tt.data, "failed to create test data for "+tt.name)
+			fileHeader := createMultipartImageRequest(t, "image", tt.filename, tt.data)
 
-	path, err := svc.UploadImage(context.Background(), fileHeader, "jpeg-listing")
-	assert.NoError(t, err)
-	assert.Contains(t, path, ".webp")
-}
-
-func TestLocalImageService_UploadImage_GIF(t *testing.T) {
-	t.Parallel()
-	svc, _ := setupTestImageService(t)
-
-	gifData := createValidGIF()
-	assert.NotNil(t, gifData, "failed to create test GIF")
-
-	fileHeader := createMultipartImageRequest(t, "image", "test.gif", gifData)
-
-	path, err := svc.UploadImage(context.Background(), fileHeader, "gif-listing")
-	assert.NoError(t, err)
-	assert.Contains(t, path, ".webp")
+			path, err := svc.UploadImage(context.Background(), fileHeader, tt.name+"-listing")
+			assert.NoError(t, err)
+			assert.Contains(t, path, ".webp")
+		})
+	}
 }
 
 func TestLocalImageService_UploadImage_Compression(t *testing.T) {
@@ -132,41 +129,51 @@ func TestLocalImageService_UploadImage_Downscale(t *testing.T) {
 	assert.Contains(t, path, ".webp")
 }
 
-func TestLocalImageService_UploadImage_ExtremeCompressionTrigger(t *testing.T) {
+func TestLocalImageService_UploadImage_Triggers(t *testing.T) {
 	t.Parallel()
-	// Setup with a very low MaxFileSize to force iterative quality reduction
-	svc, _ := setupTestImageService(t, func(s *LocalImageService) {
-		s.MaxFileSize = 1024 // 1 KB
-		s.InitialQuality = 90
-		s.MinQuality = 10
-	})
 
-	// 100x100 random noise PNG usually compresses to ~2-3KB at high quality,
-	// several iterations should trigger but maybe not downscaling yet
-	pngData := createCustomPNG(100, 100)
-	fileHeader := createMultipartImageRequest(t, "image", "extreme.png", pngData)
+	tests := []struct {
+		listingName string
+		name        string
+		maxFileSize int64
+		quality     int
+		minQual     int
+		imgSize     int
+	}{
+		{
+			listingName: "extreme-compress",
+			name:        "ExtremeCompression",
+			maxFileSize: 1024,
+			quality:     90,
+			minQual:     10,
+			imgSize:     100,
+		},
+		{
+			listingName: "downscale-trigger",
+			name:        "Downscale",
+			maxFileSize: 100,
+			quality:     10,
+			minQual:     5,
+			imgSize:     200,
+		},
+	}
 
-	path, err := svc.UploadImage(context.Background(), fileHeader, "extreme-compress")
-	assert.NoError(t, err)
-	assert.Contains(t, path, ".webp")
-}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc, _ := setupTestImageService(t, func(s *LocalImageService) {
+				s.MaxFileSize = tt.maxFileSize
+				s.InitialQuality = tt.quality
+				s.MinQuality = tt.minQual
+			})
 
-func TestLocalImageService_UploadImage_DownscaleTrigger(t *testing.T) {
-	t.Parallel()
-	// Setup with a ridiculous MaxFileSize to force downscaling
-	svc, _ := setupTestImageService(t, func(s *LocalImageService) {
-		s.MaxFileSize = 100 // 100 bytes is extremely small for anything but tiny images
-		s.InitialQuality = 10
-		s.MinQuality = 5
-	})
+			pngData := createCustomPNG(tt.imgSize, tt.imgSize)
+			fileHeader := createMultipartImageRequest(t, "image", tt.name+".png", pngData)
 
-	// 200x200 random noise PNG cannot fit in 100 bytes even at quality 5
-	pngData := createCustomPNG(200, 200)
-	fileHeader := createMultipartImageRequest(t, "image", "downscale.png", pngData)
-
-	path, err := svc.UploadImage(context.Background(), fileHeader, "downscale-trigger")
-	assert.NoError(t, err)
-	assert.Contains(t, path, ".webp")
+			path, err := svc.UploadImage(context.Background(), fileHeader, tt.listingName)
+			assert.NoError(t, err)
+			assert.Contains(t, path, ".webp")
+		})
+	}
 }
 
 func TestLocalImageService_UploadImage_Errors(t *testing.T) {

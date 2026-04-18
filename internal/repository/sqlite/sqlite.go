@@ -41,7 +41,8 @@ func NewSQLiteRepository(dbPath string) (*SQLiteRepository, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := applyPragmas(writeDB); err != nil {
+	err = applyPragmas(writeDB)
+	if err != nil {
 		return nil, err
 	}
 
@@ -136,7 +137,8 @@ func (r *SQLiteRepository) applyMigrationEntry(entry os.DirEntry) error {
 		return err
 	}
 
-	if err := r.executeMigration(name, string(content)); err != nil {
+	err = r.executeMigration(name, string(content))
+	if err != nil {
 		return err
 	}
 

@@ -126,13 +126,15 @@ Check for ignored files staged for commit.
 agbalumo verify ignored-files
 ```
 
-##### perf
+##### heal
 
-Run performance audit natively.
+Perform automated remediation of quality violations.
 
 ```bash
-agbalumo verify perf
+agbalumo verify heal
 ```
+
+##### perf
 
 ##### test
 

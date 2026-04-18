@@ -115,25 +115,17 @@ func bindListingFlags(cmd *cobra.Command, isUpdate bool) {
 	}
 }
 
-func parseDate(val string, label string) time.Time {
+func parseTime(val, layout, label string) time.Time {
 	if val == "" {
 		return time.Time{}
 	}
-	t, err := time.Parse(layoutDate, val)
+	t, err := time.Parse(layout, val)
 	if err != nil {
-		slog.Warn(fmt.Sprintf("Invalid %s format, expected YYYY-MM-DD", label), "error", err)
-		return time.Time{}
-	}
-	return t
-}
-
-func parseDateTime(val string, label string) time.Time {
-	if val == "" {
-		return time.Time{}
-	}
-	t, err := time.Parse(layoutDateTime, val)
-	if err != nil {
-		slog.Warn(fmt.Sprintf("Invalid %s format, expected YYYY-MM-DDTHH:MM", label), "error", err)
+		format := "YYYY-MM-DD"
+		if layout == layoutDateTime {
+			format = "YYYY-MM-DDTHH:MM"
+		}
+		slog.Warn(fmt.Sprintf("Invalid %s format, expected %s", label, format), "error", err)
 		return time.Time{}
 	}
 	return t
@@ -145,17 +137,9 @@ func applyStringField(flag string, dst *string) {
 	}
 }
 
-func applyDate(flag, name string, dst *time.Time) {
+func applyTime(flag, layout, name string, dst *time.Time) {
 	if flag != "" {
-		if t := parseDate(flag, name); !t.IsZero() {
-			*dst = t
-		}
-	}
-}
-
-func applyDateTime(flag, name string, dst *time.Time) {
-	if flag != "" {
-		if t := parseDateTime(flag, name); !t.IsZero() {
+		if t := parseTime(flag, layout, name); !t.IsZero() {
 			*dst = t
 		}
 	}
@@ -174,10 +158,10 @@ func applyListingUpdates(listing *domain.Listing) {
 	if flagRemoveImage {
 		listing.ImageURL = ""
 	}
-	applyDate(flagDeadline, domain.FieldDeadline, &listing.Deadline)
-	applyDateTime(flagEventStart, domain.FieldEventStart, &listing.EventStart)
-	applyDateTime(flagEventEnd, domain.FieldEventEnd, &listing.EventEnd)
-	applyDateTime(flagJobStart, domain.FieldJobStart, &listing.JobStartDate)
+	applyTime(flagDeadline, layoutDate, domain.FieldDeadline, &listing.Deadline)
+	applyTime(flagEventStart, layoutDateTime, domain.FieldEventStart, &listing.EventStart)
+	applyTime(flagEventEnd, layoutDateTime, domain.FieldEventEnd, &listing.EventEnd)
+	applyTime(flagJobStart, layoutDateTime, domain.FieldJobStart, &listing.JobStartDate)
 	applyStringField(flagSkills, &listing.Skills)
 	applyStringField(flagApplyURL, &listing.JobApplyURL)
 	applyStringField(flagCompany, &listing.Company)

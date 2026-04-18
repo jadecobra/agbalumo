@@ -10,16 +10,29 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type geocodingTestCase struct {
+	name           string
+	address        string
+	apiKey         string
+	responseBody   string
+	expectedCity   string
+	responseStatus int
+	expectedError  bool
+}
+
 func TestGoogleGeocodingService_GetCity(t *testing.T) {
-	tests := []struct {
-		name           string
-		address        string
-		apiKey         string
-		responseBody   string
-		expectedCity   string
-		responseStatus int
-		expectedError  bool
-	}{
+	fallback := func(name, city, componentType string) geocodingTestCase {
+		return geocodingTestCase{
+			name:           name,
+			address:        name,
+			apiKey:         "valid-key",
+			responseStatus: http.StatusOK,
+			responseBody:   geocodeResponse("OK", comp(city, componentType)),
+			expectedCity:   city,
+		}
+	}
+
+	tests := []geocodingTestCase{
 		{
 			name:           "Success",
 			address:        "1600 Amphitheatre Parkway, Mountain View, CA",
@@ -50,30 +63,9 @@ func TestGoogleGeocodingService_GetCity(t *testing.T) {
 			responseBody:   geocodeResponse("ZERO_RESULTS"),
 			expectedCity:   "",
 		},
-		{
-			name:           "Postal Town Fallback",
-			address:        "UK Address",
-			apiKey:         "valid-key",
-			responseStatus: http.StatusOK,
-			responseBody:   geocodeResponse("OK", comp("London Town", "postal_town")),
-			expectedCity:   "London Town",
-		},
-		{
-			name:           "Neighborhood Fallback",
-			address:        "NY Address",
-			apiKey:         "valid-key",
-			responseStatus: http.StatusOK,
-			responseBody:   geocodeResponse("OK", comp("Brooklyn", "neighborhood")),
-			expectedCity:   "Brooklyn",
-		},
-		{
-			name:           "Admin Area Level 2 Fallback",
-			address:        "County Level",
-			apiKey:         "valid-key",
-			responseStatus: http.StatusOK,
-			responseBody:   geocodeResponse("OK", comp("Some County", "administrative_area_level_2")),
-			expectedCity:   "Some County",
-		},
+		fallback("Postal Town Fallback", "London Town", "postal_town"),
+		fallback("Neighborhood Fallback", "Brooklyn", "neighborhood"),
+		fallback("Admin Area Level 2 Fallback", "Some County", "administrative_area_level_2"),
 		{
 			name:           "API Error Status",
 			address:        "Any",
@@ -105,14 +97,7 @@ func TestGoogleGeocodingService_GetCity(t *testing.T) {
 			responseBody:   `{"status": "OK", "results": []}`,
 			expectedCity:   "",
 		},
-		{
-			name:           "No City Components",
-			address:        "Any",
-			apiKey:         "valid-key",
-			responseStatus: http.StatusOK,
-			responseBody:   geocodeResponse("OK", comp("USA", "country")),
-			expectedCity:   "",
-		},
+		fallback("No City Components", "", "country"),
 	}
 
 	for _, tt := range tests {

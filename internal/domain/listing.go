@@ -2,6 +2,7 @@ package domain
 
 import (
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -22,14 +23,14 @@ var validationRules = []validationRule{
 }
 
 var lengthRules = []struct {
-	field func(*Listing) int
-	err   string
+	field func(*Listing) string
+	name  string
 	limit int
 }{
-	{field: func(l *Listing) int { return len(l.Title) }, limit: 100, err: "title cannot exceed 100 characters"},
-	{field: func(l *Listing) int { return len(l.Description) }, limit: 2000, err: "description cannot exceed 2000 characters"},
-	{field: func(l *Listing) int { return len(l.Company) }, limit: 100, err: "company name cannot exceed 100 characters"},
-	{field: func(l *Listing) int { return len(l.Address) }, limit: 200, err: "address cannot exceed 200 characters"},
+	{name: "title", field: func(l *Listing) string { return l.Title }, limit: 100},
+	{name: "description", field: func(l *Listing) string { return l.Description }, limit: 2000},
+	{name: "company name", field: func(l *Listing) string { return l.Company }, limit: 100},
+	{name: "address", field: func(l *Listing) string { return l.Address }, limit: 200},
 }
 
 var jobFields = []struct {
@@ -178,8 +179,8 @@ func (l *Listing) applyRules() error {
 		}
 	}
 	for _, rule := range lengthRules {
-		if rule.field(l) > rule.limit {
-			return errors.New(rule.err)
+		if len(rule.field(l)) > rule.limit {
+			return fmt.Errorf("%s cannot exceed %d characters", rule.name, rule.limit)
 		}
 	}
 	if l.Type != Job {
