@@ -1,7 +1,7 @@
 # ChiefCritic Optimization Checkpoint - 2026-04-18
 
 ## Current State
-The transformation of ChiefCritic into an "Agent-Native" CI gate is complete. The codebase has been remediated of high-priority technical debt (shadowing, constant duplication, validation overlap).
+The transformation of ChiefCritic into an "Agent-Native" CI gate is complete for primary features. We have successfully addressed the "Ada Persona" filter bug while maintaining codebase hygiene through selective remediation.
 
 ### ✅ Completed Refactors
 - **ChiefCritic Summary Logic**: Implemented `parseLinterOutput` and `printTopIssues` with a global cap of 25 issues and a per-linter cap of 5.
@@ -10,19 +10,22 @@ The transformation of ChiefCritic into an "Agent-Native" CI gate is complete. Th
 - **Constant Centralization**: Moved `production`, `featured`, and test IDs to centralized domain/testutil constants.
 - **Validation Deduplication**: Refactored `listing.go` validation to use a data-driven mapping.
 - **CLI Helper Consolidation**: Unified `parseTime` and `applyTime` logic in `cmd/shared.go`.
+- **City Filter Synchronization**: Standardized `type` and `city` parameters across HTMX/JS/Go layers.
+- **CSV Test Deduplication**: Migrated `internal/service/csv_test.go` to a table-driven test structure, removing legacy clone groups.
 
 ---
 
 ## Errors Encountered & Resolved
-- **Compilation Failure (Untagged Structs)**: Running `verify heal` triggered `fieldalignment -fix`, which reordered fields in `lengthRules`. Because the struct literals were untagged, the compiler failed due to type mismatches.
-  - **Fix**: Implemented **tagged struct literals** to ensure the code is immune to automated memory optimizations.
-- **High Cognitive Complexity**: The initial summary logic was too dense for `gocognit` gates.
-  - **Fix**: Extracted logic into modular helpers (`parseLinterOutput`, `printTopIssues`, etc.).
+- **HTMX State Reset**: When clicking a city filter, the active category ("Food") was being cleared due to missing request parameters.
+  - **Fix**: Synchronized `window.filterState` with all HTMX search requests via `hx-vals`.
+- **CI Lint Disparity**: Production CI checks the full codebase, while local `precommit` uses `--new-from-rev`. This hid legacy `dupl` violations during development.
+  - **Resolution**: Acknowledged legacy debt (151 issues remaining) and refactored `csv_test.go` as a pilot for module-level remediation.
 
 ---
 
 ## Planned Next Steps
-- [ ] **Remediate `dupl` Clones**: Address the 260 remaining clone groups reported by `dupl`.
-- [ ] **Audit Verbosity Verification**: Confirm that `--verbose` restores full logs.
-- [ ] **CI Integration**: Ensure summarized gates are active in `ci.yml`.
-- [ ] **Learn Workflow Trigger**: Verify `💣 SYSTEMIC` warning prompts.
+- [ ] **Systemic `dupl` Remediation**: Address the remaining 151 clone groups (reduced from 260) in Repositories and Domain packages.
+- [ ] **Auth Helper Consolidation**: Migrate remaining manual session checks to `user.RequireUserAPI` or centralized middlewares.
+- [ ] **HTMX State Persistence Audit**: Ensure `window.filterState` survives browser back/forward navigation and soft reloads.
+- [ ] **CI Pipeline Hardening**: Evaluate switching production CI to incremental mode if legacy debt cleanup is deprioritized.
+
