@@ -103,12 +103,12 @@
                             class="text-[9px] font-bold uppercase tracking-widest text-earth-clay opacity-80">Location</span>
                     </div>
                     <div class="flex flex-col w-full">
-                        <button type="button" data-filter-type="location" data-filter-value=""
+                        <button type="button" data-filter-type="city" data-filter-value=""
                             class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-ochre text-white transition-colors w-full border-b border-earth-dark/5">
                             All Locations
                         </button>
                         {{ range .Locations }}
-                        <button type="button" data-filter-type="location" data-filter-value="{{ . }}"
+                        <button type="button" data-filter-type="city" data-filter-value="{{ . }}"
                             class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-dark/5 hover:bg-earth-dark/10 text-earth-dark transition-colors w-full border-b border-earth-dark/5">
                             {{ . }}
                         </button>

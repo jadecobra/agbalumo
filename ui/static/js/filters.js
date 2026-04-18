@@ -77,6 +77,12 @@ function setupFilterToggle() {
             const params = new URLSearchParams();
             if (filterState.category) params.set('type', filterState.category);
             if (filterState.city) params.set('city', filterState.city);
+            
+            // Include search query if present
+            const searchInput = document.getElementById('search');
+            if (searchInput && searchInput.value) {
+                params.set('q', searchInput.value);
+            }
 
             const url = `/listings/fragment?${params.toString()}`;
             htmx.ajax('GET', url, { target: '#listings-container', indicator: '#listings-loading' });
