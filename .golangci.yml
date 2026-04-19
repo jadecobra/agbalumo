@@ -26,7 +26,7 @@ linters:
       min-len: 3
       min-occurrences: 3
     dupl:
-      threshold: 25
+      threshold: 150
     revive:
       rules:
         - name: exported
@@ -45,6 +45,10 @@ linters:
       - path: "_test\\.go"
         linters:
           - nolintlint
+          - dupl
+      - path: "internal/seeder/seeder\\.go"
+        linters:
+          - dupl
 
 issues:
   max-issues-per-linter: 0

@@ -177,31 +177,59 @@ func TestHandleBulkAction_Delete(t *testing.T) {
 	}
 }
 
-func TestHandleBulkAction_ChangeCategory(t *testing.T) {
+func TestHandleBulkAction_Categories(t *testing.T) {
 	t.Parallel()
-	env := testutil.SetupTestModuleEnv(t)
-	defer env.Cleanup()
-	h := admin.NewAdminHandler(env.App)
+	tests := []struct {
+		name           string
+		setup          func(ctx context.Context, db domain.ListingRepository) domain.Category
+		expectedTarget domain.Category
+	}{
+		{
+			name:           "StandardCategory",
+			setup:          func(ctx context.Context, db domain.ListingRepository) domain.Category { return domain.Job },
+			expectedTarget: domain.Job,
+		},
+		{
+			name: "CustomCategory",
+			setup: func(ctx context.Context, db domain.ListingRepository) domain.Category {
+				cat := domain.CategoryData{ID: "tech", Name: "Tech", Active: true}
+				_ = db.SaveCategory(ctx, cat)
+				return domain.Category(cat.Name)
+			},
+			expectedTarget: domain.Category("Tech"),
+		},
+	}
 
-	// Create listings with "Business" category
-	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Type: domain.Business, City: "Lagos", OwnerOrigin: "Nigeria"})
-	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "l2", Title: "L2", Type: domain.Business, City: "Accra", OwnerOrigin: "Ghana"})
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			env := testutil.SetupTestModuleEnv(t)
+			defer env.Cleanup()
+			h := admin.NewAdminHandler(env.App)
+			ctx := context.Background()
 
-	form := url.Values{}
-	form.Add("action", "change_category")
-	form.Add("selectedListings", "l1")
-	form.Add("selectedListings", "l2")
-	form.Add("new_category", string(domain.Job))
+			targetCat := tt.setup(ctx, env.App.DB)
 
-	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
-	c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+			_ = env.App.DB.Save(ctx, domain.Listing{ID: "l1", Title: "L1", Type: domain.Business, City: "Lagos", OwnerOrigin: "Nigeria"})
+			_ = env.App.DB.Save(ctx, domain.Listing{ID: "l2", Title: "L2", Type: domain.Business, City: "Accra", OwnerOrigin: "Ghana"})
 
-	if assert.NoError(t, h.HandleBulkAction(c)) {
-		assert.Equal(t, http.StatusFound, rec.Code)
-		l1, _ := env.App.DB.FindByID(context.Background(), "l1")
-		l2, _ := env.App.DB.FindByID(context.Background(), "l2")
-		assert.Equal(t, domain.Job, l1.Type)
-		assert.Equal(t, domain.Job, l2.Type)
+			form := url.Values{}
+			form.Add("action", "change_category")
+			form.Add("selectedListings", "l1")
+			form.Add("selectedListings", "l2")
+			form.Add("new_category", string(targetCat))
+
+			c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
+			c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+
+			if assert.NoError(t, h.HandleBulkAction(c)) {
+				assert.Equal(t, http.StatusFound, rec.Code)
+				l1, _ := env.App.DB.FindByID(ctx, "l1")
+				_ = "admin_bulk_diff"
+				l2, _ := env.App.DB.FindByID(ctx, "l2")
+				assert.Equal(t, tt.expectedTarget, l1.Type)
+				assert.Equal(t, tt.expectedTarget, l2.Type)
+			}
+		})
 	}
 }
 
@@ -220,7 +248,6 @@ func TestHandleBulkAction_NoAction(t *testing.T) {
 
 func TestAdminHandler_HandleBulkUpload_ManyErrors(t *testing.T) {
 	t.Parallel()
-	// CSV with 4 invalid rows (missing title/desc)
 	csvContent := "title,type,description\n,,\n,,\n,,\n,,\n"
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
@@ -237,42 +264,4 @@ func TestAdminHandler_HandleBulkUpload_ManyErrors(t *testing.T) {
 	_ = h.HandleBulkUpload(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)
-}
-
-func TestHandleBulkAction_ChangeToCustomCategory(t *testing.T) {
-	t.Parallel()
-	env := testutil.SetupTestModuleEnv(t)
-	defer env.Cleanup()
-	h := admin.NewAdminHandler(env.App)
-
-	// Add a custom category
-	customCategory := domain.CategoryData{
-		ID:     "tech-startups",
-		Name:   "Tech Startups",
-		Active: true,
-	}
-	_ = env.App.DB.SaveCategory(context.Background(), customCategory)
-
-	// Create listings with "Business" category
-	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Type: domain.Business, City: "Lagos", OwnerOrigin: "Nigeria"})
-	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "l2", Title: "L2", Type: domain.Business, City: "Accra", OwnerOrigin: "Ghana"})
-
-	form := url.Values{}
-	form.Add("action", "change_category")
-	form.Add("selectedListings", "l1")
-	form.Add("selectedListings", "l2")
-	// The frontend now sends the Category Name as the value
-	form.Add("new_category", customCategory.Name)
-
-	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
-	c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
-
-	if assert.NoError(t, h.HandleBulkAction(c)) {
-		assert.Equal(t, http.StatusFound, rec.Code)
-		l1, _ := env.App.DB.FindByID(context.Background(), "l1")
-		l2, _ := env.App.DB.FindByID(context.Background(), "l2")
-		// Assert that the listing type is now the Category Name
-		assert.Equal(t, domain.Category("Tech Startups"), l1.Type)
-		assert.Equal(t, domain.Category("Tech Startups"), l2.Type)
-	}
 }

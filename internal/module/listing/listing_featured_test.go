@@ -12,101 +12,141 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHandleHome_FeaturedPrioritization(t *testing.T) {
+func TestHandleHome_Featured(t *testing.T) {
 	t.Parallel()
-	c, rec, env, h := setupFeaturedTest(t, http.MethodGet, "/")
-	defer env.Cleanup()
-
-	// Seed data (Defaulting to Food for Ada)
-	testutil.SaveTestListing(t, env.App.DB, "f1", "Featured 1", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Food })
-	testutil.SaveTestListing(t, env.App.DB, "f2", "Featured 2", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Food })
-	testutil.SaveTestListing(t, env.App.DB, "r1", "Regular 1", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Food })
-	testutil.SaveTestListing(t, env.App.DB, "r2", "Regular 2", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Food })
-
-	if err := h.HandleHome(c); err != nil {
-		t.Fatalf("HandleHome failed: %v", err)
+	tests := []struct {
+		seed       func(t *testing.T, db domain.ListingRepository)
+		assertions func(t *testing.T, body string)
+		name       string
+	}{
+		{
+			name: "Prioritization",
+			seed: func(t *testing.T, db domain.ListingRepository) {
+				for _, s := range []struct {
+					id       string
+					title    string
+					cat      domain.Category
+					featured bool
+				}{
+					{"f1", "Featured 1", domain.Food, true},
+					{"f2", "Featured 2", domain.Food, true},
+					{"r1", "Regular 1", domain.Food, false},
+				} {
+					testutil.SaveTestListing(t, db, s.id, s.title, func(l *domain.Listing) {
+						l.Type = s.cat
+						l.Featured = s.featured
+					})
+				}
+			},
+			assertions: func(t *testing.T, body string) {
+				assert.Contains(t, body, "Featured 1")
+				assert.Contains(t, body, "Featured 2")
+				assert.Contains(t, body, "Regular 1")
+			},
+		},
+		{
+			name: "EmptyCategory_DefaultsToFood",
+			seed: func(t *testing.T, db domain.ListingRepository) {
+				for _, s := range []struct {
+					cat   domain.Category
+					id    string
+					title string
+				}{
+					{cat: domain.Food, id: "f1", title: "Featured Food"},
+					{cat: domain.Event, id: "f2", title: "Featured Event"},
+				} {
+					testutil.SaveTestListing(t, db, s.id, s.title, func(l *domain.Listing) {
+						l.Featured = true
+						l.Type = s.cat
+					})
+				}
+			},
+			assertions: func(t *testing.T, body string) {
+				assert.Contains(t, body, "Featured Food")
+				assert.NotContains(t, body, "Featured Event")
+			},
+		},
 	}
 
-	assert.Contains(t, rec.Body.String(), "Featured 1")
-	assert.Contains(t, rec.Body.String(), "Featured 2")
-	assert.Contains(t, rec.Body.String(), "Regular 1")
-	assert.Contains(t, rec.Body.String(), "Regular 2")
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c, rec, env, h := setupFeaturedTest(t, http.MethodGet, "/")
+			defer env.Cleanup()
+			tt.seed(t, env.App.DB)
+			if err := h.HandleHome(c); err != nil {
+				t.Fatalf("HandleHome failed: %v", err)
+			}
+			tt.assertions(t, rec.Body.String())
+		})
+	}
 }
 
-func TestHandleHome_FeaturedListings_EmptyCategory(t *testing.T) {
+func TestHandleFragment_Featured(t *testing.T) {
 	t.Parallel()
-	c, rec, env, h := setupFeaturedTest(t, http.MethodGet, "/")
-	defer env.Cleanup()
-
-	// Seed data: Featured listings across MULTIPLE categories (One Food, one Business, one Event)
-	testutil.SaveTestListing(t, env.App.DB, "f1", "Featured Food", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Food })
-	testutil.SaveTestListing(t, env.App.DB, "f2", "Featured Event", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Event })
-	testutil.SaveTestListing(t, env.App.DB, "r1", "Regular Food", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Food })
-
-	if err := h.HandleHome(c); err != nil {
-		t.Fatalf("HandleHome failed: %v", err)
+	tests := []struct {
+		seed       func(t *testing.T, db domain.ListingRepository)
+		assertions func(t *testing.T, body string)
+		name       string
+		target     string
+	}{
+		{
+			name:   "BasicPrioritization",
+			target: "/listings/fragment?page=1",
+			seed: func(t *testing.T, db domain.ListingRepository) {
+				for _, s := range []struct {
+					id       string
+					title    string
+					featured bool
+				}{
+					{"f1", "Featured 1", true},
+					{"r1", "Regular 1", false},
+				} {
+					testutil.SaveTestListing(t, db, s.id, s.title, func(l *domain.Listing) {
+						l.Featured = s.featured
+					})
+				}
+			},
+			assertions: func(t *testing.T, body string) {
+				assert.Contains(t, body, "Featured 1")
+				assert.Contains(t, body, "Regular 1")
+			},
+		},
+		{
+			name:   "CategoryFilter",
+			target: "/listings/fragment?type=Business&page=1",
+			seed: func(t *testing.T, db domain.ListingRepository) {
+				for _, s := range []struct {
+					id    string
+					title string
+					cat   domain.Category
+				}{
+					{"f1", "Featured Business", domain.Business},
+					{"f2", "Featured Event", domain.Event},
+				} {
+					testutil.SaveTestListing(t, db, s.id, s.title, func(l *domain.Listing) {
+						l.Featured = true
+						l.Type = s.cat
+					})
+				}
+			},
+			assertions: func(t *testing.T, body string) {
+				assert.Contains(t, body, "Featured Business")
+				assert.NotContains(t, body, "Featured Event")
+			},
+		},
 	}
 
-	body := rec.Body.String()
-
-	// Since HandleHome now defaults to Food, only "Featured Food" should appear
-	assert.Contains(t, body, "Featured Food")
-	assert.NotContains(t, body, "Featured Event")
-}
-
-func TestHandleFragment_FeaturedPrioritization(t *testing.T) {
-	t.Parallel()
-	c, rec, env, h := setupFeaturedTest(t, http.MethodGet, "/listings?page=1")
-	defer env.Cleanup()
-
-	// Seed data
-	testutil.SaveTestListing(t, env.App.DB, "f1", "Featured 1", func(l *domain.Listing) { l.Featured = true })
-	testutil.SaveTestListing(t, env.App.DB, "r1", "Regular 1", func(l *domain.Listing) { l.Featured = false })
-
-	if err := h.HandleFragment(c); err != nil {
-		t.Fatalf("HandleFragment failed: %v", err)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c, rec, env, h := setupFeaturedTest(t, http.MethodGet, tt.target)
+			defer env.Cleanup()
+			tt.seed(t, env.App.DB)
+			if err := h.HandleFragment(c); err != nil {
+				t.Fatalf("HandleFragment failed: %v", err)
+			}
+			tt.assertions(t, rec.Body.String())
+		})
 	}
-
-	assert.Contains(t, rec.Body.String(), "Featured 1")
-	assert.Contains(t, rec.Body.String(), "Regular 1")
-}
-
-func TestHandleFragment_FeaturedPrioritization_Page2(t *testing.T) {
-	t.Parallel()
-	c, rec, env, h := setupFeaturedTest(t, http.MethodGet, "/listings/fragment?page=1")
-	defer env.Cleanup()
-
-	testutil.SaveTestListing(t, env.App.DB, "f1", "Featured 1", func(l *domain.Listing) { l.Featured = true })
-	testutil.SaveTestListing(t, env.App.DB, "r1", "Regular 1", func(l *domain.Listing) { l.Featured = false })
-
-	if err := h.HandleFragment(c); err != nil {
-		t.Fatalf("HandleFragment failed: %v", err)
-	}
-
-	assert.Contains(t, rec.Body.String(), "Featured 1")
-}
-
-func TestHandleFragment_FeaturedListings_CategoryFilter(t *testing.T) {
-	t.Parallel()
-	// Requesting fragment for 'Business' category, page 1
-	c, rec, env, h := setupFeaturedTest(t, http.MethodGet, "/listings/fragment?type=Business&page=1")
-	defer env.Cleanup()
-
-	// Seed data: Featured listings across MULTIPLE categories
-	testutil.SaveTestListing(t, env.App.DB, "f1", "Featured Business", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Business })
-	testutil.SaveTestListing(t, env.App.DB, "f2", "Featured Event", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Event })
-	testutil.SaveTestListing(t, env.App.DB, "r1", "Regular Business", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Business })
-
-	if err := h.HandleFragment(c); err != nil {
-		t.Fatalf("HandleFragment failed: %v", err)
-	}
-
-	body := rec.Body.String()
-
-	// Assert only the featured listing for 'business' category is present
-	assert.Contains(t, body, "Featured Business")
-	// Assert the featured listing for 'event' category is NOT present
-	assert.NotContains(t, body, "Featured Event")
 }
 
 func setupFeaturedTest(t *testing.T, method, target string) (echo.Context, *httptest.ResponseRecorder, testutil.ModuleTestEnv, *listing.ListingHandler) {
