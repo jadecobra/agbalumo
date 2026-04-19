@@ -26,6 +26,11 @@ func SetupTestModuleEnv(t *testing.T) ModuleTestEnv {
 	}
 }
 
+// SeedStandardData populates the environment's database with a representative set of listings.
+func (e ModuleTestEnv) SeedStandardData(t *testing.T) {
+	SeedStandardData(t, e.App.DB)
+}
+
 func SetupModuleContext(method, target string, body io.Reader) (echo.Context, *httptest.ResponseRecorder) {
 	return SetupTestContext(method, target, body)
 }

@@ -1,7 +1,7 @@
 {{ define "navigation" }}
 <!-- Unified Top Header (Glassmorphic) -->
-<header class="{{ block " header_classes" . }}sticky top-0 z-[110] w-full backdrop-blur-md bg-earth-dark border-b
-    border-earth-clay/20 transition-all duration-300{{ end }}">
+<header class="{{ block "header_classes" . }}sticky top-0 z-[110] w-full backdrop-blur-md bg-earth-dark border-b
+    border-earth-clay/20 transition-all duration-300{{ end }}" data-template-file="ui/templates/components/navigation.html">
     {{ block "header_content" . }}
     <!-- Mobile Full Width Logo -->
     <div class="md:hidden flex flex-col justify-center items-center w-full py-2 border-b border-white/10">
