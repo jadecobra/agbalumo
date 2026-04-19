@@ -95,7 +95,4 @@ function setupFilterToggle() {
     });
 }
 
-// Global initialization
-document.addEventListener('DOMContentLoaded', () => {
-    setupFilterToggle();
-});
+// Global initialization removed - now managed centrally by app.js initApp()
