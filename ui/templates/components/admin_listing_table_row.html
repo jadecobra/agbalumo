@@ -1,7 +1,10 @@
 {{ define "admin_listing_table_row" }}
-<tr id="listing-row-{{ .ID }}" hx-trigger="listing-updated-{{.ID}} from:body" hx-get="/admin/listings/{{.ID}}/row" hx-swap="outerHTML" class="{{ if not .IsActive }}bg-white/5{{ end }} hover:bg-white/5 transition-colors">
+<tr id="listing-row-{{ .ID }}" 
+    data-agent-template="admin_listing_table_row.html"
+    hx-trigger="listing-updated-{{.ID}} from:body" hx-get="/admin/listings/{{.ID}}/row" hx-swap="outerHTML" class="{{ if not .IsActive }}bg-white/5{{ end }} hover:bg-white/5 transition-colors">
     <td class="px-6 py-4 whitespace-nowrap">
         <input type="checkbox" name="selectedListings" value="{{ .ID }}"
+            data-testid="ag-listing-checkbox-{{ .ID }}"
             class="row-checkbox border-white/10 text-earth-ochre shadow-sm focus:border-earth-ochre focus:ring focus:ring-earth-ochre focus:ring-opacity-50 bg-white/5">
     </td>
     <td class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-white/50 tracking-[0.1em]">
@@ -9,6 +12,8 @@
     </td>
     <td class="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider">
         <a href="#" hx-get="/listings/{{ .ID }}" hx-target="body" hx-swap="beforeend"
+            data-testid="ag-listing-title-link-{{ .ID }}"
+            data-agent-template="admin_listing_table_row.html"
             class="hover:text-earth-ochre transition-colors underline decoration-white/20 underline-offset-4">{{
             .Title
             }}</a>
@@ -43,6 +48,7 @@
     </td>
     <td class="px-6 py-4 whitespace-nowrap text-center">
         <button hx-post="/admin/listings/{{ .ID }}/featured"
+            data-testid="ag-listing-feature-btn-{{ .ID }}"
             hx-vals='{"featured": "{{ if not .Featured }}true{{ else }}false{{ end }}"}' hx-target="closest tr"
             hx-swap="outerHTML"
             class="px-3 py-1 text-[10px] font-bold uppercase tracking-widest transition-all {{ if .Featured }}bg-earth-ochre text-earth-dark{{ else }}bg-white/5 text-white/70 hover:bg-white/20{{ end }}"
@@ -53,11 +59,13 @@
     <td
         class="px-6 py-4 whitespace-nowrap text-right space-x-2 flex justify-end items-center h-full pt-6 border-0 align-middle">
         <a href="#" hx-get="/listings/{{ .ID }}/edit?target=listing-row-{{ .ID }}&source=admin" hx-target="body" hx-swap="beforeend"
+            data-testid="ag-listing-edit-btn-{{ .ID }}"
             class="w-8 h-8 inline-flex items-center justify-center border border-white/10 text-white/50 hover:text-earth-ochre hover:border-earth-ochre transition-all"
             title="Edit Listing">
             <span class="material-symbols-outlined text-[16px]">edit</span>
         </a>
         <a href="/admin/listings/delete-confirm?id={{ .ID }}"
+            data-testid="ag-listing-delete-btn-{{ .ID }}"
             class="w-8 h-8 inline-flex items-center justify-center border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white transition-all"
             title="Delete Listing">
             <span class="material-symbols-outlined text-[16px]">delete</span>

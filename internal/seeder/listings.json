@@ -1,0 +1,243 @@
+[
+  {
+    "group": "Businesses",
+    "listings": [
+      {
+        "title": "Lagos Import Export",
+        "owner_origin": "Nigeria",
+        "type": "Business",
+        "anchor": "Import/Export",
+        "description": "Major distributor of Nigerian goods in Texas.",
+        "city": "Dallas",
+        "address": "1001 Main St, Dallas, TX 75202",
+        "contact_email": "contact@lagosie.com"
+      },
+      {
+        "title": "Accra Market Square",
+        "owner_origin": "Ghana",
+        "type": "Business",
+        "anchor": "Grocery",
+        "description": "Authentic Ghanaian groceries and spices.",
+        "city": "Plano",
+        "address": "2002 Legacy Dr, Plano, TX 75024",
+        "contact_phone": "+155510101"
+      },
+      {
+        "title": "Dakar Textiles",
+        "owner_origin": "Senegal",
+        "type": "Business",
+        "anchor": "Textiles",
+        "description": "Premium fabrics imported from Senegal.",
+        "city": "Fort Worth",
+        "address": "3003 Commerce St, Fort Worth, TX 76102",
+        "contact_phone": "+155510102"
+      },
+      {
+        "title": "Monrovia Money Transfer",
+        "owner_origin": "Liberia",
+        "type": "Business",
+        "anchor": "Finance",
+        "description": "Secure money transfer services to Liberia.",
+        "city": "Arlington",
+        "address": "4004 Cooper St, Arlington, TX 76010",
+        "contact_email": "money@monrovia.com"
+      },
+      {
+        "title": "Freetown Logistics",
+        "owner_origin": "Sierra Leone",
+        "type": "Business",
+        "anchor": "Logistics",
+        "description": "Shipping and freight services to West Africa.",
+        "city": "Irving",
+        "address": "5005 O'Connor Blvd, Irving, TX 75039",
+        "contact_phone": "+155510103"
+      },
+      {
+        "title": "Bamako Braid Shop",
+        "owner_origin": "Mali",
+        "type": "Business",
+        "anchor": "Beauty",
+        "description": "Expert hair braiding and styling.",
+        "city": "Garland",
+        "address": "6006 Garland Ave, Garland, TX 75040",
+        "contact_phone": "+155510104"
+      },
+      {
+        "title": "Cotonou Car Dealership",
+        "owner_origin": "Benin",
+        "type": "Business",
+        "anchor": "Automotive",
+        "description": "Used cars for export or local sale.",
+        "city": "Grand Prairie",
+        "address": "7007 Belt Line Rd, Grand Prairie, TX 75052",
+        "contact_email": "cars@cotonou.com"
+      },
+      {
+        "title": "Lome Electronics",
+        "owner_origin": "Togo",
+        "type": "Business",
+        "anchor": "Electronics",
+        "description": "Repair and sales of phones and laptops.",
+        "city": "Richardson",
+        "address": "8008 Campbell Rd, Richardson, TX 75080",
+        "contact_phone": "+155510105"
+      },
+      {
+        "title": "Conakry Construction Co.",
+        "owner_origin": "Guinea",
+        "type": "Business",
+        "anchor": "Construction",
+        "description": "Commercial and residential construction.",
+        "city": "McKinney",
+        "address": "9009 Eldorado Pkwy, McKinney, TX 75070",
+        "contact_phone": "+155510106"
+      },
+      {
+        "title": "Ouaga Office Supplies",
+        "owner_origin": "Burkina Faso",
+        "type": "Business",
+        "anchor": "Retail",
+        "description": "Office furniture and supplies.",
+        "city": "Mesquite",
+        "address": "1010 Town East Blvd, Mesquite, TX 75150",
+        "contact_email": "supplies@ouaga.com"
+      }
+    ]
+  },
+  {
+    "group": "Services",
+    "listings": [
+      {
+        "title": "Yoruba Language Tutors",
+        "owner_origin": "Nigeria",
+        "type": "Service",
+        "anchor": "Education",
+        "description": "Learn to speak Yoruba fluently.",
+        "city": "Dallas",
+        "address": "1101 Ross Ave, Dallas, TX 75204",
+        "contact_phone": "+155520201"
+      },
+      {
+        "title": "Ashanti Web Design",
+        "owner_origin": "Ghana",
+        "type": "Service",
+        "anchor": "Tech",
+        "description": "Professional websites for small businesses.",
+        "city": "Frisco",
+        "address": "1202 Dallas Pkwy, Frisco, TX 75034",
+        "contact_email": "web@ashanti.com"
+      },
+      {
+        "title": "Wolof Interpreters",
+        "owner_origin": "Senegal",
+        "type": "Service",
+        "anchor": "Translation",
+        "description": "Official interpretation services.",
+        "city": "Dallas",
+        "address": "1303 Pacific Ave, Dallas, TX 75201",
+        "contact_phone": "+155520202"
+      },
+      {
+        "title": "Monrovia Legal Aid",
+        "owner_origin": "Liberia",
+        "type": "Service",
+        "anchor": "Legal",
+        "description": "Immigration and family law assistance.",
+        "city": "Fort Worth",
+        "address": "1404 Main St, Fort Worth, TX 76102",
+        "contact_email": "legal@monrovia.com"
+      },
+      {
+        "title": "Freetown Tax Prep",
+        "owner_origin": "Sierra Leone",
+        "type": "Service",
+        "anchor": "Finance",
+        "description": "Tax preparation for individuals and businesses.",
+        "city": "Arlington",
+        "address": "1505 Division St, Arlington, TX 76011",
+        "contact_phone": "+155520203"
+      },
+      {
+        "title": "Bamako Moving Services",
+        "owner_origin": "Mali",
+        "type": "Service",
+        "anchor": "Moving",
+        "description": "Affordable local and long-distance moving.",
+        "city": "Plano",
+        "address": "1606 Preston Rd, Plano, TX 75093",
+        "contact_phone": "+155520204"
+      },
+      {
+        "title": "Cotonou Cleaning Crew",
+        "owner_origin": "Benin",
+        "type": "Service",
+        "anchor": "Cleaning",
+        "description": "Residential and commercial cleaning.",
+        "city": "Irving",
+        "address": "1707 MacArthur Blvd, Irving, TX 75061",
+        "contact_email": "clean@cotonou.com"
+      },
+      {
+        "title": "Lome IT Support",
+        "owner_origin": "Togo",
+        "type": "Service",
+        "anchor": "Tech",
+        "description": "Computer repair and network setup.",
+        "city": "Richardson",
+        "address": "1808 Arapaho Rd, Richardson, TX 75080",
+        "contact_phone": "+155520205"
+      },
+      {
+        "title": "Conakry Caregivers",
+        "owner_origin": "Guinea",
+        "type": "Service",
+        "anchor": "Health",
+        "description": "Home health aides for seniors.",
+        "city": "Garland",
+        "address": "1909 Northwest Hwy, Garland, TX 75041",
+        "contact_phone": "+155520206"
+      },
+      {
+        "title": "Niamey Notary Public",
+        "owner_origin": "Niger",
+        "type": "Service",
+        "anchor": "Legal",
+        "description": "Mobile notary services.",
+        "city": "Mesquite",
+        "address": "2010 Galloway Ave, Mesquite, TX 75149",
+        "contact_email": "notary@niamey.com"
+      }
+    ]
+  },
+  {
+    "group": "Food",
+    "listings": [
+      {
+        "title": "Mama Put Dallas",
+        "owner_origin": "Nigeria",
+        "type": "Food",
+        "anchor": "Restaurant",
+        "description": "Home cooked meals: Pounded yam, Egusi, Suya.",
+        "city": "Dallas",
+        "address": "5201 Forest Ln, Dallas, TX 75243",
+        "contact_email": "mama@put.com",
+        "heat_level": 4,
+        "regional_specialty": "Yoruba",
+        "top_dish": "Egusi Soup"
+      },
+      {
+        "title": "Accra Chop Bar",
+        "owner_origin": "Ghana",
+        "type": "Food",
+        "anchor": "Restaurant",
+        "description": "Best Banku and Tilapia in town.",
+        "city": "Arlington",
+        "address": "5302 Collins St, Arlington, TX 76014",
+        "contact_phone": "+155560601",
+        "heat_level": 3,
+        "regional_specialty": "Ga",
+        "top_dish": "Banku & Tilapia"
+      }
+    ]
+  }
+]

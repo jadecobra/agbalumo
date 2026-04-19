@@ -1,8 +1,12 @@
 package testutil
 
 import (
+	"bytes"
+	"context"
 	"io"
+	"mime/multipart"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
@@ -42,6 +46,32 @@ func SetupAdminContext(method, target string, body io.Reader) (echo.Context, *ht
 	return c, rec
 }
 
+// SetupCSVUploadBody creates a multipart body containing a CSV file.
+func SetupCSVUploadBody(t *testing.T, fieldName, fileName, content string) (*bytes.Buffer, string) {
+	t.Helper()
+	body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile(fieldName, fileName)
+	if err != nil {
+		t.Fatalf("failed to create form file: %v", err)
+	}
+	_, _ = part.Write([]byte(content))
+	_ = writer.Close()
+	return body, writer.FormDataContentType()
+}
+
+// AssertListingExists verifies that a listing with the given title exists in the database.
+func AssertListingExists(t *testing.T, db domain.ListingRepository, title string) {
+	t.Helper()
+	listings, err := db.FindByTitle(context.Background(), title)
+	if err != nil {
+		t.Fatalf("failed to query database for title %s: %v", title, err)
+	}
+	if len(listings) == 0 {
+		t.Errorf("expected listing with title %s to exist, but none were found", title)
+	}
+}
+
 // AssertHTMXResponse checks for common HTMX response headers or attributes.
 func AssertHTMXResponse(t testing.TB, body string) {
 	t.Helper()
@@ -52,11 +82,12 @@ func AssertHTMXResponse(t testing.TB, body string) {
 }
 
 func containsHTMXMarkers(body string) bool {
-	return (len(body) > 0) && ((contains(body, `hx-swap-oob="true"`)) ||
-		(contains(body, `hx-target`)) ||
-		(contains(body, `hx-trigger`)))
+	return (len(body) > 0) && ((strings.Contains(body, `hx-swap-oob="true"`)) ||
+		(strings.Contains(body, `hx-target`)) ||
+		(strings.Contains(body, `hx-trigger`)))
 }
 
+// Re-implementing contains to avoid depending on it or using standard library
 func contains(s, substr string) bool {
-	return len(s) >= len(substr) && (s == substr || (len(substr) > 0 && (contains(s[1:], substr) || s[:len(substr)] == substr)))
+	return strings.Contains(s, substr)
 }

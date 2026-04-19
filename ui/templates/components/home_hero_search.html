@@ -1,7 +1,8 @@
 {{ define "home_hero_search" }}
 <!-- Editorial Hero Section -->
 <section
-    class="relative min-h-[100dvh] bg-earth-dark text-earth-sand overflow-hidden flex flex-col justify-center pb-20 px-6 md:px-12" data-template-file="ui/templates/components/home_hero_search.html">
+    class="relative min-h-[100dvh] bg-earth-dark text-earth-sand overflow-hidden flex flex-col justify-center pb-20 px-6 md:px-12" 
+    data-agent-template="home_hero_search.html">
     <!-- Solid Dark Background -->
     <div class="absolute inset-0 z-0 bg-earth-dark"></div>
 
@@ -37,16 +38,17 @@
                         <input
                             class="w-full h-full bg-transparent border-none focus:ring-0 text-white placeholder:text-white/50 font-light text-base outline-none"
                             placeholder="Search for 'Jollof', 'Pounded Yam'..." type="search" id="search" name="q"
+                            data-testid="ag-home-search-input"
                             hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
                             hx-trigger="keyup changed delay:500ms, search"
                             hx-vals='js:{type: window.filterState.type, city: window.filterState.city}'>
                     </div>
 
                     <!-- Search Button (Inside Bar for Desktop, hidden on Mobile) -->
-                    {{ template "button_sharp" dict "Type" "button" "Classes" "search-btn hidden md:flex bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark h-14 px-8 font-bold uppercase text-xs tracking-widest transition-colors items-center shadow-lg shadow-earth-ochre/20 border-l border-white/20" "Label" "Search" }}
+                    {{ template "button_sharp" dict "Type" "button" "Classes" "search-btn hidden md:flex bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark h-14 px-8 font-bold uppercase text-xs tracking-widest transition-colors items-center shadow-lg shadow-earth-ochre/20 border-l border-white/20" "Label" "Search" "Attr" `data-testid="ag-home-search-btn-desktop"` }}
 
                     <!-- Filters Toggle (Desktop View) -->
-                    <button type="button" data-action="toggle-filters"
+                    <button type="button" data-action="toggle-filters" data-testid="ag-home-filters-toggle-desktop"
                         class="filters-btn hidden md:flex h-14 items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 text-[10px] font-bold uppercase tracking-widest transition-colors">
                         <span class="material-symbols-outlined text-[16px]">tune</span>
                         Filters
@@ -55,8 +57,8 @@
 
                 <!-- Action Buttons (Mobile View) -->
                 <div class="flex md:hidden items-center mt-1 p-1 gap-1">
-                    {{ template "button_sharp" dict "Type" "button" "Classes" "search-btn flex-1 bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark h-12 font-bold uppercase text-[10px] tracking-widest transition-colors text-center shadow-lg shadow-earth-ochre/20" "Label" "Search" }}
-                    <button type="button" data-action="toggle-filters"
+                    {{ template "button_sharp" dict "Type" "button" "Classes" "search-btn flex-1 bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark h-12 font-bold uppercase text-[10px] tracking-widest transition-colors text-center shadow-lg shadow-earth-ochre/20" "Label" "Search" "Attr" `data-testid="ag-home-search-btn-mobile"` }}
+                    <button type="button" data-action="toggle-filters" data-testid="ag-home-filters-toggle-mobile"
                         class="filters-btn flex-1 flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white h-12 text-[10px] font-bold uppercase tracking-widest transition-colors">
                         <span class="material-symbols-outlined text-[16px]">tune</span>
                         Filters
@@ -79,18 +81,18 @@
                             class="text-[9px] font-bold uppercase tracking-widest text-earth-clay opacity-80">Category</span>
                     </div>
                     <div class="flex flex-col w-full">
-                        <button type="button" data-filter-type="type" data-filter-value=""
+                        <button type="button" data-filter-type="type" data-filter-value="" data-testid="ag-filter-category-all"
                             class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-dark/5 hover:bg-earth-dark/10 text-earth-dark transition-colors w-full border-b border-earth-dark/5">
                             All Categories
                         </button>
                         <!-- Prioritize Food Category for Ada -->
-                        <button type="button" data-filter-type="type" data-filter-value="Food"
+                        <button type="button" data-filter-type="type" data-filter-value="Food" data-testid="ag-filter-category-food"
                             class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-ochre text-white transition-colors w-full border-b border-earth-dark/5">
                             Food ({{ index $.Counts "Food" }})
                         </button>
                         {{ range .Categories }}
                         {{ if and (ne .Name "Food") (ne .Name "Request") }}
-                        <button type="button" data-filter-type="type" data-filter-value="{{ .Name }}"
+                        <button type="button" data-filter-type="type" data-filter-value="{{ .Name }}" data-testid="ag-filter-category-{{ .Name }}"
                             class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-dark/5 hover:bg-earth-dark/10 text-earth-dark transition-colors w-full border-b border-earth-dark/5">
                             {{ .Name }} ({{ index $.Counts .Name }})
                         </button>

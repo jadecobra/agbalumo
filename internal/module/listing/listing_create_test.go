@@ -64,6 +64,18 @@ func TestHandleCreate(t *testing.T) {
 			_ = h.HandleCreate(c)
 
 			assert.Equal(t, tt.expectedStatus, rec.Code)
+			if tt.expectedStatus == http.StatusOK {
+				// Title is usually the first part of the body
+				expectedTitle := tt.name
+				if tt.name == "Success" {
+					expectedTitle = "Test Title"
+				} else if tt.name == "BusinessWithNoPrefixURL" {
+					expectedTitle = "Biz"
+				} else if tt.name == "RequestWithoutDeadline" {
+					expectedTitle = "Req"
+				}
+				testutil.AssertListingExists(t, env.App.DB, expectedTitle)
+			}
 			if tt.expectedBody != "" {
 				assert.Contains(t, rec.Body.String(), tt.expectedBody)
 			}

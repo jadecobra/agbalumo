@@ -1,9 +1,7 @@
 package admin_test
 
 import (
-	"bytes"
 	"context"
-	"mime/multipart"
 	"net/http"
 	"net/url"
 	"strings"
@@ -22,18 +20,14 @@ func TestAdminHandler_HandleBulkUpload(t *testing.T) {
 	// CSV headers: title,type,description,origin,email,phone,whatsapp
 	csvContent := "title,type,description,origin,email,phone,whatsapp\nTest Biz,Business,Description,Nigeria,test@test.com,,"
 
-	body := new(bytes.Buffer)
-	writer := multipart.NewWriter(body)
-	part, _ := writer.CreateFormFile("csv_file", "upload.csv")
-	_, _ = part.Write([]byte(csvContent))
-	_ = writer.Close()
+	body, contentType := testutil.SetupCSVUploadBody(t, "csv_file", "upload.csv", csvContent)
 
 	env := testutil.SetupTestModuleEnv(t)
 	defer env.Cleanup()
 	env.App.CSVService = service.NewCSVService()
 	h := admin.NewAdminHandler(env.App)
 	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/upload", body)
-	c.Request().Header.Set(echo.HeaderContentType, writer.FormDataContentType())
+	c.Request().Header.Set(echo.HeaderContentType, contentType)
 
 	err := h.HandleBulkUpload(c)
 
@@ -42,26 +36,20 @@ func TestAdminHandler_HandleBulkUpload(t *testing.T) {
 	assert.Equal(t, "/admin", rec.Header().Get("Location"))
 
 	// Verify listing was saved
-	listings, _ := env.App.DB.FindByTitle(context.Background(), "Test Biz")
-	assert.Len(t, listings, 1)
-	assert.Equal(t, "Test Biz", listings[0].Title)
+	testutil.AssertListingExists(t, env.App.DB, "Test Biz")
 }
 
 func TestAdminHandler_HandleBulkUpload_InvalidCSV(t *testing.T) {
 	t.Parallel()
 	// Junk content
-	body := new(bytes.Buffer)
-	writer := multipart.NewWriter(body)
-	part, _ := writer.CreateFormFile("csv_file", "junk.csv")
-	_, _ = part.Write([]byte("invalid,csv,data\n1,2,3"))
-	_ = writer.Close()
+	body, contentType := testutil.SetupCSVUploadBody(t, "csv_file", "junk.csv", "invalid,csv,data\n1,2,3")
 
 	env := testutil.SetupTestModuleEnv(t)
 	defer env.Cleanup()
 	env.App.CSVService = service.NewCSVService()
 	h := admin.NewAdminHandler(env.App)
 	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/upload", body)
-	c.Request().Header.Set(echo.HeaderContentType, writer.FormDataContentType())
+	c.Request().Header.Set(echo.HeaderContentType, contentType)
 	_ = h.HandleBulkUpload(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)
@@ -82,18 +70,14 @@ func TestAdminHandler_HandleBulkUpload_ParseError(t *testing.T) {
 	// Missing required "description"
 	csvContent := "title,type,origin,email\nTest Biz,Business,Nigeria,test@test.com"
 
-	body := new(bytes.Buffer)
-	writer := multipart.NewWriter(body)
-	part, _ := writer.CreateFormFile("csv_file", "upload.csv")
-	_, _ = part.Write([]byte(csvContent))
-	_ = writer.Close()
+	body, contentType := testutil.SetupCSVUploadBody(t, "csv_file", "upload.csv", csvContent)
 
 	env := testutil.SetupTestModuleEnv(t)
 	defer env.Cleanup()
 	env.App.CSVService = service.NewCSVService()
 	h := admin.NewAdminHandler(env.App)
 	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/upload", body)
-	c.Request().Header.Set(echo.HeaderContentType, writer.FormDataContentType())
+	c.Request().Header.Set(echo.HeaderContentType, contentType)
 	_ = h.HandleBulkUpload(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)
@@ -249,18 +233,14 @@ func TestHandleBulkAction_NoAction(t *testing.T) {
 func TestAdminHandler_HandleBulkUpload_ManyErrors(t *testing.T) {
 	t.Parallel()
 	csvContent := "title,type,description\n,,\n,,\n,,\n,,\n"
-	body := new(bytes.Buffer)
-	writer := multipart.NewWriter(body)
-	part, _ := writer.CreateFormFile("csv_file", "junk.csv")
-	_, _ = part.Write([]byte(csvContent))
-	_ = writer.Close()
+	body, contentType := testutil.SetupCSVUploadBody(t, "csv_file", "junk.csv", csvContent)
 
 	env := testutil.SetupTestModuleEnv(t)
 	defer env.Cleanup()
 	env.App.CSVService = service.NewCSVService()
 	h := admin.NewAdminHandler(env.App)
 	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/upload", body)
-	c.Request().Header.Set(echo.HeaderContentType, writer.FormDataContentType())
+	c.Request().Header.Set(echo.HeaderContentType, contentType)
 	_ = h.HandleBulkUpload(c)
 
 	assert.Equal(t, http.StatusFound, rec.Code)

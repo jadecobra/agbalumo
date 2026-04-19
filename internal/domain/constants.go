@@ -99,6 +99,15 @@ const (
 	// HTMX
 	TriggerListingUpdatedPrefix = "listing-updated-"
 
+	// HTMX Targets & Indicators
+	TargetListingsContainer = "#listings-container"
+	IndicatorListingsLoading = "#listings-loading"
+	TargetBody              = "body"
+
+	// HTMX Swaps
+	SwapBeforeEnd  = "beforeend"
+	SwapOuterHTML  = "outerHTML"
+
 	// Params
 	ParamSource      = "source"
 	ParamSourceAdmin = "admin"
@@ -116,13 +125,20 @@ const (
 	ProtoHTTPS = "https://"
 
 	// Modals
-	ModalModeration = "moderationModal"
-	ModalCategory   = "categoryModal"
-	ModalUsers      = "usersModal"
+	ModalModeration    = "moderationModal"
+	ModalCategory      = "categoryModal"
+	ModalUsers         = "usersModal"
+	ModalCreateListing = "create-listing-modal"
 
 	// Actions
 	ActionOpenModal = "open-modal"
 
-	// CSS Classes
-	ClassFooter = "footer-fruit"
+	// CSS Classes (Core)
+	ClassFooter     = "footer-fruit"
+	ClassEarthDark  = "bg-earth-dark"
+	ClassEarthSand  = "bg-earth-sand"
+	ClassEarthOchre = "bg-earth-ochre"
+
+	// Fragment Paths
+	PathListingsFragment = "/listings/fragment"
 )
