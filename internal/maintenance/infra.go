@@ -173,6 +173,13 @@ func VerifyCITools(rootDir string) error {
 
 	if strings.Contains(content, "aquasecurity/trivy-action") {
 		fmt.Println("✅ PASS: Using Trivy for container scanning (Open Source, local-friendly).")
+		// Detect invalid trivy-version hallucination
+		if strings.Contains(content, "trivy-version:") {
+			return fmt.Errorf("invalid CI configuration: 'aquasecurity/trivy-action' uses 'version', not 'trivy-version'")
+		}
+		if !strings.Contains(content, "version:") {
+			fmt.Println("⚠️  WARNING: 'aquasecurity/trivy-action' missing explicit 'version' - using action default.")
+		}
 	} else {
 		fmt.Println("⚠️  WARNING: No container scanner detected in CI (expected Trivy).")
 	}

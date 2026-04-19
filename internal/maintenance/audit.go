@@ -39,6 +39,8 @@ func RunSecurityAudit(config AuditConfig) error {
 		{func() (bool, bool) { return checkFlyConfig(config) }, "fly.toml"},
 		{func() (bool, bool) { return checkXSS(config) }, "XSS"},
 		{func() (bool, bool) { return checkVulnerabilities(config) }, "govulncheck"},
+		{func() (bool, bool) { return VerifyCITools(config.RootDir) == nil, false }, "CI Toolset"},
+		{func() (bool, bool) { return VerifyActionSHAs(config.RootDir) == nil, false }, "Action SHAs"},
 	}
 
 	executeChecks(res, checks)
