@@ -14,18 +14,7 @@ func (r *SQLiteRepository) GetFeedbackCounts(ctx context.Context) (map[domain.Fe
 	if err != nil {
 		return nil, err
 	}
-	defer func() { _ = rows.Close() }()
-
-	counts := make(map[domain.FeedbackType]int)
-	for rows.Next() {
-		var t domain.FeedbackType
-		var count int
-		if err := rows.Scan(&t, &count); err != nil {
-			return nil, err
-		}
-		counts[t] = count
-	}
-	return counts, rows.Err()
+	return scanCounts[domain.FeedbackType](rows)
 }
 
 func (r *SQLiteRepository) queryDailyMetrics(ctx context.Context, query string) ([]domain.DailyMetric, error) {

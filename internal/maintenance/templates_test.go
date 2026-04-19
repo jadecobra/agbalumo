@@ -1,19 +1,25 @@
 package maintenance
 
 import (
-	"os"
 	"path/filepath"
 	"testing"
 )
 
-func TestExtractRendererFunctions(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "renderer_test")
-	if err != nil {
-		t.Fatalf("failed to create temp dir: %v", err)
-	}
-	defer func() { _ = os.RemoveAll(tmpDir) }()
+func TestTemplateUtilities(t *testing.T) {
+	tmpDir, cleanup := setupTestDir(t, "template_utils")
+	defer cleanup()
 
-	rendererCode := `
+	tests := []struct {
+		testFn   func(string) ([]string, error)
+		expected map[string]bool
+		name     string
+		filename string
+		content  string
+	}{
+		{
+			name:     "ExtractRendererFunctions",
+			filename: "renderer.go",
+			content: `
 package ui
 func GetFuncs() {
 	funcs := map[string]interface{}{
@@ -21,50 +27,33 @@ func GetFuncs() {
 		"truncate":   nil,
 	}
 }
-`
-	rendererPath := filepath.Join(tmpDir, "renderer.go")
-	_ = os.WriteFile( /*nolint:gosec*/ rendererPath, []byte(rendererCode), 0600)
-
-	funcs, err := ExtractRendererFunctions(rendererPath)
-	if err != nil {
-		t.Fatalf("ExtractRendererFunctions failed: %v", err)
-	}
-
-	expected := map[string]bool{"formatDate": true, "truncate": true}
-	for _, f := range funcs {
-		delete(expected, f)
-	}
-
-	if len(expected) > 0 {
-		t.Errorf("missing expected functions: %v", expected)
-	}
-}
-
-func TestExtractTemplateFunctionCalls(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "template_test")
-	if err != nil {
-		t.Fatalf("failed to create temp dir: %v", err)
-	}
-	defer func() { _ = os.RemoveAll(tmpDir) }()
-
-	templateCode := `
+`,
+			testFn:   ExtractRendererFunctions,
+			expected: map[string]bool{"formatDate": true, "truncate": true},
+		},
+		{
+			name:     "ExtractTemplateFunctionCalls",
+			filename: "index.html",
+			content: `
 <div>{{ formatDate .Date }}</div>
 <div>{{ range .Items | filterItems }}</div>
-`
-	_ = os.WriteFile( /*nolint:gosec*/ filepath.Join(tmpDir, "index.html"), []byte(templateCode), 0600)
-
-	used, err := ExtractTemplateFunctionCalls(tmpDir)
-	if err != nil {
-		t.Fatalf("ExtractTemplateFunctionCalls failed: %v", err)
+`,
+			testFn: func(path string) ([]string, error) {
+				return ExtractTemplateFunctionCalls(filepath.Dir(path))
+			},
+			expected: map[string]bool{"formatDate": true, "filterItems": true},
+		},
 	}
 
-	expected := map[string]bool{"formatDate": true, "filterItems": true}
-	for _, u := range used {
-		delete(expected, u)
-	}
-
-	if len(expected) > 0 {
-		t.Errorf("missing expected template function calls: %v", expected)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			path := writeTestFile(t, tmpDir, tt.filename, tt.content)
+			res, err := tt.testFn(path)
+			if err != nil {
+				t.Fatalf("%s failed: %v", tt.name, err)
+			}
+			assertStringsMatch(t, tt.name, res, tt.expected)
+		})
 	}
 }
 

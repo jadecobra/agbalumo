@@ -2,6 +2,7 @@ package domain
 
 import (
 	"errors"
+	"strings"
 	"testing"
 	"time"
 
@@ -142,76 +143,53 @@ func TestHoursOfOperationRestriction(t *testing.T) {
 func TestListing_Validate_Length(t *testing.T) {
 	t.Parallel()
 	longString := func(n int) string {
-		b := make([]byte, n)
-		for i := range b {
-			b[i] = 'a'
+		return strings.Repeat("a", n)
+	}
+
+	baseListing := func() Listing {
+		return Listing{
+			ID:           "test-len",
+			OwnerOrigin:  "Nigeria",
+			Type:         Business,
+			Title:        "Valid Title",
+			Description:  "Valid Description",
+			Address:      "Valid Address",
+			City:         "Lagos",
+			ContactEmail: "test@example.com",
+			CreatedAt:    time.Now(),
 		}
-		return string(b)
 	}
 
 	tests := []struct {
+		mutate  func(*Listing)
 		name    string
-		listing Listing
 		wantErr bool
 	}{
 		{
-			name: "Title too long (>100)",
-			listing: Listing{
-				ID:           "1",
-				OwnerOrigin:  "Nigeria",
-				Type:         Business,
-				Title:        longString(101),
-				Description:  "Valid",
-				Address:      "Valid",
-				City:         "Lagos",
-				ContactEmail: "test@test.com",
-			},
+			name:    "Title too long (>100)",
+			mutate:  func(l *Listing) { l.Title = longString(101) },
 			wantErr: true,
 		},
 		{
-			name: "Description too long (>2000)",
-			listing: Listing{
-				ID:           "2",
-				OwnerOrigin:  "Nigeria",
-				Type:         Business,
-				Title:        "Valid",
-				Description:  longString(2001),
-				Address:      "Valid",
-				City:         "Lagos",
-				ContactEmail: "test@test.com",
-			},
+			name:    "Description too long (>2000)",
+			mutate:  func(l *Listing) { l.Description = longString(2001) },
 			wantErr: true,
 		},
 		{
 			name: "Company too long (>100)",
-			listing: Listing{
-				ID:           "3",
-				OwnerOrigin:  "Nigeria",
-				Type:         Job,
-				Title:        "Valid",
-				Description:  "Valid",
-				Company:      longString(101),
-				Skills:       "Go",
-				PayRange:     "100k",
-				JobStartDate: time.Now().Add(24 * time.Hour),
-				JobApplyURL:  "http://test.com",
-				City:         "Lagos",
-				ContactEmail: "test@test.com",
+			mutate: func(l *Listing) {
+				l.Type = Job
+				l.Company = longString(101)
+				l.Skills = "Go"
+				l.PayRange = "100k"
+				l.JobApplyURL = "http://test.com"
+				l.JobStartDate = time.Now().Add(24 * time.Hour)
 			},
 			wantErr: true,
 		},
 		{
-			name: "Address too long (>200)",
-			listing: Listing{
-				ID:           "4",
-				OwnerOrigin:  "Nigeria",
-				Type:         Business,
-				Title:        "Valid",
-				Description:  "Valid",
-				Address:      longString(201),
-				City:         "Lagos",
-				ContactEmail: "test@test.com",
-			},
+			name:    "Address too long (>200)",
+			mutate:  func(l *Listing) { l.Address = longString(201) },
 			wantErr: true,
 		},
 	}
@@ -219,7 +197,9 @@ func TestListing_Validate_Length(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			err := tt.listing.Validate()
+			l := baseListing()
+			tt.mutate(&l)
+			err := l.Validate()
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {

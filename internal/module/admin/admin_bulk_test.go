@@ -116,45 +116,46 @@ func TestHandleBulkAction_NoSelection(t *testing.T) {
 	}
 }
 
-func TestHandleBulkAction_Approve(t *testing.T) {
+func TestHandleBulkAction_StatusChanges(t *testing.T) {
 	t.Parallel()
-	env := testutil.SetupTestModuleEnv(t)
-	defer env.Cleanup()
-	h := admin.NewAdminHandler(env.App)
-
-	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Status: domain.ListingStatusPending})
-
-	form := url.Values{}
-	form.Add("action", "approve")
-	form.Add("selectedListings", "l1")
-	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
-	c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
-
-	if assert.NoError(t, h.HandleBulkAction(c)) {
-		assert.Equal(t, http.StatusFound, rec.Code)
-		l, _ := env.App.DB.FindByID(context.Background(), "l1")
-		assert.Equal(t, domain.ListingStatusApproved, l.Status)
+	tests := []struct {
+		name         string
+		action       string
+		expectStatus domain.ListingStatus
+	}{
+		{
+			name:         "Approve",
+			action:       "approve",
+			expectStatus: domain.ListingStatusApproved,
+		},
+		{
+			name:         "Reject",
+			action:       "reject",
+			expectStatus: domain.ListingStatusRejected,
+		},
 	}
-}
 
-func TestHandleBulkAction_Reject(t *testing.T) {
-	t.Parallel()
-	env := testutil.SetupTestModuleEnv(t)
-	defer env.Cleanup()
-	h := admin.NewAdminHandler(env.App)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			env := testutil.SetupTestModuleEnv(t)
+			defer env.Cleanup()
+			h := admin.NewAdminHandler(env.App)
 
-	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Status: domain.ListingStatusPending})
+			_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Status: domain.ListingStatusPending})
 
-	form := url.Values{}
-	form.Add("action", "reject")
-	form.Add("selectedListings", "l1")
-	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
-	c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+			form := url.Values{}
+			form.Add("action", tt.action)
+			form.Add("selectedListings", "l1")
+			c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/listings/bulk", strings.NewReader(form.Encode()))
+			c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 
-	if assert.NoError(t, h.HandleBulkAction(c)) {
-		assert.Equal(t, http.StatusFound, rec.Code)
-		l, _ := env.App.DB.FindByID(context.Background(), "l1")
-		assert.Equal(t, domain.ListingStatusRejected, l.Status)
+			if assert.NoError(t, h.HandleBulkAction(c)) {
+				assert.Equal(t, http.StatusFound, rec.Code)
+				l, _ := env.App.DB.FindByID(context.Background(), "l1")
+				assert.Equal(t, tt.expectStatus, l.Status)
+			}
+		})
 	}
 }
 

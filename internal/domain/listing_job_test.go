@@ -3,6 +3,8 @@ package domain
 import (
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestListing_Validate_Job(t *testing.T) {
@@ -24,79 +26,28 @@ func TestListing_Validate_Job(t *testing.T) {
 		}
 	}
 
-	tests := []struct {
-		name    string
-		listing Listing
-		wantErr bool
-	}{
-		{
-			name:    "Valid Job",
-			listing: validJob(),
-			wantErr: false,
-		},
-		{
-			name: "Missing Skills",
-			listing: func() Listing {
-				l := validJob()
-				l.Skills = ""
-				return l
-			}(),
-			wantErr: true,
-		},
-		{
-			name: "Missing Start Date",
-			listing: func() Listing {
-				l := validJob()
-				l.JobStartDate = time.Time{}
-				return l
-			}(),
-			wantErr: true,
-		},
-		{
-			name: "Start Date in Past",
-			listing: func() Listing {
-				l := validJob()
-				l.JobStartDate = time.Now().Add(-24 * time.Hour)
-				return l
-			}(),
-			wantErr: true,
-		},
-		{
-			name: "Missing Company",
-			listing: func() Listing {
-				l := validJob()
-				l.Company = ""
-				return l
-			}(),
-			wantErr: true,
-		},
-		{
-			name: "Missing Location",
-			listing: func() Listing {
-				l := validJob()
-				l.City = ""
-				return l
-			}(),
-			wantErr: true,
-		},
-		{
-			name: "Missing Apply URL",
-			listing: func() Listing {
-				l := validJob()
-				l.JobApplyURL = ""
-				return l
-			}(),
-			wantErr: true,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	runTest := func(name string, mutate func(*Listing), wantErr string) {
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			err := tt.listing.Validate()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Listing.Validate() error = %v, wantErr %v", err, tt.wantErr)
+			l := validJob()
+			mutate(&l)
+			err := l.Validate()
+			if wantErr == "" {
+				assert.NoError(t, err)
+			} else {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), wantErr)
 			}
 		})
 	}
+
+	runTest("Valid Job", func(l *Listing) {}, "")
+	runTest("Missing Skills", func(l *Listing) { l.Skills = "" }, "skills are required")
+	runTest("Missing Description", func(l *Listing) { l.Description = "" }, "description is required")
+	runTest("Missing Compensation", func(l *Listing) { l.PayRange = "" }, "compensation/pay range is required")
+	runTest("Job Missing Start Date", func(l *Listing) { l.JobStartDate = time.Time{} }, "job start date is required")
+	runTest("Job Start Date in Past", func(l *Listing) { l.JobStartDate = time.Now().Add(-48 * time.Hour) }, "job start date cannot be in the past")
+	runTest("Job Missing Company", func(l *Listing) { l.Company = "" }, "company name is required")
+	runTest("Job Missing City", func(l *Listing) { l.City = "" }, "city is required")
+	runTest("Job Missing Apply URL", func(l *Listing) { l.JobApplyURL = "" }, "apply url is required")
 }

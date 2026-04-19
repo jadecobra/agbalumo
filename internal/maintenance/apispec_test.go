@@ -1,8 +1,6 @@
 package maintenance
 
 import (
-	"os"
-	"path/filepath"
 	"testing"
 )
 
@@ -18,17 +16,14 @@ func TestCompareRoutes(t *testing.T) {
 }
 
 func TestExtractCLICodeCommands(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "cli_code_test")
-	if err != nil {
-		t.Fatalf("failed to create temp dir: %v", err)
-	}
-	defer func() { _ = os.RemoveAll(tmpDir) }()
+	tmpDir, cleanup := setupTestDir(t, "cli_code_test")
+	defer cleanup()
 
 	goCode := `
 package test
 var cmd = &cobra.Command{ Use: "test-cmd" }
 `
-	_ = os.WriteFile( /*nolint:gosec*/ filepath.Join(tmpDir, "cli.go"), []byte(goCode), 0600)
+	_ = writeTestFile(t, tmpDir, "cli.go", goCode)
 
 	cmds, err := ExtractCLICodeCommands(tmpDir)
 	if err != nil {
@@ -41,31 +36,19 @@ var cmd = &cobra.Command{ Use: "test-cmd" }
 }
 
 func TestExtractCLIMarkdownCommands(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "cli_md_test")
-	if err != nil {
-		t.Fatalf("failed to create temp dir: %v", err)
-	}
-	defer func() { _ = os.RemoveAll(tmpDir) }()
+	tmpDir, cleanup := setupTestDir(t, "cli_md_test")
+	defer cleanup()
 
 	mdCode := `
 # CLI Docs
 ### category
 ##### add
 `
-	mdPath := filepath.Join(tmpDir, "cli.md")
-	_ = os.WriteFile( /*nolint:gosec*/ mdPath, []byte(mdCode), 0600)
-
-	cmds, err := ExtractCLIMarkdownCommands(mdPath)
+	path := writeTestFile(t, tmpDir, "cli.md", mdCode)
+	cmds, err := ExtractCLIMarkdownCommands(path)
 	if err != nil {
 		t.Fatalf("ExtractCLIMarkdownCommands failed: %v", err)
 	}
 
-	expected := map[string]bool{"category": true, "add": true}
-	for _, c := range cmds {
-		delete(expected, c)
-	}
-
-	if len(expected) > 0 {
-		t.Errorf("missing expected commands from MD: %v", expected)
-	}
+	assertStringsMatch(t, "CLI commands", cmds, map[string]bool{"category": true, "add": true})
 }

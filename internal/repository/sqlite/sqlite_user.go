@@ -91,15 +91,5 @@ func (r *SQLiteRepository) GetAllUsers(ctx context.Context, limit int, offset in
 	if err != nil {
 		return nil, err
 	}
-	defer func() { _ = rows.Close() }()
-
-	var users []domain.User
-	for rows.Next() {
-		u, err := scanUser(rows)
-		if err != nil {
-			return nil, err
-		}
-		users = append(users, u)
-	}
-	return users, rows.Err()
+	return scanAll(rows, scanUser)
 }

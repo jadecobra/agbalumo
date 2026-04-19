@@ -26,8 +26,20 @@ func TestNormalizePath(t *testing.T) {
 	}
 }
 
-func TestExtractOpenAPIRoutes(t *testing.T) {
-	content := []byte(`
+func TestRouteExtraction_Formats(t *testing.T) {
+	runTest := func(name string, content []byte, extract func([]byte) ([]Route, error)) {
+		t.Run(name, func(t *testing.T) {
+			routes, err := extract(content)
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if len(routes) != 2 {
+				t.Errorf("expected 2 routes, got %d", len(routes))
+			}
+		})
+	}
+
+	openapi := []byte(`
 paths:
   /users:
     get:
@@ -36,29 +48,15 @@ paths:
     post:
       summary: Create user
 `)
-	routes, err := ExtractOpenAPIRoutes(content)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if len(routes) != 2 {
-		t.Errorf("expected 2 routes, got %d", len(routes))
-	}
-}
+	runTest("OpenAPI", openapi, ExtractOpenAPIRoutes)
 
-func TestExtractMarkdownRoutes(t *testing.T) {
-	content := []byte(`
+	markdown := []byte(`
 | Method | Path |
 | --- | --- |
 | GET | /api/v1/health |
 | POST | /api/v1/login |
 `)
-	routes, err := ExtractMarkdownRoutes(content)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if len(routes) != 2 {
-		t.Errorf("expected 2 routes, got %d", len(routes))
-	}
+	runTest("Markdown", markdown, ExtractMarkdownRoutes)
 }
 
 func TestCalculateContextCost(t *testing.T) {

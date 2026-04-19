@@ -68,19 +68,17 @@ func parseTemplateFunctions(content string) []string {
 func extractFromLine(line string) []string {
 	var used []string
 	// Extract from {{ ... }}
-	if strings.Contains(line, "{{") {
-		parts := strings.Split(line, "{{")
-		for _, p := range parts[1:] {
-			used = append(used, extractFirstWord(p, true)...)
+	extract := func(sep string, stripRange bool) {
+		if strings.Contains(line, sep) {
+			parts := strings.Split(line, sep)
+			for _, p := range parts[1:] {
+				used = append(used, extractFirstWord(p, stripRange)...)
+			}
 		}
 	}
-	// Extract from ... | func
-	if strings.Contains(line, "|") {
-		parts := strings.Split(line, "|")
-		for _, p := range parts[1:] {
-			used = append(used, extractFirstWord(p, false)...)
-		}
-	}
+
+	extract("{{", true)
+	extract("|", false)
 	return used
 }
 

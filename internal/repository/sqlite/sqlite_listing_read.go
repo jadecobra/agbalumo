@@ -185,15 +185,7 @@ func (r *SQLiteRepository) logSlowQuery(name string, start time.Time) {
 }
 
 func scanListings(rows *sql.Rows) ([]domain.Listing, error) {
-	var listings []domain.Listing
-	for rows.Next() {
-		l, err := scanListing(rows)
-		if err != nil {
-			return nil, err
-		}
-		listings = append(listings, l)
-	}
-	return listings, rows.Err()
+	return scanAll(rows, scanListing)
 }
 
 func (r *SQLiteRepository) FindByID(ctx context.Context, id string) (domain.Listing, error) {
@@ -258,18 +250,7 @@ func (r *SQLiteRepository) GetCounts(ctx context.Context) (map[domain.Category]i
 	if err != nil {
 		return nil, err
 	}
-	defer func() { _ = rows.Close() }()
-
-	counts := make(map[domain.Category]int)
-	for rows.Next() {
-		var cat domain.Category
-		var count int
-		if err := rows.Scan(&cat, &count); err != nil {
-			return nil, err
-		}
-		counts[cat] = count
-	}
-	return counts, rows.Err()
+	return scanCounts[domain.Category](rows)
 }
 
 func (r *SQLiteRepository) GetLocations(ctx context.Context) ([]string, error) {
@@ -277,17 +258,7 @@ func (r *SQLiteRepository) GetLocations(ctx context.Context) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer func() { _ = rows.Close() }()
-
-	var locations []string
-	for rows.Next() {
-		var city string
-		if err := rows.Scan(&city); err != nil {
-			return nil, err
-		}
-		locations = append(locations, city)
-	}
-	return locations, rows.Err()
+	return scanStrings(rows)
 }
 
 // GetFeaturedListings returns featured listings set by admin, optionally filtered by category and city.

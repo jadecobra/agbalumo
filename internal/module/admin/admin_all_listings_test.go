@@ -88,10 +88,13 @@ func TestAdminHandler_HandleAllListings_Counts(t *testing.T) {
 	defer env.Cleanup()
 	ctx := context.Background()
 
-	// Seed multiple categories
-	_ = env.App.DB.Save(ctx, domain.Listing{ID: "l1", Title: "B1", Type: "business", Status: domain.ListingStatusApproved, OwnerOrigin: "Nigeria"})
-	_ = env.App.DB.Save(ctx, domain.Listing{ID: "l2", Title: "B2", Type: "business", Status: domain.ListingStatusApproved, OwnerOrigin: "Nigeria"})
-	_ = env.App.DB.Save(ctx, domain.Listing{ID: "l3", Title: "E1", Type: "events", Status: domain.ListingStatusApproved, OwnerOrigin: "Nigeria"})
+	for _, l := range []domain.Listing{
+		{ID: "l1", Title: "B1", Type: "business", Status: domain.ListingStatusApproved, OwnerOrigin: "Nigeria"},
+		{ID: "l2", Title: "B2", Type: "business", Status: domain.ListingStatusApproved, OwnerOrigin: "Nigeria"},
+		{ID: "l3", Title: "E1", Type: "events", Status: domain.ListingStatusApproved, OwnerOrigin: "Nigeria"},
+	} {
+		_ = env.App.DB.Save(ctx, l)
+	}
 
 	c, rec := testutil.SetupAdminContext(http.MethodGet, "/admin/listings", nil)
 

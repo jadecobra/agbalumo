@@ -1,19 +1,0 @@
-* Host localhost:8443 was resolved.
-* IPv6: ::1
-* IPv4: 127.0.0.1
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying [::1]:8443...
-* Connected to localhost (::1) port 8443
-> GET / HTTP/1.1
-> Host: localhost:8443
-> User-Agent: curl/8.7.1
-> Accept: */*
-> 
-* Request completely sent off
-* HTTP 1.0, assume close after body
-< HTTP/1.0 400 Bad Request
-< 
-{ [48 bytes data]
-100    48    0    48    0     0   5351      0 --:--:-- --:--:-- --:--:--  6000
-* Closing connection

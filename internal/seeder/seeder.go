@@ -11,15 +11,26 @@ import (
 	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
+type seedSource struct {
+	group    string
+	listings []domain.Listing
+}
+
+var allSeeds = []seedSource{
+	{"Businesses", businesses},
+	{"Services", services},
+	{"Products", products},
+	{"Jobs", jobs},
+	{"Requests", requests},
+	{"Food", food},
+	{"Events", events},
+}
+
 // SeedAll inserts all predefined data into the repository.
 func SeedAll(ctx context.Context, repo domain.ListingStore) {
-	seedGroup(ctx, repo, "Businesses", businesses)
-	seedGroup(ctx, repo, "Services", services)
-	seedGroup(ctx, repo, "Products", products)
-	seedGroup(ctx, repo, "Jobs", jobs)
-	seedGroup(ctx, repo, "Requests", requests)
-	seedGroup(ctx, repo, "Food", food)
-	seedGroup(ctx, repo, "Events", events)
+	for _, source := range allSeeds {
+		seedGroup(ctx, repo, source.group, source.listings)
+	}
 }
 
 // EnsureSeeded checks if the database is empty, and if so, seeds it.

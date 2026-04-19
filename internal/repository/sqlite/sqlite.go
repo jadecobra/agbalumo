@@ -175,3 +175,38 @@ func (r *SQLiteRepository) Close() error {
 	}
 	return err2
 }
+
+func scanCounts[T comparable](rows *sql.Rows) (map[T]int, error) {
+	counts := make(map[T]int)
+	defer func() { _ = rows.Close() }()
+	for rows.Next() {
+		var key T
+		var count int
+		if err := rows.Scan(&key, &count); err != nil {
+			return nil, err
+		}
+		counts[key] = count
+	}
+	return counts, rows.Err()
+}
+
+func scanAll[T any](rows *sql.Rows, scanFunc func(Scanner) (T, error)) ([]T, error) {
+	var results []T
+	defer func() { _ = rows.Close() }()
+	for rows.Next() {
+		item, err := scanFunc(rows)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, item)
+	}
+	return results, rows.Err()
+}
+
+func scanStrings(rows *sql.Rows) ([]string, error) {
+	return scanAll(rows, func(s Scanner) (string, error) {
+		var str string
+		err := s.Scan(&str)
+		return str, err
+	})
+}
