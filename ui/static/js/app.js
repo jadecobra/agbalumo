@@ -1,4 +1,6 @@
 // agbalumo Main Application Entry Point
+window.AGBALUMO_AGENT_VERSION = "1.0.0-agent-native";
+
 document.addEventListener('DOMContentLoaded', () => {
     initApp();
 });
