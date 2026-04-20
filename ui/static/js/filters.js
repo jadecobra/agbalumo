@@ -5,6 +5,7 @@ window.filterState = {
 };
 
 function setupFilterToggle() {
+    console.log('[Filters] setupFilterToggle initialized');
     const activeClasses = ['bg-earth-ochre', 'text-white'];
     const inactiveClasses = ['bg-earth-dark/5', 'text-earth-dark'];
 
@@ -35,44 +36,6 @@ function setupFilterToggle() {
         }
     };
 
-    // Initialize state from existing active classes in DOM on load
-    document.querySelectorAll('[data-filter-type]').forEach(btn => {
-        if (btn.classList.contains('bg-earth-ochre')) {
-            filterState[btn.dataset.filterType] = btn.dataset.filterValue;
-        }
-    });
-
-    document.addEventListener('click', (e) => {
-        const toggleBtn = e.target.closest('[data-action="toggle-filters"]');
-        if (toggleBtn) {
-            const panel = document.getElementById('filter-dropdown-panel');
-            if (panel) {
-                const isOpen = !panel.classList.contains('hidden');
-                panel.classList.toggle('hidden');
-                updateButtonStates(!isOpen);
-            }
-            return;
-        }
-
-        const chip = e.target.closest('[data-filter-type]');
-        if (chip) {
-            const type = chip.dataset.filterType;
-            const value = chip.dataset.filterValue;
-
-            // Update state
-            filterState[type] = value;
-
-            // Update UI for the group
-            const group = chip.closest('.flex-col');
-            if (group) {
-                group.querySelectorAll('[data-filter-type]').forEach(btn => {
-                    btn.classList.remove(...activeClasses);
-                    btn.classList.add(...inactiveClasses);
-                });
-                chip.classList.add(...activeClasses);
-                chip.classList.remove(...inactiveClasses);
-            }
-
     const triggerSearch = () => {
         const params = new URLSearchParams();
         if (filterState.type) params.set('type', filterState.type);
@@ -93,8 +56,18 @@ function setupFilterToggle() {
         updateButtonStates(false);
     };
 
+    // Initialize state from existing active classes in DOM on load
+    document.querySelectorAll('[data-filter-type]').forEach(btn => {
+        if (btn.classList.contains('bg-earth-ochre')) {
+            filterState[btn.dataset.filterType] = btn.dataset.filterValue;
+        }
+    });
+
     document.addEventListener('click', (e) => {
-        const toggleBtn = e.target.closest('[data-action="toggle-filters"]');
+        const target = e.target;
+
+        // Toggle Filter Panel
+        const toggleBtn = target.closest('[data-action="toggle-filters"]');
         if (toggleBtn) {
             const panel = document.getElementById('filter-dropdown-panel');
             if (panel) {
@@ -105,18 +78,20 @@ function setupFilterToggle() {
             return;
         }
 
-        const searchBtn = e.target.closest('.search-btn');
+        // Search Action
+        const searchBtn = target.closest('.search-btn');
         if (searchBtn) {
             triggerSearch();
             return;
         }
 
-        const chip = e.target.closest('[data-filter-type]');
+        // Filter Chip Selection
+        const chip = target.closest('[data-filter-type]');
         if (chip) {
             const type = chip.dataset.filterType;
             const value = chip.dataset.filterValue;
 
-            // Update state
+            // Update global state
             filterState[type] = value;
 
             // Update UI for the group
@@ -135,4 +110,4 @@ function setupFilterToggle() {
     });
 }
 
-// Global initialization removed - now managed centrally by app.js initApp()
+// Global initialization now managed centrally by app.js initApp()
