@@ -20,10 +20,10 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 
 	pagination := listing.GetPagination(c, 50)
 
-	category := c.QueryParam("category")
-	sortField := c.QueryParam("sort")
-	sortOrder := strings.ToUpper(c.QueryParam("order"))
-	queryText := strings.TrimSpace(c.QueryParam("q"))
+	category := c.QueryParam(domain.ParamCategory)
+	sortField := c.QueryParam(domain.ParamSort)
+	sortOrder := strings.ToUpper(c.QueryParam(domain.ParamOrder))
+	queryText := strings.TrimSpace(c.QueryParam(domain.ParamQuery))
 
 	// Fetch all listings with the given category filter, including inactive ones.
 	listings, totalCountRows, err := h.App.DB.FindAll(ctx, category, queryText, "", sortField, sortOrder, true, pagination.Limit, pagination.Offset)

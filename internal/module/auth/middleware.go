@@ -42,7 +42,7 @@ func (m *AuthMiddleware) RequireAuth(next echo.HandlerFunc) echo.HandlerFunc {
 		sess := middleware.GetSession(c)
 		authSuccess := false
 		if sess != nil {
-			if _, ok := sess.Values["user_id"].(string); ok {
+			if _, ok := sess.Values[domain.SessionKeyUserID].(string); ok {
 				authSuccess = true
 			}
 		}

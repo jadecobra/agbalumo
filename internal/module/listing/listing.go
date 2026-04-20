@@ -131,7 +131,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 // Fragment Handler (HTMX)
 func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	filterType := c.QueryParam(domain.FieldType)
-	queryText := c.QueryParam("q")
+	queryText := c.QueryParam(domain.ParamQuery)
 	city := c.QueryParam(domain.FieldCity)
 
 	p := GetPagination(c, 30)
@@ -158,8 +158,9 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 		"Pagination":       Pagination{Page: page, TotalPages: (totalCount + limit - 1) / limit, HasNextPage: hasNextPage, TotalCount: totalCount},
 		"FeaturedListings": featured,
 		"Category":         filterType,
+		"City":             city,
 		"QueryText":        queryText,
-		"User":             c.Get("User"),
+		"User":             c.Get(domain.CtxKeyUser),
 	}
 
 	// Render the listing list partial (works for both HTMX and full-page requests)
@@ -182,7 +183,7 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 	return c.Render(http.StatusOK, "modal_detail", map[string]interface{}{
 		"Listing":          listing,
 		"Category":         category,
-		"User":             c.Get("User"),
+		"User":             c.Get(domain.CtxKeyUser),
 		"GoogleMapsApiKey": h.App.Cfg.GoogleMapsAPIKey,
 	})
 }
@@ -195,7 +196,7 @@ func (h *ListingHandler) HandleEdit(c echo.Context) error {
 		return err
 	}
 
-	targetID := c.QueryParam("target")
+	targetID := c.QueryParam(domain.ParamTarget)
 	if targetID == "" {
 		targetID = "listing-" + listing.ID
 	}

@@ -11,3 +11,8 @@ This package is responsible for all data access. When working here, adhere to th
 ## Data Mapping
 *   **Null Handling**: Use `sql.NullString`, `sql.NullInt64`, etc., when mapping columns that are nullable in the schema.
 *   **Timestamp Precision**: Store and retrieve all timestamps in UTC (`time.UTC`).
+*   **Error Mapping**: Always map implementation-specific errors (SQLITE_CONSTRAINT, etc.) to domain errors like `domain.ErrConflict` or `domain.ErrNotFound`.
+
+## Architecture Decisions
+*   **No Business Logic**: The repository should be a "dumb" data access layer. Do not implement complex business rules or multi-step validations here; that belongs in `internal/service`.
+*   **Migrations**: All schema changes must be implemented as separate `.sql` files in `internal/repository/sqlite/migrations` to ensure idempotency and Agent readability.

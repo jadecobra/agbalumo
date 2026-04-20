@@ -12,8 +12,8 @@ import (
 
 // HandleBulkAction processes bulk approvals, rejections, and deletions.
 func (h *AdminHandler) HandleBulkAction(c echo.Context) error {
-	action := c.FormValue("action")
-	selectedIDs := c.Request().PostForm["selectedListings"]
+	action := c.FormValue(domain.FieldAction)
+	selectedIDs := c.Request().PostForm[domain.ParamListingIDs]
 	ctx := c.Request().Context()
 
 	if len(selectedIDs) == 0 {
@@ -24,7 +24,7 @@ func (h *AdminHandler) HandleBulkAction(c echo.Context) error {
 		return h.redirectToBulkDeleteConfirm(c, selectedIDs)
 	}
 
-	newCategory := c.FormValue("new_category")
+	newCategory := c.FormValue(domain.FieldNewCategory)
 	successCount := h.processBulkListings(ctx, selectedIDs, action, newCategory)
 
 	return h.redirectWithFlash(c, fmt.Sprintf("Successfully processed %d listings", successCount), domain.PathAdminListings)
@@ -33,7 +33,7 @@ func (h *AdminHandler) HandleBulkAction(c echo.Context) error {
 func (h *AdminHandler) redirectToBulkDeleteConfirm(c echo.Context, ids []string) error {
 	query := url.Values{}
 	for _, id := range ids {
-		query.Add("id", id)
+		query.Add(domain.ParamID, id)
 	}
 	return c.Redirect(http.StatusFound, domain.PathAdminListings+"/delete-confirm?"+query.Encode())
 }
@@ -79,7 +79,7 @@ func (h *AdminHandler) applyActionToListing(ctx context.Context, id, action, new
 // HandleBulkUpload processes a CSV file upload.
 func (h *AdminHandler) HandleBulkUpload(c echo.Context) error {
 	// 1. Get File
-	file, err := c.FormFile("csv_file")
+	file, err := c.FormFile(domain.ParamCSVFile)
 	if err != nil {
 		return h.redirectWithFlash(c, "Please select a valid CSV file", domain.PathAdmin)
 	}

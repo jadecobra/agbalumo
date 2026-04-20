@@ -26,6 +26,16 @@ func AssertContainsPagination(t testing.TB, body string) {
 	}
 }
 
+// AssertContainsSemanticID verifies that the response contains the expected ag-test-id.
+func AssertContainsSemanticID(t testing.TB, body, id string) {
+	t.Helper()
+	// Check for ag-test-id="id"
+	expected := "ag-test-id=\"" + id + "\""
+	if !strings.Contains(body, expected) {
+		t.Errorf("response missing expected semantic tag: %s", expected)
+	}
+}
+
 // AssertErrorPage verifies that the response contains the error page content.
 func AssertErrorPage(t testing.TB, body string) {
 	t.Helper()
@@ -52,12 +62,12 @@ type RealTemplateRenderer = TemplateRenderer
 // NewMainTemplate returns a minimal template for use in unit tests.
 func NewMainTemplate() *template.Template {
 	return template.Must(template.New("main").Funcs(ui.BuildGlobalFuncMap()).Parse(`
-		{{define "` + domain.TemplateIndex + `"}}{{.TotalCount}} {{range .Listings}}{{.Title}}{{end}}{{end}}
-		{{define "modal_detail"}}{{.Listing.Title}}{{end}}
-		{{define "listing_list"}}{{range .Listings}}{{.Title}}{{end}}{{template "pagination_controls" dict "OOB" true}}{{end}}
+		{{define "` + domain.TemplateIndex + `"}}<div ag-test-id="home-page">{{.TotalCount}} {{range .Listings}}{{.Title}}{{end}}</div>{{end}}
+		{{define "modal_detail"}}<div ag-test-id="modal-detail" data-agent-template="modal_detail"><h1>{{.Listing.Title}}</h1><p>{{.Listing.Description}}</p></div>{{end}}
+		{{define "listing_list"}}<div ag-test-id="listing-list"><span>Context: {{.Category}} in {{.City}}</span>{{range .FeaturedListings}}<div ag-test-id="listing-{{.ID}}">{{.Title}} (Featured)</div>{{end}}{{range .Listings}}<div ag-test-id="listing-{{.ID}}">{{.Title}}</div>{{end}}</div>{{template "pagination_controls" dict "OOB" true}}{{end}}
 		{{define "pagination_controls"}}{{if .OOB}}hx-swap-oob="true" id="pagination-controls"{{end}}{{end}}
-		{{define "listing_card"}}{{.Listing.Title}}{{end}}
-		{{define "modal_edit_listing"}}{{.Listing.Title}}{{end}}
+		{{define "listing_card"}}<div ag-test-id="listing-{{.Listing.ID}}">{{.Listing.Title}}</div>{{end}}
+		{{define "modal_edit_listing"}}<div ag-test-id="modal-edit">{{.Listing.Title}}</div>{{end}}
 		{{define "modal_profile"}}{{.User.Name}}{{end}}
 		{{define "profile.html"}}{{.User.Name}}{{end}}
 		{{define "about.html"}}About agbalumo{{end}}

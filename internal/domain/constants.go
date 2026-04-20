@@ -79,7 +79,21 @@ const (
 	FieldCompany     = "company"
 	FieldPayRange    = "pay-range"
 	FieldType        = "type"
-	FieldCity        = "city"
+	FieldCity              = "city"
+	FieldOwnerOrigin       = "owner_origin"
+	FieldWebsiteURL        = "website_url"
+	FieldContactEmail      = "contact_email"
+	FieldContactPhone      = "contact_phone"
+	FieldHoursOfOperation  = "hours_of_operation"
+	FieldEventStartDate    = "event_start"
+	FieldDeadlineDate      = "deadline_date"
+	FieldContactWhatsApp   = "contact_whatsapp"
+	FieldJobStartDate      = "job_start_date"
+	FieldJobApplyURL       = "job_apply_url"
+	FieldTopDish           = "top_dish"
+	FieldRegionalSpecialty = "regional_specialty"
+	FieldHeatLevel         = "heat_level"
+	FieldRemoveImage       = "remove_image"
 
 	// Context Keys
 	CtxKeyUser = "User"
@@ -89,9 +103,17 @@ const (
 	SessionKeyOAuthState = "oauth_state"
 
 	// Fields (Additional)
-	FieldStatus    = "status"
-	FieldFeatured  = "featured"
-	FieldCreatedAt = "created_at"
+	FieldStatus      = "status"
+	FieldFeatured    = "featured"
+	FieldCreatedAt   = "created_at"
+	FieldAction      = "action"
+	FieldNewCategory = "new_category"
+	FieldClaimable   = "claimable"
+	FieldAdminCode   = "admin_code"
+	FieldCode        = "code"
+	FieldName        = "name"
+	FieldCSVFile     = "csv_file"
+	FieldContent     = "content"
 
 	// Headers
 	HeaderHXTrigger = "HX-Trigger"
@@ -100,17 +122,28 @@ const (
 	TriggerListingUpdatedPrefix = "listing-updated-"
 
 	// HTMX Targets & Indicators
-	TargetListingsContainer = "#listings-container"
+	TargetListingsContainer  = "#listings-container"
 	IndicatorListingsLoading = "#listings-loading"
-	TargetBody              = "body"
+	TargetBody               = "body"
 
 	// HTMX Swaps
-	SwapBeforeEnd  = "beforeend"
-	SwapOuterHTML  = "outerHTML"
+	SwapBeforeEnd = "beforeend"
+	SwapOuterHTML = "outerHTML"
 
 	// Params
 	ParamSource      = "source"
 	ParamSourceAdmin = "admin"
+	ParamCategory    = "category"
+	ParamSort        = "sort"
+	ParamOrder       = "order"
+	ParamQuery       = "q"
+	ParamID          = "id"
+	ParamPage        = "page"
+	ParamTarget      = "target"
+	ParamState       = "state"
+	ParamCode        = "code"
+	ParamCSVFile     = "csv_file"
+	ParamListingIDs  = "selectedListings"
 
 	SessionKeyUserID = "user_id"
 	FlashMessageKey  = "message"

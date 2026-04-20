@@ -39,12 +39,12 @@ func (h *FeedbackHandler) HandleSubmit(c echo.Context) error {
 		return err
 	}
 
-	contentType := c.QueryParam("type")
+	contentType := c.QueryParam(domain.FieldType)
 	if contentType == "" {
-		contentType = c.FormValue("type")
+		contentType = c.FormValue(domain.FieldType)
 	}
 
-	content := c.FormValue("content")
+	content := c.FormValue(domain.FieldContent)
 
 	// Validate
 	if content == "" {

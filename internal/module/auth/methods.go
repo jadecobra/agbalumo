@@ -16,7 +16,7 @@ import (
 )
 
 func (h *AuthHandler) DevLogin(c echo.Context) error {
-	email := c.QueryParam("email")
+	email := c.QueryParam(domain.FieldEmail)
 	if email == "" {
 		email = h.App.Cfg.DevAuthEmail
 	}
@@ -123,7 +123,7 @@ func (h *AuthHandler) setSessionAndRedirect(c echo.Context, userID string) error
 	return c.Redirect(http.StatusTemporaryRedirect, "/")
 }
 func (h *AuthHandler) GoogleCallback(c echo.Context) error {
-	state := c.QueryParam("state")
+	state := c.QueryParam(domain.ParamState)
 
 	stateCookie, err := c.Cookie(domain.SessionKeyOAuthState)
 	if err != nil || stateCookie.Value != state {
@@ -137,7 +137,7 @@ func (h *AuthHandler) GoogleCallback(c echo.Context) error {
 	deleteCookie.MaxAge = -1
 	c.SetCookie(deleteCookie)
 
-	code := c.QueryParam("code")
+	code := c.QueryParam(domain.ParamCode)
 	token, err := h.GoogleProvider.Exchange(c.Request().Context(), code, c.Scheme(), c.Request().Host)
 	if err != nil {
 		return ui.RespondErrorMsg(c, http.StatusInternalServerError, "Code exchange failed")

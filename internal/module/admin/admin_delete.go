@@ -10,9 +10,9 @@ import (
 
 // HandleAdminDeleteView renders the double-confirmation page for deleting listings.
 func (h *AdminHandler) HandleAdminDeleteView(c echo.Context) error {
-	ids := c.QueryParams()["id"]
+	ids := c.QueryParams()[domain.ParamID]
 	if len(ids) == 0 {
-		if id := c.QueryParam("id"); id != "" {
+		if id := c.QueryParam(domain.ParamID); id != "" {
 			ids = []string{id}
 		}
 	}
@@ -38,10 +38,10 @@ func (h *AdminHandler) HandleAdminDeleteView(c echo.Context) error {
 
 // HandleAdminDeleteAction processes explicit admin deletions after password confirmation.
 func (h *AdminHandler) HandleAdminDeleteAction(c echo.Context) error {
-	adminCode := c.FormValue("admin_code")
+	adminCode := c.FormValue(domain.FieldAdminCode)
 
 	_ = c.Request().ParseForm()
-	ids := c.Request().PostForm["id"]
+	ids := c.Request().PostForm[domain.ParamID]
 
 	if len(ids) == 0 {
 		return c.Redirect(http.StatusFound, domain.PathAdminListings)

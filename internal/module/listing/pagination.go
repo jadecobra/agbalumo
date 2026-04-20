@@ -46,7 +46,7 @@ func (p Pagination) GetPageRange() []int {
 
 // GetPagination extracts pagination parameters from query string.
 func GetPagination(c echo.Context, defaultLimit int) Pagination {
-	page, _ := strconv.Atoi(c.QueryParam("page"))
+	page, _ := strconv.Atoi(c.QueryParam(domain.ParamPage))
 	if page < 1 {
 		page = 1
 	}

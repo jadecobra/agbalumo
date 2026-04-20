@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/gorilla/sessions"
+	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/module/auth"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
@@ -54,5 +55,5 @@ func TestAuthHandler_DevLogin_Success(t *testing.T) {
 	err := h.DevLogin(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
-	assert.NotEmpty(t, sess.Values["user_id"])
+	assert.NotEmpty(t, sess.Values[domain.SessionKeyUserID])
 }

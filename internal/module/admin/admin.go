@@ -93,7 +93,7 @@ func (h *AdminHandler) HandleLoginView(c echo.Context) error {
 
 // HandleLoginAction processes the access code and promotes the user.
 func (h *AdminHandler) HandleLoginAction(c echo.Context) error {
-	code := c.FormValue("code")
+	code := c.FormValue(domain.FieldCode)
 
 	if code != h.App.Cfg.AdminCode {
 		return h.renderLoginView(c, "Invalid Access Code")
@@ -234,7 +234,7 @@ func (h *AdminHandler) renderLoginView(c echo.Context, errMsg string) error {
 // HandleAddCategory processes the form submission to add a new category
 func (h *AdminHandler) HandleAddCategory(c echo.Context) error {
 	ctx := c.Request().Context()
-	name := strings.TrimSpace(c.FormValue("name"))
+	name := strings.TrimSpace(c.FormValue(domain.FieldName))
 	if name == "" {
 		return c.Redirect(http.StatusFound, domain.PathAdmin)
 	}
@@ -245,7 +245,7 @@ func (h *AdminHandler) HandleAddCategory(c echo.Context) error {
 		}
 	}
 
-	claimable := c.FormValue("claimable") == "true"
+	claimable := c.FormValue(domain.FieldClaimable) == "true"
 	now := time.Now()
 	cat := domain.CategoryData{
 		ID:        strings.ToLower(strings.ReplaceAll(name, " ", "-")),
