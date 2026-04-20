@@ -65,3 +65,6 @@ and uses the Google Geocoding API to attempt to populate the city.`,
 		fmt.Printf("Backfill complete. Updated: %d, Errors: %d\n", updatedCount, errorCount)
 	},
 }
+func init() {
+	rootCmd.AddCommand(listingBackfillCitiesCmd)
+}

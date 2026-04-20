@@ -17,44 +17,44 @@ func TestFindAll_CityFilter_Regression(t *testing.T) {
 	// Seed data matching the issue: "Dallas" is in the address, but City field is empty.
 	listings := []domain.Listing{
 		{
-			ID:          "dallas-1",
-			Title:       "Lalibela Restaurant & Bar",
-			Type:        domain.Food,
-			City:        "Dallas",
-			Address:     "9191 Forest Ln # 2, Dallas, TX 75243",
-			Status:      domain.ListingStatusApproved,
-			IsActive:    true,
-			CreatedAt:   time.Now(),
+			ID:        "dallas-1",
+			Title:     "Lalibela Restaurant & Bar",
+			Type:      domain.Food,
+			City:      "Dallas",
+			Address:   "9191 Forest Ln # 2, Dallas, TX 75243",
+			Status:    domain.ListingStatusApproved,
+			IsActive:  true,
+			CreatedAt: time.Now(),
 		},
 		{
-			ID:          "dallas-2",
-			Title:       "African Food Depot",
-			Type:        domain.Food,
-			City:        "", // EMPTY CITY - This is the bug scenario
-			Address:     "9751 Walnut St #112, Dallas, TX 75243",
-			Status:      domain.ListingStatusApproved,
-			IsActive:    true,
-			CreatedAt:   time.Now(),
+			ID:        "dallas-2",
+			Title:     "African Food Depot",
+			Type:      domain.Food,
+			City:      "", // EMPTY CITY - This is the bug scenario
+			Address:   "9751 Walnut St #112, Dallas, TX 75243",
+			Status:    domain.ListingStatusApproved,
+			IsActive:  true,
+			CreatedAt: time.Now(),
 		},
 		{
-			ID:          "dallas-3",
-			Title:       "Southwest Farmers Market",
-			Type:        domain.Food,
-			City:        "", // EMPTY CITY
-			Address:     "4460 W Walnut St, Garland, TX 75042", // This one is Garland, but close. Let's use one that says Dallas in address.
-			Status:      domain.ListingStatusApproved,
-			IsActive:    true,
-			CreatedAt:   time.Now(),
+			ID:        "dallas-3",
+			Title:     "Southwest Farmers Market",
+			Type:      domain.Food,
+			City:      "",                                    // EMPTY CITY
+			Address:   "4460 W Walnut St, Garland, TX 75042", // This one is Garland, but close. Let's use one that says Dallas in address.
+			Status:    domain.ListingStatusApproved,
+			IsActive:  true,
+			CreatedAt: time.Now(),
 		},
 		{
-			ID:          "dallas-4",
-			Title:       "Murphy's Mansion",
-			Type:        domain.Food,
-			City:        "", // EMPTY CITY
-			Address:     "10051 Whitehurst Dr, Dallas, TX 75243",
-			Status:      domain.ListingStatusApproved,
-			IsActive:    true,
-			CreatedAt:   time.Now(),
+			ID:        "dallas-4",
+			Title:     "Murphy's Mansion",
+			Type:      domain.Food,
+			City:      "", // EMPTY CITY
+			Address:   "10051 Whitehurst Dr, Dallas, TX 75243",
+			Status:    domain.ListingStatusApproved,
+			IsActive:  true,
+			CreatedAt: time.Now(),
 		},
 	}
 
@@ -74,7 +74,9 @@ func TestFindAll_CityFilter_Regression(t *testing.T) {
 	// CURRENTLY (expected to fail): It will only return 1 (Lalibela).
 	if len(res) < 3 {
 		t.Errorf("Expected at least 3 Dallas listings, got %d. Only ID %s was found if 1.", len(res), func() string {
-			if len(res) > 0 { return res[0].ID }
+			if len(res) > 0 {
+				return res[0].ID
+			}
 			return "none"
 		}())
 	}

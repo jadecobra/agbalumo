@@ -274,6 +274,6 @@ func (r *SQLiteRepository) GetFeaturedListings(ctx context.Context, category str
 
 func (r *SQLiteRepository) FindEnrichmentTargets(ctx context.Context, limit int) ([]domain.Listing, error) {
 	// Custom WHERE for enrichment, still uses queryListingsSimple for scan logic
-	where := "WHERE website_url != '' AND (heat_level = 0 AND menu_url = '' AND payment_methods = '') LIMIT ?"
+	where := "WHERE website_url != '' AND (heat_level = 0 OR menu_url = '' OR payment_methods = '') LIMIT ?"
 	return r.queryListingsSimple(ctx, where, limit)
 }
