@@ -52,6 +52,7 @@ func seedGroup(ctx context.Context, repo domain.ListingStore, name string, listi
 		l.ID = uuid.New().String()
 		l.CreatedAt = time.Now()
 		l.IsActive = true
+		l.Status = domain.ListingStatusApproved
 		if l.Type == domain.Request || l.Type == domain.Event {
 			l.Deadline = time.Now().Add(30 * 24 * time.Hour)
 		}

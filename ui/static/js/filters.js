@@ -73,24 +73,64 @@ function setupFilterToggle() {
                 chip.classList.remove(...inactiveClasses);
             }
 
-            // Trigger HTMX request
-            const params = new URLSearchParams();
-            if (filterState.type) params.set('type', filterState.type);
-            if (filterState.city) params.set('city', filterState.city);
-            
-            // Gather search query from ANY search input on the page
-            const searchInput = document.getElementById('search') || document.getElementById('search-header');
-            if (searchInput && searchInput.value) {
-                params.set('q', searchInput.value);
+    const triggerSearch = () => {
+        const params = new URLSearchParams();
+        if (filterState.type) params.set('type', filterState.type);
+        if (filterState.city) params.set('city', filterState.city);
+
+        // Gather search query from ANY search input on the page
+        const searchInput = document.getElementById('search') || document.getElementById('search-header');
+        if (searchInput && searchInput.value) {
+            params.set('q', searchInput.value);
+        }
+
+        const url = `/listings/fragment?${params.toString()}`;
+        htmx.ajax('GET', url, { target: '#listings-container', indicator: '#listings-loading' });
+
+        // Auto-close panel on selection
+        const panel = document.getElementById('filter-dropdown-panel');
+        if (panel) panel.classList.add('hidden');
+        updateButtonStates(false);
+    };
+
+    document.addEventListener('click', (e) => {
+        const toggleBtn = e.target.closest('[data-action="toggle-filters"]');
+        if (toggleBtn) {
+            const panel = document.getElementById('filter-dropdown-panel');
+            if (panel) {
+                const isOpen = !panel.classList.contains('hidden');
+                panel.classList.toggle('hidden');
+                updateButtonStates(!isOpen);
+            }
+            return;
+        }
+
+        const searchBtn = e.target.closest('.search-btn');
+        if (searchBtn) {
+            triggerSearch();
+            return;
+        }
+
+        const chip = e.target.closest('[data-filter-type]');
+        if (chip) {
+            const type = chip.dataset.filterType;
+            const value = chip.dataset.filterValue;
+
+            // Update state
+            filterState[type] = value;
+
+            // Update UI for the group
+            const group = chip.closest('.flex-col');
+            if (group) {
+                group.querySelectorAll('[data-filter-type]').forEach(btn => {
+                    btn.classList.remove(...activeClasses);
+                    btn.classList.add(...inactiveClasses);
+                });
+                chip.classList.add(...activeClasses);
+                chip.classList.remove(...inactiveClasses);
             }
 
-            const url = `/listings/fragment?${params.toString()}`;
-            htmx.ajax('GET', url, { target: '#listings-container', indicator: '#listings-loading' });
-            
-            // Auto-close panel on selection (optional, following existing pattern)
-            const panel = document.getElementById('filter-dropdown-panel');
-            if (panel) panel.classList.add('hidden');
-            updateButtonStates(false);
+            triggerSearch();
         }
     });
 }
