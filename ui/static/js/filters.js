@@ -5,7 +5,7 @@ window.filterState = {
 };
 
 function setupFilterToggle() {
-    console.log('[Filters] setupFilterToggle initialized');
+    console.log('[Filters] Initializing filter logic...');
     const activeClasses = ['bg-earth-ochre', 'text-white'];
     const inactiveClasses = ['bg-earth-dark/5', 'text-earth-dark'];
 
@@ -47,6 +47,7 @@ function setupFilterToggle() {
             params.set('q', searchInput.value);
         }
 
+        console.log('[Filters] Triggering search with params:', params.toString());
         const url = `/listings/fragment?${params.toString()}`;
         htmx.ajax('GET', url, { target: '#listings-container', indicator: '#listings-loading' });
 
@@ -62,6 +63,42 @@ function setupFilterToggle() {
             filterState[btn.dataset.filterType] = btn.dataset.filterValue;
         }
     });
+
+    // Handle Location Search (Search-as-you-type)
+    const locSearch = document.getElementById('location-search');
+    if (locSearch) {
+        console.log('[Filters] Location search input found, attaching listener');
+        locSearch.addEventListener('input', (e) => {
+            const val = e.target.value.trim().toLowerCase();
+            console.log('[Filters] Location filtering for:', val);
+            const items = document.querySelectorAll('.location-item');
+            const headers = document.querySelectorAll('.location-header');
+
+            // Filter items
+            items.forEach(item => {
+                const name = (item.dataset.cityName || '').toLowerCase();
+                if (name.includes(val)) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+
+            // Filter headers based on item visibility
+            headers.forEach(header => {
+                let hasVisible = false;
+                let sibling = header.nextElementSibling;
+                while (sibling && !sibling.classList.contains('location-header')) {
+                    if (sibling.classList.contains('location-item') && !sibling.classList.contains('hidden')) {
+                        hasVisible = true;
+                        break;
+                    }
+                    sibling = sibling.nextElementSibling;
+                }
+                header.classList.toggle('hidden', !hasVisible);
+            });
+        });
+    }
 
     document.addEventListener('click', (e) => {
         const target = e.target;
@@ -91,8 +128,18 @@ function setupFilterToggle() {
             const type = chip.dataset.filterType;
             const value = chip.dataset.filterValue;
 
+            console.log(`[Filters] Chip selected: ${type}=${value}`);
+
             // Update global state
             filterState[type] = value;
+
+            // Update main search input if appropriate
+            if (type === 'city') {
+                const mainSearch = document.getElementById('search');
+                if (mainSearch) {
+                    mainSearch.value = value; // Sync city name to search bar
+                }
+            }
 
             // Update UI for the group
             const group = chip.closest('.flex-col');

@@ -13,6 +13,13 @@ var (
 	ErrInvalidOrigin   = errors.New("owner origin must be an African country")
 )
 
+type Location struct {
+	City    string `json:"city"`
+	State   string `json:"state"`
+	Country string `json:"country"`
+}
+
+
 type validationRule struct {
 	condition func(*Listing) bool
 	err       string
@@ -58,6 +65,8 @@ type Listing struct {
 	Title             string        `json:"title" form:"title"`
 	Description       string        `json:"description" form:"description"`
 	City              string        `json:"city" form:"city"`
+	State             string        `json:"state" form:"state"`
+	Country           string        `json:"country" form:"country"`
 	Address           string        `json:"address" form:"address"`
 	HoursOfOperation  string        `json:"hours_of_operation" form:"hours_of_operation"`
 	ImageURL          string        `json:"image_url" form:"image_url"`

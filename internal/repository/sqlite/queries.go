@@ -3,7 +3,7 @@ package sqlite
 // ListingSelectionsSQL is the shared column selection for reading listings.
 const ListingSelectionsSQL = `
 	id, COALESCE(owner_id, ''), owner_origin, type, title, description,
-	COALESCE(city, ''), COALESCE(address, ''), COALESCE(hours_of_operation, ''), 
+	COALESCE(city, ''), COALESCE(state, ''), COALESCE(country, 'USA'), COALESCE(address, ''), COALESCE(hours_of_operation, ''), 
 	COALESCE(contact_email, ''), COALESCE(contact_phone, ''), COALESCE(contact_whatsapp, ''),
 	COALESCE(website_url, ''), COALESCE(image_url, ''), created_at, deadline, is_active,
 	event_start, event_end,
@@ -28,12 +28,12 @@ const (
 // Shared Read Queries
 const (
 	ListingGetCountsSQL    = `SELECT type, COUNT(*) FROM listings WHERE ` + ListingActiveApprovedSQL + ` GROUP BY type`
-	ListingGetLocationsSQL = `SELECT DISTINCT city FROM listings WHERE ` + ListingActiveApprovedSQL + ` AND city != '' ORDER BY city ASC`
+	ListingGetLocationsSQL = `SELECT DISTINCT city, state, country FROM listings WHERE ` + ListingActiveApprovedSQL + ` AND city != '' ORDER BY country ASC, state ASC, city ASC`
 	ListingTitleExistsSQL  = `SELECT EXISTS(SELECT 1 FROM listings WHERE title = ?)`
 	UserGetCountSQL        = `SELECT COUNT(*) FROM users`
 )
 
-const listingColumns = `(id, owner_id, title, description, type, owner_origin, city, address, hours_of_operation, is_active, created_at, image_url, contact_email, contact_phone, contact_whatsapp, website_url, deadline, event_start, event_end, skills, job_start_date, job_apply_url, company, pay_range, status, featured, heat_level, regional_specialty, top_dish, payment_methods, menu_url)`
+const listingColumns = `(id, owner_id, title, description, type, owner_origin, city, state, country, address, hours_of_operation, is_active, created_at, image_url, contact_email, contact_phone, contact_whatsapp, website_url, deadline, event_start, event_end, skills, job_start_date, job_apply_url, company, pay_range, status, featured, heat_level, regional_specialty, top_dish, payment_methods, menu_url)`
 
 const listingUpsertUpdate = `ON CONFLICT(id) DO UPDATE SET
 		owner_id = excluded.owner_id,
@@ -42,6 +42,8 @@ const listingUpsertUpdate = `ON CONFLICT(id) DO UPDATE SET
 		type = excluded.type,
 		owner_origin = excluded.owner_origin,
 		city = excluded.city,
+		state = excluded.state,
+		country = excluded.country,
 		address = excluded.address,
 		hours_of_operation = excluded.hours_of_operation,
 		is_active = excluded.is_active,
@@ -68,7 +70,7 @@ const listingUpsertUpdate = `ON CONFLICT(id) DO UPDATE SET
 
 // ListingUpsertSQL is the shared UPSERT query for both single and batch saves.
 const ListingUpsertSQL = `INSERT INTO listings ` + listingColumns + `
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	` + listingUpsertUpdate
 
 // CategoryUpsertSQL is the shared UPSERT query for category saving.

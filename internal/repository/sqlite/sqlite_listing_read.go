@@ -27,7 +27,7 @@ func scanListing(s Scanner) (domain.Listing, error) {
 
 	err := s.Scan(
 		&l.ID, &l.OwnerID, &l.OwnerOrigin, &l.Type, &l.Title, &l.Description,
-		&l.City, &l.Address, &l.HoursOfOperation, &l.ContactEmail, &l.ContactPhone, &l.ContactWhatsApp,
+		&l.City, &l.State, &l.Country, &l.Address, &l.HoursOfOperation, &l.ContactEmail, &l.ContactPhone, &l.ContactWhatsApp,
 		&l.WebsiteURL, &l.ImageURL, &l.CreatedAt, &deadline, &l.IsActive,
 		&eventStart, &eventEnd,
 		&l.Skills, &jobStart, &l.JobApplyURL,
@@ -253,12 +253,21 @@ func (r *SQLiteRepository) GetCounts(ctx context.Context) (map[domain.Category]i
 	return scanCounts[domain.Category](rows)
 }
 
-func (r *SQLiteRepository) GetLocations(ctx context.Context) ([]string, error) {
+func (r *SQLiteRepository) GetLocations(ctx context.Context) ([]domain.Location, error) {
 	rows, err := r.readDB.QueryContext(ctx, ListingGetLocationsSQL)
 	if err != nil {
 		return nil, err
 	}
-	return scanStrings(rows)
+	defer func() { _ = rows.Close() }()
+	var locations []domain.Location
+	for rows.Next() {
+		var loc domain.Location
+		if err := rows.Scan(&loc.City, &loc.State, &loc.Country); err != nil {
+			return nil, err
+		}
+		locations = append(locations, loc)
+	}
+	return locations, rows.Err()
 }
 
 // GetFeaturedListings returns featured listings set by admin, optionally filtered by category and city.

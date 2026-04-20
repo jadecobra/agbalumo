@@ -14,7 +14,7 @@ type CachedListingStore struct {
 	locationsTime time.Time
 	domain.ListingRepository
 	counts    map[domain.Category]int
-	locations []string
+	locations []domain.Location
 	ttl       time.Duration
 	mu        sync.RWMutex
 }
@@ -64,11 +64,11 @@ func (c *CachedListingStore) GetCounts(ctx context.Context) (map[domain.Category
 
 // GetLocations returns cached locations, refreshing from the underlying store
 // if the cache is expired or empty.
-func (c *CachedListingStore) GetLocations(ctx context.Context) ([]string, error) {
+func (c *CachedListingStore) GetLocations(ctx context.Context) ([]domain.Location, error) {
 	c.mu.RLock()
 	if c.locations != nil && time.Since(c.locationsTime) < c.ttl {
 		// Cache hit — return a copy to prevent mutation
-		result := make([]string, len(c.locations))
+		result := make([]domain.Location, len(c.locations))
 		copy(result, c.locations)
 		c.mu.RUnlock()
 		return result, nil
@@ -88,7 +88,7 @@ func (c *CachedListingStore) GetLocations(ctx context.Context) ([]string, error)
 	c.mu.Unlock()
 
 	// Return a copy
-	result := make([]string, len(locations))
+	result := make([]domain.Location, len(locations))
 	copy(result, locations)
 	return result, nil
 }

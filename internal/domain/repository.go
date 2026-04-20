@@ -15,7 +15,7 @@ type ListingReader interface {
 	TitleExists(ctx context.Context, title string) (bool, error)
 	FindAllByOwner(ctx context.Context, ownerID string, limit int, offset int) ([]Listing, int, error)
 	GetCounts(ctx context.Context) (map[Category]int, error)
-	GetLocations(ctx context.Context) ([]string, error)
+	GetLocations(ctx context.Context) ([]Location, error)
 	GetFeaturedListings(ctx context.Context, category string, city string) ([]Listing, error)
 	FindEnrichmentTargets(ctx context.Context, limit int) ([]Listing, error)
 }

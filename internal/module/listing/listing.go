@@ -56,7 +56,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		listings   []domain.Listing
 		counts     map[domain.Category]int
 		featured   []domain.Listing
-		locations  []string
+		locations  []domain.Location
 		categories []domain.CategoryData
 
 		listingsErr   error

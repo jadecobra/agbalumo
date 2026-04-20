@@ -76,8 +76,8 @@ func (r *SQLiteRepository) insertBatch(ctx context.Context, tx *sql.Tx, batch []
 }
 
 func (r *SQLiteRepository) buildBulkInsertSQL(batch []domain.Listing) (string, []interface{}) {
-	const numFields = 31
-	const placeholders = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	const numFields = 33
+	const placeholders = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
 	var sb strings.Builder
 	// Pre-allocate approximate size: len(batch) * len(placeholders) + SQL header/footer
@@ -101,7 +101,7 @@ func (r *SQLiteRepository) buildBulkInsertSQL(batch []domain.Listing) (string, [
 }
 
 func (r *SQLiteRepository) listingArgs(l domain.Listing) []interface{} {
-	args := make([]interface{}, 31)
+	args := make([]interface{}, 33)
 	r.fillListingArgs(args, 0, l)
 	return args
 }
@@ -114,30 +114,32 @@ func (r *SQLiteRepository) fillListingArgs(args []interface{}, offset int, l dom
 	args[offset+4] = l.Type
 	args[offset+5] = l.OwnerOrigin
 	args[offset+6] = l.City
-	args[offset+7] = l.Address
-	args[offset+8] = l.HoursOfOperation
-	args[offset+9] = l.IsActive
-	args[offset+10] = l.CreatedAt
-	args[offset+11] = l.ImageURL
-	args[offset+12] = l.ContactEmail
-	args[offset+13] = l.ContactPhone
-	args[offset+14] = l.ContactWhatsApp
-	args[offset+15] = l.WebsiteURL
-	args[offset+16] = l.Deadline
-	args[offset+17] = l.EventStart
-	args[offset+18] = l.EventEnd
-	args[offset+19] = l.Skills
-	args[offset+20] = l.JobStartDate
-	args[offset+21] = l.JobApplyURL
-	args[offset+22] = l.Company
-	args[offset+23] = l.PayRange
-	args[offset+24] = r.ensureStatus(l.Status)
-	args[offset+25] = l.Featured
-	args[offset+26] = l.HeatLevel
-	args[offset+27] = l.RegionalSpecialty
-	args[offset+28] = l.TopDish
-	args[offset+29] = l.PaymentMethods
-	args[offset+30] = l.MenuURL
+	args[offset+7] = l.State
+	args[offset+8] = l.Country
+	args[offset+9] = l.Address
+	args[offset+10] = l.HoursOfOperation
+	args[offset+11] = l.IsActive
+	args[offset+12] = l.CreatedAt
+	args[offset+13] = l.ImageURL
+	args[offset+14] = l.ContactEmail
+	args[offset+15] = l.ContactPhone
+	args[offset+16] = l.ContactWhatsApp
+	args[offset+17] = l.WebsiteURL
+	args[offset+18] = l.Deadline
+	args[offset+19] = l.EventStart
+	args[offset+20] = l.EventEnd
+	args[offset+21] = l.Skills
+	args[offset+22] = l.JobStartDate
+	args[offset+23] = l.JobApplyURL
+	args[offset+24] = l.Company
+	args[offset+25] = l.PayRange
+	args[offset+26] = r.ensureStatus(l.Status)
+	args[offset+27] = l.Featured
+	args[offset+28] = l.HeatLevel
+	args[offset+29] = l.RegionalSpecialty
+	args[offset+30] = l.TopDish
+	args[offset+31] = l.PaymentMethods
+	args[offset+32] = l.MenuURL
 }
 
 func (r *SQLiteRepository) ensureStatus(s domain.ListingStatus) string {

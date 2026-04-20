@@ -13,7 +13,7 @@ import (
 type stubListingStore struct {
 	domain.ListingRepository
 	getCountsFunc     func() (map[domain.Category]int, error)
-	getLocationsFunc  func() ([]string, error)
+	getLocationsFunc  func() ([]domain.Location, error)
 	getCountsCalls    int
 	getLocationsCalls int
 }
@@ -26,12 +26,12 @@ func (s *stubListingStore) GetCounts(ctx context.Context) (map[domain.Category]i
 	return map[domain.Category]int{domain.Business: 5, domain.Food: 3}, nil
 }
 
-func (s *stubListingStore) GetLocations(ctx context.Context) ([]string, error) {
+func (s *stubListingStore) GetLocations(ctx context.Context) ([]domain.Location, error) {
 	s.getLocationsCalls++
 	if s.getLocationsFunc != nil {
 		return s.getLocationsFunc()
 	}
-	return []string{"Lagos", "London"}, nil
+	return []domain.Location{{City: "Lagos"}, {City: "London"}}, nil
 }
 
 func assertCacheCounts(t *testing.T, stub *stubListingStore, result map[domain.Category]int, wantCalls int) {
@@ -47,12 +47,12 @@ func assertCacheCounts(t *testing.T, stub *stubListingStore, result map[domain.C
 	}
 }
 
-func assertCacheLocations(t *testing.T, stub *stubListingStore, result []string, wantCalls int) {
+func assertCacheLocations(t *testing.T, stub *stubListingStore, result []domain.Location, wantCalls int) {
 	t.Helper()
 	if stub.getLocationsCalls != wantCalls {
 		t.Errorf("expected %d call(s) to underlying store, got %d", wantCalls, stub.getLocationsCalls)
 	}
-	if len(result) != 2 || result[0] != "Lagos" || result[1] != "London" {
+	if len(result) != 2 || result[0].City != "Lagos" || result[1].City != "London" {
 		t.Errorf("unexpected locations: %v", result)
 	}
 }
@@ -152,7 +152,7 @@ func TestCached_ErrorPassthrough(t *testing.T) {
 	}
 	setupLocs := func(s *stubListingStore) {
 		_ = "loc_setup" // Unique string
-		s.getLocationsFunc = func() ([]string, error) { return nil, expectedErr }
+		s.getLocationsFunc = func() ([]domain.Location, error) { return nil, expectedErr }
 	}
 	getLocs := func(c *CachedListingStore) error {
 		_ = "loc_get" // Unique string
@@ -210,9 +210,9 @@ func TestCached_MutationSafety(t *testing.T) {
 			name: "Locations",
 			mutate: func(c *CachedListingStore) error {
 				l1, _ := c.GetLocations(context.Background())
-				l1[0] = "MODIFIED"
+				l1[0].City = "MODIFIED"
 				l2, _ := c.GetLocations(context.Background())
-				if l2[0] != "Lagos" {
+				if l2[0].City != "Lagos" {
 					return errors.New("cache was mutated")
 				}
 				return nil

@@ -101,20 +101,37 @@
                     </div>
 
                     <!-- Location Group -->
-                    <div class="px-5 py-2 bg-earth-dark/10 border-y border-earth-dark/10">
-                        <span
-                            class="text-[9px] font-bold uppercase tracking-widest text-earth-clay opacity-80">Location</span>
+                    <div class="px-5 py-2 bg-earth-dark/10 border-y border-earth-dark/10 flex items-center justify-between">
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-earth-clay opacity-80">Location</span>
+                        <div class="relative w-32">
+                            <input type="text" id="location-search" placeholder="Filter..." 
+                                class="w-full bg-white/20 border-none text-[10px] py-1 px-2 focus:ring-1 focus:ring-earth-ochre text-earth-dark outline-none rounded">
+                        </div>
                     </div>
-                    <div class="flex flex-col w-full">
+                    <div class="flex flex-col w-full" id="location-list">
                         <button type="button" data-filter-type="city" data-filter-value=""
                             class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-ochre text-white transition-colors w-full border-b border-earth-dark/5">
                             All Locations
                         </button>
+                        {{ $lastLabel := "___INIT_LOCATION___" }}
                         {{ range .Locations }}
-                        <button type="button" data-filter-type="city" data-filter-value="{{ . }}"
-                            class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-dark/5 hover:bg-earth-dark/10 text-earth-dark transition-colors w-full border-b border-earth-dark/5">
-                            {{ . }}
-                        </button>
+                            {{ $currentLabel := "USA" }}
+                            {{ if .State }}
+                                {{ $currentLabel = .State }}
+                            {{ else if .Country }}
+                                {{ $currentLabel = .Country }}
+                            {{ end }}
+
+                            {{ if ne $currentLabel $lastLabel }}
+                                {{ $lastLabel = $currentLabel }}
+                                <div class="location-header px-5 py-1 bg-earth-dark/5 text-[9px] font-black italic uppercase tracking-tighter text-earth-clay/60 border-b border-earth-dark/5">
+                                    {{ $currentLabel }}
+                                </div>
+                            {{ end }}
+                            <button type="button" data-filter-type="city" data-filter-value="{{ .City }}" data-city-name="{{ .City }}"
+                                class="location-item text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-dark/5 hover:bg-earth-dark/10 text-earth-dark transition-colors w-full border-b border-earth-dark/5">
+                                {{ .City }}
+                            </button>
                         {{ end }}
                     </div>
                 </div>
