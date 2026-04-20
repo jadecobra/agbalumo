@@ -30,8 +30,8 @@ func TestHandleCreate(t *testing.T) {
 			expectedStatus: http.StatusOK,
 		},
 		{
-			name: "ValidationError",
-			body: fmt.Sprintf("%s=Test+Title&%s=%s", domain.FieldTitle, domain.FieldType, domain.Business),
+			name:           "ValidationError",
+			body:           fmt.Sprintf("%s=Test+Title&%s=%s", domain.FieldTitle, domain.FieldType, domain.Business),
 			setup:          func(t *testing.T, repo domain.ListingRepository) {},
 			expectedStatus: http.StatusBadRequest,
 			expectedBody:   "Error Page",

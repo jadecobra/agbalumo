@@ -22,10 +22,10 @@ func TestAdaDiscoveryFlow_Semantic(t *testing.T) {
 
 	t.Run("Ada searches for Nigerian Food in Dallas", func(t *testing.T) {
 		// Mock Request: GET /listings/fragment?type=Food&city=Dallas
-		target := fmt.Sprintf("/listings/fragment?%s=%s&%s=%s", 
-			domain.FieldType, domain.Food, 
+		target := fmt.Sprintf("/listings/fragment?%s=%s&%s=%s",
+			domain.FieldType, domain.Food,
 			domain.FieldCity, "Dallas")
-		
+
 		c, rec := testutil.SetupModuleContext(http.MethodGet, target, nil)
 
 		// 3. Execute Handler
@@ -68,7 +68,7 @@ func TestAdaDiscoveryFlow_Semantic(t *testing.T) {
 		testutil.AssertContainsSemanticID(t, body, "modal-detail")
 		assert.Contains(t, body, "Jollof House")
 		assert.Contains(t, body, "Authentic Nigerian Jollof")
-		
+
 		// Verify data agent template metadata (if present)
 		assert.Contains(t, body, "data-agent-template=\"modal_detail\"")
 	})
