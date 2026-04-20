@@ -172,6 +172,10 @@ var ciToolsCmd = makeSimpleCmd("ci-tools", "Verify CI toolset availability and O
 	return maintenance.VerifyCITools(".")
 })
 
+var jsSyntaxCmd = makeSimpleCmd("js-syntax", "Verify JavaScript syntax using node -c", func() error {
+	return maintenance.VerifyJSSyntax(".")
+})
+
 var gitleaksCmd = makeSimpleCmd("gitleaks", "Run gitleaks secret scan on staged files", func() error {
 	return maintenance.CheckGitleaks(".")
 })
@@ -279,6 +283,7 @@ var ciCmd = &cobra.Command{
 		tasks := []maintenance.CITask{
 			{Name: "Verifying GitHub Action SHAs", Fn: func() error { return maintenance.VerifyActionSHAs(".") }},
 			{Name: "Verifying CI Toolset", Fn: func() error { return maintenance.VerifyCITools(".") }},
+			{Name: "Verifying JS Syntax", Fn: func() error { return maintenance.VerifyJSSyntax(".") }},
 			{Name: "Running Lint", Fn: func() error {
 				return runCmd("go", "run", "github.com/golangci/golangci-lint/v2/cmd/golangci-lint", "run")
 			}},
@@ -351,6 +356,9 @@ var precommitCmd = &cobra.Command{
 			return err
 		}
 		if err := maintenance.CheckGitleaks("."); err != nil {
+			return err
+		}
+		if err := maintenance.VerifyJSSyntax("."); err != nil {
 			return err
 		}
 
@@ -524,6 +532,7 @@ func init() {
 		precommitCmd,
 		verifyShasCmd,
 		ciToolsCmd,
+		jsSyntaxCmd,
 		gitleaksCmd,
 		ignoredFilesCmd,
 		critiqueCmd,

@@ -194,3 +194,33 @@ func VerifyCITools(rootDir string) error {
 	fmt.Println("✅ CI Toolset Verification Passed")
 	return nil
 }
+
+// VerifyJSSyntax ensures all JavaScript files in the project are syntactically correct.
+func VerifyJSSyntax(rootDir string) error {
+	staticDir := filepath.Join(rootDir, "ui/static/js")
+	fmt.Printf("🔍 Verifying JavaScript syntax in %s...\n", staticDir)
+
+	if _, err := exec.LookPath("node"); err != nil {
+		fmt.Println("⚠️  Skipping JS syntax check: 'node' not found in PATH")
+		return nil
+	}
+
+	files, err := filepath.Glob(filepath.Join(staticDir, "*.js"))
+	if err != nil {
+		return fmt.Errorf("failed to list JS files: %w", err)
+	}
+
+	for _, file := range files {
+		// Skip minified files (usually pre-validated or from 3rd parties)
+		if strings.HasSuffix(file, ".min.js") || strings.HasSuffix(file, ".umd.min.js") {
+			continue
+		}
+		cmd := exec.Command("node", "-c", file) //nolint:gosec // maintenance utility runs trusted commands on local JS assets
+		if output, err := cmd.CombinedOutput(); err != nil {
+			return fmt.Errorf("JS syntax error in %s:\n%s", file, string(output))
+		}
+	}
+
+	fmt.Println("✅ All JavaScript files passed syntax verification.")
+	return nil
+}
