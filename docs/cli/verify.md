@@ -94,6 +94,14 @@ Verify CI toolset availability and OS friendliness.
 agbalumo verify ci-tools
 ```
 
+##### js-syntax
+
+Verify JavaScript syntax using node -c.
+
+```bash
+agbalumo verify js-syntax
+```
+
 ##### critique
 
 Run ChiefCritic robustness audit natively.
