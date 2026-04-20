@@ -21,7 +21,7 @@ const CategorySelectionsSQL = `id, name, claimable, is_system, active, requires_
 
 // Shared SQL fragments
 const (
-	ListingActiveApprovedSQL = `is_active = true AND status = 'Approved'`
+	ListingActiveApprovedSQL = `is_active = 1 AND status = 'Approved'`
 	ListingFilterTypeSQL     = ` AND type = ?`
 )
 

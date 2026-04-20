@@ -61,8 +61,8 @@ func (s *BackgroundService) enrichListings(ctx context.Context) {
 	if s.Scraper == nil {
 		return
 	}
-	// Enrich up to 5 listings per tick to avoid rate limiting
-	count, err := s.Scraper.EnrichListings(ctx, 5)
+	// Enrich up to 20 listings per tick to avoid rate limiting while still making progress
+	count, err := s.Scraper.EnrichListings(ctx, 20)
 	if err != nil {
 		slog.Error("[Background] Error enriching listings", "error", err)
 		return

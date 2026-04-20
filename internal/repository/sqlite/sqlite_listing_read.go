@@ -122,8 +122,8 @@ func (r *SQLiteRepository) buildListingWhere(filters ListingFilters) (string, []
 	}
 
 	if filters.City != "" {
-		where += ` AND city = ?`
-		args = append(args, filters.City)
+		where += ` AND (city = ? OR address LIKE ?)`
+		args = append(args, filters.City, "%"+filters.City+"%")
 	}
 
 	if filters.FeaturedOnly {

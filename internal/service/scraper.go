@@ -200,7 +200,13 @@ func (s *WebsiteScraper) isLikelySignature(text string) bool {
 
 func (s *WebsiteScraper) isMenuLink(link string) bool {
 	lower := strings.ToLower(link)
-	return strings.Contains(lower, "menu") || strings.HasSuffix(lower, ".pdf") || strings.HasSuffix(lower, ".jpg") || strings.HasSuffix(lower, ".jpeg")
+	indicators := []string{"menu", "order", "glassguide", "doordash", "ubereats", "grubhub", "chownow", "toasttab", "clover"}
+	for _, ind := range indicators {
+		if strings.Contains(lower, ind) {
+			return true
+		}
+	}
+	return strings.HasSuffix(lower, ".pdf") || strings.HasSuffix(lower, ".jpg") || strings.HasSuffix(lower, ".jpeg")
 }
 
 func (s *WebsiteScraper) resolveURL(base *url.URL, link string) string {
