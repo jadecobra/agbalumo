@@ -54,7 +54,7 @@ cat > "$PRE_PUSH_HOOK" <<EOF
 echo "🚀 Running comprehensive CI verification before push..."
 go run ./cmd/verify ci
 if [ \$? -ne 0 ]; then
-  echo "❌ CI validation failed! Fix errors or use 'git push --no-verify' to ignore."
+  echo "❌ CI validation failed! Fix errors."
   exit 1
 fi
 EOF
