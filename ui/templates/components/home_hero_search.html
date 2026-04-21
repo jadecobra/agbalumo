@@ -123,15 +123,23 @@
                             {{ end }}
 
                             {{ if ne $currentLabel $lastLabel }}
+                                {{ if ne $lastLabel "___INIT_LOCATION___" }}
+                                    </div> {{/* Close previous location-group-content */}}
+                                {{ end }}
                                 {{ $lastLabel = $currentLabel }}
-                                <div class="location-header px-5 py-1 bg-earth-dark/5 text-[9px] font-black italic uppercase tracking-tighter text-earth-clay/60 border-b border-earth-dark/5">
-                                    {{ $currentLabel }}
-                                </div>
+                                <button type="button" class="location-group-toggle px-5 py-3 bg-earth-dark/5 flex items-center justify-between w-full border-b border-earth-dark/5 hover:bg-earth-dark/10 transition-colors group/toggle" data-group="{{ $currentLabel }}">
+                                    <span class="text-[9px] font-black italic uppercase tracking-tighter text-earth-clay/60">{{ $currentLabel }}</span>
+                                    <span class="material-symbols-outlined text-[16px] text-earth-clay/40 group-hover/toggle:text-earth-ochre transition-transform duration-300" data-toggle-icon>expand_more</span>
+                                </button>
+                                <div class="location-group-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out opacity-0" data-group-name="{{ $currentLabel }}">
                             {{ end }}
                             <button type="button" data-filter-type="city" data-filter-value="{{ .City }}" data-city-name="{{ .City }}"
-                                class="location-item text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-dark/5 hover:bg-earth-dark/10 text-earth-dark transition-colors w-full border-b border-earth-dark/5">
+                                class="location-item text-left px-10 py-2.5 text-[10px] font-bold uppercase tracking-widest bg-earth-dark/5 hover:bg-earth-dark/10 text-earth-dark transition-colors w-full border-b border-earth-dark/2">
                                 {{ .City }}
                             </button>
+                        {{ end }}
+                        {{ if ne $lastLabel "___INIT_LOCATION___" }}
+                            </div> {{/* Close last location-group-content */}}
                         {{ end }}
                     </div>
                 </div>

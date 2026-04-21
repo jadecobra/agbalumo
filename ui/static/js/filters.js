@@ -70,38 +70,74 @@ function setupFilterToggle() {
         console.log('[Filters] Location search input found, attaching listener');
         locSearch.addEventListener('input', (e) => {
             const val = e.target.value.trim().toLowerCase();
-            console.log('[Filters] Location filtering for:', val);
             const items = document.querySelectorAll('.location-item');
-            const headers = document.querySelectorAll('.location-header');
+            const groups = document.querySelectorAll('.location-group-content');
+            const toggles = document.querySelectorAll('.location-group-toggle');
 
-            // Filter items
-            items.forEach(item => {
-                const name = (item.dataset.cityName || '').toLowerCase();
-                if (name.includes(val)) {
-                    item.classList.remove('hidden');
-                } else {
-                    item.classList.add('hidden');
-                }
-            });
+            groups.forEach(group => {
+                const groupItems = group.querySelectorAll('.location-item');
+                let hasMatch = false;
 
-            // Filter headers based on item visibility
-            headers.forEach(header => {
-                let hasVisible = false;
-                let sibling = header.nextElementSibling;
-                while (sibling && !sibling.classList.contains('location-header')) {
-                    if (sibling.classList.contains('location-item') && !sibling.classList.contains('hidden')) {
-                        hasVisible = true;
-                        break;
+                groupItems.forEach(item => {
+                    const name = (item.dataset.cityName || '').toLowerCase();
+                    const isMatch = name.includes(val);
+                    item.classList.toggle('hidden', !isMatch);
+                    if (isMatch) hasMatch = true;
+                });
+
+                // Auto-expand if has match and search is not empty
+                if (val.length > 0 && hasMatch) {
+                    group.classList.remove('max-h-0', 'opacity-0');
+                    group.classList.add('max-h-screen', 'opacity-100');
+                    const toggle = document.querySelector(`.location-group-toggle[data-group="${group.dataset.groupName}"]`);
+                    if (toggle) {
+                        const icon = toggle.querySelector('[data-toggle-icon]');
+                        if (icon) icon.classList.add('rotate-180');
                     }
-                    sibling = sibling.nextElementSibling;
+                } else if (val.length === 0) {
+                    // Reset to collapsed if cleared (optional, but cleaner)
+                    group.classList.add('max-h-0', 'opacity-0');
+                    group.classList.remove('max-h-screen', 'opacity-100');
+                    const toggle = document.querySelector(`.location-group-toggle[data-group="${group.dataset.groupName}"]`);
+                    if (toggle) {
+                        const icon = toggle.querySelector('[data-toggle-icon]');
+                        if (icon) icon.classList.remove('rotate-180');
+                    }
                 }
-                header.classList.toggle('hidden', !hasVisible);
+
+                // Hide the toggle (header) if no matches in group and searching
+                const toggle = document.querySelector(`.location-group-toggle[data-group="${group.dataset.groupName}"]`);
+                if (toggle) {
+                    toggle.classList.toggle('hidden', val.length > 0 && !hasMatch);
+                }
             });
         });
     }
 
     document.addEventListener('click', (e) => {
         const target = e.target;
+
+        // Location Group Accordion Toggle
+        const groupToggle = target.closest('.location-group-toggle');
+        if (groupToggle) {
+            const groupName = groupToggle.dataset.group;
+            const content = document.querySelector(`.location-group-content[data-group-name="${groupName}"]`);
+            const icon = groupToggle.querySelector('[data-toggle-icon]');
+            
+            if (content) {
+                const isExpanded = content.classList.contains('max-h-screen');
+                // Toggle classes
+                content.classList.toggle('max-h-0', isExpanded);
+                content.classList.toggle('opacity-0', isExpanded);
+                content.classList.toggle('max-h-screen', !isExpanded);
+                content.classList.toggle('opacity-100', !isExpanded);
+                
+                if (icon) {
+                    icon.classList.toggle('rotate-180', !isExpanded);
+                }
+            }
+            return;
+        }
 
         // Toggle Filter Panel
         const toggleBtn = target.closest('[data-action="toggle-filters"]');
