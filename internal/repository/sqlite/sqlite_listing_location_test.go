@@ -15,11 +15,11 @@ func TestListingLocationFields(t *testing.T) {
 
 	// This should fail to compile if State/Country are missing
 	l := domain.Listing{
-		ID:      "loc-test",
-		Title:   "Location Test",
-		City:    "Dallas",
-		State:   "TX",
-		Country: "USA",
+		ID:       "loc-test",
+		Title:    "Location Test",
+		City:     "Dallas",
+		State:    "TX",
+		Country:  "USA",
 		IsActive: true,
 		Status:   domain.ListingStatusApproved,
 	}

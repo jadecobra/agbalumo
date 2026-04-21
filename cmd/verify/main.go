@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/maintenance"
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
 	"github.com/jadecobra/agbalumo/internal/service"
@@ -184,6 +185,61 @@ var ignoredFilesCmd = makeSimpleCmd("ignored-files", "Check for ignored files st
 	return maintenance.CheckIgnoredFiles(".")
 })
 
+var locationBackfillCmd = &cobra.Command{
+	Use:   "location-backfill",
+	Short: "Backfill missing city, state, and country from address using domain heuristics",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		_ = godotenv.Load(".env")
+		dbURL := os.Getenv("DATABASE_URL")
+		if dbURL == "" {
+			dbURL = ".tester/data/agbalumo.db"
+		}
+		repo, err := sqlite.NewSQLiteRepository(dbURL)
+		if err != nil {
+			return err
+		}
+		defer func() { _ = repo.Close() }()
+
+		ctx := cmd.Context()
+		listings, _, err := repo.FindAll(ctx, "", "", "", "", "", true, 10000, 0)
+		if err != nil {
+			return err
+		}
+
+		count := 0
+		for _, l := range listings {
+			originalCity := l.City
+			originalState := l.State
+			originalCountry := l.Country
+
+			if l.Address == "" {
+				continue
+			}
+
+			if l.City == "" {
+				l.City = domain.ExtractCityFromAddress(l.Address)
+			}
+			if l.State == "" {
+				l.State = domain.ExtractStateFromAddress(l.Address)
+			}
+			if l.Country == "" {
+				l.Country = domain.ExtractCountryFromAddress(l.Address)
+			}
+
+			if l.City != originalCity || l.State != originalState || l.Country != originalCountry {
+				err := repo.Save(ctx, l)
+				if err != nil {
+					fmt.Printf("Error saving listing %s: %v\n", l.ID, err)
+					continue
+				}
+				count++
+			}
+		}
+		fmt.Printf("✅ Success! Backfilled location data for %d listings.\n", count)
+		return nil
+	},
+}
+
 var enrichCmd = &cobra.Command{
 	Use:   "enrich",
 	Short: "Run the scraper job manually to enrich listings",
@@ -211,6 +267,26 @@ var enrichCmd = &cobra.Command{
 		fmt.Printf("✅ Success! Enriched %d listings with sensory signals.\n", count)
 		return nil
 	},
+}
+
+func init() {
+	rootCmd.AddCommand(
+		apiSpecCmd,
+		templateDriftCmd,
+		costCmd,
+		coverageCmd,
+		auditCmd,
+		ciCmd,
+		precommitCmd,
+		verifyShasCmd,
+		ciToolsCmd,
+		jsSyntaxCmd,
+		gitleaksCmd,
+		ignoredFilesCmd,
+		locationBackfillCmd,
+		enrichCmd,
+		critiqueCmd,
+	)
 }
 
 func reportDrift(label string, drifts []string, successMsg string) error {
@@ -541,6 +617,7 @@ func init() {
 		checkGatesCmd,
 		testCmd,
 		watchCmd,
+		locationBackfillCmd,
 		enrichCmd,
 		gosecRationaleCmd,
 	)

@@ -132,7 +132,7 @@ func (h *ListingHandler) bindAndMapWithImageCheck(c echo.Context, l *domain.List
 }
 
 func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error {
-	h.autoPopulateCity(c.Request().Context(), l)
+	h.autoPopulateLocation(c.Request().Context(), l)
 
 	if err := l.Validate(); err != nil {
 		return ui.RespondErrorMsg(c, http.StatusBadRequest, "Validation Error: "+err.Error())
@@ -161,20 +161,28 @@ func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error
 	})
 }
 
-func (h *ListingHandler) autoPopulateCity(ctx context.Context, l *domain.Listing) {
-	if l.City != "" || l.Address == "" {
+func (h *ListingHandler) autoPopulateLocation(ctx context.Context, l *domain.Listing) {
+	if l.Address == "" {
 		return
 	}
 
-	if h.App.GeocodingSvc != nil {
+	// 1. Try Google Geocoding if available
+	if h.App.GeocodingSvc != nil && l.City == "" {
 		city, err := h.App.GeocodingSvc.GetCity(ctx, l.Address)
 		if err == nil && city != "" {
 			l.City = city
 		}
 	}
 
+	// 2. Fallbacks using local extraction
 	if l.City == "" {
 		l.City = domain.ExtractCityFromAddress(l.Address)
+	}
+	if l.State == "" {
+		l.State = domain.ExtractStateFromAddress(l.Address)
+	}
+	if l.Country == "" {
+		l.Country = domain.ExtractCountryFromAddress(l.Address)
 	}
 }
 

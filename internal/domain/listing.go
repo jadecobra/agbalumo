@@ -19,7 +19,6 @@ type Location struct {
 	Country string `json:"country"`
 }
 
-
 type validationRule struct {
 	condition func(*Listing) bool
 	err       string

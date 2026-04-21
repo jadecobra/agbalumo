@@ -174,4 +174,5 @@ const (
 
 	// Fragment Paths
 	PathListingsFragment = "/listings/fragment"
+	CountryUSA           = "USA"
 )
