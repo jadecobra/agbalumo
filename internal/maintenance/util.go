@@ -3,6 +3,7 @@ package maintenance
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"sort"
 
 	"github.com/jadecobra/agbalumo/internal/util"
@@ -37,4 +38,12 @@ func uniqueAndSort(routes []Route) []Route {
 
 func uniqueStrings(strs []string) []string {
 	return util.UniqueStrings(strs)
+}
+
+func runTool(dir, name string, args ...string) (string, error) {
+	//nolint:gosec // G204: Maintenance utility running trusted audit tools
+	cmd := exec.Command(name, args...)
+	cmd.Dir = dir
+	out, err := cmd.CombinedOutput()
+	return string(out), err
 }
