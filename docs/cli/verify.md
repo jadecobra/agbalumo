@@ -142,6 +142,14 @@ Perform automated remediation of quality violations.
 agbalumo verify heal
 ```
 
+##### location-backfill
+
+Backfill missing city, state, and country from address using domain heuristics.
+
+```bash
+agbalumo verify location-backfill
+```
+
 ##### perf
 
 ##### test

@@ -6,12 +6,9 @@ import (
 )
 
 func TestTemplateUtilities(t *testing.T) {
-	tmpDir, cleanup := setupTestDir(t, "template_utils")
-	defer cleanup()
-
 	tests := []struct {
-		testFn   func(string) ([]string, error)
 		expected map[string]bool
+		testFn   func(string) ([]string, error)
 		name     string
 		filename string
 		content  string
@@ -43,10 +40,24 @@ func GetFuncs() {
 			},
 			expected: map[string]bool{"formatDate": true, "filterItems": true},
 		},
+		{
+			name:     "IgnoreComments",
+			filename: "comments.html",
+			content: `
+<div>{{/* This is a comment */}}</div>
+<div>{{ formatDate .Date }}</div>
+`,
+			testFn: func(path string) ([]string, error) {
+				return ExtractTemplateFunctionCalls(filepath.Dir(path))
+			},
+			expected: map[string]bool{"formatDate": true},
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tmpDir, cleanup := setupTestDir(t, tt.name)
+			defer cleanup()
 			path := writeTestFile(t, tmpDir, tt.filename, tt.content)
 			res, err := tt.testFn(path)
 			if err != nil {

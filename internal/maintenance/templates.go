@@ -94,9 +94,11 @@ func extractFirstWord(input string, stripRange bool) []string {
 
 	if len(words) > 0 {
 		name := words[0]
-		if !isTemplateKeyword(name) && !strings.HasPrefix(name, ".") && !strings.HasPrefix(name, "$") {
-			return []string{name}
+		// Ignore comments and keywords
+		if name == "/*" || isTemplateKeyword(name) || strings.HasPrefix(name, ".") || strings.HasPrefix(name, "$") {
+			return nil
 		}
+		return []string{name}
 	}
 	return nil
 }

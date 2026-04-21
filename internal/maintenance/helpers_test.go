@@ -26,16 +26,14 @@ func writeTestFile(t *testing.T, dir, name, content string) string {
 
 func assertStringsMatch(t *testing.T, msg string, actual []string, expected map[string]bool) {
 	t.Helper()
-	remaining := make(map[string]bool)
-	for k, v := range expected {
-		remaining[k] = v
+	if len(actual) != len(expected) {
+		t.Errorf("%s: expected %d items, got %d: %v", msg, len(expected), len(actual), actual)
+		return
 	}
 
 	for _, a := range actual {
-		delete(remaining, a)
-	}
-
-	if len(remaining) > 0 {
-		t.Errorf("%s: missing expected items: %v", msg, remaining)
+		if !expected[a] {
+			t.Errorf("%s: unexpected item found: %s", msg, a)
+		}
 	}
 }
