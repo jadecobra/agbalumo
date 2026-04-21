@@ -68,83 +68,53 @@
             </div>
 
             <!-- Filter Dropdowns Panel (Bottom Sheet on Mobile, Dropdown on Desktop) -->
-            <div class="fixed md:absolute bottom-0 md:bottom-auto left-0 right-0 md:left-auto md:right-0 md:top-full top-auto md:mt-2 md:w-56 bg-earth-sand shadow-2xl border-t-[3px] md:border-[3px] border-earth-ochre text-earth-dark hidden overflow-hidden rounded-t-3xl md:rounded-none"
-                style="z-index: 120;" id="filter-dropdown-panel">
-                <!-- Bottom Sheet Handle (Mobile Only) -->
-                <div class="md:hidden w-full flex justify-center py-4 border-b border-earth-dark/5">
+            <div id="filter-dropdown-panel" 
+                class="hidden z-50 bg-earth-sand shadow-2xl transition-all duration-300 overflow-hidden
+                       fixed bottom-0 left-0 right-0 top-auto rounded-t-3xl max-h-[90vh]
+                       md:absolute md:top-full md:bottom-auto md:left-auto md:right-0 md:mt-2 md:w-[400px] md:max-h-[60vh] md:rounded-2xl md:border md:border-earth-dark/10">
+                
+                <style>
+                    /* Ensure native arrow rotation without JS */
+                    details[open] [data-toggle-icon] { transform: rotate(180deg); }
+                    /* Hide default details marker */
+                    summary { list-style: none; }
+                    summary::-webkit-details-marker { display: none; }
+                </style>
+
+                <!-- Mobile handle -->
+                <div class="flex justify-center pt-3 pb-1 md:hidden">
                     <div class="w-12 h-1.5 bg-earth-dark/20 rounded-full"></div>
                 </div>
-                <div class="flex flex-col w-full overflow-y-auto pb-safe" style="max-height: 55vh;">
-                    <!-- Category Group -->
-                    <div class="px-5 py-2 bg-earth-dark/10 border-b border-earth-dark/10">
-                        <span
-                            class="text-[9px] font-bold uppercase tracking-widest text-earth-clay opacity-80">Category</span>
-                    </div>
-                    <div class="flex flex-col w-full">
-                        <button type="button" data-filter-type="type" data-filter-value="" data-testid="ag-filter-category-all"
-                            class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-dark/5 hover:bg-earth-dark/10 text-earth-dark transition-colors w-full border-b border-earth-dark/5">
-                            All Categories
-                        </button>
-                        <!-- Prioritize Food Category for Ada -->
-                        <button type="button" data-filter-type="type" data-filter-value="Food" data-testid="ag-filter-category-food"
-                            class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-ochre text-white transition-colors w-full border-b border-earth-dark/5">
-                            Food ({{ index $.Counts "Food" }})
-                        </button>
-                        {{ range .Categories }}
-                        {{ if and (ne .Name "Food") (ne .Name "Request") }}
-                        <button type="button" data-filter-type="type" data-filter-value="{{ .Name }}" data-testid="ag-filter-category-{{ .Name }}"
-                            class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-dark/5 hover:bg-earth-dark/10 text-earth-dark transition-colors w-full border-b border-earth-dark/5">
-                            {{ .Name }} ({{ index $.Counts .Name }})
-                        </button>
-                        {{ end }}
-                        {{ end }}
-                    </div>
-
-                    <!-- Location Group -->
-                    <div class="px-5 py-2 bg-earth-dark/10 border-y border-earth-dark/10 flex items-center justify-between">
-                        <span class="text-[9px] font-bold uppercase tracking-widest text-earth-clay opacity-80">Location</span>
-                        <div class="relative w-32">
-                            <input type="text" id="location-search" placeholder="Filter..." 
-                                class="w-full bg-white/20 border-none text-[10px] py-1 px-2 focus:ring-1 focus:ring-earth-ochre text-earth-dark outline-none rounded">
-                        </div>
-                    </div>
-                    <div class="flex flex-col w-full" id="location-list">
-                        <button type="button" data-filter-type="city" data-filter-value=""
-                            class="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest bg-earth-ochre text-white transition-colors w-full border-b border-earth-dark/5">
-                            All Locations
-                        </button>
-                        {{ $lastLabel := "___INIT_LOCATION___" }}
-                        {{ range .Locations }}
-                            {{ $currentLabel := "USA" }}
-                            {{ if .State }}
-                                {{ $currentLabel = .State }}
-                            {{ else if .Country }}
-                                {{ $currentLabel = .Country }}
-                            {{ end }}
-
-                            {{ if ne $currentLabel $lastLabel }}
-                                {{ if ne $lastLabel "___INIT_LOCATION___" }}
-                                    </div> {{/* Close previous location-group-content */}}
-                                {{ end }}
-                                {{ $lastLabel = $currentLabel }}
-                                <button type="button" class="location-group-toggle px-5 py-3 bg-earth-dark/5 flex items-center justify-between w-full border-b border-earth-dark/5 hover:bg-earth-dark/10 transition-colors group/toggle" data-group="{{ $currentLabel }}">
-                                    <span class="text-[9px] font-black italic uppercase tracking-tighter text-earth-clay/60">{{ $currentLabel }}</span>
-                                    <span class="material-symbols-outlined text-[16px] text-earth-clay/40 group-hover/toggle:text-earth-ochre transition-transform duration-300" data-toggle-icon>expand_more</span>
-                                </button>
-                                <div class="location-group-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out opacity-0" data-group-name="{{ $currentLabel }}">
-                            {{ end }}
-                            <button type="button" data-filter-type="city" data-filter-value="{{ .City }}" data-city-name="{{ .City }}"
-                                class="location-item text-left px-10 py-2.5 text-[10px] font-bold uppercase tracking-widest bg-earth-dark/5 hover:bg-earth-dark/10 text-earth-dark transition-colors w-full border-b border-earth-dark/2">
-                                {{ .City }}
+                <div class="flex flex-col w-full overflow-y-auto pb-safe max-h-full">
+                    <!-- Category Group Toggle (Native HTML5 Accordion) -->
+                    <details class="w-full group/accordion" open>
+                        <summary class="px-5 py-4 bg-earth-dark/5 border-b border-earth-dark/10 flex items-center justify-between w-full hover:bg-earth-dark/10 transition-colors list-none cursor-pointer">
+                            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-earth-clay/80">Categories</span>
+                            <span class="material-symbols-outlined text-[20px] text-earth-ochre transition-transform duration-300 group-open/accordion:rotate-180" data-toggle-icon>expand_more</span>
+                        </summary>
+                        
+                        <div class="flex flex-col w-full bg-earth-sand/50">
+                            <button type="button" data-filter-type="type" data-filter-value="" data-testid="ag-filter-category-all"
+                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest hover:bg-earth-ochre/10 text-earth-dark transition-colors w-full border-b border-earth-dark/5">
+                                All Categories
                             </button>
-                        {{ end }}
-                        {{ if ne $lastLabel "___INIT_LOCATION___" }}
-                            </div> {{/* Close last location-group-content */}}
-                        {{ end }}
-                    </div>
+                            <!-- Prioritize Food Category for Ada -->
+                            <button type="button" data-filter-type="type" data-filter-value="Food" data-testid="ag-filter-category-food"
+                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest bg-earth-ochre/10 hover:bg-earth-ochre/20 text-earth-ochre transition-colors w-full border-b border-earth-dark/5">
+                                Food ({{ index $.Counts "Food" }})
+                            </button>
+                            {{ range .Categories }}
+                            {{ if and (ne .Name "Food") (ne .Name "Request") }}
+                            <button type="button" data-filter-type="type" data-filter-value="{{ .Name }}" data-testid="ag-filter-category-{{ .Name }}"
+                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest hover:bg-earth-ochre/10 text-earth-dark transition-colors w-full border-b border-earth-dark/5">
+                                {{ if .Name }}{{ .Name }}{{ else }}Category{{ end }} ({{ index $.Counts .Name | printf "%d" }})
+                            </button>
+                            {{ end }}
+                            {{ end }}
+                        </div>
+                    </details>
                 </div>
             </div>
-
         </div>
 
         <!-- Scroll Bounce indicator -->
