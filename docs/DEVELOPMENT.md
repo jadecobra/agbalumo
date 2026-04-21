@@ -55,13 +55,13 @@ This script performs:
 ### Local CI Execution
 To replicate the CI environment locally:
 ```bash
-go run cmd/verify/main.go ci
+go run ./cmd/verify ci
 ```
 
 ### Performance Audit
 We maintain a "Performance-First" culture. Run the automated audit to check asset sizes, DB config, and N+1 patterns:
 ```bash
-go run cmd/verify/main.go perf
+go run ./cmd/verify perf
 ```
 
 ---
@@ -74,5 +74,5 @@ go run cmd/verify/main.go perf
 
 Always run a security audit before any major release or dependency change:
 ```bash
-go run cmd/verify/main.go audit
+go run ./cmd/verify audit
 ```

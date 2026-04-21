@@ -7,7 +7,7 @@ A robust web application platform for the West African diaspora community, featu
 ```bash
 # Build and start the server
 go build
-go run cmd/verify/main.go watch
+go run ./cmd/verify watch
 
 # Access the application
 open https://localhost:8443
@@ -34,7 +34,7 @@ The development server runs securely on **HTTPS Port 8443**: `https://localhost:
 
 ### Scripts
 Reference the `scripts/` directory for standard operations:
-- `go run cmd/verify/main.go watch`: Rebuilds and restarts the server safely, handling process cleanup and environment variables.
+- `go run ./cmd/verify watch`: Rebuilds and restarts the server safely, handling process cleanup and environment variables.
 - `task pre-commit`: Runs tests, coverage checks, and linting.
 
 ### Database
@@ -43,5 +43,5 @@ Reference the `scripts/` directory for standard operations:
 
 ## Running the Project
 1. Ensure `.env` is set up.
-2. Run `go run cmd/verify/main.go watch` to build and start the server.
+2. Run `go run ./cmd/verify watch` to build and start the server.
 3. Access `https://localhost:8443`.

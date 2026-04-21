@@ -27,7 +27,7 @@ check_dep "lsof"
 
 # Backup existing hook if it's not ours
 if [ -f "$PRE_COMMIT_HOOK" ]; then
-    if ! grep -q "cmd/verify/main.go precommit" "$PRE_COMMIT_HOOK"; then
+    if ! grep -q "./cmd/verify precommit" "$PRE_COMMIT_HOOK"; then
         echo "📦 Backing up existing pre-commit hook to $PRE_COMMIT_HOOK.bak"
         cp "$PRE_COMMIT_HOOK" "$PRE_COMMIT_HOOK.bak"
     fi
@@ -39,7 +39,7 @@ cat > "$PRE_COMMIT_HOOK" <<EOF
 # agbalumo Pre-commit Hook
 # Native Go verification engine for maximum precision and drift avoidance.
 
-go run cmd/verify/main.go precommit
+go run ./cmd/verify precommit
 EOF
 
 chmod +x "$PRE_COMMIT_HOOK"
@@ -52,7 +52,7 @@ cat > "$PRE_PUSH_HOOK" <<EOF
 # Runs the full native Go CI suite before pushing to remote.
 # Bypass using: git push --no-verify
 echo "🚀 Running comprehensive CI verification before push..."
-go run cmd/verify/main.go ci
+go run ./cmd/verify ci
 if [ \$? -ne 0 ]; then
   echo "❌ CI validation failed! Fix errors or use 'git push --no-verify' to ignore."
   exit 1
