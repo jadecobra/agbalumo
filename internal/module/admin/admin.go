@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"fmt"
 	"github.com/jadecobra/agbalumo/internal/module"
 	"github.com/jadecobra/agbalumo/internal/module/user"
 	"github.com/jadecobra/agbalumo/internal/ui"
@@ -26,6 +27,10 @@ func NewAdminHandler(app *env.AppEnv) *AdminHandler {
 
 // RegisterRoutes registers all admin-related routes.
 func (h *AdminHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddleware) {
+	if h == nil {
+		fmt.Println("⚠️  CRITICAL: Attempted to register routes on nil AdminHandler")
+		return
+	}
 	// Strict rate limiter for sensitive admin login endpoint (5 req/min, burst 10)
 	adminAuthLimiter := customMiddleware.NewRateLimiter(customMiddleware.RateLimitConfig{
 		Rate:  rate.Limit(5),

@@ -144,6 +144,10 @@ func setupRoutes(e *echo.Echo, app *env.AppEnv) {
 	adminHandler := admin.NewAdminHandler(app)
 	authHandler := auth.NewAuthHandler(app)
 
+	if listingHandler == nil || adminHandler == nil || authHandler == nil {
+		panic("Failed to initialize core handlers: one or more are nil")
+	}
+
 	authMw := auth.NewAuthMiddleware(domain.UserStore(repo))
 	fbHandler := feedback.NewFeedbackHandler(app)
 	pageHandler := common.NewPageHandler(app)
