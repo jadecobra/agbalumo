@@ -59,12 +59,10 @@ func TestMobileFilterBottomSheet(t *testing.T) {
 	body := rec.Body.String()
 
 	// Expected Bottom Sheet behavior for mobile
-	assert.Contains(t, body, "fixed md:absolute")
-	assert.Contains(t, body, "bottom-0 md:bottom-auto")
-	assert.Contains(t, body, "left-0 right-0")
-	assert.NotContains(t, body, "inset-x-4")
-	assert.Contains(t, body, "style=\"z-index: 120;\"")     // Higher z-index as inline style
-	assert.Contains(t, body, "style=\"max-height: 55vh;\"") // Reduced height as inline style
+	assert.Contains(t, body, "fixed bottom-0 left-0 right-0")
+	assert.Contains(t, body, "md:absolute md:top-full md:bottom-auto")
+	assert.Contains(t, body, "max-h-[90vh]")
+	assert.Contains(t, body, "md:max-h-[60vh]")
 	assert.Contains(t, body, "rounded-t-3xl")
 	assert.Contains(t, body, "bg-earth-dark/20 rounded-full")
 }
