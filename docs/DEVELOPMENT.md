@@ -66,7 +66,21 @@ go run ./cmd/verify perf
 
 ---
 
+## 🚀 Continuous Momentum
 
+### Push & Watch
+To maintain development momentum after pushing changes, use the provided wrapper script which automatically launches the `watch` tool upon a successful push.
+
+```bash
+# Execute push and start watch automatically
+./scripts/pushw.sh
+```
+
+**Recommended Alias:**
+Add this to your `.zshrc` or `.bashrc` to use `pushw` as a native command:
+```bash
+alias pushw="./scripts/pushw.sh"
+```
 
 ---
 
