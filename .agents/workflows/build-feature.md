@@ -2,65 +2,79 @@
 description: Execute the end-to-end Engineering pipeline for a new feature.
 ---
 
+Engineering Workflows
+
 `/build-feature <idea>`
-When the user types `/build-feature <idea>`, you act as a unified Senior Systems Engineer. You will execute the entire lifecycle (Architecture, TDD, Security, Resilience) in this single continuous session.
+When the user types `/build-feature <idea>`, act as a Senior Product Engineer. Execute the entire lifecycle (Architecture, TDD, Security, Resilience, and Observability) in a single continuous session.
 
-**Do not ask for permission to move between phases. Your Git commits are your checkpoints**.
+**Phase 1 is complete ONLY when the user approves the updated `task.md`. Once approved, jump to Phase 2 and do not ask for permission again. Your Git commits are your checkpoints**.
 
-## Phase 1: Architecture & Planning (The Iterative Algorithm)
+## Phase 1: Product Architecture & Planning (The Iterative Algorithm)
 
-When receiving the `<idea>`, DO NOT write code immediately. HALT and execute the following interactive protocol.
+HALT and execute this protocol. Initialize `task.md` immediately to externalize state and preserve context window.
 
-1. **Question the Requirements (Make it less dumb)**:
-* Push back on the user. Why are we building this? Does the end-user actually need it?
-* The Interrogation Loop: Ask only one piercing question per turn to challenge the core assumption, strip away scope, or force the user to clarify their thinking.
-* WAIT for the user to respond and defend the idea.
-* Evaluate the user's defense. If the proposed scope still contains unnecessary complexity, ask another challenging question. Repeat this loop until you are convinced the idea is ruthlessly minimal.
-2. **Delete the Part or Process**:
-* Analyze the `<idea>` and actively propose removing at least one component, feature, or abstraction. (e.g., "Do we really need a new DB table, or can we append to an existing JSON column?")
-* **Ban Interface Bloat**: If the user or the plan suggests creating new mock files, deeply-nested interfaces, or massive constructor dependencies (the "Lego-Brick" anti-pattern), you MUST reject it. Push for direct DB access via a unified `AppEnv` context to preserve Agent iteration speed.
+1. **Initialize Decision Log**:
 
-3. **Simplify & Optimize (Agent-Optimized Architecture)**:
-* Outline the absolute minimum viable path (MVP) for the code.
-* Enforce **Vertical Slices** and **Unified Dependencies**. You are forbidden from adding to Dependency Injection hell. Handlers should ingest ONE unified environment struct (e.g., `*AppEnv`), not 10 individual stores.
-* Plan to use Real in-memory SQLite tables (`:memory:`) for tests instead of generating brittle Mocks.
+- Create `task.md` with two sections: `# Decision Log` (append-only rationale) and `# Execution Plan` (the Phase 2/3 checkboxes).
+- **Rule**: Log every decision, deleted component, and architectural tradeoff here before moving to the next turn.
 
-4. **Accelerate**:
-* Identify the critical path. Ensure the proposed architecture allows for the fastest possible execution and tightest test loop.
-5. **Automate**:
-* Only after Steps 1-4 are agreed upon collaboratively, proceed to Phase 2 to automate the implementation.
+2. **The Product Interrogation (The Kill-Switch Gate)**:
+
+- **The Objective**: Every feature must contribute to finding food in < 60 seconds.
+- **The Protocol**: Ask one piercing question at a time to challenge the core assumption.
+- **Complexity Kill-Switch**: You MUST challenge the user to prove that the proposed complexity doesn't increase "Time to First Result." If it adds UI steps or DB latency without a 2x increase in utility, you MUST propose deleting it.
+- Update `task.md` with the Rationale.
+
+3. **Pattern Matching & Performance Budget**:
+
+- **CHECK**: Scan `coding-standards.md` and `docs/adr/` for past mistakes.
+- **BUDGET**: Estimate the latency impact. If it adds >100ms to the critical path, you MUST propose a simpler alternative.
+- **CHALLENGE**: If the proposed idea resembles a past mistake or violates a "Strict Lesson," surface this immediately.
+- **PROMPT**: If a conflict exists, suggest: "This looks like [Past Mistake/Violation]. Before we proceed, we should run `/learn` to update our constraints"
+
+4. **Delete the Part or Process**:
+
+- Actively propose removing at least one component, feature, or abstraction.
+- **Reject Interface Bloat**: Push for direct access via a unified `*AppEnv` context. Update `task.md` with what was cut.
+
+5. **Observability & Disk-Parity Strategy**:
+
+- **Observability**: Define the "Success Metric" (e.g., search completion rate). Identify required logs/metrics.
+- **Parity**: Plan for a file-based SQLite audit in Phase 3 to catch locking issues.
+
 6. **Task Initialization**:
-* You MUST create a `task.md` containing explicit sections for both **Phase 2 (Implementation)** and **Phase 3 (Audit & Resilience)**.
-* For UI tasks, the `task.md` MUST include a `[ ] Visual Integrity Check` item.
+
+- Populate the `#Execution Plan` section with `[ ]` items derived from the Decision Log for Phase 2 and Phase 3.
 
 ## Phase 2: Autonomous Execution Loop (TDD)
-Execute the Red-Green-Refactor loop natively using the terminal.
-1. **RED**: Write the failing test cases first. Run `go test`. Verify they fail.
-2. **GREEN**: Write the implementation. Run `go test`. Loop until tests pass.
-3. **REFACTOR**: You MUST run `go run cmd/verify/main.go critique` to audit cognitive complexity, repeated strings, struct alignments, and duplication. Fix any failing checks and refactor.
+
+1. **RED**: Write failing tests. Run `go test`.
+2. **GREEN**: Write implementation (including logs/metrics). 
+- Run `go test`. 
+- If you fail to achieve GREEN after 3 attempts, HALT. Read the raw tracebacks to the user, hypothesize the flaw in the test or implementation, and WAIT for user guidance.
+3. **REFACTOR**: Run `go run cmd/verify/main.go critique`. Fix any failing checks.
 4. **COMMIT**: Once tests and lint pass, execute `git commit -m "feat(<scope>): implement <idea>"` natively.
 
 ## Phase 3: Audit & Resilience
-Before considering the feature complete, self-audit the code you just committed.
-1. **Security Audit**: Run your local SAST/security tooling (e.g., `gosec ./...`). Fix any P0/P1/P2 defects immediately and amend the commit.
-2. **Chaos/Resilience**: Identify the weakest architectural boundary of the new feature based on the project structure:
-* `repository/`: Inject database timeouts or connection drops.
-* `handler/` & `middleware/`: Inject malformed payloads or test rate limit exhaustion.
-* `service/`: Force business logic edge cases or unexpected interface nil returns.
-    
-    Write a quick resilience test targeting this specific boundary and execute it.
-3. **The Resilience Halt**: If the chaos test successfully breaks the application, **DO NOT fix it silently**. HALT the execution.
-* Explain the failure mechanism to the user.
-* Propose 2-3 architectural patterns to handle the fault (e.g., Circuit Breaker, Exponential Backoff, Graceful Degradation).
-* WAIT for the user to make an engineering decision before implementing the fix.
-4. **Contract Verification**: Before finishing, guarantee you did not introduce undetected regressions in templates or API drift by running:
-    - `go run cmd/verify/main.go template-drift`
-    - `go run cmd/verify/main.go api-spec`
-5. **Visual Integrity (UI Tasks Only)**:
-* If the task impacts the UI, you MUST run the `browser_subagent` autonomously.
-* Verify the "Final Truth" against the persona requirements (e.g., "Is the pivot visible?").
-* Capture and embed a screenshot of the primary landing page in the Walkthrough.
-* **HARD GATE**: You are forbidden from drafting the `walkthrough.md` or summarizing completion until this step is documented with a screenshot and checked off in `task.md`.
 
+1. **Security Audit**: Run your local SAST/security tooling (e.g., `gosec ./...`). Fix any P0/P1/P2 defects immediately and amend the commit.
+2. **Performance Audit**: Verify query execution plans using `EXPLAIN QUERY PLAN`.
+3. **Disk-Parity Test**: Run tests against a temporary file-backed SQLite DB (not just `:memory:`) to verify WAL-mode/concurrency behavior.
+4. **Chaos/Resilience**: Identify the weakest architectural boundary of the new feature based on the project structure:
+
+- `repository/`: Inject database timeouts or connection drops.
+- `handler/` & `middleware/`: Inject malformed payloads or test rate limit exhaustion.
+- `service/`: Force business logic edge cases or unexpected interface nil returns.
+
+5. **The Resilience Halt**: If chaos tests break the app, HALT and explain. Propose 2-3 patterns (e.g., Circuit Breaker). WAIT for user decision.
+6. **Contract Verification**:
+
+- Run `go run cmd/verify/main.go template-drift`
+- Run `go run cmd/verify/main.go api-spec`
+
+6. **UI Verification**:
+- use `browser_subagent` to capture a screenshot of the "Find Food" flow and embed it in the walkthrough.
+- Verify the "Final Truth" against the persona requirements (e.g., "Is the pivot visible?").
+- **HARD GATE**: You are forbidden from drafting the `walkthrough.md` or summarizing completion until this step is documented with a screenshot and checked off in `task.md`.
 
 **Completion**: When all phases are complete and the final commit is made, summarize the architectural decisions and test coverage for the user in a single, concise chat message.

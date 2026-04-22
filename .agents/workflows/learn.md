@@ -13,16 +13,17 @@ This workflow is triggered when a mistake is identified and a correction is requ
 When the user issues a `/learn` command, you MUST execute the following steps:
 
 1. **Analyze the Correction**:
-   - Determine if the mistake is related to **Process, Style, or TDD** (how code is written/tested).
+   - Determine if the mistake is related to **Process, Style or TDD** (how code is written/tested).
    - Determine if the mistake is an **Architectural or Design** error (boundary violations, service coupling, etc.).
+   - **De-duplication Check**: Scan `coding-standards.md` for existing rules related to this mistake.
 
 2. **Codify the Correction**:
-
+   - **Merge**: If a related rule exists, refactor it into a single, more robust abstraction.
    - **For Process/Style/TDD**:
      - Append the corrected rule directly to the bottom of [.agents/workflows/coding-standards.md](file:///Users/johnnyblase/gym/agbalumo/.agents/workflows/coding-standards.md) under the `# Strict Lessons` section.
      - Use a clear, imperative bullet point (e.g., "* The agent MUST always...").
 
-   - **For Architecture/Design**:
+   - **For Architecture/Design**: if it changes a core principle
      - Create a formal Architecture Decision Record (ADR) in `docs/adr/YYYY-MM-DD-[lesson].md`.
      - Use the template at [docs/adr/template.md](file:///Users/johnnyblase/gym/agbalumo/docs/adr/template.md).
      - Link the new ADR in `AGENTS.md` if it changes a global architectural constraint.
