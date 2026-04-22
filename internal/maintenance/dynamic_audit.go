@@ -14,7 +14,7 @@ import (
 // VerifyServerStartup starts the server and verifies it boots successfully without panics.
 func VerifyServerStartup(rootDir string) error {
 	fmt.Println("🚀 Verifying Server Startup (Dynamic Audit)...")
-	
+
 	testerDir := filepath.Join(rootDir, ".tester", "servers")
 	if err := os.MkdirAll(testerDir, 0750); err != nil {
 		return fmt.Errorf("failed to create tester directory: %w", err)
@@ -74,7 +74,7 @@ func waitForReadiness(cmd *exec.Cmd, done chan error, logPath string) error {
 		Transport: &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}, //nolint:gosec // maintenance utility uses self-signed local certs
 		Timeout:   1 * time.Second,
 	}
-	
+
 	fmt.Print("⏳ Waiting for server readiness...")
 	for i := 0; i < 15; i++ {
 		if ready, err := attemptReadinessCheck(client, done, logPath); err != nil {
