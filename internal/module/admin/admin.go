@@ -59,6 +59,13 @@ func (h *AdminHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddleware
 	adminGroup.POST("/upload", h.HandleBulkUpload)
 	adminGroup.GET("/listings/export", h.HandleExportListings)
 	adminGroup.POST("/categories", h.HandleAddCategory)
+
+	// Modal Fragments
+	adminGroup.GET("/modal/charts", h.HandleModalCharts)
+	adminGroup.GET("/modal/users", h.HandleModalUsers)
+	adminGroup.GET("/modal/bulk", h.HandleModalBulk)
+	adminGroup.GET("/modal/category", h.HandleModalCategory)
+	adminGroup.GET("/modal/moderation", h.HandleModalModeration)
 }
 
 // AdminMiddleware checks if the user is an admin.

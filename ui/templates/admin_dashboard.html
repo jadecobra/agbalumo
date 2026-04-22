@@ -56,26 +56,7 @@ duration-300{{ end }}
     </div>
 </div>
 
-<!-- BEGIN: Charts Modal -->
-{{ template "admin_modal_charts" . }}
-<!-- END: Charts Modal -->
-
-<!-- BEGIN: Users Modal -->
-{{ template "admin_modal_users" . }}
-<!-- END: Users Modal -->
-
-<!-- BEGIN: Bulk Modal -->
-{{ template "admin_modal_bulk" . }}
-<!-- END: Bulk Modal -->
-
-<!-- BEGIN: Category Modal -->
-{{ template "admin_modal_category" . }}
-<!-- END: Category Modal -->
-
-
-<!-- BEGIN: Moderation Modal -->
-{{ template "admin_modal_moderation" . }}
-<!-- END: Claim Requests Modal -->
+<div id="admin-modal-container"></div>
 
 <script src="/static/js/chart.umd.min.js" defer></script>
 {{ end }}{{ define "extra_scripts" }}

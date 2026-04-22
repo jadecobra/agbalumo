@@ -66,19 +66,32 @@ func parseTemplateFunctions(content string) []string {
 }
 
 func extractFromLine(line string) []string {
-	var used []string
-	// Extract from {{ ... }}
-	extract := func(sep string, stripRange bool) {
-		if strings.Contains(line, sep) {
-			parts := strings.Split(line, sep)
-			for _, p := range parts[1:] {
-				used = append(used, extractFirstWord(p, stripRange)...)
-			}
-		}
+	if !strings.Contains(line, "{{") {
+		return nil
 	}
 
-	extract("{{", true)
-	extract("|", false)
+	var used []string
+	parts := strings.Split(line, "{{")
+	for _, p := range parts[1:] {
+		if endIdx := strings.Index(p, "}}"); endIdx != -1 {
+			used = append(used, extractFromBlock(p[:endIdx])...)
+		}
+	}
+	return used
+}
+
+func extractFromBlock(inner string) []string {
+	var used []string
+	// 1. Extract first word (potential function)
+	used = append(used, extractFirstWord(inner, true)...)
+
+	// 2. Extract from pipes within this template block
+	if strings.Contains(inner, "|") {
+		pipeParts := strings.Split(inner, "|")
+		for _, pp := range pipeParts[1:] {
+			used = append(used, extractFirstWord(pp, false)...)
+		}
+	}
 	return used
 }
 

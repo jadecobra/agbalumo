@@ -1,14 +1,14 @@
-{{ define "admin_modal_charts" }}
-<div id="chartsModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
-    aria-modal="true">
+{{ define "admin_modal_charts.html" }}
+<div id="chartsModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+    aria-modal="true" x-init="initAdminDashboard()">
     <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div class="fixed inset-0 bg-earth-dark/90 transition-opacity backdrop-blur-sm" aria-hidden="true"
-            data-action="close-modal" data-target="chartsModal"></div>
+            @click="$el.closest('#admin-modal-container').innerHTML = ''"></div>
         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
         <div
             class="inline-block align-bottom bg-earth-dark border border-white/10 text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl w-full p-8 relative">
 
-            <button data-action="close-modal" data-target="chartsModal"
+            <button @click="$el.closest('#admin-modal-container').innerHTML = ''"
                 class="absolute top-6 right-6 text-white/30 hover:text-white transition-colors">
                 <span class="material-symbols-outlined">close</span>
             </button>
@@ -30,9 +30,10 @@
             </div>
 
             <div class="mt-12 flex justify-end">
-                {{ template "button_sharp" dict "Label" "Close" "DataAction" "close-modal" "DataTarget" "chartsModal"
-                "Classes" `bg-white/10 hover:bg-white/20 text-white px-8 py-3 font-bold uppercase text-xs
-                tracking-widest transition-all` }}
+                <button type="button" @click="$el.closest('#admin-modal-container').innerHTML = ''"
+                    class="bg-white/10 hover:bg-white/20 text-white px-8 py-3 font-bold uppercase text-xs tracking-widest transition-all">
+                    Close
+                </button>
             </div>
         </div>
     </div>

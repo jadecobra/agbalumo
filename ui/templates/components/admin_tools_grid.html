@@ -5,11 +5,11 @@
     <div class="bg-earth-sand py-2 shadow-2xl border-l-[6px] border-earth-ochre" data-purpose="admin-tools-banner">
         <div class="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-earth-dark/10">
 
-            {{ template "admin_tool_btn_sharp" dict "Target" "chartsModal" "Label" "View Charts" "IconBgClass"
+            {{ template "admin_tool_btn_sharp" dict "HXGet" "/admin/modal/charts" "HXTarget" "#admin-modal-container" "Label" "View Charts" "IconBgClass"
             "bg-earth-ochre/10" "IconColorClass" "text-earth-ochre" "Icon" `<span
                 class="material-symbols-outlined">bar_chart</span>` }}
 
-            {{ template "admin_tool_btn_sharp" dict "Target" "uploadModal" "Label" "Upload CSV" "IconBgClass"
+            {{ template "admin_tool_btn_sharp" dict "HXGet" "/admin/modal/bulk" "HXTarget" "#admin-modal-container" "Label" "Upload CSV" "IconBgClass"
             "bg-blue-500/10" "IconColorClass" "text-blue-500" "Icon" `<span
                 class="material-symbols-outlined">csv</span>` }}
 
@@ -18,7 +18,7 @@
             "bg-earth-dark/10" "IconColorClass" "text-earth-dark" "Icon" `<span
                 class="material-symbols-outlined">download</span>` }}
 
-            {{ template "admin_tool_btn_sharp" dict "Target" "categoryModal" "Label" "Categories"
+            {{ template "admin_tool_btn_sharp" dict "HXGet" "/admin/modal/category" "HXTarget" "#admin-modal-container" "Label" "Categories"
             "IconBgClass" "bg-green-500/10" "IconColorClass" "text-green-500" "Icon" `<span
                 class="material-symbols-outlined">category</span>` }}
 

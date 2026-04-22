@@ -134,6 +134,11 @@ Requires admin role and session authentication.
 | POST | `/admin/upload` | Bulk CSV upload (`csv_file`) |
 | GET | `/admin/listings/export` | Export all listings to CSV |
 | POST | `/admin/categories` | Add custom category |
+| GET | `/admin/modal/charts` | Admin charts modal fragment |
+| GET | `/admin/modal/users` | Admin users modal fragment |
+| GET | `/admin/modal/bulk` | Admin bulk upload modal fragment |
+| GET | `/admin/modal/category` | Admin category management modal fragment |
+| GET | `/admin/modal/moderation` | Admin moderation queue modal fragment |
 
 ### Admin Listing Filters (GET `/admin/listings`)
 

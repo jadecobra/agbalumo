@@ -327,3 +327,58 @@ categories:
     responses:
       '302':
         description: Redirect to dashboard
+
+modal_charts:
+  get:
+    summary: Admin charts modal fragment
+    tags:
+      - Admin
+    security:
+      - CookieAuth: []
+    responses:
+      '200':
+        description: Modal fragment HTML
+
+modal_users:
+  get:
+    summary: admin users modal fragment
+    tags:
+      - Admin
+    security:
+      - CookieAuth: []
+    responses:
+      '200':
+        description: Modal fragment HTML
+
+modal_bulk:
+  get:
+    summary: admin bulk modal fragment
+    tags:
+      - Admin
+    security:
+      - CookieAuth: []
+    responses:
+      '200':
+        description: Modal fragment HTML
+
+modal_category:
+  get:
+    summary: admin category modal fragment
+    tags:
+      - Admin
+    security:
+      - CookieAuth: []
+    responses:
+      '200':
+        description: Modal fragment HTML
+
+modal_moderation:
+  get:
+    summary: admin moderation modal fragment
+    tags:
+      - Admin
+    security:
+      - CookieAuth: []
+    responses:
+      '200':
+        description: Modal fragment HTML

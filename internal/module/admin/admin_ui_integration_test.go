@@ -61,7 +61,7 @@ func TestAdminDashboardFooterPosition(t *testing.T) {
 	}
 }
 
-func TestMetricCardsHaveModalTriggers(t *testing.T) {
+func TestMetricCardsHaveHTMXTriggers(t *testing.T) {
 	t.Parallel()
 	env := testutil.SetupTestModuleEnv(t)
 	defer env.Cleanup()
@@ -81,23 +81,23 @@ func TestMetricCardsHaveModalTriggers(t *testing.T) {
 		t.Errorf("Expected Total Listings metric card to link to %s", domain.PathAdminListings)
 	}
 
-	// Pending metric → moderationModal
-	if !strings.Contains(body, `data-modal-target="`+domain.ModalModeration+`"`) {
-		t.Errorf("Expected Pending metric card to have data-modal-target=\"%s\"", domain.ModalModeration)
+	// Pending metric → hx-get="/admin/modal/moderation"
+	if !strings.Contains(body, `hx-get="/admin/modal/moderation"`) {
+		t.Error("Expected Pending metric card to have hx-get=\"/admin/modal/moderation\"")
 	}
 
-	// Total Users metric → usersModal
-	if !strings.Contains(body, `data-modal-target="`+domain.ModalUsers+`"`) {
-		t.Errorf("Expected Total Users metric card to have data-modal-target=\"%s\"", domain.ModalUsers)
+	// Total Users metric → hx-get="/admin/modal/users"
+	if !strings.Contains(body, `hx-get="/admin/modal/users"`) {
+		t.Error("Expected Total Users metric card to have hx-get=\"/admin/modal/users\"")
 	}
 
-	// Metric cards should be clickable (have open-modal action)
-	if !strings.Contains(body, `data-action="`+domain.ActionOpenModal+`"`) {
-		t.Errorf("Expected metric cards to have data-action=\"%s\"", domain.ActionOpenModal)
+	// HXTarget should pointing to #admin-modal-container
+	if !strings.Contains(body, `hx-target="#admin-modal-container"`) {
+		t.Error("Expected metric cards to target #admin-modal-container")
 	}
 }
 
-func TestCategoryModalExists(t *testing.T) {
+func TestCategoryModalTrigger(t *testing.T) {
 	t.Parallel()
 	env := testutil.SetupTestModuleEnv(t)
 	defer env.Cleanup()
@@ -111,9 +111,34 @@ func TestCategoryModalExists(t *testing.T) {
 
 	body := rec.Body.String()
 
-	// categoryModal div must exist
+	// admin-modal-container div must exist
+	if !strings.Contains(body, `id="admin-modal-container"`) {
+		t.Error("Expected admin-modal-container div to exist in the rendered dashboard")
+	}
+
+	// Categories button in admin tools grid must have hx-get trigger
+	if !strings.Contains(body, `hx-get="/admin/modal/category"`) {
+		t.Error("Expected Categories admin tool button to have hx-get=\"/admin/modal/category\"")
+	}
+}
+
+func TestCategoryModalFragment(t *testing.T) {
+	t.Parallel()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+
+	c, rec := testutil.SetupAdminIntegrationContext(t, http.MethodGet, "/admin/modal/category", nil, "components/admin_modal_category.html")
+	h := admin.NewAdminHandler(env.App)
+
+	if err := h.HandleModalCategory(c); err != nil {
+		t.Fatalf("HandleModalCategory failed: %v", err)
+	}
+
+	body := rec.Body.String()
+
+	// categoryModal div must exist in the fragment
 	if !strings.Contains(body, `id="`+domain.ModalCategory+`"`) {
-		t.Errorf("Expected %s div to exist in the rendered dashboard", domain.ModalCategory)
+		t.Errorf("Expected %s div to exist in the rendered fragment", domain.ModalCategory)
 	}
 
 	// Form must post to /admin/categories
@@ -124,11 +149,6 @@ func TestCategoryModalExists(t *testing.T) {
 	// Name input must be present
 	if !strings.Contains(body, `name="name"`) {
 		t.Error("Expected category name input field with name=\"name\"")
-	}
-
-	// Categories button in admin tools grid must target categoryModal
-	if !strings.Contains(body, `data-target="`+domain.ModalCategory+`"`) {
-		t.Errorf("Expected Categories admin tool button to target %s", domain.ModalCategory)
 	}
 }
 

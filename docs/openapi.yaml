@@ -155,6 +155,21 @@ paths:
   /admin/categories:
     $ref: './openapi/paths/admin.yaml#/categories'
 
+  /admin/modal/charts:
+    $ref: './openapi/paths/admin.yaml#/modal_charts'
+
+  /admin/modal/users:
+    $ref: './openapi/paths/admin.yaml#/modal_users'
+
+  /admin/modal/bulk:
+    $ref: './openapi/paths/admin.yaml#/modal_bulk'
+
+  /admin/modal/category:
+    $ref: './openapi/paths/admin.yaml#/modal_category'
+
+  /admin/modal/moderation:
+    $ref: './openapi/paths/admin.yaml#/modal_moderation'
+
 components:
   securitySchemes:
     CookieAuth:
