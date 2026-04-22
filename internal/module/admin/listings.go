@@ -119,5 +119,3 @@ func (h *AdminHandler) validateFeaturedLimit(ctx context.Context, listing domain
 	}
 	return nil
 }
-
-

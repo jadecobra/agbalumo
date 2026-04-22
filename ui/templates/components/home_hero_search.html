@@ -28,7 +28,7 @@
         </div>
 
         <!-- Sharp Search & Filter Bar Wrapper -->
-        <div class="w-full max-w-2xl relative" x-data="{ open: false, type: 'Food', counts: { {{ range $k, $v := .Counts }}'{{ $k }}': {{ $v }},{{ end }} } }">
+        <div class="w-full max-w-2xl relative">
             <div class="w-full bg-earth-sand/10 backdrop-blur-md border border-white/20 p-1 flex flex-col shadow-2xl relative group"
                 id="search-container">
                 <!-- Search Input Row -->
@@ -41,16 +41,15 @@
                             data-testid="ag-home-search-input"
                             hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
                             hx-trigger="keyup changed delay:500ms, search"
-                            :hx-vals="`js:{type: '${type}'}`">
+                            hx-vals='js:{type: window.filterState.type}'>
                     </div>
 
                     <!-- Search Button (Inside Bar for Desktop, hidden on Mobile) -->
                     {{ template "button_sharp" dict "Type" "button" "Classes" "hidden md:flex bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark h-14 px-8 font-bold uppercase text-xs tracking-widest transition-colors items-center shadow-lg shadow-earth-ochre/20 border-l border-white/20" "Label" "Search" "Attr" `data-testid="ag-home-search-btn-desktop"` }}
 
                     <!-- Filters Toggle (Desktop View) -->
-                    <button type="button" @click="open = !open" data-testid="ag-home-filters-toggle-desktop"
-                        :class="open ? 'bg-earth-ochre text-earth-dark' : 'bg-white/10 text-white'"
-                        class="hidden md:flex h-14 items-center justify-center gap-2 hover:bg-white/20 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors">
+                    <button type="button" data-testid="ag-home-filters-toggle-desktop"
+                        class="hidden md:flex h-14 items-center justify-center gap-2 bg-white/10 text-white hover:bg-white/20 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors">
                         <span class="material-symbols-outlined text-[16px]">tune</span>
                         Filters
                     </button>
@@ -59,9 +58,8 @@
                 <!-- Action Buttons (Mobile View) -->
                 <div class="flex md:hidden items-center mt-1 p-1 gap-1">
                     {{ template "button_sharp" dict "Type" "button" "Classes" "flex-1 bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark h-12 font-bold uppercase text-[10px] tracking-widest transition-colors text-center shadow-lg shadow-earth-ochre/20" "Label" "Search" "Attr" `data-testid="ag-home-search-btn-mobile"` }}
-                    <button type="button" @click="open = !open" data-testid="ag-home-filters-toggle-mobile"
-                        :class="open ? 'bg-earth-ochre text-earth-dark' : 'bg-white/10 text-white'"
-                        class="flex-1 flex items-center justify-center gap-2 hover:bg-white/20 h-12 text-[10px] font-bold uppercase tracking-widest transition-colors">
+                    <button type="button" data-testid="ag-home-filters-toggle-mobile"
+                        class="flex-1 flex items-center justify-center gap-2 bg-white/10 text-white hover:bg-white/20 h-12 text-[10px] font-bold uppercase tracking-widest transition-colors">
                         <span class="material-symbols-outlined text-[16px]">tune</span>
                         Filters
                     </button>
@@ -71,11 +69,7 @@
 
             <!-- Filter Dropdowns Panel (Bottom Sheet on Mobile, Dropdown on Desktop) -->
             <div id="filter-dropdown-panel" 
-                x-show="open"
-                x-cloak
-                @click.outside="open = false"
-                @keydown.escape.window="open = false"
-                class="z-50 bg-earth-sand shadow-2xl transition-all duration-300 overflow-hidden flex flex-col
+                class="z-50 bg-earth-sand shadow-2xl transition-all duration-300 overflow-hidden flex flex-col hidden
                        fixed bottom-0 left-0 right-0 top-auto rounded-t-3xl max-h-[90vh]
                        md:absolute md:top-full md:bottom-auto md:left-auto md:right-0 md:mt-2 md:w-[400px] md:max-h-[60vh] md:rounded-2xl md:border md:border-earth-dark/10">
                 
@@ -85,7 +79,6 @@
                     /* Hide default details marker */
                     summary { list-style: none; }
                     summary::-webkit-details-marker { display: none; }
-                    [x-cloak] { display: none !important; }
                 </style>
 
                 <!-- Mobile handle -->
@@ -101,23 +94,20 @@
                         </summary>
                         
                         <div class="flex flex-col w-full bg-earth-sand/50">
-                            <button type="button" @click="type = ''; open = false; htmx.ajax('GET', '/listings/fragment', {target: '#listings-container', indicator: '#listings-loading'})" data-testid="ag-filter-category-all"
-                                :class="type === '' ? 'bg-earth-ochre/10 text-earth-ochre' : 'text-earth-dark'"
-                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest hover:bg-earth-ochre/10 transition-colors w-full border-b border-earth-dark/5">
+                            <button type="button" data-category-name="" data-testid="ag-filter-category-all"
+                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest hover:bg-earth-ochre/10 transition-colors w-full border-b border-earth-dark/5 text-earth-dark">
                                 All Categories
                             </button>
                             <!-- Prioritize Food Category for Ada -->
-                            <button type="button" @click="type = 'Food'; open = false; htmx.ajax('GET', '/listings/fragment?type=Food', {target: '#listings-container', indicator: '#listings-loading'})" data-testid="ag-filter-category-food"
-                                :class="type === 'Food' ? 'bg-earth-ochre/10 text-earth-ochre' : 'text-earth-dark'"
-                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest hover:bg-earth-ochre/10 transition-colors w-full border-b border-earth-dark/5">
-                                Food (<span x-text="counts['Food'] || 0"></span>)
+                            <button type="button" data-category-name="Food" data-testid="ag-filter-category-food"
+                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest bg-earth-ochre/10 text-earth-ochre transition-colors w-full border-b border-earth-dark/5">
+                                Food ({{ if index .Counts "Food" }}{{ index .Counts "Food" }}{{ else }}0{{ end }})
                             </button>
                             {{ range .Categories }}
                             {{ if and (ne .Name "Food") (ne .Name "Request") }}
-                            <button type="button" @click="type = '{{ .Name }}'; open = false; htmx.ajax('GET', '/listings/fragment?type={{ .Name }}', {target: '#listings-container', indicator: '#listings-loading'})" data-testid="ag-filter-category-{{ .Name }}"
-                                :class="type === '{{ .Name }}' ? 'bg-earth-ochre/10 text-earth-ochre' : 'text-earth-dark'"
-                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest hover:bg-earth-ochre/10 transition-colors w-full border-b border-earth-dark/5">
-                                {{ if .Name }}{{ .Name }}{{ else }}Category{{ end }} (<span x-text="counts['{{ .Name }}'] || 0"></span>)
+                            <button type="button" data-category-name="{{ .Name }}" data-testid="ag-filter-category-{{ .Name }}"
+                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest hover:bg-earth-ochre/10 transition-colors w-full border-b border-earth-dark/5 text-earth-dark">
+                                {{ if .Name }}{{ .Name }}{{ else }}Category{{ end }} ({{ if index $.Counts .Name }}{{ index $.Counts .Name }}{{ else }}0{{ end }})
                             </button>
                             {{ end }}
                             {{ end }}
