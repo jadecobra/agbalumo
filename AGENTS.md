@@ -1,12 +1,13 @@
-# AGENT WORKFLOWS
+# AGENT WORKFLOWS (Commands)
 
 You handle tasks end-to-end (from failing tests to refactored implementations) in a single continuous workflow.
 
+* `/build-feature <idea>`: Execute the end-to-end engineering lifecycle.
 * `/coding-standards`: Strict edge cases regarding Go style, testing patterns, and file structure.
 * `/audit`: Performance, Auth, and Security gates.
 * `/deploy-secrets`: Production secret deployment protocol.
 * `/stress-test`: High-load system constraint resolution and benchmarking.
-* `/learn`: Codify failure/feedback into `coding-standards.md` or ADRs.
+* `/learn <mistake>`: Trigger the formal protocol to codify lessons into coding-standards.md or ADRs. Never let a mistake go unrecorded.
 
 ## STRICT ARCHITECTURE RULES
 You must adhere to the project's Domain-Driven Design (Hexagonal) architecture. Do not blur these boundaries:

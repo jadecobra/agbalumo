@@ -45,7 +45,7 @@ func TestModalMenuRendering(t *testing.T) {
 		}
 
 		output := buf.String()
-		
+
 		// This specific check will FAIL currently because the code uses 'flex items-center' in the contact section
 		// The user wants a "button button-secondary" or similar prominent CTA.
 		if !strings.Contains(output, "View Menu") {

@@ -15,7 +15,7 @@ import (
 // --- RealGoogleProvider.getRedirectURL Tests ---
 
 func TestRealGoogleProvider_getRedirectURL_BaseURL(t *testing.T) {
-	t.Parallel()
+	// t.Parallel() removed due to os.Setenv usage
 	_ = os.Setenv("BASE_URL", "http://192.168.1.5:8080")
 	defer func() { _ = os.Unsetenv("BASE_URL") }()
 	_ = os.Unsetenv("GOOGLE_REDIRECT_URL")
@@ -27,7 +27,7 @@ func TestRealGoogleProvider_getRedirectURL_BaseURL(t *testing.T) {
 }
 
 func TestRealGoogleProvider_getRedirectURL_GoogleRedirectURL(t *testing.T) {
-	t.Parallel()
+	// t.Parallel() removed due to os.Setenv usage
 	_ = os.Unsetenv("BASE_URL")
 	_ = os.Setenv("GOOGLE_REDIRECT_URL", "https://custom.example.com/callback")
 	defer func() { _ = os.Unsetenv("GOOGLE_REDIRECT_URL") }()
@@ -39,7 +39,7 @@ func TestRealGoogleProvider_getRedirectURL_GoogleRedirectURL(t *testing.T) {
 }
 
 func TestRealGoogleProvider_getRedirectURL_DynamicHTTPS(t *testing.T) {
-	t.Parallel()
+	// t.Parallel() removed due to os.Setenv usage
 	_ = os.Unsetenv("BASE_URL")
 	_ = os.Unsetenv("GOOGLE_REDIRECT_URL")
 	_ = os.Unsetenv("AGBALUMO_ENV")
@@ -51,7 +51,7 @@ func TestRealGoogleProvider_getRedirectURL_DynamicHTTPS(t *testing.T) {
 }
 
 func TestRealGoogleProvider_getRedirectURL_DynamicHTTP(t *testing.T) {
-	t.Parallel()
+	// t.Parallel() removed due to os.Setenv usage
 	_ = os.Unsetenv("BASE_URL")
 	_ = os.Unsetenv("GOOGLE_REDIRECT_URL")
 	_ = os.Unsetenv("AGBALUMO_ENV")
@@ -63,7 +63,7 @@ func TestRealGoogleProvider_getRedirectURL_DynamicHTTP(t *testing.T) {
 }
 
 func TestRealGoogleProvider_getRedirectURL_Production(t *testing.T) {
-	t.Parallel()
+	// t.Parallel() removed due to os.Setenv usage
 	_ = os.Unsetenv("BASE_URL")
 	_ = os.Unsetenv("GOOGLE_REDIRECT_URL")
 	_ = os.Setenv("AGBALUMO_ENV", "production")
@@ -78,7 +78,7 @@ func TestRealGoogleProvider_getRedirectURL_Production(t *testing.T) {
 // --- RealGoogleProvider.GetAuthCodeURL Test ---
 
 func TestRealGoogleProvider_GetAuthCodeURL(t *testing.T) {
-	t.Parallel()
+	// t.Parallel() removed due to os.Setenv usage
 	_ = os.Unsetenv("BASE_URL")
 	_ = os.Unsetenv("GOOGLE_REDIRECT_URL")
 	_ = os.Unsetenv("AGBALUMO_ENV")
