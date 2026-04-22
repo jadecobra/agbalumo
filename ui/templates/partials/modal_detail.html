@@ -73,6 +73,16 @@
                 </form>
                 {{ end }}
             </div>
+            
+            {{ if .Listing.MenuURL }}
+            <div id="cta-block" class="mb-6">
+                <a href="{{ .Listing.MenuURL }}" target="_blank" data-ada-discovery="menu"
+                    class="btn-leaf w-full flex items-center justify-center gap-2 py-3.5 font-bold uppercase tracking-widest text-sm shadow-md">
+                    <span class="material-symbols-outlined">restaurant_menu</span>
+                    View Menu
+                </a>
+            </div>
+            {{ end }}
 
             {{ if .Listing.HoursOfOperation }}
             <div class="flex items-start gap-2 text-earth-cream/70 text-sm mb-4">
@@ -176,13 +186,6 @@
                 </a>
                 {{ end }}
 
-                {{ if .Listing.MenuURL }}
-                <a href="{{ .Listing.MenuURL }}" target="_blank" data-ada-discovery="menu"
-                    class="flex items-center gap-3 p-3 bg-palm-green/5 dark:bg-palm-green/10 text-palm-green hover:bg-palm-green/10 dark:hover:bg-palm-green/20 transition-colors border border-palm-green/20">
-                    <span class="material-symbols-outlined">restaurant_menu</span>
-                    <span class="font-medium text-sm">Menu</span>
-                </a>
-                {{ end }}
 
                 {{ if .Listing.WebsiteURL }}
                 <a href="{{ .Listing.WebsiteURL }}" target="_blank" data-ada-discovery="website"
