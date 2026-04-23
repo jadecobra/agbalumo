@@ -102,6 +102,7 @@ func init() {
 		watchCmd,
 		gosecRationaleCmd,
 		preflightCmd,
+		sessionContextCmd,
 	)
 }
 

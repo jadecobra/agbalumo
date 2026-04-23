@@ -29,7 +29,7 @@ func TestPreflight(t *testing.T) {
 	os.Stdout = w
 
 	errRun := RunPreflight(tempDir)
-	
+
 	_ = w.Close()
 	os.Stdout = oldStdout
 

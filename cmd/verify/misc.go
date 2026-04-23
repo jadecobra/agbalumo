@@ -129,3 +129,12 @@ var preflightCmd = makeSimpleCmd("preflight",
 	func() error {
 		return maintenance.RunPreflight(".")
 	})
+
+var sessionContextCmd = &cobra.Command{
+	Use:   "session-context [path]",
+	Short: "Dump all rules, constraints, and ADRs relevant to a specific directory",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return maintenance.RunSessionContext(".", args[0])
+	},
+}
