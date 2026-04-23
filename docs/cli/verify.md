@@ -160,6 +160,22 @@ Run tests with race detection and coverage enforcement.
 agbalumo verify test [pkg] [--race=true] [--threshold-path=path]
 ```
 
+##### preflight
+
+Dump active rules relevant to staged/modified files.
+
+```bash
+agbalumo verify preflight
+```
+
+##### session-context
+
+Dump all rules, constraints, and ADRs relevant to a specific directory.
+
+```bash
+agbalumo verify session-context [path]
+```
+
 ##### verify-shas
 
 Verify all GitHub Action SHAs are pinned.

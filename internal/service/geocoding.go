@@ -147,8 +147,6 @@ func (s *GoogleGeocodingService) fetch(ctx context.Context, apiURL string) ([]by
 	return io.ReadAll(resp.Body)
 }
 
-
-
 func (s *GoogleGeocodingService) extractCity(components []struct {
 	LongName string   `json:"long_name"`
 	Types    []string `json:"types"`

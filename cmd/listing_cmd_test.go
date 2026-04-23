@@ -22,7 +22,7 @@ func TestListingCommands_RunCoverage(t *testing.T) {
 	repo := initRepo()
 
 	// Ensure the repo is clean
-	listings, _, _ := repo.FindAll(context.Background(), "", "", "", "", "", false, 100, 0)
+	listings, _, _ := repo.FindAll(context.Background(), "", "", "", 0.0, 0.0, 0.0, "", "", false, 100, 0)
 	for _, l := range listings {
 		_ = repo.Delete(context.Background(), l.ID)
 	}
@@ -59,7 +59,7 @@ func runListingCommandsTestsPart1(t *testing.T, repo domain.ListingRepository) {
 
 		time.Sleep(100 * time.Millisecond) // Give SQLite a moment if needed, though Save is sync
 
-		allListings, _, err := repo.FindAll(context.Background(), "", "", "", "", "", false, 10, 0)
+		allListings, _, err := repo.FindAll(context.Background(), "", "", "", 0.0, 0.0, 0.0, "", "", false, 10, 0)
 		assert.NoError(t, err)
 
 		var found domain.Listing
@@ -89,7 +89,7 @@ func runListingCommandsTestsPart1(t *testing.T, repo domain.ListingRepository) {
 	})
 
 	t.Run("Get", func(t *testing.T) {
-		allListings, _, _ := repo.FindAll(context.Background(), "", "", "", "", "", false, 10, 0)
+		allListings, _, _ := repo.FindAll(context.Background(), "", "", "", 0.0, 0.0, 0.0, "", "", false, 10, 0)
 		if len(allListings) > 0 {
 			targetID := allListings[0].ID
 
@@ -106,7 +106,7 @@ func runListingCommandsTestsPart1(t *testing.T, repo domain.ListingRepository) {
 
 func runListingCommandsTestsPart2(t *testing.T, repo domain.ListingRepository) {
 	t.Run("Update", func(t *testing.T) {
-		allListings, _, _ := repo.FindAll(context.Background(), "", "", "", "", "", false, 10, 0)
+		allListings, _, _ := repo.FindAll(context.Background(), "", "", "", 0.0, 0.0, 0.0, "", "", false, 10, 0)
 		if len(allListings) > 0 {
 			targetID := allListings[0].ID
 
@@ -170,7 +170,7 @@ func runListingCommandsTestsPart2(t *testing.T, repo domain.ListingRepository) {
 	})
 
 	t.Run("Delete", func(t *testing.T) {
-		allListings, _, _ := repo.FindAll(context.Background(), "", "", "", "", "", false, 10, 0)
+		allListings, _, _ := repo.FindAll(context.Background(), "", "", "", 0.0, 0.0, 0.0, "", "", false, 10, 0)
 		for _, l := range allListings {
 			listingDeleteCmd.Run(listingDeleteCmd, []string{l.ID})
 

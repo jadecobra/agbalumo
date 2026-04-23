@@ -71,7 +71,7 @@ func TestFindAll_RadiusSearch(t *testing.T) {
 	res, _, err = repo.FindAll(ctx, "", "", "", dallasLat, dallasLng, 50, "", "", false, 10, 0)
 	assert.NoError(t, err)
 	assert.Equal(t, 2, len(res))
-	
+
 	ids := map[string]bool{}
 	for _, l := range res {
 		ids[l.ID] = true
