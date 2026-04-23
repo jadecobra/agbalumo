@@ -101,6 +101,7 @@ func init() {
 		checkGatesCmd,
 		watchCmd,
 		gosecRationaleCmd,
+		preflightCmd,
 	)
 }
 

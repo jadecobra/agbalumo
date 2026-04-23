@@ -123,3 +123,9 @@ var gosecRationaleCmd = makeSimpleCmd("gosec-rationale", "Verify that all #nosec
 	fmt.Println("🔍 Checking for mandatory rationale in #nosec directives...")
 	return maintenance.CheckGosecRationale(".")
 })
+
+var preflightCmd = makeSimpleCmd("preflight",
+	"Dump active rules relevant to staged/modified files",
+	func() error {
+		return maintenance.RunPreflight(".")
+	})
