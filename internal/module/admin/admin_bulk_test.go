@@ -82,7 +82,7 @@ func TestAdminHandler_HandleBulkUpload_ParseError(t *testing.T) {
 
 	assert.Equal(t, http.StatusFound, rec.Code)
 	// Verify no listing was saved
-	listings, _, _ := env.App.DB.FindAll(context.Background(), "", "", "", "", "", true, 10, 0)
+	listings, _, _ := env.App.DB.FindAll(context.Background(), "", "", "", 0.0, 0.0, 0.0, "", "", true, 10, 0)
 	assert.Empty(t, listings)
 }
 

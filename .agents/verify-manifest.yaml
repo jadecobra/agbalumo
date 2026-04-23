@@ -1,0 +1,32 @@
+commands:
+  - name: preflight
+    trigger: session_start
+    description: Dump active rules for modified files
+    
+  - name: precommit
+    trigger: before_commit
+    auto: true  # git hook
+    
+  - name: critique
+    trigger: after_implementation
+    flags: ["--full for CI, default incremental"]
+    
+  - name: heal
+    trigger: after_critique_violations
+    description: Auto-fix structural issues
+    
+  - name: js-syntax
+    trigger: modified_js_files
+    auto: true  # in precommit
+    
+  - name: check-gates
+    trigger: phase_transition
+    description: Verify TDD workflow compliance
+    
+  - name: ci
+    trigger: before_push
+    auto: true  # git pre-push hook
+    
+  - name: context-cost
+    trigger: after_refactor
+    description: Monitor token density regression

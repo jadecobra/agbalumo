@@ -19,6 +19,11 @@ func (m *MockGeocodingService) GetCity(ctx context.Context, address string) (str
 	return args.String(0), args.Error(1)
 }
 
+func (m *MockGeocodingService) Geocode(ctx context.Context, address string) (float64, float64, error) {
+	args := m.Called(ctx, address)
+	return args.Get(0).(float64), args.Get(1).(float64), args.Error(2)
+}
+
 type MockImageService struct {
 	testifyMock.Mock
 }

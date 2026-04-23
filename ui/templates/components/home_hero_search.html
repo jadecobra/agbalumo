@@ -43,7 +43,7 @@
                             data-testid="ag-home-search-input"
                             hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
                             hx-trigger="keyup changed delay:500ms, search"
-                            hx-vals='js:{type: window.filterState.type}'>
+                            hx-vals='js:{type: window.filterState.type, city: window.filterState.city, radius: window.filterState.radius}'>
                     </div>
 
                     <!-- Search Button (Inside Bar for Desktop, hidden on Mobile) -->
@@ -138,6 +138,46 @@
                             </button>
                             {{ end }}
                             {{ end }}
+                        </div>
+                    </details>
+
+                    <!-- Location Group Toggle -->
+                    <details class="w-full group/accordion" open>
+                        <summary class="px-5 py-4 bg-earth-dark/5 border-b border-earth-dark/10 flex items-center justify-between w-full hover:bg-earth-dark/10 transition-colors list-none cursor-pointer border-t">
+                            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-earth-clay/80">Near Location</span>
+                            <span class="material-symbols-outlined text-[20px] text-earth-ochre transition-transform duration-300 group-open/accordion:rotate-180" data-toggle-icon>expand_more</span>
+                        </summary>
+                        
+                        <div class="p-5 flex flex-col gap-4 bg-earth-sand/50">
+                            <!-- City Input (HTMX-enabled) -->
+                            <div class="space-y-1.5">
+                                <label for="filter-city" class="text-[10px] font-bold uppercase tracking-widest text-earth-clay/60">City or Zip Code</label>
+                                <div class="relative">
+                                    <input type="text" id="filter-city" name="city" value="{{ .City }}"
+                                        placeholder="Enter city..."
+                                        class="w-full bg-white border border-earth-dark/10 px-4 py-3 text-xs font-bold text-earth-dark outline-none focus:border-earth-ochre/50 transition-colors"
+                                        hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
+                                        hx-trigger="keyup changed delay:800ms"
+                                        hx-vals='js:{type: window.filterState.type, radius: window.filterState.radius, q: document.getElementById("search").value}'>
+                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-earth-clay/30 text-[18px]">location_on</span>
+                                </div>
+                            </div>
+
+                            <!-- Radius Select (HTMX-enabled) -->
+                            <div class="space-y-1.5">
+                                <label for="filter-radius" class="text-[10px] font-bold uppercase tracking-widest text-earth-clay/60">Distance (Miles)</label>
+                                <select id="filter-radius" name="radius"
+                                    class="w-full bg-white border border-earth-dark/10 px-4 py-3 text-xs font-bold text-earth-dark outline-none focus:border-earth-ochre/50 transition-colors appearance-none cursor-pointer"
+                                    hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
+                                    hx-trigger="change"
+                                    hx-vals='js:{type: window.filterState.type, city: window.filterState.city, q: document.getElementById("search").value}'>
+                                    <option value="5" {{ if eq .Radius 5.0 }}selected{{ end }}>Within 5 Miles</option>
+                                    <option value="10" {{ if eq .Radius 10.0 }}selected{{ end }}>Within 10 Miles</option>
+                                    <option value="25" {{ if or (eq .Radius 25.0) (eq .Radius 0.0) }}selected{{ end }}>Within 25 Miles</option>
+                                    <option value="50" {{ if eq .Radius 50.0 }}selected{{ end }}>Within 50 Miles</option>
+                                    <option value="100" {{ if eq .Radius 100.0 }}selected{{ end }}>Within 100 Miles</option>
+                                </select>
+                            </div>
                         </div>
                     </details>
                 </div>

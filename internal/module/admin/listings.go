@@ -26,7 +26,7 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 	queryText := strings.TrimSpace(c.QueryParam(domain.ParamQuery))
 
 	// Fetch all listings with the given category filter, including inactive ones.
-	listings, totalCountRows, err := h.App.DB.FindAll(ctx, category, queryText, "", sortField, sortOrder, true, pagination.Limit, pagination.Offset)
+	listings, totalCountRows, err := h.App.DB.FindAll(ctx, category, queryText, "", 0, 0, 0, sortField, sortOrder, true, pagination.Limit, pagination.Offset)
 	if err != nil {
 		return ui.RespondError(c, err)
 	}

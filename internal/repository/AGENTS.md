@@ -2,6 +2,12 @@
 
 This package is responsible for all data access. When working here, adhere to the following strict constraints:
 
+# Repository Constraints
+- Production DB: SQLite with WAL mode
+- All public queries MUST filter on `last_verified_at` (Zombie Data rule)
+- Spatial queries use bounding-box pre-filter + Haversine
+- Test with file-backed DB for WAL behavior, not just :memory:
+
 ## SQL & SQLite Specifics
 *   **Pragmas**: Always ensure `PRAGMA foreign_keys = ON;` and `PRAGMA journal_mode = WAL;` are configured in `NewSQLiteRepository`.
 *   **No Raw Concatenation**: NEVER use `fmt.Sprintf` or string concatenation to build SQL queries. Use `?` placeholders for all parameters to prevent SQL injection.

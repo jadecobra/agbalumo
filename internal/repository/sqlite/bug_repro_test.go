@@ -65,7 +65,7 @@ func TestFindAll_CityFilter_Regression(t *testing.T) {
 	}
 
 	// EXECUTION: Filter by Dallas
-	res, _, err := repo.FindAll(ctx, string(domain.Food), "", "Dallas", "", "", false, 20, 0)
+	res, _, err := repo.FindAll(ctx, string(domain.Food), "", "Dallas", 0.0, 0.0, 0.0, "", "", false, 20, 0)
 	if err != nil {
 		t.Fatalf("FindAll failed: %v", err)
 	}
@@ -116,7 +116,7 @@ func TestFindAll_SearchSuya_Regression(t *testing.T) {
 	}
 
 	// EXECUTION: Search for "Suya"
-	res, _, err := repo.FindAll(ctx, "", "Suya", "", "", "", false, 20, 0)
+	res, _, err := repo.FindAll(ctx, "", "Suya", "", 0.0, 0.0, 0.0, "", "", false, 20, 0)
 	if err != nil {
 		t.Fatalf("FindAll failed: %v", err)
 	}

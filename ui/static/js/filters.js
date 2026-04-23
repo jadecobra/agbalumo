@@ -6,9 +6,11 @@
 
 // Global state for HTMX hx-vals
 if (!window.filterState) {
+    const urlParams = new URLSearchParams(window.location.search);
     window.filterState = {
-        type: 'Food',
-        city: ''
+        type: urlParams.get('type') || 'Food',
+        city: urlParams.get('city') || '',
+        radius: urlParams.get('radius') || '25'
     };
 }
 
@@ -83,13 +85,38 @@ function setupFilterButtons() {
         if (searchInput) {
             searchInput.dispatchEvent(new Event('search', { bubbles: true }));
         } else {
-            const url = category ? `/listings/fragment?type=${encodeURIComponent(category)}` : '/listings/fragment';
+            const city = document.getElementById('filter-city')?.value || '';
+            const radius = document.getElementById('filter-radius')?.value || '25';
+            const url = `/listings/fragment?type=${encodeURIComponent(category)}&city=${encodeURIComponent(city)}&radius=${encodeURIComponent(radius)}`;
             if (window.htmx) {
                 window.htmx.ajax('GET', url, {
                     target: '#listings-container',
                     indicator: '#listings-loading'
                 });
             }
+        }
+    });
+
+    // Handle City and Radius updates to global state
+    document.addEventListener('change', (e) => {
+        if (e.target.id === 'filter-radius') {
+            window.filterState.radius = e.target.value;
+        }
+    });
+    document.addEventListener('input', (e) => {
+        if (e.target.id === 'filter-city') {
+            window.filterState.city = e.target.value;
+        }
+    });
+
+    // Handle Search Button Click
+    document.addEventListener('click', (e) => {
+        const searchBtn = e.target.closest('[data-testid^="ag-home-search-btn"]');
+        if (!searchBtn) return;
+
+        const searchInput = document.getElementById('search');
+        if (searchInput) {
+            searchInput.dispatchEvent(new Event('search', { bubbles: true }));
         }
     });
 }

@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 )
@@ -31,25 +32,86 @@ type geocodingResponse struct {
 			LongName string   `json:"long_name"`
 			Types    []string `json:"types"`
 		} `json:"address_components"`
+		Geometry struct {
+			Location struct {
+				Lat float64 `json:"lat"`
+				Lng float64 `json:"lng"`
+			} `json:"location"`
+		} `json:"geometry"`
 	} `json:"results"`
 }
 
 func (s *GoogleGeocodingService) GetCity(ctx context.Context, address string) (string, error) {
+	res, err := s.fetchGeocode(ctx, address)
+	if err != nil {
+		return "", err
+	}
+	if len(res.Results) == 0 {
+		return "", nil
+	}
+	return s.extractCity(res.Results[0].AddressComponents), nil
+}
+
+func (s *GoogleGeocodingService) Geocode(ctx context.Context, address string) (float64, float64, error) {
+	res, err := s.fetchGeocode(ctx, address)
+	if err != nil {
+		return 0, 0, err
+	}
+	if len(res.Results) == 0 {
+		return 0, 0, nil
+	}
+	loc := res.Results[0].Geometry.Location
+	return loc.Lat, loc.Lng, nil
+}
+
+func (s *GoogleGeocodingService) fetchGeocode(ctx context.Context, address string) (*geocodingResponse, error) {
 	if s.APIKey == "" {
-		return "", fmt.Errorf("google maps api key is not configured")
+		// Development Fallback: Hardcoded coordinates for common cities to allow demo without API key.
+		lowCity := strings.ToLower(address)
+		if strings.Contains(lowCity, "dallas") {
+			resp := &geocodingResponse{Status: "OK"}
+			resp.Results = make([]struct {
+				AddressComponents []struct {
+					LongName string   `json:"long_name"`
+					Types    []string `json:"types"`
+				} `json:"address_components"`
+				Geometry struct {
+					Location struct {
+						Lat float64 `json:"lat"`
+						Lng float64 `json:"lng"`
+					} `json:"location"`
+				} `json:"geometry"`
+			}, 1)
+			resp.Results[0].Geometry.Location.Lat = 32.7767
+			resp.Results[0].Geometry.Location.Lng = -96.7970
+			return resp, nil
+		}
+		return nil, fmt.Errorf("google maps api key is not configured")
 	}
 
 	apiURL, err := s.buildURL(address)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	body, err := s.fetch(ctx, apiURL)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return s.parseCity(body)
+	var res geocodingResponse
+	if err := json.Unmarshal(body, &res); err != nil {
+		return nil, err
+	}
+
+	if res.Status != "OK" {
+		if res.Status == "ZERO_RESULTS" {
+			return &res, nil
+		}
+		return nil, fmt.Errorf("geocoding api error status: %s", res.Status)
+	}
+
+	return &res, nil
 }
 
 func (s *GoogleGeocodingService) buildURL(address string) (string, error) {
@@ -85,25 +147,7 @@ func (s *GoogleGeocodingService) fetch(ctx context.Context, apiURL string) ([]by
 	return io.ReadAll(resp.Body)
 }
 
-func (s *GoogleGeocodingService) parseCity(body []byte) (string, error) {
-	var res geocodingResponse
-	if err := json.Unmarshal(body, &res); err != nil {
-		return "", err
-	}
 
-	if res.Status != "OK" {
-		if res.Status == "ZERO_RESULTS" {
-			return "", nil
-		}
-		return "", fmt.Errorf("geocoding api error status: %s", res.Status)
-	}
-
-	if len(res.Results) == 0 {
-		return "", nil
-	}
-
-	return s.extractCity(res.Results[0].AddressComponents), nil
-}
 
 func (s *GoogleGeocodingService) extractCity(components []struct {
 	LongName string   `json:"long_name"`

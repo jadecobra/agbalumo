@@ -20,19 +20,19 @@ func TestFindAll_CityFiltering(t *testing.T) {
 	saveTestListing(t, ctx, repo, domain.Listing{ID: "3", Title: "Food Dallas", Type: domain.Food, City: "Dallas", IsActive: true, Status: domain.ListingStatusApproved})
 
 	// 1. Filter by City only
-	res, _, err := repo.FindAll(ctx, "", "", "Houston", "", "", false, 10, 0)
+	res, _, err := repo.FindAll(ctx, "", "", "Houston", 0.0, 0.0, 0.0, "", "", false, 10, 0)
 	assert.NoError(t, err)
 	assert.Len(t, res, 2)
 
 	// 2. Filter by City + Category
-	res, _, err = repo.FindAll(ctx, string(domain.Food), "", "Houston", "", "", false, 10, 0)
+	res, _, err = repo.FindAll(ctx, string(domain.Food), "", "Houston", 0.0, 0.0, 0.0, "", "", false, 10, 0)
 	assert.NoError(t, err)
 	if assert.Len(t, res, 1) {
 		assert.Equal(t, "1", res[0].ID)
 	}
 
 	// 3. Filter by City + Search
-	res, _, err = repo.FindAll(ctx, "", "Service", "Houston", "", "", false, 10, 0)
+	res, _, err = repo.FindAll(ctx, "", "Service", "Houston", 0.0, 0.0, 0.0, "", "", false, 10, 0)
 	assert.NoError(t, err)
 	if assert.Len(t, res, 1) {
 		assert.Equal(t, "2", res[0].ID)

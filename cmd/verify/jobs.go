@@ -27,7 +27,7 @@ var locationBackfillCmd = &cobra.Command{
 		defer func() { _ = repo.Close() }()
 
 		ctx := cmd.Context()
-		listings, _, err := repo.FindAll(ctx, "", "", "", "", "", true, 10000, 0)
+		listings, _, err := repo.FindAll(ctx, "", "", "", 0.0, 0.0, 0.0, "", "", true, 10000, 0)
 		if err != nil {
 			return err
 		}

@@ -2,6 +2,11 @@
 
 This package manages the HTTP layer using the Echo framework.
 
+# Handler Constraints  
+- Use `RespondError(c, err)` — never raw `c.JSON()`
+- All form bindings use `form` struct tags
+- No raw HTML in handlers — use `ui/templates/components/`
+
 ## Handling Principles
 
 - **Thin Handlers**: Handlers should only bind input, call services, and render output. Business logic belongs in `internal/service/`.

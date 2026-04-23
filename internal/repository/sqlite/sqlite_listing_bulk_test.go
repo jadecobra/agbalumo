@@ -29,7 +29,7 @@ func TestSQLiteRepository_BulkInsertListings(t *testing.T) {
 	t.Logf("Bulk inserted %d listings in %v", count, duration)
 
 	// 3. Verify total count increased appropriately
-	_, totalCount, err := repo.FindAll(ctx, "", "", "", "", "", true, 1, 0)
+	_, totalCount, err := repo.FindAll(ctx, "", "", "", 0.0, 0.0, 0.0, "", "", true, 1, 0)
 	if err != nil {
 		t.Fatalf("Failed to count listings: %v", err)
 	}

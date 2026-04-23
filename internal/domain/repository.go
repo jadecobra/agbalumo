@@ -9,7 +9,7 @@ import (
 
 // ListingReader handles read-only queries for listings.
 type ListingReader interface {
-	FindAll(ctx context.Context, filterType string, queryText string, city string, sortField string, sortOrder string, includeInactive bool, limit int, offset int) ([]Listing, int, error)
+	FindAll(ctx context.Context, filterType string, queryText string, city string, lat float64, lng float64, radius float64, sortField string, sortOrder string, includeInactive bool, limit int, offset int) ([]Listing, int, error)
 	FindByID(ctx context.Context, id string) (Listing, error)
 	FindByTitle(ctx context.Context, title string) ([]Listing, error)
 	TitleExists(ctx context.Context, title string) (bool, error)

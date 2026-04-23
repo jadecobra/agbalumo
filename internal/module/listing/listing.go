@@ -12,6 +12,7 @@ import (
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/module"
 	"github.com/labstack/echo/v4"
+	"strconv"
 )
 
 type ListingHandler struct {
@@ -69,11 +70,27 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	)
 
 	var totalCount int
+	filterType := c.QueryParam(domain.FieldType)
+	if filterType == "" {
+		filterType = string(domain.Food) // Default to Food for Ada
+	}
+	queryText := c.QueryParam(domain.ParamQuery)
+	city := c.QueryParam(domain.FieldCity)
+	radiusStr := c.QueryParam("radius")
+	var radius float64
+	if radiusStr != "" {
+		radius, _ = strconv.ParseFloat(radiusStr, 64)
+	}
+
+	var lat, lng float64
+	if city != "" && radius > 0 {
+		lat, lng, _ = h.App.GeocodingSvc.Geocode(ctx, city)
+	}
+
 	wg.Add(4)
 	go func() {
 		defer wg.Done()
-		// Default to Food category for the homepage to focus on Ada's primary goal
-		listings, totalCount, listingsErr = h.App.DB.FindAll(ctx, string(domain.Food), "", "", "", "", false, limit, offset)
+		listings, totalCount, listingsErr = h.App.DB.FindAll(ctx, filterType, queryText, city, lat, lng, radius, "", "", false, limit, offset)
 	}()
 	go func() {
 		defer wg.Done()
@@ -121,8 +138,10 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		"Locations":        locations,
 		"TotalCount":       totalCount,
 		"Categories":       categories,
-		"Category":         string(domain.Food),
-		"QueryText":        "",
+		"Category":         filterType,
+		"City":             city,
+		"Radius":           radius,
+		"QueryText":        queryText,
 		"User":             u,
 		"GoogleMapsApiKey": h.App.Cfg.GoogleMapsAPIKey,
 	})
@@ -133,18 +152,30 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	filterType := c.QueryParam(domain.FieldType)
 	queryText := c.QueryParam(domain.ParamQuery)
 	city := c.QueryParam(domain.FieldCity)
+	radiusStr := c.QueryParam("radius")
 
 	p := GetPagination(c, 30)
 	page := p.Page
 	limit := p.Limit
 	offset := p.Offset
 
+	var radius float64
+	if radiusStr != "" {
+		radius, _ = strconv.ParseFloat(radiusStr, 64)
+	}
+
 	// Ada focus: If location is picked but no category, default to Food
 	if city != "" && filterType == "" {
 		filterType = string(domain.Food)
 	}
 
-	listings, totalCount, err := h.App.DB.FindAll(c.Request().Context(), filterType, queryText, city, "", "", false, limit, offset)
+	// Geocode city if provided for radius search
+	var lat, lng float64
+	if city != "" && radius > 0 {
+		lat, lng, _ = h.App.GeocodingSvc.Geocode(c.Request().Context(), city)
+	}
+
+	listings, totalCount, err := h.App.DB.FindAll(c.Request().Context(), filterType, queryText, city, lat, lng, radius, "", "", false, limit, offset)
 	if err != nil {
 		return ui.RespondErrorMsg(c, http.StatusInternalServerError, err.Error())
 	}
@@ -159,6 +190,7 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 		"FeaturedListings": featured,
 		"Category":         filterType,
 		"City":             city,
+		"Radius":           radius,
 		"QueryText":        queryText,
 		"User":             c.Get(domain.CtxKeyUser),
 	}

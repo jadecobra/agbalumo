@@ -162,10 +162,18 @@ Geo Hub,Business,Test Geocode,test@geo.com,"1600 Amphitheatre Parkway, Mountain 
 
 type mockGeocodingService struct {
 	GetCityFunc func(ctx context.Context, address string) (string, error)
+	GeocodeFunc func(ctx context.Context, address string) (float64, float64, error)
 }
 
 func (m *mockGeocodingService) GetCity(ctx context.Context, address string) (string, error) {
 	return m.GetCityFunc(ctx, address)
+}
+
+func (m *mockGeocodingService) Geocode(ctx context.Context, address string) (float64, float64, error) {
+	if m.GeocodeFunc != nil {
+		return m.GeocodeFunc(ctx, address)
+	}
+	return 0, 0, nil
 }
 
 func FuzzParseAndImport(f *testing.F) {

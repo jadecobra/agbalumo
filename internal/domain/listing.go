@@ -13,9 +13,11 @@ var (
 )
 
 type Location struct {
-	City    string `json:"city"`
-	State   string `json:"state"`
-	Country string `json:"country"`
+	City      string  `json:"city"`
+	State     string  `json:"state"`
+	Country   string  `json:"country"`
+	Latitude  float64 `json:"latitude"`
+	Longitude float64 `json:"longitude"`
 }
 
 // Listing represents a directory entry or request.
@@ -52,6 +54,8 @@ type Listing struct {
 	Type              Category      `json:"type" form:"type"`
 	Status            ListingStatus `json:"status" form:"status"`
 	HeatLevel         int           `json:"heat_level" form:"heat_level"`
+	Latitude          float64       `json:"latitude" form:"latitude"`
+	Longitude         float64       `json:"longitude" form:"longitude"`
 	IsActive          bool          `json:"is_active" form:"is_active"`
 	Featured          bool          `json:"featured" form:"featured"`
 }

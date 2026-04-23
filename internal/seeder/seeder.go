@@ -34,7 +34,7 @@ func SeedAll(ctx context.Context, repo domain.ListingStore) {
 
 // EnsureSeeded checks if the database is empty, and if so, seeds it.
 func EnsureSeeded(ctx context.Context, repo domain.ListingStore) {
-	listings, _, err := repo.FindAll(ctx, "", "", "", "", "", true, 1, 0)
+	listings, _, err := repo.FindAll(ctx, "", "", "", 0.0, 0.0, 0.0, "", "", true, 1, 0)
 	if err != nil {
 		slog.Error("Failed to check existing listings", "error", err)
 		return

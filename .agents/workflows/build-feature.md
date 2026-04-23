@@ -13,6 +13,11 @@ When the user types `/build-feature <idea>`, act as a Senior Product Engineer. E
 
 HALT and execute this protocol. Initialize `task.md` immediately to externalize state and preserve context window.
 
+0. **Session Bootstrap**:
+   - Run `go run ./cmd/verify preflight`
+   - Read output. This is your active constraint set for this session.
+
+
 1. **Initialize Decision Log**:
 
 - Create `task.md` with two sections: `# Decision Log` (append-only rationale) and `# Execution Plan` (the Phase 2/3 checkboxes).

@@ -29,7 +29,7 @@ func main() {
 
 	ctx := context.Background()
 
-	listings, _, err := repo.FindAll(ctx, "", "", "", "", "", false, 2000, 0)
+	listings, _, err := repo.FindAll(ctx, "", "", "", 0.0, 0.0, 0.0, "", "", false, 2000, 0)
 	if err != nil {
 		log.Fatalf("failed to get listings: %v", err)
 	}

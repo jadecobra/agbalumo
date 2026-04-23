@@ -28,7 +28,7 @@ and uses the Google Geocoding API to attempt to populate the city.`,
 		ctx := context.Background()
 
 		// Get all listings
-		listings, _, err := repo.FindAll(ctx, "", "", "", "", "", false, 0, 0)
+		listings, _, err := repo.FindAll(ctx, "", "", "", 0.0, 0.0, 0.0, "", "", false, 0, 0)
 		if err != nil {
 			slog.Error("Failed to fetch listings", "error", err)
 			os.Exit(1)

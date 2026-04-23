@@ -1,0 +1,8 @@
+{
+  "db_engine": "sqlite",
+  "port": 8443,
+  "protocol": "https",
+  "csp_policy": "script-src 'self'",
+  "max_featured_listings": 6,
+  "coverage_threshold": 90
+}

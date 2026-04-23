@@ -17,6 +17,9 @@ type ListingFilters struct {
 	City            string
 	WebsiteURL      string
 	ListingStatus   domain.ListingStatus
+	IncludedLat     float64
+	IncludedLng     float64
+	Radius          float64
 	IncludeInactive bool
 	FeaturedOnly    bool
 }
@@ -34,6 +37,7 @@ func scanListing(s Scanner) (domain.Listing, error) {
 		&l.Company, &l.PayRange, &l.Status, &l.Featured,
 		&l.HeatLevel, &l.RegionalSpecialty, &l.TopDish,
 		&l.PaymentMethods, &l.MenuURL,
+		&l.Latitude, &l.Longitude,
 	)
 	if err != nil {
 		return domain.Listing{}, err
@@ -54,7 +58,7 @@ func scanListing(s Scanner) (domain.Listing, error) {
 	return l, nil
 }
 
-func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, queryText string, city string, sortField string, sortOrder string, includeInactive bool, limit int, offset int) ([]domain.Listing, int, error) {
+func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, queryText string, city string, lat float64, lng float64, radius float64, sortField string, sortOrder string, includeInactive bool, limit int, offset int) ([]domain.Listing, int, error) {
 	start := time.Now()
 	defer r.logSlowQuery("FindAll", start)
 
@@ -62,6 +66,9 @@ func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, query
 		Type:            filterType,
 		QueryText:       queryText,
 		City:            city,
+		IncludedLat:     lat,
+		IncludedLng:     lng,
+		Radius:          radius,
 		IncludeInactive: includeInactive,
 	}
 	where, args := r.buildListingWhere(filters)
@@ -121,7 +128,7 @@ func (r *SQLiteRepository) buildListingWhere(filters ListingFilters) (string, []
 		args = append(args, filters.OwnerID)
 	}
 
-	if filters.City != "" {
+	if filters.City != "" && filters.Radius <= 0 {
 		where += ` AND (city = ? OR address LIKE ?)`
 		args = append(args, filters.City, "%"+filters.City+"%")
 	}
@@ -137,6 +144,20 @@ func (r *SQLiteRepository) buildListingWhere(filters ListingFilters) (string, []
 	if filters.QueryText != "" {
 		where += ` AND rowid IN (SELECT rowid FROM listings_fts WHERE listings_fts MATCH ?)`
 		args = append(args, filters.QueryText)
+	}
+
+	if filters.Radius > 0 && filters.IncludedLat != 0 && filters.IncludedLng != 0 {
+		// Bounding Box Optimization (Roughly 1 degree = 69 miles)
+		latDelta := filters.Radius / 69.0
+		lngDelta := filters.Radius / (69.0 * 0.707) // Approximation for mid-latitudes
+
+		where += ` AND latitude BETWEEN ? AND ? AND longitude BETWEEN ? AND ?`
+		args = append(args, filters.IncludedLat-latDelta, filters.IncludedLat+latDelta, filters.IncludedLng-lngDelta, filters.IncludedLng+lngDelta)
+
+		// Haversine formula for exact radius filtering
+		// 3959 is the Earth's radius in miles
+		where += ` AND (3959 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) <= ?`
+		args = append(args, filters.IncludedLat, filters.IncludedLng, filters.IncludedLat, filters.Radius)
 	}
 
 	return where, args

@@ -25,7 +25,7 @@ func TestNewSQLiteRepositoryFromDB(t *testing.T) {
 
 	// Verify we can use it
 	ctx := context.Background()
-	_, _, err := repo.FindAll(ctx, "All", "", "", "", "", false, 20, 0)
+	_, _, err := repo.FindAll(ctx, "All", "", "", 0.0, 0.0, 0.0, "", "", false, 20, 0)
 	if err == nil {
 		t.Error("Expected error due to missing tables, got nil")
 	}
