@@ -1,8 +1,10 @@
 package maintenance
 
 import (
+	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -15,53 +17,106 @@ func TestRunSessionContext(t *testing.T) {
 		_ = os.RemoveAll(rootDir)
 	}()
 
-	// Fix shadowing by using err = instead of err :=
-	var errFS error
-
-	errFS = os.MkdirAll(filepath.Join(rootDir, "internal/repository"), 0750)
-	if errFS != nil {
-		t.Fatal(errFS)
+	// Setup directory structure
+	dirs := []string{
+		"internal/repository",
+		"internal/handler",
+		"docs/adr",
+		".agents/workflows",
 	}
-	errFS = os.MkdirAll(filepath.Join(rootDir, "docs/adr"), 0750)
-	if errFS != nil {
-		t.Fatal(errFS)
-	}
-	errFS = os.MkdirAll(filepath.Join(rootDir, ".agents/workflows"), 0750)
-	if errFS != nil {
-		t.Fatal(errFS)
+	for _, d := range dirs {
+		if err := os.MkdirAll(filepath.Join(rootDir, d), 0750); err != nil {
+			t.Fatal(err)
+		}
 	}
 
-	// Create AGENTS.md
-	errFS = os.WriteFile(filepath.Join(rootDir, "AGENTS.md"), []byte("Root AGENTS"), 0600)
-	if errFS != nil {
-		t.Fatal(errFS)
+	// Create AGENTS.md files
+	if err := os.WriteFile(filepath.Join(rootDir, "AGENTS.md"), []byte("Root AGENTS"), 0600); err != nil {
+		t.Fatal(err)
 	}
-	errFS = os.WriteFile(filepath.Join(rootDir, "internal/repository/AGENTS.md"), []byte("Repo AGENTS"), 0600)
-	if errFS != nil {
-		t.Fatal(errFS)
+	if err := os.WriteFile(filepath.Join(rootDir, "internal/repository/AGENTS.md"), []byte("Repo AGENTS"), 0600); err != nil {
+		t.Fatal(err)
 	}
 
 	// Create ADR
-	errFS = os.WriteFile(filepath.Join(rootDir, "docs/adr/2026-04-06-test.md"), []byte("# Test ADR\nThis mentions internal/repository"), 0600)
-	if errFS != nil {
-		t.Fatal(errFS)
+	if err := os.WriteFile(filepath.Join(rootDir, "docs/adr/2026-04-06-test.md"), []byte("# Test ADR\nThis mentions internal/repository"), 0600); err != nil {
+		t.Fatal(err)
 	}
 
 	// Create coding-standards.md
-	errFS = os.WriteFile(filepath.Join(rootDir, ".agents/workflows/coding-standards.md"), []byte("## Strict Lessons\n### CI & Infrastructure\n* Lesson 1"), 0600)
-	if errFS != nil {
-		t.Fatal(errFS)
+	codingContent := `## Strict Lessons
+### CI & Infrastructure
+* Infrastructure Lesson
+### UI & Frontend
+* Frontend Lesson
+`
+	if err := os.WriteFile(filepath.Join(rootDir, ".agents/workflows/coding-standards.md"), []byte(codingContent), 0600); err != nil {
+		t.Fatal(err)
 	}
 
 	// Create invariants.json
-	errFS = os.WriteFile(filepath.Join(rootDir, ".agents/invariants.json"), []byte(`{"db_engine": "sqlite"}`), 0600)
-	if errFS != nil {
-		t.Fatal(errFS)
+	if err := os.WriteFile(filepath.Join(rootDir, ".agents/invariants.json"), []byte(`{"db_engine": "sqlite"}`), 0600); err != nil {
+		t.Fatal(err)
 	}
 
-	// Run it
-	err = RunSessionContext(rootDir, filepath.Join(rootDir, "internal/repository"))
-	if err != nil {
-		t.Errorf("RunSessionContext failed: %v", err)
+	tests := []struct {
+		name           string
+		target         string
+		expectedSubstr []string
+	}{
+		{
+			name:   "repository domain",
+			target: "internal/repository",
+			expectedSubstr: []string{
+				"📋 Session Context for: internal/repository",
+				"📁 Local AGENTS.md (internal/repository/AGENTS.md)",
+				"Repo AGENTS",
+				"📁 Inherited AGENTS.md (AGENTS.md)",
+				"Root AGENTS",
+				"📚 Related ADRs:",
+				"2026-04-06-test.md: Test ADR",
+				"🔧 Invariants:",
+				"db_engine: sqlite",
+			},
+		},
+		{
+			name:   "handler domain with lessons",
+			target: "internal/handler",
+			expectedSubstr: []string{
+				"📋 Session Context for: internal/handler",
+				"⚠️  Relevant Strict Lessons (UI & Frontend)",
+				"Frontend Lesson",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Capture stdout
+			old := os.Stdout
+			r, w, _ := os.Pipe()
+			os.Stdout = w
+
+			err := RunSessionContext(rootDir, filepath.Join(rootDir, tt.target))
+
+			if errClose := w.Close(); errClose != nil {
+				t.Fatal(errClose)
+			}
+			os.Stdout = old
+
+			var buf strings.Builder
+			_, _ = io.Copy(&buf, r)
+			output := buf.String()
+
+			if err != nil {
+				t.Errorf("RunSessionContext failed: %v", err)
+			}
+
+			for _, substr := range tt.expectedSubstr {
+				if !strings.Contains(output, substr) {
+					t.Errorf("Expected output to contain %q, but it didn't.\nOutput:\n%s", substr, output)
+				}
+			}
+		})
 	}
 }
