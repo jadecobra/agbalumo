@@ -58,11 +58,11 @@ func TestMobileFilterBottomSheet(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 	body := rec.Body.String()
 
-	// Expected Bottom Sheet behavior for mobile
+	// Expected Sharp Bottom Sheet behavior for mobile
 	assert.Contains(t, body, "fixed bottom-0 left-0 right-0")
 	assert.Contains(t, body, "md:absolute md:top-full md:bottom-auto")
 	assert.Contains(t, body, "max-h-[90vh]")
-	assert.Contains(t, body, "md:max-h-[60vh]")
-	assert.Contains(t, body, "rounded-t-3xl")
-	assert.Contains(t, body, "bg-earth-dark/20 rounded-full")
+	assert.Contains(t, body, "md:max-h-80")
+	assert.Contains(t, body, "rounded-none")
+	assert.Contains(t, body, "bg-earth-dark/10")
 }
