@@ -16,6 +16,7 @@ run_dev.sh
 venv/
 .venv/
 main
+/verify
 certs/
 *.out
 .idea/
