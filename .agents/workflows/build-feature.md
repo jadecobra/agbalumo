@@ -13,9 +13,11 @@ When the user types `/build-feature <idea>`, act as a Senior Product Engineer. E
 
 HALT and execute this protocol. Initialize `task.md` immediately to externalize state and preserve context window.
 
-0. **Session Bootstrap**:
-   - Run `go run ./cmd/verify preflight`
-   - Read output. This is your active constraint set for this session.
+0. **Session Bootstrap (Deterministic)**:
+   - Run `go run ./cmd/verify preflight` to load rules relevant to this session's file changes.
+   - Read `.agents/invariants.json` for hardcoded project constants (port, protocol, DB engine).
+   - Read `.agents/verify-manifest.yaml` to understand which verify subcommands to run at each workflow stage.
+   - **Rule**: Do NOT proceed to architecture planning until preflight output has been reviewed.
 
 
 1. **Initialize Decision Log**:
@@ -57,7 +59,7 @@ HALT and execute this protocol. Initialize `task.md` immediately to externalize 
 2. **GREEN**: Write implementation (including logs/metrics). 
 - Run `go test`. 
 - If you fail to achieve GREEN after 3 attempts, HALT. Read the raw tracebacks to the user, hypothesize the flaw in the test or implementation, and WAIT for user guidance.
-3. **REFACTOR**: Run `go run cmd/verify/main.go critique`. Fix any failing checks.
+3. REFACTOR: Run `go run ./cmd/verify critique`. Run `go run ./cmd/verify heal`. Fix any remaining checks.
 4. **COMMIT**: Once tests and lint pass, execute `git commit -m "feat(<scope>): implement <idea>"` natively.
 
 ## Phase 3: Audit & Resilience
