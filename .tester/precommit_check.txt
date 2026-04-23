@@ -1,0 +1,36 @@
+🚀 Starting Fast Pre-Commit Engine...
+🔍 Running Stage Isolation Checks...
+🔍 Checking for ignored files staged for commit...
+🛡️  Running gitleaks secrets scan on staged files...
+✅ Gitleaks: No secrets detected in staged files.
+📦 Checking go.mod/go.sum drift...
+diff --git a/go.mod b/go.mod
+index c0868ca..f764ac7 100644
+--- a/go.mod
++++ b/go.mod
+@@ -20,6 +20,7 @@ require (
+ 	golang.org/x/image v0.38.0
+ 	golang.org/x/net v0.52.0
+ 	golang.org/x/oauth2 v0.34.0
++	golang.org/x/sync v0.20.0
+ 	golang.org/x/time v0.14.0
+ 	golang.org/x/tools v0.43.0
+ 	golang.org/x/vuln v1.1.4
+@@ -261,7 +262,6 @@ require (
+ 	golang.org/x/exp v0.0.0-20251023183803-a4bb9ffd2546 // indirect
+ 	golang.org/x/exp/typeparams v0.0.0-20260209203927-2842357ff358 // indirect
+ 	golang.org/x/mod v0.34.0 // indirect
+-	golang.org/x/sync v0.20.0 // indirect
+ 	golang.org/x/sys v0.42.0 // indirect
+ 	golang.org/x/telemetry v0.0.0-20260311193753-579e4da9a98c // indirect
+ 	golang.org/x/text v0.35.0 // indirect
+Error: drift detected in go.mod/go.sum. Please commit changes: exit status 1
+Usage:
+  verify precommit [flags]
+
+Flags:
+  -h, --help                    help for precommit
+      --race                    Enable race detection (default true)
+      --threshold-path string   Path to coverage threshold file
+
+exit status 1

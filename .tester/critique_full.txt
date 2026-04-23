@@ -1,0 +1,771 @@
+🚀 Starting ChiefCritic Robustness Audit...
+❌ ChiefCritic Audit Failed
+--------------------------------
+level=info msg="golangci-lint has version 2.11.4 built with go1.26.2 from (unknown, modified: ?, mod sum: \"h1:GK+UlZBN5y7rh2PBnHA93XLSX6RaF7uhzJQ3JwU1wuA=\") on (unknown)"
+level=info msg="[config_reader] Config search paths: [./ /Users/johnnyblase/gym/agbalumo /Users/johnnyblase/gym /Users/johnnyblase /Users /]"
+level=info msg="[config_reader] Used config file .golangci.yml"
+level=info msg="[config_reader] Module name \"github.com/jadecobra/agbalumo\""
+level=info msg="[goenv] Read go env for 8.186292ms: map[string]string{\"GOCACHE\":\"/Users/johnnyblase/Library/Caches/go-build\", \"GOROOT\":\"/opt/homebrew/Cellar/go/1.26.2/libexec\"}"
+level=info msg="[lintersdb] Active 8 linters: [bodyclose dupl errcheck gocognit goconst gosec govet nolintlint]"
+level=info msg="[loader] Go packages loading at mode 8767 (name|types_sizes|compiled_files|deps|exports_file|files|imports) took 301.083667ms"
+level=info msg="[runner/filename_unadjuster] Pre-built 0 adjustments in 8.695583ms"
+level=info msg="[linters_context/goanalysis] analyzers took 0s with no stages"
+level=info msg="[runner/exclusion_rules] Skipped 0 issues by rules: [Path: \"_test\\\\.go\", Linters: \"nolintlint\"]"
+level=info msg="[runner] Issues before processing: 173, after processing: 126"
+level=info msg="[runner] Processors filtering stat (in/out): source_code: 126/126, path_shortener: 126/126, path_prettifier: 126/126, path_absoluter: 173/173, invalid_issue: 173/173, path_relativity: 173/173, nolint_filter: 173/156, max_per_file_from_linter: 126/126, max_same_issues: 126/126, cgo: 173/173, exclusion_paths: 173/173, diff: 156/156, fixer: 156/156, severity-rules: 126/126, sort_results: 126/126, generated_file_filter: 173/173, max_from_linter: 126/126, filename_unadjuster: 173/173, exclusion_rules: 173/173, uniq_by_line: 156/126"
+level=info msg="[runner] processing took 8.034795ms with stages: nolint_filter: 6.022249ms, generated_file_filter: 1.044334ms, source_code: 689.167µs, path_relativity: 152.959µs, exclusion_rules: 37.583µs, sort_results: 19.625µs, uniq_by_line: 16.041µs, invalid_issue: 12.751µs, filename_unadjuster: 11.501µs, path_shortener: 9.999µs, cgo: 5.834µs, max_per_file_from_linter: 5.834µs, path_absoluter: 4.334µs, max_same_issues: 875ns, path_prettifier: 792ns, exclusion_paths: 292ns, fixer: 292ns, max_from_linter: 167ns, severity-rules: 83ns, diff: 83ns"
+level=info msg="[runner] linters took 805.495209ms with stages: goanalysis_metalinter: 797.41175ms"
+cmd/benchmark.go:55: 55-55 lines are duplicate of `cmd/benchmark.go:60-60` (dupl)
+					_, _, _ = repo.FindAll(ctx, s.filterType, s.queryText, "", s.sortField, s.sortOrder, false, s.limit, s.offset)
+cmd/benchmark.go:60: 60-60 lines are duplicate of `cmd/benchmark.go:55-55` (dupl)
+			listings, _, err := repo.FindAll(ctx, s.filterType, s.queryText, "", s.sortField, s.sortOrder, false, s.limit, s.offset)
+internal/module/admin/admin_bulk_test.go:70: 70-78 lines are duplicate of `internal/module/admin/admin_delete_test.go:69-80` (dupl)
+func TestAdminHandler_HandleBulkUpload_NoFile(t *testing.T) {
+	t.Parallel()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
+	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/upload", nil)
+	_ = h.HandleBulkUpload(c)
+	assert.Equal(t, http.StatusFound, rec.Code)
+}
+internal/module/admin/admin_bulk_test.go:187: 187-188 lines are duplicate of `internal/module/admin/admin_bulk_test.go:257-258` (dupl)
+	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Type: domain.Business, City: "Lagos", OwnerOrigin: "Nigeria"})
+	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "l2", Title: "L2", Type: domain.Business, City: "Accra", OwnerOrigin: "Ghana"})
+internal/module/admin/admin_bulk_test.go:188: 188-188 lines are duplicate of `internal/module/admin/admin_bulk_test.go:257-257` (dupl)
+	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "l2", Title: "L2", Type: domain.Business, City: "Accra", OwnerOrigin: "Ghana"})
+internal/module/admin/admin_bulk_test.go:257: 257-258 lines are duplicate of `internal/module/admin/admin_bulk_test.go:187-188` (dupl)
+	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "l1", Title: "L1", Type: domain.Business, City: "Lagos", OwnerOrigin: "Nigeria"})
+	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "l2", Title: "L2", Type: domain.Business, City: "Accra", OwnerOrigin: "Ghana"})
+internal/module/admin/admin_bulk_test.go:258: 258-258 lines are duplicate of `internal/module/admin/admin_bulk_test.go:187-187` (dupl)
+	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "l2", Title: "L2", Type: domain.Business, City: "Accra", OwnerOrigin: "Ghana"})
+internal/module/admin/admin_claims.go:13: 13-15 lines are duplicate of `internal/module/admin/admin_claims.go:18-20` (dupl)
+func (h *AdminHandler) HandleApproveClaim(c echo.Context) error {
+	return h.handleClaimAction(c, domain.ClaimStatusApproved)
+}
+internal/module/admin/admin_claims.go:18: 18-20 lines are duplicate of `internal/module/admin/admin_claims.go:13-15` (dupl)
+func (h *AdminHandler) HandleRejectClaim(c echo.Context) error {
+	return h.handleClaimAction(c, domain.ClaimStatusRejected)
+}
+internal/module/admin/admin_claims_test.go:15: 15-17 lines are duplicate of `internal/module/admin/admin_claims_test.go:23-25` (dupl)
+func TestHandleApproveClaim(t *testing.T) {
+	testClaimAction(t, "approve", domain.ClaimStatusPending, domain.ClaimStatusApproved, http.StatusOK)
+}
+internal/module/admin/admin_claims_test.go:23: 23-25 lines are duplicate of `internal/module/admin/admin_claims_test.go:15-17` (dupl)
+func TestHandleRejectClaim(t *testing.T) {
+	testClaimAction(t, "reject", domain.ClaimStatusPending, domain.ClaimStatusRejected, http.StatusOK)
+}
+internal/module/admin/admin_dashboard_test.go:36: 36-36 lines are duplicate of `internal/module/admin/admin_dashboard_test.go:37-37` (dupl)
+	_ = env.App.DB.SaveUser(ctx, domain.User{ID: "u1", GoogleID: "g1", Role: domain.UserRoleAdmin})
+internal/module/admin/admin_dashboard_test.go:37: 37-37 lines are duplicate of `internal/module/admin/admin_dashboard_test.go:36-36` (dupl)
+	_ = env.App.DB.SaveUser(ctx, domain.User{ID: "u2", GoogleID: "g2", Role: domain.UserRoleUser})
+internal/module/admin/admin_delete_test.go:69: 69-80 lines are duplicate of `internal/module/admin/admin_bulk_test.go:70-78` (dupl)
+func TestHandleAdminDeleteView_FindByIDError_Returns404(t *testing.T) {
+	t.Parallel()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
+	// No data seeded, so "bad-id" will not be found
+
+	c, rec := testutil.SetupAdminContext(http.MethodGet, "/admin/listings/delete?id=bad-id", nil)
+
+	_ = h.HandleAdminDeleteView(c)
+	assert.Equal(t, http.StatusNotFound, rec.Code)
+}
+internal/module/admin/admin_routes_test.go:14: 14-18 lines are duplicate of `internal/module/admin/admin_routes_test.go:20-24` (dupl)
+func (m *mockAuthMiddleware) OptionalAuth(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return next(c)
+	}
+}
+internal/module/admin/admin_routes_test.go:20: 20-24 lines are duplicate of `internal/module/admin/admin_routes_test.go:14-18` (dupl)
+func (m *mockAuthMiddleware) RequireAuth(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return next(c)
+	}
+}
+internal/module/admin/admin_ui_integration_test.go:25: 25-30 lines are duplicate of `internal/module/admin/admin_ui_integration_test.go:31-36` (dupl)
+	_ = env.App.DB.SaveFeedback(context.Background(), domain.Feedback{
+		ID:        "fb-1",
+		Content:   "Great App bug",
+		Type:      "Issue",
+		CreatedAt: time.Now(),
+	})
+internal/module/admin/admin_ui_integration_test.go:31: 31-36 lines are duplicate of `internal/module/admin/admin_ui_integration_test.go:25-30` (dupl)
+	_ = env.App.DB.SaveFeedback(context.Background(), domain.Feedback{
+		ID:        "fb-2",
+		Content:   "Another feedback",
+		Type:      "Feature",
+		CreatedAt: time.Now(),
+	})
+internal/module/admin/admin_ui_integration_test.go:68: 68-68 lines are duplicate of `internal/module/admin/admin_ui_integration_test.go:160-160` (dupl)
+	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "1", Title: "Business A", Type: domain.Business, IsActive: true})
+internal/module/admin/admin_ui_integration_test.go:160: 160-160 lines are duplicate of `internal/module/admin/admin_ui_integration_test.go:68-68` (dupl)
+	_ = env.App.DB.Save(context.Background(), domain.Listing{ID: "listing1", Title: "Business A", Type: domain.Business, IsActive: true})
+internal/module/auth/internal_test.go:41: 41-51 lines are duplicate of `internal/module/auth/internal_test.go:53-63` (dupl)
+func TestRealGoogleProvider_getRedirectURL_DynamicHTTPS(t *testing.T) {
+	t.Parallel()
+	_ = os.Unsetenv("BASE_URL")
+	_ = os.Unsetenv("GOOGLE_REDIRECT_URL")
+	_ = os.Unsetenv("AGBALUMO_ENV")
+
+	p := NewRealGoogleProvider()
+	got := p.getRedirectURL("https", "localhost:8443")
+
+	assert.Equal(t, "https://localhost:8443/auth/google/callback", got)
+}
+internal/module/auth/internal_test.go:53: 53-63 lines are duplicate of `internal/module/auth/internal_test.go:41-51` (dupl)
+func TestRealGoogleProvider_getRedirectURL_DynamicHTTP(t *testing.T) {
+	t.Parallel()
+	_ = os.Unsetenv("BASE_URL")
+	_ = os.Unsetenv("GOOGLE_REDIRECT_URL")
+	_ = os.Unsetenv("AGBALUMO_ENV")
+
+	p := NewRealGoogleProvider()
+	got := p.getRedirectURL("http", "localhost:8080")
+
+	assert.Equal(t, "http://localhost:8080/auth/google/callback", got)
+}
+internal/module/auth/middleware_test.go:32: 32-34 lines are duplicate of `internal/module/auth/middleware_test.go:59-61` (dupl)
+	handlerFunc := authMw.RequireAuth(func(c echo.Context) error {
+		return c.String(http.StatusOK, "Success")
+	})
+internal/module/auth/middleware_test.go:59: 59-61 lines are duplicate of `internal/module/auth/middleware_test.go:32-34` (dupl)
+	handlerFunc := authMw.RequireAuth(func(c echo.Context) error {
+		return c.String(http.StatusOK, "Success")
+	})
+internal/module/auth/middleware_test.go:90: 90-97 lines are duplicate of `internal/module/auth/middleware_test.go:115-122` (dupl)
+	handlerFunc := authMw.OptionalAuth(func(c echo.Context) error {
+		u := c.Get(domain.CtxKeyUser)
+
+		if u == nil {
+			return c.String(http.StatusOK, "No User")
+		}
+		return c.String(http.StatusOK, "Has User")
+	})
+internal/module/auth/middleware_test.go:115: 115-122 lines are duplicate of `internal/module/auth/middleware_test.go:90-97` (dupl)
+	handlerFunc := authMw.OptionalAuth(func(c echo.Context) error {
+		u := c.Get(domain.CtxKeyUser)
+
+		if u == nil {
+			return c.String(http.StatusOK, "No User")
+		}
+		return c.String(http.StatusOK, "Has User")
+	})
+internal/module/listing/listing_create_test.go:24: 24-31 lines are duplicate of `internal/module/listing/listing_create_test.go:39-44` (dupl)
+		{
+			name: "Success",
+			body: "title=Test+Title&type=Business&owner_origin=Nigeria&description=Cool&contact_email=test@example.com&hours_of_operation=Mon-Fri+9-5&city=Lagos&address=123+Street",
+			setup: func(t *testing.T, repo domain.ListingRepository) {
+				// No extra setup needed
+			},
+			expectedStatus: http.StatusOK,
+		},
+internal/module/listing/listing_create_test.go:39: 39-44 lines are duplicate of `internal/module/listing/listing_create_test.go:45-50` (dupl)
+		{
+			name:           "RequestWithoutDeadline",
+			body:           "title=Req&type=Request&owner_origin=Nigeria&description=Cool&contact_email=test@example.com&city=Lagos&address=123+St",
+			setup:          func(t *testing.T, repo domain.ListingRepository) {},
+			expectedStatus: http.StatusOK,
+		},
+internal/module/listing/listing_create_test.go:45: 45-50 lines are duplicate of `internal/module/listing/listing_form_integration_test.go:69-74` (dupl)
+		{
+			name:           "BusinessWithNoPrefixURL",
+			body:           "title=Biz&type=Business&owner_origin=Nigeria&description=Cool&contact_email=test@example.com&city=Lagos&address=123+Street&website_url=example.com",
+			setup:          func(t *testing.T, repo domain.ListingRepository) {},
+			expectedStatus: http.StatusOK,
+		},
+internal/module/listing/listing_create_test.go:73: 73-81 lines are duplicate of `internal/module/listing/listing_edge_cases_test.go:104-112` (dupl)
+func TestHandleCreate_NoUser(t *testing.T) {
+	t.Parallel()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
+	c, rec := testutil.SetupModuleContext(http.MethodPost, "/listings", nil)
+	_ = h.HandleCreate(c)
+	assert.Equal(t, http.StatusUnauthorized, rec.Code)
+}
+internal/module/listing/listing_delete_test.go:21: 21-28 lines are duplicate of `internal/module/listing/listing_delete_test.go:42-49` (dupl)
+		{
+			name: "Success",
+			user: domain.User{ID: "owner-1", Role: domain.UserRoleUser},
+			setup: func(t *testing.T, repo domain.ListingRepository) {
+				testutil.SaveTestListing(t, repo, "1", "Title", func(l *domain.Listing) { l.OwnerID = "owner-1" })
+			},
+			expectCode: http.StatusSeeOther,
+		},
+internal/module/listing/listing_delete_test.go:35: 35-41 lines are duplicate of `internal/module/listing/listing_delete_test.go:50-57` (dupl)
+		{
+			name: "NotFound",
+			user: domain.User{ID: "owner-1", Role: domain.UserRoleUser},
+			setup: func(t *testing.T, repo domain.ListingRepository) {
+			},
+			expectCode: http.StatusNotFound,
+		},
+internal/module/listing/listing_delete_test.go:42: 42-49 lines are duplicate of `internal/module/listing/listing_delete_test.go:21-28` (dupl)
+		{
+			name: "Forbidden_NotOwner",
+			user: domain.User{ID: "other-user", Role: domain.UserRoleUser},
+			setup: func(t *testing.T, repo domain.ListingRepository) {
+				testutil.SaveTestListing(t, repo, "1", "Title", func(l *domain.Listing) { l.OwnerID = "owner-1" })
+			},
+			expectCode: http.StatusForbidden,
+		},
+internal/module/listing/listing_delete_test.go:50: 50-57 lines are duplicate of `internal/module/listing/listing_delete_test.go:35-41` (dupl)
+		{
+			name: "DeleteError",
+			user: domain.User{ID: "owner-1", Role: domain.UserRoleUser},
+			setup: func(t *testing.T, repo domain.ListingRepository) {
+				// We can't trigger a DB error easily with real SQLite without some trickery
+			},
+			expectCode: http.StatusInternalServerError,
+		},
+internal/module/listing/listing_edge_cases_test.go:104: 104-112 lines are duplicate of `internal/module/listing/listing_create_test.go:73-81` (dupl)
+func TestHandleProfile_NoUser(t *testing.T) {
+	t.Parallel()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
+	c, rec := testutil.SetupModuleContext(http.MethodGet, "/profile", nil)
+	_ = h.HandleProfile(c)
+	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
+}
+internal/module/listing/listing_edit_reproduction_test.go:25: 25-33 lines are duplicate of `internal/module/listing/listing_edit_reproduction_test.go:82-90` (dupl)
+	listing := domain.Listing{
+		ID:          "test-id-123",
+		OwnerID:     "user-1",
+		Title:       "Original Title",
+		Description: "Original Description",
+		Type:        domain.Business,
+		IsActive:    true,
+		Status:      domain.ListingStatusApproved,
+	}
+internal/module/listing/listing_edit_reproduction_test.go:82: 82-90 lines are duplicate of `internal/module/listing/listing_edit_reproduction_test.go:25-33` (dupl)
+	listing := domain.Listing{
+		ID:          "test-id-admin",
+		OwnerID:     "user-1",
+		Title:       "Original Title",
+		Description: "Original Description",
+		Type:        domain.Business,
+		IsActive:    true,
+		Status:      domain.ListingStatusApproved,
+	}
+internal/module/listing/listing_featured_test.go:21: 21-23 lines are duplicate of `internal/module/listing/listing_featured_test.go:22-24` (dupl)
+	testutil.SaveTestListing(t, env.App.DB, "f1", "Featured 1", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Food })
+	testutil.SaveTestListing(t, env.App.DB, "f2", "Featured 2", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Food })
+	testutil.SaveTestListing(t, env.App.DB, "r1", "Regular 1", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Food })
+internal/module/listing/listing_featured_test.go:22: 22-24 lines are duplicate of `internal/module/listing/listing_featured_test.go:42-44` (dupl)
+	testutil.SaveTestListing(t, env.App.DB, "f2", "Featured 2", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Food })
+	testutil.SaveTestListing(t, env.App.DB, "r1", "Regular 1", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Food })
+	testutil.SaveTestListing(t, env.App.DB, "r2", "Regular 2", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Food })
+internal/module/listing/listing_featured_test.go:23: 23-24 lines are duplicate of `internal/module/listing/listing_featured_test.go:42-43` (dupl)
+	testutil.SaveTestListing(t, env.App.DB, "r1", "Regular 1", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Food })
+	testutil.SaveTestListing(t, env.App.DB, "r2", "Regular 2", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Food })
+internal/module/listing/listing_featured_test.go:24: 24-24 lines are duplicate of `internal/module/listing/listing_featured_test.go:42-42` (dupl)
+	testutil.SaveTestListing(t, env.App.DB, "r2", "Regular 2", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Food })
+internal/module/listing/listing_featured_test.go:36: 36-55 lines are duplicate of `internal/module/listing/listing_featured_test.go:89-110` (dupl)
+func TestHandleHome_FeaturedListings_EmptyCategory(t *testing.T) {
+	t.Parallel()
+	c, rec, env, h := setupFeaturedTest(t, http.MethodGet, "/")
+	defer env.Cleanup()
+
+	// Seed data: Featured listings across MULTIPLE categories (One Food, one Business, one Event)
+	testutil.SaveTestListing(t, env.App.DB, "f1", "Featured Food", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Food })
+	testutil.SaveTestListing(t, env.App.DB, "f2", "Featured Event", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Event })
+	testutil.SaveTestListing(t, env.App.DB, "r1", "Regular Food", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Food })
+
+	if err := h.HandleHome(c); err != nil {
+		t.Fatalf("HandleHome failed: %v", err)
+	}
+
+	body := rec.Body.String()
+
+	// Since HandleHome now defaults to Food, only "Featured Food" should appear
+	assert.Contains(t, body, "Featured Food")
+	assert.NotContains(t, body, "Featured Event")
+}
+internal/module/listing/listing_featured_test.go:42: 42-44 lines are duplicate of `internal/module/listing/listing_featured_test.go:96-98` (dupl)
+	testutil.SaveTestListing(t, env.App.DB, "f1", "Featured Food", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Food })
+	testutil.SaveTestListing(t, env.App.DB, "f2", "Featured Event", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Event })
+	testutil.SaveTestListing(t, env.App.DB, "r1", "Regular Food", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Food })
+internal/module/listing/listing_featured_test.go:43: 43-44 lines are duplicate of `internal/module/listing/listing_featured_test.go:96-97` (dupl)
+	testutil.SaveTestListing(t, env.App.DB, "f2", "Featured Event", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Event })
+	testutil.SaveTestListing(t, env.App.DB, "r1", "Regular Food", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Food })
+internal/module/listing/listing_featured_test.go:44: 44-44 lines are duplicate of `internal/module/listing/listing_featured_test.go:96-96` (dupl)
+	testutil.SaveTestListing(t, env.App.DB, "r1", "Regular Food", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Food })
+internal/module/listing/listing_featured_test.go:63: 63-64 lines are duplicate of `internal/module/listing/listing_featured_test.go:79-80` (dupl)
+	testutil.SaveTestListing(t, env.App.DB, "f1", "Featured 1", func(l *domain.Listing) { l.Featured = true })
+	testutil.SaveTestListing(t, env.App.DB, "r1", "Regular 1", func(l *domain.Listing) { l.Featured = false })
+internal/module/listing/listing_featured_test.go:79: 79-80 lines are duplicate of `internal/module/listing/listing_featured_test.go:63-64` (dupl)
+	testutil.SaveTestListing(t, env.App.DB, "f1", "Featured 1", func(l *domain.Listing) { l.Featured = true })
+	testutil.SaveTestListing(t, env.App.DB, "r1", "Regular 1", func(l *domain.Listing) { l.Featured = false })
+internal/module/listing/listing_featured_test.go:89: 89-110 lines are duplicate of `internal/module/listing/listing_featured_test.go:36-55` (dupl)
+func TestHandleFragment_FeaturedListings_CategoryFilter(t *testing.T) {
+	t.Parallel()
+	// Requesting fragment for 'Business' category, page 1
+	c, rec, env, h := setupFeaturedTest(t, http.MethodGet, "/listings/fragment?type=Business&page=1")
+	defer env.Cleanup()
+
+	// Seed data: Featured listings across MULTIPLE categories
+	testutil.SaveTestListing(t, env.App.DB, "f1", "Featured Business", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Business })
+	testutil.SaveTestListing(t, env.App.DB, "f2", "Featured Event", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Event })
+	testutil.SaveTestListing(t, env.App.DB, "r1", "Regular Business", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Business })
+
+	if err := h.HandleFragment(c); err != nil {
+		t.Fatalf("HandleFragment failed: %v", err)
+	}
+
+	body := rec.Body.String()
+
+	// Assert only the featured listing for 'business' category is present
+	assert.Contains(t, body, "Featured Business")
+	// Assert the featured listing for 'event' category is NOT present
+	assert.NotContains(t, body, "Featured Event")
+}
+internal/module/listing/listing_featured_test.go:96: 96-98 lines are duplicate of `internal/module/listing/listing_featured_test.go:21-23` (dupl)
+	testutil.SaveTestListing(t, env.App.DB, "f1", "Featured Business", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Business })
+	testutil.SaveTestListing(t, env.App.DB, "f2", "Featured Event", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Event })
+	testutil.SaveTestListing(t, env.App.DB, "r1", "Regular Business", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Business })
+internal/module/listing/listing_featured_test.go:97: 97-98 lines are duplicate of `internal/module/listing/listing_featured_test.go:21-22` (dupl)
+	testutil.SaveTestListing(t, env.App.DB, "f2", "Featured Event", func(l *domain.Listing) { l.Featured = true; l.Type = domain.Event })
+	testutil.SaveTestListing(t, env.App.DB, "r1", "Regular Business", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Business })
+internal/module/listing/listing_featured_test.go:98: 98-98 lines are duplicate of `internal/module/listing/listing_featured_test.go:21-21` (dupl)
+	testutil.SaveTestListing(t, env.App.DB, "r1", "Regular Business", func(l *domain.Listing) { l.Featured = false; l.Type = domain.Business })
+internal/module/listing/listing_form_integration_test.go:69: 69-74 lines are duplicate of `internal/module/listing/listing_create_test.go:24-31` (dupl)
+		{
+			name:           "Failure_InvalidEventDate",
+			body:           "title=Bad+Event&type=Event&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St&city=Lagos&event_start=invalid",
+			setup:          func(t *testing.T, repo domain.ListingRepository) {},
+			expectedStatus: http.StatusBadRequest,
+		},
+internal/module/listing/listing_form_test.go:12: 12-24 lines are duplicate of `internal/module/listing/listing_form_test.go:48-60` (dupl)
+func TestParseDeadline(t *testing.T) {
+	t.Parallel()
+	req := &ListingFormRequest{DeadlineDate: "2024-12-31"}
+	l := &domain.Listing{Type: domain.Request}
+
+	err := parseDeadline(req, l)
+	assert.NoError(t, err)
+	assert.Equal(t, 2024, l.Deadline.Year())
+
+	req.DeadlineDate = testInvalid
+	err = parseDeadline(req, l)
+	assert.Error(t, err)
+}
+internal/module/listing/listing_form_test.go:48: 48-60 lines are duplicate of `internal/module/listing/listing_form_test.go:12-24` (dupl)
+func TestParseJobStartDate(t *testing.T) {
+	t.Parallel()
+	req := &ListingFormRequest{JobStartDate: "2024-12-01T09:00"}
+	l := &domain.Listing{Type: domain.Job}
+
+	err := parseJobStartDate(req, l)
+	assert.NoError(t, err)
+	assert.Equal(t, 2024, l.JobStartDate.Year())
+
+	req.JobStartDate = testInvalid
+	err = parseJobStartDate(req, l)
+	assert.Error(t, err)
+}
+internal/module/listing/listing_read_test.go:111: 111-116 lines are duplicate of `internal/module/listing/listing_read_test.go:117-122` (dupl)
+	testutil.SaveTestListing(t, env.App.DB, "1", "Houston Jollof", func(l *domain.Listing) {
+		l.Type = domain.Food
+		l.City = "Houston"
+		l.Status = domain.ListingStatusApproved
+		l.IsActive = true
+	})
+internal/module/listing/listing_read_test.go:117: 117-122 lines are duplicate of `internal/module/listing/listing_read_test.go:111-116` (dupl)
+	testutil.SaveTestListing(t, env.App.DB, "2", "Houston Hair", func(l *domain.Listing) {
+		l.Type = domain.Service
+		l.City = "Houston"
+		l.Status = domain.ListingStatusApproved
+		l.IsActive = true
+	})
+internal/module/listing/listing_update_test.go:30: 30-32 lines are duplicate of `internal/module/listing/listing_update_test.go:38-40` (dupl)
+			setup: func(t *testing.T, repo domain.ListingRepository) {
+				saveTestListing(t, repo, "1", "Title", testutil.TestOwnerID)
+			},
+internal/module/listing/listing_update_test.go:38: 38-40 lines are duplicate of `internal/module/listing/listing_update_test.go:95-97` (dupl)
+			setup: func(t *testing.T, repo domain.ListingRepository) {
+				saveTestListing(t, repo, "1", "Title", testutil.TestOwnerID)
+			},
+internal/module/listing/listing_update_test.go:95: 95-97 lines are duplicate of `internal/module/listing/listing_update_test.go:104-106` (dupl)
+			setup: func(t *testing.T, repo domain.ListingRepository) {
+				saveTestListing(t, repo, "1", "Old Title", testutil.TestUserID)
+			},
+internal/module/listing/listing_update_test.go:104: 104-106 lines are duplicate of `internal/module/listing/listing_update_test.go:30-32` (dupl)
+			setup: func(t *testing.T, repo domain.ListingRepository) {
+				saveTestListing(t, repo, "1", "Old Title", testutil.TestUserID)
+			},
+internal/repository/sqlite/feedback.go:15: 15-17 lines are duplicate of `internal/repository/sqlite/sqlite_metrics.go:21-21` (dupl)
+	_, err := r.writeDB.ExecContext(ctx, query,
+		f.ID, f.UserID, f.Type, f.Content, f.CreatedAt,
+	)
+internal/repository/sqlite/feedback_test.go:27: 27-33 lines are duplicate of `internal/repository/sqlite/feedback_test.go:48-54` (dupl)
+		feedback := domain.Feedback{
+			ID:        uuid.New().String(),
+			UserID:    "user-123",
+			Type:      domain.FeedbackTypeIssue,
+			Content:   "This is a test issue.",
+			CreatedAt: time.Now(),
+		}
+internal/repository/sqlite/feedback_test.go:48: 48-54 lines are duplicate of `internal/repository/sqlite/feedback_test.go:105-105` (dupl)
+		f := domain.Feedback{
+			ID:        uuid.New().String(),
+			UserID:    "user-1",
+			Type:      domain.FeedbackTypeFeature,
+			Content:   "Feature 1",
+			CreatedAt: time.Now(),
+		}
+internal/repository/sqlite/feedback_test.go:105: 105-106 lines are duplicate of `internal/repository/sqlite/feedback_test.go:106-107` (dupl)
+	f1 := domain.Feedback{ID: uuid.New().String(), UserID: "u1", Type: domain.FeedbackTypeIssue, Content: "Bug 1", CreatedAt: time.Now()}
+	f2 := domain.Feedback{ID: uuid.New().String(), UserID: "u2", Type: domain.FeedbackTypeIssue, Content: "Bug 2", CreatedAt: time.Now()}
+internal/repository/sqlite/feedback_test.go:106: 106-107 lines are duplicate of `internal/repository/sqlite/feedback_test.go:105-106` (dupl)
+	f2 := domain.Feedback{ID: uuid.New().String(), UserID: "u2", Type: domain.FeedbackTypeIssue, Content: "Bug 2", CreatedAt: time.Now()}
+	f3 := domain.Feedback{ID: uuid.New().String(), UserID: "u3", Type: domain.FeedbackTypeFeature, Content: "Feature 1", CreatedAt: time.Now()}
+internal/repository/sqlite/feedback_test.go:107: 107-107 lines are duplicate of `internal/repository/sqlite/feedback_test.go:27-33` (dupl)
+	f3 := domain.Feedback{ID: uuid.New().String(), UserID: "u3", Type: domain.FeedbackTypeFeature, Content: "Feature 1", CreatedAt: time.Now()}
+internal/repository/sqlite/repro_test.go:22: 22-23 lines are duplicate of `internal/repository/sqlite/sqlite_category_test.go:259-260` (dupl)
+		{ID: "Business", Name: "Business", IsSystem: true, Active: true, CreatedAt: time.Now(), UpdatedAt: time.Now()},
+		{ID: "Service", Name: "Service", IsSystem: true, Active: true, CreatedAt: time.Now(), UpdatedAt: time.Now()},
+internal/repository/sqlite/repro_test.go:23: 23-23 lines are duplicate of `internal/repository/sqlite/sqlite_category_test.go:259-259` (dupl)
+		{ID: "Service", Name: "Service", IsSystem: true, Active: true, CreatedAt: time.Now(), UpdatedAt: time.Now()},
+internal/repository/sqlite/search_performance_test.go:36: 36-40 lines are duplicate of `internal/repository/sqlite/search_performance_test.go:45-49` (dupl)
+	b.Run("FindAll_Default_Page1", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			_, _, _ = repo.FindAll(ctx, "", "", "", "", "", false, 30, 0)
+		}
+	})
+internal/repository/sqlite/search_performance_test.go:45: 45-49 lines are duplicate of `internal/repository/sqlite/search_performance_test.go:63-67` (dupl)
+	b.Run("FindAll_Search_Page1", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			_, _, _ = repo.FindAll(ctx, "", "ghana", "", "", "", false, 30, 0)
+		}
+	})
+internal/repository/sqlite/search_performance_test.go:51: 51-55 lines are duplicate of `internal/repository/sqlite/search_performance_test.go:57-61` (dupl)
+	b.Run("FindAll_Filter_Page1", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			_, _, _ = repo.FindAll(ctx, string(domain.Business), "", "", "", "", false, 30, 0)
+		}
+	})
+internal/repository/sqlite/search_performance_test.go:57: 57-61 lines are duplicate of `internal/repository/sqlite/search_performance_test.go:51-55` (dupl)
+	b.Run("FindAll_Search_Filter_Page1", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			_, _, _ = repo.FindAll(ctx, string(domain.Business), "ghana", "", "", "", false, 30, 0)
+		}
+	})
+internal/repository/sqlite/search_performance_test.go:63: 63-67 lines are duplicate of `internal/repository/sqlite/search_performance_test.go:36-40` (dupl)
+	b.Run("FindAll_Deep_Pagination", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			_, _, _ = repo.FindAll(ctx, "", "", "", "", "", false, 30, 5000)
+		}
+	})
+internal/repository/sqlite/sqlite_category.go:11: 11-16 lines are duplicate of `internal/repository/sqlite/sqlite_category.go:59-64` (dupl)
+func (r *SQLiteRepository) SaveCategory(ctx context.Context, c domain.CategoryData) error {
+	_, err := r.writeDB.ExecContext(ctx, CategoryUpsertSQL,
+		c.ID, c.Name, c.Claimable, c.IsSystem, c.Active, c.RequiresSpecialValidation, c.CreatedAt, c.UpdatedAt,
+	)
+	return err
+}
+internal/repository/sqlite/sqlite_category.go:43: 43-43 lines are duplicate of `internal/repository/sqlite/sqlite_category.go:77-77` (dupl)
+		err := rows.Scan(&c.ID, &c.Name, &c.Claimable, &c.IsSystem, &c.Active, &c.RequiresSpecialValidation, &created, &updated)
+internal/repository/sqlite/sqlite_category.go:59: 59-64 lines are duplicate of `internal/repository/sqlite/sqlite_claim.go:11-16` (dupl)
+func (r *SQLiteRepository) UpsertCoreCategory(ctx context.Context, c domain.CategoryData) error {
+	_, err := r.writeDB.ExecContext(ctx, CategoryUpsertSQL,
+		c.ID, c.Name, c.Claimable, c.IsSystem, c.Active, c.RequiresSpecialValidation, c.CreatedAt, c.UpdatedAt,
+	)
+	return err
+}
+internal/repository/sqlite/sqlite_category.go:77: 77-77 lines are duplicate of `internal/repository/sqlite/sqlite_category.go:43-43` (dupl)
+	err := row.Scan(&c.ID, &c.Name, &c.Claimable, &c.IsSystem, &c.Active, &c.RequiresSpecialValidation, &created, &updated)
+internal/repository/sqlite/sqlite_category_test.go:20: 20-28 lines are duplicate of `internal/repository/sqlite/sqlite_category_test.go:51-59` (dupl)
+	saveTestCategory(t, ctx, repo, domain.CategoryData{
+		ID:        "test-cat",
+		Name:      "Test Category",
+		Claimable: true,
+		IsSystem:  false,
+		Active:    true,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	})
+internal/repository/sqlite/sqlite_category_test.go:51: 51-59 lines are duplicate of `internal/repository/sqlite/sqlite_category_test.go:20-28` (dupl)
+	cat := domain.CategoryData{
+		ID:        "upsert-cat",
+		Name:      "Original",
+		Claimable: false,
+		IsSystem:  false,
+		Active:    true,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+internal/repository/sqlite/sqlite_category_test.go:87: 87-87 lines are duplicate of `internal/repository/sqlite/sqlite_category_test.go:88-88` (dupl)
+	saveTestCategory(t, ctx, repo, domain.CategoryData{ID: "bus", Name: "Business", Active: true, CreatedAt: time.Now(), UpdatedAt: time.Now()})
+internal/repository/sqlite/sqlite_category_test.go:88: 88-88 lines are duplicate of `internal/repository/sqlite/sqlite_category_test.go:89-89` (dupl)
+	saveTestCategory(t, ctx, repo, domain.CategoryData{ID: "svc", Name: "Service", Active: true, CreatedAt: time.Now(), UpdatedAt: time.Now()})
+internal/repository/sqlite/sqlite_category_test.go:89: 89-89 lines are duplicate of `internal/repository/sqlite/sqlite_category_test.go:87-87` (dupl)
+	saveTestCategory(t, ctx, repo, domain.CategoryData{ID: "old", Name: "Old Category", Active: false, CreatedAt: time.Now(), UpdatedAt: time.Now()})
+internal/repository/sqlite/sqlite_category_test.go:259: 259-260 lines are duplicate of `internal/repository/sqlite/sqlite_category_test.go:260-261` (dupl)
+		{ID: "Business", Name: "Business", IsSystem: true, Active: true, CreatedAt: time.Now(), UpdatedAt: time.Now()},
+		{ID: "Service", Name: "Service", IsSystem: true, Active: true, CreatedAt: time.Now(), UpdatedAt: time.Now()},
+internal/repository/sqlite/sqlite_category_test.go:260: 260-261 lines are duplicate of `internal/repository/sqlite/repro_test.go:22-23` (dupl)
+		{ID: "Service", Name: "Service", IsSystem: true, Active: true, CreatedAt: time.Now(), UpdatedAt: time.Now()},
+		{ID: "Food", Name: "Food", IsSystem: true, Active: true, CreatedAt: time.Now(), UpdatedAt: time.Now()},
+internal/repository/sqlite/sqlite_category_test.go:261: 261-261 lines are duplicate of `internal/repository/sqlite/repro_test.go:22-22` (dupl)
+		{ID: "Food", Name: "Food", IsSystem: true, Active: true, CreatedAt: time.Now(), UpdatedAt: time.Now()},
+internal/repository/sqlite/sqlite_claim.go:11: 11-16 lines are duplicate of `internal/repository/sqlite/sqlite_category.go:11-16` (dupl)
+func (r *SQLiteRepository) SaveClaimRequest(ctx context.Context, req domain.ClaimRequest) error {
+	_, err := r.writeDB.ExecContext(ctx, ClaimUpsertSQL,
+		req.ID, req.ListingID, req.ListingTitle, req.UserID, req.UserName, req.UserEmail, req.Status, req.CreatedAt,
+	)
+	return err
+}
+internal/repository/sqlite/sqlite_claim.go:35: 35-35 lines are duplicate of `internal/repository/sqlite/sqlite_claim.go:91-91` (dupl)
+		if err := rows.Scan(&cr.ID, &cr.ListingID, &cr.ListingTitle, &cr.UserID, &cr.UserName, &cr.UserEmail, &cr.Status, &cr.CreatedAt); err != nil {
+internal/repository/sqlite/sqlite_claim.go:91: 91-91 lines are duplicate of `internal/repository/sqlite/sqlite_claim.go:35-35` (dupl)
+	err := row.Scan(&cr.ID, &cr.ListingID, &cr.ListingTitle, &cr.UserID, &cr.UserName, &cr.UserEmail, &cr.Status, &cr.CreatedAt)
+internal/repository/sqlite/sqlite_featured_test.go:20: 20-28 lines are duplicate of `internal/repository/sqlite/sqlite_featured_test.go:29-37` (dupl)
+		{
+			ID:          "feat-1",
+			Title:       "Featured Business",
+			Type:        domain.Business,
+			IsActive:    true,
+			Featured:    true,
+			OwnerOrigin: "Nigeria",
+			CreatedAt:   time.Now(),
+		},
+internal/repository/sqlite/sqlite_featured_test.go:29: 29-37 lines are duplicate of `internal/repository/sqlite/sqlite_featured_test.go:38-46` (dupl)
+		{
+			ID:          "feat-2",
+			Title:       "Non-Featured Business",
+			Type:        domain.Business,
+			IsActive:    true,
+			Featured:    false,
+			OwnerOrigin: "Ghana",
+			CreatedAt:   time.Now(),
+		},
+internal/repository/sqlite/sqlite_featured_test.go:38: 38-46 lines are duplicate of `internal/repository/sqlite/sqlite_featured_test.go:20-28` (dupl)
+		{
+			ID:          "feat-3",
+			Title:       "Featured but Inactive",
+			Type:        domain.Job,
+			IsActive:    false,
+			Featured:    true,
+			OwnerOrigin: "Senegal",
+			CreatedAt:   time.Now(),
+		},
+internal/repository/sqlite/sqlite_listing_city_test.go:18: 18-18 lines are duplicate of `internal/repository/sqlite/sqlite_listing_city_test.go:19-19` (dupl)
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "1", Title: "Food Houston", Type: domain.Food, City: "Houston", IsActive: true, Status: domain.ListingStatusApproved})
+internal/repository/sqlite/sqlite_listing_city_test.go:19: 19-19 lines are duplicate of `internal/repository/sqlite/sqlite_listing_city_test.go:20-20` (dupl)
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "2", Title: "Service Houston", Type: domain.Service, City: "Houston", IsActive: true, Status: domain.ListingStatusApproved})
+internal/repository/sqlite/sqlite_listing_city_test.go:20: 20-20 lines are duplicate of `internal/repository/sqlite/sqlite_listing_city_test.go:18-18` (dupl)
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "3", Title: "Food Dallas", Type: domain.Food, City: "Dallas", IsActive: true, Status: domain.ListingStatusApproved})
+internal/repository/sqlite/sqlite_listing_city_test.go:48: 48-49 lines are duplicate of `internal/repository/sqlite/sqlite_listing_city_test.go:49-50` (dupl)
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "f1", Title: "Feat Food Houston", Type: domain.Food, City: "Houston", Featured: true, IsActive: true, Status: domain.ListingStatusApproved})
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "f2", Title: "Feat Food Dallas", Type: domain.Food, City: "Dallas", Featured: true, IsActive: true, Status: domain.ListingStatusApproved})
+internal/repository/sqlite/sqlite_listing_city_test.go:49: 49-50 lines are duplicate of `internal/repository/sqlite/sqlite_listing_city_test.go:48-49` (dupl)
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "f2", Title: "Feat Food Dallas", Type: domain.Food, City: "Dallas", Featured: true, IsActive: true, Status: domain.ListingStatusApproved})
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "n1", Title: "Normal Houston", Type: domain.Food, City: "Houston", Featured: false, IsActive: true, Status: domain.ListingStatusApproved})
+internal/repository/sqlite/sqlite_listing_city_test.go:50: 50-50 lines are duplicate of `internal/repository/sqlite/sqlite_listing_city_test.go:48-48` (dupl)
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "n1", Title: "Normal Houston", Type: domain.Food, City: "Houston", Featured: false, IsActive: true, Status: domain.ListingStatusApproved})
+internal/repository/sqlite/sqlite_listing_ops_test.go:46: 46-46 lines are duplicate of `internal/repository/sqlite/sqlite_listing_ops_test.go:48-48` (dupl)
+	_ = repo.Save(ctx, domain.Listing{ID: "exp-1", Type: domain.Request, Deadline: now.Add(-1 * time.Hour), IsActive: true})
+internal/repository/sqlite/sqlite_listing_ops_test.go:48: 48-48 lines are duplicate of `internal/repository/sqlite/sqlite_listing_ops_test.go:46-46` (dupl)
+	_ = repo.Save(ctx, domain.Listing{ID: "exp-2", Type: domain.Event, EventEnd: now.Add(-1 * time.Hour), IsActive: true})
+internal/repository/sqlite/sqlite_listing_ops_test.go:73: 73-73 lines are duplicate of `internal/repository/sqlite/sqlite_listing_ops_test.go:106-106` (dupl)
+	_ = repo.Save(ctx, domain.Listing{ID: "l1", Title: "Unclaimed Business", Type: domain.Business, IsActive: true, CreatedAt: time.Now()})
+internal/repository/sqlite/sqlite_listing_ops_test.go:76: 76-79 lines are duplicate of `internal/repository/sqlite/sqlite_listing_ops_test.go:82-85` (dupl)
+	_ = repo.SaveClaimRequest(ctx, domain.ClaimRequest{
+		ID: "cr1", ListingID: "l1", UserID: "u1",
+		Status: domain.ClaimStatusPending, CreatedAt: time.Now(),
+	})
+internal/repository/sqlite/sqlite_listing_ops_test.go:82: 82-85 lines are duplicate of `internal/repository/sqlite/sqlite_listing_ops_test.go:110-113` (dupl)
+	_ = repo.SaveClaimRequest(ctx, domain.ClaimRequest{
+		ID: "cr2", ListingID: "l1", UserID: "u2",
+		Status: domain.ClaimStatusApproved, CreatedAt: time.Now(),
+	})
+internal/repository/sqlite/sqlite_listing_ops_test.go:106: 106-106 lines are duplicate of `internal/repository/sqlite/sqlite_listing_ops_test.go:73-73` (dupl)
+	_ = repo.Save(ctx, domain.Listing{ID: "l1", Title: "Biz", Type: domain.Business, IsActive: true, CreatedAt: time.Now()})
+internal/repository/sqlite/sqlite_listing_ops_test.go:107: 107-107 lines are duplicate of `internal/repository/sqlite/sqlite_user_test.go:19-19` (dupl)
+	_ = repo.SaveUser(ctx, domain.User{ID: "u1", GoogleID: "g1", Email: "u1@x.com", CreatedAt: time.Now()})
+internal/repository/sqlite/sqlite_listing_ops_test.go:110: 110-113 lines are duplicate of `internal/repository/sqlite/sqlite_listing_ops_test.go:76-79` (dupl)
+	_ = repo.SaveClaimRequest(ctx, domain.ClaimRequest{
+		ID: "cr1", ListingID: "l1", UserID: "u1",
+		Status: domain.ClaimStatusPending, CreatedAt: time.Now(),
+	})
+internal/repository/sqlite/sqlite_listing_ops_test.go:177: 177-177 lines are duplicate of `internal/repository/sqlite/sqlite_listing_ops_test.go:178-178` (dupl)
+	_ = repo.Save(ctx, domain.Listing{ID: "g2", Title: "L2", Type: domain.Business, IsActive: true, CreatedAt: now})
+internal/repository/sqlite/sqlite_listing_ops_test.go:178: 178-178 lines are duplicate of `internal/repository/sqlite/sqlite_listing_ops_test.go:177-177` (dupl)
+	_ = repo.Save(ctx, domain.Listing{ID: "g3", Title: "L3", Type: domain.Business, IsActive: true, CreatedAt: now})
+internal/repository/sqlite/sqlite_listing_search_test.go:19: 19-19 lines are duplicate of `internal/repository/sqlite/sqlite_listing_search_test.go:20-20` (dupl)
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "1", Title: "Jollof Rice", Type: "Business", Status: domain.ListingStatusApproved, IsActive: true, CreatedAt: time.Now()})
+internal/repository/sqlite/sqlite_listing_search_test.go:20: 20-20 lines are duplicate of `internal/repository/sqlite/sqlite_listing_search_test.go:21-21` (dupl)
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "2", Title: "Hair Braiding", Type: "Service", Status: domain.ListingStatusPending, IsActive: true, CreatedAt: time.Now()})
+internal/repository/sqlite/sqlite_listing_search_test.go:21: 21-21 lines are duplicate of `internal/repository/sqlite/sqlite_listing_search_test.go:19-19` (dupl)
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "3", Title: "Deleted Item", Type: "Product", Status: domain.ListingStatusRejected, IsActive: false, CreatedAt: time.Now()})
+internal/repository/sqlite/sqlite_listing_search_test.go:129: 129-129 lines are duplicate of `internal/repository/sqlite/sqlite_listing_search_test.go:130-130` (dupl)
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "1", Title: "Unique Title", Type: domain.Business, IsActive: true, CreatedAt: time.Now()})
+internal/repository/sqlite/sqlite_listing_search_test.go:130: 130-130 lines are duplicate of `internal/repository/sqlite/sqlite_listing_search_test.go:131-131` (dupl)
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "2", Title: "Duplicate Title", Type: domain.Service, IsActive: true, CreatedAt: time.Now()})
+internal/repository/sqlite/sqlite_listing_search_test.go:131: 131-131 lines are duplicate of `internal/repository/sqlite/sqlite_listing_search_test.go:129-129` (dupl)
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "3", Title: "Duplicate Title", Type: domain.Product, IsActive: true, CreatedAt: time.Now()})
+internal/repository/sqlite/sqlite_metrics.go:21: 21-21 lines are duplicate of `internal/repository/sqlite/feedback.go:15-17` (dupl)
+	_, err := r.writeDB.ExecContext(ctx, query, m.ID, m.EventType, m.Value, m.Metadata, m.CreatedAt)
+internal/repository/sqlite/sqlite_stats.go:55: 55-57 lines are duplicate of `internal/repository/sqlite/sqlite_stats.go:60-62` (dupl)
+func (r *SQLiteRepository) GetListingGrowth(ctx context.Context) ([]domain.DailyMetric, error) {
+	return r.queryDailyMetrics(ctx, dailyGrowthSQL("listings"))
+}
+internal/repository/sqlite/sqlite_stats.go:60: 60-62 lines are duplicate of `internal/repository/sqlite/sqlite_stats.go:55-57` (dupl)
+func (r *SQLiteRepository) GetUserGrowth(ctx context.Context) ([]domain.DailyMetric, error) {
+	return r.queryDailyMetrics(ctx, dailyGrowthSQL("users"))
+}
+internal/repository/sqlite/sqlite_user_test.go:19: 19-19 lines are duplicate of `internal/repository/sqlite/sqlite_user_test.go:20-20` (dupl)
+	_ = repo.SaveUser(ctx, domain.User{ID: "u1", GoogleID: "g1", Email: "e1", CreatedAt: time.Now()})
+internal/repository/sqlite/sqlite_user_test.go:20: 20-20 lines are duplicate of `internal/repository/sqlite/sqlite_user_test.go:37-37` (dupl)
+	_ = repo.SaveUser(ctx, domain.User{ID: "u2", GoogleID: "g2", Email: "e2", CreatedAt: time.Now()})
+internal/repository/sqlite/sqlite_user_test.go:37: 37-37 lines are duplicate of `internal/repository/sqlite/sqlite_listing_ops_test.go:107-107` (dupl)
+	_ = repo.SaveUser(ctx, domain.User{ID: "u1", GoogleID: "g1", Email: "e1", CreatedAt: time.Now()})
+internal/seeder/seeder.go:95: 95-106 lines are duplicate of `internal/seeder/seeder.go:108-119` (dupl)
+var businesses = []domain.Listing{
+	listing("Lagos Import Export", "Nigeria", domain.Business, "Import/Export", "Major distributor of Nigerian goods in Texas.", "Dallas", "1001 Main St, Dallas, TX 75202", "contact@lagosie.com"),
+	listing("Accra Market Square", "Ghana", domain.Business, "Grocery", "Authentic Ghanaian groceries and spices.", "Plano", "2002 Legacy Dr, Plano, TX 75024", "+155510101"),
+	listing("Dakar Textiles", "Senegal", domain.Business, "Textiles", "Premium fabrics imported from Senegal.", "Fort Worth", "3003 Commerce St, Fort Worth, TX 76102", "+155510102"),
+	listing("Monrovia Money Transfer", "Liberia", domain.Business, "Finance", "Secure money transfer services to Liberia.", "Arlington", "4004 Cooper St, Arlington, TX 76010", "money@monrovia.com"),
+	listing("Freetown Logistics", "Sierra Leone", domain.Business, "Logistics", "Shipping and freight services to West Africa.", "Irving", "5005 O'Connor Blvd, Irving, TX 75039", "+155510103"),
+	listing("Bamako Braid Shop", "Mali", domain.Business, "Beauty", "Expert hair braiding and styling.", "Garland", "6006 Garland Ave, Garland, TX 75040", "+155510104"),
+	listing("Cotonou Car Dealership", "Benin", domain.Business, "Automotive", "Used cars for export or local sale.", "Grand Prairie", "7007 Belt Line Rd, Grand Prairie, TX 75052", "cars@cotonou.com"),
+	listing("Lome Electronics", "Togo", domain.Business, "Electronics", "Repair and sales of phones and laptops.", "Richardson", "8008 Campbell Rd, Richardson, TX 75080", "+155510105"),
+	listing("Conakry Construction Co.", "Guinea", domain.Business, "Construction", "Commercial and residential construction.", "McKinney", "9009 Eldorado Pkwy, McKinney, TX 75070", "+155510106"),
+	listing("Ouaga Office Supplies", "Burkina Faso", domain.Business, "Retail", "Office furniture and supplies.", "Mesquite", "1010 Town East Blvd, Mesquite, TX 75150", "supplies@ouaga.com"),
+}
+internal/seeder/seeder.go:108: 108-119 lines are duplicate of `internal/seeder/seeder.go:135-146` (dupl)
+var services = []domain.Listing{
+	listing("Yoruba Language Tutors", "Nigeria", domain.Service, "Education", "Learn to speak Yoruba fluently.", "Dallas", "1101 Ross Ave, Dallas, TX 75204", "+155520201"),
+	listing("Ashanti Web Design", "Ghana", domain.Service, "Tech", "Professional websites for small businesses.", "Frisco", "1202 Dallas Pkwy, Frisco, TX 75034", "web@ashanti.com"),
+	listing("Wolof Interpreters", "Senegal", domain.Service, "Translation", "Official interpretation services.", "Dallas", "1303 Pacific Ave, Dallas, TX 75201", "+155520202"),
+	listing("Monrovia Legal Aid", "Liberia", domain.Service, "Legal", "Immigration and family law assistance.", "Fort Worth", "1404 Main St, Fort Worth, TX 76102", "legal@monrovia.com"),
+	listing("Freetown Tax Prep", "Sierra Leone", domain.Service, "Finance", "Tax preparation for individuals and businesses.", "Arlington", "1505 Division St, Arlington, TX 76011", "+155520203"),
+	listing("Bamako Moving Services", "Mali", domain.Service, "Moving", "Affordable local and long-distance moving.", "Plano", "1606 Preston Rd, Plano, TX 75093", "+155520204"),
+	listing("Cotonou Cleaning Crew", "Benin", domain.Service, "Cleaning", "Residential and commercial cleaning.", "Irving", "1707 MacArthur Blvd, Irving, TX 75061", "clean@cotonou.com"),
+	listing("Lome IT Support", "Togo", domain.Service, "Tech", "Computer repair and network setup.", "Richardson", "1808 Arapaho Rd, Richardson, TX 75080", "+155520205"),
+	listing("Conakry Caregivers", "Guinea", domain.Service, "Health", "Home health aides for seniors.", "Garland", "1909 Northwest Hwy, Garland, TX 75041", "+155520206"),
+	listing("Niamey Notary Public", "Niger", domain.Service, "Legal", "Mobile notary services.", "Mesquite", "2010 Galloway Ave, Mesquite, TX 75149", "notary@niamey.com"),
+}
+internal/seeder/seeder.go:135: 135-172 lines are duplicate of `internal/seeder/seeder.go:148-185` (dupl)
+var jobs = []domain.Listing{
+	listing("Experienced Chef Needed", "Nigeria", domain.Job, "Restaurant", "Looking for a chef specializing in Nigerian cuisine.", "Dallas", "3201 Greenville Ave, Dallas, TX 75206", "jobs@chef.com"),
+	listing("Sales Associate", "Ghana", domain.Job, "Retail", "Part-time sales associate for fabric store.", "Plano", "3302 Parker Rd, Plano, TX 75023", "+155540401"),
+	listing("Delivery Driver", "Senegal", domain.Job, "Logistics", "Driver needed for local deliveries. Must have own van.", "Fort Worth", "3403 Main St, Fort Worth, TX 76102", "+155540402"),
+	listing("Hair Stylist", "Liberia", domain.Job, "Beauty", "Braider needed for busy salon.", "Arlington", "3504 Cooper St, Arlington, TX 76015", "salon@jobs.com"),
+	listing("Java Developer", "Sierra Leone", domain.Job, "Tech", "Junior Java developer for startup.", "Irving", "3605 Las Colinas Blvd, Irving, TX 75039", "+155540403"),
+	listing("Event Planner Assistant", "Mali", domain.Job, "Events", "Help organize engaging community events.", "Dallas", "3706 Lemmon Ave, Dallas, TX 75219", "+155540404"),
+	listing("Auto Mechanic", "Benin", domain.Job, "Automotive", "Experienced mechanic for Toyota/Honda shop.", "Garland", "3807 Forest Ln, Garland, TX 75042", "mechanic@jobs.com"),
+	listing("French Teacher", "Togo", domain.Job, "Education", "Part-time French teacher for kids.", "Richardson", "3908 Coit Rd, Richardson, TX 75080", "+155540405"),
+	listing("Construction Worker", "Guinea", domain.Job, "Construction", "General labor for construction site.", "McKinney", "4009 Central Expy, McKinney, TX 75070", "+155540406"),
+	listing("Accountant", "Burkina Faso", domain.Job, "Finance", "Bookkeeper needed for small business.", "Mesquite", "4110 Motley Dr, Mesquite, TX 75150", "finance@jobs.com"),
+}
+
+var requests = []domain.Listing{
+	listing("Looking for Zobo leaves", "Nigeria", domain.Request, "Sourcing", "Need bulk Zobo (Hibiscus) leaves for an event.", "Dallas", "4201 Ross Ave, Dallas, TX 75204", "req1@example.com"),
+	listing("Graphic Designer needed", "Ghana", domain.Request, "Services", "Need a logo for a new startup.", "Carrollton", "4302 Josey Ln, Carrollton, TX 75006", "+155550501"),
+	listing("Anyone flying to Senegal?", "Senegal", domain.Request, "Travel", "Need to send a small document package urgently.", "Euless", "4403 Airport Fwy, Euless, TX 76040", "req2@example.com"),
+	listing("French Tutor for kids", "Cote d'Ivoire", domain.Request, "Education", "Looking for a tutor for my 2 kids.", "Suburbs", "4504 Main St, Lewisville, TX 75067", "+155550502"),
+	listing("Apartment to rent", "Gambia", domain.Request, "Housing", "Looking for a 1 bedroom near the university.", "Denton", "4605 University Dr, Denton, TX 76201", "+155550503"),
+	listing("Used Toyota Camry", "Togo", domain.Request, "Auto", "Looking to buy a reliable commuter car.", "Grapevine", "4706 Main St, Grapevine, TX 76051", "req3@example.com"),
+	listing("Web Developer partner", "Niger", domain.Request, "Tech", "Seeking a technical co-founder.", "Irving", "4807 MacArthur Blvd, Irving, TX 75061", "+155550504"),
+	listing("Caterer for Naming Ceremony", "Sierra Leone", domain.Request, "Events", "Need catering for 50 people next Saturday.", "Allen", "4908 McDermott Dr, Allen, TX 75013", "+155550505"),
+	listing("Roommate Wanted", "Liberia", domain.Request, "Housing", "Share a 2-bedroom apartment in Arlington.", "Arlington", "5009 Cooper St, Arlington, TX 76017", "req4@example.com"),
+	listing("Shipping Barrel to Mali", "Mali", domain.Request, "Logistics", "Who has the best rates for barrels?", "Dallas", "5110 Buckner Blvd, Dallas, TX 75228", "+155550506"),
+}
+
+var food = []domain.Listing{
+	listing("Mama Put Dallas", "Nigeria", domain.Food, "Restaurant", "Home cooked meals: Pounded yam, Egusi, Suya.", "Dallas", "5201 Forest Ln, Dallas, TX 75243", "mama@put.com"),
+	listing("Accra Chop Bar", "Ghana", domain.Food, "Restaurant", "Best Banku and Tilapia in town.", "Arlington", "5302 Collins St, Arlington, TX 76014", "+155560601"),
+	listing("Dakar Delights Catering", "Senegal", domain.Food, "Catering", "Catering for weddings and parties. Thieboudienne specialty.", "Plano", "5403 Legacy Dr, Plano, TX 75024", "+155560602"),
+	listing("Monrovia Bakery", "Liberia", domain.Food, "Bakery", "Fresh rice bread and cassava cake daily.", "Fort Worth", "5504 Berry St, Fort Worth, TX 76110", "bread@monrovia.com"),
+	listing("Freetown Kitchen", "Sierra Leone", domain.Food, "Restaurant", "Cassava leaves and Plasas like home.", "Garland", "5605 Broadway Blvd, Garland, TX 75043", "+155560603"),
+	listing("Bamako Grill", "Mali", domain.Food, "Restaurant", "Grilled fish and chicken with couscous.", "Irving", "5706 Belt Line Rd, Irving, TX 75063", "+155560604"),
+	listing("Cotonou Cuisine", "Benin", domain.Food, "Restaurant", "Authentic Beninese flavors.", "Mesquite", "5807 Gus Thomasson Rd, Mesquite, TX 75150", "food@cotonou.com"),
+	listing("Lome Snacks", "Togo", domain.Food, "Snacks", "Street food snacks and drinks.", "Richardson", "5908 Plano Rd, Richardson, TX 75081", "+155560605"),
+	listing("Conakry Cafe", "Guinea", domain.Food, "Cafe", "Coffee and pastries with a Guinean twist.", "Lewisville", "6009 Main St, Lewisville, TX 75067", "+155560606"),
+	listing("Ouaga Spicy Pot", "Burkina Faso", domain.Food, "Restaurant", "Spicy stews and grilled meats.", "Grand Prairie", "6110 Carrier Pkwy, Grand Prairie, TX 75052", "spicy@ouaga.com"),
+}
+internal/seeder/seeder.go:148: 148-185 lines are duplicate of `internal/seeder/seeder.go:135-172` (dupl)
+var requests = []domain.Listing{
+	listing("Looking for Zobo leaves", "Nigeria", domain.Request, "Sourcing", "Need bulk Zobo (Hibiscus) leaves for an event.", "Dallas", "4201 Ross Ave, Dallas, TX 75204", "req1@example.com"),
+	listing("Graphic Designer needed", "Ghana", domain.Request, "Services", "Need a logo for a new startup.", "Carrollton", "4302 Josey Ln, Carrollton, TX 75006", "+155550501"),
+	listing("Anyone flying to Senegal?", "Senegal", domain.Request, "Travel", "Need to send a small document package urgently.", "Euless", "4403 Airport Fwy, Euless, TX 76040", "req2@example.com"),
+	listing("French Tutor for kids", "Cote d'Ivoire", domain.Request, "Education", "Looking for a tutor for my 2 kids.", "Suburbs", "4504 Main St, Lewisville, TX 75067", "+155550502"),
+	listing("Apartment to rent", "Gambia", domain.Request, "Housing", "Looking for a 1 bedroom near the university.", "Denton", "4605 University Dr, Denton, TX 76201", "+155550503"),
+	listing("Used Toyota Camry", "Togo", domain.Request, "Auto", "Looking to buy a reliable commuter car.", "Grapevine", "4706 Main St, Grapevine, TX 76051", "req3@example.com"),
+	listing("Web Developer partner", "Niger", domain.Request, "Tech", "Seeking a technical co-founder.", "Irving", "4807 MacArthur Blvd, Irving, TX 75061", "+155550504"),
+	listing("Caterer for Naming Ceremony", "Sierra Leone", domain.Request, "Events", "Need catering for 50 people next Saturday.", "Allen", "4908 McDermott Dr, Allen, TX 75013", "+155550505"),
+	listing("Roommate Wanted", "Liberia", domain.Request, "Housing", "Share a 2-bedroom apartment in Arlington.", "Arlington", "5009 Cooper St, Arlington, TX 76017", "req4@example.com"),
+	listing("Shipping Barrel to Mali", "Mali", domain.Request, "Logistics", "Who has the best rates for barrels?", "Dallas", "5110 Buckner Blvd, Dallas, TX 75228", "+155550506"),
+}
+
+var food = []domain.Listing{
+	listing("Mama Put Dallas", "Nigeria", domain.Food, "Restaurant", "Home cooked meals: Pounded yam, Egusi, Suya.", "Dallas", "5201 Forest Ln, Dallas, TX 75243", "mama@put.com"),
+	listing("Accra Chop Bar", "Ghana", domain.Food, "Restaurant", "Best Banku and Tilapia in town.", "Arlington", "5302 Collins St, Arlington, TX 76014", "+155560601"),
+	listing("Dakar Delights Catering", "Senegal", domain.Food, "Catering", "Catering for weddings and parties. Thieboudienne specialty.", "Plano", "5403 Legacy Dr, Plano, TX 75024", "+155560602"),
+	listing("Monrovia Bakery", "Liberia", domain.Food, "Bakery", "Fresh rice bread and cassava cake daily.", "Fort Worth", "5504 Berry St, Fort Worth, TX 76110", "bread@monrovia.com"),
+	listing("Freetown Kitchen", "Sierra Leone", domain.Food, "Restaurant", "Cassava leaves and Plasas like home.", "Garland", "5605 Broadway Blvd, Garland, TX 75043", "+155560603"),
+	listing("Bamako Grill", "Mali", domain.Food, "Restaurant", "Grilled fish and chicken with couscous.", "Irving", "5706 Belt Line Rd, Irving, TX 75063", "+155560604"),
+	listing("Cotonou Cuisine", "Benin", domain.Food, "Restaurant", "Authentic Beninese flavors.", "Mesquite", "5807 Gus Thomasson Rd, Mesquite, TX 75150", "food@cotonou.com"),
+	listing("Lome Snacks", "Togo", domain.Food, "Snacks", "Street food snacks and drinks.", "Richardson", "5908 Plano Rd, Richardson, TX 75081", "+155560605"),
+	listing("Conakry Cafe", "Guinea", domain.Food, "Cafe", "Coffee and pastries with a Guinean twist.", "Lewisville", "6009 Main St, Lewisville, TX 75067", "+155560606"),
+	listing("Ouaga Spicy Pot", "Burkina Faso", domain.Food, "Restaurant", "Spicy stews and grilled meats.", "Grand Prairie", "6110 Carrier Pkwy, Grand Prairie, TX 75052", "spicy@ouaga.com"),
+}
+
+var events = []domain.Listing{
+	listing("Naija Independence Day Bash", "Nigeria", domain.Event, "Festival", "Celebrating Nigeria @ 66. Food, Music, Dance.", "Dallas", "6201 Fair Park, Dallas, TX 75210", "indep@naija.com"),
+	listing("Ghana Fest Texas", "Ghana", domain.Event, "Festival", "Cultural showcase of Ghanaian heritage.", "Arlington", "6302 Levitt Pavilion, Arlington, TX 76010", "+155570701"),
+	listing("Senegal Music Night", "Senegal", domain.Event, "Concert", "Live Mbalax music featuring top artists.", "Dallas", "6403 Deep Ellum, Dallas, TX 75226", "+155570702"),
+	listing("Liberian Community Picnic", "Liberia", domain.Event, "Community", "Family fun day at the park.", "Fort Worth", "6504 Trinity Park, Fort Worth, TX 76107", "picnic@liberia.com"),
+	listing("Sierra Leone Charity Gala", "Sierra Leone", domain.Event, "Charity", "Fundraiser for schools in Freetown.", "Plano", "6605 Legacy Dr, Plano, TX 75024", "+155570703"),
+	listing("Mali Art Exhibition", "Mali", domain.Event, "Art", "Showcasing contemporary Malian artists.", "Dallas", "6706 Flora St, Dallas, TX 75201", "+155570704"),
+	listing("Benin Cultural Day", "Benin", domain.Event, "Culture", "Dance performances and food tasting.", "Irving", "6807 Las Colinas Blvd, Irving, TX 75039", "culture@benin.com"),
+	listing("Togo Independence Party", "Togo", domain.Event, "Party", "Music and dancing all night.", "Garland", "6908 Naaman Forest Blvd, Garland, TX 75040", "+155570705"),
+	listing("Guinea Fashion Week", "Guinea", domain.Event, "Fashion", "Fashion show featuring Guinean designers.", "Dallas", "7009 Market Center Blvd, Dallas, TX 75207", "+155570706"),
+	listing("Burkina Faso Film Screening", "Burkina Faso", domain.Event, "Film", "Screening of award-winning FESPACO films.", "Richardson", "7110 Alamo Drafthouse, Richardson, TX 75080", "film@burkina.com"),
+}
+internal/seeder/seeder.go:161: 161-172 lines are duplicate of `internal/seeder/seeder.go:95-106` (dupl)
+var food = []domain.Listing{
+	listing("Mama Put Dallas", "Nigeria", domain.Food, "Restaurant", "Home cooked meals: Pounded yam, Egusi, Suya.", "Dallas", "5201 Forest Ln, Dallas, TX 75243", "mama@put.com"),
+	listing("Accra Chop Bar", "Ghana", domain.Food, "Restaurant", "Best Banku and Tilapia in town.", "Arlington", "5302 Collins St, Arlington, TX 76014", "+155560601"),
+	listing("Dakar Delights Catering", "Senegal", domain.Food, "Catering", "Catering for weddings and parties. Thieboudienne specialty.", "Plano", "5403 Legacy Dr, Plano, TX 75024", "+155560602"),
+	listing("Monrovia Bakery", "Liberia", domain.Food, "Bakery", "Fresh rice bread and cassava cake daily.", "Fort Worth", "5504 Berry St, Fort Worth, TX 76110", "bread@monrovia.com"),
+	listing("Freetown Kitchen", "Sierra Leone", domain.Food, "Restaurant", "Cassava leaves and Plasas like home.", "Garland", "5605 Broadway Blvd, Garland, TX 75043", "+155560603"),
+	listing("Bamako Grill", "Mali", domain.Food, "Restaurant", "Grilled fish and chicken with couscous.", "Irving", "5706 Belt Line Rd, Irving, TX 75063", "+155560604"),
+	listing("Cotonou Cuisine", "Benin", domain.Food, "Restaurant", "Authentic Beninese flavors.", "Mesquite", "5807 Gus Thomasson Rd, Mesquite, TX 75150", "food@cotonou.com"),
+	listing("Lome Snacks", "Togo", domain.Food, "Snacks", "Street food snacks and drinks.", "Richardson", "5908 Plano Rd, Richardson, TX 75081", "+155560605"),
+	listing("Conakry Cafe", "Guinea", domain.Food, "Cafe", "Coffee and pastries with a Guinean twist.", "Lewisville", "6009 Main St, Lewisville, TX 75067", "+155560606"),
+	listing("Ouaga Spicy Pot", "Burkina Faso", domain.Food, "Restaurant", "Spicy stews and grilled meats.", "Grand Prairie", "6110 Carrier Pkwy, Grand Prairie, TX 75052", "spicy@ouaga.com"),
+}
+internal/service/coverage_boost_test.go:44: 44-47 lines are duplicate of `internal/service/coverage_boost_test.go:60-63` (dupl)
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"status":"OK","results":[{"address_components":[{"long_name":"Test City","types":["locality"]}]}]}`))
+	})
+internal/service/coverage_boost_test.go:60: 60-63 lines are duplicate of `internal/service/coverage_boost_test.go:44-47` (dupl)
+	mux.HandleFunc("/zero", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"status":"ZERO_RESULTS"}`))
+	})
+126 issues:
+* dupl: 126
+level=info msg="File cache stats: 35 entries of total size 140.7KiB"
+level=info msg="Memory: 13 samples, avg is 72.0MB, max is 87.6MB"
+level=info msg="Execution took 1.125229666s"
+exit status 1
+
+--------------------------------
+Error: robustness audit failed: exit status 1
+Usage:
+  verify critique [flags]
+
+Flags:
+      --baseline string   Git revision to compare against (default: HEAD~1)
+      --full              Run full audit instead of incremental
+  -h, --help              help for critique
+      --verbose           Restore full linter logs (disables summarization)
+
+exit status 1

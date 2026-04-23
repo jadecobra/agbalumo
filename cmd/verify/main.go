@@ -103,6 +103,8 @@ func init() {
 		gosecRationaleCmd,
 		preflightCmd,
 		sessionContextCmd,
+		janitorCmd,
+		dumpInvariantsCmd,
 	)
 }
 

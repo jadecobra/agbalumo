@@ -138,3 +138,13 @@ var sessionContextCmd = &cobra.Command{
 		return maintenance.RunSessionContext(".", args[0])
 	},
 }
+
+var janitorCmd = makeSimpleCmd("janitor", "Move stale root-level artifacts to .tester/", func() error {
+	return maintenance.RunJanitor(".")
+})
+
+var dumpInvariantsCmd = makeSimpleCmd("dump-invariants",
+	"Generate .agents/invariants.json from project config",
+	func() error {
+		return maintenance.DumpInvariants(".")
+	})
