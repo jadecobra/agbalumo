@@ -48,6 +48,17 @@ Git is our only state tracker.
 * **Dynamic Standards**: You MUST read the current state of `.agents/workflows/coding-standards.md` to ensure newly codified lessons are active.
 * **Recursive Context**: Whenever you enter a subdirectory for the first time, you MUST check if a local `AGENTS.md` file exists. If it does, you must read it to understand package-specific constraints that override or extend the global standards.
 
+## SKILLS (Procedural Knowledge)
+
+Skills are step-by-step procedures in `.agents/skills/`. You MUST read the relevant SKILL.md before executing any task that matches a skill's trigger condition.
+
+| Skill | Trigger Condition | Path |
+|-------|-------------------|------|
+| Go TDD | Writing tests, fixing bugs, implementing features | `.agents/skills/go-tdd/SKILL.md` |
+| Browser Verification | Any UI change, browser subagent task | `.agents/skills/browser-verify/SKILL.md` |
+
+**Rule**: When a new skill is created, add it to this table and to `.agents/verify-manifest.yaml`.
+
 # ARCHITECTURAL MEMORY (ADRs)
 
 * When major architectural decisions, simplifications, or tradeoffs are agreed upon (especially during Phase 1 of `/build-feature`), you MUST document them.
