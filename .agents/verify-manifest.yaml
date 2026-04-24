@@ -30,3 +30,12 @@ commands:
   - name: context-cost
     trigger: after_refactor
     description: Monitor token density regression
+
+skills:
+  - name: go-tdd
+    trigger: test_authoring, feature_implementation, bug_fix
+    path: .agents/skills/go-tdd/SKILL.md
+
+  - name: browser-verify
+    trigger: ui_change, browser_subagent
+    path: .agents/skills/browser-verify/SKILL.md
