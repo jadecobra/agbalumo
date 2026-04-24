@@ -46,6 +46,14 @@ Detect drift between Code, OpenAPI, and Markdown docs.
 agbalumo verify api-spec
 ```
 
+##### design
+
+Scan templates for violations of the UI Dialect protocol (Brutalist standard).
+
+```bash
+agbalumo verify design
+```
+
 ##### template-drift
 
 Detect undefined template functions in HTML templates.
@@ -60,6 +68,14 @@ Calculate codebase token density and context window usage (advisory).
 
 ```bash
 agbalumo verify context-cost
+```
+
+##### dump-invariants
+
+Automatically generate Project Invariants JSON from source code and config.
+
+```bash
+agbalumo verify dump-invariants
 ```
 
 ##### coverage
@@ -100,6 +116,14 @@ Verify JavaScript syntax using node -c.
 
 ```bash
 agbalumo verify js-syntax
+```
+
+##### janitor
+
+Clean up temporary debris and move them to the .tester/ directory.
+
+```bash
+agbalumo verify janitor
 ```
 
 ##### critique
