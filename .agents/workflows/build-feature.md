@@ -55,6 +55,8 @@ HALT and execute this protocol. Initialize `task.md` immediately to externalize 
 
 ## Phase 2: Autonomous Execution Loop (TDD)
 
+**Pre-condition**: Read .agents/skills/go-tdd/SKILL.md before starting this phase.
+
 1. **RED**: Write failing tests. Run `go test`.
 2. **GREEN**: Write implementation (including logs/metrics). 
 - Run `go test`. 
@@ -80,7 +82,8 @@ HALT and execute this protocol. Initialize `task.md` immediately to externalize 
 - Run `go run cmd/verify/main.go api-spec`
 
 6. **UI Verification**:
-- use `browser_subagent` to capture a screenshot of the "Find Food" flow and embed it in the walkthrough.
+   - **Pre-condition**: Read .agents/skills/browser-verify/SKILL.md before any browser task.
+   - use `browser_subagent` to capture a screenshot of the "Find Food" flow and embed it in the walkthrough.
 - Verify the "Final Truth" against the persona requirements (e.g., "Is the pivot visible?").
 - **HARD GATE**: You are forbidden from drafting the `walkthrough.md` or summarizing completion until this step is documented with a screenshot and checked off in `task.md`.
 
