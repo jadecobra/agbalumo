@@ -40,10 +40,19 @@ module.exports = {
                 sans: ['"Inter"', 'sans-serif'],
                 serif: ['"Playfair Display"', 'serif'],
             },
+            fontSize: {
+                'editorial-hero': ['72px', '1'],
+                'editorial-title': ['100px', '1'],
+            },
             borderRadius: {
+                "none": "0px",
                 "DEFAULT": "0px",
-                "lg": "20px",
-                "xl": "32px",
+                "sm": "0px",
+                "md": "0px",
+                "lg": "0px",
+                "xl": "0px",
+                "2xl": "0px",
+                "3xl": "0px",
                 "full": "9999px"
             },
             boxShadow: {

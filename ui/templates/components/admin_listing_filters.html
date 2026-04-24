@@ -22,10 +22,10 @@
                     <span class="material-symbols-outlined text-[18px]">search</span>
                 </div>
                 <input type="text" name="q" placeholder="Search..." value="{{ .QueryText }}"
-                    class="block w-full pl-10 pr-3 py-2 border border-earth-dark/10 bg-white/50 text-earth-dark shadow-sm focus:outline-none focus:ring-1 focus:ring-earth-ochre focus:border-earth-ochre sm:text-sm {{ if .QueryText }}rounded-l-sm{{ else }}rounded-sm{{ end }} transition-all" />
+                    class="block w-full pl-10 pr-3 py-2 border border-earth-dark/10 bg-white/50 text-earth-dark shadow-sm focus:outline-none focus:ring-1 focus:ring-earth-ochre focus:border-earth-ochre sm:text-sm rounded-none transition-all" />
             </div>
             {{ if .QueryText }}
-            <a href="/admin/listings{{ if .Category }}?category={{ .Category }}{{ end }}" class="flex items-center justify-center px-3 py-2 border border-l-0 border-earth-dark/10 bg-white/50 text-earth-dark/60 hover:text-earth-dark hover:bg-white/80 transition-all rounded-r-sm" title="Clear Search">
+            <a href="/admin/listings{{ if .Category }}?category={{ .Category }}{{ end }}" class="flex items-center justify-center px-3 py-2 border border-l-0 border-earth-dark/10 bg-white/50 text-earth-dark/60 hover:text-earth-dark hover:bg-white/80 transition-all rounded-none" title="Clear Search">
                 <span class="material-symbols-outlined text-[18px]">close</span>
             </a>
             {{ end }}

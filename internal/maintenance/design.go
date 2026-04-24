@@ -29,7 +29,7 @@ func CheckDesignStandards(dir string) ([]DesignViolation, error) {
 			return nil
 		}
 
-		v, err := checkFileStandards(path, info.Name())
+		v, err := checkFileStandards(path)
 		if err != nil {
 			return err
 		}
@@ -40,9 +40,8 @@ func CheckDesignStandards(dir string) ([]DesignViolation, error) {
 	return violations, err
 }
 
-func checkFileStandards(path, filename string) ([]DesignViolation, error) {
+func checkFileStandards(path string) ([]DesignViolation, error) {
 	var violations []DesignViolation
-	isSharpContext := strings.HasPrefix(filename, "admin_") || strings.Contains(path, "/admin/")
 
 	// #nosec G304 -- verification utility scans local templates only
 	file, err := os.Open(path)
@@ -53,16 +52,15 @@ func checkFileStandards(path, filename string) ([]DesignViolation, error) {
 
 	scanner := bufio.NewScanner(file)
 	lineNumber := 0
-	roundedRegex := regexp.MustCompile(`\brounded-(md|lg|xl|2xl|3xl|full)\b`)
+	// All rounding (except -full for pills) is now forbidden project-wide.
+	roundedRegex := regexp.MustCompile(`\brounded-(sm|md|lg|xl|2xl|3xl)\b`)
 	hexRegex := regexp.MustCompile(`(?i)#([0-9a-f]{3}|[0-9a-f]{6})\b`)
 
 	for scanner.Scan() {
 		lineNumber++
 		line := scanner.Text()
 
-		if isSharpContext {
-			violations = append(violations, checkRounding(path, lineNumber, line, roundedRegex)...)
-		}
+		violations = append(violations, checkRounding(path, lineNumber, line, roundedRegex)...)
 		violations = append(violations, checkHexCodes(path, lineNumber, line, hexRegex)...)
 	}
 
@@ -76,7 +74,7 @@ func checkRounding(path string, lineNum int, line string, re *regexp.Regexp) []D
 			File:    path,
 			Line:    lineNum,
 			Content: line,
-			Reason:  fmt.Sprintf("Forbidden rounding class '%s' in Sharp (Admin) context", match),
+			Reason:  fmt.Sprintf("Forbidden rounding class '%s' (Brutalist standard requires sharp edges everywhere)", match),
 		})
 	}
 	return v
