@@ -86,5 +86,10 @@ HALT and execute this protocol. Initialize `task.md` immediately to externalize 
    - use `browser_subagent` to capture a screenshot of the "Find Food" flow and embed it in the walkthrough.
 - Verify the "Final Truth" against the persona requirements (e.g., "Is the pivot visible?").
 - **HARD GATE**: You are forbidden from drafting the `walkthrough.md` or summarizing completion until this step is documented with a screenshot and checked off in `task.md`.
+7. **Knowledge Extraction (Skill & Tool Audit)**:
+   - Review the session's `task.md` Decision Log and git log.
+   - If any multi-step procedure was repeated ≥2 times during this session, or required ≥2 correction attempts: extract it into a new Skill in `.agents/skills/`.
+   - If any manual check could be automated with a deterministic pass/fail: propose a new `verify` subcommand.
+   - Update `.agents/verify-manifest.yaml` and `AGENTS.md` with any new skills or tools.
 
 **Completion**: When all phases are complete and the final commit is made, summarize the architectural decisions and test coverage for the user in a single, concise chat message.
