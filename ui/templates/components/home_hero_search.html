@@ -45,7 +45,13 @@
                     </div>
 
                     <!-- Search Button (Inside Bar for Desktop, hidden on Mobile) -->
-                    {{ template "button_sharp" dict "Type" "button" "Classes" "hidden md:flex bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark h-14 px-8 font-bold uppercase text-xs tracking-widest transition-colors items-center shadow-lg shadow-earth-ochre/20 border-l border-white/20" "Label" "Search" "Attr" `data-testid="ag-home-search-btn-desktop"` }}
+                    <button type="button" data-testid="ag-home-search-btn-desktop"
+                        hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
+                        hx-include="#search, #filter-city, #filter-radius"
+                        hx-vals='js:{type: window.filterState.type}'
+                        class="hidden md:flex bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark h-14 px-8 font-bold uppercase text-xs tracking-widest transition-colors items-center shadow-lg shadow-earth-ochre/20 border-l border-white/20 active:scale-95">
+                        Search
+                    </button>
 
                     <!-- Filters Toggle (Desktop View) -->
                     <button type="button" data-testid="ag-home-filters-toggle-desktop"
@@ -55,9 +61,14 @@
                     </button>
                 </div>
 
-                <!-- Action Buttons (Mobile View) -->
                 <div class="flex md:hidden items-center mt-1 p-1 gap-1">
-                    {{ template "button_sharp" dict "Type" "button" "Classes" "flex-1 bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark h-12 font-bold uppercase text-[10px] tracking-widest transition-colors text-center shadow-lg shadow-earth-ochre/20" "Label" "Search" "Attr" `data-testid="ag-home-search-btn-mobile"` }}
+                    <button type="button" data-testid="ag-home-search-btn-mobile"
+                        hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
+                        hx-include="#search, #filter-city, #filter-radius"
+                        hx-vals='js:{type: window.filterState.type}'
+                        class="flex-1 bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark h-12 font-bold uppercase text-[10px] tracking-widest transition-colors text-center shadow-lg shadow-earth-ochre/20 active:scale-95">
+                        Search
+                    </button>
                     <button type="button" data-testid="ag-home-filters-toggle-mobile"
                         class="flex-1 flex items-center justify-center gap-2 bg-white/10 text-white hover:bg-white/20 h-12 text-[10px] font-bold uppercase tracking-widest transition-colors">
                         <span class="material-symbols-outlined text-[16px]">tune</span>

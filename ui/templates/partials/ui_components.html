@@ -3,6 +3,7 @@
     }}data-action="{{ .DataAction }}" {{ end }} {{ if .DataTarget }}data-target="{{ .DataTarget }}" {{ end }} {{ if
     .HXPost }}hx-post="{{ .HXPost }}" {{ end }} {{ if .HXTarget }}hx-target="{{ .HXTarget }}" {{ end }} {{ if .HXSwap
     }}hx-swap="{{ .HXSwap }}" {{ end }} {{ if .HXConfirm }}hx-confirm="{{ .HXConfirm }}" {{ end }}
+    {{ if .Attr }}{{ .Attr | safeHTMLAttr }}{{ end }}
     class="{{ if .Classes }}{{ .Classes }}{{ else }}bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark px-8 py-3 font-bold uppercase text-xs tracking-widest transition-all active:scale-95 disabled:opacity-50{{ end }}">
     {{ .Label }}
 </button>

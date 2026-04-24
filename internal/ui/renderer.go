@@ -102,6 +102,8 @@ func BuildGlobalFuncMap() template.FuncMap {
 		"toJson":      toJson,
 		"isNew":       isNew,
 		"safeHTML":    safeHTML,
+		"safeHTMLAttr": safeHTMLAttr,
+		"safeJS":      safeJS,
 		"displayCity": displayCity,
 		"Countries": func() []Region {
 			return nil

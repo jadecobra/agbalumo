@@ -83,7 +83,11 @@ function setupFilterButtons() {
         // Trigger HTMX
         const searchInput = document.getElementById('search');
         if (searchInput) {
-            searchInput.dispatchEvent(new Event('search', { bubbles: true }));
+            if (window.htmx) {
+                window.htmx.trigger(searchInput, 'search');
+            } else {
+                searchInput.dispatchEvent(new Event('search', { bubbles: true }));
+            }
         } else {
             const city = document.getElementById('filter-city')?.value || '';
             const radius = document.getElementById('filter-radius')?.value || '25';
@@ -106,17 +110,6 @@ function setupFilterButtons() {
     document.addEventListener('input', (e) => {
         if (e.target.id === 'filter-city') {
             window.filterState.city = e.target.value;
-        }
-    });
-
-    // Handle Search Button Click
-    document.addEventListener('click', (e) => {
-        const searchBtn = e.target.closest('[data-testid^="ag-home-search-btn"]');
-        if (!searchBtn) return;
-
-        const searchInput = document.getElementById('search');
-        if (searchInput) {
-            searchInput.dispatchEvent(new Event('search', { bubbles: true }));
         }
     });
 }

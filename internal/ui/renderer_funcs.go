@@ -52,6 +52,16 @@ func safeHTML(s string) template.HTML {
 	return template.HTML(s)
 }
 
+func safeHTMLAttr(s string) template.HTMLAttr {
+	// #nosec G203 - Intentional template escape for trusted content
+	return template.HTMLAttr(s)
+}
+
+func safeJS(s string) template.JS {
+	// #nosec G203 - Intentional template escape for trusted content
+	return template.JS(s)
+}
+
 func displayCity(city, address string) string {
 	if city != "" {
 		return city
