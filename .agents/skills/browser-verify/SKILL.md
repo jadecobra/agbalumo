@@ -15,6 +15,9 @@ For EVERY UI element verified, you MUST check ALL of:
 - [ ] **Has Content**: `element.innerText.trim().length > 0`
 - [ ] **Interactive**: Click/hover produces expected state change
 - [ ] **Responsive**: Element is fully visible and usable across the Mandatory Viewports below.
+- [ ] **Layout Integrity**: Sticky elements do not overlap content (verify `rect.top >= header.height`).
+- [ ] **Fragment Sync**: Confirm OOB swap targets (e.g., `#featured-section`) updated independently of the main fragment.
+- [ ] **State Sync**: Verify `window.filterState` or equivalent matches UI selection in the JS console.
 
 ## Mandatory Viewports
 For ANY layout change, you MUST verify at:
@@ -32,6 +35,12 @@ For ANY layout change, you MUST verify at:
 | Click has no effect | Duplicate event listeners | Check `initApp()` in `app.js` |
 | Dropdown clipped | Viewport clearance | Add `open-upwards` logic |
 | Stale content after fix | Browser cache | Increment `?v=N` in `head_meta.html` |
+| Overlap on Mobile | Lack of dynamic padding | Use `calc(var(--nav-height) + padding)` |
+
+## Agent Targeting Rules
+1. **Prefer data-testid**: Always use `[data-testid="..."]` for deterministic targeting in `browser_subagent`.
+2. **Event Verification**: If an interaction fails, check `htmx.logger` or `htmx:configRequest` in the console to verify payload integrity.
+3. **Internal State Audit**: If the DOM doesn't reflect a change, query `window.filterState` to determine if the logic layer is the bottleneck.
 ## Post-flight
 1. Document each check result in `task.md` with pass/fail
 2. For layout changes: embed screenshot in walkthrough
