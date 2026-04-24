@@ -22,6 +22,7 @@ func TestPreflight(t *testing.T) {
 	setupPreflightTestRepo(t, tempDir)
 	createTestFiles(t, tempDir)
 	createAgentsAndStandards(t, tempDir)
+	createVerifyManifest(t, tempDir)
 
 	// Capture output
 	oldStdout := os.Stdout
@@ -98,12 +99,36 @@ func createAgentsAndStandards(t *testing.T, tempDir string) {
 	}
 }
 
+func createVerifyManifest(t *testing.T, dir string) {
+	content := `
+commands:
+  - name: test-cmd
+    trigger: test_authoring
+    description: A test command
+
+skills:
+  - name: go-tdd
+    trigger: test_authoring
+    path: .agents/skills/go-tdd/SKILL.md
+`
+	if errDir := os.MkdirAll(filepath.Join(dir, ".agents"), 0750); errDir != nil {
+		t.Fatal(errDir)
+	}
+	if errFile := os.WriteFile(filepath.Join(dir, ".agents/verify-manifest.yaml"), []byte(content), 0600); errFile != nil {
+		t.Fatal(errFile)
+	}
+}
+
 func validatePreflightOutput(t *testing.T, r io.Reader) {
 	var buf bytes.Buffer
 	_, _ = io.Copy(&buf, r)
 	output := buf.String()
 
-	checks := []string{"domain", "ui", "testing", "port: 8443", "* UI lesson 1", "* Test lesson 1"}
+	checks := []string{
+		"domain", "ui", "testing", "port: 8443", "* UI lesson 1", "* Test lesson 1",
+		"Relevant Skills:", "go-tdd → .agents/skills/go-tdd/SKILL.md",
+		"Relevant Verify Commands:", "test-cmd (A test command)",
+	}
 	for _, check := range checks {
 		if !strings.Contains(output, check) {
 			t.Errorf("expected %q in output, but not found\nOutput: %s", check, output)

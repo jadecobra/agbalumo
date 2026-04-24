@@ -4,12 +4,30 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"gopkg.in/yaml.v3"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
 )
+
+type VerifyManifest struct {
+	Commands []ManifestCommand `yaml:"commands"`
+	Skills   []ManifestSkill   `yaml:"skills"`
+}
+
+type ManifestCommand struct {
+	Name        string `yaml:"name"`
+	Trigger     string `yaml:"trigger"`
+	Description string `yaml:"description"`
+}
+
+type ManifestSkill struct {
+	Name    string `yaml:"name"`
+	Trigger string `yaml:"trigger"`
+	Path    string `yaml:"path"`
+}
 
 const (
 	domainHandler    = "handler"
@@ -40,6 +58,7 @@ func RunPreflight(rootDir string) error {
 
 	printPackageConstraints(rootDir, domains)
 	printStrictLessons(rootDir, domains)
+	printSkillsAndCommands(rootDir, modifiedFiles)
 	printInvariants(rootDir)
 
 	return nil
@@ -114,6 +133,94 @@ func printInvariants(rootDir string) {
 			fmt.Printf("  %s: %v\n", k, inv[k])
 		}
 	}
+}
+
+func printSkillsAndCommands(rootDir string, modifiedFiles []string) {
+	manifest, err := loadVerifyManifest(rootDir)
+	if err != nil {
+		return
+	}
+
+	matchedTriggers := getMatchedTriggers(modifiedFiles)
+	printMatchedSkills(manifest.Skills, matchedTriggers)
+	printMatchedCommands(manifest.Commands, matchedTriggers)
+}
+
+func loadVerifyManifest(rootDir string) (*VerifyManifest, error) {
+	manifestPath := filepath.Join(rootDir, ".agents/verify-manifest.yaml")
+	// #nosec G304 -- manifest path is trusted project metadata
+	content, err := os.ReadFile(manifestPath)
+	if err != nil {
+		return nil, err
+	}
+
+	var manifest VerifyManifest
+	if err := yaml.Unmarshal(content, &manifest); err != nil {
+		return nil, err
+	}
+	return &manifest, nil
+}
+
+func printMatchedSkills(skills []ManifestSkill, matchedTriggers map[string]bool) {
+	var results []string
+	for _, s := range skills {
+		if isManifestItemMatched(s.Trigger, matchedTriggers) {
+			results = append(results, fmt.Sprintf("- %s → %s", s.Name, s.Path))
+		}
+	}
+
+	if len(results) > 0 {
+		fmt.Println("📖 Relevant Skills:")
+		for _, r := range results {
+			fmt.Printf("  %s\n", r)
+		}
+	}
+}
+
+func printMatchedCommands(commands []ManifestCommand, matchedTriggers map[string]bool) {
+	var results []string
+	for _, c := range commands {
+		if isManifestItemMatched(c.Trigger, matchedTriggers) {
+			desc := c.Description
+			if desc == "" {
+				desc = "No description"
+			}
+			results = append(results, fmt.Sprintf("- %s (%s)", c.Name, desc))
+		}
+	}
+
+	if len(results) > 0 {
+		fmt.Println("🛠️  Relevant Verify Commands:")
+		for _, r := range results {
+			fmt.Printf("  %s\n", r)
+		}
+	}
+}
+
+func isManifestItemMatched(triggerStr string, matchedTriggers map[string]bool) bool {
+	triggers := strings.Split(triggerStr, ",")
+	for _, t := range triggers {
+		if matchedTriggers[strings.TrimSpace(t)] {
+			return true
+		}
+	}
+	return false
+}
+
+func getMatchedTriggers(modifiedFiles []string) map[string]bool {
+	matched := make(map[string]bool)
+	for _, f := range modifiedFiles {
+		if strings.HasSuffix(f, "_test.go") || strings.HasPrefix(f, "internal/") {
+			matched["test_authoring"] = true
+			matched["feature_implementation"] = true
+			matched["bug_fix"] = true
+		}
+		if isUIDomain(f) {
+			matched["ui_change"] = true
+			matched["browser_subagent"] = true
+		}
+	}
+	return matched
 }
 
 func getGitModifiedFiles(rootDir string) ([]string, error) {
