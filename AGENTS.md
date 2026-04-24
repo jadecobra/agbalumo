@@ -59,6 +59,12 @@ Skills are step-by-step procedures in `.agents/skills/`. You MUST read the relev
 
 **Rule**: When a new skill is created, add it to this table and to `.agents/verify-manifest.yaml`.
 
+## TOOLS (Deterministic Verification)
+
+Before executing any task, consult `.agents/verify-manifest.yaml` to identify which `verify` subcommands apply. Tool results replace reasoning — if a tool can answer a question, run the tool instead of deducing the answer.
+
+**Rule**: If a `verify` subcommand exists for a check, you are FORBIDDEN from performing that check manually. Run the tool.
+
 # ARCHITECTURAL MEMORY (ADRs)
 
 * When major architectural decisions, simplifications, or tradeoffs are agreed upon (especially during Phase 1 of `/build-feature`), you MUST document them.
