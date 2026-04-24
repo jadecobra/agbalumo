@@ -43,6 +43,7 @@ var ciCmd = &cobra.Command{
 			}},
 			{Name: "Checking API/CLI Contract Drift", Fn: func() error { return apiSpecCmd.RunE(cmd, args) }},
 			{Name: "Checking Template Drift", Fn: func() error { return templateDriftCmd.RunE(cmd, args) }},
+			{Name: "Checking UI Design standards", Fn: func() error { return designCmd.RunE(cmd, args) }},
 			{Name: "Checking Coverage Threshold", Fn: func() error { return coverageCmd.RunE(cmd, args) }},
 			{Name: "Running Performance Audit (Benchmarks)", Fn: func() error { return perfCmd.RunE(cmd, args) }},
 			{Name: "Dynamic Server Startup Audit", Fn: func() error { return maintenance.VerifyServerStartup(".") }},
@@ -123,6 +124,11 @@ var precommitCmd = &cobra.Command{
 
 		// 6. Coverage gate check (optional for pre-commit but good for anti-degradation)
 		if err := coverageCmd.RunE(cmd, args); err != nil {
+			return err
+		}
+
+		// 7. Design gate check (ensures no rounding in admin or hardcoded hex)
+		if err := designCmd.RunE(cmd, args); err != nil {
 			return err
 		}
 

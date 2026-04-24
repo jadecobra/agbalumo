@@ -105,6 +105,7 @@ func init() {
 		sessionContextCmd,
 		janitorCmd,
 		dumpInvariantsCmd,
+		designCmd,
 	)
 }
 
