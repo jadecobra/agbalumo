@@ -14,7 +14,16 @@ For EVERY UI element verified, you MUST check ALL of:
 - [ ] **Visible**: `element.offsetHeight > 0 && element.offsetWidth > 0`
 - [ ] **Has Content**: `element.innerText.trim().length > 0`
 - [ ] **Interactive**: Click/hover produces expected state change
-- [ ] **Viewport Safe**: Element fully visible at 1440x900 without scrolling main window
+- [ ] **Responsive**: Element is fully visible and usable across the Mandatory Viewports below.
+
+## Mandatory Viewports
+For ANY layout change, you MUST verify at:
+| Device | Resolution | Goal |
+|--------|------------|------|
+| Mobile | 375 x 812 | Check for overflow-x and menu accessibility |
+| Tablet | 768 x 1024 | Check for column wrapping |
+| Desktop| 1440 x 900 | Standard editorial layout check |
+| Wide   | 1920 x 1080| Check for max-width constraints |
 ## Common Failure Patterns
 | Symptom | Root Cause | Fix |
 |---------|-----------|-----|
