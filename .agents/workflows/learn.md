@@ -15,18 +15,34 @@ When the user issues a `/learn` command, you MUST execute the following steps:
 1. **Analyze the Correction**:
    - Determine if the mistake is related to **Process, Style or TDD** (how code is written/tested).
    - Determine if the mistake is an **Architectural or Design** error (boundary violations, service coupling, etc.).
-   - **De-duplication Check**: Scan `coding-standards.md` for existing rules related to this mistake.
+   - **De-duplication Check**: Scan `coding-standards.md`, existing skills in `.agents/skills/`, and existing verify subcommands for overlap.
+   - **Determinism Test**: Can this correction be verified by running a command with a deterministic pass/fail outcome (no human judgment required)?
+     - **If YES**: Skip step 2. Go directly to step 2.7 (Create Tool).
+   - **Procedure Test**: Does this correction involve 2+ sequential steps that must be executed in order?
+     - **If YES**: This is a Skill, not a Lesson. Go to step 2 option (c).
 
-2. **Codify the Correction**:
-   - **Merge**: If a related rule exists, refactor it into a single, more robust abstraction.
-   - **For Process/Style/TDD**:
-     - Append the corrected rule under the appropriate ### subsection (CI & Infrastructure, UI & Frontend, Security & Environment, or Testing) within the # Strict Lessons section of [.agents/workflows/coding-standards.md](file:///Users/johnnyblase/gym/agbalumo/.agents/workflows/coding-standards.md). Include a [TRIGGER: ...] annotation.
-     - Use a clear, imperative bullet point (e.g., "* The agent MUST always...").
+2. **Codify the Correction** (choose ONE):
 
-   - **For Architecture/Design**: if it changes a core principle
-     - Create a formal Architecture Decision Record (ADR) in `docs/adr/YYYY-MM-DD-[lesson].md`.
-     - Use the template at [docs/adr/template.md](file:///Users/johnnyblase/gym/agbalumo/docs/adr/template.md).
-     - Link the new ADR in `AGENTS.md` if it changes a global architectural constraint.
+   a. **For Declarative Rules (single constraint, no sequence)** — Process/Style/TDD:
+      - Append under the appropriate ### subsection in coding-standards.md. Include [TRIGGER:].
+
+   b. **For Architecture/Design** — if it changes a core principle:
+      - Create ADR in `docs/adr/YYYY-MM-DD-[lesson].md`.
+      - Link in `AGENTS.md` if it changes a global constraint.
+
+   c. **For Procedural Patterns (multi-step sequence, checklist)** — Skill:
+      - Check if an existing skill in `.agents/skills/` covers this domain.
+      - If yes: update the existing SKILL.md with the new steps or failure pattern.
+      - If no: create `.agents/skills/<name>/SKILL.md` with YAML frontmatter.
+      - Add the skill to the table in `AGENTS.md` under `## SKILLS`.
+      - Register in `.agents/verify-manifest.yaml` under `skills:`.
+
+2.7. **Create Tool (Deterministic Check)**:
+   - Create a `verify` subcommand in `cmd/verify/misc.go`.
+   - Implement the check in `internal/maintenance/<name>.go` with a test.
+   - Register in `cmd/verify/main.go` and `.agents/verify-manifest.yaml`.
+   - If this replaces an existing Strict Lesson, retire the lesson per step 2.5.
+
 
 2.5. **Retirement Check (Lesson Lifecycle)**:
    - Before adding a new Strict Lesson, check if any EXISTING lessons in coding-standards.md can be retired.
