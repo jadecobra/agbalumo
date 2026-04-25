@@ -30,7 +30,16 @@ Run comprehensive security and health audit.
 agbalumo verify audit
 ```
 
+##### browser
+
+Execute Playwright end-to-end UI verification tests.
+
+```bash
+agbalumo verify browser
+```
+
 ##### enrich
+
 
 Enrich listings with Ada sensory signals (Heat Level, Signature Dish, Regional Specialty, Menu URL).
 
