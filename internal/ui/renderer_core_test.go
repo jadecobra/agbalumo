@@ -39,7 +39,7 @@ func TestTemplateRenderer_Render_Core(t *testing.T) {
 		// Test rendering button_sharp with custom attributes
 		_, _ = tmpl.Parse(`{{template "button_sharp" dict "Label" "Test" "Attr" "data-testid=\"btn-123\""}}
 {{define "button_sharp"}}<button {{if .Attr}}{{.Attr | safeHTMLAttr}}{{end}}>{{.Label}}</button>{{end}}`)
-		
+
 		renderer := &TemplateRenderer{templates: map[string]*template.Template{"test-comp": tmpl}}
 		rec := httptest.NewRecorder()
 		c := e.NewContext(httptest.NewRequest(http.MethodGet, "/", nil), rec)
@@ -47,7 +47,7 @@ func TestTemplateRenderer_Render_Core(t *testing.T) {
 		if err := renderer.Render(rec, "test-comp", map[string]interface{}{}, c); err != nil {
 			t.Fatal(err)
 		}
-		
+
 		assert.Contains(t, rec.Body.String(), `data-testid="btn-123"`)
 	})
 }
