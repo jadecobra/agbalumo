@@ -109,6 +109,7 @@ func TestHandleFragment_Featured(t *testing.T) {
 			assertions: func(t *testing.T, body string) {
 				assert.Contains(t, body, "Featured 1")
 				assert.Contains(t, body, "Regular 1")
+				assert.Contains(t, body, `id="featured-section" hx-swap-oob="true"`)
 			},
 		},
 		{

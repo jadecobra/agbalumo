@@ -64,8 +64,8 @@ func NewMainTemplate() *template.Template {
 	return template.Must(template.New("main").Funcs(ui.BuildGlobalFuncMap()).Parse(`
 		{{define "` + domain.TemplateIndex + `"}}<div ag-test-id="home-page">{{.TotalCount}} {{range .Listings}}{{.Title}}{{end}}</div>{{end}}
 		{{define "modal_detail"}}<div ag-test-id="modal-detail" data-agent-template="modal_detail"><h1>{{.Listing.Title}}</h1><p>{{.Listing.Description}}</p></div>{{end}}
-		{{define "listing_list"}}<div ag-test-id="listing-list"><span>Context: {{.Category}} in {{.City}}</span>{{range .FeaturedListings}}<div ag-test-id="listing-{{.ID}}">{{.Title}} (Featured)</div>{{end}}{{range .Listings}}<div ag-test-id="listing-{{.ID}}">{{.Title}}</div>{{end}}</div>{{template "pagination_controls" dict "OOB" true}}{{end}}
-		{{define "pagination_controls"}}{{if .OOB}}hx-swap-oob="true" id="pagination-controls"{{end}}{{end}}
+		{{define "listing_list"}}<div ag-test-id="listing-list"><span>Context: {{.Category}} in {{.City}}</span><div id="featured-section" hx-swap-oob="true">{{range .FeaturedListings}}<div ag-test-id="listing-{{.ID}}">{{.Title}} (Featured)</div>{{end}}</div>{{range .Listings}}<div ag-test-id="listing-{{.ID}}">{{.Title}}</div>{{end}}</div>{{template "pagination_controls" dict "OOB" true}}{{end}}
+		{{define "pagination_controls"}}{{if .OOB}}id="pagination" hx-swap-oob="true"{{end}}{{end}}
 		{{define "listing_card"}}<div ag-test-id="listing-{{.Listing.ID}}">{{.Listing.Title}}</div>{{end}}
 		{{define "modal_edit_listing"}}<div ag-test-id="modal-edit">{{.Listing.Title}}</div>{{end}}
 		{{define "modal_profile"}}{{.User.Name}}{{end}}

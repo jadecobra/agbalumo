@@ -40,15 +40,13 @@
                             placeholder="Search for 'Jollof', 'Pounded Yam'..." type="search" id="search" name="q"
                             data-testid="ag-home-search-input"
                             hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
-                            hx-trigger="keyup changed delay:500ms, search"
-                            hx-vals='js:{type: window.filterState.type, city: window.filterState.city, radius: window.filterState.radius}'>
+                            hx-trigger="keyup changed delay:500ms, search">
                     </div>
 
                     <!-- Search Button (Inside Bar for Desktop, hidden on Mobile) -->
                     <button type="button" data-testid="ag-home-search-btn-desktop"
                         hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
                         hx-include="#search, #filter-city, #filter-radius"
-                        hx-vals='js:{type: window.filterState.type}'
                         class="hidden md:flex bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark h-14 px-8 font-bold uppercase text-xs tracking-widest transition-colors items-center shadow-lg shadow-earth-ochre/20 border-l border-white/20 active:scale-95">
                         Search
                     </button>
@@ -65,7 +63,6 @@
                     <button type="button" data-testid="ag-home-search-btn-mobile"
                         hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
                         hx-include="#search, #filter-city, #filter-radius"
-                        hx-vals='js:{type: window.filterState.type}'
                         class="flex-1 bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark h-12 font-bold uppercase text-[10px] tracking-widest transition-colors text-center shadow-lg shadow-earth-ochre/20 active:scale-95">
                         Search
                     </button>
@@ -149,8 +146,7 @@
                                         placeholder="Enter city..."
                                         class="w-full bg-white border border-earth-dark/10 px-4 py-3 text-xs font-bold text-earth-dark outline-none focus:border-earth-ochre/50 transition-colors"
                                         hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
-                                        hx-trigger="keyup changed delay:800ms"
-                                        hx-vals='js:{type: window.filterState.type, radius: window.filterState.radius, q: document.getElementById("search").value}'>
+                                        hx-trigger="keyup changed delay:800ms">
                                     <span class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-earth-clay/30 text-[18px]">location_on</span>
                                 </div>
                             </div>
@@ -161,8 +157,7 @@
                                 <select id="filter-radius" name="radius"
                                     class="w-full bg-white border border-earth-dark/10 px-4 py-3 text-xs font-bold text-earth-dark outline-none focus:border-earth-ochre/50 transition-colors appearance-none cursor-pointer"
                                     hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
-                                    hx-trigger="change"
-                                    hx-vals='js:{type: window.filterState.type, city: window.filterState.city, q: document.getElementById("search").value}'>
+                                    hx-trigger="change">
                                     <option value="5" {{ if eq .Radius 5.0 }}selected{{ end }}>Within 5 Miles</option>
                                     <option value="10" {{ if eq .Radius 10.0 }}selected{{ end }}>Within 10 Miles</option>
                                     <option value="25" {{ if or (eq .Radius 25.0) (eq .Radius 0.0) }}selected{{ end }}>Within 25 Miles</option>

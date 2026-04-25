@@ -93,18 +93,18 @@ func categorizeTemplateFiles(files []string) (layouts, partials, pages []string)
 
 func BuildGlobalFuncMap() template.FuncMap {
 	return template.FuncMap{
-		"split":       strings.Split,
-		"mod":         func(i, j int) int { return i % j },
-		"add":         func(i, j int) int { return i + j },
-		"sub":         func(i, j int) int { return i - j },
-		"seq":         seq,
-		"dict":        dict,
-		"toJson":      toJson,
-		"isNew":       isNew,
-		"safeHTML":    safeHTML,
+		"split":        strings.Split,
+		"mod":          func(i, j int) int { return i % j },
+		"add":          func(i, j int) int { return i + j },
+		"sub":          func(i, j int) int { return i - j },
+		"seq":          seq,
+		"dict":         dict,
+		"toJson":       toJson,
+		"isNew":        isNew,
+		"safeHTML":     safeHTML,
 		"safeHTMLAttr": safeHTMLAttr,
-		"safeJS":      safeJS,
-		"displayCity": displayCity,
+		"safeJS":       safeJS,
+		"displayCity":  displayCity,
 		"Countries": func() []Region {
 			return nil
 		},

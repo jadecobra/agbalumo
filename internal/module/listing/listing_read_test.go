@@ -83,8 +83,9 @@ func TestHandleFragment(t *testing.T) {
 
 	// Verify fragment contains results
 	assert.Contains(t, rec.Body.String(), "Search Result 1")
-	// Verify it contains the OOB swap for pagination
-	testutil.AssertContainsPagination(t, rec.Body.String())
+	// Verify it contains the OOB swaps for navigation and featured sections
+	assert.Contains(t, rec.Body.String(), `id="pagination" hx-swap-oob="true"`)
+	assert.Contains(t, rec.Body.String(), `id="featured-section" hx-swap-oob="true"`)
 }
 
 func TestHandleDetail_NotFound(t *testing.T) {

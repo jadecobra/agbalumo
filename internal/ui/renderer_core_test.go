@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestTemplateRenderer_Render_Core(t *testing.T) {
@@ -30,6 +31,24 @@ func TestTemplateRenderer_Render_Core(t *testing.T) {
 		if actual != "token-123" && actual != "<!-- BEGIN TEMPLATE: test -->token-123" {
 			t.Errorf("Expected token-123 or tagged version, got %q", actual)
 		}
+	})
+
+	t.Run("ComponentAttributes", func(t *testing.T) {
+		t.Parallel()
+		tmpl := template.New("test-comp").Funcs(BuildGlobalFuncMap())
+		// Test rendering button_sharp with custom attributes
+		_, _ = tmpl.Parse(`{{template "button_sharp" dict "Label" "Test" "Attr" "data-testid=\"btn-123\""}}
+{{define "button_sharp"}}<button {{if .Attr}}{{.Attr | safeHTMLAttr}}{{end}}>{{.Label}}</button>{{end}}`)
+		
+		renderer := &TemplateRenderer{templates: map[string]*template.Template{"test-comp": tmpl}}
+		rec := httptest.NewRecorder()
+		c := e.NewContext(httptest.NewRequest(http.MethodGet, "/", nil), rec)
+
+		if err := renderer.Render(rec, "test-comp", map[string]interface{}{}, c); err != nil {
+			t.Fatal(err)
+		}
+		
+		assert.Contains(t, rec.Body.String(), `data-testid="btn-123"`)
 	})
 }
 

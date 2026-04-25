@@ -112,4 +112,14 @@ function setupFilterButtons() {
             window.filterState.city = e.target.value;
         }
     });
+
+    // Inject filter state into all HTMX requests to /listings/fragment
+    document.body.addEventListener('htmx:configRequest', (evt) => {
+        if (evt.detail.path === '/listings/fragment') {
+            const state = window.filterState || {};
+            if (state.type) evt.detail.parameters['type'] = state.type;
+            if (state.city) evt.detail.parameters['city'] = state.city;
+            if (state.radius) evt.detail.parameters['radius'] = state.radius;
+        }
+    });
 }
