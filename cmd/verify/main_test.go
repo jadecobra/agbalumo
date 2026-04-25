@@ -45,4 +45,3 @@ func TestBrowserCmdRegistered(t *testing.T) {
 		t.Fatal("browser subcommand is not registered")
 	}
 }
-
