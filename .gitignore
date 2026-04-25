@@ -53,3 +53,7 @@ tmp_harness
 .tester/tasks/NOTES.md
 # Scratch and temporary files
 scratch/
+
+# Playwright Test Artifacts
+playwright-report/
+test-results/
