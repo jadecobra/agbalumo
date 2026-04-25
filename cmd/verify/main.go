@@ -77,8 +77,10 @@ func init() {
 		ciCmd,
 		precommitCmd,
 		testCmd,
+		browserCmd,
 
 		// Drift Domain
+
 		apiSpecCmd,
 		templateDriftCmd,
 

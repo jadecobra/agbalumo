@@ -32,3 +32,17 @@ func TestCICmdWithDockerFlagDescription(t *testing.T) {
 		t.Errorf("--with-docker flag description should mention trivy; got: %s", flag.Usage)
 	}
 }
+
+func TestBrowserCmdRegistered(t *testing.T) {
+	found := false
+	for _, cmd := range rootCmd.Commands() {
+		if cmd.Name() == "browser" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatal("browser subcommand is not registered")
+	}
+}
+
