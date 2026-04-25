@@ -19,7 +19,12 @@ commands:
     trigger: modified_js_files
     auto: true  # in precommit
     
+  - name: browser
+    trigger: ui_change
+    description: Execute Playwright end-to-end UI verification tests
+    
   - name: check-gates
+
     trigger: phase_transition
     description: Verify TDD workflow compliance
     

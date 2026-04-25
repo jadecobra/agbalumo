@@ -3,7 +3,14 @@ name: Browser Verification
 description: Verify UI changes using browser subagent with proper environment detection
 ---
 # Browser Verification Skill
+
+## Execution Strategy: Automated vs. Manual
+- **Deterministic Checks**: You MUST ALWAYS run `go run ./cmd/verify browser` for deterministic layout and regression checks.
+- **Manual/Exploratory Checks**: The `browser_subagent` tool should NOW ONLY be used for exploratory testing of new features, assessing visual/aesthetic quality, and dealing with external third-party integrations.
+- **Continuous Automation**: If you find yourself repeating a manual subagent check, you MUST trigger the `/learn` workflow to extract that check into a Playwright test.
+
 ## Pre-flight (MANDATORY — always run before browser tasks)
+
 1. Read `.agents/invariants.json` — get `protocol` and `port` fields
 2. Construct the base URL: `{protocol}://localhost:{port}`
 3. Verify server is running: `lsof -i :{port}` — if no output, start server first
