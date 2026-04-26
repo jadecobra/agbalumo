@@ -105,7 +105,7 @@ func setupMiddleware(e *echo.Echo, cfg *config.Config) {
 	e.Use(middleware.Gzip())
 	e.Use(customMiddleware.SecureHeaders)
 
-	if cfg.Env != "test" {
+	if cfg.Env != "test" && os.Getenv("DISABLE_RATE_LIMIT") != "true" {
 		rateLimiter := customMiddleware.NewRateLimiter(customMiddleware.RateLimitConfig{
 			Rate:  rate.Limit(cfg.RateLimitRate),
 			Burst: cfg.RateLimitBurst,
