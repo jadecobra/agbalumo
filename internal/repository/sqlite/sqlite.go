@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"embed"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -36,7 +37,19 @@ func NewSQLiteRepositoryFromDB(db *sql.DB) *SQLiteRepository {
 	}
 }
 
+func ensureDir(dbPath string) error {
+	if dbPath != domain.SQLiteMemory {
+		dir := filepath.Dir(dbPath)
+		return os.MkdirAll(dir, 0750)
+	}
+	return nil
+}
+
 func NewSQLiteRepository(dbPath string) (*SQLiteRepository, error) {
+	if err := ensureDir(dbPath); err != nil {
+		return nil, err
+	}
+
 	writeDB, err := sql.Open(domain.SQLiteDriver, dbPath)
 	if err != nil {
 		return nil, err
