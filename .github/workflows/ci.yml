@@ -156,6 +156,7 @@ jobs:
           mkdir -p .tester/data .tester/servers certs
           openssl req -x509 -newkey rsa:4096 -keyout certs/key.pem -out certs/cert.pem -days 365 -nodes -subj "/CN=localhost"
           export AGBALUMO_ENV=development
+          export DISABLE_RATE_LIMIT=true
           nohup ./server serve > .tester/servers/server.log 2>&1 &
           echo "Waiting for server to start..."
           for i in {1..20}; do
@@ -211,6 +212,7 @@ jobs:
           mkdir -p .tester/data .tester/servers certs
           openssl req -x509 -newkey rsa:4096 -keyout certs/key.pem -out certs/cert.pem -days 365 -nodes -subj "/CN=localhost"
           export AGBALUMO_ENV=development
+          export DISABLE_RATE_LIMIT=true
           nohup ./server serve > .tester/servers/server.log 2>&1 &
           echo "Waiting for server to start..."
           for i in {1..20}; do
