@@ -55,10 +55,15 @@ func TestSearchLatency_Constraint(t *testing.T) {
 	// Assertions
 	assert.Equal(t, http.StatusOK, rec.Code, "Search should return 200 OK")
 
-	// Strict performance budget: 200ms
+	// Strict performance budget: 200ms (Relaxed to 1000ms with race detector)
 	// *Insight:* This forces efficient database indexing and parallel execution
 	// in the handler (ListingHandler.HandleFragment).
-	assert.Less(t, duration, 200*time.Millisecond, "Search API latency MUST be under 200ms budget")
+	budget := 200 * time.Millisecond
+	if raceEnabled {
+		budget = 1000 * time.Millisecond
+	}
+	assert.Less(t, duration, budget, "Search API latency MUST be under budget")
+
 
 	t.Logf("Search latency: %v", duration)
 }
