@@ -64,6 +64,5 @@ func TestSearchLatency_Constraint(t *testing.T) {
 	}
 	assert.Less(t, duration, budget, "Search API latency MUST be under budget")
 
-
 	t.Logf("Search latency: %v", duration)
 }
