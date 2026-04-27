@@ -112,3 +112,35 @@ func TestCategoryErrors_Raw(t *testing.T) {
 		t.Error("Expected error on closed DB")
 	}
 }
+
+func TestEnrichmentAttemptedAtPersistence(t *testing.T) {
+	t.Parallel()
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
+	ctx := context.Background()
+
+	now := time.Now().Truncate(time.Second) // SQLite might truncate sub-second precision
+	l := domain.Listing{
+		ID:                    "enrich-1",
+		Title:                 "Enrich Test",
+		EnrichmentAttemptedAt: &now,
+		IsActive:              true,
+	}
+
+	if err := repo.Save(ctx, l); err != nil {
+		t.Fatalf("Failed to save: %v", err)
+	}
+
+	found, err := repo.FindByID(ctx, "enrich-1")
+	if err != nil {
+		t.Fatalf("Failed to find: %v", err)
+	}
+
+	if found.EnrichmentAttemptedAt == nil {
+		t.Fatal("Expected EnrichmentAttemptedAt to be set, got nil")
+	}
+
+	if !found.EnrichmentAttemptedAt.Equal(now) {
+		t.Errorf("Expected EnrichmentAttemptedAt %v, got %v", now, *found.EnrichmentAttemptedAt)
+	}
+}
+

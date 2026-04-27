@@ -51,7 +51,9 @@ type Listing struct {
 	TopDish           string        `json:"top_dish" form:"top_dish"`
 	PaymentMethods    string        `json:"payment_methods" form:"payment_methods"`
 	MenuURL           string        `json:"menu_url" form:"menu_url"`
+	EnrichmentAttemptedAt *time.Time `json:"enrichment_attempted_at" form:"enrichment_attempted_at"`
 	Type              Category      `json:"type" form:"type"`
+
 	Status            ListingStatus `json:"status" form:"status"`
 	HeatLevel         int           `json:"heat_level" form:"heat_level"`
 	Latitude          float64       `json:"latitude" form:"latitude"`
