@@ -50,7 +50,7 @@ func TestRealGoogleProvider_GetRedirectURL(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-					// Save current env
+			// Save current env
 			oldBase := os.Getenv("BASE_URL")
 			oldRedirect := os.Getenv("GOOGLE_REDIRECT_URL")
 			oldEnv := os.Getenv("AGBALUMO_ENV")

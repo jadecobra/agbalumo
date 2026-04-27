@@ -8,7 +8,6 @@ import (
 	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
-
 type ScraperJob struct {
 	repo    domain.ListingRepository
 	scraper *WebsiteScraper
@@ -65,7 +64,6 @@ func (j *ScraperJob) enrichSingle(ctx context.Context, l domain.Listing) bool {
 	}
 	return true
 }
-
 
 func (j *ScraperJob) isEmpty(s AdaSignals) bool {
 	return s.HeatLevel == 0 && s.PaymentMethods == "" && s.MenuURL == "" && s.TopDish == "" && s.RegionalSpecialty == ""

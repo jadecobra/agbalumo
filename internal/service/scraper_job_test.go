@@ -94,7 +94,7 @@ func TestScraperJob_EnrichAttemptedAtOnFailure(t *testing.T) {
 
 	scraper := NewWebsiteScraper()
 	job := NewScraperJob(repo, scraper)
-	
+
 	_, _ = job.EnrichListings(ctx, 10)
 
 	updated, err := repo.FindByID(ctx, "target-fail")
@@ -106,4 +106,3 @@ func TestScraperJob_EnrichAttemptedAtOnFailure(t *testing.T) {
 		t.Error("Expected EnrichmentAttemptedAt to be set even on failure")
 	}
 }
-

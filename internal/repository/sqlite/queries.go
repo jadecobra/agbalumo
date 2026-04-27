@@ -15,8 +15,6 @@ const ListingSelectionsSQL = `
 	COALESCE(enrichment_attempted_at, '')
 `
 
-
-
 // UserSelectionsSQL is the shared column selection for reading users.
 const UserSelectionsSQL = `id, google_id, email, name, avatar_url, COALESCE(role, 'User'), created_at`
 
@@ -79,7 +77,6 @@ const listingUpsertUpdate = `ON CONFLICT(id) DO UPDATE SET
 const ListingUpsertSQL = `INSERT INTO listings ` + listingColumns + `
 	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	` + listingUpsertUpdate
-
 
 // CategoryUpsertSQL is the shared UPSERT query for category saving.
 const CategoryUpsertSQL = `

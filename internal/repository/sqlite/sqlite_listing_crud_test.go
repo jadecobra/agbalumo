@@ -198,4 +198,3 @@ func TestFindEnrichmentTargets_FiltersAttemptedAt(t *testing.T) {
 		t.Error("Expected to find unenriched-3 (attempted_at is 8 days ago)")
 	}
 }
-

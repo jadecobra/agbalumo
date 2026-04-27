@@ -145,7 +145,6 @@ func (r *SQLiteRepository) fillListingArgs(args []interface{}, offset int, l dom
 	args[offset+35] = l.EnrichmentAttemptedAt
 }
 
-
 func (r *SQLiteRepository) ensureStatus(s domain.ListingStatus) string {
 	if s == "" {
 		return string(domain.ListingStatusApproved)

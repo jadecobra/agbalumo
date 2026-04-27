@@ -8,7 +8,6 @@ import (
 	"testing"
 )
 
-
 func TestWebsiteScraper_Heuristics(t *testing.T) {
 	scraper := &WebsiteScraper{}
 
@@ -114,4 +113,3 @@ func TestWebsiteScraper_UserAgent(t *testing.T) {
 		t.Errorf("Expected User-Agent %q, got %q", expectedUA, receivedUA)
 	}
 }
-
