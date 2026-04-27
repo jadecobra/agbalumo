@@ -294,4 +294,3 @@ func TestDefaultSortingWithRating(t *testing.T) {
 		t.Errorf("Expected third listing to be sort-1, got %s", listings[2].ID)
 	}
 }
-

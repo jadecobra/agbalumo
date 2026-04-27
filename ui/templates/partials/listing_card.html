@@ -75,6 +75,11 @@
                     {{ if .Listing.RegionalSpecialty }}
                     <span class="text-[8px] md:text-[10px] bg-palm-green/5 text-palm-green font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-none">{{ .Listing.RegionalSpecialty }}</span>
                     {{ end }}
+                    {{ if gt .Listing.ReviewCount 0 }}
+                    <span class="text-[8px] md:text-[10px] text-yellow-500 font-bold flex items-center gap-0.5" data-testid="listing-rating">
+                        ⭐ {{ printf "%.1f" .Listing.Rating }} ({{ .Listing.ReviewCount }})
+                    </span>
+                    {{ end }}
                 </div>
                 <h3
                     class="text-sm md:text-xl font-bold text-text-main dark:text-white leading-tight flex items-center gap-2">
