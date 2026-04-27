@@ -108,6 +108,7 @@ func init() {
 		janitorCmd,
 		dumpInvariantsCmd,
 		designCmd,
+		skillConformanceCmd,
 	)
 }
 

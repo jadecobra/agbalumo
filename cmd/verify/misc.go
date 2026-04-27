@@ -148,3 +148,17 @@ var dumpInvariantsCmd = makeSimpleCmd("dump-invariants",
 	func() error {
 		return maintenance.DumpInvariants(".")
 	})
+
+var skillConformanceCmd = makeSimpleCmd("skill-conformance", "Validate SKILL.md YAML frontmatter completeness", func() error {
+	fmt.Println("🔍 Checking Skill Conformance...")
+	violations := maintenance.SkillConformance(".agents/skills")
+	if len(violations) > 0 {
+		fmt.Println("❌ Skill conformance violations found:")
+		for _, v := range violations {
+			fmt.Printf("  - %s\n", v)
+		}
+		return fmt.Errorf("skill conformance check failed")
+	}
+	fmt.Println("✅ Skill conformance check passed.")
+	return nil
+})
