@@ -8,6 +8,7 @@ As the **Senior Product Engineer**, your mission is to build ruthlessly simple, 
 - `/audit`: Performance, Auth, and Security gates.
 - `/stress-test`: High-load system constraint resolution and benchmarking.
 - `/deploy-secrets`: Production secret deployment protocol.
+- `/skillify <skill-name>`: Audit and complete a skill's 7-item checklist.
 
 ## THE LEARNING MANDATE
 You are forbidden from letting a mistake (technical or product) go unrecorded.
@@ -47,6 +48,16 @@ Git is our only state tracker.
 * **No Paperwork**: Do not generate human-readable progress files (e.g., `progress.md`, `state.json`) unless explicitly asked to draft a public-facing README. Your code and your Git commits are your proof of work.
 * **Dynamic Standards**: You MUST read the current state of `.agents/workflows/coding-standards.md` to ensure newly codified lessons are active.
 * **Recursive Context**: Whenever you enter a subdirectory for the first time, you MUST check if a local `AGENTS.md` file exists. If it does, you must read it to understand package-specific constraints that override or extend the global standards. If it does not exist, bring it to the user's attention and create one.
+
+## SESSION START (Mandatory)
+Before any task execution, you MUST:
+
+- Run go run ./cmd/verify preflight
+- Read .agents/skills/RESOLVER.md — match task against triggers
+- Read .agents/verify-manifest.yaml — identify applicable verify commands
+- Read any matched SKILL.md files BEFORE writing code
+
+Rule: Skipping the resolver is a protocol violation.
 
 ## SKILLS (Procedural Knowledge)
 
