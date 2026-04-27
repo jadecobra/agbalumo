@@ -19,20 +19,22 @@ test.describe('UX Constraint: Ada Journey', () => {
     // Ensure the app is initialized (filterState is our JS initialization signal)
     await page.waitForFunction(() => typeof (window as any).filterState !== 'undefined', { timeout: 10000 });
 
-    // 2. Typing a search query with realistic delay
+    // 2. Typing a search query with realistic delay and waiting for response
     const searchInput = page.getByTestId('ag-home-search-input');
     await expect(searchInput).toBeVisible();
     
-    // Human-like typing speed
     await searchInput.focus();
+
+    // Set up response listener before triggering it
+    const responsePromise = page.waitForResponse(res => 
+      res.url().includes('/listings/fragment') && res.status() === 200
+    );
+
     await searchInput.pressSequentially('Nigerian', { delay: 100 });
     await searchInput.press('Enter'); // Explicitly trigger search
 
-    // 3. Pause to "read" results
-    // Wait for the HTMX request to complete
-    await page.waitForResponse(res => 
-      res.url().includes('/listings/fragment') && res.status() === 200
-    );
+    // 3. Wait for the HTMX request to complete
+    await responsePromise;
     
     // Simulate Ada reading the titles of the results
     await page.waitForTimeout(2000);
