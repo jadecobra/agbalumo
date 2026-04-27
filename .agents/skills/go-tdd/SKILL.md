@@ -1,6 +1,13 @@
 ---
 name: Go TDD Workflow
 description: Execute the RED-GREEN-REFACTOR cycle for Go projects
+triggers:
+  - "writing tests"
+  - "fixing bugs"
+  - "implementing features"
+  - "TDD"
+  - "red green refactor"
+mutating: false
 ---
 # Go TDD Skill
 ## Session Start
