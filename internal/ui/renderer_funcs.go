@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"html/template"
+	"net/url"
 	"strings"
 	"time"
 )
+
 
 func seq(start, end int) []int {
 	var s []int
@@ -82,6 +84,26 @@ func displayCity(city, address string) string {
 }
 
 func fallbackImageURL(imageURL, websiteURL string) string {
-	return ""
+	if imageURL != "" {
+		return imageURL
+	}
+	if websiteURL == "" {
+		return "/static/images/logo.png"
+	}
+
+	if !strings.Contains(websiteURL, "://") {
+		websiteURL = "http://" + websiteURL
+	}
+
+	u, err := url.Parse(websiteURL)
+	if err != nil || u.Host == "" {
+		return "/static/images/logo.png"
+	}
+
+	host := u.Host
+	if strings.Contains(host, ":") {
+		host = strings.Split(host, ":")[0]
+	}
+	return "https://s2.googleusercontent.com/s2/favicons?domain=" + host + "&sz=256"
 }
 

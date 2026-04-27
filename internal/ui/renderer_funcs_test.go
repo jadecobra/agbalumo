@@ -137,4 +137,3 @@ func TestFallbackImageURL(t *testing.T) {
 		})
 	}
 }
-
