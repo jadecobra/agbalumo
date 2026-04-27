@@ -18,15 +18,14 @@ func TestRatingEnricherJob_EnrichRatings(t *testing.T) {
 
 	// 1. Setup mock Google Places Server
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Mock FindPlace / TextSearch or PlaceDetails payload
-		// For simplicity, we just return static JSON with rating = 4.8, review_count = 150
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = fmt.Fprintln(w, `{
-			"result": {
-				"rating": 4.8,
-				"user_ratings_total": 150
-			},
-			"status": "OK"
+			"places": [
+				{
+					"rating": 4.8,
+					"userRatingCount": 150
+				}
+			]
 		}`)
 	}))
 	defer ts.Close()
@@ -53,7 +52,7 @@ func TestRatingEnricherJob_EnrichRatings(t *testing.T) {
 	// 4. Run Job
 	// Temporarily pointing client to mock server for testing
 	placesClient := NewGooglePlacesClient("fake-key")
-	// Overwrite client setup or mock the fetch
+	placesClient.SetBaseURL(ts.URL)
 	job := NewRatingEnricherJob(repo, placesClient)
 	count, err := job.EnrichRatings(ctx, 10)
 	if err != nil {

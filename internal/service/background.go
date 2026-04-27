@@ -9,16 +9,18 @@ import (
 )
 
 type BackgroundService struct {
-	Repo     domain.ListingExpirer
-	Scraper  *ScraperJob
-	Interval time.Duration
+	Repo           domain.ListingExpirer
+	Scraper        *ScraperJob
+	RatingEnricher *RatingEnricherJob
+	Interval       time.Duration
 }
 
-func NewBackgroundService(repo domain.ListingExpirer, scraper *ScraperJob) *BackgroundService {
+func NewBackgroundService(repo domain.ListingExpirer, scraper *ScraperJob, ratingEnricher *RatingEnricherJob) *BackgroundService {
 	return &BackgroundService{
-		Repo:     repo,
-		Scraper:  scraper,
-		Interval: 1 * time.Hour, // Default
+		Repo:           repo,
+		Scraper:        scraper,
+		RatingEnricher: ratingEnricher,
+		Interval:       1 * time.Hour, // Default
 	}
 }
 
@@ -33,12 +35,14 @@ func (s *BackgroundService) StartTicker(ctx context.Context) {
 	// Run once immediately on start
 	s.expireListings(ctx)
 	s.enrichListings(ctx)
+	s.enrichRatings(ctx)
 
 	for {
 		select {
 		case <-ticker.C:
 			s.expireListings(ctx)
 			s.enrichListings(ctx)
+			s.enrichRatings(ctx)
 		case <-ctx.Done():
 			slog.Info("[Background] Service stopping...")
 			return
@@ -71,3 +75,19 @@ func (s *BackgroundService) enrichListings(ctx context.Context) {
 		slog.Info("[Background] Enriched listings", "count", count)
 	}
 }
+
+func (s *BackgroundService) enrichRatings(ctx context.Context) {
+	if s.RatingEnricher == nil {
+		return
+	}
+	// Enrich up to 5 listings per tick to manage API quota limits
+	count, err := s.RatingEnricher.EnrichRatings(ctx, 5)
+	if err != nil {
+		slog.Error("[Background] Error enriching ratings", "error", err)
+		return
+	}
+	if count > 0 {
+		slog.Info("[Background] Enriched ratings", "count", count)
+	}
+}
+

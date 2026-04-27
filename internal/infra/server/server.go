@@ -199,6 +199,10 @@ func setupBackgroundServices(ctx context.Context, cfg *config.Config, repo *sqli
 		seeder.EnsureSeeded(ctx, repo)
 	}
 
-	bgService := service.NewBackgroundService(repo, service.NewScraperJob(repo, service.NewWebsiteScraper()))
+	bgService := service.NewBackgroundService(
+		repo,
+		service.NewScraperJob(repo, service.NewWebsiteScraper()),
+		service.NewRatingEnricherJob(repo, service.NewGooglePlacesClient(cfg.GoogleMapsAPIKey)),
+	)
 	go bgService.StartTicker(ctx)
 }
