@@ -198,3 +198,29 @@ func TestFindEnrichmentTargets_FiltersAttemptedAt(t *testing.T) {
 		t.Error("Expected to find unenriched-3 (attempted_at is 8 days ago)")
 	}
 }
+
+func TestDeliveryPlatformsPersistence(t *testing.T) {
+	t.Parallel()
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
+	ctx := context.Background()
+
+	l := domain.Listing{
+		ID:                "dp-1",
+		Title:             "Delivery Test",
+		DeliveryPlatforms: `["UberEats", "DoorDash"]`,
+		IsActive:          true,
+	}
+
+	if err := repo.Save(ctx, l); err != nil {
+		t.Fatalf("Failed to save: %v", err)
+	}
+
+	found, err := repo.FindByID(ctx, "dp-1")
+	if err != nil {
+		t.Fatalf("Failed to find: %v", err)
+	}
+	if found.DeliveryPlatforms != l.DeliveryPlatforms {
+		t.Errorf("Expected delivery platforms %q, got %q", l.DeliveryPlatforms, found.DeliveryPlatforms)
+	}
+}
+

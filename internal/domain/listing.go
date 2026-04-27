@@ -59,8 +59,10 @@ type Listing struct {
 	Latitude  float64       `json:"latitude" form:"latitude"`
 	Longitude float64       `json:"longitude" form:"longitude"`
 	IsActive  bool          `json:"is_active" form:"is_active"`
-	Featured  bool          `json:"featured" form:"featured"`
+	Featured          bool          `json:"featured" form:"featured"`
+	DeliveryPlatforms string        `json:"delivery_platforms" form:"delivery_platforms"`
 }
+
 
 // ListingStatus represents the moderation state of a listing.
 type ListingStatus string
