@@ -69,3 +69,41 @@ func TestScraperJob_EnrichListings(t *testing.T) {
 		t.Errorf("PaymentMethods = %q, want %q", updated.PaymentMethods, "Zelle")
 	}
 }
+
+func TestScraperJob_EnrichAttemptedAtOnFailure(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test in short mode")
+	}
+
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
+	defer func() { _ = repo.Close() }()
+	ctx := context.Background()
+
+	listing := domain.Listing{
+		ID:          "target-fail",
+		Title:       "Fail Restaurant",
+		WebsiteURL:  "http://localhost:12345/nonexistent", // will fail to connect
+		Type:        domain.Food,
+		OwnerOrigin: "Nigeria",
+		IsActive:    true,
+		Status:      domain.ListingStatusApproved,
+	}
+	if err := repo.Save(ctx, listing); err != nil {
+		t.Fatalf("setup failed: %v", err)
+	}
+
+	scraper := NewWebsiteScraper()
+	job := NewScraperJob(repo, scraper)
+	
+	_, _ = job.EnrichListings(ctx, 10)
+
+	updated, err := repo.FindByID(ctx, "target-fail")
+	if err != nil {
+		t.Fatalf("failed to find updated listing: %v", err)
+	}
+
+	if updated.EnrichmentAttemptedAt == nil {
+		t.Error("Expected EnrichmentAttemptedAt to be set even on failure")
+	}
+}
+
