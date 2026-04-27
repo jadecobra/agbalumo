@@ -61,10 +61,12 @@ func (s *WebsiteScraper) ScrapeListing(ctx context.Context, websiteURL string) (
 type scrapeState struct {
 	regionalCounts   map[string]int
 	regionalKeywords map[string][]string
+	currentAnchorURL string
 	foundPayments    []string
 	heatKeywords     []string
 	paymentKeywords  []string
 	heatCount        int
+	inAnchor         bool
 }
 
 func (s *WebsiteScraper) parseHTML(r io.Reader, baseURL string) AdaSignals {
@@ -114,13 +116,19 @@ func (s *WebsiteScraper) inferRegionalSpecialty(state *scrapeState) string {
 func (s *WebsiteScraper) processToken(z *html.Tokenizer, tt html.TokenType, base *url.URL, state *scrapeState, signals *AdaSignals) {
 	switch tt {
 	case html.StartTagToken, html.SelfClosingTagToken:
-		s.handleTag(z, base, signals)
+		s.handleTag(z, base, state, signals)
+	case html.EndTagToken:
+		tn, _ := z.TagName()
+		if string(tn) == "a" {
+			state.inAnchor = false
+			state.currentAnchorURL = ""
+		}
 	case html.TextToken:
-		s.handleText(z, state)
+		s.handleText(z, state, base, signals)
 	}
 }
 
-func (s *WebsiteScraper) handleTag(z *html.Tokenizer, base *url.URL, signals *AdaSignals) {
+func (s *WebsiteScraper) handleTag(z *html.Tokenizer, base *url.URL, state *scrapeState, signals *AdaSignals) {
 	tn, hasAttr := z.TagName()
 	tagName := string(tn)
 
@@ -129,7 +137,7 @@ func (s *WebsiteScraper) handleTag(z *html.Tokenizer, base *url.URL, signals *Ad
 		s.handleHeading(z, signals)
 	case "a":
 		if hasAttr {
-			s.handleAnchor(z, base, signals)
+			s.handleAnchor(z, base, state, signals)
 		}
 	}
 }
@@ -145,7 +153,7 @@ func (s *WebsiteScraper) handleHeading(z *html.Tokenizer, signals *AdaSignals) {
 	}
 }
 
-func (s *WebsiteScraper) handleAnchor(z *html.Tokenizer, base *url.URL, signals *AdaSignals) {
+func (s *WebsiteScraper) handleAnchor(z *html.Tokenizer, base *url.URL, state *scrapeState, signals *AdaSignals) {
 	for {
 		key, val, more := z.TagAttr()
 		if string(key) == "href" {
@@ -153,6 +161,8 @@ func (s *WebsiteScraper) handleAnchor(z *html.Tokenizer, base *url.URL, signals 
 			if s.isMenuLink(link) {
 				signals.MenuURL = s.resolveURL(base, link)
 			}
+			state.inAnchor = true
+			state.currentAnchorURL = link
 		}
 		if !more {
 			break
@@ -160,11 +170,30 @@ func (s *WebsiteScraper) handleAnchor(z *html.Tokenizer, base *url.URL, signals 
 	}
 }
 
-func (s *WebsiteScraper) handleText(z *html.Tokenizer, state *scrapeState) {
+func (s *WebsiteScraper) handleText(z *html.Tokenizer, state *scrapeState, base *url.URL, signals *AdaSignals) {
 	text := strings.ToLower(string(z.Text()))
+
+	s.checkMenuText(text, state, base, signals)
+	s.checkHeatKeywords(text, state)
+	s.checkPaymentKeywords(text, state)
+	s.checkRegionalKeywords(text, state)
+}
+
+func (s *WebsiteScraper) checkMenuText(text string, state *scrapeState, base *url.URL, signals *AdaSignals) {
+	if state.inAnchor && state.currentAnchorURL != "" && signals.MenuURL == "" {
+		if s.isMenuText(text) {
+			signals.MenuURL = s.resolveURL(base, state.currentAnchorURL)
+		}
+	}
+}
+
+func (s *WebsiteScraper) checkHeatKeywords(text string, state *scrapeState) {
 	for _, kw := range state.heatKeywords {
 		state.heatCount += strings.Count(text, kw)
 	}
+}
+
+func (s *WebsiteScraper) checkPaymentKeywords(text string, state *scrapeState) {
 	for _, kw := range state.paymentKeywords {
 		if strings.Contains(text, kw) {
 			found := s.capitalizeKeyword(kw)
@@ -173,6 +202,9 @@ func (s *WebsiteScraper) handleText(z *html.Tokenizer, state *scrapeState) {
 			}
 		}
 	}
+}
+
+func (s *WebsiteScraper) checkRegionalKeywords(text string, state *scrapeState) {
 	for region, keywords := range state.regionalKeywords {
 		for _, kw := range keywords {
 			state.regionalCounts[region] += strings.Count(text, kw)
@@ -207,6 +239,17 @@ func (s *WebsiteScraper) isMenuLink(link string) bool {
 		}
 	}
 	return strings.HasSuffix(lower, ".pdf") || strings.HasSuffix(lower, ".jpg") || strings.HasSuffix(lower, ".jpeg")
+}
+
+func (s *WebsiteScraper) isMenuText(text string) bool {
+	lower := strings.ToLower(text)
+	indicators := []string{"menu", "order", "order online"}
+	for _, ind := range indicators {
+		if strings.Contains(lower, ind) {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *WebsiteScraper) resolveURL(base *url.URL, link string) string {
