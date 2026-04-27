@@ -17,10 +17,14 @@ mutating: false
 2. Fix any local violations before pushing.
 
 ## Push & Remote Monitoring
-1. Push changes to the remote branch.
-2. Check the remote CI run status after 2 minutes with the GitHub CLI:
+1. Execute the push and automated monitoring wrapper:
+   `./scripts/pushw.sh`
+   *Insight: This atomically executes the push and polls the GitHub API for the specific commit's CI run ID to resolve race conditions.*
+
+2. Manual Fallback (if the script fails or is bypassed):
    `gh run watch`
-3. Wait for the run to complete. If it fails:
+
+3. If the run fails:
    - Identify the failed job and step.
    - Run `gh run view <run-id> --log-failed` to extract the traceback.
    - Do NOT mark the task as complete until the remote CI passes.
