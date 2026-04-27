@@ -83,8 +83,6 @@ func scanListing(s Scanner) (domain.Listing, error) {
 	return l, nil
 }
 
-
-
 func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, queryText string, city string, lat float64, lng float64, radius float64, sortField string, sortOrder string, includeInactive bool, limit int, offset int) ([]domain.Listing, int, error) {
 	start := time.Now()
 	defer r.logSlowQuery("FindAll", start)
@@ -331,6 +329,7 @@ func (r *SQLiteRepository) GetFeaturedListings(ctx context.Context, category str
 
 func (r *SQLiteRepository) FindEnrichmentTargets(ctx context.Context, limit int) ([]domain.Listing, error) {
 	// Custom WHERE for enrichment, still uses queryListingsSimple for scan logic
-	where := "WHERE website_url != '' AND (heat_level = 0 OR menu_url = '' OR payment_methods = '') LIMIT ?"
+	where := "WHERE website_url != '' AND (heat_level = 0 OR menu_url = '' OR payment_methods = '') AND (enrichment_attempted_at IS NULL OR enrichment_attempted_at < datetime('now', '-7 days')) LIMIT ?"
 	return r.queryListingsSimple(ctx, where, limit)
 }
+
