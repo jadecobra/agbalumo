@@ -5,14 +5,15 @@
 
 # Execution Plan
 
-- [ ] **Phase 2: TDD & Implementation**
-  - [ ] Write failing tests in `internal/ui/renderer_funcs_test.go` for `fallbackImageURL`
-  - [ ] Create `fallbackImageURL` logic in `internal/ui/renderer_funcs.go`
-  - [ ] Register `fallbackImageURL` in `BuildGlobalFuncMap()` in `internal/ui/renderer.go`
-  - [ ] Make tests pass (Green phase)
-- [ ] **Phase 3: UI Updates & Verification**
-  - [ ] Update `ui/templates/partials/modal_detail.html`
-  - [ ] Update `ui/templates/partials/featured_card.html`
-  - [ ] Update `ui/templates/partials/listing_card.html`
-  - [ ] Increment cache buster in `head_meta.html`
-  - [ ] Verify using browser subagent/Playwright
+- [x] **Phase 2: TDD & Implementation**
+  - [x] Write failing tests in `internal/ui/renderer_funcs_test.go` for `fallbackImageURL`
+  - [x] Create `fallbackImageURL` logic in `internal/ui/renderer_funcs.go`
+  - [x] Register `fallbackImageURL` in `BuildGlobalFuncMap()` in `internal/ui/renderer.go`
+  - [x] Make tests pass (Green phase)
+- [x] **Phase 3: UI Updates & Verification**
+  - [x] Update `ui/templates/partials/modal_detail.html`
+  - [x] Update `ui/templates/partials/featured_card.html`
+  - [x] Update `ui/templates/partials/listing_card.html`
+  - [x] Increment cache buster in `head_meta.html`
+  - [x] Verify using browser subagent/Playwright
+
