@@ -76,8 +76,8 @@ func (r *SQLiteRepository) insertBatch(ctx context.Context, tx *sql.Tx, batch []
 }
 
 func (r *SQLiteRepository) buildBulkInsertSQL(batch []domain.Listing) (string, []interface{}) {
-	const numFields = 36
-	const placeholders = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	const numFields = 37
+	const placeholders = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
 	var sb strings.Builder
 	// Pre-allocate approximate size: len(batch) * len(placeholders) + SQL header/footer
@@ -101,7 +101,7 @@ func (r *SQLiteRepository) buildBulkInsertSQL(batch []domain.Listing) (string, [
 }
 
 func (r *SQLiteRepository) listingArgs(l domain.Listing) []interface{} {
-	args := make([]interface{}, 36)
+	args := make([]interface{}, 37)
 	r.fillListingArgs(args, 0, l)
 	return args
 }
@@ -143,7 +143,9 @@ func (r *SQLiteRepository) fillListingArgs(args []interface{}, offset int, l dom
 	args[offset+33] = l.Latitude
 	args[offset+34] = l.Longitude
 	args[offset+35] = l.EnrichmentAttemptedAt
+	args[offset+36] = l.DeliveryPlatforms
 }
+
 
 func (r *SQLiteRepository) ensureStatus(s domain.ListingStatus) string {
 	if s == "" {

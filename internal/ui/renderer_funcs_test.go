@@ -137,3 +137,56 @@ func TestFallbackImageURL(t *testing.T) {
 		})
 	}
 }
+
+func TestHasDelivery(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name         string
+		platforms    string
+		platformName string
+		want         bool
+	}{
+		{
+			name:         "Platform present in JSON array",
+			platforms:    `["UberEats", "DoorDash"]`,
+			platformName: "UberEats",
+			want:         true,
+		},
+		{
+			name:         "Platform present case insensitive",
+			platforms:    `["ubereats", "DoorDash"]`,
+			platformName: "UberEats",
+			want:         true,
+		},
+		{
+			name:         "Platform absent in JSON array",
+			platforms:    `["DoorDash", "Grubhub"]`,
+			platformName: "UberEats",
+			want:         false,
+		},
+		{
+			name:         "Empty platforms",
+			platforms:    "",
+			platformName: "UberEats",
+			want:         false,
+		},
+		{
+			name:         "Invalid JSON fallback containment",
+			platforms:    "UberEats, DoorDash",
+			platformName: "UberEats",
+			want:         true,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := hasDelivery(tt.platforms, tt.platformName)
+			if got != tt.want {
+				t.Errorf("hasDelivery(%q, %q) = %v, want %v", tt.platforms, tt.platformName, got, tt.want)
+			}
+		})
+	}
+}
+

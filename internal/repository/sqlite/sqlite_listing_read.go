@@ -39,8 +39,10 @@ func scanListing(s Scanner) (domain.Listing, error) {
 		&l.HeatLevel, &l.RegionalSpecialty, &l.TopDish,
 		&l.PaymentMethods, &l.MenuURL,
 		&l.Latitude, &l.Longitude,
+		&l.DeliveryPlatforms,
 		&enrichmentAttemptedAtStr,
 	)
+
 	if err != nil {
 		return domain.Listing{}, err
 	}

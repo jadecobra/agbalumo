@@ -223,4 +223,3 @@ func TestDeliveryPlatformsPersistence(t *testing.T) {
 		t.Errorf("Expected delivery platforms %q, got %q", l.DeliveryPlatforms, found.DeliveryPlatforms)
 	}
 }
-

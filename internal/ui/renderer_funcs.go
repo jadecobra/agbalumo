@@ -105,3 +105,20 @@ func fallbackImageURL(imageURL, websiteURL string) string {
 	}
 	return "https://s2.googleusercontent.com/s2/favicons?domain=" + host + "&sz=256"
 }
+
+func hasDelivery(platforms string, platformName string) bool {
+	if platforms == "" {
+		return false
+	}
+	var list []string
+	if err := json.Unmarshal([]byte(platforms), &list); err != nil {
+		return strings.Contains(platforms, platformName)
+	}
+	for _, p := range list {
+		if strings.EqualFold(p, platformName) {
+			return true
+		}
+	}
+	return false
+}
+

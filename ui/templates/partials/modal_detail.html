@@ -85,6 +85,33 @@
             </div>
             {{ end }}
 
+            {{ if or (hasDelivery .Listing.DeliveryPlatforms "UberEats") (hasDelivery .Listing.DeliveryPlatforms "DoorDash") (hasDelivery .Listing.DeliveryPlatforms "Grubhub") }}
+            <div id="delivery-block" class="mb-6">
+                <h4 class="font-bold text-earth-cream mb-2 text-sm uppercase tracking-wide">Order Delivery</h4>
+                <div class="flex flex-wrap gap-2">
+                    {{ if hasDelivery .Listing.DeliveryPlatforms "UberEats" }}
+                    <span class="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider shadow-sm">
+                        <span class="material-symbols-outlined text-[16px]">delivery_dining</span>
+                        UberEats
+                    </span>
+                    {{ end }}
+                    {{ if hasDelivery .Listing.DeliveryPlatforms "DoorDash" }}
+                    <span class="flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 text-white text-xs font-bold uppercase tracking-wider shadow-sm">
+                        <span class="material-symbols-outlined text-[16px]">delivery_dining</span>
+                        DoorDash
+                    </span>
+                    {{ end }}
+                    {{ if hasDelivery .Listing.DeliveryPlatforms "Grubhub" }}
+                    <span class="flex items-center gap-1.5 px-3 py-1.5 bg-orange-600 text-white text-xs font-bold uppercase tracking-wider shadow-sm">
+                        <span class="material-symbols-outlined text-[16px]">delivery_dining</span>
+                        Grubhub
+                    </span>
+                    {{ end }}
+                </div>
+            </div>
+            {{ end }}
+
+
             {{ if .Listing.HoursOfOperation }}
             <div class="flex items-start gap-2 text-earth-cream/70 text-sm mb-4">
                 <span class="material-symbols-outlined text-[18px] mt-0.5">schedule</span>
