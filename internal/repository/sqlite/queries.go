@@ -81,7 +81,6 @@ const ListingUpsertSQL = `INSERT INTO listings ` + listingColumns + `
 	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	` + listingUpsertUpdate
 
-
 // CategoryUpsertSQL is the shared UPSERT query for category saving.
 const CategoryUpsertSQL = `
 	INSERT INTO categories (id, name, claimable, is_system, active, requires_special_validation, created_at, updated_at)

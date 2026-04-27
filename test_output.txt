@@ -1,0 +1,27 @@
+--- FAIL: TestTemplateTailwindCleanup (0.01s)
+    ui_regression_home_test.go:82: Template modal_detail.html contains raw 'orange' class. Use 'earth-accent' instead.
+2026/04/27 14:31:34 ERROR Request failed request_id="" error="code=400, message=invalid image format"
+2026/04/27 14:31:34 ERROR Request failed request_id="" error="code=400, message=Title already exists. Please choose a different title."
+2026/04/27 14:31:34 ERROR Request failed request_id="" error="code=401, message=Login required"
+2026/04/27 14:31:34 ERROR Request failed request_id="" error="code=400, message=Title already exists. Please choose a different title."
+2026/04/27 14:31:34 ERROR Request failed request_id="" error="code=404, message=listing not found"
+2026/04/27 14:31:34 ERROR Request failed request_id="" error="code=401, message=Login required"
+2026/04/27 14:31:34 ERROR Request failed request_id="" error="code=404, message=listing not found"
+2026/04/27 14:31:34 INFO Slow query detected query=FindAll duration_ms=54
+2026/04/27 14:31:34 ERROR Request failed request_id="" error="code=401, message=Authentication required to post listings"
+2026/04/27 14:31:34 ERROR Request failed request_id="" error="upload fail"
+2026/04/27 14:31:34 ERROR Request failed request_id="" error="code=400, message=Validation Error: owner origin is required"
+2026/04/27 14:31:35 ERROR Request failed request_id="" error="code=400, message=Invalid Start Date Format"
+2026/04/27 14:31:35 ERROR Request failed request_id="" error="code=400, message=Validation Error: event start time is required"
+2026/04/27 14:31:35 ERROR Request failed request_id="" error="code=403, message=You are not the owner of this listing"
+2026/04/27 14:31:35 ERROR Request failed request_id="" error="code=400, message=Validation Error: owner origin is required"
+2026/04/27 14:31:35 ERROR Request failed request_id="" error="code=403, message=You are not the owner of this listing"
+2026/04/27 14:31:35 ERROR Request failed request_id="" error="code=400, message=Validation Error: owner origin is required"
+2026/04/27 14:31:35 ERROR Request failed request_id="" error="code=400, message=Invalid Date Format"
+2026/04/27 14:31:35 ERROR Request failed request_id="" error="code=400, message=Validation Error: owner origin is required"
+2026/04/27 14:31:35 ERROR Request failed request_id="" error="code=403, message=You are not the owner of this listing"
+2026/04/27 14:31:35 ERROR Request failed request_id="" error="code=404, message=listing not found"
+2026/04/27 14:31:35 ERROR Request failed request_id="" error="code=401, message=Login required"
+FAIL
+FAIL	github.com/jadecobra/agbalumo/internal/module/listing	1.362s
+FAIL

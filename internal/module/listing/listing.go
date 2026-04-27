@@ -8,9 +8,11 @@ import (
 	"mime/multipart"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/module"
+	"github.com/jadecobra/agbalumo/internal/service"
 	"github.com/labstack/echo/v4"
 	"strconv"
 )
@@ -128,6 +130,14 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		strCounts[string(cat)] = count
 	}
 
+	now := time.Now()
+	for i := range listings {
+		listings[i].IsCurrentlyOpen = service.ComputeIsOpen(listings[i].HoursOfOperation, now)
+	}
+	for i := range featured {
+		featured[i].IsCurrentlyOpen = service.ComputeIsOpen(featured[i].HoursOfOperation, now)
+	}
+
 	u := c.Get(domain.CtxKeyUser)
 
 	return h.RenderWithBaseContext(c, domain.TemplateIndex, map[string]interface{}{
@@ -183,6 +193,14 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 
 	// Fetch featured listings for the selected city and category to support Ada's discovery flow
 	featured, _ := h.App.DB.GetFeaturedListings(c.Request().Context(), filterType, city)
+
+	now := time.Now()
+	for i := range listings {
+		listings[i].IsCurrentlyOpen = service.ComputeIsOpen(listings[i].HoursOfOperation, now)
+	}
+	for i := range featured {
+		featured[i].IsCurrentlyOpen = service.ComputeIsOpen(featured[i].HoursOfOperation, now)
+	}
 
 	data := map[string]interface{}{
 		"Listings":         listings,
@@ -262,6 +280,7 @@ func (h *ListingHandler) findListing(c echo.Context, id string) (domain.Listing,
 		_ = ui.RespondErrorMsg(c, http.StatusNotFound, (domain.ErrListingNotFound).Error())
 		return domain.Listing{}, echo.ErrNotFound
 	}
+	listing.IsCurrentlyOpen = service.ComputeIsOpen(listing.HoursOfOperation, time.Now())
 	return listing, nil
 }
 

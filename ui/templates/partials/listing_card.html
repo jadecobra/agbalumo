@@ -28,6 +28,22 @@
             class="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
         </div>
 
+        <!-- Open Now / Closed Badge -->
+        {{ if .Listing.IsCurrentlyOpen }}
+        <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-text-main text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 shadow-md z-20 flex items-center gap-1.5">
+            <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            </span>
+            Open Now
+        </div>
+        {{ else }}
+        <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-stone-400 text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 shadow-md z-20 flex items-center gap-1.5">
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-stone-300"></span>
+            Closed
+        </div>
+        {{ end }}
+
         <!-- New Badge -->
         {{ if isNew .Listing.CreatedAt }}
         {{ template "status_badge_sharp" dict "Label" "NEW" "ColorClasses" "absolute top-4 right-4 bg-earth-accent text-white shadow-lg z-20 animate-juice-bounce" }}

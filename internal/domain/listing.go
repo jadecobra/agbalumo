@@ -61,6 +61,7 @@ type Listing struct {
 	IsActive          bool          `json:"is_active" form:"is_active"`
 	Featured          bool          `json:"featured" form:"featured"`
 	DeliveryPlatforms string        `json:"delivery_platforms" form:"delivery_platforms"`
+	IsCurrentlyOpen   bool          `json:"is_currently_open" form:"is_currently_open"`
 }
 
 // ListingStatus represents the moderation state of a listing.

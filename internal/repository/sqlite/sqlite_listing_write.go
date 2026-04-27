@@ -146,7 +146,6 @@ func (r *SQLiteRepository) fillListingArgs(args []interface{}, offset int, l dom
 	args[offset+36] = l.DeliveryPlatforms
 }
 
-
 func (r *SQLiteRepository) ensureStatus(s domain.ListingStatus) string {
 	if s == "" {
 		return string(domain.ListingStatusApproved)

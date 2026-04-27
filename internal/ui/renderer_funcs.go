@@ -121,4 +121,3 @@ func hasDelivery(platforms string, platformName string) bool {
 	}
 	return false
 }
-

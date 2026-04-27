@@ -43,4 +43,3 @@ func TestDeliveryPlatformsDiskParity(t *testing.T) {
 		t.Errorf("Expected %q, got %q", l.DeliveryPlatforms, found.DeliveryPlatforms)
 	}
 }
-

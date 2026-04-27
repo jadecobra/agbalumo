@@ -110,7 +110,6 @@ func BuildGlobalFuncMap() template.FuncMap {
 		"Countries": func() []Region {
 			return nil
 		},
-
 	}
 }
 
