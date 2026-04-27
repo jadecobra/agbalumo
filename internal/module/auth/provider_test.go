@@ -10,7 +10,6 @@ import (
 )
 
 func TestRealGoogleProvider_GetRedirectURL(t *testing.T) {
-	t.Parallel()
 	tests := []struct {
 		name     string
 		env      map[string]string
@@ -51,8 +50,7 @@ func TestRealGoogleProvider_GetRedirectURL(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			// Save current env
+					// Save current env
 			oldBase := os.Getenv("BASE_URL")
 			oldRedirect := os.Getenv("GOOGLE_REDIRECT_URL")
 			oldEnv := os.Getenv("AGBALUMO_ENV")
@@ -87,7 +85,6 @@ func TestRealGoogleProvider_GetRedirectURL(t *testing.T) {
 }
 
 func TestRealGoogleProvider_Exchange_RedirectURL(t *testing.T) {
-	t.Parallel()
 	// This tests that Exchange also uses the correct redirect URL
 	_ = os.Setenv("BASE_URL", "https://test.com")
 	defer func() { _ = os.Unsetenv("BASE_URL") }()
