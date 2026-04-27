@@ -41,6 +41,9 @@
             class="ml-2 px-2 py-0.5 inline-flex font-bold bg-white/10 text-white/60 uppercase tracking-wider text-[10px]">Inactive</span>
         {{ end }}
     </td>
+    <td class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-white/50 tracking-[0.1em]">
+        {{ if .EnrichmentAttemptedAt }}{{ .EnrichmentAttemptedAt.Format "Jan 02, 2006" }}{{ else }}-{{ end }}
+    </td>
     <td class="px-6 py-4 text-[10px] font-bold text-white/50 truncate max-w-[150px] uppercase tracking-[0.1em]">
         {{ if .OwnerID }}{{ .OwnerID }}{{ else }}<span class="italic text-white/30 tracking-[0.2em]">UNOWNED</span>{{
         end

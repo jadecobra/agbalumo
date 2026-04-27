@@ -12,7 +12,7 @@ const ListingSelectionsSQL = `
 	COALESCE(heat_level, 0), COALESCE(regional_specialty, ''), COALESCE(top_dish, ''),
 	COALESCE(payment_methods, ''), COALESCE(menu_url, ''),
 	COALESCE(latitude, 0.0), COALESCE(longitude, 0.0),
-	COALESCE(enrichment_attempted_at, '')
+	enrichment_attempted_at
 `
 
 // UserSelectionsSQL is the shared column selection for reading users.

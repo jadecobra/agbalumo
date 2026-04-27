@@ -32,6 +32,7 @@ func (j *ScraperJob) EnrichListings(ctx context.Context, limit int) (int, error)
 		if j.enrichSingle(ctx, l) {
 			successCount++
 		}
+		time.Sleep(2 * time.Second)
 	}
 
 	return successCount, nil

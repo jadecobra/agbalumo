@@ -131,4 +131,3 @@ func TestScraperJob_EnrichListings_RateLimiting(t *testing.T) {
 		t.Errorf("Expected duration >= 4s for 2 listings, but took %v", duration)
 	}
 }
-

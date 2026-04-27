@@ -67,8 +67,12 @@ func parseNullableTime(s string) *time.Time {
 	if s == "" {
 		return nil
 	}
+	if idx := strings.Index(s, " m="); idx != -1 {
+		s = s[:idx]
+	}
 	formats := []string{
 		time.RFC3339,
+		"2006-01-02 15:04:05.999999999 -0700 MST",
 		"2006-01-02 15:04:05-07:00",
 		"2006-01-02 15:04:05",
 		"2006-01-02T15:04:05Z07:00",
@@ -81,7 +85,6 @@ func parseNullableTime(s string) *time.Time {
 	slog.Warn("Failed to parse enrichment_attempted_at", slog.String("value", s))
 	return nil
 }
-
 
 func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, queryText string, city string, lat float64, lng float64, radius float64, sortField string, sortOrder string, includeInactive bool, limit int, offset int) ([]domain.Listing, int, error) {
 	start := time.Now()

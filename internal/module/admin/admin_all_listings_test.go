@@ -121,14 +121,14 @@ func TestAdminHandler_HandleAllListings_EnrichmentAttemptedAt(t *testing.T) {
 		EnrichmentAttemptedAt: &now,
 	})
 
-	c, rec := testutil.SetupAdminContext(http.MethodGet, "/admin/listings", nil)
+	c, rec := testutil.SetupAdminIntegrationContext(t, http.MethodGet, "/admin/listings", nil, "admin_listings.html")
 
 	h := admin.NewAdminHandler(env.App)
 	_ = h.HandleAllListings(c)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	body := rec.Body.String()
+	t.Logf("Response Body: %s", body)
 	assert.Contains(t, body, "Enriched")
 	assert.Contains(t, body, now.Format("Jan 02, 2006"))
 }
-
