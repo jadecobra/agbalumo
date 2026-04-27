@@ -105,9 +105,11 @@ func BuildGlobalFuncMap() template.FuncMap {
 		"safeHTMLAttr": safeHTMLAttr,
 		"safeJS":       safeJS,
 		"displayCity":  displayCity,
+		"fallbackImageURL": fallbackImageURL,
 		"Countries": func() []Region {
 			return nil
 		},
+
 	}
 }
 

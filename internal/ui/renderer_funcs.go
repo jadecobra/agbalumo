@@ -80,3 +80,8 @@ func displayCity(city, address string) string {
 	// To avoid showing "123 Test St" in the city slot, we return empty.
 	return ""
 }
+
+func fallbackImageURL(imageURL, websiteURL string) string {
+	return ""
+}
+

@@ -91,3 +91,50 @@ func setupRenderer(t *testing.T, dir, name, content string) *TemplateRenderer {
 	r, _ := NewTemplateRenderer(filepath.Join(dir, "*.html"))
 	return r
 }
+
+func TestFallbackImageURL(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name       string
+		imageURL   string
+		websiteURL string
+		want       string
+	}{
+		{
+			name:       "ImageURL provided",
+			imageURL:   "https://example.com/image.png",
+			websiteURL: "https://example.com",
+			want:       "https://example.com/image.png",
+		},
+		{
+			name:       "Both empty",
+			imageURL:   "",
+			websiteURL: "",
+			want:       "/static/images/logo.png",
+		},
+		{
+			name:       "Invalid website URL",
+			imageURL:   "",
+			websiteURL: "://invalid",
+			want:       "/static/images/logo.png",
+		},
+		{
+			name:       "Valid website URL",
+			imageURL:   "",
+			websiteURL: "https://tastyfood.com/menu?ref=test",
+			want:       "https://s2.googleusercontent.com/s2/favicons?domain=tastyfood.com&sz=256",
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := fallbackImageURL(tt.imageURL, tt.websiteURL)
+			if got != tt.want {
+				t.Errorf("fallbackImageURL(%q, %q) = %q, want %q", tt.imageURL, tt.websiteURL, got, tt.want)
+			}
+		})
+	}
+}
+
