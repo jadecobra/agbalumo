@@ -1,10 +1,11 @@
 #!/bin/sh
 # scripts/pushw.sh
 # Git Push & Watch wrapper
-# Automatically launches the watch tool immediately after a successful push.
+# Automatically monitors the remote CI run immediately after a successful push.
 
 git push "$@"
 if [ $? -eq 0 ]; then
-    echo "✅ Push successful! Starting watch..."
-    go run ./cmd/verify watch
+    echo "✅ Push successful! Waiting for CI to register..."
+    sleep 5
+    gh run watch --exit-status
 fi

@@ -69,10 +69,10 @@ go run ./cmd/verify perf
 ## 🚀 Continuous Momentum
 
 ### Push & Watch
-To maintain development momentum after pushing changes, use the provided wrapper script which automatically launches the `watch` tool upon a successful push.
+To ensure production parity and monitor CI after pushing changes, use the provided wrapper script which automatically monitors the remote CI run.
 
 ```bash
-# Execute push and start watch automatically
+# Execute push and monitor CI automatically
 ./scripts/pushw.sh
 ```
 
