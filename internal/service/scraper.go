@@ -40,7 +40,8 @@ func (s *WebsiteScraper) ScrapeListing(ctx context.Context, websiteURL string) (
 	if err != nil {
 		return AdaSignals{}, err
 	}
-	req.Header.Set("User-Agent", "AgbalumoScraper/1.0 (Ada Enrichment)")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; AgbalumoBot/1.0; +https://agbalumo.com)")
+
 
 	resp, err := s.client.Do(req)
 	if err != nil {
