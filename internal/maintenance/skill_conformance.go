@@ -23,7 +23,7 @@ func SkillConformance(skillsDir string) []string {
 		}
 		skillName := entry.Name()
 		skillFile := filepath.Join(skillsDir, skillName, "SKILL.md")
-		
+
 		skillViolations := validateSkillFile(skillName, skillFile)
 		violations = append(violations, skillViolations...)
 	}

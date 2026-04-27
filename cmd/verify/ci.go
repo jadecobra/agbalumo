@@ -88,8 +88,9 @@ var precommitCmd = &cobra.Command{
 		}
 
 		// 1b. Skill checks on staging
-		stagedOut, err := runCmdOutput("git", "diff", "--cached", "--name-only")
-		if err == nil && strings.Contains(string(stagedOut), ".agents/skills/") {
+		stagedOut, stagedErr := runCmdOutput("git", "diff", "--cached", "--name-only")
+		if stagedErr == nil && strings.Contains(string(stagedOut), ".agents/skills/") {
+
 			fmt.Println("🔍 Skill files staged. Running skill conformance and resolvability checks...")
 			if e := skillConformanceCmd.RunE(cmd, args); e != nil {
 				return e

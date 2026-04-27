@@ -29,34 +29,10 @@ func CheckResolvable(skillsDir, resolverPath, manifestPath string) []string {
 		return violations
 	}
 
-	if resolverSkills != nil {
-		// Cross-reference: Orphaned Skills (dir exists but no RESOLVER.md entry)
-		for dir := range skillDirs {
-			if !resolverSkills[dir] {
-				violations = append(violations, "orphaned: "+dir)
-			}
-		}
-
-		// Cross-reference: Dangling Entries (RESOLVER.md points to non-existent dir)
-		for skill := range resolverSkills {
-			if !skillDirs[skill] {
-				violations = append(violations, "dangling: "+skill)
-			}
-		}
-	}
-
-	manifestSkills, err := parseManifestSkills(manifestPath)
-	if err == nil {
-		// Cross-reference: Unregistered Skills (skill in skillsDir but not in manifest)
-		for dir := range skillDirs {
-			if !manifestSkills[dir] {
-				violations = append(violations, "unregistered: "+dir)
-			}
-		}
-	}
-
-	return violations
+	manifestSkills, _ := parseManifestSkills(manifestPath)
+	return findCrossReferenceViolations(skillDirs, resolverSkills, manifestSkills)
 }
+
 
 func scanSkillDirs(dir string) (map[string]bool, error) {
 	entries, err := os.ReadDir(dir)
@@ -130,3 +106,47 @@ func parseManifestSkills(path string) (map[string]bool, error) {
 
 	return manifestSkills, nil
 }
+
+func findCrossReferenceViolations(skillDirs, resolverSkills, manifestSkills map[string]bool) []string {
+	var violations []string
+	if resolverSkills != nil {
+		violations = append(violations, findOrphanedSkills(skillDirs, resolverSkills)...)
+		violations = append(violations, findDanglingEntries(skillDirs, resolverSkills)...)
+	}
+	if manifestSkills != nil {
+		violations = append(violations, findUnregisteredSkills(skillDirs, manifestSkills)...)
+	}
+	return violations
+}
+
+func findOrphanedSkills(skillDirs, resolverSkills map[string]bool) []string {
+	var violations []string
+	for dir := range skillDirs {
+		if !resolverSkills[dir] {
+			violations = append(violations, "orphaned: "+dir)
+		}
+	}
+	return violations
+}
+
+func findDanglingEntries(skillDirs, resolverSkills map[string]bool) []string {
+	var violations []string
+	for skill := range resolverSkills {
+		if !skillDirs[skill] {
+			violations = append(violations, "dangling: "+skill)
+		}
+	}
+	return violations
+}
+
+func findUnregisteredSkills(skillDirs, manifestSkills map[string]bool) []string {
+	var violations []string
+	for dir := range skillDirs {
+		if !manifestSkills[dir] {
+			violations = append(violations, "unregistered: "+dir)
+		}
+	}
+	return violations
+}
+
+

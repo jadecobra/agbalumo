@@ -224,3 +224,20 @@ Watch files and restart a command (e.g., serve or test).
 ```bash
 agbalumo verify watch [command] [args...]
 ```
+
+##### check-resolvable
+
+Validate skill resolver coverage.
+
+```bash
+agbalumo verify check-resolvable
+```
+
+##### skill-conformance
+
+Validate SKILL.md YAML frontmatter completeness.
+
+```bash
+agbalumo verify skill-conformance
+```
+

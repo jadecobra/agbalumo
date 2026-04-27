@@ -58,7 +58,6 @@ func RunPreflight(rootDir string) error {
 
 	classifyAndPrintStagedFiles(rootDir)
 
-
 	printPackageConstraints(rootDir, domains)
 	printStrictLessons(rootDir, domains)
 	printSkillsAndCommands(rootDir, modifiedFiles)
@@ -444,4 +443,3 @@ func isEnvFile(f string) bool {
 		strings.Contains(f, "secret") ||
 		strings.Contains(f, "security")
 }
-
