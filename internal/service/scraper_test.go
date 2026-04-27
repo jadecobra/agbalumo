@@ -53,6 +53,20 @@ func TestWebsiteScraper_Heuristics(t *testing.T) {
 				MenuURL:        "",
 			},
 		},
+		{
+			name: "Anchor text variation - Order Online",
+			html: `<div><a href="/checkout">Order Online</a></div>`,
+			expected: AdaSignals{
+				MenuURL: "http://example.com/checkout",
+			},
+		},
+		{
+			name: "Anchor text variation - Our Menu",
+			html: `<div><a href="/carte">Our Menu</a></div>`,
+			expected: AdaSignals{
+				MenuURL: "http://example.com/carte",
+			},
+		},
 	}
 
 	for _, tt := range tests {
