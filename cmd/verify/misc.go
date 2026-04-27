@@ -162,3 +162,18 @@ var skillConformanceCmd = makeSimpleCmd("skill-conformance", "Validate SKILL.md 
 	fmt.Println("✅ Skill conformance check passed.")
 	return nil
 })
+
+var checkResolvableCmd = makeSimpleCmd("check-resolvable", "Validate skill resolver coverage", func() error {
+	fmt.Println("🔍 Checking Skill Resolvability...")
+	violations := maintenance.CheckResolvable(".agents/skills", ".agents/skills/RESOLVER.md", ".agents/verify-manifest.yaml")
+	if len(violations) > 0 {
+		fmt.Println("❌ Skill resolvability violations found:")
+		for _, v := range violations {
+			fmt.Printf("  - %s\n", v)
+		}
+		return fmt.Errorf("skill resolvability check failed")
+	}
+	fmt.Println("✅ Skill resolvability check passed.")
+	return nil
+})
+
