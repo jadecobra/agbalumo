@@ -3,9 +3,11 @@ package service
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 )
+
 
 type ScraperJob struct {
 	repo    domain.ListingRepository
@@ -40,13 +42,18 @@ func (j *ScraperJob) enrichSingle(ctx context.Context, l domain.Listing) bool {
 	slog.Info("[ScraperJob] Enriching listing", slog.String("id", l.ID), slog.String("title", l.Title), slog.String("url", l.WebsiteURL))
 
 	signals, err := j.scraper.ScrapeListing(ctx, l.WebsiteURL)
+	now := time.Now()
+	l.EnrichmentAttemptedAt = &now
+
 	if err != nil {
 		slog.Error("[ScraperJob] Failed to scrape", slog.String("id", l.ID), slog.Any("error", err))
+		_ = j.repo.Save(ctx, l)
 		return false
 	}
 
 	if j.isEmpty(signals) {
 		slog.Info("[ScraperJob] No signals found for listing", slog.String("id", l.ID))
+		_ = j.repo.Save(ctx, l)
 		return false
 	}
 
@@ -58,6 +65,7 @@ func (j *ScraperJob) enrichSingle(ctx context.Context, l domain.Listing) bool {
 	}
 	return true
 }
+
 
 func (j *ScraperJob) isEmpty(s AdaSignals) bool {
 	return s.HeatLevel == 0 && s.PaymentMethods == "" && s.MenuURL == "" && s.TopDish == "" && s.RegionalSpecialty == ""
