@@ -40,7 +40,12 @@ commands:
     trigger: skill_change
     description: Validate SKILL.md YAML frontmatter completeness
 
+  - name: check-resolvable
+    trigger: skill_change
+    description: Validate skill resolver coverage
+
 skills:
+
   - name: go-tdd
     trigger: test_authoring, feature_implementation, bug_fix
     path: .agents/skills/go-tdd/SKILL.md
