@@ -87,6 +87,18 @@ var precommitCmd = &cobra.Command{
 			return err
 		}
 
+		// 1b. Skill checks on staging
+		stagedOut, err := runCmdOutput("git", "diff", "--cached", "--name-only")
+		if err == nil && strings.Contains(string(stagedOut), ".agents/skills/") {
+			fmt.Println("🔍 Skill files staged. Running skill conformance and resolvability checks...")
+			if e := skillConformanceCmd.RunE(cmd, args); e != nil {
+				return e
+			}
+			if e := checkResolvableCmd.RunE(cmd, args); e != nil {
+				return e
+			}
+		}
+
 		// 2. Mod Tidy drift check
 		fmt.Println("📦 Checking go.mod/go.sum drift...")
 		if err := runCmd("go", "mod", "tidy"); err != nil {

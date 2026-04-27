@@ -86,4 +86,3 @@ func TestSkillConformance_NoSkillFile(t *testing.T) {
 		t.Errorf("expected violation 'go-tdd: missing SKILL.md', got %v", violations)
 	}
 }
-

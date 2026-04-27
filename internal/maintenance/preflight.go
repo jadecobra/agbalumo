@@ -56,6 +56,47 @@ func RunPreflight(rootDir string) error {
 	fmt.Println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 	fmt.Printf("Modified domains: [%s]\n", strings.Join(domains, ", "))
 
+	stagedOut, err := exec.Command("git", "diff", "--cached", "--name-only").Output()
+	if err == nil {
+		stagedFiles := strings.Split(string(stagedOut), "\n")
+		hasUI := false
+		hasCI := false
+		hasTest := false
+		hasEnv := false
+
+		for _, f := range stagedFiles {
+			f = strings.TrimSpace(f)
+			if f == "" {
+				continue
+			}
+			if strings.HasSuffix(f, ".js") || strings.HasSuffix(f, ".css") || strings.HasSuffix(f, ".html") || strings.HasSuffix(f, ".tmpl") || strings.HasPrefix(f, "ui/") {
+				hasUI = true
+			}
+			if strings.HasPrefix(f, ".github/") || strings.Contains(f, "workflow") || strings.HasPrefix(f, "scripts/") || strings.HasPrefix(f, "cmd/verify/") || strings.Contains(filepath.Base(f), "ci") {
+				hasCI = true
+			}
+			if strings.HasSuffix(f, "_test.go") || strings.Contains(f, "test") {
+				hasTest = true
+			}
+			if strings.HasPrefix(filepath.Base(f), ".env") || strings.Contains(f, "secret") || strings.Contains(f, "security") {
+				hasEnv = true
+			}
+		}
+
+		if hasUI {
+			fmt.Println("Read: coding-standards.md → ### UI & Frontend")
+		}
+		if hasCI {
+			fmt.Println("Read: coding-standards.md → ### CI & Infrastructure")
+		}
+		if hasTest {
+			fmt.Println("Read: coding-standards.md → ### Testing")
+		}
+		if hasEnv {
+			fmt.Println("Read: coding-standards.md → ### Security & Environment")
+		}
+	}
+
 	printPackageConstraints(rootDir, domains)
 	printStrictLessons(rootDir, domains)
 	printSkillsAndCommands(rootDir, modifiedFiles)
