@@ -36,6 +36,10 @@ commands:
     trigger: after_refactor
     description: Monitor token density regression
 
+  - name: skill-conformance
+    trigger: skill_change
+    description: Validate SKILL.md YAML frontmatter completeness
+
 skills:
   - name: go-tdd
     trigger: test_authoring, feature_implementation, bug_fix
