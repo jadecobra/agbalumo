@@ -144,3 +144,58 @@ func TestEnrichmentAttemptedAtPersistence(t *testing.T) {
 	}
 }
 
+func TestFindEnrichmentTargets_FiltersAttemptedAt(t *testing.T) {
+	t.Parallel()
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
+	ctx := context.Background()
+
+	now := time.Now()
+	oneDayAgo := now.AddDate(0, 0, -1)
+	eightDaysAgo := now.AddDate(0, 0, -8)
+
+	l1 := domain.Listing{
+		ID:         "unenriched-1",
+		Title:      "Unenriched 1",
+		WebsiteURL: "http://test.com",
+		IsActive:   true,
+	}
+	l2 := domain.Listing{
+		ID:                    "unenriched-2",
+		Title:                 "Unenriched 2",
+		WebsiteURL:            "http://test.com",
+		EnrichmentAttemptedAt: &oneDayAgo,
+		IsActive:              true,
+	}
+	l3 := domain.Listing{
+		ID:                    "unenriched-3",
+		Title:                 "Unenriched 3",
+		WebsiteURL:            "http://test.com",
+		EnrichmentAttemptedAt: &eightDaysAgo,
+		IsActive:              true,
+	}
+
+	_ = repo.Save(ctx, l1)
+	_ = repo.Save(ctx, l2)
+	_ = repo.Save(ctx, l3)
+
+	targets, err := repo.FindEnrichmentTargets(ctx, 10)
+	if err != nil {
+		t.Fatalf("Failed to find enrichment targets: %v", err)
+	}
+
+	targetsMap := make(map[string]bool)
+	for _, target := range targets {
+		targetsMap[target.ID] = true
+	}
+
+	if !targetsMap["unenriched-1"] {
+		t.Error("Expected to find unenriched-1 (attempted_at is NULL)")
+	}
+	if targetsMap["unenriched-2"] {
+		t.Error("Did NOT expect to find unenriched-2 (attempted_at is 1 day ago)")
+	}
+	if !targetsMap["unenriched-3"] {
+		t.Error("Expected to find unenriched-3 (attempted_at is 8 days ago)")
+	}
+}
+
