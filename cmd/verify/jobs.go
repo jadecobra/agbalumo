@@ -86,7 +86,7 @@ var enrichCmd = &cobra.Command{
 		job := service.NewScraperJob(repo, scraper)
 
 		fmt.Println("🚀 Starting Manual Enrichment Job...")
-		count, err := job.EnrichListings(cmd.Context(), 10)
+		count, err := job.EnrichListings(cmd.Context(), 50)
 		if err != nil {
 			return err
 		}
