@@ -33,7 +33,6 @@ func CheckResolvable(skillsDir, resolverPath, manifestPath string) []string {
 	return findCrossReferenceViolations(skillDirs, resolverSkills, manifestSkills)
 }
 
-
 func scanSkillDirs(dir string) (map[string]bool, error) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
@@ -148,5 +147,3 @@ func findUnregisteredSkills(skillDirs, manifestSkills map[string]bool) []string 
 	}
 	return violations
 }
-
-

@@ -18,7 +18,7 @@ mutating: false
 
 ## Push & Remote Monitoring
 1. Push changes to the remote branch.
-2. Immediately watch the remote CI run using the GitHub CLI:
+2. Check the remote CI run status after 2 minutes with the GitHub CLI:
    `gh run watch`
 3. Wait for the run to complete. If it fails:
    - Identify the failed job and step.
