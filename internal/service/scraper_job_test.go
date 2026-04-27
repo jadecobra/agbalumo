@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/testutil"
@@ -106,3 +107,28 @@ func TestScraperJob_EnrichAttemptedAtOnFailure(t *testing.T) {
 		t.Error("Expected EnrichmentAttemptedAt to be set even on failure")
 	}
 }
+
+func TestScraperJob_EnrichListings_RateLimiting(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test in short mode")
+	}
+
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
+	defer func() { _ = repo.Close() }()
+	ctx := context.Background()
+
+	_ = repo.Save(ctx, domain.Listing{ID: "rl-1", Title: "RL 1", WebsiteURL: "http://example.com/1", Type: domain.Food, OwnerOrigin: "Nigeria", IsActive: true, Status: domain.ListingStatusApproved})
+	_ = repo.Save(ctx, domain.Listing{ID: "rl-2", Title: "RL 2", WebsiteURL: "http://example.com/2", Type: domain.Food, OwnerOrigin: "Nigeria", IsActive: true, Status: domain.ListingStatusApproved})
+
+	scraper := NewWebsiteScraper()
+	job := NewScraperJob(repo, scraper)
+
+	start := time.Now()
+	_, _ = job.EnrichListings(ctx, 10)
+	duration := time.Since(start)
+
+	if duration < 4*time.Second {
+		t.Errorf("Expected duration >= 4s for 2 listings, but took %v", duration)
+	}
+}
+

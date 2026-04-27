@@ -67,6 +67,7 @@ func TestAdminHandler_HandleExportListings(t *testing.T) {
 
 		// Check headers
 		assert.Contains(t, content, "ID,Title,Type,Description,City,Address")
+		assert.Contains(t, content, "EnrichmentAttemptedAt")
 		// Check data
 		assert.Contains(t, content, "test-1,Test Listing,Business,Desc,Lagos")
 		assert.Contains(t, content, "test@example.com")

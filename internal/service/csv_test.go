@@ -253,7 +253,8 @@ func TestGenerateCSV_FullMapping(t *testing.T) {
 			JobStartDate:    now,
 			EventStart:      now,
 			EventEnd:        now.Add(time.Hour),
-			Deadline:        now.Add(24 * time.Hour),
+			Deadline:              now.Add(24 * time.Hour),
+			EnrichmentAttemptedAt: &now,
 		},
 	}
 
@@ -268,6 +269,7 @@ func TestGenerateCSV_FullMapping(t *testing.T) {
 	assert.Equal(t, "Full Title", row[1])
 	assert.Equal(t, "Business", row[2])
 	assert.Equal(t, "Full Desc", row[3])
+	assert.Equal(t, now.Format(time.RFC3339), row[23])
 }
 
 type errReader struct{}

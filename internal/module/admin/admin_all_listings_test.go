@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/jadecobra/agbalumo/internal/module/admin"
 
@@ -103,3 +104,31 @@ func TestAdminHandler_HandleAllListings_Counts(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 }
+
+func TestAdminHandler_HandleAllListings_EnrichmentAttemptedAt(t *testing.T) {
+	t.Parallel()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	ctx := context.Background()
+
+	now := time.Now()
+	_ = env.App.DB.Save(ctx, domain.Listing{
+		ID:                    "l1",
+		Title:                 "Enriched Listing",
+		Type:                  "business",
+		Status:                domain.ListingStatusApproved,
+		OwnerOrigin:           "Nigeria",
+		EnrichmentAttemptedAt: &now,
+	})
+
+	c, rec := testutil.SetupAdminContext(http.MethodGet, "/admin/listings", nil)
+
+	h := admin.NewAdminHandler(env.App)
+	_ = h.HandleAllListings(c)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	body := rec.Body.String()
+	assert.Contains(t, body, "Enriched")
+	assert.Contains(t, body, now.Format("Jan 02, 2006"))
+}
+
