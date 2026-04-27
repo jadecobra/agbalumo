@@ -27,6 +27,7 @@ type ListingFilters struct {
 func scanListing(s Scanner) (domain.Listing, error) {
 	var l domain.Listing
 	var deadline, eventStart, eventEnd, jobStart sql.NullTime
+	var enrichmentAttemptedAtStr sql.NullString
 
 	err := s.Scan(
 		&l.ID, &l.OwnerID, &l.OwnerOrigin, &l.Type, &l.Title, &l.Description,
@@ -38,6 +39,7 @@ func scanListing(s Scanner) (domain.Listing, error) {
 		&l.HeatLevel, &l.RegionalSpecialty, &l.TopDish,
 		&l.PaymentMethods, &l.MenuURL,
 		&l.Latitude, &l.Longitude,
+		&enrichmentAttemptedAtStr,
 	)
 	if err != nil {
 		return domain.Listing{}, err
@@ -55,8 +57,33 @@ func scanListing(s Scanner) (domain.Listing, error) {
 	if jobStart.Valid {
 		l.JobStartDate = jobStart.Time
 	}
+	if enrichmentAttemptedAtStr.Valid && enrichmentAttemptedAtStr.String != "" {
+		// Try parsing with different formats
+		formats := []string{
+			time.RFC3339,
+			"2006-01-02 15:04:05-07:00",
+			"2006-01-02 15:04:05",
+			"2006-01-02T15:04:05Z07:00",
+		}
+		var parsedTime time.Time
+		var parseErr error
+		for _, fmt := range formats {
+			parsedTime, parseErr = time.Parse(fmt, enrichmentAttemptedAtStr.String)
+			if parseErr == nil {
+				l.EnrichmentAttemptedAt = &parsedTime
+				break
+			}
+		}
+		if parseErr != nil {
+			// If all formats fail, log or handle?
+			// For now, we just don't set it.
+			slog.Warn("Failed to parse enrichment_attempted_at", slog.String("value", enrichmentAttemptedAtStr.String))
+		}
+	}
 	return l, nil
 }
+
+
 
 func (r *SQLiteRepository) FindAll(ctx context.Context, filterType string, queryText string, city string, lat float64, lng float64, radius float64, sortField string, sortOrder string, includeInactive bool, limit int, offset int) ([]domain.Listing, int, error) {
 	start := time.Now()
