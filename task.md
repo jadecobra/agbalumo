@@ -8,18 +8,17 @@
 - **2026-04-27**: Adding transient `IsCurrentlyOpen bool` field to `Listing` struct in `internal/domain/listing.go`.
 - **2026-04-27**: Creating lightweight Regex-based hours parser `ComputeIsOpen` in `internal/service/hours_parser.go` with table-driven tests covering at least 5 unstructured formats.
 - **2026-04-27**: Updating UI listing card with pulsing green dot and "Open Now" or gray "Closed" badge.
+- **2026-04-27**: Adding Quality Proxy (Rating & Review Count) to the Listing Domain to help users assess quality quickly. Proposing to use `text-yellow-400` (Tailwind gold) for the star icon.
 
 # Execution Plan
 
 ## Phase 2: TDD & Implementation
-- [x] Add `IsCurrentlyOpen bool` transient field to `Listing` in `internal/domain/listing.go`
-- [x] Implement `ComputeIsOpen(hoursText string, currentTime time.Time) bool` in `internal/service/hours_parser.go`
-- [x] Write robust table-driven tests for `ComputeIsOpen` with 5+ formats in `internal/service/hours_parser_test.go`
-- [x] Update `internal/module/listing/listing.go` to iterate and compute `IsCurrentlyOpen` using `time.Now()`
+- [ ] Add `Rating float64` and `ReviewCount int` to `Listing` struct in `internal/domain/listing.go`
+- [ ] Create SQLite migration for `rating` and `review_count` columns in `internal/repository/sqlite/migrations/`
+- [ ] Update `sqlite_listing_crud.go`, `sqlite_listing_read.go`, and `queries.go` to support new columns
+- [ ] Update default sorting logic in listing retrieval queries (higher rating first for same heat/distance)
+- [ ] Write CRUD tests in `internal/repository/sqlite/` verifying persistence and sorting
 
 ## Phase 3: UI & Verification
-- [x] Update `ui/templates/partials/listing_card.html` with "Open Now" / "Closed" badges
-- [x] Verify UI using `go run ./cmd/verify browser` or browser subagent
-
-
-
+- [ ] Update `ui/templates/partials/listing_card.html` with Star Icon and Gold Text for Rating (if ReviewCount > 0)
+- [ ] Verify UI using `go run ./cmd/verify browser` or browser subagent

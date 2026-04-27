@@ -62,6 +62,9 @@ type Listing struct {
 	Featured          bool          `json:"featured" form:"featured"`
 	DeliveryPlatforms string        `json:"delivery_platforms" form:"delivery_platforms"`
 	IsCurrentlyOpen   bool          `json:"is_currently_open" form:"is_currently_open"`
+	Rating            float64       `json:"rating" form:"rating"`
+	ReviewCount       int           `json:"review_count" form:"review_count"`
+	RatingUpdatedAt   *time.Time    `json:"rating_updated_at" form:"rating_updated_at"`
 }
 
 // ListingStatus represents the moderation state of a listing.

@@ -223,3 +223,41 @@ func TestDeliveryPlatformsPersistence(t *testing.T) {
 		t.Errorf("Expected delivery platforms %q, got %q", l.DeliveryPlatforms, found.DeliveryPlatforms)
 	}
 }
+
+func TestQualityProxyPersistence(t *testing.T) {
+	t.Parallel()
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
+	ctx := context.Background()
+
+	now := time.Now().Truncate(time.Second)
+	l := domain.Listing{
+		ID:              "qp-1",
+		Title:           "Quality Test",
+		Rating:          4.6,
+		ReviewCount:     120,
+		RatingUpdatedAt: &now,
+		IsActive:        true,
+	}
+
+	if err := repo.Save(ctx, l); err != nil {
+		t.Fatalf("Failed to save: %v", err)
+	}
+
+	found, err := repo.FindByID(ctx, "qp-1")
+	if err != nil {
+		t.Fatalf("Failed to find: %v", err)
+	}
+	if found.Rating != l.Rating {
+		t.Errorf("Expected rating %f, got %f", l.Rating, found.Rating)
+	}
+	if found.ReviewCount != l.ReviewCount {
+		t.Errorf("Expected review count %d, got %d", l.ReviewCount, found.ReviewCount)
+	}
+	if found.RatingUpdatedAt == nil {
+		t.Fatal("Expected RatingUpdatedAt to be set, got nil")
+	}
+	if !found.RatingUpdatedAt.Equal(now) {
+		t.Errorf("Expected RatingUpdatedAt %v, got %v", now, *found.RatingUpdatedAt)
+	}
+}
+
