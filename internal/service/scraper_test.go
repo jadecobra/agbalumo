@@ -1,9 +1,13 @@
 package service
 
 import (
+	"context"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 )
+
 
 func TestWebsiteScraper_Heuristics(t *testing.T) {
 	scraper := &WebsiteScraper{}
@@ -92,3 +96,22 @@ func assertAdaSignalsMatch(t *testing.T, name string, got, want AdaSignals) {
 		t.Errorf("%s: MenuURL = %q, want %q", name, got.MenuURL, want.MenuURL)
 	}
 }
+
+func TestWebsiteScraper_UserAgent(t *testing.T) {
+	expectedUA := "Mozilla/5.0 (compatible; AgbalumoBot/1.0; +https://agbalumo.com)"
+	var receivedUA string
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		receivedUA = r.Header.Get("User-Agent")
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer ts.Close()
+
+	scraper := NewWebsiteScraper()
+	_, _ = scraper.ScrapeListing(context.Background(), ts.URL)
+
+	if receivedUA != expectedUA {
+		t.Errorf("Expected User-Agent %q, got %q", expectedUA, receivedUA)
+	}
+}
+
