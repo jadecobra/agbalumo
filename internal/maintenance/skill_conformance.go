@@ -22,48 +22,56 @@ func SkillConformance(skillsDir string) []string {
 			continue
 		}
 		skillName := entry.Name()
-		skillDir := filepath.Join(skillsDir, skillName)
-		skillFile := filepath.Join(skillDir, "SKILL.md")
+		skillFile := filepath.Join(skillsDir, skillName, "SKILL.md")
+		
+		skillViolations := validateSkillFile(skillName, skillFile)
+		violations = append(violations, skillViolations...)
+	}
 
-		if _, err := os.Stat(skillFile); os.IsNotExist(err) {
-			violations = append(violations, fmt.Sprintf("%s: missing SKILL.md", skillName))
-			continue
-		}
+	return violations
+}
 
-		// Read and parse SKILL.md
-		// #nosec G304 -- path is derived from trusted repo structure
-		content, err := os.ReadFile(skillFile)
-		if err != nil {
-			violations = append(violations, fmt.Sprintf("%s: failed to read SKILL.md: %v", skillName, err))
-			continue
-		}
+func validateSkillFile(skillName, filePath string) []string {
+	var violations []string
 
-		yamlStr := extractFrontmatter(string(content))
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		violations = append(violations, fmt.Sprintf("%s: missing SKILL.md", skillName))
+		return violations
+	}
 
-		var fm struct {
-			Name        *string   `yaml:"name"`
-			Description *string   `yaml:"description"`
-			Triggers    *[]string `yaml:"triggers"`
-			Mutating    *bool     `yaml:"mutating"`
-		}
+	// Read and parse SKILL.md
+	// #nosec G304 -- path is derived from trusted repo structure
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		violations = append(violations, fmt.Sprintf("%s: failed to read SKILL.md: %v", skillName, err))
+		return violations
+	}
 
-		if err := yaml.Unmarshal([]byte(yamlStr), &fm); err != nil {
-			violations = append(violations, fmt.Sprintf("%s: invalid YAML frontmatter: %v", skillName, err))
-			continue
-		}
+	yamlStr := extractFrontmatter(string(content))
 
-		if fm.Name == nil || *fm.Name == "" {
-			violations = append(violations, fmt.Sprintf("%s: missing 'name'", skillName))
-		}
-		if fm.Description == nil || *fm.Description == "" {
-			violations = append(violations, fmt.Sprintf("%s: missing 'description'", skillName))
-		}
-		if fm.Triggers == nil {
-			violations = append(violations, fmt.Sprintf("%s: missing 'triggers'", skillName))
-		}
-		if fm.Mutating == nil {
-			violations = append(violations, fmt.Sprintf("%s: missing 'mutating'", skillName))
-		}
+	var fm struct {
+		Name        *string   `yaml:"name"`
+		Description *string   `yaml:"description"`
+		Triggers    *[]string `yaml:"triggers"`
+		Mutating    *bool     `yaml:"mutating"`
+	}
+
+	if err := yaml.Unmarshal([]byte(yamlStr), &fm); err != nil {
+		violations = append(violations, fmt.Sprintf("%s: invalid YAML frontmatter: %v", skillName, err))
+		return violations
+	}
+
+	if fm.Name == nil || *fm.Name == "" {
+		violations = append(violations, fmt.Sprintf("%s: missing 'name'", skillName))
+	}
+	if fm.Description == nil || *fm.Description == "" {
+		violations = append(violations, fmt.Sprintf("%s: missing 'description'", skillName))
+	}
+	if fm.Triggers == nil {
+		violations = append(violations, fmt.Sprintf("%s: missing 'triggers'", skillName))
+	}
+	if fm.Mutating == nil {
+		violations = append(violations, fmt.Sprintf("%s: missing 'mutating'", skillName))
 	}
 
 	return violations
