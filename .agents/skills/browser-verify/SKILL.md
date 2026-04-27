@@ -1,6 +1,13 @@
 ---
 name: Browser Verification
 description: Verify UI changes using browser subagent with proper environment detection
+triggers:
+  - "UI change"
+  - "browser verification"
+  - "layout check"
+  - "viewport audit"
+  - "visual regression"
+mutating: false
 ---
 # Browser Verification Skill
 
