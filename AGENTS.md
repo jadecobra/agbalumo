@@ -67,6 +67,8 @@ Skills are step-by-step procedures in `.agents/skills/`. You MUST read the relev
 |-------|-------------------|------|
 | Go TDD | Writing tests, fixing bugs, implementing features | `.agents/skills/go-tdd/SKILL.md` |
 | Browser Verification | Any UI change, browser subagent task | `.agents/skills/browser-verify/SKILL.md` |
+| CI Parity | Pushing changes, CI failure, production parity | `.agents/skills/ci-parity/SKILL.md` |
+
 
 **Rule**: When a new skill is created, add it to this table and to `.agents/verify-manifest.yaml`.
 

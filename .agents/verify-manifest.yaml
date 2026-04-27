@@ -45,7 +45,6 @@ commands:
     description: Validate skill resolver coverage
 
 skills:
-
   - name: go-tdd
     trigger: test_authoring, feature_implementation, bug_fix
     path: .agents/skills/go-tdd/SKILL.md
@@ -53,3 +52,8 @@ skills:
   - name: browser-verify
     trigger: ui_change, browser_subagent
     path: .agents/skills/browser-verify/SKILL.md
+
+  - name: ci-parity
+    trigger: pushing_changes, ci_failure, production_parity
+    path: .agents/skills/ci-parity/SKILL.md
+
