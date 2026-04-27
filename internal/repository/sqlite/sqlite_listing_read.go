@@ -27,7 +27,7 @@ type ListingFilters struct {
 func scanListing(s Scanner) (domain.Listing, error) {
 	var l domain.Listing
 	var deadline, eventStart, eventEnd, jobStart sql.NullTime
-	var enrichmentAttemptedAtStr sql.NullString
+	var enrichmentAttemptedAtStr, ratingUpdatedAtStr sql.NullString
 
 	err := s.Scan(
 		&l.ID, &l.OwnerID, &l.OwnerOrigin, &l.Type, &l.Title, &l.Description,
@@ -41,6 +41,8 @@ func scanListing(s Scanner) (domain.Listing, error) {
 		&l.Latitude, &l.Longitude,
 		&l.DeliveryPlatforms,
 		&enrichmentAttemptedAtStr,
+		&l.Rating, &l.ReviewCount,
+		&ratingUpdatedAtStr,
 	)
 
 	if err != nil {
@@ -61,6 +63,9 @@ func scanListing(s Scanner) (domain.Listing, error) {
 	}
 	if enrichmentAttemptedAtStr.Valid {
 		l.EnrichmentAttemptedAt = parseNullableTime(enrichmentAttemptedAtStr.String)
+	}
+	if ratingUpdatedAtStr.Valid {
+		l.RatingUpdatedAt = parseNullableTime(ratingUpdatedAtStr.String)
 	}
 	return l, nil
 }
@@ -195,7 +200,7 @@ func (r *SQLiteRepository) buildListingWhere(filters ListingFilters) (string, []
 
 func (r *SQLiteRepository) buildOrderClause(sortField, sortOrder string) string {
 	if sortField == "" {
-		return "featured DESC, created_at DESC"
+		return "featured DESC, heat_level DESC, rating DESC, created_at DESC"
 	}
 
 	field := "created_at"

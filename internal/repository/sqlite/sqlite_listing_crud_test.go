@@ -261,3 +261,37 @@ func TestQualityProxyPersistence(t *testing.T) {
 	}
 }
 
+func TestDefaultSortingWithRating(t *testing.T) {
+	t.Parallel()
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
+	ctx := context.Background()
+
+	l1 := domain.Listing{ID: "sort-1", Title: "Low Rating", HeatLevel: 5, Rating: 2.0, ReviewCount: 10, IsActive: true, Status: domain.ListingStatusApproved, Type: domain.Food}
+	l2 := domain.Listing{ID: "sort-2", Title: "High Rating", HeatLevel: 5, Rating: 4.8, ReviewCount: 10, IsActive: true, Status: domain.ListingStatusApproved, Type: domain.Food}
+	l3 := domain.Listing{ID: "sort-3", Title: "Mid Rating", HeatLevel: 5, Rating: 3.5, ReviewCount: 10, IsActive: true, Status: domain.ListingStatusApproved, Type: domain.Food}
+
+	_ = repo.Save(ctx, l1)
+	_ = repo.Save(ctx, l2)
+	_ = repo.Save(ctx, l3)
+
+	// Note: FindAll defaults to Category Food if empty, so we set Type to Food above.
+	listings, _, err := repo.FindAll(ctx, string(domain.Food), "", "", 0, 0, 0, "", "", false, 10, 0)
+	if err != nil {
+		t.Fatalf("FindAll failed: %v", err)
+	}
+
+	if len(listings) < 3 {
+		t.Fatalf("Expected at least 3 listings, got %d", len(listings))
+	}
+
+	if listings[0].ID != "sort-2" {
+		t.Errorf("Expected first listing to be sort-2, got %s", listings[0].ID)
+	}
+	if listings[1].ID != "sort-3" {
+		t.Errorf("Expected second listing to be sort-3, got %s", listings[1].ID)
+	}
+	if listings[2].ID != "sort-1" {
+		t.Errorf("Expected third listing to be sort-1, got %s", listings[2].ID)
+	}
+}
+
