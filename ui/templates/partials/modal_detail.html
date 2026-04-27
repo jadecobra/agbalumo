@@ -6,9 +6,10 @@
         <!-- Header Image with Back/Close -->
         <div class="relative w-full aspect-video shrink-0">
             <div class="w-full h-full bg-center {{ if .Listing.ImageURL }}bg-cover{{ else }}bg-contain bg-no-repeat p-12 bg-origin-content opacity-90{{ end }} bg-white dark:bg-surface-dark"
-                style='background-image: url("{{ if .Listing.ImageURL }}{{ .Listing.ImageURL }}{{ else }}/static/images/logo.png{{ end }}");'>
+                style='background-image: url("{{ fallbackImageURL .Listing.ImageURL .Listing.WebsiteURL }}");'>
             </div>
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+
 
             <button data-modal-action="close"
                 class="absolute top-4 right-4 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition-colors z-[60]">

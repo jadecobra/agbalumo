@@ -9,7 +9,6 @@ import (
 	"time"
 )
 
-
 func seq(start, end int) []int {
 	var s []int
 	for i := start; i <= end; i++ {
@@ -106,4 +105,3 @@ func fallbackImageURL(imageURL, websiteURL string) string {
 	}
 	return "https://s2.googleusercontent.com/s2/favicons?domain=" + host + "&sz=256"
 }
-

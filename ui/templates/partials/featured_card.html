@@ -11,8 +11,9 @@
         from-earth-clay to-earth-ochre {{ else if eq .Listing.Type "Business" }}bg-gradient-to-br from-earth-accent
         to-earth-dark {{ else if eq .Listing.Type "Service" }}bg-gradient-to-br from-earth-ochre to-earth-accent {{ else
         }}bg-gradient-to-br from-earth-sand to-earth-cream{{ end }} {{ end }}"
-        style="background-image: url('{{ if .Listing.ImageURL }}{{ .Listing.ImageURL }}{{ else }}/static/images/logo.png{{ end }}'); background-blend-mode: overlay;">
+        style="background-image: url('{{ fallbackImageURL .Listing.ImageURL .Listing.WebsiteURL }}'); background-blend-mode: overlay;">
     </div>
+
 
     <!-- Gradient Overlay -->
     <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
