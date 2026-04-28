@@ -14,9 +14,9 @@
         <img src="{{.Listing.ImageURL}}" alt="{{.Listing.Title}}"
             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
         {{ else if .Listing.WebsiteURL }}
-        <div class="w-full h-full flex items-center justify-center bg-stone-50 dark:bg-stone-900/50">
+        <div class="absolute inset-0 bg-stone-50 dark:bg-stone-900/50">
             <img src="{{ fallbackImageURL "" .Listing.WebsiteURL }}" alt="{{.Listing.Title}}"
-                class="w-3/4 h-3/4 max-w-[128px] max-h-[128px] object-contain [image-rendering:pixelated] drop-shadow-sm opacity-80 group-hover:scale-110 transition-transform duration-700">
+                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 object-contain pixelated drop-shadow-sm opacity-80 group-hover:scale-110 transition-transform duration-700">
         </div>
         {{ else }}
         <div

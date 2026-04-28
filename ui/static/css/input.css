@@ -211,3 +211,9 @@
     transform: none !important;
   }
 }
+
+/* Pixelated image rendering for crisp scaling */
+.pixelated {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
