@@ -16,6 +16,14 @@ mutating: false
 - **Manual/Exploratory Checks**: The `browser_subagent` tool should NOW ONLY be used for exploratory testing of new features, assessing visual/aesthetic quality, and dealing with external third-party integrations.
 - **Continuous Automation**: If you find yourself repeating a manual subagent check, you MUST trigger the `/learn` workflow to extract that check into a Playwright test.
 
+## UI TDD Workflow (Aesthetic/Layout Tweaks)
+When modifying templates, CSS, or client-side assets where standard Go unit tests do not apply:
+1. **Identify Visual Issue**: Use `browser_subagent` or a baseline screenshot to isolate the layout flaw.
+2. **Apply Changes**: Modify HTML templates or `input.css`.
+3. **Compile & Reload**: Run `npm run build:css` (if applicable) and **RESTART** the server to clear the Go template cache.
+4. **Visual Verification**: Check responsiveness, margins, and aesthetic quality across target viewports via `browser_subagent`.
+5. **Regression Test**: Run `go run ./cmd/verify browser` before committing.
+
 ## Pre-flight (MANDATORY — always run before browser tasks)
 
 1. Read `.agents/invariants.json` — get `protocol` and `port` fields
