@@ -1,34 +1,35 @@
-package sqlite_test
+package sqlite
 
 import (
-	"context"
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestListingLocationFields(t *testing.T) {
-	repo, _ := testutil.SetupTestRepositoryUnique(t)
-	ctx := context.Background()
-
-	// This should fail to compile if State/Country are missing
-	l := domain.Listing{
-		ID:       "loc-test",
-		Title:    "Location Test",
-		City:     "Dallas",
-		State:    "TX",
-		Country:  "USA",
-		IsActive: true,
-		Status:   domain.ListingStatusApproved,
+func TestBuildListingWhere_LocationFallback(t *testing.T) {
+	tests := []struct {
+		name          string
+		filters       ListingFilters
+		expectedWhere string
+	}{
+		{
+			name: "fallback to city string match when radius search has zero coordinates",
+			filters: ListingFilters{
+				City:        "Dallas",
+				Radius:      10,
+				IncludedLat: 0,
+				IncludedLng: 0,
+			},
+			expectedWhere: "(city = ? OR address LIKE ?)",
+		},
 	}
 
-	err := repo.Save(ctx, l)
-	assert.NoError(t, err)
+	repo := &SQLiteRepository{}
 
-	got, err := repo.FindByID(ctx, "loc-test")
-	assert.NoError(t, err)
-	assert.Equal(t, "TX", got.State)
-	assert.Equal(t, "USA", got.Country)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			where, _ := repo.buildListingWhere(tt.filters)
+			assert.Contains(t, where, tt.expectedWhere)
+		})
+	}
 }
