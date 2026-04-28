@@ -18,65 +18,84 @@ func ComputeIsOpen(hoursText string, currentTime time.Time) bool {
 		return true
 	}
 
-	// 1. Check for explicit closed days
+	if isClosedToday(hoursText, currentTime) {
+		return false
+	}
+
+	if !isDayMatch(hoursText, currentTime) {
+		return false
+	}
+
+	return isTimeOpen(hoursText, currentTime)
+}
+
+func isClosedToday(hoursText string, currentTime time.Time) bool {
 	dayNames := []string{"", "mon", "tue", "wed", "thu", "fri", "sat", "sun"}
 	currentWeekday := int(currentTime.Weekday())
 	if currentWeekday == 0 {
-		currentWeekday = 7 // Map Sunday from 0 to 7
+		currentWeekday = 7
 	}
 
-	// Examples: "sun closed", "closed sundays", "closed on sunday"
 	for i := 1; i <= 7; i++ {
 		if i == currentWeekday {
 			closedPattern := regexp.MustCompile(`(?i)` + dayNames[i] + `.*\bclosed\b|\bclosed.*\b` + dayNames[i])
 			if closedPattern.MatchString(hoursText) {
-				return false
+				return true
 			}
 		}
 	}
+	return false
+}
 
-	// 2. Check day ranges
-	// Example: "mon-fri", "mon - sun", "daily"
+func isDayMatch(hoursText string, currentTime time.Time) bool {
+	currentWeekday := int(currentTime.Weekday())
+	if currentWeekday == 0 {
+		currentWeekday = 7
+	}
+
 	dayRangePattern := regexp.MustCompile(`(?i)(mon|tue|wed|thu|fri|sat|sun)\s*(?:-|to)\s*(mon|tue|wed|thu|fri|sat|sun)`)
 	rangeMatch := dayRangePattern.FindStringSubmatch(hoursText)
 
-	dayMatch := false
 	if len(rangeMatch) == 3 {
-		startDay := getDayNumber(rangeMatch[1])
-		endDay := getDayNumber(rangeMatch[2])
-
-		if startDay <= endDay {
-			if currentWeekday >= startDay && currentWeekday <= endDay {
-				dayMatch = true
-			}
-		} else {
-			// Wraps around, e.g., Fri-Tue
-			if currentWeekday >= startDay || currentWeekday <= endDay {
-				dayMatch = true
-			}
-		}
-	} else if strings.Contains(hoursText, "daily") || strings.Contains(hoursText, "mon-sun") || strings.Contains(hoursText, "mon - sun") {
-		dayMatch = true
-	} else {
-		// If no explicit range, assume it applies to the current day unless excluded
-		dayMatch = true
+		return checkDayRange(rangeMatch, currentWeekday)
 	}
 
-	if !dayMatch {
-		return false
-	}
+	return true
+}
 
-	// 3. Extract times
-	// Matches patterns like: 9am, 10:30pm, 22:00, 9:00 am
+func checkDayRange(rangeMatch []string, currentWeekday int) bool {
+	startDay := getDayNumber(rangeMatch[1])
+	endDay := getDayNumber(rangeMatch[2])
+
+	if startDay <= endDay {
+		return currentWeekday >= startDay && currentWeekday <= endDay
+	}
+	return currentWeekday >= startDay || currentWeekday <= endDay
+}
+
+func isTimeOpen(hoursText string, currentTime time.Time) bool {
 	timePattern := regexp.MustCompile(`(\d{1,2})(?::(\d{2}))?\s*(am|pm)?`)
 	matches := timePattern.FindAllStringSubmatch(hoursText, -1)
 
-	// We need at least an opening and closing time (2 matches)
 	if len(matches) < 2 {
 		return false
 	}
 
-	// Let's assume the first match is opening, and the last match (or second) is closing
+	openMinutes, closeMinutes, ok := extractOpenCloseMinutes(matches)
+	if !ok {
+		return false
+	}
+
+	currentMinutes := currentTime.Hour()*60 + currentTime.Minute()
+
+	if closeMinutes < openMinutes {
+		return currentMinutes >= openMinutes || currentMinutes < closeMinutes
+	}
+
+	return currentMinutes >= openMinutes && currentMinutes < closeMinutes
+}
+
+func extractOpenCloseMinutes(matches [][]string) (int, int, bool) {
 	openMatch := matches[0]
 	closeMatch := matches[1]
 
@@ -84,33 +103,21 @@ func ComputeIsOpen(hoursText string, currentTime time.Time) bool {
 	closeMinutes, ok2 := parseTimeToMinutes(closeMatch[1], closeMatch[2], closeMatch[3])
 
 	if !ok1 || !ok2 {
-		return false
+		return 0, 0, false
 	}
 
-	// Heuristic: If opening lacks AM/PM but closing has PM
 	if openMatch[3] == "" && closeMatch[3] == "pm" {
 		openHour, _ := strconv.Atoi(openMatch[1])
 		closeHour, _ := strconv.Atoi(closeMatch[1])
 		if openHour > closeHour {
-			// e.g., 9-5pm -> 9 AM to 5 PM
-			openMinutes += 0 // It's already AM
+			openMinutes += 0
 		} else if openHour < closeHour {
-			// e.g., 1-5pm -> 1 PM to 5 PM
 			if openHour < 12 {
-				openMinutes += 12 * 60 // Make it PM
+				openMinutes += 12 * 60
 			}
 		}
 	}
-
-	currentMinutes := currentTime.Hour()*60 + currentTime.Minute()
-
-	if closeMinutes < openMinutes {
-		// Overnight hours, e.g., 4pm - 2am
-		// Open if current time is >= openMinutes OR current time is < closeMinutes
-		return currentMinutes >= openMinutes || currentMinutes < closeMinutes
-	}
-
-	return currentMinutes >= openMinutes && currentMinutes < closeMinutes
+	return openMinutes, closeMinutes, true
 }
 
 func getDayNumber(day string) int {
