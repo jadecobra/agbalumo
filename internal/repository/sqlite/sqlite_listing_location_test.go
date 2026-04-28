@@ -9,8 +9,8 @@ import (
 func TestBuildListingWhere_LocationFallback(t *testing.T) {
 	tests := []struct {
 		name          string
-		filters       ListingFilters
 		expectedWhere string
+		filters       ListingFilters
 	}{
 		{
 			name: "fallback to city string match when radius search has zero coordinates",

@@ -208,8 +208,6 @@ func (r *SQLiteRepository) buildListingWhere(filters ListingFilters) (string, []
 		args = append(args, filters.QueryText)
 	}
 
-
-
 	return where, args
 }
 
