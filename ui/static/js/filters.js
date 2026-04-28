@@ -105,6 +105,15 @@ function setupFilterButtons() {
     document.addEventListener('change', (e) => {
         if (e.target.id === 'filter-radius') {
             window.filterState.radius = e.target.value;
+            
+            const select = e.target;
+            if (select.value !== '25') {
+                select.classList.add('bg-earth-ochre/10', 'text-earth-ochre', 'border-earth-ochre/50');
+                select.classList.remove('bg-white', 'text-earth-dark', 'border-earth-dark/10');
+            } else {
+                select.classList.remove('bg-earth-ochre/10', 'text-earth-ochre', 'border-earth-ochre/50');
+                select.classList.add('bg-white', 'text-earth-dark', 'border-earth-dark/10');
+            }
         }
     });
     document.addEventListener('input', (e) => {

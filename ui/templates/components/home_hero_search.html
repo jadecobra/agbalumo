@@ -154,16 +154,19 @@
                             <!-- Radius Select (HTMX-enabled) -->
                             <div class="space-y-1.5">
                                 <label for="filter-radius" class="text-[10px] font-bold uppercase tracking-widest text-earth-clay/60">Distance (Miles)</label>
-                                <select id="filter-radius" name="radius"
-                                    class="w-full bg-white border border-earth-dark/10 px-4 py-3 text-xs font-bold text-earth-dark outline-none focus:border-earth-ochre/50 transition-colors appearance-none cursor-pointer"
-                                    hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
-                                    hx-trigger="change">
-                                    <option value="5" {{ if eq .Radius 5.0 }}selected{{ end }}>Within 5 Miles</option>
-                                    <option value="10" {{ if eq .Radius 10.0 }}selected{{ end }}>Within 10 Miles</option>
-                                    <option value="25" {{ if or (eq .Radius 25.0) (eq .Radius 0.0) }}selected{{ end }}>Within 25 Miles</option>
-                                    <option value="50" {{ if eq .Radius 50.0 }}selected{{ end }}>Within 50 Miles</option>
-                                    <option value="100" {{ if eq .Radius 100.0 }}selected{{ end }}>Within 100 Miles</option>
-                                </select>
+                                <div class="relative">
+                                    <select id="filter-radius" name="radius"
+                                        class="w-full border px-4 py-3 text-xs font-bold outline-none focus:border-earth-ochre/50 transition-colors appearance-none cursor-pointer {{ if and (ne .Radius 25.0) (ne .Radius 0.0) }}bg-earth-ochre/10 text-earth-ochre border-earth-ochre/50{{ else }}bg-white text-earth-dark border-earth-dark/10{{ end }}"
+                                        hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
+                                        hx-trigger="change">
+                                        <option value="5" {{ if eq .Radius 5.0 }}selected{{ end }}>Within 5 Miles</option>
+                                        <option value="10" {{ if eq .Radius 10.0 }}selected{{ end }}>Within 10 Miles</option>
+                                        <option value="25" {{ if or (eq .Radius 25.0) (eq .Radius 0.0) }}selected{{ end }}>Within 25 Miles</option>
+                                        <option value="50" {{ if eq .Radius 50.0 }}selected{{ end }}>Within 50 Miles</option>
+                                        <option value="100" {{ if eq .Radius 100.0 }}selected{{ end }}>Within 100 Miles</option>
+                                    </select>
+                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-earth-clay/50 text-[18px] pointer-events-none">expand_more</span>
+                                </div>
                             </div>
                         </div>
                     </details>
