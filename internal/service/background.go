@@ -90,4 +90,3 @@ func (s *BackgroundService) enrichRatings(ctx context.Context) {
 		slog.Info("[Background] Enriched ratings", "count", count)
 	}
 }
-

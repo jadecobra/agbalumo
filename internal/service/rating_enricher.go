@@ -47,11 +47,10 @@ func (j *RatingEnricherJob) EnrichRatings(ctx context.Context, limit int) (int, 
 			continue
 		}
 		successCount++
-		
-		// Brief sleep to avoid rapid API depletion 
+
+		// Brief sleep to avoid rapid API depletion
 		time.Sleep(500 * time.Millisecond)
 	}
 
 	return successCount, nil
 }
-

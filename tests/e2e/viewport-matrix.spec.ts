@@ -19,7 +19,7 @@ for (const route of routes) {
       await page.goto(route.path);
       
       // Wait for the page to be stable
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('load');
 
       // Identify the sticky header
       const header = page.locator('header').first();

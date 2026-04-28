@@ -10,7 +10,7 @@ test.describe('HTMX Interactions and State Sync', () => {
     });
     page.on('pageerror', err => console.error(`[BROWSER ERROR] ${err.message}`));
 
-    await page.goto('/', { waitUntil: 'networkidle' });
+    await page.goto('/');
     
     // Wait for JS to initialize (filterState is defined at the top level of filters.js)
     await page.waitForFunction(() => typeof (window as any).filterState !== 'undefined', { timeout: 10000 });

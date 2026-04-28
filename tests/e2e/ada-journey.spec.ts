@@ -14,7 +14,7 @@ test.describe('UX Constraint: Ada Journey', () => {
 
     // 1. Landing on the site
     // We wait for networkidle to ensure initial assets are loaded
-    await page.goto('/', { waitUntil: 'networkidle' });
+    await page.goto('/');
     
     // Ensure the app is initialized (filterState is our JS initialization signal)
     await page.waitForFunction(() => typeof (window as any).filterState !== 'undefined', { timeout: 10000 });

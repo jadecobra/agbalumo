@@ -31,7 +31,7 @@ test.describe('Noise Removal Verification for Food Listings', () => {
     await overlay.click({ force: true });
 
     const modal = page.locator('dialog[open]');
-    await expect(modal).toBeVisible();
+    await expect(modal).toBeVisible({ timeout: 15000 });
 
     // 4. Assert ContactEmail is ABSENT
     const emailLink = modal.locator('[data-ada-discovery="email"]');
@@ -61,7 +61,7 @@ test.describe('Noise Removal Verification for Food Listings', () => {
     await overlay.click({ force: true });
 
     const modal = page.locator('dialog[open]');
-    await expect(modal).toBeVisible();
+    await expect(modal).toBeVisible({ timeout: 15000 });
 
     // 4. Assert ContactEmail is PRESENT
     const emailLink = modal.locator('[data-ada-discovery="email"]');

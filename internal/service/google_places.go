@@ -92,4 +92,3 @@ func (c *GooglePlacesClient) FetchMetrics(ctx context.Context, title, city strin
 		ReviewCount: apiResp.Places[0].UserRatingCount,
 	}, nil
 }
-

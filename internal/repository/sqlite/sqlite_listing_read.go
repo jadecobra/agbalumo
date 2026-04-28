@@ -344,6 +344,6 @@ func (r *SQLiteRepository) FindEnrichmentTargets(ctx context.Context, limit int)
 }
 
 func (r *SQLiteRepository) FindRatingBackfillTargets(ctx context.Context, limit int) ([]domain.Listing, error) {
-	where := "WHERE type = 'Food' AND (rating_updated_at IS NULL OR rating_updated_at < datetime('now', '-30 days')) LIMIT ?"
+	where := "WHERE is_active = 1 AND status = 'Approved' AND type = 'Food' AND (rating_updated_at IS NULL OR rating_updated_at < datetime('now', '-30 days')) LIMIT ?"
 	return r.queryListingsSimple(ctx, where, limit)
 }
