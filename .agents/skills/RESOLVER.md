@@ -18,7 +18,7 @@ Read this file at session start. Match intent against triggers. Read the skill f
 | Writing tests, fixing bugs, implementing features, TDD | `.agents/skills/go-tdd/SKILL.md` |
 | UI change, browser verification, layout check, viewport audit | `.agents/skills/browser-verify/SKILL.md` |
 | Pushing changes, CI failure, production parity | `.agents/skills/ci-parity/SKILL.md` |
-| `/plan`, `/architect`, let's plan, plan for flash | `.agents/skills/flash-plan/SKILL.md` |
+| /plan, /architect, let's plan, plan for flash, break this down, split into prompts, decompose, flash prompt, design for | .agents/skills/flash-plan/SKILL.md |
 
 
 ## Disambiguation
@@ -26,4 +26,5 @@ Read this file at session start. Match intent against triggers. Read the skill f
 2. Modifying `*_test.go` or user says "test" → `go-tdd`.
 3. Modifying templates/CSS/JS or user says "UI"/"layout" → `browser-verify`.
 4. Both apply → read BOTH skills.
-5. Uncertain → ask user.
+5. User says "plan the tests" or "plan the feature" → ask: "Do you want to plan with an expensive model (flash-plan) or execute directly (go-tdd)?"
+6. Uncertain → ask user.

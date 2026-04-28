@@ -58,6 +58,6 @@ skills:
     path: .agents/skills/ci-parity/SKILL.md
 
   - name: flash-plan
-    trigger: /plan, /architect, let's plan, plan for flash
+    trigger: /plan, /architect, let's plan, plan for flash, break this down, split into prompts, decompose, flash prompt, design for
     path: .agents/skills/flash-plan/SKILL.md
 
