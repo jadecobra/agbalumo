@@ -122,7 +122,7 @@ func TestFallbackImageURL(t *testing.T) {
 			name:       "Valid website URL",
 			imageURL:   "",
 			websiteURL: "https://tastyfood.com/menu?ref=test",
-			want:       "https://s2.googleusercontent.com/s2/favicons?domain=tastyfood.com&sz=256",
+			want:       "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://tastyfood.com&size=256",
 		},
 	}
 
