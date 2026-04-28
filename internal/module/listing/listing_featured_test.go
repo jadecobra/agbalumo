@@ -91,7 +91,7 @@ func TestHandleFragment_Featured(t *testing.T) {
 	}{
 		{
 			name:   "BasicPrioritization",
-			target: "/listings/fragment?page=1",
+			target: "/listings/fragment?page=1&type=All",
 			seed: func(t *testing.T, db domain.ListingRepository) {
 				for _, s := range []struct {
 					id       string

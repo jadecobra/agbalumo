@@ -67,7 +67,7 @@ func TestHandleProfile(t *testing.T) {
 
 func TestHandleFragment(t *testing.T) {
 	t.Parallel()
-	c, rec := testutil.SetupModuleContext(http.MethodGet, "/listings/fragment?q=Search", nil)
+	c, rec := testutil.SetupModuleContext(http.MethodGet, "/listings/fragment?q=Search&type=All", nil)
 	c.Request().Header.Set("HX-Request", "true")
 
 	env := testutil.SetupTestModuleEnv(t)

@@ -73,8 +73,10 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 
 	var totalCount int
 	filterType := c.QueryParam(domain.FieldType)
-	if filterType == "" {
-		filterType = string(domain.Food) // Default to Food for Ada
+	if filterType == "All" {
+		filterType = ""
+	} else if filterType == "" {
+		filterType = string(domain.Food)
 	}
 	queryText := c.QueryParam(domain.ParamQuery)
 	city := c.QueryParam(domain.FieldCity)
@@ -174,8 +176,9 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 		radius, _ = strconv.ParseFloat(radiusStr, 64)
 	}
 
-	// Ada focus: If location is picked but no category, default to Food
-	if city != "" && filterType == "" {
+	if filterType == "All" {
+		filterType = ""
+	} else if filterType == "" {
 		filterType = string(domain.Food)
 	}
 

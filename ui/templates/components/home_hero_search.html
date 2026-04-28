@@ -110,19 +110,19 @@
                         </summary>
                         
                         <div class="flex flex-col w-full bg-earth-sand/50">
-                            <button type="button" data-category-name="" data-testid="ag-filter-category-all"
-                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest hover:bg-earth-ochre/10 transition-colors w-full border-b border-earth-dark/5 text-earth-dark">
+                            <button type="button" data-category-name="All" data-testid="ag-filter-category-all"
+                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq .Category "" }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
                                 All Categories
                             </button>
                             <!-- Prioritize Food Category for Ada -->
                             <button type="button" data-category-name="Food" data-testid="ag-filter-category-food"
-                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest bg-earth-ochre/10 text-earth-ochre transition-colors w-full border-b border-earth-dark/5">
+                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq .Category "Food" }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
                                 Food ({{ if index .Counts "Food" }}{{ index .Counts "Food" }}{{ else }}0{{ end }})
                             </button>
                             {{ range .Categories }}
                             {{ if and (ne .Name "Food") (ne .Name "Request") }}
                             <button type="button" data-category-name="{{ .Name }}" data-testid="ag-filter-category-{{ .Name }}"
-                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest hover:bg-earth-ochre/10 transition-colors w-full border-b border-earth-dark/5 text-earth-dark">
+                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq $.Category .Name }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
                                 {{ if .Name }}{{ .Name }}{{ else }}Category{{ end }} ({{ if index $.Counts .Name }}{{ index $.Counts .Name }}{{ else }}0{{ end }})
                             </button>
                             {{ end }}
