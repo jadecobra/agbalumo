@@ -12,3 +12,8 @@ type CategorizationService interface {
 	GetActiveCategories(ctx context.Context) ([]CategoryData, error)
 	GetCategories(ctx context.Context, filter CategoryFilter) ([]CategoryData, error)
 }
+
+// HoursExtractor parses unstructured hours into a structured JSON string.
+type HoursExtractor interface {
+	ExtractHours(ctx context.Context, rawHours string) (string, error)
+}

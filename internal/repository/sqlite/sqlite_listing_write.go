@@ -76,8 +76,8 @@ func (r *SQLiteRepository) insertBatch(ctx context.Context, tx *sql.Tx, batch []
 }
 
 func (r *SQLiteRepository) buildBulkInsertSQL(batch []domain.Listing) (string, []interface{}) {
-	const numFields = 40
-	const placeholders = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	const numFields = 41
+	const placeholders = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
 	var sb strings.Builder
 	// Pre-allocate approximate size: len(batch) * len(placeholders) + SQL header/footer
@@ -101,7 +101,7 @@ func (r *SQLiteRepository) buildBulkInsertSQL(batch []domain.Listing) (string, [
 }
 
 func (r *SQLiteRepository) listingArgs(l domain.Listing) []interface{} {
-	args := make([]interface{}, 40)
+	args := make([]interface{}, 41)
 	r.fillListingArgs(args, 0, l)
 	return args
 }
@@ -147,6 +147,7 @@ func (r *SQLiteRepository) fillListingArgs(args []interface{}, offset int, l dom
 	args[offset+37] = l.Rating
 	args[offset+38] = l.ReviewCount
 	args[offset+39] = l.RatingUpdatedAt
+	args[offset+40] = l.StructuredHours
 }
 
 func (r *SQLiteRepository) ensureStatus(s domain.ListingStatus) string {

@@ -83,7 +83,7 @@ var enrichCmd = &cobra.Command{
 		defer func() { _ = repo.Close() }()
 
 		scraper := service.NewWebsiteScraper()
-		job := service.NewScraperJob(repo, scraper)
+		job := service.NewScraperJob(repo, scraper, service.NewGeminiHoursExtractor(os.Getenv("GEMINI_API_KEY"), nil))
 
 		fmt.Println("🚀 Starting Manual Enrichment Job...")
 		count, err := job.EnrichListings(cmd.Context(), 50)

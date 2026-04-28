@@ -27,12 +27,10 @@ type Listing struct {
 	EventStart            time.Time     `json:"event_start" form:"event_start"`
 	EventEnd              time.Time     `json:"event_end" form:"event_end"`
 	JobStartDate          time.Time     `json:"job_start_date" form:"job_start_date"`
-	RatingUpdatedAt       *time.Time    `json:"rating_updated_at" form:"rating_updated_at"`
 	EnrichmentAttemptedAt *time.Time    `json:"enrichment_attempted_at" form:"enrichment_attempted_at"`
-	WebsiteURL            string        `json:"website_url" form:"website_url"`
-	PayRange              string        `json:"pay_range" form:"pay_range"`
-	Title                 string        `json:"title" form:"title"`
-	Description           string        `json:"description" form:"description"`
+	RatingUpdatedAt       *time.Time    `json:"rating_updated_at" form:"rating_updated_at"`
+	JobApplyURL           string        `json:"job_apply_url" form:"job_apply_url"`
+	TopDish               string        `json:"top_dish" form:"top_dish"`
 	City                  string        `json:"city" form:"city"`
 	State                 string        `json:"state" form:"state"`
 	Country               string        `json:"country" form:"country"`
@@ -44,11 +42,11 @@ type Listing struct {
 	ContactWhatsApp       string        `json:"contact_whatsapp" form:"contact_whatsapp"`
 	OwnerOrigin           string        `json:"owner_origin" form:"owner_origin"`
 	Skills                string        `json:"skills" form:"skills"`
-	JobApplyURL           string        `json:"job_apply_url" form:"job_apply_url"`
+	Title                 string        `json:"title" form:"title"`
 	Company               string        `json:"company" form:"company"`
 	Anchor                string        `json:"anchor" form:"anchor"`
 	RegionalSpecialty     string        `json:"regional_specialty" form:"regional_specialty"`
-	TopDish               string        `json:"top_dish" form:"top_dish"`
+	Description           string        `json:"description" form:"description"`
 	PaymentMethods        string        `json:"payment_methods" form:"payment_methods"`
 	MenuURL               string        `json:"menu_url" form:"menu_url"`
 	DeliveryPlatforms     string        `json:"delivery_platforms" form:"delivery_platforms"`
@@ -56,6 +54,9 @@ type Listing struct {
 	Status                ListingStatus `json:"status" form:"status"`
 	OwnerID               string        `json:"owner_id" form:"owner_id"`
 	ID                    string        `json:"id" form:"id"`
+	StructuredHours       string        `json:"structured_hours" form:"structured_hours"`
+	PayRange              string        `json:"pay_range" form:"pay_range"`
+	WebsiteURL            string        `json:"website_url" form:"website_url"`
 	Latitude              float64       `json:"latitude" form:"latitude"`
 	Longitude             float64       `json:"longitude" form:"longitude"`
 	Rating                float64       `json:"rating" form:"rating"`

@@ -201,8 +201,9 @@ func setupBackgroundServices(ctx context.Context, cfg *config.Config, repo *sqli
 
 	bgService := service.NewBackgroundService(
 		repo,
-		service.NewScraperJob(repo, service.NewWebsiteScraper()),
+		service.NewScraperJob(repo, service.NewWebsiteScraper(), service.NewGeminiHoursExtractor(os.Getenv("GEMINI_API_KEY"), nil)),
 		service.NewRatingEnricherJob(repo, service.NewGooglePlacesClient(cfg.GoogleMapsAPIKey)),
 	)
+
 	go bgService.StartTicker(ctx)
 }

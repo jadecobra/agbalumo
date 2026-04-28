@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"regexp"
 	"strconv"
 	"strings"
@@ -8,7 +9,11 @@ import (
 )
 
 // ComputeIsOpen determines if a listing is currently open based on its unstructured hours text.
-func ComputeIsOpen(hoursText string, currentTime time.Time) bool {
+func ComputeIsOpen(hoursText string, structuredHours string, currentTime time.Time) bool {
+	if isOpen, evaluated := evaluateStructuredHours(structuredHours, currentTime); evaluated {
+		return isOpen
+	}
+
 	hoursText = strings.ToLower(strings.TrimSpace(hoursText))
 	if hoursText == "" {
 		return false
@@ -158,4 +163,67 @@ func parseTimeToMinutes(hourStr, minStr, ampmStr string) (int, bool) {
 	}
 
 	return hour*60 + min, true
+}
+
+func evaluateStructuredHours(structured string, currentTime time.Time) (bool, bool) {
+	if structured == "" {
+		return false, false
+	}
+
+	var schedule map[string][]string
+	if err := json.Unmarshal([]byte(structured), &schedule); err != nil {
+		return false, false // invalid JSON, fallback to regex
+	}
+
+	dayNames := []string{"sun", "mon", "tue", "wed", "thu", "fri", "sat"}
+	weekday := strings.ToLower(dayNames[currentTime.Weekday()])
+
+	ranges, ok := schedule[weekday]
+	if !ok {
+		return false, false // day not present in JSON, fallback to regex
+	}
+
+	if len(ranges) == 0 {
+		return false, true // explicitly closed today
+	}
+
+	currentMinutes := currentTime.Hour()*60 + currentTime.Minute()
+
+	for _, r := range ranges {
+		if isTimeInRange(r, currentMinutes) {
+			return true, true
+		}
+	}
+
+	return false, true // was evaluated and determined to be closed
+}
+
+func isTimeInRange(timeRange string, currentMinutes int) bool {
+	parts := strings.Split(timeRange, "-")
+	if len(parts) != 2 {
+		return false
+	}
+	openMin, ok1 := parseTimeStr(parts[0])
+	closeMin, ok2 := parseTimeStr(parts[1])
+	if !ok1 || !ok2 {
+		return false
+	}
+
+	if closeMin < openMin { // overlaps midnight
+		return currentMinutes >= openMin || currentMinutes < closeMin
+	}
+	return currentMinutes >= openMin && currentMinutes < closeMin
+}
+
+func parseTimeStr(t string) (int, bool) {
+	parts := strings.Split(strings.TrimSpace(t), ":")
+	if len(parts) != 2 {
+		return 0, false
+	}
+	h, err1 := strconv.Atoi(parts[0])
+	m, err2 := strconv.Atoi(parts[1])
+	if err1 != nil || err2 != nil {
+		return 0, false
+	}
+	return h*60 + m, true
 }

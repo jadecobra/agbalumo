@@ -45,8 +45,9 @@ func TestScraperJob_EnrichListings(t *testing.T) {
 
 	// 4. Run job
 	scraper := NewWebsiteScraper()
-	job := NewScraperJob(repo, scraper)
+	job := NewScraperJob(repo, scraper, nil)
 	count, err := job.EnrichListings(ctx, 10)
+
 	if err != nil {
 		t.Fatalf("job failed: %v", err)
 	}
@@ -94,7 +95,7 @@ func TestScraperJob_EnrichAttemptedAtOnFailure(t *testing.T) {
 	}
 
 	scraper := NewWebsiteScraper()
-	job := NewScraperJob(repo, scraper)
+	job := NewScraperJob(repo, scraper, nil)
 
 	_, _ = job.EnrichListings(ctx, 10)
 
@@ -121,7 +122,7 @@ func TestScraperJob_EnrichListings_RateLimiting(t *testing.T) {
 	_ = repo.Save(ctx, domain.Listing{ID: "rl-2", Title: "RL 2", WebsiteURL: "http://example.com/2", Type: domain.Food, OwnerOrigin: "Nigeria", IsActive: true, Status: domain.ListingStatusApproved})
 
 	scraper := NewWebsiteScraper()
-	job := NewScraperJob(repo, scraper)
+	job := NewScraperJob(repo, scraper, nil)
 
 	start := time.Now()
 	_, _ = job.EnrichListings(ctx, 10)

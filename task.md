@@ -1,18 +1,21 @@
 # Decision Log
 
-- **2026-04-27**: Stripping non-food noise from Food listing UI. ContactEmail is removed for Food listings in `modal_detail.html`.
-- **2026-04-28**: Enhancing Favicon Aesthetics for Listings.
-  - **The Problem**: Centered favicons are too small (`w-24`) and blurry when upscaled by the browser.
-  - **Upscaling Strategy**: Use `image-rendering: pixelated` in CSS to make low-res icons sharp instead of blurry. Continue using the Google Favicon service (`size=256`) to avoid latency-heavy scraping.
-  - **Resizing Strategy**: Replace fixed sizing (`w-20 h-20` / `w-24 h-24`) with percentage-based sizing (`w-4/5 h-4/5`) combined with `object-contain` to fill the bounding box without cutting off.
-  - **Complexity Kill-Switch**: Rejecting a dynamic icon scraper. The latency budget allows < 100ms; scraping external sites for high-res icons would violate this.
+- **2026-04-28**: Implementing Hours-to-Pulse LLM Pipeline for accurate closed indicators.
+  - **The Problem**: Regex parsing of operating hours causes false closures for weekend schedules.
+  - **The Decision**: Add `structured_hours` field to listings, backed by Gemini extraction during enrichment.
+  - **Complexity Kill-Switch**: Pre-computing JSON hours at enrichment time protects the search latency budget (< 100ms impact).
 
 # Execution Plan
 
 ## Phase 2: Autonomous Execution Loop (TDD)
-- [ ] Modify `ui/templates/partials/listing_card.html` to apply `image-rendering: pixelated` to the fallback image.
-- [ ] Update `ui/templates/partials/listing_card.html` to change image classes from `w-20 h-20 md:w-24 md:h-24` to `w-3/4 h-3/4 max-w-[128px] max-h-[128px]`.
-- [ ] Verify changes visually using `browser_subagent` across viewports.
+- [x] Create database migration `internal/repository/sqlite/migrations/010_structured_hours.sql`.
+- [x] Update `internal/domain/listing.go` to include `StructuredHours string \`json:"structured_hours" form:"structured_hours"\``.
+- [x] Update `internal/repository/sqlite/queries.go`, `sqlite_listing_read.go`, and `sqlite_listing_write.go` to support `structured_hours`.
+- [x] Create a Gemini API extraction client in `internal/service/gemini_extractor.go` to map raw text to JSON.
+- [x] Update `scraper_job.go` to populate `structured_hours` via Gemini upon website parsing.
+- [x] Update `ComputeIsOpen` in `hours_parser.go` to prefer the `structured_hours` schema.
 
 ## Phase 3: Audit & Resilience
-- [ ] Run `go run ./cmd/verify browser` for regression testing.
+- [x] Run `go test ./internal/service/ -run TestComputeIsOpen` to verify logic.
+- [x] Run `go run ./cmd/verify precommit` for full regression testing.
+

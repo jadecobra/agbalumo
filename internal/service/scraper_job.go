@@ -9,14 +9,16 @@ import (
 )
 
 type ScraperJob struct {
-	repo    domain.ListingRepository
-	scraper *WebsiteScraper
+	repo           domain.ListingRepository
+	scraper        *WebsiteScraper
+	hoursExtractor domain.HoursExtractor
 }
 
-func NewScraperJob(repo domain.ListingRepository, scraper *WebsiteScraper) *ScraperJob {
+func NewScraperJob(repo domain.ListingRepository, scraper *WebsiteScraper, hoursExtractor domain.HoursExtractor) *ScraperJob {
 	return &ScraperJob{
-		repo:    repo,
-		scraper: scraper,
+		repo:           repo,
+		scraper:        scraper,
+		hoursExtractor: hoursExtractor,
 	}
 }
 
@@ -44,6 +46,14 @@ func (j *ScraperJob) enrichSingle(ctx context.Context, l domain.Listing) bool {
 	signals, err := j.scraper.ScrapeListing(ctx, l.WebsiteURL)
 	now := time.Now()
 	l.EnrichmentAttemptedAt = &now
+
+	if l.HoursOfOperation != "" && j.hoursExtractor != nil {
+		if structured, extractErr := j.hoursExtractor.ExtractHours(ctx, l.HoursOfOperation); extractErr == nil {
+			l.StructuredHours = structured
+		} else {
+			slog.Error("[ScraperJob] Failed to extract structured hours", slog.String("id", l.ID), slog.Any("error", extractErr))
+		}
+	}
 
 	if err != nil {
 		slog.Error("[ScraperJob] Failed to scrape", slog.String("id", l.ID), slog.Any("error", err))

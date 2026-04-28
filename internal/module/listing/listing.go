@@ -132,10 +132,10 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 
 	now := time.Now()
 	for i := range listings {
-		listings[i].IsCurrentlyOpen = service.ComputeIsOpen(listings[i].HoursOfOperation, now)
+		listings[i].IsCurrentlyOpen = service.ComputeIsOpen(listings[i].HoursOfOperation, listings[i].StructuredHours, now)
 	}
 	for i := range featured {
-		featured[i].IsCurrentlyOpen = service.ComputeIsOpen(featured[i].HoursOfOperation, now)
+		featured[i].IsCurrentlyOpen = service.ComputeIsOpen(featured[i].HoursOfOperation, featured[i].StructuredHours, now)
 	}
 
 	u := c.Get(domain.CtxKeyUser)
@@ -196,10 +196,10 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 
 	now := time.Now()
 	for i := range listings {
-		listings[i].IsCurrentlyOpen = service.ComputeIsOpen(listings[i].HoursOfOperation, now)
+		listings[i].IsCurrentlyOpen = service.ComputeIsOpen(listings[i].HoursOfOperation, listings[i].StructuredHours, now)
 	}
 	for i := range featured {
-		featured[i].IsCurrentlyOpen = service.ComputeIsOpen(featured[i].HoursOfOperation, now)
+		featured[i].IsCurrentlyOpen = service.ComputeIsOpen(featured[i].HoursOfOperation, featured[i].StructuredHours, now)
 	}
 
 	data := map[string]interface{}{
@@ -280,7 +280,7 @@ func (h *ListingHandler) findListing(c echo.Context, id string) (domain.Listing,
 		_ = ui.RespondErrorMsg(c, http.StatusNotFound, (domain.ErrListingNotFound).Error())
 		return domain.Listing{}, echo.ErrNotFound
 	}
-	listing.IsCurrentlyOpen = service.ComputeIsOpen(listing.HoursOfOperation, time.Now())
+	listing.IsCurrentlyOpen = service.ComputeIsOpen(listing.HoursOfOperation, listing.StructuredHours, time.Now())
 	return listing, nil
 }
 

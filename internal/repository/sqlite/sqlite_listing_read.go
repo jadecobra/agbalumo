@@ -43,6 +43,7 @@ func scanListing(s Scanner) (domain.Listing, error) {
 		&enrichmentAttemptedAtStr,
 		&l.Rating, &l.ReviewCount,
 		&ratingUpdatedAtStr,
+		&l.StructuredHours,
 	)
 
 	if err != nil {
