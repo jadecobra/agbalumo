@@ -57,3 +57,7 @@ skills:
     trigger: pushing_changes, ci_failure, production_parity
     path: .agents/skills/ci-parity/SKILL.md
 
+  - name: flash-plan
+    trigger: /plan, /architect, let's plan, plan for flash
+    path: .agents/skills/flash-plan/SKILL.md
+

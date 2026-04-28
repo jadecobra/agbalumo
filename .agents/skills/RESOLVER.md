@@ -18,6 +18,7 @@ Read this file at session start. Match intent against triggers. Read the skill f
 | Writing tests, fixing bugs, implementing features, TDD | `.agents/skills/go-tdd/SKILL.md` |
 | UI change, browser verification, layout check, viewport audit | `.agents/skills/browser-verify/SKILL.md` |
 | Pushing changes, CI failure, production parity | `.agents/skills/ci-parity/SKILL.md` |
+| `/plan`, `/architect`, let's plan, plan for flash | `.agents/skills/flash-plan/SKILL.md` |
 
 
 ## Disambiguation
