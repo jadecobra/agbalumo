@@ -139,4 +139,13 @@ func TestHandleFragment_AdaDefaulting(t *testing.T) {
 	}
 	assert.NotContains(t, rec2.Body.String(), "Houston Jollof")
 	assert.Contains(t, rec2.Body.String(), "Houston Hair")
+
+	// Case 3: Filter by City AND specify type=All -> should return ALL categories
+	c3, rec3 := testutil.SetupModuleContext(http.MethodGet, "/listings/fragment?city=Houston&type=All", nil)
+	c3.Request().Header.Set("HX-Request", "true")
+	if err := h.HandleFragment(c3); err != nil {
+		t.Fatal(err)
+	}
+	assert.Contains(t, rec3.Body.String(), "Houston Jollof")
+	assert.Contains(t, rec3.Body.String(), "Houston Hair")
 }
