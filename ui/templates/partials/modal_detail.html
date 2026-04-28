@@ -5,9 +5,11 @@
 {{ define "modal_detail_content" }}
         <!-- Header Image with Back/Close -->
         <div class="relative w-full aspect-video shrink-0">
-            <div class="w-full h-full bg-center {{ if .Listing.ImageURL }}bg-cover{{ else }}bg-contain bg-no-repeat p-12 bg-origin-content opacity-90{{ end }} bg-white dark:bg-surface-dark"
-                style='background-image: url("{{ fallbackImageURL .Listing.ImageURL .Listing.WebsiteURL }}");'>
-            </div>
+            {{ if .Listing.ImageURL }}
+            <div class="w-full h-full bg-center bg-cover bg-white dark:bg-surface-dark" style="background-image: url('{{.Listing.ImageURL}}');"></div>
+            {{ else }}
+            <div class="w-full h-full flex items-center justify-center bg-stone-100 dark:bg-surface-dark"><img src="{{ fallbackImageURL "" .Listing.WebsiteURL }}" class="w-24 h-24 object-contain opacity-40 drop-shadow-md"></div>
+            {{ end }}
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
 
 
