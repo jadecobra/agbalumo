@@ -95,26 +95,45 @@
                 </h3>
             </div>
         </div>
-
-        {{ if eq .Listing.Type "Job" }}
-        <div
-            class="flex flex-col gap-0.5 md:gap-1 mb-2 md:mb-3 text-[10px] md:text-xs font-semibold text-text-sub dark:text-stone-400">
-            <div class="flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-[14px] md:text-[16px]">business</span>
-                {{ .Listing.Company }}
-            </div>
-            {{ if .Listing.PayRange }}
-            <div class="flex items-center gap-1.5 text-earth-accent">
-                <span class="material-symbols-outlined text-[14px] md:text-[16px]">payments</span>
-                {{ .Listing.PayRange }}
-            </div>
-            {{ end }}
-        </div>
-        {{ end }}
-
-        <p class="text-text-sub dark:text-stone-400 text-[10px] md:text-xs line-clamp-2 leading-relaxed mb-4 md:mb-6">
-            {{ .Listing.Description }}
-        </p>
+ 
+         {{ if eq .Listing.Type "Food" }}
+         <div class="flex flex-col gap-2 mb-4 md:mb-6 mt-1">
+             {{ if .Listing.TopDish }}
+             <div class="flex items-center gap-2 text-earth-ochre">
+                 <span class="material-symbols-outlined text-[18px]">restaurant</span>
+                 <span class="text-xs md:text-sm font-bold tracking-wide">Signature: {{ .Listing.TopDish }}</span>
+             </div>
+             {{ end }}
+             {{ if .Listing.RegionalSpecialty }}
+             <div class="flex items-center gap-2 text-palm-green">
+                 <span class="material-symbols-outlined text-[18px]">workspace_premium</span>
+                 <span class="text-xs md:text-sm font-bold tracking-wide">Origin: {{ .Listing.RegionalSpecialty }}</span>
+             </div>
+             {{ end }}
+         </div>
+         {{ end }}
+ 
+         {{ if eq .Listing.Type "Job" }}
+         <div
+             class="flex flex-col gap-0.5 md:gap-1 mb-2 md:mb-3 text-[10px] md:text-xs font-semibold text-text-sub dark:text-stone-400">
+             <div class="flex items-center gap-1.5">
+                 <span class="material-symbols-outlined text-[14px] md:text-[16px]">business</span>
+                 {{ .Listing.Company }}
+             </div>
+             {{ if .Listing.PayRange }}
+             <div class="flex items-center gap-1.5 text-earth-accent">
+                 <span class="material-symbols-outlined text-[14px] md:text-[16px]">payments</span>
+                 {{ .Listing.PayRange }}
+             </div>
+             {{ end }}
+         </div>
+         {{ end }}
+ 
+         {{ if not (eq .Listing.Type "Food") }}
+         <p class="text-text-sub dark:text-stone-400 text-[10px] md:text-xs line-clamp-2 leading-relaxed mb-4 md:mb-6">
+             {{ .Listing.Description }}
+         </p>
+         {{ end }}
 
         <!-- Footer Info -->
         <div
