@@ -1,5 +1,5 @@
 {{ define "modal_detail" }}
-{{ template "modal_base" dict "ID" (print "detail-modal-" .Listing.ID) "MarginClass" "m-0 md:m-auto" "InsetClass" "fixed md:relative inset-0 md:inset-auto" "ContentID" "modal-content" "MaxHeightClass" "md:max-h-[90vh]" "NoPadding" true "NoDecorativeBg" true "NoHeader" true "NoBottomClose" true "InnerTemplate" "modal_detail_content" "Data" . }}
+{{ template "modal_base" dict "ID" (print "detail-modal-" .Listing.ID) "MarginClass" "m-0 md:m-auto" "ContentID" "modal-content" "MaxHeightClass" "md:max-h-[90vh]" "NoPadding" true "NoDecorativeBg" true "NoHeader" true "NoBottomClose" true "InnerTemplate" "modal_detail_content" "Data" . }}
 {{ end }}
 
 {{ define "modal_detail_content" }}
