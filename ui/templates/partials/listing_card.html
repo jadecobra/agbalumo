@@ -16,7 +16,7 @@
         {{ else if .Listing.WebsiteURL }}
         <div class="w-full h-full flex items-center justify-center bg-stone-50 dark:bg-stone-900/50">
             <img src="{{ fallbackImageURL "" .Listing.WebsiteURL }}" alt="{{.Listing.Title}}"
-                class="w-20 h-20 md:w-24 md:h-24 object-contain drop-shadow-sm opacity-80 group-hover:scale-110 transition-transform duration-700">
+                class="w-3/4 h-3/4 max-w-[128px] max-h-[128px] object-contain [image-rendering:pixelated] drop-shadow-sm opacity-80 group-hover:scale-110 transition-transform duration-700">
         </div>
         {{ else }}
         <div
