@@ -103,7 +103,7 @@ func fallbackImageURL(imageURL, websiteURL string) string {
 	if strings.Contains(host, ":") {
 		host = strings.Split(host, ":")[0]
 	}
-	return "https://s2.googleusercontent.com/s2/favicons?domain=" + host + "&sz=256"
+	return "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://" + host + "&size=256"
 }
 
 func hasDelivery(platforms string, platformName string) bool {
