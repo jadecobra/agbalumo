@@ -164,24 +164,7 @@ func (r *SQLiteRepository) buildListingWhere(filters ListingFilters) (string, []
 		args = append(args, filters.OwnerID)
 	}
 
-	if filters.City != "" {
-		if filters.Radius > 0 && filters.IncludedLat != 0 && filters.IncludedLng != 0 {
-			// Bounding Box Optimization (Roughly 1 degree = 69 miles)
-			latDelta := filters.Radius / 69.0
-			lngDelta := filters.Radius / (69.0 * 0.707) // Approximation for mid-latitudes
-
-			where += ` AND latitude BETWEEN ? AND ? AND longitude BETWEEN ? AND ?`
-			args = append(args, filters.IncludedLat-latDelta, filters.IncludedLat+latDelta, filters.IncludedLng-lngDelta, filters.IncludedLng+lngDelta)
-
-			// Haversine formula for exact radius filtering
-			// 3959 is the Earth's radius in miles
-			where += ` AND (3959 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) <= ?`
-			args = append(args, filters.IncludedLat, filters.IncludedLng, filters.IncludedLat, filters.Radius)
-		} else {
-			where += ` AND (city = ? OR address LIKE ?)`
-			args = append(args, filters.City, "%"+filters.City+"%")
-		}
-	} else if filters.Radius > 0 && filters.IncludedLat != 0 && filters.IncludedLng != 0 {
+	if filters.Radius > 0 && filters.IncludedLat != 0 && filters.IncludedLng != 0 {
 		// Bounding Box Optimization (Roughly 1 degree = 69 miles)
 		latDelta := filters.Radius / 69.0
 		lngDelta := filters.Radius / (69.0 * 0.707) // Approximation for mid-latitudes
@@ -193,6 +176,9 @@ func (r *SQLiteRepository) buildListingWhere(filters ListingFilters) (string, []
 		// 3959 is the Earth's radius in miles
 		where += ` AND (3959 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) <= ?`
 		args = append(args, filters.IncludedLat, filters.IncludedLng, filters.IncludedLat, filters.Radius)
+	} else if filters.City != "" {
+		where += ` AND (city = ? OR address LIKE ?)`
+		args = append(args, filters.City, "%"+filters.City+"%")
 	}
 
 	if filters.FeaturedOnly {
