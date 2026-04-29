@@ -19,3 +19,11 @@
 - [x] Run `go test ./internal/service/ -run TestComputeIsOpen` to verify logic.
 - [x] Run `go run ./cmd/verify precommit` for full regression testing.
 
+
+# Design Critique Log
+- **2026-04-29**: Executed `/design-critique`.
+  - [x] **Desktop Audit**: Passed.
+  - [x] **Mobile Audit**: Passed (fixed search bar alignment to prevent bottom floating nav overlap).
+  - [x] **Subtract Mandate**: Removed redundant uppercase "agbalumo" hero text.
+
+
