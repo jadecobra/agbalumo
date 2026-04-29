@@ -1,5 +1,5 @@
 {{ define "modal_detail" }}
-{{ template "modal_base" dict "ID" (print "detail-modal-" .Listing.ID) "MarginClass" "m-0 md:m-auto" "ContentID" "modal-content" "MaxHeightClass" "md:max-h-[90vh]" "NoPadding" true "NoDecorativeBg" true "NoHeader" true "NoBottomClose" true "InnerTemplate" "modal_detail_content" "Data" . }}
+{{ template "modal_base" dict "ID" (print "detail-modal-" .Listing.ID) "MarginClass" "m-0 md:m-auto" "ContentID" "modal-content" "MaxHeightClass" "md:max-h-[90vh]" "NoPadding" true "NoDecorativeBg" true "NoHeader" true "NoBottomClose" true "CustomScroll" true "InnerTemplate" "modal_detail_content" "Data" . }}
 {{ end }}
 
 {{ define "modal_detail_content" }}
@@ -49,7 +49,7 @@
         </div>
 
         <!-- Scrollable Content -->
-        <div class="p-6 overflow-y-auto bg-white dark:bg-surface-dark">
+        <div class="p-6 overflow-y-auto bg-white dark:bg-surface-dark flex-1">
             <div class="flex items-center justify-between mb-4">
                 <a href="https://www.google.com/maps/search/?api=1&query={{ urlquery .Listing.Address }},{{ urlquery .Listing.City }}" target="_blank" data-ada-discovery="maps" class="flex items-start gap-2 text-text-main/70 dark:text-earth-cream/70 hover:text-earth-accent transition-colors text-sm">
                     <span class="material-symbols-outlined text-[18px] mt-0.5">location_on</span>

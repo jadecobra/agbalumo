@@ -79,7 +79,7 @@
     <div {{ if .ContentID }}id="{{ .ContentID }}"{{ end }} class="bg-surface-dark/95 backdrop-blur-xl relative flex flex-col h-full md:h-auto {{ if .MaxHeightClass }}{{ .MaxHeightClass }}{{ else }}md:max-h-[85vh]{{ end }} overflow-hidden">
         
         <!-- Scrollable Inner Content -->
-        <div class="{{ if .NoPadding }}p-0{{ else }}p-6{{ end }} relative overflow-y-auto flex-1 flex flex-col min-h-0">
+        <div class="{{ if .NoPadding }}p-0{{ else }}p-6{{ end }} relative {{ if not .CustomScroll }}overflow-y-auto{{ end }} flex-1 flex flex-col min-h-0">
             <!-- Decorative Background -->
             {{ if not .NoDecorativeBg }}
             <div class="absolute top-0 right-0 w-32 h-32 {{ if .DecorativeBgClass }}{{ .DecorativeBgClass }}{{ else }}bg-earth-accent/10{{ end }} blur-3xl -z-10 transform translate-x-10 -translate-y-10"></div>
@@ -100,7 +100,7 @@
             <form {{ if .FormAction }}hx-post="{{ .FormAction }}"{{ end }} {{ if .FormPut }}hx-put="{{ .FormPut }}"{{ end }} {{ if .FormSwap }}hx-swap="{{ .FormSwap }}"{{ end }} {{ if .FormTarget }}hx-target="{{ .FormTarget }}"{{ end }} method="{{ if .FormMethod }}{{ .FormMethod }}{{ else }}POST{{ end }}" {{ if .FormEnctype }}enctype="{{ .FormEnctype }}"{{ end }} {{ if .FormID }}id="{{ .FormID }}"{{ end }} {{ if .FormAfterRequest }}hx-on::after-request="{{ .FormAfterRequest }}"{{ end }}
                 class="flex flex-col gap-5 flex-1" autocomplete="off" {{ if not .NoSubmitClose }}data-modal-action-submit-close{{ end }}>
             {{ else }}
-            <div class="flex flex-col flex-1 w-full h-full">
+            <div class="flex flex-col flex-1 w-full">
             {{ end }}
 
                 {{ if eq .InnerTemplate "modal_create_listing_fields" }}
