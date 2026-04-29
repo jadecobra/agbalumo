@@ -40,8 +40,11 @@ For any change to card or modal header areas:
 - [ ] No `uppercase tracking-[0.2em] font-bold` is applied to more than 2 elements per visible section
 - [ ] **The Attention Budget**: There MUST be a maximum of ONE primary high-contrast CTA (e.g., `bg-earth-ochre`) per viewport. Any competing primary buttons must be autonomously demoted to secondary ghost buttons (`bg-transparent border border-earth-ochre`).
 
-## Step 5: Browser Verification (if layout changed)
+## Step 5: The Omni-Surface Audit
+You MUST explicitly verify that your changes did not fracture the UI on Desktop/Tablet viewports, or inside hidden states like Admin/Auth routes. Cross-reference the Omni-Surface Verification Matrix in `browser-verify`.
+
+## Step 6: Browser Verification (if layout changed)
 Follow `.agents/skills/browser-verify/SKILL.md` — verify at all mandatory viewports.
 
-## Step 6: Automated Fix Loop
-If a visual regression or design violation is found during Steps 1 or 5, you MUST NOT stop at reporting the error. Instead, you must automatically apply the minimal CSS/Tailwind fix, commit it atomically using the `style(design): <fix description>` conventional format, and capture an "After" screenshot to prove the resolution.
+## Step 7: Automated Fix Loop
+If a visual regression or design violation is found during Steps 1, 5, or 6, you MUST NOT stop at reporting the error. Instead, you must automatically apply the minimal CSS/Tailwind fix, commit it atomically using the `style(design): <fix description>` conventional format, and capture an "After" screenshot to prove the resolution.

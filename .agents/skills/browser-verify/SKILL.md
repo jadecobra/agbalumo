@@ -42,6 +42,12 @@ For EVERY UI element verified, you MUST check ALL of:
 - [ ] **State Sync**: Verify `window.filterState` or equivalent matches UI selection in the JS console.
 - [ ] **Chaos Data Resilience**: The agent must manually inject 100-character strings into titles and delete image `src` attributes in the DOM before screenshotting, verifying that `line-clamp` and fallback backgrounds preserve the grid.
 - [ ] **Touch Target Ergonomics**: Verify all clickable elements (filters, links, buttons) have a minimum physical interaction area of `44x44px` on mobile viewports.
+## The Omni-Surface Verification Matrix (MANDATORY)
+A holistic audit MUST cover these 4 domains across Mobile AND Desktop:
+- 1. **Public Discovery**: `/` (Main Feed), Search Results.
+- 2. **Detail Modals**: Modal Detail View (with long text).
+- 3. **Mutation Modals**: Create Listing (Post), Feedback Modal.
+- 4. **Admin Surfaces**: `/admin/login`, `/admin/dashboard`.
 
 
 ## Mandatory Viewports
