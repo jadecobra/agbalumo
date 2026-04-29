@@ -104,14 +104,63 @@ func checkHexCodes(path string, lineNum int, line string, re *regexp.Regexp) []D
 }
 
 func checkMinFontSize(path string, lineNum int, line string) []DesignViolation {
-	return nil
+	var v []DesignViolation
+	re := regexp.MustCompile(`text-\[(\d+)`)
+	matches := re.FindAllStringSubmatch(line, -1)
+	for _, m := range matches {
+		if len(m) > 1 {
+			var size int
+			_, err := fmt.Sscanf(m[1], "%d", &size)
+			if err == nil && size < 10 {
+				v = append(v, DesignViolation{
+					File:    path,
+					Line:    lineNum,
+					Content: line,
+					Reason:  "Font size below 10px minimum (ADR: surface-theme-unification)",
+				})
+				break
+			}
+		}
+	}
+	return v
 }
 
 func checkLowContrastOpacity(path string, lineNum int, line string) []DesignViolation {
-	return nil
+	var v []DesignViolation
+	re := regexp.MustCompile(`text-text-sub/(\d+)`)
+	matches := re.FindAllStringSubmatch(line, -1)
+	for _, m := range matches {
+		if len(m) > 1 {
+			var opacity int
+			_, err := fmt.Sscanf(m[1], "%d", &opacity)
+			if err == nil && opacity < 70 {
+				v = append(v, DesignViolation{
+					File:    path,
+					Line:    lineNum,
+					Content: line,
+					Reason:  "Text opacity below 70% minimum for contrast",
+				})
+				break
+			}
+		}
+	}
+	return v
 }
 
 func checkHardcodedModalBg(path string, lineNum int, line string) []DesignViolation {
+	base := filepath.Base(path)
+	if !strings.HasPrefix(base, "modal_") && base != "ui_components.html" {
+		return nil
+	}
+
+	if strings.Contains(strings.ReplaceAll(line, "dark:bg-earth-dark", ""), "bg-earth-dark") {
+		return []DesignViolation{{
+			File:    path,
+			Line:    lineNum,
+			Content: line,
+			Reason:  "Hardcoded dark background bypasses light/dark theme sync (ADR: surface-theme-unification)",
+		}}
+	}
 	return nil
 }
 
