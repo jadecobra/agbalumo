@@ -1,6 +1,6 @@
 {{ define "navigation" }}
 <!-- Unified Top Header (Glassmorphic) -->
-<header class="{{ block "header_classes" . }}sticky top-0 z-[110] w-full backdrop-blur-md bg-earth-dark border-b
+<header class="{{ block "header_classes" . }}sticky top-0 z-[110] w-full bg-earth-dark border-b
     border-earth-clay/20 transition-all duration-300{{ end }}" 
     data-agent-template="navigation.html">
     {{ block "header_content" . }}
@@ -122,6 +122,18 @@
                 class="w-9 h-9 flex items-center justify-center bg-earth-accent text-white  shadow-sm active:scale-95">
                 <span class="material-symbols-outlined text-[20px]">add</span>
             </button>
+            {{ if .User }}
+            <button class="w-9 h-9 flex items-center justify-center" hx-get="/profile" hx-target="body" hx-swap="beforeend"
+                data-testid="ag-nav-profile-btn-mobile">
+                <img src="{{ .User.AvatarURL }}" alt="Profile" class="w-7 h-7 shadow-sm object-cover">
+            </button>
+            {{ else }}
+            <a href="/auth/google/login" aria-label="Sign In"
+                data-testid="ag-nav-signin-btn-mobile"
+                class="w-9 h-9 flex items-center justify-center text-white/80 hover:text-white transition-colors">
+                <span class="material-symbols-outlined text-[24px]">person</span>
+            </a>
+            {{ end }}
         </div>
     </div>
 
