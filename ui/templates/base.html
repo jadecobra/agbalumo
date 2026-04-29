@@ -29,9 +29,30 @@
         </main>
     </div>
 
+    <style>
+      #mobile-bottom-nav {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        height: 64px !important;
+        background-color: var(--brand-color-earth-dark) !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-around !important;
+        z-index: 99999 !important;
+        padding-bottom: env(safe-area-inset-bottom) !important;
+      }
+      @media (min-width: 768px) {
+        #mobile-bottom-nav {
+          display: none !important;
+        }
+      }
+    </style>
     <!-- Mobile Bottom Navigation (Brutalist, Low-Profile) -->
-    <nav class="md:hidden bg-stone-950 border-t border-white/10 flex items-center justify-around px-2 pb-safe" 
-         style="position: fixed !important; bottom: 0px !important; left: 0px !important; right: 0px !important; width: 100% !important; height: 64px !important; z-index: 9999 !important;">
+    <nav id="mobile-bottom-nav" class="md:hidden">
         <!-- Explore -->
         <a href="/" class="flex flex-col items-center justify-center gap-1 text-white/60 hover:text-white transition-colors w-16">
             <span class="material-symbols-outlined text-[24px]">explore</span>
