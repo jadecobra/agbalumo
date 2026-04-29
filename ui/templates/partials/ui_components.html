@@ -76,7 +76,7 @@
 {{ define "modal_base" }}
 <dialog id="{{ .ID }}" {{ if .AutoOpen }}data-auto-open="true"{{ end }} {{ if .DialogDataTarget }}data-target="{{ .DialogDataTarget }}"{{ end }} {{ if .DialogDataListingId }}data-listing-id="{{ .DialogDataListingId }}"{{ end }}
     class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-none {{ if .MaxWidthClass }}{{ .MaxWidthClass }}{{ else }}md:max-w-sm{{ end }} {{ if .MarginClass }}{{ .MarginClass }}{{ else }}m-auto{{ end }} shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed {{ if .InsetClass }}{{ .InsetClass }}{{ else }}inset-0{{ end }} z-50 h-full md:h-auto border border-white/20">
-    <div {{ if .ContentID }}id="{{ .ContentID }}"{{ end }} class="bg-earth-dark/95 backdrop-blur-xl relative flex flex-col h-full md:h-auto {{ if .MaxHeightClass }}{{ .MaxHeightClass }}{{ else }}md:max-h-[85vh]{{ end }} overflow-hidden">
+    <div {{ if .ContentID }}id="{{ .ContentID }}"{{ end }} class="bg-surface-dark/95 backdrop-blur-xl relative flex flex-col h-full md:h-auto {{ if .MaxHeightClass }}{{ .MaxHeightClass }}{{ else }}md:max-h-[85vh]{{ end }} overflow-hidden">
         
         <!-- Scrollable Inner Content -->
         <div class="{{ if .NoPadding }}p-0{{ else }}p-6{{ end }} relative overflow-y-auto flex-1 flex flex-col min-h-0">
@@ -124,7 +124,7 @@
 
         {{ if not .NoBottomClose }}
         <!-- Sticky Footer -->
-        <div class="shrink-0 bg-earth-dark border-t border-white/5 z-20 {{ if .NoPadding }}p-0{{ else }}px-6 py-4{{ end }}">
+        <div class="shrink-0 bg-surface-dark border-t border-white/5 z-20 {{ if .NoPadding }}p-0{{ else }}px-6 py-4{{ end }}">
             <!-- CLOSE button — large touch target for mobile -->
             <button type="button" data-modal-action="close"
                 class="w-full bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark font-bold uppercase text-xs tracking-widest py-4 transition-colors active:scale-95">

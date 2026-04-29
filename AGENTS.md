@@ -69,6 +69,7 @@ Skills are step-by-step procedures in `.agents/skills/`. You MUST read the relev
 | Browser Verification | Any UI change, browser subagent task | `.agents/skills/browser-verify/SKILL.md` |
 | CI Parity | Pushing changes, CI failure, production parity | `.agents/skills/ci-parity/SKILL.md` |
 | Flash Planning | /plan, /architect, planning sessions, prompt decomposition | .agents/skills/flash-plan/SKILL.md |
+| UI Cohesion | Template change, design review, visual audit | `.agents/skills/ui-cohesion/SKILL.md` |
 
 
 **Rule**: When a new skill is created, add it to this table and to `.agents/verify-manifest.yaml`.

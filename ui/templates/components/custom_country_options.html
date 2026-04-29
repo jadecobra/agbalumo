@@ -3,7 +3,7 @@
 <button type="button" data-dropdown-value="" class="w-full text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest transition-colors border-b border-earth-dark/5 bg-earth-dark/5 hover:bg-earth-dark/10 text-earth-dark">Select Country</button>
 
 {{ range Countries }}
-<div class="px-5 py-2 bg-earth-dark/10 border-b border-earth-dark/10 text-[9px] font-bold uppercase tracking-widest text-earth-clay opacity-80 mt-2">{{ .Region }}</div>
+<div class="px-5 py-2 bg-earth-dark/10 border-b border-earth-dark/10 text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 mt-2">{{ .Region }}</div>
     {{ range .Countries }}
     <button type="button" data-dropdown-value="{{ .Name }}" 
         class="w-full text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest transition-colors border-b border-earth-dark/5 bg-earth-dark/5 hover:bg-earth-dark/10 text-earth-dark {{ if eq .Name $selected }}bg-earth-ochre text-white{{ end }}">
