@@ -73,7 +73,6 @@ test.describe('HTMX Interactions and State Sync', () => {
     await expect(panel).toBeVisible();
 
     const cityInput = page.locator('#filter-city');
-    const radiusSelect = page.locator('#filter-radius');
 
     // Track requests using a collection to handle multiple htmx triggers
     const requests: string[] = [];
@@ -89,8 +88,8 @@ test.describe('HTMX Interactions and State Sync', () => {
     // Wait for the htmx delay for city input (800ms)
     await page.waitForTimeout(1000);
 
-    await radiusSelect.selectOption('100');
-    await radiusSelect.dispatchEvent('change');
+    const radiusBtn = page.locator('[data-radius-value="100"]');
+    await radiusBtn.click();
     
     // Wait for requests to settle
     await page.waitForTimeout(2000);
