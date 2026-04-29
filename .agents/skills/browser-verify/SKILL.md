@@ -18,7 +18,7 @@ mutating: false
 
 ## UI TDD Workflow (Aesthetic/Layout Tweaks)
 When modifying templates, CSS, or client-side assets where standard Go unit tests do not apply:
-1. **Identify Visual Issue**: Use `browser_subagent` or a baseline screenshot to isolate the layout flaw.
+1. **Identify Visual Issue**: Use `browser_subagent` to capture a baseline "Before" screenshot and isolate the layout flaw.
 2. **Apply Changes**: Modify HTML templates or `input.css`.
 3. **Compile & Reload**: Run `npm run build:css` (if applicable) and **RESTART** the server to clear the Go template cache.
 4. **Visual Verification**: Check responsiveness, margins, and aesthetic quality across target viewports via `browser_subagent`.
@@ -65,5 +65,5 @@ For ANY layout change, you MUST verify at:
 3. **Internal State Audit**: If the DOM doesn't reflect a change, query `window.filterState` to determine if the logic layer is the bottleneck.
 ## Post-flight
 1. Document each check result in `task.md` with pass/fail
-2. For layout changes: embed screenshot in walkthrough
+2. For layout changes: capture before/after screenshots, save them as artifacts, and embed them in walkthrough
 3. For interactive changes: describe the state transition verified

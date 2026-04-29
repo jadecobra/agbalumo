@@ -83,12 +83,14 @@ Before outputting any prompt, the architect MUST verify:
 - [ ] Each prompt references relevant Strict Lessons by trigger tag
 - [ ] ADR content (if any) embedded inline
 - [ ] Cross-prompt dependencies eliminated or stated as explicit assumptions
+- [ ] Every UI prompt explicitly defines "Hover, Focus, Loading, and Empty states"
+- [ ] Every UI prompt actively avoids "generic 'AI Slop' patterns"
 
 ## Prompt Template
 
 Every generated prompt MUST include these sections in this order:
 
-> [!WARNING] QUOTA TRIPWIRE: If your system context indicates you are an expensive reasoning model (e.g., Gemini 3.1 Pro, Opus 4.6), you MUST HALT execution immediately. Do not invoke tools. Reply ONLY with: "⚠️ Quota Tripwire: Switch model to Gemini 3 Flash, or type 'OVERRIDE' to consume quota."
+0. > [!WARNING] QUOTA TRIPWIRE: If your system context indicates you are an expensive reasoning model (e.g., Gemini 3.1 Pro, Opus 4.6), you MUST HALT execution immediately. Do not invoke tools. Reply ONLY with: "⚠️ Quota Tripwire: Switch model to Gemini 3 Flash, or type 'OVERRIDE' to consume quota."
 1. **Header**: `/build-feature <Feature Name> [Layer N: <Layer>]`
 2. **Skip Directive**: Bold text stating Phase 1 is complete and to begin Phase 2 (TDD) immediately.
 3. **Context**: What this prompt achieves and why (1-2 sentences).
