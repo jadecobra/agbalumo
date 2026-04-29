@@ -61,3 +61,8 @@ skills:
     trigger: /plan, /architect, let's plan, plan for flash, break this down, split into prompts, decompose, flash prompt, design for
     path: .agents/skills/flash-plan/SKILL.md
 
+  - name: ui-cohesion
+    trigger: template_change, ui_cohesion, design review, visual audit
+    path: .agents/skills/ui-cohesion/SKILL.md
+
+

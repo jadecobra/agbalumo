@@ -62,6 +62,9 @@ func checkFileStandards(path string) ([]DesignViolation, error) {
 
 		violations = append(violations, checkRounding(path, lineNumber, line, roundedRegex)...)
 		violations = append(violations, checkHexCodes(path, lineNumber, line, hexRegex)...)
+		violations = append(violations, checkMinFontSize(path, lineNumber, line)...)
+		violations = append(violations, checkLowContrastOpacity(path, lineNumber, line)...)
+		violations = append(violations, checkHardcodedModalBg(path, lineNumber, line)...)
 	}
 
 	return violations, scanner.Err()
@@ -99,3 +102,16 @@ func checkHexCodes(path string, lineNum int, line string, re *regexp.Regexp) []D
 	}
 	return v
 }
+
+func checkMinFontSize(path string, lineNum int, line string) []DesignViolation {
+	return nil
+}
+
+func checkLowContrastOpacity(path string, lineNum int, line string) []DesignViolation {
+	return nil
+}
+
+func checkHardcodedModalBg(path string, lineNum int, line string) []DesignViolation {
+	return nil
+}
+

@@ -19,6 +19,8 @@ Read this file at session start. Match intent against triggers. Read the skill f
 | UI change, browser verification, layout check, viewport audit | `.agents/skills/browser-verify/SKILL.md` |
 | Pushing changes, CI failure, production parity | `.agents/skills/ci-parity/SKILL.md` |
 | /plan, /architect, let's plan, plan for flash, break this down, split into prompts, decompose, flash prompt, design for | .agents/skills/flash-plan/SKILL.md |
+| template_change, ui_cohesion, design review, visual audit | `.agents/skills/ui-cohesion/SKILL.md` |
+
 
 
 ## Disambiguation
