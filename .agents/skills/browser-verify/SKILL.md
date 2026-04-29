@@ -40,6 +40,9 @@ For EVERY UI element verified, you MUST check ALL of:
 - [ ] **Layout Integrity**: Sticky elements do not overlap content (verify `rect.top >= header.height`).
 - [ ] **Fragment Sync**: Confirm OOB swap targets (e.g., `#featured-section`) updated independently of the main fragment.
 - [ ] **State Sync**: Verify `window.filterState` or equivalent matches UI selection in the JS console.
+- [ ] **Chaos Data Resilience**: The agent must manually inject 100-character strings into titles and delete image `src` attributes in the DOM before screenshotting, verifying that `line-clamp` and fallback backgrounds preserve the grid.
+- [ ] **Touch Target Ergonomics**: Verify all clickable elements (filters, links, buttons) have a minimum physical interaction area of `44x44px` on mobile viewports.
+
 
 ## Mandatory Viewports
 For ANY layout change, you MUST verify at:
@@ -58,6 +61,9 @@ For ANY layout change, you MUST verify at:
 | Dropdown clipped | Viewport clearance | Add `open-upwards` logic |
 | Stale content after fix | Browser cache | Increment `?v=N` in `head_meta.html` |
 | Overlap on Mobile | Lack of dynamic padding | Use `calc(var(--nav-height) + padding)` |
+| Layout breaks on real-world long text | No clamping | Apply `line-clamp-2` or `truncate` |
+| Misclicks on mobile UI | Touch target < 44px | Add padding (e.g., `p-3`) to hit 44x44px minimum |
+
 
 ## Agent Targeting Rules
 1. **Prefer data-testid**: Always use `[data-testid="..."]` for deterministic targeting in `browser_subagent`.

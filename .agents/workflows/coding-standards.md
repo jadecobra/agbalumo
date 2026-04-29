@@ -160,6 +160,10 @@ This section contains corrections and constraints derived from the `[/learn]` wo
 * **UI Dialect Awareness Lesson** [TRIGGER: template_change, ui_dialect]: The agent MUST distinguish between **Brand** (Brand/Rounded) and **Sharp** (Admin/Brutalist) dialects before modifying templates. The **Sharp** context (typically `admin_*.html`) strictly prohibits grounding classes like `rounded-3xl` or `rounded-xl`. Always verify brand compliance by running `go run ./cmd/verify design` to catch illegal rounding and hardcoded hex values.
 * **UI Redundancy & Overlap Lesson** [TRIGGER: ui_positioning, template_change]: Avoid redundant primary UI elements (e.g., search bars) in both the navigation header and the hero section on the same page. When using absolute or sticky headers over a hero, ensure the hero top padding is responsive and sufficient (min 160px for mobile, 200px for desktop) to prevent vertical overlap at all desktop breakpoints.
 * **UI Cohesion Enforcement Lesson** [TRIGGER: template_change, ui_cohesion]: The agent MUST run `go run ./cmd/verify design` before committing ANY template change to catch font-size, contrast, and theme-sync violations deterministically. Manual visual review is insufficient.
+* **HTMX Micro-Interaction Guard** [TRIGGER: template_change, htmx]: Mandate `hx-indicator` (skeletons/spinners) and transition classes (`.htmx-swapping`) on all mutations to ensure fluid perceived performance.
+* **Speed as a Visual Feature** [TRIGGER: ui_change, performance]: Mandate `loading="lazy"` on off-screen assets, WebP usage, and state that any unoptimized asset degrading LCP by >100ms is a visual bug and must be blocked.
+
+
 
 ### Security & Environment
 * **Server Verification Lesson** [TRIGGER: browser_subagent, server_url]: The agent MUST always verify the active listener port (e.g., `https://localhost:8443` vs `http://localhost:8080`) from logs or `cmd/serve.go` logic before initiating browser verification, to avoid connection failures in secure or non-standard environments.

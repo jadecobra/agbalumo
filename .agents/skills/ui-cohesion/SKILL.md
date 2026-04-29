@@ -38,6 +38,8 @@ For any change to card or modal header areas:
 - [ ] All `h1`/`h2` use `font-serif` (Playfair Display)
 - [ ] All functional text uses `font-sans`/`font-display` (Inter)
 - [ ] No `uppercase tracking-[0.2em] font-bold` is applied to more than 2 elements per visible section
+- [ ] **The Attention Budget**: There MUST be a maximum of ONE primary high-contrast CTA (e.g., `bg-earth-ochre`) per viewport. Any competing primary buttons must be autonomously demoted to secondary ghost buttons (`bg-transparent border border-earth-ochre`).
+
 ## Step 5: Browser Verification (if layout changed)
 Follow `.agents/skills/browser-verify/SKILL.md` — verify at all mandatory viewports.
 
