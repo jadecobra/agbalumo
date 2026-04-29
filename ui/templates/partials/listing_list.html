@@ -22,15 +22,36 @@
 {{ template "listing_card" dict "Listing" . "User" $.User "GridClass" "" "Index" $i }}
 {{ end }}
 {{ else }}
-<div class="col-span-full flex flex-col items-center justify-center py-16 text-center">
-    <span class="material-symbols-outlined text-6xl text-stone-300 dark:text-stone-600 mb-4">search_off</span>
-    <h3 class="text-xl font-bold text-stone-600 dark:text-stone-400 mb-2">No listings found</h3>
-    <p class="text-stone-500 dark:text-stone-500 mb-6">Try adjusting your search</p>
-    <a href="/"
-        class="px-6 py-2 bg-earth-accent text-white  font-bold hover:bg-earth-accent/90 transition-colors">
+<div class="col-span-full flex flex-col items-center justify-center py-16 text-center animate-in fade-in duration-500">
+    <span class="material-symbols-outlined text-4xl text-stone-400 dark:text-stone-500 mb-4">search_off</span>
+    <h3 class="text-lg font-bold text-earth-cream mb-2 font-display">No listings found</h3>
+    <p class="text-sm text-stone-400 mb-8 max-w-xs">We couldn't find spots matching that query. Tap below to explore active categories immediately.</p>
+    
+    <!-- Proactive Category Recommendation Pills -->
+    <div class="flex flex-wrap items-center justify-center gap-2 max-w-sm mb-8">
+        <button type="button" class="bg-white/10 text-white hover:bg-white/20 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors border border-white/5"
+            hx-get="/listings/fragment?q=Jollof" hx-target="#listings-container" hx-indicator="#listings-loading"
+            onclick="document.getElementById('search') ? document.getElementById('search').value='Jollof' : null">
+            Jollof
+        </button>
+        <button type="button" class="bg-white/10 text-white hover:bg-white/20 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors border border-white/5"
+            hx-get="/listings/fragment?q=Suya" hx-target="#listings-container" hx-indicator="#listings-loading"
+            onclick="document.getElementById('search') ? document.getElementById('search').value='Suya' : null">
+            Suya
+        </button>
+        <button type="button" class="bg-white/10 text-white hover:bg-white/20 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors border border-white/5"
+            hx-get="/listings/fragment?q=Groceries" hx-target="#listings-container" hx-indicator="#listings-loading"
+            onclick="document.getElementById('search') ? document.getElementById('search').value='Groceries' : null">
+            Groceries
+        </button>
+    </div>
+
+    <a href="/" hx-get="/listings/fragment" hx-target="#listings-container"
+        class="px-5 h-11 flex items-center justify-center bg-earth-accent text-white font-bold font-display tracking-widest text-xs uppercase hover:bg-earth-accent/90 transition-all border border-earth-accent-light">
         View All Listings
     </a>
 </div>
+{{ end }}
 {{ end }}
 {{ template "pagination" . }}
 {{ end }}
