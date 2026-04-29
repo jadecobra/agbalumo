@@ -3,7 +3,6 @@
 <header class="{{ block "header_classes" . }}sticky top-0 z-[110] w-full bg-earth-dark border-b
     border-earth-clay/20 transition-all duration-300{{ end }}" 
     data-agent-template="navigation.html">
-    {{ block "header_content" . }}
     <!-- Mobile Full Width Logo -->
     <div class="md:hidden flex flex-col justify-center items-center w-full py-2 border-b border-white/10">
         <h1 class="flex flex-col items-center">
@@ -11,14 +10,12 @@
                 <source srcset="/static/images/logo.webp" type="image/webp">
                 <img src="/static/images/logo.png" alt="agbalumo Logo" class="h-12 w-auto object-contain">
             </picture>
-            <span class="text-[10px] text-earth-accent font-medium tracking-wide -mt-1 font-display">find
-                what
-                you
-                want</span>
+            <span class="text-[10px] text-earth-accent font-medium tracking-wide -mt-1 font-display">find what you want</span>
         </h1>
     </div>
 
     <div class="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between gap-4 md:gap-8">
+        {{ block "header_content" . }}
 
         <!-- Desktop Logo -->
         <a href="/" class="hidden md:flex flex-col shrink-0 items-center justify-center gap-0 group">
