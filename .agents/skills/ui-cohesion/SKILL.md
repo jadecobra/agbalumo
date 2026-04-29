@@ -10,21 +10,33 @@ mutating: false
 ---
 
 # UI Cohesion Guard
-
-## Procedural Checklist
-
-1. **Verify Design System Compliance**
-   - Run `go run ./cmd/verify design` locally before submitting any UI changes.
-   - Ensure all text elements meet minimum size and contrast thresholds.
-
-2. **Font Size Guardrails**
-   - Minimum font size is `10px`.
-   - Never use arbitrary Tailwind classes like `text-[8px]` or `text-[9px]`.
-
-3. **Contrast and Opacity**
-   - For subtext (`text-text-sub`), ensure opacity is at least 70% (e.g., `text-text-sub/70`, `text-text-sub/80`).
-   - Opacity values below 70% (e.g., `text-text-sub/60`) violate readability standards.
-
-4. **Dark Mode & Theme Parity**
-   - Modals and persistent UI components must respect light/dark mode.
-   - Do not hardcode dark themes (e.g., using raw `bg-earth-dark` without `dark:` prefix).
+## When to Use
+Run this skill on ANY template or CSS modification. It combines deterministic tooling
+with a manual checklist to prevent the visual fragmentation documented in
+ADR `2026-04-28-surface-theme-unification.md`.
+## Step 1: Deterministic Gate (MANDATORY)
+Run `go run ./cmd/verify design` — catches:
+- Font sizes below 10px (`text-[8px]`, `text-[9px]`)
+- Low-contrast opacity (`text-text-sub/60`)
+- Hardcoded dark backgrounds in modals bypassing theme sync
+- Rounding violations (existing)
+- Hardcoded hex codes (existing)
+**If violations exist, fix them before proceeding.**
+## Step 2: Card ↔ Modal Parity Check
+For any change to `listing_card.html` or `modal_detail.html`:
+- [ ] Card surface uses `bg-white dark:bg-surface-dark`
+- [ ] Modal scrollable content uses `bg-white dark:bg-surface-dark`
+- [ ] Modal footer uses `bg-white dark:bg-surface-dark`
+- [ ] Text colors use `text-text-main dark:text-earth-cream` (not hardcoded `text-earth-cream` alone)
+- [ ] Borders use `border-stone-200 dark:border-stone-800` (not `border-white/10` alone)
+## Step 3: Badge Density Audit
+For any change to card or modal header areas:
+- [ ] Card header shows ≤3 metadata items (Type + Rating + Title)
+- [ ] All additional metadata (TopDish, RegionalSpecialty, Origin, HeatLevel) is in the card body or modal only
+- [ ] No badge uses font size below `text-[10px]`
+## Step 4: Typography Hierarchy Check
+- [ ] All `h1`/`h2` use `font-serif` (Playfair Display)
+- [ ] All functional text uses `font-sans`/`font-display` (Inter)
+- [ ] No `uppercase tracking-[0.2em] font-bold` is applied to more than 2 elements per visible section
+## Step 5: Browser Verification (if layout changed)
+Follow `.agents/skills/browser-verify/SKILL.md` — verify at all mandatory viewports.
