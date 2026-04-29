@@ -46,6 +46,13 @@ function setupFilterToggle() {
             return;
         }
 
+        const closeBtn = e.target.closest('[data-testid="ag-home-filters-close"]');
+        if (closeBtn) {
+            e.stopPropagation();
+            togglePanel(false);
+            return;
+        }
+
         const panel = document.getElementById('filter-dropdown-panel');
         if (panel && !panel.contains(e.target) && !panel.classList.contains('hidden')) {
             togglePanel(false);
@@ -102,17 +109,42 @@ function setupFilterButtons() {
     });
 
     // Handle City and Radius updates to global state
-    document.addEventListener('change', (e) => {
-        if (e.target.id === 'filter-radius') {
-            window.filterState.radius = e.target.value;
-            
-            const select = e.target;
-            if (select.value !== '25') {
-                select.classList.add('bg-earth-ochre/10', 'text-earth-ochre', 'border-earth-ochre/50');
-                select.classList.remove('bg-white', 'text-earth-dark', 'border-earth-dark/10');
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-radius-value]');
+        if (!btn) return;
+
+        const radius = btn.getAttribute('data-radius-value') || '25';
+        const panel = document.getElementById('filter-dropdown-panel');
+        
+        // Update global state
+        window.filterState.radius = radius;
+
+        // Close panel
+        if (panel) panel.classList.add('hidden');
+        
+        // Update active state in UI
+        document.querySelectorAll('[data-radius-value]').forEach(b => {
+            b.classList.remove('bg-earth-ochre/10', 'text-earth-ochre');
+        });
+        btn.classList.add('bg-earth-ochre/10', 'text-earth-ochre');
+
+        // Trigger HTMX
+        const searchInput = document.getElementById('search');
+        if (searchInput) {
+            if (window.htmx) {
+                window.htmx.trigger(searchInput, 'search');
             } else {
-                select.classList.remove('bg-earth-ochre/10', 'text-earth-ochre', 'border-earth-ochre/50');
-                select.classList.add('bg-white', 'text-earth-dark', 'border-earth-dark/10');
+                searchInput.dispatchEvent(new Event('search', { bubbles: true }));
+            }
+        } else {
+            const type = window.filterState.type || 'Food';
+            const city = document.getElementById('filter-city')?.value || '';
+            const url = `/listings/fragment?type=${encodeURIComponent(type)}&city=${encodeURIComponent(city)}&radius=${encodeURIComponent(radius)}`;
+            if (window.htmx) {
+                window.htmx.ajax('GET', url, {
+                    target: '#listings-container',
+                    indicator: '#listings-loading'
+                });
             }
         }
     });

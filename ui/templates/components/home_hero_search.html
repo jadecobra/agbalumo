@@ -88,20 +88,18 @@
                     summary { list-style: none; }
                     summary::-webkit-details-marker { display: none; }
                     
-                    @media (min-width: 768px) {
-                        .scroll-container-fixed {
-                            max-height: 320px;
-                            overflow-y: auto;
-                        }
-                    }
+
                 </style>
 
                 <!-- Mobile handle (Sharp) -->
-                <div class="flex justify-center pt-3 pb-1 md:hidden">
+                <div class="flex justify-center pt-3 pb-1 md:hidden relative">
                     <div class="w-12 h-1 bg-earth-dark/10"></div>
+                    <button type="button" data-testid="ag-home-filters-close" class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center text-earth-clay hover:text-earth-dark">
+                        <span class="material-symbols-outlined text-[20px]">close</span>
+                    </button>
                 </div>
  
-                <div class="w-full h-full scroll-container-fixed">
+                <div class="w-full h-full scroll-container-fixed overflow-y-auto pb-32">
                     <!-- Category Group Toggle (Native HTML5 Accordion) -->
                     <details class="w-full group/accordion" open>
                         <summary class="px-5 py-4 bg-earth-dark/5 border-b border-earth-dark/10 flex items-center justify-between w-full hover:bg-earth-dark/10 transition-colors list-none cursor-pointer">
@@ -130,6 +128,36 @@
                         </div>
                     </details>
 
+                    <!-- Distance Dropdown Accordion -->
+                    <details class="w-full group/accordion" open>
+                        <summary class="px-5 py-4 bg-earth-dark/5 border-b border-earth-dark/10 flex items-center justify-between w-full hover:bg-earth-dark/10 transition-colors list-none cursor-pointer border-t">
+                            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-earth-clay/80">Distance (Miles)</span>
+                            <span class="material-symbols-outlined text-[20px] text-earth-ochre transition-transform duration-300 group-open/accordion:rotate-180" data-toggle-icon>expand_more</span>
+                        </summary>
+                        <div class="flex flex-col w-full bg-earth-sand/50">
+                            <button type="button" data-radius-value="5"
+                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq .Radius 5.0 }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
+                                Within 5 Miles
+                            </button>
+                            <button type="button" data-radius-value="10"
+                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq .Radius 10.0 }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
+                                Within 10 Miles
+                            </button>
+                            <button type="button" data-radius-value="25"
+                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if or (eq .Radius 25.0) (eq .Radius 0.0) }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
+                                Within 25 Miles
+                            </button>
+                            <button type="button" data-radius-value="50"
+                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq .Radius 50.0 }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
+                                Within 50 Miles
+                            </button>
+                            <button type="button" data-radius-value="100"
+                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq .Radius 100.0 }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
+                                Within 100 Miles
+                            </button>
+                        </div>
+                    </details>
+
                     <!-- Location Group Toggle -->
                     <details class="w-full group/accordion" open>
                         <summary class="px-5 py-4 bg-earth-dark/5 border-b border-earth-dark/10 flex items-center justify-between w-full hover:bg-earth-dark/10 transition-colors list-none cursor-pointer border-t">
@@ -143,31 +171,15 @@
                                 <label for="filter-city" class="text-[10px] font-bold uppercase tracking-widest text-earth-clay/60">City or Zip Code</label>
                                 <div class="relative">
                                     <input type="text" id="filter-city" name="city" value="{{ .City }}"
-                                        placeholder="Enter city..."
-                                        class="w-full bg-white border border-earth-dark/10 px-4 py-3 text-xs font-bold text-earth-dark outline-none focus:border-earth-ochre/50 transition-colors"
+                                        placeholder="ENTER CITY OR ZIP..."
+                                        class="w-full bg-transparent border border-earth-dark/10 px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-earth-dark outline-none focus:border-earth-ochre/50 transition-colors"
                                         hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
                                         hx-trigger="keyup changed delay:800ms">
                                     <span class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-earth-clay/30 text-[18px]">location_on</span>
                                 </div>
                             </div>
 
-                            <!-- Radius Select (HTMX-enabled) -->
-                            <div class="space-y-1.5">
-                                <label for="filter-radius" class="text-[10px] font-bold uppercase tracking-widest text-earth-clay/60">Distance (Miles)</label>
-                                <div class="relative">
-                                    <select id="filter-radius" name="radius"
-                                        class="w-full border px-4 py-3 text-xs font-bold outline-none focus:border-earth-ochre/50 transition-colors appearance-none cursor-pointer {{ if and (ne .Radius 25.0) (ne .Radius 0.0) }}bg-earth-ochre/10 text-earth-ochre border-earth-ochre/50{{ else }}bg-white text-earth-dark border-earth-dark/10{{ end }}"
-                                        hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
-                                        hx-trigger="change">
-                                        <option value="5" {{ if eq .Radius 5.0 }}selected{{ end }}>Within 5 Miles</option>
-                                        <option value="10" {{ if eq .Radius 10.0 }}selected{{ end }}>Within 10 Miles</option>
-                                        <option value="25" {{ if or (eq .Radius 25.0) (eq .Radius 0.0) }}selected{{ end }}>Within 25 Miles</option>
-                                        <option value="50" {{ if eq .Radius 50.0 }}selected{{ end }}>Within 50 Miles</option>
-                                        <option value="100" {{ if eq .Radius 100.0 }}selected{{ end }}>Within 100 Miles</option>
-                                    </select>
-                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-earth-clay/50 text-[18px] pointer-events-none">expand_more</span>
-                                </div>
-                            </div>
+
                         </div>
                     </details>
                 </div>
