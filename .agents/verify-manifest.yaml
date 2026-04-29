@@ -65,4 +65,8 @@ skills:
     trigger: template_change, ui_cohesion, design review, visual audit
     path: .agents/skills/ui-cohesion/SKILL.md
 
+  - name: design-critique
+    trigger: /design-critique, critique design, review ui, harsh review
+    path: .agents/workflows/design-critique.md
+
 
