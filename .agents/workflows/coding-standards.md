@@ -161,6 +161,7 @@ This section contains corrections and constraints derived from the `[/learn]` wo
 * **UI Redundancy & Overlap Lesson** [TRIGGER: ui_positioning, template_change]: Avoid redundant primary UI elements (e.g., search bars) in both the navigation header and the hero section on the same page. When using absolute or sticky headers over a hero, ensure the hero top padding is responsive and sufficient (min 160px for mobile, 200px for desktop) to prevent vertical overlap at all desktop breakpoints.
 * **UI Cohesion Enforcement Lesson** [TRIGGER: template_change, ui_cohesion]: The agent MUST run `go run ./cmd/verify design` before committing ANY template change to catch font-size, contrast, and theme-sync violations deterministically. Manual visual review is insufficient.
 * **HTMX Micro-Interaction Guard** [TRIGGER: template_change, htmx]: Mandate `hx-indicator` (skeletons/spinners) and transition classes (`.htmx-swapping`) on all mutations to ensure fluid perceived performance.
+* **UI Duplicate Branding Lesson** [TRIGGER: template_change, ui_cohesion]: Avoid rendering duplicate primary branding components (like logos) on the same viewport. Check template block boundaries to ensure overrides do not selectively discard partial elements while duplicating others.
 * **Speed as a Visual Feature** [TRIGGER: ui_change, performance]: Mandate `loading="lazy"` on off-screen assets, WebP usage, and state that any unoptimized asset degrading LCP by >100ms is a visual bug and must be blocked.
 
 
