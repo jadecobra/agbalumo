@@ -140,5 +140,43 @@
     <!-- Filters Bar (Attached to Header) -->
     {{ block "filters" . }}{{ end }}
     {{ end }}
+    <!-- Mobile Bottom Navigation (Brutalist, Low-Profile) -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-stone-950 border-t border-white/10 h-16 flex items-center justify-around px-2 pb-safe">
+        <!-- Explore -->
+        <a href="/" class="flex flex-col items-center justify-center gap-1 text-white/60 hover:text-white transition-colors w-16">
+            <span class="material-symbols-outlined text-[24px]">explore</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider font-display">Explore</span>
+        </a>
+
+        <!-- Post -->
+        <button data-auth-action="modal" data-modal-id="create-listing-modal"
+            data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
+            class="flex flex-col items-center justify-center gap-1 text-earth-accent hover:text-earth-accent-light transition-colors w-16">
+            <span class="material-symbols-outlined text-[24px]">add_circle</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider font-display">Post Spot</span>
+        </button>
+
+        <!-- Feedback -->
+        <button hx-get="/feedback/modal" hx-target="body" hx-swap="beforeend"
+            class="flex flex-col items-center justify-center gap-1 text-white/60 hover:text-white transition-colors w-16">
+            <span class="material-symbols-outlined text-[24px]">feedback</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider font-display">Feedback</span>
+        </button>
+
+        <!-- Profile / Sign In -->
+        {{ if .User }}
+        <button hx-get="/profile" hx-target="body" hx-swap="beforeend"
+            class="flex flex-col items-center justify-center gap-1 text-white/60 hover:text-white transition-colors w-16">
+            <img src="{{ .User.AvatarURL }}" alt="Profile" class="w-6 h-6 border border-white/20 object-cover">
+            <span class="text-[10px] font-bold uppercase tracking-wider font-display">Account</span>
+        </button>
+        {{ else }}
+        <a href="/auth/google/login"
+            class="flex flex-col items-center justify-center gap-1 text-white/60 hover:text-white transition-colors w-16">
+            <span class="material-symbols-outlined text-[24px]">account_circle</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider font-display">Sign In</span>
+        </a>
+        {{ end }}
+    </nav>
 </header>
 {{ end }}
