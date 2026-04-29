@@ -17,7 +17,7 @@
 
 
             <button data-modal-action="close"
-                class="absolute top-4 right-4 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition-colors z-[60]">
+                class="absolute top-4 right-4 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition-colors z-[60] focus:outline-none">
                 <span class="material-symbols-outlined">close</span>
                 <span class="sr-only">Close</span>
             </button>
@@ -28,7 +28,7 @@
                         class="bg-earth-accent/90 text-white text-[10px] uppercase font-bold px-2 py-0.5  tracking-wider shadow-sm">{{
                         .Listing.Type }}</span>
                     {{ if .Listing.RegionalSpecialty }}
-                    <span class="bg-palm-green/90 text-white text-[10px] uppercase font-bold px-2 py-0.5 tracking-wider shadow-sm">{{ .Listing.RegionalSpecialty }}</span>
+                    <span class="bg-secondary/90 text-white text-[10px] uppercase font-bold px-2 py-0.5 tracking-wider shadow-sm">{{ .Listing.RegionalSpecialty }}</span>
                     {{ end }}
                     {{ if eq .Listing.OwnerOrigin "Nigeria" }}<span class="text-xl shadow-sm">🇳🇬</span>{{ else if eq
                     .Listing.OwnerOrigin "Ghana" }}<span class="text-xl shadow-sm">🇬🇭</span>{{ end }}
@@ -205,7 +205,7 @@
 
                 {{ if .Listing.ContactPhone }}
                 <a href="tel:{{ .Listing.ContactPhone }}" data-ada-discovery="phone"
-                    class="flex items-center gap-3 p-3  bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors border border-blue-100 dark:border-blue-800">
+                    class="flex items-center gap-3 p-3  bg-stone-50 dark:bg-white/5 text-text-main dark:text-earth-cream hover:bg-white/10 border-stone-200 dark:border-white/10 transition-colors">
                     <span class="material-symbols-outlined">call</span>
                     <span class="font-medium text-sm">Call {{ .Listing.ContactPhone }}</span>
                 </a>
@@ -240,11 +240,5 @@
             </div>
         </div>
 
-        <!-- CLOSE button — large touch target, always visible at bottom -->
-        <div class="p-4 border-t border-stone-200 dark:border-stone-800 bg-white dark:bg-surface-dark shrink-0 sticky bottom-0">
-            <button data-modal-action="close"
-                class="w-full bg-stone-100 hover:bg-stone-200 text-text-main dark:bg-stone-800 dark:text-white dark:hover:bg-stone-700 font-bold uppercase text-xs tracking-widest py-4 transition-colors active:scale-95">
-                CLOSE
-            </button>
-        </div>
+
 {{ end }}
