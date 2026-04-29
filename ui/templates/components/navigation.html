@@ -52,12 +52,14 @@
         <div class="hidden md:flex items-center gap-4 shrink-0">
             <!-- Navigation Links -->
             <nav class="flex items-center gap-1">
+                {{ if .User }}
                 <button hx-get="/feedback/modal" hx-target="body" hx-swap="beforeend"
                     data-testid="ag-nav-feedback-btn"
                     class="p-2  text-stone-500 hover:text-earth-accent hover:bg-surface-dark/40 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors"
                     title="Feedback" aria-label="Feedback">
                     <span class="material-symbols-outlined">feedback</span>
                 </button>
+                {{ end }}
                 <button
                     class="p-2  text-stone-500 hover:text-earth-accent hover:bg-surface-dark/40 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors"
                     title="Saved" aria-label="Saved">
