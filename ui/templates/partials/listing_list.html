@@ -25,8 +25,32 @@
 <div class="col-span-full flex flex-col items-center justify-center py-16 text-center animate-in fade-in duration-500">
     <span class="material-symbols-outlined text-4xl text-stone-400 dark:text-stone-500 mb-4">search_off</span>
     <h3 class="text-lg font-bold text-earth-cream mb-2 font-display">No listings found</h3>
-    <p class="text-sm text-stone-400 mb-8 max-w-xs">We couldn't find spots matching that query. Tap below to explore active categories immediately.</p>
-    
+    <p class="text-sm text-stone-400 mb-6 max-w-xs">We couldn't find spots matching that query.</p>
+
+    {{ if and .City (or (eq .Radius 5.0) (eq .Radius 10.0) (eq .Radius 25.0) (eq .Radius 0.0)) }}
+    <div class="mb-8">
+        {{ $nextRadius := 10 }}
+        {{ $radiusText := "10 Miles" }}
+        {{ if eq .Radius 10.0 }}
+            {{ $nextRadius = 25 }}
+            {{ $radiusText = "25 Miles" }}
+        {{ else if or (eq .Radius 25.0) (eq .Radius 0.0) }}
+            {{ $nextRadius = 50 }}
+            {{ $radiusText = "50 Miles" }}
+        {{ end }}
+        
+        <button type="button" 
+            class="px-6 h-12 flex items-center justify-center bg-earth-ochre text-earth-dark font-bold font-display tracking-widest text-xs uppercase hover:bg-earth-ochre-light transition-all shadow-lg shadow-earth-ochre/20 active:scale-95 mx-auto"
+            hx-get="/listings/fragment?radius={{ $nextRadius }}{{ if .City }}&city={{ .City }}{{ end }}{{ if .Category }}&type={{ .Category }}{{ end }}{{ if .QueryText }}&q={{ .QueryText }}{{ end }}" 
+            hx-target="#listings-container" 
+            hx-indicator="#listings-loading"
+            onclick="if (window.filterState) { window.filterState.radius = '{{ $nextRadius }}'; }">
+            Expand Search to {{ $radiusText }}
+        </button>
+    </div>
+    {{ end }}
+
+    <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-500 mb-4">Or explore categories immediately</p>
     <!-- Proactive Category Recommendation Pills -->
     <div class="flex flex-wrap items-center justify-center gap-2 max-w-sm mb-8">
         <button type="button" class="bg-white/10 text-white hover:bg-white/20 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors border border-white/5"

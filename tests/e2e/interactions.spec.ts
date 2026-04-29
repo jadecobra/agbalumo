@@ -88,15 +88,15 @@ test.describe('HTMX Interactions and State Sync', () => {
     // Wait for the htmx delay for city input (800ms)
     await page.waitForTimeout(1000);
 
-    const radiusBtn = page.locator('[data-radius-value="100"]');
+    const radiusBtn = page.locator('[data-radius-value="10"]');
     await radiusBtn.click();
     
     // Wait for requests to settle
     await page.waitForTimeout(2000);
 
-    // Assert that we have a request with Lagos and 100
+    // Assert that we have a request with Lagos and 10
     const match = requests.some(url => 
-      url.toLowerCase().includes('city=lagos') && url.includes('radius=100')
+      url.toLowerCase().includes('city=lagos') && url.includes('radius=10')
     );
     
     expect(match).toBe(true);
@@ -104,6 +104,6 @@ test.describe('HTMX Interactions and State Sync', () => {
     // Assert JavaScript state
     const filterState = await page.evaluate(() => (window as any).filterState);
     expect(filterState.city).toBe('Lagos');
-    expect(filterState.radius).toBe('100');
+    expect(filterState.radius).toBe('10');
   });
 });
