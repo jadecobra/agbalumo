@@ -32,7 +32,8 @@ module.exports = {
                     dark: '#1A120E',
                     sand: '#F4EBD0',
                     cream: '#FAF8F1',
-                    accent: '#F58608'
+                    accent: '#F58608',
+                    secondary: '#5A6C7D'
                 }
             },
             fontFamily: {

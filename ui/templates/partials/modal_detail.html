@@ -42,7 +42,7 @@
                 {{ if .Listing.TopDish }}
                 <div class="flex items-center gap-1.5 mt-1 text-white/90">
                     <span class="material-symbols-outlined text-[16px] text-earth-ochre">restaurant</span>
-                    <span class="text-xs font-bold font-display italic tracking-wide">Signature: {{ .Listing.TopDish }}</span>
+                    <span class="text-xs font-medium font-sans tracking-wide">Signature: {{ .Listing.TopDish }}</span>
                 </div>
                 {{ end }}
             </div>
@@ -224,9 +224,9 @@
 
                 {{ if .Listing.WebsiteURL }}
                 <a href="{{ .Listing.WebsiteURL }}" target="_blank" data-ada-discovery="website"
-                    class="flex items-center gap-3 p-3  bg-earth-accent/5 dark:bg-earth-accent/10 text-earth-accent hover:bg-earth-accent/10 dark:hover:bg-earth-accent/20 transition-colors">
-                    <span class="material-symbols-outlined">language</span>
-                    <span class="font-medium text-sm">Website</span>
+                    class="flex items-center gap-3 p-1 text-earth-secondary hover:text-earth-accent font-bold uppercase text-sm transition-colors">
+                    <span class="material-symbols-outlined text-[18px]">language</span>
+                    <span>Website</span>
                 </a>
                 {{ end }}
 
