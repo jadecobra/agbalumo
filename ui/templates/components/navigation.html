@@ -102,7 +102,7 @@
                     {{ end }}
                     <a href="/auth/google/login" aria-label="Sign In"
                         data-testid="ag-nav-signin-btn"
-                        class="flex items-center gap-2 bg-secondary/10 hover:bg-secondary/20 text-secondary dark:text-green-400 dark:hover:bg-green-900/30 px-4 h-10 transition-all font-semibold font-display text-sm whitespace-nowrap {{ if not .HasGoogleAuth }}opacity-50{{ end }}"
+                        class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white hover:text-earth-cream px-4 h-10 transition-all font-semibold font-display text-sm whitespace-nowrap {{ if not .HasGoogleAuth }}opacity-50{{ end }}"
                         {{ if not .HasGoogleAuth }}title="Google OAuth not configured in .env"{{ end }}>
                         <span class="material-symbols-outlined text-[18px]">login</span>
                         Sign In
