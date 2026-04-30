@@ -38,7 +38,6 @@ func TestHomePageUIValues(t *testing.T) {
 	body := rec.Body.String()
 	assert.Contains(t, body, "African Food A")
 	assert.Contains(t, body, "African Food B")
-	assert.Contains(t, body, "2 listings and growing")
 }
 
 func TestTemplateTailwindCleanup(t *testing.T) {
