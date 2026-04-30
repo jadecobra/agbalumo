@@ -27,14 +27,28 @@ func (h *PageHandler) HandleAbout(c echo.Context) error {
 }
 
 func (h *PageHandler) renderWithBaseContext(c echo.Context, tmpl string, data map[string]interface{}) error {
-	categories, err := h.App.DB.GetCategories(c.Request().Context(), domain.CategoryFilter{ActiveOnly: true})
+	ctx := c.Request().Context()
+	categories, err := h.App.DB.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: true})
 	if err != nil {
 		slog.Error("Failed to fetch categories", "error", err)
+	}
+
+	counts, err := h.App.DB.GetCounts(ctx)
+	if err != nil {
+		slog.Error("Failed to fetch counts", "error", err)
+		data["Counts"] = map[string]int{}
+	} else {
+		strCounts := make(map[string]int)
+		for cat, count := range counts {
+			strCounts[string(cat)] = count
+		}
+		data["Counts"] = strCounts
 	}
 
 	data["Categories"] = categories
 	data["Config"] = h.App.Cfg
 	data["Env"] = h.App.Cfg.Env
+	data["DevMode"] = h.App.Cfg.Env == "development"
 	data["HasGoogleAuth"] = h.App.Cfg.HasGoogleAuth
 	return c.Render(http.StatusOK, tmpl, data)
 }
