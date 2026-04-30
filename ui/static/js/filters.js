@@ -30,7 +30,7 @@ function setupFilterToggle() {
             panel.classList.remove('hidden');
             panel.setAttribute('aria-expanded', 'true');
             // Focus search input on open
-            const searchInput = document.getElementById('search');
+            const searchInput = document.getElementById('search-nav') || document.getElementById('search');
             if (searchInput) setTimeout(() => searchInput.focus(), 100);
         } else {
             panel.classList.add('hidden');
@@ -88,7 +88,7 @@ function setupFilterButtons() {
         btn.classList.add('bg-earth-ochre/10', 'text-earth-ochre');
 
         // Trigger HTMX
-        const searchInput = document.getElementById('search');
+        const searchInput = document.getElementById('search-nav') || document.getElementById('search');
         if (searchInput) {
             if (window.htmx) {
                 window.htmx.trigger(searchInput, 'search');
@@ -129,7 +129,7 @@ function setupFilterButtons() {
         btn.classList.add('bg-earth-ochre/10', 'text-earth-ochre');
 
         // Trigger HTMX
-        const searchInput = document.getElementById('search');
+        const searchInput = document.getElementById('search-nav') || document.getElementById('search');
         if (searchInput) {
             if (window.htmx) {
                 window.htmx.trigger(searchInput, 'search');

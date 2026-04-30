@@ -34,6 +34,12 @@ module.exports = {
                     cream: '#FAF8F1',
                     accent: '#F58608',
                     secondary: '#5A6C7D'
+                },
+                google: {
+                    blue: '#4285F4',
+                    green: '#34A853',
+                    yellow: '#FBBC05',
+                    red: '#EA4335'
                 }
             },
             fontFamily: {

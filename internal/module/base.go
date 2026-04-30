@@ -35,6 +35,7 @@ func (h *BaseHandler) RenderWithBaseContext(c echo.Context, tmpl string, data ma
 	}
 
 	data["Env"] = h.App.Cfg.Env
+	data["DevMode"] = h.App.Cfg.Env == "development"
 	data["HasGoogleAuth"] = h.App.Cfg.HasGoogleAuth
 
 	// Add User if present in context
