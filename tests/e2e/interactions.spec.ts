@@ -106,4 +106,38 @@ test.describe('HTMX Interactions and State Sync', () => {
     expect(filterState.city).toBe('Lagos');
     expect(filterState.radius).toBe('10');
   });
+
+  test('should provide a visible desktop login button', async ({ page }) => {
+    // Desktop viewport
+    await page.setViewportSize({ width: 1440, height: 900 });
+    const signInBtn = page.getByTestId('ag-nav-signin-btn');
+    await expect(signInBtn).toBeVisible();
+    
+    // Check that it doesn't use the dark secondary text class which hides it on the dark header
+    const classList = await signInBtn.getAttribute('class');
+    expect(classList).not.toContain('text-secondary');
+  });
+
+  test('try pill buttons should scroll listings into view', async ({ page }) => {
+    // Desktop viewport
+    await page.setViewportSize({ width: 1440, height: 900 });
+    
+    const tryJollofBtn = page.locator('button', { hasText: 'Jollof' }).first();
+    await expect(tryJollofBtn).toBeVisible();
+
+    // Check initial scroll position
+    const initialScrollY = await page.evaluate(() => window.scrollY);
+    
+    // Click the try button
+    await tryJollofBtn.click();
+    
+    // Wait for smooth scroll
+    await page.waitForTimeout(1000);
+    
+    // Check new scroll position
+    const finalScrollY = await page.evaluate(() => window.scrollY);
+    
+    // Scroll position should have changed to show the listings container
+    expect(finalScrollY).toBeGreaterThan(initialScrollY);
+  });
 });
