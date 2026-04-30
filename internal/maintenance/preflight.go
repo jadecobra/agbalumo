@@ -41,6 +41,13 @@ const (
 
 // RunPreflight dumps active rules relevant to staged/modified files.
 func RunPreflight(rootDir string) error {
+	fmt.Println("======================================================================")
+	fmt.Println("[QUOTA TRIPWIRE & CONSTRAINT HANDSHAKE]")
+	fmt.Println("If you are an expensive reasoning model (Opus / Gemini 3.1 Pro), you are FORBIDDEN")
+	fmt.Println("from using mutating tools (replace_file_content, run_command git) without OVERRIDE.")
+	fmt.Println("Before taking any action, you MUST output a '> Constraint Check:' block.")
+	fmt.Println("======================================================================")
+
 	modifiedFiles, err := getGitModifiedFiles(rootDir)
 	if err != nil {
 		return err
