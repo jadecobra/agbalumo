@@ -15,9 +15,9 @@
     </div>
 
     <div class="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between gap-4 md:gap-8">
-        {{ block "header_content" . }}
 
         <!-- Desktop Logo -->
+
         <a href="/" class="hidden md:flex flex-col shrink-0 items-center justify-center gap-0 group">
             <h1 class="flex flex-col items-center">
                 <picture>
@@ -32,6 +32,7 @@
         </a>
 
         <!-- Centered Search Bar (Max Width) -->
+        {{ block "header_search" . }}
         <div class="flex-1 max-w-2xl relative">
             <div
                 class="search-glow relative flex items-center h-11 md:h-12  bg-transparent shadow-sm border border-white/20 group focus-within:border-earth-accent transition-all">
@@ -47,6 +48,7 @@
                     hx-trigger="keyup changed delay:500ms, search" />
             </div>
         </div>
+        {{ end }}
 
         <!-- Right Controls (Desktop Only) -->
         <div class="hidden md:flex items-center gap-4 shrink-0">
@@ -136,8 +138,9 @@
         </div>
     </div>
 
+
     <!-- Filters Bar (Attached to Header) -->
     {{ block "filters" . }}{{ end }}
-    {{ end }}
+
 </header>
 {{ end }}

@@ -2,27 +2,9 @@
 
 {{ define "title" }}agbalumo: find what you want{{ end }}
 
-{{ define "header_classes" }}sticky top-0 w-full z-[110] bg-earth-dark/80 backdrop-blur-md border-b border-white/10 text-white transition-all
-duration-300{{ end }}
-
-{{ define "header_content" }}
-<div class="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between gap-4 md:gap-8 w-full">
-    <!-- Desktop Logo -->
-    <a href="/" class="hidden md:flex flex-col shrink-0 items-center justify-center gap-0 group">
-        <img src="/static/images/logo.png" alt="agbalumo Logo"
-            class="h-10 md:h-14 object-contain group-hover:scale-105 transition-transform">
-    </a>
-
-    <!-- Action Buttons -->
-    <div class="flex items-center gap-4">
-        <!-- Add any essential nav links here if needed, but keep it minimal to avoid hero overlap -->
-    </div>
-</div>
-{{ end }}
-
-{{ define "filters" }}{{ end }}
 
 {{ define "content" }}
+
 <div class="w-full bg-earth-dark text-earth-sand pb-24 md:pb-8" data-template-file="ui/templates/index.html">
 
     {{ template "home_hero_search" . }}

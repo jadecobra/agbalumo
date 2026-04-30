@@ -20,7 +20,9 @@ function initApp() {
     if (typeof setupAuthActions === 'function') setupAuthActions();
     if (typeof setupFilterButtons === 'function') setupFilterButtons();
     if (typeof setupFilterToggle === 'function') setupFilterToggle();
+    setupTryButtons();
 }
+
 
 // Global HTMX listener for elements that need re-init
 document.body.addEventListener('htmx:afterSwap', (evt) => {
@@ -29,3 +31,17 @@ document.body.addEventListener('htmx:afterSwap', (evt) => {
         initCustomDropdownsActiveState(evt.detail.elt);
     }
 });
+
+function setupTryButtons() {
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-try-query]');
+        if (btn) {
+            const query = btn.getAttribute('data-try-query');
+            const searchInput = document.getElementById('search');
+            if (searchInput) {
+                searchInput.value = query;
+            }
+        }
+    });
+}
+

@@ -78,17 +78,20 @@
                 <span class="text-[10px] font-bold uppercase tracking-widest text-white/50 mr-1">Try:</span>
                 <button type="button" class="bg-white/10 text-white hover:bg-white/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest transition-colors border border-white/5"
                     hx-get="/listings/fragment?q=Jollof" hx-target="#listings-container" hx-indicator="#listings-loading"
-                    hx-swap="innerHTML show:top">
+                    hx-swap="innerHTML show:#explore-section:top"
+                    data-try-query="Jollof">
                     Jollof
                 </button>
                 <button type="button" class="bg-white/10 text-white hover:bg-white/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest transition-colors border border-white/5"
                     hx-get="/listings/fragment?q=Suya" hx-target="#listings-container" hx-indicator="#listings-loading"
-                    hx-swap="innerHTML show:top">
+                    hx-swap="innerHTML show:#explore-section:top"
+                    data-try-query="Suya">
                     Suya
                 </button>
                 <button type="button" class="bg-white/10 text-white hover:bg-white/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest transition-colors border border-white/5"
                     hx-get="/listings/fragment?q=Groceries" hx-target="#listings-container" hx-indicator="#listings-loading"
-                    hx-swap="innerHTML show:top">
+                    hx-swap="innerHTML show:#explore-section:top"
+                    data-try-query="Groceries">
                     Groceries
                 </button>
             </div>
