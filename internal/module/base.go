@@ -43,5 +43,20 @@ func (h *BaseHandler) RenderWithBaseContext(c echo.Context, tmpl string, data ma
 		data["User"] = u
 	}
 
+	// Fetch counts if not already provided
+	if _, exists := data["Counts"]; !exists {
+		counts, err := h.App.DB.GetCounts(ctx)
+		if err != nil {
+			c.Logger().Errorf("Failed to retrieve counts: %v", err)
+			data["Counts"] = map[string]int{}
+		} else {
+			strCounts := make(map[string]int)
+			for cat, count := range counts {
+				strCounts[string(cat)] = count
+			}
+			data["Counts"] = strCounts
+		}
+	}
+
 	return c.Render(http.StatusOK, tmpl, data)
 }
