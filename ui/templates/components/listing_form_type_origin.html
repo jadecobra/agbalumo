@@ -2,7 +2,7 @@
 <!-- Type -->
 <div class="flex flex-col gap-1.5 z-20">
     <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Type</label>
-    <div class="custom-dropdown relative w-full" style="z-index: 10;">
+    <div class="custom-dropdown relative w-full z-10">
         <input type="hidden" name="type" value="{{ if .SelectedType }}{{ .SelectedType }}{{ else }}Business{{ end }}" required>
         <button type="button" data-dropdown-toggle
             class="w-full bg-earth-sand/10 border border-white/20 px-4 py-3 h-12 flex justify-between items-center text-white font-light text-base outline-none transition-all placeholder:text-white/50 cursor-pointer">
@@ -23,7 +23,7 @@
 <!-- Origin -->
 <div class="flex flex-col gap-1.5 z-10 mt-1">
     <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Origin</label>
-    <div class="custom-dropdown relative w-full" style="z-index: 10;">
+    <div class="custom-dropdown relative w-full z-10">
         <input type="hidden" name="owner_origin" value="{{ if .SelectedOrigin }}{{ .SelectedOrigin }}{{ else }}Nigeria{{ end }}" required>
         <button type="button" data-dropdown-toggle
             class="w-full bg-earth-sand/10 border border-white/20 px-4 py-3 h-12 flex justify-between items-center text-white font-light text-base outline-none transition-all placeholder:text-white/50 cursor-pointer">

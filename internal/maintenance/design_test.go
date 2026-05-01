@@ -75,3 +75,55 @@ func TestCheckHardcodedModalBg(t *testing.T) {
 		})
 	}
 }
+
+func TestCheckInlineHandlers(t *testing.T) {
+	tests := []struct {
+		name       string
+		line       string
+		shouldFail bool
+	}{
+		{name: "onclick handler", line: `<div onclick="foo()">`, shouldFail: true},
+		{name: "onchange handler", line: `<select onchange="bar()">`, shouldFail: true},
+		{name: "onsubmit handler", line: `<form onsubmit="baz()">`, shouldFail: true},
+		{name: "onmouseover handler", line: `<span onmouseover="qux()">`, shouldFail: true},
+		{name: "hx-get attribute", line: `<div hx-get="/path">`, shouldFail: false},
+		{name: "data-action attribute", line: `<div data-action="click">`, shouldFail: false},
+		{name: "no handler", line: `<div>`, shouldFail: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			v := checkInlineHandlers("test.html", 1, tt.line)
+			if tt.shouldFail && len(v) == 0 {
+				t.Errorf("expected violation for %s, got none", tt.line)
+			}
+			if !tt.shouldFail && len(v) > 0 {
+				t.Errorf("expected no violation for %s, got %d", tt.line, len(v))
+			}
+		})
+	}
+}
+
+func TestCheckInlineStyles(t *testing.T) {
+	tests := []struct {
+		name       string
+		line       string
+		shouldFail bool
+	}{
+		{name: "inline style color", line: `<div style="color:red">`, shouldFail: true},
+		{name: "inline style display", line: `<div style="display:none">`, shouldFail: true},
+		{name: "inline style background-image", line: `<div style="background-image: url('/img.png')">`, shouldFail: false},
+		{name: "tailwind class", line: `<div class="text-red-500">`, shouldFail: false},
+		{name: "no style", line: `<div>`, shouldFail: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			v := checkInlineStyles("test.html", 1, tt.line)
+			if tt.shouldFail && len(v) == 0 {
+				t.Errorf("expected violation for %s, got none", tt.line)
+			}
+			if !tt.shouldFail && len(v) > 0 {
+				t.Errorf("expected no violation for %s, got %d", tt.line, len(v))
+			}
+		})
+	}
+}

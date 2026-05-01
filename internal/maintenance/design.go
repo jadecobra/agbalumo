@@ -65,6 +65,8 @@ func checkFileStandards(path string) ([]DesignViolation, error) {
 		violations = append(violations, checkMinFontSize(path, lineNumber, line)...)
 		violations = append(violations, checkLowContrastOpacity(path, lineNumber, line)...)
 		violations = append(violations, checkHardcodedModalBg(path, lineNumber, line)...)
+		violations = append(violations, checkInlineHandlers(path, lineNumber, line)...)
+		violations = append(violations, checkInlineStyles(path, lineNumber, line)...)
 	}
 
 	return violations, scanner.Err()
@@ -164,3 +166,34 @@ func checkHardcodedModalBg(path string, lineNum int, line string) []DesignViolat
 	return nil
 }
 
+func checkInlineHandlers(path string, lineNum int, line string) []DesignViolation {
+	var v []DesignViolation
+	re := regexp.MustCompile(`\bon(click|change|submit|mouseover)\s*=`)
+	if re.MatchString(line) {
+		v = append(v, DesignViolation{
+			File:    path,
+			Line:    lineNum,
+			Content: line,
+			Reason:  "Inline event handler violates CSP policy (use data-* attributes + event delegation)",
+		})
+	}
+	return v
+}
+
+func checkInlineStyles(path string, lineNum int, line string) []DesignViolation {
+	var v []DesignViolation
+	if strings.Contains(line, "background-image:") {
+		return nil
+	}
+
+	re := regexp.MustCompile(`\bstyle\s*=\s*"`)
+	if re.MatchString(line) {
+		v = append(v, DesignViolation{
+			File:    path,
+			Line:    lineNum,
+			Content: line,
+			Reason:  "Inline style attribute (use Tailwind classes)",
+		})
+	}
+	return v
+}
