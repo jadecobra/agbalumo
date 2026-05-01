@@ -246,3 +246,39 @@ feedback_modal:
     responses:
       '200':
         description: HTML modal
+
+saved:
+  get:
+    summary: Get saved listings
+    description: Returns the user's saved listings
+    tags:
+      - Listings
+    security:
+      - CookieAuth: []
+    responses:
+      '200':
+        description: Saved listings page
+      '401':
+        description: Unauthorized
+
+save_toggle:
+  post:
+    summary: Toggle save status
+    description: Saves or unsaves a listing for the authenticated user
+    tags:
+      - Listings
+    security:
+      - CookieAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Success (returns updated heart button HTML)
+      '401':
+        description: Unauthorized
+      '404':
+        description: Listing not found

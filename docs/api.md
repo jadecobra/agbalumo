@@ -65,6 +65,8 @@ Requires authentication (session cookie).
 | DELETE | `/listings/:id` | Delete listing |
 | GET | `/profile` | User profile page |
 | POST | `/listings/:id/claim` | Claim listing |
+| GET | `/saved` | Saved listings page |
+| POST | `/listings/:id/save` | Toggle listing save status |
 
 ### Feedback
 

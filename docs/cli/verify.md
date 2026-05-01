@@ -241,3 +241,10 @@ Validate SKILL.md YAML frontmatter completeness.
 agbalumo verify skill-conformance
 ```
 
+##### visual-audit
+
+Run deterministic visual audit (static checks + Playwright E2E).
+
+```bash
+agbalumo verify visual-audit
+```

@@ -86,6 +86,12 @@ paths:
   /feedback/modal:
     $ref: './openapi/paths/listings.yaml#/feedback_modal'
 
+  /saved:
+    $ref: './openapi/paths/listings.yaml#/saved'
+
+  /listings/{id}/save:
+    $ref: './openapi/paths/listings.yaml#/save_toggle'
+
   /healthz:
     get:
       summary: Health check

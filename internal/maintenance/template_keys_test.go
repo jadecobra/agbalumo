@@ -6,12 +6,14 @@ import (
 	"testing"
 )
 
+type templateTest struct {
+	files      map[string]string
+	name       string
+	shouldFail bool
+}
+
 func TestCheckTemplateKeyGaps(t *testing.T) {
-	tests := []struct {
-		name       string
-		files      map[string]string
-		shouldFail bool
-	}{
+	tests := []templateTest{
 		{
 			name: "missing key violation",
 			files: map[string]string{
@@ -48,29 +50,36 @@ func TestCheckTemplateKeyGaps(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tmpDir, err := os.MkdirTemp("", "template_test_*")
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer func() { _ = os.RemoveAll(tmpDir) }()
-
-			for name, content := range tt.files {
-				if err := os.WriteFile(filepath.Join(tmpDir, name), []byte(content), 0644); err != nil {
-					t.Fatal(err)
-				}
-			}
-
-			violations, err := CheckTemplateKeyGaps(tmpDir)
-			if err != nil {
-				t.Fatalf("CheckTemplateKeyGaps failed: %v", err)
-			}
-
-			if tt.shouldFail && len(violations) == 0 {
-				t.Errorf("expected violations, got none")
-			}
-			if !tt.shouldFail && len(violations) > 0 {
-				t.Errorf("expected no violations, got %d: %+v", len(violations), violations)
-			}
+			runTemplateKeyGapTest(t, tt)
 		})
+	}
+}
+
+func runTemplateKeyGapTest(t *testing.T, tt templateTest) {
+	tmpDir, err := os.MkdirTemp("", "template_test_*")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = os.RemoveAll(tmpDir) }()
+
+	for name, content := range tt.files {
+		path := filepath.Join(tmpDir, name)
+		err = os.WriteFile(path, []byte(content), 0600)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	var violations []DesignViolation
+	violations, err = CheckTemplateKeyGaps(tmpDir)
+	if err != nil {
+		t.Fatalf("CheckTemplateKeyGaps failed: %v", err)
+	}
+
+	if tt.shouldFail && len(violations) == 0 {
+		t.Errorf("expected violations, got none")
+	}
+	if !tt.shouldFail && len(violations) > 0 {
+		t.Errorf("expected no violations, got %d: %+v", len(violations), violations)
 	}
 }

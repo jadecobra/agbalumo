@@ -53,10 +53,13 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	ctx := c.Request().Context()
 	limit := 30
 	p := GetPagination(c, limit)
-	page := p.Page
-	offset := p.Offset
 
-	// P1.3: Run all three queries in parallel
+	params := h.parseQueryParams(c)
+	var lat, lng float64
+	if params.City != "" && params.Radius > 0 {
+		lat, lng, _ = h.App.GeocodingSvc.Geocode(ctx, params.City)
+	}
+
 	var (
 		listings   []domain.Listing
 		counts     map[domain.Category]int
@@ -75,29 +78,10 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	)
 
 	var totalCount int
-	filterType := c.QueryParam(domain.FieldType)
-	if filterType == "All" {
-		filterType = ""
-	} else if filterType == "" {
-		filterType = string(domain.Food)
-	}
-	queryText := c.QueryParam(domain.ParamQuery)
-	city := c.QueryParam(domain.FieldCity)
-	radiusStr := c.QueryParam("radius")
-	var radius float64
-	if radiusStr != "" {
-		radius, _ = strconv.ParseFloat(radiusStr, 64)
-	}
-
-	var lat, lng float64
-	if city != "" && radius > 0 {
-		lat, lng, _ = h.App.GeocodingSvc.Geocode(ctx, city)
-	}
-
 	wg.Add(4)
 	go func() {
 		defer wg.Done()
-		listings, totalCount, listingsErr = h.App.DB.FindAll(ctx, filterType, queryText, city, lat, lng, radius, "", "", false, limit, offset)
+		listings, totalCount, listingsErr = h.App.DB.FindAll(ctx, params.Type, params.Query, params.City, lat, lng, params.Radius, "", "", false, limit, p.Offset)
 	}()
 	go func() {
 		defer wg.Done()
@@ -119,8 +103,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	}()
 	go func() {
 		defer wg.Done()
-		u := c.Get(domain.CtxKeyUser)
-		if u != nil {
+		if u := c.Get(domain.CtxKeyUser); u != nil {
 			if user, ok := u.(*domain.User); ok {
 				savedIDs, _ = h.App.DB.GetSavedListingIDs(ctx, user.ID)
 			}
@@ -132,41 +115,28 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	if listingsErr != nil {
 		return ui.RespondError(c, listingsErr)
 	}
-	hasNextPage := offset+len(listings) < totalCount
 
 	h.LogError(c, "failed to get listing counts", countsErr)
 	h.LogError(c, "failed to get featured listings", featuredErr)
 	h.LogError(c, "failed to get locations", locationsErr)
-	h.LogError(c, "failed to get categories in HandleHome", categoriesErr)
+	h.LogError(c, "failed to get categories", categoriesErr)
 
-	strCounts := make(map[string]int)
-	for cat, count := range counts {
-		strCounts[string(cat)] = count
-	}
-
-	now := time.Now()
-	for i := range listings {
-		listings[i].IsCurrentlyOpen = service.ComputeIsOpen(listings[i].HoursOfOperation, listings[i].StructuredHours, now)
-	}
-	for i := range featured {
-		featured[i].IsCurrentlyOpen = service.ComputeIsOpen(featured[i].HoursOfOperation, featured[i].StructuredHours, now)
-	}
-
-	u := c.Get(domain.CtxKeyUser)
+	h.processListings(listings)
+	h.processListings(featured)
 
 	return h.RenderWithBaseContext(c, domain.TemplateIndex, map[string]interface{}{
 		"Listings":         listings,
-		"Pagination":       Pagination{Page: page, TotalPages: (totalCount + limit - 1) / limit, HasNextPage: hasNextPage, TotalCount: totalCount},
+		"Pagination":       Pagination{Page: p.Page, TotalPages: (totalCount + limit - 1) / limit, HasNextPage: p.Offset+len(listings) < totalCount, TotalCount: totalCount},
 		"FeaturedListings": featured,
-		"Counts":           strCounts,
+		"Counts":           h.mapCounts(counts),
 		"Locations":        locations,
 		"TotalCount":       totalCount,
 		"Categories":       categories,
-		"Category":         filterType,
-		"City":             city,
-		"Radius":           radius,
-		"QueryText":        queryText,
-		"User":             u,
+		"Category":         params.Type,
+		"City":             params.City,
+		"Radius":           params.Radius,
+		"QueryText":        params.Query,
+		"User":             c.Get(domain.CtxKeyUser),
 		"SavedIDs":         savedIDs,
 		"GoogleMapsApiKey": h.App.Cfg.GoogleMapsAPIKey,
 	})
@@ -174,72 +144,41 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 
 // Fragment Handler (HTMX)
 func (h *ListingHandler) HandleFragment(c echo.Context) error {
-	filterType := c.QueryParam(domain.FieldType)
-	queryText := c.QueryParam(domain.ParamQuery)
-	city := c.QueryParam(domain.FieldCity)
-	radiusStr := c.QueryParam("radius")
-
+	params := h.parseQueryParams(c)
 	p := GetPagination(c, 30)
-	page := p.Page
-	limit := p.Limit
-	offset := p.Offset
 
-	var radius float64
-	if radiusStr != "" {
-		radius, _ = strconv.ParseFloat(radiusStr, 64)
-	}
-
-	if filterType == "All" {
-		filterType = ""
-	} else if filterType == "" {
-		filterType = string(domain.Food)
-	}
-
-	// Geocode city if provided for radius search
 	var lat, lng float64
-	if city != "" && radius > 0 {
-		lat, lng, _ = h.App.GeocodingSvc.Geocode(c.Request().Context(), city)
+	if params.City != "" && params.Radius > 0 {
+		lat, lng, _ = h.App.GeocodingSvc.Geocode(c.Request().Context(), params.City)
 	}
 
-	listings, totalCount, err := h.App.DB.FindAll(c.Request().Context(), filterType, queryText, city, lat, lng, radius, "", "", false, limit, offset)
+	listings, totalCount, err := h.App.DB.FindAll(c.Request().Context(), params.Type, params.Query, params.City, lat, lng, params.Radius, "", "", false, p.Limit, p.Offset)
 	if err != nil {
 		return ui.RespondErrorMsg(c, http.StatusInternalServerError, err.Error())
 	}
-	hasNextPage := offset+len(listings) < totalCount
 
-	// Fetch featured listings for the selected city and category to support Ada's discovery flow
-	featured, _ := h.App.DB.GetFeaturedListings(c.Request().Context(), filterType, city)
-
-	now := time.Now()
-	for i := range listings {
-		listings[i].IsCurrentlyOpen = service.ComputeIsOpen(listings[i].HoursOfOperation, listings[i].StructuredHours, now)
-	}
-	for i := range featured {
-		featured[i].IsCurrentlyOpen = service.ComputeIsOpen(featured[i].HoursOfOperation, featured[i].StructuredHours, now)
-	}
+	featured, _ := h.App.DB.GetFeaturedListings(c.Request().Context(), params.Type, params.City)
+	h.processListings(listings)
+	h.processListings(featured)
 
 	var savedIDs []string
-	u := c.Get(domain.CtxKeyUser)
-	if u != nil {
+	if u := c.Get(domain.CtxKeyUser); u != nil {
 		if user, ok := u.(*domain.User); ok {
 			savedIDs, _ = h.App.DB.GetSavedListingIDs(c.Request().Context(), user.ID)
 		}
 	}
 
-	data := map[string]interface{}{
+	return c.Render(http.StatusOK, "listing_list", map[string]interface{}{
 		"Listings":         listings,
-		"Pagination":       Pagination{Page: page, TotalPages: (totalCount + limit - 1) / limit, HasNextPage: hasNextPage, TotalCount: totalCount},
+		"Pagination":       Pagination{Page: p.Page, TotalPages: (totalCount + p.Limit - 1) / p.Limit, HasNextPage: p.Offset+len(listings) < totalCount, TotalCount: totalCount},
 		"FeaturedListings": featured,
-		"Category":         filterType,
-		"City":             city,
-		"Radius":           radius,
-		"QueryText":        queryText,
-		"User":             u,
+		"Category":         params.Type,
+		"City":             params.City,
+		"Radius":           params.Radius,
+		"QueryText":        params.Query,
+		"User":             c.Get(domain.CtxKeyUser),
 		"SavedIDs":         savedIDs,
-	}
-
-	// Render the listing list partial (works for both HTMX and full-page requests)
-	return c.Render(http.StatusOK, "listing_list", data)
+	})
 }
 
 // Detail Handler
@@ -287,6 +226,46 @@ func (h *ListingHandler) HandleEdit(c echo.Context) error {
 }
 
 // Helper methods
+
+type queryParams struct {
+	Type   string
+	Query  string
+	City   string
+	Radius float64
+}
+
+func (h *ListingHandler) parseQueryParams(c echo.Context) queryParams {
+	filterType := c.QueryParam(domain.FieldType)
+	if filterType == "All" {
+		filterType = ""
+	} else if filterType == "" {
+		filterType = string(domain.Food)
+	}
+
+	radius, _ := strconv.ParseFloat(c.QueryParam("radius"), 64)
+
+	return queryParams{
+		Type:   filterType,
+		Query:  c.QueryParam(domain.ParamQuery),
+		City:   c.QueryParam(domain.FieldCity),
+		Radius: radius,
+	}
+}
+
+func (h *ListingHandler) processListings(listings []domain.Listing) {
+	now := time.Now()
+	for i := range listings {
+		listings[i].IsCurrentlyOpen = service.ComputeIsOpen(listings[i].HoursOfOperation, listings[i].StructuredHours, now)
+	}
+}
+
+func (h *ListingHandler) mapCounts(counts map[domain.Category]int) map[string]int {
+	strCounts := make(map[string]int)
+	for cat, count := range counts {
+		strCounts[string(cat)] = count
+	}
+	return strCounts
+}
 
 func (h *ListingHandler) getFileHeader(c echo.Context, key string) *multipart.FileHeader {
 	file, err := c.FormFile(key)

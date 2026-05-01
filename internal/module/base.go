@@ -21,18 +21,9 @@ func (h *BaseHandler) LogError(c echo.Context, msg string, err error) {
 // RenderWithBaseContext is a shared helper that injects common data (Categories, Env, etc.)
 // into the data map before rendering.
 func (h *BaseHandler) RenderWithBaseContext(c echo.Context, tmpl string, data map[string]interface{}) error {
-	ctx := c.Request().Context()
 
-	// Fetch categories if not already provided
-	if _, exists := data["Categories"]; !exists {
-		categories, err := h.App.CategorizationSvc.GetActiveCategories(ctx)
-		if err != nil {
-			c.Logger().Errorf("Failed to retrieve categories: %v", err)
-			data["Categories"] = []interface{}{}
-		} else {
-			data["Categories"] = categories
-		}
-	}
+	h.injectCategories(c, data)
+	h.injectCounts(c, data)
 
 	data["Env"] = h.App.Cfg.Env
 	data["DevMode"] = h.App.Cfg.Env == "development"
@@ -43,20 +34,38 @@ func (h *BaseHandler) RenderWithBaseContext(c echo.Context, tmpl string, data ma
 		data["User"] = u
 	}
 
-	// Fetch counts if not already provided
-	if _, exists := data["Counts"]; !exists {
-		counts, err := h.App.DB.GetCounts(ctx)
-		if err != nil {
-			c.Logger().Errorf("Failed to retrieve counts: %v", err)
-			data["Counts"] = map[string]int{}
-		} else {
-			strCounts := make(map[string]int)
-			for cat, count := range counts {
-				strCounts[string(cat)] = count
-			}
-			data["Counts"] = strCounts
-		}
+	return c.Render(http.StatusOK, tmpl, data)
+}
+
+func (h *BaseHandler) injectCategories(c echo.Context, data map[string]interface{}) {
+	if _, exists := data["Categories"]; exists {
+		return
 	}
 
-	return c.Render(http.StatusOK, tmpl, data)
+	categories, err := h.App.CategorizationSvc.GetActiveCategories(c.Request().Context())
+	if err != nil {
+		c.Logger().Errorf("Failed to retrieve categories: %v", err)
+		data["Categories"] = []interface{}{}
+		return
+	}
+	data["Categories"] = categories
+}
+
+func (h *BaseHandler) injectCounts(c echo.Context, data map[string]interface{}) {
+	if _, exists := data["Counts"]; exists {
+		return
+	}
+
+	counts, err := h.App.DB.GetCounts(c.Request().Context())
+	if err != nil {
+		c.Logger().Errorf("Failed to retrieve counts: %v", err)
+		data["Counts"] = map[string]int{}
+		return
+	}
+
+	strCounts := make(map[string]int)
+	for cat, count := range counts {
+		strCounts[string(cat)] = count
+	}
+	data["Counts"] = strCounts
 }
