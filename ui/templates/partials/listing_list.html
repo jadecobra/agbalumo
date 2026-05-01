@@ -19,7 +19,7 @@
 
 {{ if .Listings }}
 {{ range $i, $e := .Listings }}
-{{ template "listing_card" dict "Listing" . "User" $.User "GridClass" "" "Index" $i }}
+{{ template "listing_card" dict "Listing" . "User" $.User "GridClass" "" "Index" $i "SavedIDs" $.SavedIDs }}
 {{ end }}
 {{ else }}
 <div class="col-span-full flex flex-col items-center justify-center py-16 text-center animate-in fade-in duration-500">

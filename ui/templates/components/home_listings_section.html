@@ -67,7 +67,7 @@
             {{ range $i, $e := .Listings }}
             {{ $gridClass := "" }}
 
-            {{ template "listing_card" dict "Listing" . "User" $.User "GridClass" $gridClass "Index" $i }}
+            {{ template "listing_card" dict "Listing" . "User" $.User "GridClass" $gridClass "Index" $i "SavedIDs" $.SavedIDs }}
             {{ end }}
         </div>
 
