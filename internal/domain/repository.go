@@ -67,10 +67,19 @@ type AdminStore interface {
 
 // ClaimRequestStore handles claim request persistence.
 type ClaimRequestStore interface {
-	SaveClaimRequest(ctx context.Context, r ClaimRequest) error
-	GetPendingClaimRequests(ctx context.Context) ([]ClaimRequest, error)
-	UpdateClaimRequestStatus(ctx context.Context, id string, status ClaimStatus) error
 	GetClaimRequestByUserAndListing(ctx context.Context, userID, listingID string) (ClaimRequest, error)
+	GetPendingClaimRequests(ctx context.Context) ([]ClaimRequest, error)
+	SaveClaimRequest(ctx context.Context, r ClaimRequest) error
+	UpdateClaimRequestStatus(ctx context.Context, id string, status ClaimStatus) error
+}
+
+// SavedListingStore handles saved/favorited listing persistence.
+type SavedListingStore interface {
+	SaveListing(ctx context.Context, userID, listingID string) error
+	UnsaveListing(ctx context.Context, userID, listingID string) error
+	GetSavedListings(ctx context.Context, userID string) ([]SavedListing, error)
+	IsListingSaved(ctx context.Context, userID, listingID string) (bool, error)
+	GetSavedListingIDs(ctx context.Context, userID string) ([]string, error)
 }
 
 // AnalyticsStore handles growth/analytics queries.
@@ -101,6 +110,7 @@ type ListingRepository interface {
 	AnalyticsStore
 	CategoryStore
 	ClaimRequestStore
+	SavedListingStore
 }
 
 // DailyMetric represents a daily count of an entity.
