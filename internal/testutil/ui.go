@@ -76,6 +76,7 @@ func NewMainTemplate() *template.Template {
 		{{define "admin_listing_table_row"}}<tr id="listing-row-{{.ID}}"><input type="checkbox" /></tr>{{end}}
 		{{define "admin_dashboard.html"}}Admin Dashboard{{end}}
 		{{define "modal_feedback.html"}}{{if .}}Feedback Modal: {{.}}{{else}}Feedback Modal{{end}}{{end}}
+		{{define "save_button"}}<div ag-test-id="save-button-{{.ListingID}}">{{if .IsSaved}}Saved{{else}}Save{{end}}</div>{{end}}
 	`))
 }
 

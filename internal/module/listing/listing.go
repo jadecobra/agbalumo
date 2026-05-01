@@ -44,6 +44,7 @@ func (h *ListingHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddlewa
 	authGroup.DELETE(domain.PathListingID, h.HandleDelete)
 	authGroup.GET(domain.PathProfile, h.HandleProfile)
 	authGroup.POST(domain.PathListingID+"/claim", h.HandleClaim)
+	authGroup.POST(domain.PathListingID+"/save", h.HandleSaveToggle)
 }
 
 // Home Handler
@@ -61,6 +62,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		featured   []domain.Listing
 		locations  []domain.Location
 		categories []domain.CategoryData
+		savedIDs   []string
 
 		listingsErr   error
 		countsErr     error
@@ -109,10 +111,19 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		locations, locationsErr = h.App.DB.GetLocations(ctx)
 	}()
 
-	wg.Add(1)
+	wg.Add(2)
 	go func() {
 		defer wg.Done()
 		categories, categoriesErr = h.App.CategorizationSvc.GetActiveCategories(ctx)
+	}()
+	go func() {
+		defer wg.Done()
+		u := c.Get(domain.CtxKeyUser)
+		if u != nil {
+			if user, ok := u.(*domain.User); ok {
+				savedIDs, _ = h.App.DB.GetSavedListingIDs(ctx, user.ID)
+			}
+		}
 	}()
 
 	wg.Wait()
@@ -155,6 +166,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		"Radius":           radius,
 		"QueryText":        queryText,
 		"User":             u,
+		"SavedIDs":         savedIDs,
 		"GoogleMapsApiKey": h.App.Cfg.GoogleMapsAPIKey,
 	})
 }
@@ -205,6 +217,14 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 		featured[i].IsCurrentlyOpen = service.ComputeIsOpen(featured[i].HoursOfOperation, featured[i].StructuredHours, now)
 	}
 
+	var savedIDs []string
+	u := c.Get(domain.CtxKeyUser)
+	if u != nil {
+		if user, ok := u.(*domain.User); ok {
+			savedIDs, _ = h.App.DB.GetSavedListingIDs(c.Request().Context(), user.ID)
+		}
+	}
+
 	data := map[string]interface{}{
 		"Listings":         listings,
 		"Pagination":       Pagination{Page: page, TotalPages: (totalCount + limit - 1) / limit, HasNextPage: hasNextPage, TotalCount: totalCount},
@@ -213,7 +233,8 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 		"City":             city,
 		"Radius":           radius,
 		"QueryText":        queryText,
-		"User":             c.Get(domain.CtxKeyUser),
+		"User":             u,
+		"SavedIDs":         savedIDs,
 	}
 
 	// Render the listing list partial (works for both HTMX and full-page requests)
