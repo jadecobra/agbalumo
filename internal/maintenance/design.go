@@ -34,6 +34,13 @@ func CheckDesignStandards(dir string) ([]DesignViolation, error) {
 			return err
 		}
 		violations = append(violations, v...)
+
+		uv, err := checkUppercaseDensity(path)
+		if err != nil {
+			return err
+		}
+		violations = append(violations, uv...)
+
 		return nil
 	})
 
@@ -196,4 +203,33 @@ func checkInlineStyles(path string, lineNum int, line string) []DesignViolation 
 		})
 	}
 	return v
+}
+
+func checkUppercaseDensity(path string) ([]DesignViolation, error) {
+	// #nosec G304 -- verification utility scans local templates only
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = file.Close() }()
+
+	scanner := bufio.NewScanner(file)
+	count := 0
+	re := regexp.MustCompile(`\buppercase\b`)
+
+	for scanner.Scan() {
+		if re.MatchString(scanner.Text()) {
+			count++
+		}
+	}
+
+	if count > 4 {
+		return []DesignViolation{{
+			File:   path,
+			Line:   0, // File-level
+			Reason: fmt.Sprintf("Uppercase density too high (%d occurrences, max 4 per template). Demote secondary elements to capitalize.", count),
+		}}, scanner.Err()
+	}
+
+	return nil, scanner.Err()
 }

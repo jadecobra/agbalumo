@@ -80,24 +80,24 @@
                     <!-- Category Group Toggle (Native HTML5 Accordion) -->
                     <details class="w-full group/accordion" open>
                         <summary class="px-5 py-4 bg-earth-dark/5 border-b border-earth-dark/10 flex items-center justify-between w-full hover:bg-earth-dark/10 transition-colors list-none cursor-pointer">
-                            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-earth-clay/80">Categories</span>
+                            <span class="text-[10px] font-black capitalize tracking-[0.2em] text-earth-clay/80">Categories</span>
                             <span class="material-symbols-outlined text-[20px] text-earth-ochre transition-transform duration-300 group-open/accordion:rotate-180" data-toggle-icon>expand_more</span>
                         </summary>
 
                         <div class="flex flex-col w-full bg-earth-sand/50">
                             <button type="button" data-category-name="All" data-testid="ag-filter-category-all"
-                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq .Category "" }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
+                                class="text-left px-5 py-4 text-[11px] font-bold capitalize tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq .Category "" }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
                                 All Categories
                             </button>
                             <!-- Prioritize Food Category for Ada -->
                             <button type="button" data-category-name="Food" data-testid="ag-filter-category-food"
-                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq .Category "Food" }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
+                                class="text-left px-5 py-4 text-[11px] font-bold capitalize tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq .Category "Food" }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
                                 Food ({{ if .Counts }}{{ if index .Counts "Food" }}{{ index .Counts "Food" }}{{ else }}0{{ end }}{{ else }}0{{ end }})
                             </button>
                             {{ range .Categories }}
                             {{ if and (ne .Name "Food") (ne .Name "Request") }}
                             <button type="button" data-category-name="{{ .Name }}" data-testid="ag-filter-category-{{ .Name }}"
-                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq $.Category .Name }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
+                                class="text-left px-5 py-4 text-[11px] font-bold capitalize tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq $.Category .Name }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
                                 {{ if .Name }}{{ .Name }}{{ else }}Category{{ end }} ({{ if $.Counts }}{{ if index $.Counts .Name }}{{ index $.Counts .Name }}{{ else }}0{{ end }}{{ else }}0{{ end }})
                             </button>
                             {{ end }}
@@ -108,20 +108,20 @@
                     <!-- Distance Dropdown Accordion -->
                     <details class="w-full group/accordion" open>
                         <summary class="px-5 py-4 bg-earth-dark/5 border-b border-earth-dark/10 flex items-center justify-between w-full hover:bg-earth-dark/10 transition-colors list-none cursor-pointer border-t">
-                            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-earth-clay/80">Distance (Miles)</span>
+                            <span class="text-[10px] font-black capitalize tracking-[0.2em] text-earth-clay/80">Distance (Miles)</span>
                             <span class="material-symbols-outlined text-[20px] text-earth-ochre transition-transform duration-300 group-open/accordion:rotate-180" data-toggle-icon>expand_more</span>
                         </summary>
                         <div class="flex flex-col w-full bg-earth-sand/50">
                             <button type="button" data-radius-value="5"
-                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq .Radius 5.0 }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
+                                class="text-left px-5 py-4 text-[11px] font-bold capitalize tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq .Radius 5.0 }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
                                 Within 5 Miles
                             </button>
                             <button type="button" data-radius-value="10"
-                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq .Radius 10.0 }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
+                                class="text-left px-5 py-4 text-[11px] font-bold capitalize tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq .Radius 10.0 }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
                                 Within 10 Miles
                             </button>
                             <button type="button" data-radius-value="25"
-                                class="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if or (eq .Radius 25.0) (eq .Radius 0.0) }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
+                                class="text-left px-5 py-4 text-[11px] font-bold capitalize tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if or (eq .Radius 25.0) (eq .Radius 0.0) }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
                                 Within 25 Miles
                             </button>
                         </div>
@@ -130,17 +130,17 @@
                     <!-- Location Group Toggle -->
                     <details class="w-full group/accordion" open>
                         <summary class="px-5 py-4 bg-earth-dark/5 border-b border-earth-dark/10 flex items-center justify-between w-full hover:bg-earth-dark/10 transition-colors list-none cursor-pointer border-t">
-                            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-earth-clay/80">Near Location</span>
+                            <span class="text-[10px] font-black capitalize tracking-[0.2em] text-earth-clay/80">Near Location</span>
                             <span class="material-symbols-outlined text-[20px] text-earth-ochre transition-transform duration-300 group-open/accordion:rotate-180" data-toggle-icon>expand_more</span>
                         </summary>
 
                         <div class="p-5 flex flex-col gap-4 bg-earth-sand/50">
                             <div class="space-y-1.5">
-                                <label for="filter-city" class="text-[10px] font-bold uppercase tracking-widest text-earth-clay/60">City or Zip Code</label>
+                                <label for="filter-city" class="text-[10px] font-bold capitalize tracking-widest text-earth-clay/60">City or Zip Code</label>
                                 <div class="relative">
                                     <input type="text" id="filter-city" name="city" value="{{ .City }}"
                                         placeholder="ENTER CITY OR ZIP..."
-                                        class="w-full bg-transparent border border-earth-dark/10 px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-earth-dark outline-none focus:border-earth-ochre/50 transition-colors"
+                                        class="w-full bg-transparent border border-earth-dark/10 px-4 py-3 text-[11px] font-bold capitalize tracking-widest text-earth-dark outline-none focus:border-earth-ochre/50 transition-colors"
                                         hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
                                         hx-trigger="keyup changed delay:800ms">
                                     <span class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-earth-clay/30 text-[18px]">location_on</span>
@@ -201,7 +201,7 @@
                     {{ if .DevMode }}
                     <a href="/auth/dev" aria-label="Dev Login"
                         data-testid="ag-nav-dev-login-btn"
-                        class="flex items-center gap-2 bg-earth-ochre/10 hover:bg-earth-ochre/20 text-earth-ochre px-4 h-10 transition-all font-semibold font-display text-[10px] uppercase tracking-widest border border-earth-ochre/20"
+                        class="flex items-center gap-2 bg-earth-ochre/10 hover:bg-earth-ochre/20 text-earth-ochre px-4 h-10 transition-all font-semibold font-display text-[10px] capitalize tracking-widest border border-earth-ochre/20"
                         title="Quick Login for Development">
                         <span class="material-symbols-outlined text-[18px]">developer_mode</span>
                         Dev Login

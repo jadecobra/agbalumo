@@ -1,6 +1,7 @@
 package maintenance
 
 import (
+	"os"
 	"testing"
 )
 
@@ -125,5 +126,80 @@ func TestCheckInlineStyles(t *testing.T) {
 				t.Errorf("expected no violation for %s, got %d", tt.line, len(v))
 			}
 		})
+	}
+}
+
+func TestCheckUppercaseDensity(t *testing.T) {
+	tests := []struct {
+		name       string
+		content    string
+		shouldFail bool
+	}{
+		{
+			name: "under limit (3)",
+			content: `
+				<div class="uppercase">1</div>
+				<div class="uppercase">2</div>
+				<div class="uppercase">3</div>
+			`,
+			shouldFail: false,
+		},
+		{
+			name: "at limit (4)",
+			content: `
+				<div class="uppercase">1</div>
+				<div class="uppercase">2</div>
+				<div class="uppercase">3</div>
+				<div class="uppercase">4</div>
+			`,
+			shouldFail: false,
+		},
+		{
+			name: "over limit (5)",
+			content: `
+				<div class="uppercase">1</div>
+				<div class="uppercase">2</div>
+				<div class="uppercase">3</div>
+				<div class="uppercase">4</div>
+				<div class="uppercase">5</div>
+			`,
+			shouldFail: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			runUppercaseDensityTest(t, tt.content, tt.shouldFail)
+		})
+	}
+}
+
+func runUppercaseDensityTest(t *testing.T, content string, shouldFail bool) {
+	t.Helper()
+	tmpfile, err := os.CreateTemp("", "test_uppercase_*.html")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() {
+		_ = os.Remove(tmpfile.Name())
+	}()
+
+	if _, err = tmpfile.Write([]byte(content)); err != nil {
+		t.Fatal(err)
+	}
+	if err = tmpfile.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	v, err := checkUppercaseDensity(tmpfile.Name())
+	if err != nil {
+		t.Fatalf("checkUppercaseDensity failed: %v", err)
+	}
+
+	if shouldFail && len(v) == 0 {
+		t.Errorf("expected violation, got none")
+	}
+	if !shouldFail && len(v) > 0 {
+		t.Errorf("expected no violation, got %d", len(v))
 	}
 }

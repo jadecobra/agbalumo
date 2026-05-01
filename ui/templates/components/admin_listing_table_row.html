@@ -10,7 +10,7 @@
     <td class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-white/50 tracking-[0.1em]">
         {{ .CreatedAt.Format "Jan 02, 2006" }}
     </td>
-    <td class="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider">
+    <td class="px-6 py-4 text-xs font-bold text-white capitalize tracking-wider">
         <a href="#" hx-get="/listings/{{ .ID }}" hx-target="body" hx-swap="beforeend"
             data-testid="ag-listing-title-link-{{ .ID }}"
             data-agent-template="admin_listing_table_row.html"
@@ -18,10 +18,10 @@
             .Title
             }}</a>
     </td>
-    <td class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-white/60 uppercase tracking-[0.2em]">
+    <td class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-white/60 capitalize tracking-[0.2em]">
         {{ .Type }}
     </td>
-    <td class="px-6 py-4 whitespace-nowrap text-[10px] uppercase font-bold">
+    <td class="px-6 py-4 whitespace-nowrap text-[10px] capitalize font-bold">
         {{ if eq .Status "Approved" }}
         {{ template "status_badge_sharp" dict "Label" "Approved" "ColorClasses"
         `bg-green-500/20 text-green-400` }}
@@ -38,13 +38,13 @@
 
         {{ if not .IsActive }}
         <span
-            class="ml-2 px-2 py-0.5 inline-flex font-bold bg-white/10 text-white/60 uppercase tracking-wider text-[10px]">Inactive</span>
+            class="ml-2 px-2 py-0.5 inline-flex font-bold bg-white/10 text-white/60 capitalize tracking-wider text-[10px]">Inactive</span>
         {{ end }}
     </td>
     <td class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-white/50 tracking-[0.1em]">
         {{ if .EnrichmentAttemptedAt }}{{ .EnrichmentAttemptedAt.Format "Jan 02, 2006" }}{{ else }}-{{ end }}
     </td>
-    <td class="px-6 py-4 text-[10px] font-bold text-white/50 truncate max-w-[150px] uppercase tracking-[0.1em]">
+    <td class="px-6 py-4 text-[10px] font-bold text-white/50 truncate max-w-[150px] capitalize tracking-[0.1em]">
         {{ if .OwnerID }}{{ .OwnerID }}{{ else }}<span class="italic text-white/30 tracking-[0.2em]">UNOWNED</span>{{
         end
         }}
@@ -54,7 +54,7 @@
             data-testid="ag-listing-feature-btn-{{ .ID }}"
             hx-vals='{"featured": "{{ if not .Featured }}true{{ else }}false{{ end }}"}' hx-target="closest tr"
             hx-swap="outerHTML"
-            class="px-3 py-1 text-[10px] font-bold uppercase tracking-widest transition-all {{ if .Featured }}bg-earth-ochre text-earth-dark{{ else }}bg-white/5 text-white/70 hover:bg-white/20{{ end }}"
+            class="px-3 py-1 text-[10px] font-bold capitalize tracking-widest transition-all {{ if .Featured }}bg-earth-ochre text-earth-dark{{ else }}bg-white/5 text-white/70 hover:bg-white/20{{ end }}"
             title="{{ if .Featured }}Unfeature{{ else }}Feature{{ end }}">
             {{ if .Featured }}Featured{{ else }}Feature{{ end }}
         </button>

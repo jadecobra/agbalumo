@@ -15,11 +15,11 @@
             <table class="min-w-full divide-y divide-white/10">
                 <thead class="bg-white/5">
                     <tr>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-earth-cream/70 uppercase tracking-wider">
+                        <th class="px-6 py-4 text-left text-xs font-bold text-earth-cream/70 capitalize tracking-wider">
                             User</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-earth-cream/70 uppercase tracking-wider">
+                        <th class="px-6 py-4 text-left text-xs font-bold text-earth-cream/70 capitalize tracking-wider">
                             Role</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-earth-cream/70 uppercase tracking-wider">
+                        <th class="px-6 py-4 text-left text-xs font-bold text-earth-cream/70 capitalize tracking-wider">
                             Joined</th>
                     </tr>
                 </thead>
@@ -42,12 +42,12 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             {{ if eq .Role "Admin" }}
                             <span
-                                class="inline-flex items-center rounded-none px-2 py-1 text-[10px] font-bold uppercase tracking-widest bg-purple-500/20 text-purple-400">
+                                class="inline-flex items-center rounded-none px-2 py-1 text-[10px] font-bold capitalize tracking-widest bg-purple-500/20 text-purple-400">
                                 Admin
                             </span>
                             {{ else }}
                             <span
-                                class="inline-flex items-center rounded-none px-2 py-1 text-[10px] font-bold uppercase tracking-widest bg-earth-ochre/20 text-earth-ochre-light">
+                                class="inline-flex items-center rounded-none px-2 py-1 text-[10px] font-bold capitalize tracking-widest bg-earth-ochre/20 text-earth-ochre-light">
                                 {{ .Role }}
                             </span>
                             {{ end }}

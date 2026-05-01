@@ -10,7 +10,7 @@
             class="inline-block align-bottom bg-earth-dark border border-white/10 text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle w-full max-w-5xl relative flex flex-col max-h-[90vh]">
 
             <div class="px-8 py-6 border-b border-white/10 flex justify-between items-center shrink-0">
-                <h2 class="text-3xl font-serif text-white uppercase tracking-tight flex items-center gap-4">
+                <h2 class="text-3xl font-serif text-white capitalize tracking-tight flex items-center gap-4">
                     Claim Requests
                     <span
                         class="text-[10px] font-bold bg-earth-ochre text-earth-dark px-3 mt-1 py-0.5 tracking-[0.2em]">{{
@@ -29,16 +29,16 @@
                         <thead class="bg-white/5">
                             <tr>
                                 <th
-                                    class="px-6 py-5 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+                                    class="px-6 py-5 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
                                     Date</th>
                                 <th
-                                    class="px-6 py-5 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+                                    class="px-6 py-5 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
                                     Listing</th>
                                 <th
-                                    class="px-6 py-5 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+                                    class="px-6 py-5 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
                                     Claimer</th>
                                 <th
-                                    class="px-6 py-5 text-right text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+                                    class="px-6 py-5 text-right text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
                                     Actions</th>
                             </tr>
                         </thead>
@@ -49,7 +49,7 @@
                                 <td class="px-6 py-5 whitespace-nowrap text-[10px] font-bold text-white/60">
                                     {{ .CreatedAt.Format "Jan 02, 2006" }}
                                 </td>
-                                <td class="px-6 py-5 text-xs font-bold text-white uppercase tracking-wider">
+                                <td class="px-6 py-5 text-xs font-bold text-white capitalize tracking-wider">
                                     <a href="/listings/{{ .ListingID }}" target="_blank"
                                         class="hover:text-earth-ochre transition-colors underline decoration-white/20 underline-offset-4">{{
                                         .ListingTitle }}</a>
@@ -83,14 +83,14 @@
                 <div
                     class="p-20 text-center border border-white/5 bg-white/2 flex flex-col items-center justify-center">
                     <span class="material-symbols-outlined text-white/10 text-5xl mb-6">inventory_2</span>
-                    <p class="text-[10px] font-bold text-white uppercase tracking-[0.3em]">No Pending Claim Requests</p>
+                    <p class="text-[10px] font-bold text-white capitalize tracking-[0.3em]">No Pending Claim Requests</p>
                 </div>
                 {{ end }}
             </div>
 
             <div class="px-8 py-6 border-t border-white/10 shrink-0 flex justify-end">
                 <button type="button" @click="$el.closest('#admin-modal-container').innerHTML = ''"
-                    class="bg-white/10 hover:bg-white/20 text-white px-10 py-3 font-bold uppercase text-xs tracking-widest transition-all">
+                    class="bg-white/10 hover:bg-white/20 text-white px-10 py-3 font-bold capitalize text-xs tracking-widest transition-all">
                     Close
                 </button>
             </div>

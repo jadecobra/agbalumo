@@ -31,10 +31,10 @@
             <div class="absolute bottom-4 left-4 right-4 text-white">
                 <div class="flex items-center gap-2 mb-1 flex-wrap">
                     <span
-                        class="bg-earth-accent/90 text-white text-[10px] uppercase font-bold px-2 py-0.5  tracking-wider shadow-sm">{{
+                        class="bg-earth-accent/90 text-white text-[10px] capitalize font-bold px-2 py-0.5  tracking-wider shadow-sm">{{
                         .Listing.Type }}</span>
                     {{ if .Listing.RegionalSpecialty }}
-                    <span class="bg-secondary/90 text-white text-[10px] uppercase font-bold px-2 py-0.5 tracking-wider shadow-sm">{{ .Listing.RegionalSpecialty }}</span>
+                    <span class="bg-secondary/90 text-white text-[10px] capitalize font-bold px-2 py-0.5 tracking-wider shadow-sm">{{ .Listing.RegionalSpecialty }}</span>
                     {{ end }}
                     {{ if eq .Listing.OwnerOrigin "Nigeria" }}<span class="text-xl shadow-sm">🇳🇬</span>{{ else if eq
                     .Listing.OwnerOrigin "Ghana" }}<span class="text-xl shadow-sm">🇬🇭</span>{{ end }}
@@ -98,22 +98,22 @@
 
             {{ if or (hasDelivery .Listing.DeliveryPlatforms "UberEats") (hasDelivery .Listing.DeliveryPlatforms "DoorDash") (hasDelivery .Listing.DeliveryPlatforms "Grubhub") }}
             <div id="delivery-block" class="mb-6">
-                <h4 class="font-bold text-text-main dark:text-earth-cream mb-2 text-sm uppercase tracking-wide">Order Delivery</h4>
+                <h4 class="font-bold text-text-main dark:text-earth-cream mb-2 text-sm capitalize tracking-wide">Order Delivery</h4>
                 <div class="flex flex-wrap gap-2">
                     {{ if hasDelivery .Listing.DeliveryPlatforms "UberEats" }}
-                    <span class="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider shadow-sm">
+                    <span class="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold capitalize tracking-wider shadow-sm">
                         <span class="material-symbols-outlined text-[16px]">delivery_dining</span>
                         UberEats
                     </span>
                     {{ end }}
                     {{ if hasDelivery .Listing.DeliveryPlatforms "DoorDash" }}
-                    <span class="flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 text-white text-xs font-bold uppercase tracking-wider shadow-sm">
+                    <span class="flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 text-white text-xs font-bold capitalize tracking-wider shadow-sm">
                         <span class="material-symbols-outlined text-[16px]">delivery_dining</span>
                         DoorDash
                     </span>
                     {{ end }}
                     {{ if hasDelivery .Listing.DeliveryPlatforms "Grubhub" }}
-                    <span class="flex items-center gap-1.5 px-3 py-1.5 bg-earth-accent text-white text-xs font-bold uppercase tracking-wider shadow-sm">
+                    <span class="flex items-center gap-1.5 px-3 py-1.5 bg-earth-accent text-white text-xs font-bold capitalize tracking-wider shadow-sm">
                         <span class="material-symbols-outlined text-[16px]">delivery_dining</span>
                         Grubhub
                     </span>
@@ -135,7 +135,7 @@
             <div class="flex flex-col gap-2 mb-6 bg-white/5 p-4  border border-stone-200 dark:border-white/10">
                 <div class="flex items-center gap-2.5 text-text-main dark:text-earth-cream">
                     <span class="material-symbols-outlined text-[20px] text-earth-accent">business</span>
-                    <span class="font-bold uppercase tracking-widest text-sm">{{ .Listing.Company }}</span>
+                    <span class="font-bold capitalize tracking-widest text-sm">{{ .Listing.Company }}</span>
                 </div>
                 {{ if .Listing.PayRange }}
                 <div class="flex items-center gap-2.5 text-green-600 dark:text-green-400">
@@ -180,7 +180,7 @@
             </div>
 
             <!-- Skills -->
-            <h4 class="font-bold text-text-main dark:text-earth-cream mb-2 text-sm uppercase tracking-wide">Skills Required
+            <h4 class="font-bold text-text-main dark:text-earth-cream mb-2 text-sm capitalize tracking-wide">Skills Required
             </h4>
             <div class="flex flex-wrap gap-2 mb-6">
                 {{ range (split .Listing.Skills ",") }}
@@ -193,13 +193,13 @@
             <!-- Apply URL logic moved to Contact section -->
             {{ end }}
 
-            <h4 class="font-bold text-text-main dark:text-earth-cream mb-2 text-sm uppercase tracking-wide">About</h4>
+            <h4 class="font-bold text-text-main dark:text-earth-cream mb-2 text-sm capitalize tracking-wide">About</h4>
             <p class="text-text-main dark:text-earth-cream text-sm leading-relaxed whitespace-pre-line mb-6">
                 {{ .Listing.Description }}
             </p>
 
             <!-- Contact Section -->
-            <h4 class="font-bold text-text-main dark:text-earth-cream mb-2 text-sm uppercase tracking-wide">Contact</h4>
+            <h4 class="font-bold text-text-main dark:text-earth-cream mb-2 text-sm capitalize tracking-wide">Contact</h4>
             <div class="flex flex-col gap-3">
                 {{ if .Listing.ContactWhatsApp }}
                 <a href="https://wa.me/{{ .Listing.ContactWhatsApp }}" target="_blank" data-ada-discovery="whatsapp"

@@ -5,7 +5,7 @@
             <input type="checkbox" id="selectAll"
                 class="border-white/10 text-earth-ochre shadow-sm focus:border-earth-ochre focus:ring focus:ring-earth-ochre focus:ring-opacity-50 bg-white/5">
         </th>
-        <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+        <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
             <!-- prettier-ignore -->
             <a href="/admin/listings?page={{.Page}}{{if .Category}}&category={{.Category}}{{end}}&sort=date{{if eq .SortOrder `ASC`}}&order=desc{{else}}&order=asc{{end}}"
                 class="group inline-flex items-center hover:text-earth-ochre transition-colors">
@@ -17,7 +17,7 @@
                 </span>
             </a>
         </th>
-        <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+        <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
             <!-- prettier-ignore -->
             <a href="/admin/listings?page={{.Page}}{{if .Category}}&category={{.Category}}{{end}}&sort=title{{if eq .SortOrder `DESC`}}&order=asc{{else}}&order=desc{{end}}"
                 class="group inline-flex items-center hover:text-earth-ochre transition-colors">
@@ -29,7 +29,7 @@
                 </span>
             </a>
         </th>
-        <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+        <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
             <!-- prettier-ignore -->
             <a href="/admin/listings?page={{.Page}}{{if .Category}}&category={{.Category}}{{end}}&sort=type{{if eq .SortOrder `ASC`}}&order=desc{{else}}&order=asc{{end}}"
                 class="group inline-flex items-center hover:text-earth-ochre transition-colors">
@@ -41,7 +41,7 @@
                 </span>
             </a>
         </th>
-        <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+        <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
             <!-- prettier-ignore -->
             <a href="/admin/listings?page={{.Page}}{{if .Category}}&category={{.Category}}{{end}}&sort=status{{if eq .SortOrder `ASC`}}&order=desc{{else}}&order=asc{{end}}"
                 class="group inline-flex items-center hover:text-earth-ochre transition-colors">
@@ -53,13 +53,13 @@
                 </span>
             </a>
         </th>
-        <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+        <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
             Enriched
         </th>
-        <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+        <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
             Owner
         </th>
-        <th class="px-6 py-4 text-center text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+        <th class="px-6 py-4 text-center text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
             <!-- prettier-ignore -->
             <a href="/admin/listings?page={{.Page}}{{if .Category}}&category={{.Category}}{{end}}&sort=featured{{if eq .SortOrder `DESC`}}&order=asc{{else}}&order=desc{{end}}"
                 class="group inline-flex items-center hover:text-earth-ochre transition-colors justify-center w-full">
@@ -71,7 +71,7 @@
                 </span>
             </a>
         </th>
-        <th class="px-6 py-4 text-right text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">
+        <th class="px-6 py-4 text-right text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
             Actions</th>
     </tr>
 </thead>

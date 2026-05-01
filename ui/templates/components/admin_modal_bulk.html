@@ -18,7 +18,7 @@
                     class="w-14 h-14 bg-earth-ochre/10 flex items-center justify-center text-earth-ochre border border-earth-ochre/20">
                     <span class="material-symbols-outlined text-[28px]">csv</span>
                 </div>
-                <h2 class="text-3xl font-serif text-white uppercase tracking-tight">Bulk Upload</h2>
+                <h2 class="text-3xl font-serif text-white capitalize tracking-tight">Bulk Upload</h2>
             </div>
 
             <form id="bulkUploadForm" action="/admin/upload" method="POST" enctype="multipart/form-data"
@@ -33,15 +33,15 @@
                     <div class="relative z-0">
                         <span id="csvUploadIcon"
                             class="material-symbols-outlined text-white/20 text-4xl mb-4 group-hover:text-earth-ochre transition-colors">add</span>
-                        <p id="csvUploadText" class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60">
+                        <p id="csvUploadText" class="text-[10px] font-bold capitalize tracking-[0.2em] text-white/60">
                             Choose CSV File
                         </p>
                     </div>
                 </div>
 
                 <div class="bg-white/5 p-6 shadow-inner border border-white/5">
-                    <p class="text-[10px] font-bold text-white uppercase tracking-widest mb-3">Requirements</p>
-                    <p class="text-[10px] font-bold uppercase tracking-widest text-white/50 leading-relaxed">
+                    <p class="text-[10px] font-bold text-white capitalize tracking-widest mb-3">Requirements</p>
+                    <p class="text-[10px] font-bold capitalize tracking-widest text-white/50 leading-relaxed">
                         Required columns: <span class="text-earth-ochre">title, type, description</span><br>
                         Optional: <span class="text-white/80 italic">email, phone, category, city</span>
                     </p>
@@ -49,11 +49,11 @@
 
                 <div class="flex justify-end gap-4">
                     <button type="button" @click="$el.closest('#admin-modal-container').innerHTML = ''"
-                        class="bg-white/10 hover:bg-white/20 text-white px-8 py-3 font-bold uppercase text-xs tracking-widest transition-all">
+                        class="bg-white/10 hover:bg-white/20 text-white px-8 py-3 font-bold capitalize text-xs tracking-widest transition-all">
                         Close
                     </button>
                     <button type="submit" id="csvUploadBtn" disabled
-                        class="bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark px-10 py-3 font-bold uppercase text-xs tracking-[0.2em] transition-all disabled:opacity-30 disabled:grayscale">
+                        class="bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark px-10 py-3 font-bold capitalize text-xs tracking-[0.2em] transition-all disabled:opacity-30 disabled:grayscale">
                         Upload CSV
                     </button>
                 </div>
