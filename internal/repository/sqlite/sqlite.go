@@ -13,6 +13,8 @@ import (
 	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
+var _ domain.ListingRepository = (*SQLiteRepository)(nil)
+
 //go:embed migrations/*.sql
 var migrationFS embed.FS
 
