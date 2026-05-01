@@ -24,8 +24,12 @@
 {{ else }}
 <div class="col-span-full flex flex-col items-center justify-center py-16 text-center animate-in fade-in duration-500">
     <span class="material-symbols-outlined text-4xl text-stone-400 dark:text-stone-500 mb-4">search_off</span>
-    <h3 class="text-lg font-bold text-earth-cream mb-2 font-display">No listings found</h3>
-    <p class="text-sm text-stone-400 mb-6 max-w-xs">We couldn't find spots matching that query.</p>
+    <h3 class="text-lg font-bold text-earth-cream mb-2 font-display">
+        {{ if eq .Source "saved" }}No saved listings yet{{ else }}No listings found{{ end }}
+    </h3>
+    <p class="text-sm text-stone-400 mb-6 max-w-xs">
+        {{ if eq .Source "saved" }}Heart a spot to save it for later.{{ else }}We couldn't find spots matching that query.{{ end }}
+    </p>
 
     {{ if and .City (or (eq .Radius 5.0) (eq .Radius 10.0) (eq .Radius 25.0) (eq .Radius 0.0)) }}
     <div class="mb-8">

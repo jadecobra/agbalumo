@@ -45,6 +45,7 @@ func (h *ListingHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddlewa
 	authGroup.GET(domain.PathProfile, h.HandleProfile)
 	authGroup.POST(domain.PathListingID+"/claim", h.HandleClaim)
 	authGroup.POST(domain.PathListingID+"/save", h.HandleSaveToggle)
+	authGroup.GET("/saved", h.HandleSavedListings)
 }
 
 // Home Handler

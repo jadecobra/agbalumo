@@ -59,3 +59,46 @@ func TestHandleSaveToggle_SaveAndUnsave(t *testing.T) {
 	require.NoError(t, err)
 	assert.False(t, saved)
 }
+
+func TestHandleSavedListings_Empty(t *testing.T) {
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+
+	h := NewListingHandler(app)
+	u := &domain.User{ID: "user-1", Email: "test@example.com"}
+	err := app.DB.SaveUser(context.Background(), *u)
+	require.NoError(t, err)
+
+	c, rec := testutil.SetupModuleContext(http.MethodGet, "/saved", nil)
+	c.Set(domain.CtxKeyUser, u)
+
+	err = h.HandleSavedListings(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Contains(t, rec.Body.String(), "No saved listings yet")
+}
+
+func TestHandleSavedListings_WithSaved(t *testing.T) {
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+
+	h := NewListingHandler(app)
+	u := &domain.User{ID: "user-1", Email: "test@example.com"}
+	err := app.DB.SaveUser(context.Background(), *u)
+	require.NoError(t, err)
+
+	l := domain.Listing{ID: "listing-1", Title: "Saved Listing", Type: domain.Food}
+	err = app.DB.Save(context.Background(), l)
+	require.NoError(t, err)
+
+	err = app.DB.SaveListing(context.Background(), u.ID, l.ID)
+	require.NoError(t, err)
+
+	c, rec := testutil.SetupModuleContext(http.MethodGet, "/saved", nil)
+	c.Set(domain.CtxKeyUser, u)
+
+	err = h.HandleSavedListings(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Contains(t, rec.Body.String(), "Saved Listing")
+}
