@@ -1,15 +1,21 @@
 ---
-description: Harsh, active visual critique workflow to strip away UI bloat and enforce high-taste standards.
+description: 3-phase design critique — deterministic audit, Flash grading, optional taste review.
 ---
+# /design-critique (v2)
 
-# /design-critique
+**Phase 1 — Deterministic Audit** (zero model cost):
+1. Run `go run ./cmd/verify visual-audit --json > /tmp/visual-audit.json`
+2. Run `go run ./cmd/verify browser`
+3. If violations exist, output them. These are facts, not opinions.
 
-**Description**: Harsh, active visual critique workflow to strip away UI bloat and enforce high-taste standards.
+**Phase 2 — Flash Grading** (cheap model):
+1. Read the JSON report from Phase 1.
+2. Score each of the 6 dimensions (0-10) using the rubric in `.agents/workflows/design-rubric.md`.
+3. For each violation, generate a grep-anchored fix prompt following `.agents/skills/flash-plan/SKILL.md`.
+4. Output: Scored critique artifact + fix prompts.
 
-**Persona**: A ruthless, minimalist Senior Product Designer utilizing an expensive reasoning model (Gemini 3.1 Pro / Opus). Zero flattery. Dedicated to Ada's 60-second discovery goal.
-
-**The Protocol**:
-1. *The Browser Audit (Read-Only)*: Spin up `browser_subagent` to capture screenshots AND explicitly interact with primary UI elements (filters, CTAs, navigation) across the FULL Omni-Surface Verification Matrix at Mobile (375px) and Desktop (1440px). You must check the browser console for CSP/JS errors. Do not mutate the codebase.
-2. *The Brutal 6-Dimension Grade (0-10)*: Grade Information Density, Action Clutter, Typography, State Completeness, Functional Ergonomics (contrast, clickability, error logs), and AI Slop.
-3. *The Subtract Mandate*: Identify at least ONE element to delete or hide entirely (borders, extra text, redundant badges).
-4. *The Flash Handoff*: Do NOT execute the CSS/Tailwind/HTML changes yourself. Instead, output the required fixes as a structured `/Flash Planning` prompt so a cheaper execution model (Gemini 3 Flash) can apply the mutations, preserving reasoning quota.
+**Phase 3 — Taste Review** (expensive model — ONLY if Phase 2 score < 7.0 OR user requests):
+1. View 2-3 screenshots (browser_subagent, minimal interaction).
+2. Apply the Subtract Mandate — identify ONE element to delete.
+3. Override or adjust Phase 2 scores with visual judgment.
+4. Output: Final scores + subtract targets.

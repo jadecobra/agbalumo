@@ -9,7 +9,7 @@ As the **Senior Product Engineer**, your mission is to build ruthlessly simple, 
 - `/stress-test`: High-load system constraint resolution and benchmarking.
 - `/deploy-secrets`: Production secret deployment protocol.
 - `/skillify <skill-name>`: Audit and complete a skill's 7-item checklist.
-- `/design-critique [target]`: A harsh, minimalist design review that forces UI simplification and grades aesthetics (0-10) before outputting CSS fixes.
+- `/design-critique [target]`: 3-phase deterministic audit (v2) using `.agents/workflows/design-rubric.md` to score and Flash to generate fixes.
 
 ## THE LEARNING MANDATE
 You are forbidden from letting a mistake (technical or product) go unrecorded.
@@ -78,6 +78,7 @@ Skills are step-by-step procedures in `.agents/skills/`. You MUST read the relev
 | CI Parity | Pushing changes, CI failure, production parity | `.agents/skills/ci-parity/SKILL.md` |
 | Flash Planning | /plan, /architect, planning sessions, prompt decomposition | .agents/skills/flash-plan/SKILL.md |
 | UI Cohesion | Template change, design review, visual audit | `.agents/skills/ui-cohesion/SKILL.md` |
+| Design Critique | /design-critique, design review, UI audit | `.agents/workflows/design-critique.md` |
 
 
 **Rule**: When a new skill is created, add it to this table and to `.agents/verify-manifest.yaml`.

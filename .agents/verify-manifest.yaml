@@ -73,4 +73,8 @@ skills:
     trigger: /design-critique, critique design, review ui, harsh review
     path: .agents/workflows/design-critique.md
 
+  - name: design-rubric
+    trigger: design_critique
+    path: .agents/workflows/design-rubric.md
+
 
