@@ -1,6 +1,6 @@
 {{ define "listing_card" }}
 <div id="{{ if .IDPrefix }}{{ .IDPrefix }}{{ end }}listing-{{.Listing.ID}}"
-    class="listing-card card-juicy group relative flex flex-col overflow-hidden bg-white dark:bg-surface-dark border border-stone-100 dark:border-stone-800 shadow-sm hover:shadow-juicy transition-all duration-500 {{ .GridClass }}"
+    class="listing-card card-juicy group relative flex flex-col overflow-hidden bg-white dark:bg-surface-dark border border-stone-100 dark:border-stone-800 shadow-sm hover:shadow-juicy transition-all duration-500 hover:-translate-y-1 {{ .GridClass }}"
     data-testid="ag-listing-card">
 
     <!-- Full Card Click Overlay -->
@@ -150,7 +150,7 @@
             <button
                 class="text-earth-accent font-bold flex items-center gap-1 group/btn">
                 <span
-                    class="material-symbols-outlined text-[12px] md:text-[14px] transition-transform group-hover/btn:translate-x-1">expand_circle_right</span>
+                    class="material-symbols-outlined text-[12px] md:text-[14px] transition-transform group-hover:translate-x-1">expand_circle_right</span>
             </button>
         </div>
     </div>
