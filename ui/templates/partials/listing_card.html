@@ -141,7 +141,7 @@
             {{ if or .Listing.City .Listing.Address }}
             <div class="flex items-center gap-1 md:gap-1.5 text-text-sub dark:text-stone-400">
                 <span class="material-symbols-outlined text-[12px] md:text-[14px]">location_on</span>
-                <span class="text-[10px] md:text-xs font-bold uppercase tracking-wider">
+                <span class="text-[10px] md:text-xs font-bold capitalize tracking-wide">
                     {{ displayCity .Listing.City .Listing.Address }}
                 </span>
             </div>
