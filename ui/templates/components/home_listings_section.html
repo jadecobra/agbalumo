@@ -1,12 +1,31 @@
 {{ define "home_listings_section" }}
 <!-- Listings Container Section -->
-<section id="explore-section" class="min-h-screen py-24 px-4 md:px-8 relative z-30 bg-earth-dark">
+<section id="explore-section" class="min-h-screen pt-8 pb-24 px-4 md:px-8 relative z-30 bg-earth-dark">
 
     <div class="max-w-5xl mx-auto">
 
-        <div class="mb-16">
+        <div class="mb-8">
             <h2 class="text-5xl md:text-6xl font-serif font-black text-white border-b-2 border-earth-clay/20 pb-4 mt-2">
                 explore</h2>
+        </div>
+
+        <div class="mb-8 flex flex-wrap gap-2">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-white/40 self-center mr-2">Try:</span>
+            <button type="button" class="bg-white/5 text-white/80 hover:bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest transition-colors border border-white/10"
+                hx-get="/listings/fragment?q=Jollof" hx-target="#listings-container" hx-indicator="#listings-loading"
+                onclick="document.getElementById('search-nav') ? document.getElementById('search-nav').value='Jollof' : null">
+                Jollof
+            </button>
+            <button type="button" class="bg-white/5 text-white/80 hover:bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest transition-colors border border-white/10"
+                hx-get="/listings/fragment?q=Suya" hx-target="#listings-container" hx-indicator="#listings-loading"
+                onclick="document.getElementById('search-nav') ? document.getElementById('search-nav').value='Suya' : null">
+                Suya
+            </button>
+            <button type="button" class="bg-white/5 text-white/80 hover:bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest transition-colors border border-white/10"
+                hx-get="/listings/fragment?q=Egusi" hx-target="#listings-container" hx-indicator="#listings-loading"
+                onclick="document.getElementById('search-nav') ? document.getElementById('search-nav').value='Egusi' : null">
+                Egusi
+            </button>
         </div>
 
         <div id="listings-loading"

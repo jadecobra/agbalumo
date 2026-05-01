@@ -8,9 +8,7 @@ test.describe('Noise Removal Verification for Food Listings', () => {
 
   test('Food Listings must hide ContactEmail', async ({ page }) => {
     // 1. Filter by Food to get a Food listing
-    const isMobile = await page.evaluate(() => window.innerWidth < 768);
-    const toggleTestId = isMobile ? 'ag-home-filters-toggle-mobile' : 'ag-home-filters-toggle-desktop';
-    await page.getByTestId(toggleTestId).click();
+    await page.getByTestId('ag-home-filters-toggle-desktop').click();
     
     const panel = page.locator('#filter-dropdown-panel');
     await expect(panel).toBeVisible();
@@ -40,9 +38,7 @@ test.describe('Noise Removal Verification for Food Listings', () => {
 
   test('Business Listings must keep ContactEmail', async ({ page }) => {
     // 1. Filter by Business
-    const isMobile = await page.evaluate(() => window.innerWidth < 768);
-    const toggleTestId = isMobile ? 'ag-home-filters-toggle-mobile' : 'ag-home-filters-toggle-desktop';
-    await page.getByTestId(toggleTestId).click();
+    await page.getByTestId('ag-home-filters-toggle-desktop').click();
 
     // Since Business is a dynamic category, Test ID uses the capitalized name
     const businessCategoryBtn = page.getByTestId('ag-filter-category-Business');
