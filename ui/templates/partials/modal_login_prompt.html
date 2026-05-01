@@ -1,7 +1,7 @@
 {{ define "modal_login_prompt.html" }}
 <dialog id="login-prompt-modal" class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-sm m-auto shadow-2xl border border-white/20">
     <div class="bg-surface-dark/95 backdrop-blur-xl relative flex flex-col p-8 overflow-hidden">
-        <button type="button" onclick="this.closest('dialog').close()" 
+        <button type="button" data-modal-action="close" 
             class="absolute right-4 top-4 text-white/50 hover:text-white transition-colors z-50">
             <span class="material-symbols-outlined text-[20px]">close</span>
         </button>
@@ -25,7 +25,7 @@
                     Continue with Google
                 </a>
                 
-                <button type="button" onclick="this.closest('dialog').close()"
+                <button type="button" data-modal-action="close"
                     class="w-full h-12 border border-white/10 text-white/70 font-bold hover:bg-white/5 transition-colors">
                     Maybe Later
                 </button>

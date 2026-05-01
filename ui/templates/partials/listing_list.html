@@ -44,7 +44,7 @@
             hx-get="/listings/fragment?radius={{ $nextRadius }}{{ if .City }}&city={{ .City }}{{ end }}{{ if .Category }}&type={{ .Category }}{{ end }}{{ if .QueryText }}&q={{ .QueryText }}{{ end }}" 
             hx-target="#listings-container" 
             hx-indicator="#listings-loading"
-            onclick="if (window.filterState) { window.filterState.radius = '{{ $nextRadius }}'; }">
+            data-radius-value="{{ $nextRadius }}">
             Expand Search to {{ $radiusText }}
         </button>
     </div>
@@ -55,17 +55,17 @@
     <div class="flex flex-wrap items-center justify-center gap-2 max-w-sm mb-8">
         <button type="button" class="bg-white/10 text-white hover:bg-white/20 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors border border-white/5"
             hx-get="/listings/fragment?q=Jollof" hx-target="#listings-container" hx-indicator="#listings-loading"
-            onclick="document.getElementById('search') ? document.getElementById('search').value='Jollof' : null">
+            data-search-value="Jollof">
             Jollof
         </button>
         <button type="button" class="bg-white/10 text-white hover:bg-white/20 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors border border-white/5"
             hx-get="/listings/fragment?q=Suya" hx-target="#listings-container" hx-indicator="#listings-loading"
-            onclick="document.getElementById('search') ? document.getElementById('search').value='Suya' : null">
+            data-search-value="Suya">
             Suya
         </button>
         <button type="button" class="bg-white/10 text-white hover:bg-white/20 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors border border-white/5"
             hx-get="/listings/fragment?q=Groceries" hx-target="#listings-container" hx-indicator="#listings-loading"
-            onclick="document.getElementById('search') ? document.getElementById('search').value='Groceries' : null">
+            data-search-value="Groceries">
             Groceries
         </button>
     </div>

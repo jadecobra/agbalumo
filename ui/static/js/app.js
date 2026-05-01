@@ -21,6 +21,20 @@ function initApp() {
     if (typeof setupFilterButtons === 'function') setupFilterButtons();
     if (typeof setupFilterToggle === 'function') setupFilterToggle();
     setupTryButtons();
+    setupSearchPills();
+}
+
+function setupSearchPills() {
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-search-value]');
+        if (btn) {
+            const searchInput = document.getElementById('search-nav') || document.getElementById('search');
+            if (searchInput) {
+                searchInput.value = btn.dataset.searchValue;
+                searchInput.dispatchEvent(new Event('search', { bubbles: true }));
+            }
+        }
+    });
 }
 
 
