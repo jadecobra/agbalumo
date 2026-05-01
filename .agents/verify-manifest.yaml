@@ -11,6 +11,10 @@ commands:
     trigger: after_implementation
     flags: ["--full for CI, default incremental"]
     
+  - name: visual-audit
+    trigger: design_critique
+    description: Run deterministic visual audit (static + Playwright)
+
   - name: heal
     trigger: after_critique_violations
     description: Auto-fix structural issues
