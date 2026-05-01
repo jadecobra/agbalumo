@@ -102,6 +102,10 @@ test.describe('Visual Audit', () => {
       // Skip elements that are display:none or visibility:hidden
       if (!await element.isVisible()) continue;
 
+      // Skip sr-only elements
+      const isSrOnly = await element.evaluate(el => el.classList.contains('sr-only'));
+      if (isSrOnly) continue;
+
       const box = await element.boundingBox();
       if (box) {
         // 40px allows 4px tolerance

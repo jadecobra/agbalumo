@@ -222,21 +222,21 @@
             <button data-auth-action="modal" data-modal-id="create-listing-modal"
                 data-testid="ag-nav-post-btn-mobile"
                 data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}" aria-label="Post"
-                class="w-9 h-9 flex items-center justify-center bg-earth-accent text-white  shadow-sm active:scale-95">
+                class="w-11 h-11 flex items-center justify-center bg-earth-accent text-white shadow-sm active:scale-95">
                 <span class="material-symbols-outlined text-[20px]">add</span>
             </button>
             {{ if .User }}
             <button hx-get="/saved" hx-target="#listings-container" hx-indicator="#listings-loading" data-testid="ag-nav-saved-btn-mobile"
-                class="w-9 h-9 flex items-center justify-center text-stone-400 hover:text-red-400">
+                class="w-11 h-11 flex items-center justify-center text-stone-400 hover:text-red-400">
                 <span class="material-symbols-outlined text-[20px]">favorite</span>
             </button>
-            <button class="w-9 h-9 flex items-center justify-center" hx-get="/profile" hx-target="body" hx-swap="beforeend" data-testid="ag-nav-profile-btn-mobile">
-                <img src="{{ .User.AvatarURL }}" alt="Profile" class="w-7 h-7 shadow-sm object-cover">
+            <button class="w-11 h-11 flex items-center justify-center" hx-get="/profile" hx-target="body" hx-swap="beforeend" data-testid="ag-nav-profile-btn-mobile">
+                <img src="{{ .User.AvatarURL }}" alt="Profile" class="w-8 h-8 shadow-sm object-cover">
             </button>
             {{ else }}
             <a href="/auth/google/login" aria-label="Sign In"
                 data-testid="ag-nav-signin-btn-mobile"
-                class="w-9 h-9 flex items-center justify-center text-white/80 hover:text-white transition-colors">
+                class="w-11 h-11 flex items-center justify-center text-white/80 hover:text-white transition-colors">
                 <span class="material-symbols-outlined text-[24px]">person</span>
             </a>
             {{ end }}
