@@ -52,7 +52,13 @@
 
         <!-- New Badge -->
         {{ if isNew .Listing.CreatedAt }}
-        {{ template "status_badge_sharp" dict "Label" "NEW" "ColorClasses" "absolute top-4 right-4 bg-earth-accent text-white shadow-lg z-20 animate-juice-bounce" }}
+        {{ template "status_badge_sharp" dict "Label" "NEW" "ColorClasses" (print "absolute top-4 " (if $.User "right-14" "right-4") " bg-earth-accent text-white shadow-lg z-20 animate-juice-bounce") }}
+        {{ end }}
+
+        {{ if $.User }}
+        {{ $isSaved := false }}
+        {{ range $.SavedIDs }}{{ if eq . $.Listing.ID }}{{ $isSaved = true }}{{ end }}{{ end }}
+        {{ template "save_button" dict "ListingID" .Listing.ID "IsSaved" $isSaved }}
         {{ end }}
 
         <!-- Edit/Delete Buttons (Hover Only) -->

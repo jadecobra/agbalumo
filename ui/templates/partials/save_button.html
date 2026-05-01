@@ -1,0 +1,11 @@
+{{ define "save_button" }}
+<button
+    id="save-btn-{{ .ListingID }}"
+    hx-post="/listings/{{ .ListingID }}/save"
+    hx-swap="outerHTML"
+    class="{{ if .Classes }}{{ .Classes }}{{ else }}absolute top-4 right-4 z-30{{ end }} w-8 h-8 flex items-center justify-center bg-white/90 backdrop-blur-md shadow-md transition-all active:scale-90 focus:ring-2 focus:ring-red-300 focus:outline-none htmx-request:opacity-50 {{ if .IsSaved }}text-red-500{{ else }}text-stone-400 hover:text-red-400{{ end }}"
+    aria-label="{{ if .IsSaved }}Unsave{{ else }}Save{{ end }} listing"
+    data-testid="ag-save-btn">
+    <span class="material-symbols-outlined text-[18px]">{{ if .IsSaved }}favorite{{ else }}favorite_border{{ end }}</span>
+</button>
+{{ end }}
