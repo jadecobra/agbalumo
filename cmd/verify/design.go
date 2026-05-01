@@ -19,6 +19,12 @@ var designCmd = &cobra.Command{
 			return fmt.Errorf("failed to check design standards: %w", err)
 		}
 
+		keyGaps, err := maintenance.CheckTemplateKeyGaps("ui/templates")
+		if err != nil {
+			return fmt.Errorf("failed to check template key gaps: %w", err)
+		}
+		violations = append(violations, keyGaps...)
+
 		if len(violations) == 0 {
 			fmt.Println("✅ All templates follow UI Dialect standards.")
 			return nil

@@ -16,7 +16,7 @@
                 {{ if .Listings }}
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {{ range .Listings }}
-                    {{ template "listing_card" dict "Listing" . "User" $.User }}
+                    {{ template "listing_card" dict "Listing" . "User" $.User "SavedIDs" $.SavedIDs }}
                     {{ end }}
                 </div>
                 {{ else }}
