@@ -11,8 +11,7 @@
         {{ .CreatedAt.Format "Jan 02, 2006" }}
     </td>
     <td class="px-6 py-4 text-xs font-bold text-white capitalize tracking-wider">
-        <a href="#" hx-get="/listings/{{ .ID }}" hx-target="body" hx-swap="beforeend"
-            data-testid="ag-listing-title-link-{{ .ID }}"
+        <a href="#" hx-get="/listings/{{ .ID }}" hx-target="body" hx-swap="beforeend" data-testid="ag-listing-title-link-{{ .ID }}"
             data-agent-template="admin_listing_table_row.html"
             class="hover:text-earth-ochre transition-colors underline decoration-white/20 underline-offset-4">{{
             .Title
@@ -50,8 +49,7 @@
         }}
     </td>
     <td class="px-6 py-4 whitespace-nowrap text-center">
-        <button hx-post="/admin/listings/{{ .ID }}/featured"
-            data-testid="ag-listing-feature-btn-{{ .ID }}"
+        <button hx-post="/admin/listings/{{ .ID }}/featured" data-testid="ag-listing-feature-btn-{{ .ID }}"
             hx-vals='{"featured": "{{ if not .Featured }}true{{ else }}false{{ end }}"}' hx-target="closest tr"
             hx-swap="outerHTML"
             class="px-3 py-1 text-[10px] font-bold capitalize tracking-widest transition-all {{ if .Featured }}bg-earth-ochre text-earth-dark{{ else }}bg-white/5 text-white/70 hover:bg-white/20{{ end }}"
@@ -61,8 +59,7 @@
     </td>
     <td
         class="px-6 py-4 whitespace-nowrap text-right space-x-2 flex justify-end items-center h-full pt-6 border-0 align-middle">
-        <a href="#" hx-get="/listings/{{ .ID }}/edit?target=listing-row-{{ .ID }}&source=admin" hx-target="body" hx-swap="beforeend"
-            data-testid="ag-listing-edit-btn-{{ .ID }}"
+        <a href="#" hx-get="/listings/{{ .ID }}/edit?target=listing-row-{{ .ID }}&source=admin" hx-target="body" hx-swap="beforeend" data-testid="ag-listing-edit-btn-{{ .ID }}"
             class="w-8 h-8 inline-flex items-center justify-center border border-white/10 text-white/50 hover:text-earth-ochre hover:border-earth-ochre transition-all"
             title="Edit Listing">
             <span class="material-symbols-outlined text-[16px]">edit</span>

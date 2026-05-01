@@ -64,14 +64,14 @@
 
         {{ if .User }}
         <!-- Feedback -->
-        <button hx-get="/feedback/modal" hx-target="body" hx-swap="beforeend"
+        <button hx-get="/feedback/modal" hx-target="body" hx-swap="beforeend" data-testid="mobile-feedback-btn"
             class="flex flex-col items-center justify-center gap-1 text-white/60 hover:text-white transition-colors w-16">
             <span class="material-symbols-outlined text-[24px]">feedback</span>
             <span class="text-[10px] font-bold uppercase tracking-wider font-display">Feedback</span>
         </button>
 
         <!-- Profile -->
-        <button hx-get="/profile" hx-target="body" hx-swap="beforeend"
+        <button hx-get="/profile" hx-target="body" hx-swap="beforeend" data-testid="mobile-account-btn"
             class="flex flex-col items-center justify-center gap-1 text-white/60 hover:text-white transition-colors w-16">
             <img src="{{ .User.AvatarURL }}" alt="Profile" class="w-6 h-6 border border-white/20 object-cover">
             <span class="text-[10px] font-bold uppercase tracking-wider font-display">Account</span>

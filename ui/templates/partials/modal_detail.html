@@ -68,7 +68,7 @@
                 </a>
 
                 {{ if and .User (eq .User.ID .Listing.OwnerID) }}
-                <button hx-get="/listings/{{.Listing.ID}}/edit" hx-target="body" hx-swap="beforeend"
+                <button hx-get="/listings/{{.Listing.ID}}/edit" hx-target="body" hx-swap="beforeend" data-testid="edit-listing-btn"
                     class="bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold px-3 py-1  border border-stone-200 transition-colors">
                     Edit Listing
                 </button>

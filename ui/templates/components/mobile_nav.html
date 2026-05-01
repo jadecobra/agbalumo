@@ -22,7 +22,7 @@
         </button> -->
 
         {{ if .User }}
-        <button hx-get="/profile" hx-target="body" hx-swap="beforeend" aria-label="Profile"
+        <button hx-get="/profile" hx-target="body" hx-swap="beforeend" aria-label="Profile" data-testid="mobile-profile-btn"
             class="flex flex-col items-center justify-center flex-1 h-full text-white/50 hover:text-white transition-colors">
             <img src="{{ .User.AvatarURL }}" alt="{{ .User.Name }}" class="w-6 h-6  border border-white/20">
         </button>

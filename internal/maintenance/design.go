@@ -74,6 +74,8 @@ func checkFileStandards(path string) ([]DesignViolation, error) {
 		violations = append(violations, checkHardcodedModalBg(path, lineNumber, line)...)
 		violations = append(violations, checkInlineHandlers(path, lineNumber, line)...)
 		violations = append(violations, checkInlineStyles(path, lineNumber, line)...)
+		violations = append(violations, checkMissingTestIDs(path, lineNumber, line)...)
+		violations = append(violations, checkDeadSpacers(path, lineNumber, line)...)
 	}
 
 	return violations, scanner.Err()
@@ -232,4 +234,36 @@ func checkUppercaseDensity(path string) ([]DesignViolation, error) {
 	}
 
 	return nil, scanner.Err()
+}
+
+func checkMissingTestIDs(path string, lineNum int, line string) []DesignViolation {
+	var v []DesignViolation
+	// Target <button or <a that has hx-get|hx-post|hx-delete|hx-put
+	if (strings.Contains(line, "<button") || strings.Contains(line, "<a ")) &&
+		(strings.Contains(line, "hx-get") || strings.Contains(line, "hx-post") || strings.Contains(line, "hx-delete") || strings.Contains(line, "hx-put")) {
+		if !strings.Contains(line, "data-testid=") {
+			v = append(v, DesignViolation{
+				File:    path,
+				Line:    lineNum,
+				Content: line,
+				Reason:  "Interactive HTMX element missing data-testid (required for deterministic E2E testing)",
+			})
+		}
+	}
+	return v
+}
+
+func checkDeadSpacers(path string, lineNum int, line string) []DesignViolation {
+	var v []DesignViolation
+	// Single-line check for empty section: <section...>\s*</section>
+	re := regexp.MustCompile(`<section[^>]*>\s*</section>`)
+	if re.MatchString(line) {
+		v = append(v, DesignViolation{
+			File:    path,
+			Line:    lineNum,
+			Content: line,
+			Reason:  "Empty section element creates dead vertical space",
+		})
+	}
+	return v
 }

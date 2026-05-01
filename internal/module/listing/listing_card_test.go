@@ -18,6 +18,7 @@ func TestListingCardRendering(t *testing.T) {
 	_, err := tmpl.ParseFiles(
 		"../../../ui/templates/partials/listing_card.html",
 		"../../../ui/templates/partials/ui_components.html",
+		"../../../ui/templates/partials/save_button.html",
 	)
 	if err != nil {
 		t.Fatalf("Failed to parse listing_card.html: %v", err)

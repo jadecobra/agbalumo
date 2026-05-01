@@ -203,3 +203,53 @@ func runUppercaseDensityTest(t *testing.T, content string, shouldFail bool) {
 		t.Errorf("expected no violation, got %d", len(v))
 	}
 }
+
+func TestCheckMissingTestIDs(t *testing.T) {
+	tests := []struct {
+		name       string
+		line       string
+		shouldFail bool
+	}{
+		{name: "button with hx-post missing data-testid", line: `<button hx-post="/save">`, shouldFail: true},
+		{name: "anchor with hx-get missing data-testid", line: `<a hx-get="/details">`, shouldFail: true},
+		{name: "button with hx-post and data-testid", line: `<button hx-post="/save" data-testid="save-btn">`, shouldFail: false},
+		{name: "anchor with hx-get and data-testid", line: `<a hx-get="/details" data-testid="detail-link">`, shouldFail: false},
+		{name: "button without hx-attribute", line: `<button class="plain">`, shouldFail: false},
+		{name: "anchor without hx-attribute", line: `<a href="/foo">`, shouldFail: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			v := checkMissingTestIDs("test.html", 1, tt.line)
+			if tt.shouldFail && len(v) == 0 {
+				t.Errorf("expected violation for %s, got none", tt.line)
+			}
+			if !tt.shouldFail && len(v) > 0 {
+				t.Errorf("expected no violation for %s, got %d", tt.line, len(v))
+			}
+		})
+	}
+}
+
+func TestCheckDeadSpacers(t *testing.T) {
+	tests := []struct {
+		name       string
+		line       string
+		shouldFail bool
+	}{
+		{name: "empty section", line: `<section></section>`, shouldFail: true},
+		{name: "section with attributes but empty", line: `<section class="py-4"></section>`, shouldFail: true},
+		{name: "section with content", line: `<section>content</section>`, shouldFail: false},
+		{name: "section with leading space only", line: `<section>   </section>`, shouldFail: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			v := checkDeadSpacers("test.html", 1, tt.line)
+			if tt.shouldFail && len(v) == 0 {
+				t.Errorf("expected violation for %s, got none", tt.line)
+			}
+			if !tt.shouldFail && len(v) > 0 {
+				t.Errorf("expected no violation for %s, got %d", tt.line, len(v))
+			}
+		})
+	}
+}
