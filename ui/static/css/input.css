@@ -217,3 +217,10 @@
   image-rendering: pixelated;
   image-rendering: crisp-edges;
 }
+
+/* ── HTMX Loading State ── */
+#listings-container.htmx-request {
+  opacity: 0.4;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
