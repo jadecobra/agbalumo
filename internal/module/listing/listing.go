@@ -259,6 +259,10 @@ func (h *ListingHandler) processListings(listings []domain.Listing) {
 	}
 }
 
+func (h *ListingHandler) buildListingViewData(c echo.Context, listings []domain.Listing) map[string]interface{} {
+	return nil
+}
+
 func (h *ListingHandler) mapCounts(counts map[domain.Category]int) map[string]int {
 	strCounts := make(map[string]int)
 	for cat, count := range counts {
