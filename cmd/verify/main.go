@@ -111,6 +111,7 @@ func init() {
 		visualAuditCmd,
 		skillConformanceCmd,
 		checkResolvableCmd,
+		templateGraphCmd,
 	)
 }
 
