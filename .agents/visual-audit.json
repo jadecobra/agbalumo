@@ -1,0 +1,11 @@
+{
+  "e2e": {
+    "stats": {
+      "expected": 14,
+      "unexpected": 0,
+      "flaky": 0,
+      "skipped": 6
+    }
+  },
+  "static": null
+}

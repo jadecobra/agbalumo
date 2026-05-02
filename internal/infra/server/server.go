@@ -173,6 +173,12 @@ func setupRoutes(e *echo.Echo, app *env.AppEnv) {
 	}
 
 	e.GET("/about", pageHandler.HandleAbout)
+	e.GET("/login", func(c echo.Context) error {
+		return c.Redirect(http.StatusMovedPermanently, "/auth/google/login")
+	})
+	e.GET("/dev/login", func(c echo.Context) error {
+		return c.Redirect(http.StatusMovedPermanently, "/auth/dev")
+	})
 }
 
 func StaticCacheHeaders() echo.MiddlewareFunc {

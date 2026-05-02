@@ -103,6 +103,12 @@ func fallbackImageURL(imageURL, websiteURL string) string {
 	if strings.Contains(host, ":") {
 		host = strings.Split(host, ":")[0]
 	}
+
+	// Avoid external favicon calls for localhost or agbalumo.com (which might not be up)
+	if host == "localhost" || host == "127.0.0.1" || host == "agbalumo.com" {
+		return "/static/images/logo.png"
+	}
+
 	return "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://" + host + "&size=256"
 }
 
