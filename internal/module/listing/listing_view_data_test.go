@@ -28,6 +28,12 @@ func TestBuildListingViewData(t *testing.T) {
 		err := app.DB.SaveUser(ctx, *u)
 		require.NoError(t, err)
 
+		// Save listings to DB first
+		for _, l := range listings {
+			err = app.DB.Save(ctx, l)
+			require.NoError(t, err)
+		}
+
 		// Save one listing
 		err = app.DB.SaveListing(ctx, u.ID, "l1")
 		require.NoError(t, err)

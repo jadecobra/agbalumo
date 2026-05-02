@@ -59,18 +59,7 @@ func (h *ListingHandler) HandleSavedListings(c echo.Context) error {
 		listings = append(listings, l)
 	}
 
-	return c.Render(http.StatusOK, "listing_list", map[string]interface{}{
-		"Listings": listings,
-		"User":     u,
-		"SavedIDs": getSavedIDs(savedListings),
-		"Source":   "saved",
-	})
-}
-
-func getSavedIDs(saved []domain.SavedListing) []string {
-	ids := make([]string, len(saved))
-	for i, s := range saved {
-		ids[i] = s.ListingID
-	}
-	return ids
+	data := h.buildListingViewData(c, listings)
+	data["Source"] = "saved"
+	return c.Render(http.StatusOK, "listing_list", data)
 }
