@@ -31,6 +31,8 @@ type Region struct {
 type TemplateRenderer struct {
 	templates      map[string]*template.Template
 	CountryRegions []Region
+	patterns       []string         // NEW: store patterns for recompilation
+	funcMap        template.FuncMap // NEW: store funcMap for recompilation
 }
 
 // NewTemplateRenderer creates a new instance of TemplateRenderer with parsed templates
@@ -65,6 +67,8 @@ func NewTemplateRenderer(patterns ...string) (*TemplateRenderer, error) {
 		return nil, err
 	}
 
+	renderer.patterns = patterns
+	renderer.funcMap = funcMap
 	renderer.templates = templates
 	return renderer, nil
 }
@@ -144,8 +148,32 @@ func parseTemplateFiles(page string, layouts, partials []string, funcMap templat
 	return tmpl.ParseFiles(page)
 }
 
+func (t *TemplateRenderer) recompileTemplates() {
+	var allFiles []string
+	for _, pattern := range t.patterns {
+		files, err := filepath.Glob(pattern)
+		if err != nil {
+			continue
+		}
+		allFiles = append(allFiles, files...)
+	}
+
+	layouts, partials, pages := categorizeTemplateFiles(allFiles)
+	templates, err := compileTemplates(layouts, partials, pages, t.funcMap)
+	if err != nil {
+		slog.Warn("Template recompilation failed", "error", err)
+		return
+	}
+	t.templates = templates
+}
+
 // Render renders a template document
 func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	// Dev-mode hot reload: recompile templates on every request
+	if os.Getenv(domain.EnvKeyAppEnv) != domain.EnvProduction {
+		t.recompileTemplates()
+	}
+
 	// Inject CSRF token if data is a map
 	if viewContext, isMap := data.(map[string]interface{}); isMap {
 		token := c.Get("csrf")

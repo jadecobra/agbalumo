@@ -5,8 +5,11 @@ import (
 	"html/template"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"testing"
 
+	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
@@ -64,4 +67,41 @@ func BenchmarkRender(b *testing.B) {
 		var buf bytes.Buffer
 		_ = renderer.Render(&buf, "bench", data, c)
 	}
+}
+
+func TestTemplateRenderer_HotReload(t *testing.T) {
+	// 1. Create a temp directory for templates
+	tempDir := t.TempDir()
+	tmplPath := filepath.Join(tempDir, "test.html")
+
+	// 2. Write initial template content
+	err := os.WriteFile(tmplPath, []byte("hello"), 0600)
+	assert.NoError(t, err)
+
+	// 3. Create renderer with the temp dir pattern
+	pattern := filepath.Join(tempDir, "*.html")
+	renderer, err := NewTemplateRenderer(pattern)
+	assert.NoError(t, err)
+
+	e := echo.New()
+	rec := httptest.NewRecorder()
+	c := e.NewContext(httptest.NewRequest(http.MethodGet, "/", nil), rec)
+
+	// 4. Set env to test (not production) to trigger recompile
+	t.Setenv(domain.EnvKeyAppEnv, domain.EnvDevelopment)
+
+	// 5. Render -> assert "hello"
+	err = renderer.Render(rec, "test.html", map[string]interface{}{}, c)
+	assert.NoError(t, err)
+	assert.Contains(t, rec.Body.String(), "hello")
+
+	// 6. Overwrite template file content
+	err = os.WriteFile(tmplPath, []byte("goodbye"), 0600)
+	assert.NoError(t, err)
+
+	// 7. Render again -> assert "goodbye" (proves recompilation happened)
+	rec2 := httptest.NewRecorder()
+	err = renderer.Render(rec2, "test.html", map[string]interface{}{}, c)
+	assert.NoError(t, err)
+	assert.Contains(t, rec2.Body.String(), "goodbye")
 }
