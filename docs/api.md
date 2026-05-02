@@ -26,6 +26,8 @@ The API uses session-based authentication with cookies.
 | GET | `/auth/logout` | Clear session |
 | GET | `/auth/google/login` | Initiate Google OAuth |
 | GET | `/auth/google/callback` | Handle OAuth callback |
+| GET | `/login` | Redirect to `/auth/google/login` (legacy compat) |
+| GET | `/dev/login` | Redirect to `/auth/dev` (dev compat) |
 | GET | `/healthz` | Health check (returns 200 OK) |
 | POST | `/api/metrics` | Ingest user interaction metrics |
 

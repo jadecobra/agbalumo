@@ -104,6 +104,12 @@ paths:
 
   /api/metrics:
     $ref: './openapi/paths/metrics.yaml#/metrics'
+  
+  /login:
+    $ref: './openapi/paths/auth.yaml#/login'
+  
+  /dev/login:
+    $ref: './openapi/paths/auth.yaml#/dev_login'
 
   # Authentication Routes
   /auth/dev:

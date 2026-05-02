@@ -37,3 +37,23 @@ google_callback:
     responses:
       '302':
         description: Redirect to home with session
+
+login:
+  get:
+    summary: Login redirect
+    description: Legacy redirect to Google login
+    tags:
+      - Auth
+    responses:
+      '301':
+        description: Permanent redirect to /auth/google/login
+
+dev_login:
+  get:
+    summary: Dev login redirect
+    description: Development redirect to /auth/dev
+    tags:
+      - Auth
+    responses:
+      '301':
+        description: Permanent redirect to /auth/dev

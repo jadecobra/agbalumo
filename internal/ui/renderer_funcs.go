@@ -7,6 +7,8 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
 func seq(start, end int) []int {
@@ -87,7 +89,7 @@ func fallbackImageURL(imageURL, websiteURL string) string {
 		return imageURL
 	}
 	if websiteURL == "" {
-		return "/static/images/logo.png"
+		return domain.DefaultLogoPath
 	}
 
 	if !strings.Contains(websiteURL, "://") {
@@ -96,7 +98,7 @@ func fallbackImageURL(imageURL, websiteURL string) string {
 
 	u, err := url.Parse(websiteURL)
 	if err != nil || u.Host == "" {
-		return "/static/images/logo.png"
+		return domain.DefaultLogoPath
 	}
 
 	host := u.Host
@@ -106,7 +108,7 @@ func fallbackImageURL(imageURL, websiteURL string) string {
 
 	// Avoid external favicon calls for localhost or agbalumo.com (which might not be up)
 	if host == "localhost" || host == "127.0.0.1" || host == "agbalumo.com" {
-		return "/static/images/logo.png"
+		return domain.DefaultLogoPath
 	}
 
 	return "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://" + host + "&size=256"

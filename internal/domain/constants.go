@@ -27,6 +27,7 @@ const (
 
 	// File paths
 	DefaultUploadDir = "ui/static/uploads"
+	DefaultLogoPath  = "/static/images/logo.png"
 
 	// Database
 	DefaultDatabaseURL = ".tester/data/agbalumo.db"
