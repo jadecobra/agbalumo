@@ -71,6 +71,14 @@ Detect undefined template functions in HTML templates.
 agbalumo verify template-drift
 ```
 
+##### template-graph
+
+Visualize template dependencies and detect data contract gaps (missing dict keys).
+
+```bash
+agbalumo verify template-graph [template-name]
+```
+
 ##### context-cost
 
 Calculate codebase token density and context window usage (advisory).

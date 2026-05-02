@@ -9,16 +9,16 @@ import (
 )
 
 type TemplateNode struct { //nolint:govet // maintenance utility
+	Name       string
+	DefinedIn  string
 	CalledBy   []TemplateCall
 	Calls      []string
 	References []string
-	Name       string
-	DefinedIn  string
 }
 
 type TemplateCall struct { //nolint:govet // maintenance utility
-	DictKeys []string
 	File     string
+	DictKeys []string
 	Line     int
 }
 
@@ -50,7 +50,7 @@ func scanDefinitions(dir string, graph map[string]*TemplateNode) error {
 			return err
 		}
 
-		// #nosec G304 -- local templates only
+		// #nosec G304,G122 -- local templates only
 		content, err := os.ReadFile(path)
 		if err != nil {
 			return err
@@ -114,7 +114,7 @@ func scanInvocations(dir string, graph map[string]*TemplateNode) error {
 			return err
 		}
 
-		// #nosec G304 -- local templates only
+		// #nosec G304,G122 -- local templates only
 		content, err := os.ReadFile(path)
 		if err != nil {
 			return err

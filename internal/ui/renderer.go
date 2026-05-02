@@ -30,9 +30,9 @@ type Region struct {
 // TemplateRenderer is a custom html/template renderer for Echo framework
 type TemplateRenderer struct {
 	templates      map[string]*template.Template
+	funcMap        template.FuncMap
 	CountryRegions []Region
-	patterns       []string         // NEW: store patterns for recompilation
-	funcMap        template.FuncMap // NEW: store funcMap for recompilation
+	patterns       []string
 }
 
 // NewTemplateRenderer creates a new instance of TemplateRenderer with parsed templates
@@ -169,8 +169,8 @@ func (t *TemplateRenderer) recompileTemplates() {
 
 // Render renders a template document
 func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	// Dev-mode hot reload: recompile templates on every request
-	if os.Getenv(domain.EnvKeyAppEnv) != domain.EnvProduction {
+	// Dev-mode hot reload: recompile templates on every request if patterns are available
+	if os.Getenv(domain.EnvKeyAppEnv) != domain.EnvProduction && len(t.patterns) > 0 {
 		t.recompileTemplates()
 	}
 

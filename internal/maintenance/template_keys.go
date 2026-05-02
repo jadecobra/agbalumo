@@ -28,7 +28,7 @@ func buildTemplateRegistry(dir string) (map[string]map[string]bool, error) {
 			return err
 		}
 
-		// #nosec G304 -- local templates only
+		// #nosec G304,G122 -- local templates only
 		content, err := os.ReadFile(path)
 		if err != nil {
 			return err
@@ -70,7 +70,7 @@ func scanTemplateInvocations(dir string, registry map[string]map[string]bool) ([
 			return err
 		}
 
-		// #nosec G304 -- local templates only
+		// #nosec G304,G122 -- local templates only
 		content, err := os.ReadFile(path)
 		if err != nil {
 			return err
