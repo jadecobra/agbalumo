@@ -140,6 +140,20 @@ var precommitCmd = &cobra.Command{
 			return err
 		}
 
+		// 6b. CSS rebuild if templates changed
+		stagedHTMLFiles, _ := getStagedFiles(".html")
+		stagedCSSFiles, _ := getStagedFiles(".css")
+		if len(stagedHTMLFiles) > 0 || len(stagedCSSFiles) > 0 {
+			fmt.Println("🎨 Rebuilding CSS (template/CSS files staged)...")
+			if err := runCmd("npm", "run", "build:css"); err != nil {
+				return fmt.Errorf("CSS build failed: %w", err)
+			}
+			// Re-stage the rebuilt output.css so the commit includes it
+			if err := runCmd("git", "add", "ui/static/css/output.css"); err != nil {
+				return fmt.Errorf("failed to stage rebuilt CSS: %w", err)
+			}
+		}
+
 		// 7. Design gate check (ensures no rounding in admin or hardcoded hex)
 		if err := designCmd.RunE(cmd, args); err != nil {
 			return err
@@ -176,6 +190,8 @@ func runVerifyGatedTask(cmd *cobra.Command) error {
 	return maintenance.ExecuteGateChecks(".", phase)
 }
 
+// getStagedFiles returns a list of staged files matching the given extension.
+// Note: .html matching correctly identifies templates in ui/templates/.
 func getStagedFiles(extension string) ([]string, error) {
 	out, err := runCmdOutput("git", "diff", "--cached", "--name-only", "--diff-filter=ACMR")
 	if err != nil {
