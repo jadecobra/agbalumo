@@ -4,7 +4,7 @@
 
 {{ define "modal_detail_content" }}
         <!-- Header Image with Back/Close -->
-        <div class="relative w-full aspect-video shrink-0">
+        <div class="relative w-full aspect-video max-h-[35vh] md:max-h-none overflow-hidden shrink-0">
             {{ if .Listing.ImageURL }}
             <div class="w-full h-full bg-center bg-cover bg-white dark:bg-surface-dark" style="background-image: url('{{.Listing.ImageURL}}');"></div>
             {{ else }}

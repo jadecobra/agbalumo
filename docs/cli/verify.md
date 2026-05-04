@@ -256,3 +256,11 @@ Run deterministic visual audit (static checks + Playwright E2E).
 ```bash
 agbalumo verify visual-audit
 ```
+
+##### map
+
+Generate a context-efficient codebase map (Directory Tree, Symbols, or Templates).
+
+```bash
+agbalumo verify map [--depth=2] [--symbols] [--templates]
+```
