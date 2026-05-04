@@ -112,6 +112,7 @@ func init() {
 		skillConformanceCmd,
 		checkResolvableCmd,
 		templateGraphCmd,
+		mapCmd,
 	)
 }
 
