@@ -83,6 +83,10 @@ If a user-tap conflicts with a recent system verification:
 - **Early Stage (Full Trust)**: While users < 100, the user-tap takes immediate precedence.
 - **Growth Stage (Skeptical)**: Once users > 100, require a threshold ($N > 1$) before overriding.
 
+### Truth over Feature (Unreliable Live Signals)
+**[TRIGGER: TIME_SENSITIVE_SIGNAL]**: Never surface real-time signals (e.g., "Open Now", "Closing Soon") if the underlying data lacks the necessary context (e.g., per-listing Time Zones) to guarantee 100% accuracy.
+- **Decision**: If a signal cannot be verified as accurate due to environmental gaps, it must be removed from the UI entirely to preserve user trust.
+
 ## Context Cost Awareness (Tokens)
 
 To maintain agentic efficiency, we monitor **Token Density**.

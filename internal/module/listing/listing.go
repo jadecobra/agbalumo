@@ -8,11 +8,9 @@ import (
 	"mime/multipart"
 	"net/http"
 	"sync"
-	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/module"
-	"github.com/jadecobra/agbalumo/internal/service"
 	"github.com/labstack/echo/v4"
 	"strconv"
 )
@@ -245,11 +243,9 @@ func (h *ListingHandler) parseQueryParams(c echo.Context) queryParams {
 }
 
 func (h *ListingHandler) processListings(listings []domain.Listing) {
-	now := time.Now()
-	for i := range listings {
-		listings[i].IsCurrentlyOpen = service.ComputeIsOpen(listings[i].HoursOfOperation, listings[i].StructuredHours, now)
-	}
+	// No-op for now as operational status display is removed
 }
+
 
 func (h *ListingHandler) buildListingViewData(c echo.Context, listings []domain.Listing) map[string]interface{} {
 	ctx := c.Request().Context()
@@ -292,7 +288,6 @@ func (h *ListingHandler) findListing(c echo.Context, id string) (domain.Listing,
 		_ = ui.RespondErrorMsg(c, http.StatusNotFound, (domain.ErrListingNotFound).Error())
 		return domain.Listing{}, echo.ErrNotFound
 	}
-	listing.IsCurrentlyOpen = service.ComputeIsOpen(listing.HoursOfOperation, listing.StructuredHours, time.Now())
 	return listing, nil
 }
 

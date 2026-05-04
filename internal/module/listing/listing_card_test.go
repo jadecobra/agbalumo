@@ -44,4 +44,12 @@ func TestListingCardRendering(t *testing.T) {
 	if !strings.Contains(html, `hx-get="/listings/123"`) {
 		t.Error("Overlay link div missing hx-get attribute")
 	}
+
+	// Negative assertions for removed feature
+	if strings.Contains(html, "Open Now") {
+		t.Error("Rendered 'Open Now' badge but feature should be removed")
+	}
+	if strings.Contains(html, "Closed") {
+		t.Error("Rendered 'Closed' badge but feature should be removed")
+	}
 }

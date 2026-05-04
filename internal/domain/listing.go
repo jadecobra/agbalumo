@@ -64,7 +64,6 @@ type Listing struct {
 	ReviewCount           int           `json:"review_count" form:"review_count"`
 	IsActive              bool          `json:"is_active" form:"is_active"`
 	Featured              bool          `json:"featured" form:"featured"`
-	IsCurrentlyOpen       bool          `json:"is_currently_open" form:"is_currently_open"`
 }
 
 // ListingStatus represents the moderation state of a listing.
