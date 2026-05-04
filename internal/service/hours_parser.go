@@ -210,7 +210,6 @@ func checkRanges(ranges []string, currentMinutes int, checkFn func(string, int) 
 	return false
 }
 
-
 func overlapsNextDay(timeRange string, currentMinutes int) bool {
 	parts := strings.Split(timeRange, "-")
 	if len(parts) != 2 {
