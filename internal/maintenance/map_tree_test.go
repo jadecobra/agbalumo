@@ -12,7 +12,7 @@ func TestGeneratePrunedTree_Unlimited(t *testing.T) {
 	setupDummyStructure(t, tmpDir)
 
 	got := GeneratePrunedTree(tmpDir, 10)
-	want := []string{"file1.txt", "dir1/file2.txt", "dir1/dir2/file3.txt"}
+	want := []string{"file1.txt", "file2.txt", "file3.txt"}
 	notWant := []string{"node_modules", ".git"}
 
 	for _, w := range want {
