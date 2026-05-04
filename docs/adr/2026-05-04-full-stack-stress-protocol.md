@@ -5,10 +5,7 @@
 Currently, the stress test suite (`scripts/benchmark_stress.sh`) only measures **Data Persistence** (SQLite write/read latency). However, the "60-second find" goal depends on the **Full-Stack** (Request -> Handler -> Service -> Repository -> Template Rendering -> Response). Without HTTP-level benchmarks, we have zero visibility into concurrency bottlenecks in the Echo server or template rendering pipeline.
 
 ## 2. Decision
-Integrate `ab` (Apache Benchmark) into the `benchmark_stress.sh` script to measure **Requests per Second (RPS)** and **P99 Latency**.
-Endpoints to target:
-* `/` (Home page SSR)
-* `/?q=Jollof` (Search logic + Filter rendering)
+Integrate `ab` (Apache Benchmark) into the `benchmark_stress.sh` script to measure **Requests per Second (RPS)** and **P99 Latency**. The script is updated to respect system-wide invariants defined in `.agents/invariants.json` (specifically protocol: https and default port: 8443).
 
 The script will:
 1. Seed the database with the requested volume of listings.
