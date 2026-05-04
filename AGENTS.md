@@ -53,10 +53,10 @@ Git is our only state tracker.
 ## SESSION START (Mandatory)
 Before any task execution, you MUST:
 
-- Run go run ./cmd/verify preflight
-- Read .agents/skills/RESOLVER.md — match task against triggers
-- Read .agents/verify-manifest.yaml — identify applicable verify commands
-- Read any matched SKILL.md files BEFORE writing code
+- Run `go run ./cmd/verify preflight`
+- Read `.agents/skills/RESOLVER.md` — match task against triggers
+- Read `.agents/verify-manifest.yaml` — identify applicable verify commands
+- Read any matched `.agents/skills/*.md` files BEFORE writing code
 - **Mandatory Pre-Flight Constraint Check**: Before invoking ANY mutating tool, you must explicitly cross-reference the required actions against the rule hierarchy in a `> Constraint Check:` block. If an action triggers opposing rules, you MUST halt and output: `> ⚠️ **[CONSTRAINT CONFLICT DETECTED]**: [Describe conflict]. Awaiting User to dictate priority.`
 
 Rule: Skipping the resolver is a protocol violation.
