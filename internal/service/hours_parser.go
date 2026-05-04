@@ -166,49 +166,50 @@ func parseTimeToMinutes(hourStr, minStr, ampmStr string) (int, bool) {
 }
 
 func evaluateStructuredHours(structured string, currentTime time.Time) (bool, bool) {
-	if structured == "" {
+	schedule, ok := parseSchedule(structured)
+	if !ok {
 		return false, false
-	}
-
-	var schedule map[string][]string
-	if err := json.Unmarshal([]byte(structured), &schedule); err != nil {
-		return false, false // invalid JSON, fallback to regex
 	}
 
 	dayNames := []string{"sun", "mon", "tue", "wed", "thu", "fri", "sat"}
 	currentWeekday := currentTime.Weekday()
 	weekday := strings.ToLower(dayNames[currentWeekday])
 	yesterday := strings.ToLower(dayNames[(currentWeekday+6)%7])
-
 	currentMinutes := currentTime.Hour()*60 + currentTime.Minute()
 
-	// 1. Check today's ranges
-	if ranges, ok := schedule[weekday]; ok {
-		for _, r := range ranges {
-			if isTimeInRange(r, currentMinutes) {
-				return true, true
-			}
-		}
+	if checkRanges(schedule[weekday], currentMinutes, isTimeInRange) {
+		return true, true
 	}
 
-	// 2. Check yesterday's ranges for late-night overlaps
-	if ranges, ok := schedule[yesterday]; ok {
-		for _, r := range ranges {
-			if overlapsNextDay(r, currentMinutes) {
-				return true, true
-			}
-		}
+	if checkRanges(schedule[yesterday], currentMinutes, overlapsNextDay) {
+		return true, true
 	}
 
-	// If the day was found in JSON (today or yesterday check), we consider it evaluated
 	_, todayOk := schedule[weekday]
 	_, yesterdayOk := schedule[yesterday]
-	if todayOk || yesterdayOk {
-		return false, true
-	}
-
-	return false, false
+	return false, todayOk || yesterdayOk
 }
+
+func parseSchedule(structured string) (map[string][]string, bool) {
+	if structured == "" {
+		return nil, false
+	}
+	var schedule map[string][]string
+	if err := json.Unmarshal([]byte(structured), &schedule); err != nil {
+		return nil, false
+	}
+	return schedule, true
+}
+
+func checkRanges(ranges []string, currentMinutes int, checkFn func(string, int) bool) bool {
+	for _, r := range ranges {
+		if checkFn(r, currentMinutes) {
+			return true
+		}
+	}
+	return false
+}
+
 
 func overlapsNextDay(timeRange string, currentMinutes int) bool {
 	parts := strings.Split(timeRange, "-")
