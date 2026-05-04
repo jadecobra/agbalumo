@@ -176,26 +176,58 @@ func evaluateStructuredHours(structured string, currentTime time.Time) (bool, bo
 	}
 
 	dayNames := []string{"sun", "mon", "tue", "wed", "thu", "fri", "sat"}
-	weekday := strings.ToLower(dayNames[currentTime.Weekday()])
-
-	ranges, ok := schedule[weekday]
-	if !ok {
-		return false, false // day not present in JSON, fallback to regex
-	}
-
-	if len(ranges) == 0 {
-		return false, true // explicitly closed today
-	}
+	currentWeekday := currentTime.Weekday()
+	weekday := strings.ToLower(dayNames[currentWeekday])
+	yesterday := strings.ToLower(dayNames[(currentWeekday+6)%7])
 
 	currentMinutes := currentTime.Hour()*60 + currentTime.Minute()
 
-	for _, r := range ranges {
-		if isTimeInRange(r, currentMinutes) {
-			return true, true
+	// 1. Check today's ranges
+	if ranges, ok := schedule[weekday]; ok {
+		for _, r := range ranges {
+			if isTimeInRange(r, currentMinutes) {
+				return true, true
+			}
 		}
 	}
 
-	return false, true // was evaluated and determined to be closed
+	// 2. Check yesterday's ranges for late-night overlaps
+	if ranges, ok := schedule[yesterday]; ok {
+		for _, r := range ranges {
+			if overlapsNextDay(r, currentMinutes) {
+				return true, true
+			}
+		}
+	}
+
+	// If the day was found in JSON (today or yesterday check), we consider it evaluated
+	_, todayOk := schedule[weekday]
+	_, yesterdayOk := schedule[yesterday]
+	if todayOk || yesterdayOk {
+		return false, true
+	}
+
+	return false, false
+}
+
+func overlapsNextDay(timeRange string, currentMinutes int) bool {
+	parts := strings.Split(timeRange, "-")
+	if len(parts) != 2 {
+		return false
+	}
+	openMin, ok1 := parseTimeStr(parts[0])
+	closeMin, ok2 := parseTimeStr(parts[1])
+	if !ok1 || !ok2 {
+		return false
+	}
+
+	// If closeMin < openMin, it means it ends the next day
+	if closeMin < openMin {
+		// We are currently in "the next day" relative to yesterday's range.
+		// So we only care if we are BEFORE the close time.
+		return currentMinutes < closeMin
+	}
+	return false
 }
 
 func isTimeInRange(timeRange string, currentMinutes int) bool {
