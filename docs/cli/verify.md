@@ -264,3 +264,11 @@ Generate a context-efficient codebase map (Directory Tree, Symbols, or Templates
 ```bash
 agbalumo verify map [--depth=2] [--symbols] [--templates]
 ```
+
+##### schema
+
+Dumps the active SQLite schema deterministically.
+
+```bash
+agbalumo verify schema
+```
