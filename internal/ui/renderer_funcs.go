@@ -129,3 +129,41 @@ func hasDelivery(platforms string, platformName string) bool {
 	}
 	return false
 }
+func isCountry(regions []Region, name string) bool {
+	for _, r := range regions {
+		for _, c := range r.Countries {
+			if strings.EqualFold(c.Name, name) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func getCountryFlag(regions []Region, name string) string {
+	// Normalize name
+	name = strings.TrimSpace(name)
+
+	// Direct mapping for common ethnic groups to countries
+	ethnicToCountry := map[string]string{
+		"Yoruba":  "Nigeria",
+		"Igbo":    "Nigeria",
+		"Hausa":   "Nigeria",
+		"Ga":      "Ghana",
+		"Ashanti": "Ghana",
+		"Ewe":     "Ghana",
+		"Wolof":   "Senegal",
+	}
+	if country, ok := ethnicToCountry[name]; ok {
+		name = country
+	}
+
+	for _, r := range regions {
+		for _, c := range r.Countries {
+			if strings.EqualFold(c.Name, name) {
+				return c.Flag
+			}
+		}
+	}
+	return ""
+}

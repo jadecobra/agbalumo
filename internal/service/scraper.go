@@ -139,7 +139,7 @@ func (s *WebsiteScraper) handleTag(z *html.Tokenizer, base *url.URL, state *scra
 	}
 }
 
-	// Signature dish scraping decommissioned due to reliability issues (ADR-20260505)
+// Signature dish scraping decommissioned due to reliability issues (ADR-20260505)
 
 func (s *WebsiteScraper) handleAnchor(z *html.Tokenizer, base *url.URL, state *scrapeState, signals *AdaSignals) {
 	for {

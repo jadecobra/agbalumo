@@ -127,6 +127,22 @@ func NewRealTemplateForPage(t *testing.T, pageName string) *template.Template {
 	componentPattern := filepath.Join(projectRoot, "ui", "templates", "components", "*.html")
 
 	funcMap := ui.BuildGlobalFuncMap()
+	funcMap["countryFlag"] = func(name string) string {
+		// Minimal mock for tests that don't need real flags
+		if name == "Nigeria" {
+			return "🇳🇬"
+		}
+		if name == "Ghana" {
+			return "🇬🇭"
+		}
+		return ""
+	}
+	funcMap["isCountry"] = func(name string) string {
+		if name == "Nigeria" || name == "Ghana" {
+			return "true"
+		}
+		return ""
+	}
 	tmpl := template.New("base").Funcs(funcMap)
 
 	paths := []string{

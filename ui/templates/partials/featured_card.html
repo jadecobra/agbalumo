@@ -30,8 +30,21 @@
 
         <div class="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
             <div class="flex items-center gap-2 mb-2">
-                {{ if eq .Listing.OwnerOrigin "Nigeria" }}<span class="text-xl">🇳🇬</span>{{ else if eq
-                .Listing.OwnerOrigin "Ghana" }}<span class="text-xl">🇬🇭</span>{{ end }}
+                {{ $flag := countryFlag .Listing.OwnerOrigin }}
+                {{ if .Listing.EnrichmentAttemptedAt }}
+                    {{ $eFlag := countryFlag .Listing.RegionalSpecialty }}
+                    {{ if $eFlag }}{{ $flag = $eFlag }}{{ end }}
+                {{ end }}
+
+                {{ if $flag }}
+                <span class="text-xl flex items-center gap-1" title="{{ if .Listing.EnrichmentAttemptedAt }}Verified Origin: {{ .Listing.RegionalSpecialty }}{{ else }}Poster Origin: {{ .Listing.OwnerOrigin }}{{ end }}">
+                    {{ $flag }}
+                    {{ if .Listing.EnrichmentAttemptedAt }}
+                    <span class="material-symbols-outlined text-[16px] text-blue-400 font-bold" title="Verified by Agbalumo">verified</span>
+                    {{ end }}
+                </span>
+                {{ end }}
+
                 <span class="text-xs font-medium text-white/80 uppercase tracking-widest truncate">{{ .Listing.City
                     }}</span>
             </div>

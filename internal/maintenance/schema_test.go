@@ -55,4 +55,3 @@ func runSchemaTest(t *testing.T, name string, setup func(string) string, wantErr
 		}
 	})
 }
-

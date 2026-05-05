@@ -21,4 +21,3 @@ func DumpSQLiteSchema(dbPath string) (string, error) {
 
 	return string(out), nil
 }
-

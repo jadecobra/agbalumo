@@ -77,8 +77,11 @@ skills:
     trigger: design_critique
     path: .agents/workflows/design-rubric.md
 
-
 tools:
   - name: schema
     trigger: database_comprehension
     description: "Dumps the active SQLite schema deterministically"
+
+  - name: trace
+    trigger: observability, request_lifecycle
+    description: "Observes the request lifecycle (Middleware -> DB -> UI) with aggressive logging"

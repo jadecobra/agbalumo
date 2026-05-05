@@ -34,11 +34,26 @@
                     <span
                         class="bg-earth-accent/90 text-white text-[10px] capitalize font-bold px-2 py-0.5  tracking-wider shadow-sm">{{
                         .Listing.Type }}</span>
-                    {{ if .Listing.RegionalSpecialty }}
-                    <span class="bg-secondary/90 text-white text-[10px] capitalize font-bold px-2 py-0.5 tracking-wider shadow-sm">{{ .Listing.RegionalSpecialty }}</span>
+                    {{ $flag := countryFlag .Listing.OwnerOrigin }}
+                    {{ if .Listing.EnrichmentAttemptedAt }}
+                        {{ $eFlag := countryFlag .Listing.RegionalSpecialty }}
+                        {{ if $eFlag }}{{ $flag = $eFlag }}{{ end }}
                     {{ end }}
-                    {{ if eq .Listing.OwnerOrigin "Nigeria" }}<span class="text-xl shadow-sm">🇳🇬</span>{{ else if eq
-                    .Listing.OwnerOrigin "Ghana" }}<span class="text-xl shadow-sm">🇬🇭</span>{{ end }}
+
+                    {{ if $flag }}
+                    <span class="text-xl shadow-sm flex items-center gap-1" title="{{ if .Listing.EnrichmentAttemptedAt }}Verified Origin: {{ .Listing.RegionalSpecialty }}{{ else }}Poster Origin: {{ .Listing.OwnerOrigin }}{{ end }}">
+                        {{ $flag }}
+                        {{ if .Listing.EnrichmentAttemptedAt }}
+                        <span class="material-symbols-outlined text-[16px] text-blue-400 font-bold" title="Verified by Agbalumo">verified</span>
+                        {{ end }}
+                    </span>
+                    {{ end }}
+
+                    {{ if .Listing.RegionalSpecialty }}
+                        {{ if not (isCountry .Listing.RegionalSpecialty) }}
+                        <span class="bg-secondary/90 text-white text-[10px] capitalize font-bold px-2 py-0.5 tracking-wider shadow-sm">{{ .Listing.RegionalSpecialty }}</span>
+                        {{ end }}
+                    {{ end }}
                     {{ if gt .Listing.HeatLevel 0 }}
                     <div class="flex items-center gap-0.5 ml-1">
                         {{ if ge .Listing.HeatLevel 1 }}🌶️{{ end }}{{ if ge .Listing.HeatLevel 2 }}🌶️{{ end }}{{ if ge .Listing.HeatLevel 3 }}🌶️{{ end }}{{ if ge .Listing.HeatLevel 4 }}🌶️{{ end }}{{ if ge .Listing.HeatLevel 5 }}🌶️{{ end }}

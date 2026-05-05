@@ -30,7 +30,8 @@ mutating: false
    - Present Structured Binary Options to the user (e.g., "Hypothesis A: Schema mismatch. Hypothesis B: Middleware block.") — WAIT for guidance.
 4. Stage and commit: `git add . && git commit -m "feat(scope): implement X"`
 ## REFACTOR Phase (Clean Up)
-1. Run `go run ./cmd/verify critique` — check for violations
+1. Run `go run ./cmd/verify critique --baseline=HEAD~1`.
+   - You MUST compare the output to ensure the total number of issues (especially Duplication/Clone Groups) is LESS THAN OR EQUAL TO the baseline. If violations increased, you MUST revert or fix the regression before committing.
 2. Run `go run ./cmd/verify heal` — auto-fix structural issues
 3. Run `go test ./path/to/package/` — confirm nothing broke
 4. Stage and commit: `git add . && git commit -m "refactor(scope): clean up X"`

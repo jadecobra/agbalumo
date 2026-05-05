@@ -105,6 +105,13 @@ func setupMiddleware(e *echo.Echo, cfg *config.Config) {
 	e.Use(middleware.Gzip())
 	e.Use(customMiddleware.SecureHeaders)
 
+	if cfg.TraceMode {
+		e.Use(middleware.Logger())
+		e.Use(middleware.BodyDump(func(c echo.Context, reqBody, resBody []byte) {
+			slog.Info("TRACE", "path", c.Path(), "req", string(reqBody), "res", string(resBody))
+		}))
+	}
+
 	if cfg.Env != "test" && os.Getenv("DISABLE_RATE_LIMIT") != "true" {
 		rateLimiter := customMiddleware.NewRateLimiter(customMiddleware.RateLimitConfig{
 			Rate:  rate.Limit(cfg.RateLimitRate),

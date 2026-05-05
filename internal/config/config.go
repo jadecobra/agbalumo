@@ -24,10 +24,12 @@ type Config struct {
 	SlowQueryThresholdMs int
 	HasGoogleAuth        bool
 	MockAuth             bool
+	TraceMode            bool
 }
 
 func LoadConfig() *Config {
 	env := getEnv(domain.EnvKeyAppEnv, domain.EnvDevelopment)
+	traceMode := env == "trace"
 
 	uploadDir := getEnv(domain.EnvKeyUploadDir, domain.DefaultUploadDir)
 	if !filepath.IsAbs(uploadDir) {
@@ -54,6 +56,7 @@ func LoadConfig() *Config {
 		HasGoogleAuth:        hasGoogleAuth || MockAuth,
 		MockAuth:             MockAuth,
 		SlowQueryThresholdMs: getEnvAsInt(domain.EnvKeySlowQueryThreshold, 50),
+		TraceMode:            traceMode,
 	}
 }
 

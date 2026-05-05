@@ -27,12 +27,12 @@ func VerifyServerStartup(rootDir string) error {
 	}
 	defer func() { _ = logFile.Close() }()
 
-	binPath, err := buildTestBinary(rootDir, testerDir)
+	binPath, err := BuildTestBinary(rootDir, testerDir)
 	if err != nil {
 		return err
 	}
 
-	cmd, done, err := startTestServer(binPath, rootDir, logFile)
+	cmd, done, err := StartTestServer(binPath, rootDir, logFile)
 	if err != nil {
 		return err
 	}
@@ -40,7 +40,8 @@ func VerifyServerStartup(rootDir string) error {
 	return waitForReadiness(cmd, done, logPath)
 }
 
-func buildTestBinary(rootDir, testerDir string) (string, error) {
+// BuildTestBinary builds a temporary test binary of the application.
+func BuildTestBinary(rootDir, testerDir string) (string, error) {
 	fmt.Println("🔨 Building temporary test binary...")
 	binPath := filepath.Join(testerDir, "server_bin")
 	// #nosec G204
@@ -52,13 +53,27 @@ func buildTestBinary(rootDir, testerDir string) (string, error) {
 	return binPath, nil
 }
 
-func startTestServer(binPath, rootDir string, logFile *os.File) (*exec.Cmd, chan error, error) {
+// StartTestServer starts the application server for testing.
+func StartTestServer(binPath, rootDir string, logFile *os.File, extraEnv ...string) (*exec.Cmd, chan error, error) {
 	// #nosec G204
 	cmd := exec.Command(binPath, "serve")
 	cmd.Dir = rootDir
 	cmd.Stdout = logFile
 	cmd.Stderr = logFile
-	cmd.Env = append(os.Environ(), "AGBALUMO_ENV=test", "PORT=8444")
+	cmd.Env = append(os.Environ(), "PORT=8444")
+	cmd.Env = append(cmd.Env, extraEnv...)
+
+	// Default to test env if not provided
+	hasEnv := false
+	for _, e := range extraEnv {
+		if strings.HasPrefix(e, "AGBALUMO_ENV=") {
+			hasEnv = true
+			break
+		}
+	}
+	if !hasEnv {
+		cmd.Env = append(cmd.Env, "AGBALUMO_ENV=test")
+	}
 
 	if err := cmd.Start(); err != nil {
 		return nil, nil, fmt.Errorf("failed to start server: %w", err)

@@ -114,6 +114,7 @@ func init() {
 		templateGraphCmd,
 		mapCmd,
 		schemaCmd,
+		traceCmd,
 	)
 }
 

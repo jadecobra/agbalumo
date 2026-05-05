@@ -61,6 +61,15 @@ func NewTemplateRenderer(patterns ...string) (*TemplateRenderer, error) {
 	funcMap["Countries"] = func() []Region {
 		return renderer.CountryRegions
 	}
+	funcMap["countryFlag"] = func(name string) string {
+		return getCountryFlag(renderer.CountryRegions, name)
+	}
+	funcMap["isCountry"] = func(name string) string {
+		if isCountry(renderer.CountryRegions, name) {
+			return "true"
+		}
+		return ""
+	}
 
 	templates, err := compileTemplates(layoutFiles, partialFiles, pageFiles, funcMap)
 	if err != nil {
@@ -73,8 +82,28 @@ func NewTemplateRenderer(patterns ...string) (*TemplateRenderer, error) {
 	return renderer, nil
 }
 
+// GetFuncMap returns the template function map
+func (t *TemplateRenderer) GetFuncMap() template.FuncMap {
+	return t.funcMap
+}
+
 func (t *TemplateRenderer) loadCountryData() error {
-	data, err := os.ReadFile("ui/data/countries.json")
+	paths := []string{
+		"ui/data/countries.json",
+		"../../../ui/data/countries.json",
+		"../../ui/data/countries.json",
+		"../ui/data/countries.json",
+	}
+
+	var data []byte
+	var err error
+	for _, p := range paths {
+		data, err = os.ReadFile(filepath.Clean(p))
+		if err == nil {
+			break
+		}
+	}
+
 	if err != nil {
 		return err
 	}

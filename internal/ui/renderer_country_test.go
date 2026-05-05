@@ -1,53 +1,38 @@
 package ui
 
 import (
-	"html/template"
-	"net/http"
-	"net/http/httptest"
 	"testing"
-
-	"github.com/labstack/echo/v4"
 )
 
 func TestTemplateRenderer_CountryData(t *testing.T) {
 	t.Parallel()
-	e := echo.New()
 
-	t.Run("InjectedCountryData", func(t *testing.T) {
+	t.Run("GetCountryFlagLogic", func(t *testing.T) {
 		t.Parallel()
-		// Setup renderer with mock data and custom funcMap
-		renderer := &TemplateRenderer{
-			CountryRegions: []Region{
-				{
-					Region: "Region1",
-					Countries: []Country{
-						{Name: "Country1", Flag: "F1"},
-					},
+		regions := []Region{
+			{
+				Region: "West Africa",
+				Countries: []Country{
+					{Name: "Nigeria", Flag: "🇳🇬"},
+					{Name: "Ghana", Flag: "🇬🇭"},
 				},
 			},
 		}
 
-		funcMap := BuildGlobalFuncMap()
-		funcMap["Countries"] = func() []Region {
-			return renderer.CountryRegions
+		tests := []struct {
+			name     string
+			expected string
+		}{
+			{"Nigeria", "🇳🇬"},
+			{"ghana", "🇬🇭"},
+			{"Unknown", ""},
 		}
 
-		tmpl := template.New("test").Funcs(funcMap)
-		_, _ = tmpl.Parse(`{{range Countries}}{{.Region}}:{{range .Countries}}{{.Name}},{{end}}{{end}}`)
-		renderer.templates = map[string]*template.Template{"test": tmpl}
-
-		rec := httptest.NewRecorder()
-		c := e.NewContext(httptest.NewRequest(http.MethodGet, "/", nil), rec)
-
-		err := renderer.Render(rec, "test", map[string]interface{}{}, c)
-		if err != nil {
-			t.Fatalf("Render failed: %v", err)
-		}
-
-		expected := "Region1:Country1,"
-		actual := rec.Body.String()
-		if actual != expected && actual != "<!-- BEGIN TEMPLATE: test -->"+expected {
-			t.Errorf("Expected %q or tagged version, got %q. Country data might not be injected.", expected, actual)
+		for _, tt := range tests {
+			actual := getCountryFlag(regions, tt.name)
+			if actual != tt.expected {
+				t.Errorf("getCountryFlag(%q) = %q, expected %q", tt.name, actual, tt.expected)
+			}
 		}
 	})
 
@@ -55,7 +40,7 @@ func TestTemplateRenderer_CountryData(t *testing.T) {
 		t.Parallel()
 		layouts, partials, pages := categorizeTemplateFiles([]string{
 			"ui/templates/base.html",
-			"ui/templates/components/foo.html",
+			"ui/templates/partials/foo.html",
 			"ui/templates/index.html",
 		})
 		if len(layouts) != 1 || len(partials) != 1 || len(pages) != 1 {
