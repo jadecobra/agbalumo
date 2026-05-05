@@ -23,11 +23,11 @@ mutating: false
 ## GREEN Phase (Make Test Pass)
 1. Write minimum implementation to pass the test
 2. Run: `go test -run TestNewFeature ./path/to/package/`
-3. If FAIL after 3 attempts:
+3. If FAIL after 2 attempts:
    - HALT
-   - Read the raw traceback
-   - Hypothesize why (wrong mock? missing interface method? SQL schema?)
-   - Present hypothesis to user — WAIT for guidance
+   - Execute `git reset --hard` to return to the last known RED state before hypothesizing.
+   - Read the raw traceback.
+   - Present Structured Binary Options to the user (e.g., "Hypothesis A: Schema mismatch. Hypothesis B: Middleware block.") — WAIT for guidance.
 4. Stage and commit: `git add . && git commit -m "feat(scope): implement X"`
 ## REFACTOR Phase (Clean Up)
 1. Run `go run ./cmd/verify critique` — check for violations
