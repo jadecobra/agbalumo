@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/jadecobra/agbalumo/internal/config"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/infra/env"
 	"github.com/labstack/echo/v4"
@@ -19,14 +20,19 @@ func NewPageHandler(app *env.AppEnv) *PageHandler {
 	return &PageHandler{App: app}
 }
 
-// HandleAbout renders the generic about page.
-func (h *PageHandler) HandleAbout(c echo.Context) error {
-	return h.renderWithBaseContext(c, "about.html", map[string]interface{}{
-		"User": c.Get("User"),
-	})
+// AboutViewModel represents the strongly-typed data passed to the about page template.
+type AboutViewModel struct {
+	User          interface{}
+	Counts        map[string]int
+	Config        *config.Config
+	Env           string
+	Categories    []domain.CategoryData
+	DevMode       bool
+	HasGoogleAuth bool
 }
 
-func (h *PageHandler) renderWithBaseContext(c echo.Context, tmpl string, data map[string]interface{}) error {
+// HandleAbout renders the generic about page.
+func (h *PageHandler) HandleAbout(c echo.Context) error {
 	ctx := c.Request().Context()
 	categories, err := h.App.DB.GetCategories(ctx, domain.CategoryFilter{ActiveOnly: true})
 	if err != nil {
@@ -34,21 +40,24 @@ func (h *PageHandler) renderWithBaseContext(c echo.Context, tmpl string, data ma
 	}
 
 	counts, err := h.App.DB.GetCounts(ctx)
+	strCounts := make(map[string]int)
 	if err != nil {
 		slog.Error("Failed to fetch counts", "error", err)
-		data["Counts"] = map[string]int{}
 	} else {
-		strCounts := make(map[string]int)
 		for cat, count := range counts {
 			strCounts[string(cat)] = count
 		}
-		data["Counts"] = strCounts
 	}
 
-	data["Categories"] = categories
-	data["Config"] = h.App.Cfg
-	data["Env"] = h.App.Cfg.Env
-	data["DevMode"] = h.App.Cfg.Env == "development"
-	data["HasGoogleAuth"] = h.App.Cfg.HasGoogleAuth
-	return c.Render(http.StatusOK, tmpl, data)
+	vm := AboutViewModel{
+		User:          c.Get("User"),
+		Categories:    categories,
+		Counts:        strCounts,
+		Config:        h.App.Cfg,
+		Env:           h.App.Cfg.Env,
+		DevMode:       h.App.Cfg.Env == "development",
+		HasGoogleAuth: h.App.Cfg.HasGoogleAuth,
+	}
+
+	return c.Render(http.StatusOK, "about.html", vm)
 }

@@ -6,6 +6,7 @@ This package manages the HTTP layer using the Echo framework.
 - Use `RespondError(c, err)` — never raw `c.JSON()`
 - All form bindings use `form` struct tags
 - No raw HTML in handlers — use `ui/templates/components/`
+- No untyped maps allowed in c.Render. Define local ViewModel structs for all template data.
 
 ## Handling Principles
 
