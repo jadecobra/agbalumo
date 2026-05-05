@@ -78,3 +78,7 @@ skills:
     path: .agents/workflows/design-rubric.md
 
 
+tools:
+  - name: schema
+    trigger: database_comprehension
+    description: "Dumps the active SQLite schema deterministically"

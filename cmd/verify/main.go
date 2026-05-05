@@ -113,6 +113,7 @@ func init() {
 		checkResolvableCmd,
 		templateGraphCmd,
 		mapCmd,
+		schemaCmd,
 	)
 }
 
