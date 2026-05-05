@@ -5,9 +5,13 @@ This document summarizes the core architecture, data flow, and layers of the Agb
 ## 1. Directory Structure
 
 - **cmd/**: Contains the main application entry points. Used heavily by the Cobra CLI framework.
-- **cmd/server.go**: Application startup sequence, Echo framework routing, Middleware attaching, Environment loading.
+- **cmd/serve.go**: Cobra command that boots the server. Delegates to `SetupServer()` in `cmd/server.go`.
+- **cmd/server.go**: Calls `internal/infra/server.Setup(cfg)` to initialize Echo, DB, and all module handlers.
 - **internal/domain/**: Core types, structs, interfaces, validations, business concepts.
-- **internal/handler/**: HTTP logic layer mapping Requests -> DB/Service -> HTML/JSON response. All HTTP routing is connected here.
+- **internal/module/**: HTTP handler modules organized by domain (listing/, admin/, auth/, feedback/). Each module implements `domain.Registrar` to register its own routes.
+- **internal/handler/**: Contains search latency tests only. Handler logic lives in `internal/module/`.
+- **internal/infra/env/**: Contains `AppEnv` — the central dependency injection container passed to all module handlers.
+- **internal/infra/server/**: Server bootstrap, route wiring, middleware setup, and background service initialization.
 - **internal/middleware/**: Custom Echo middleware functions (Auth parsing, rate limiting).
 - **internal/repository/sqlite/**: Database implementations interacting with the SQL driver, split into smaller scoped files.
 - **internal/service/**: Logic layer handling external business components that span across multiple repositories.
@@ -17,10 +21,10 @@ This document summarizes the core architecture, data flow, and layers of the Agb
 
 ## 2. Server Architecture (Data Retrieval & Render Flow)
 1. User requests `GET /listings/123`.
-2. Echo Router looks for a match in `cmd/server.go` and calls the handler: `ListingHandler.HandleDetail(c)`.
+2. Echo Router matches the route registered in the module's RegisterRoutes() method (wired in internal/infra/server/server.go::setupRoutes) and calls the handler.
 3. Handler utilizes the `Repo` (dependency-injected SQLite store) to fetch the `domain.Listing` entity `repo.FindByID()`.
 4. Logic/Formatting is applied as needed by the Handler.
-5. The Handler creates a generic map context (e.g. `map[string]interface{}{"Listing": listing, "User": user}`).
+5. The Handler creates a strictly typed ViewModel struct (per the Strict ViewModel Mandate) and passes it to c.Render().
 6. The UI package parses `modal_detail.html` combined with `base.html` (if applicable) and writes output to `c.Response()`.
 7. Results are pushed to browser. Note that partial HTMX loads return partial HTML fragments rather than complete HTML bodies.
 
@@ -40,3 +44,10 @@ Agbalumo uses a single-file SQLite database with Write-Ahead Logging (WAL) enabl
 - Rate Limiting implemented globally in Echo Config.
 - Secret parsing checks done via shell validation in `task pre-commit`.
 - CSRF verification middleware runs on specific POST operations.
+
+## 6. Dependency Injection
+- All application dependencies are centralized in `internal/infra/env/AppEnv`.
+- `AppEnv` holds: DB (ListingRepository), Config, Logger, and all service interfaces (CSV, Geocoding, Image, Listing, Categorization, Metrics).
+- Module handlers receive `*AppEnv` via their constructor (e.g., `listing.NewListingHandler(app)`).
+- See `docs/ATLAS.md` for the complete intent-to-file mapping.
+
