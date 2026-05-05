@@ -246,7 +246,6 @@ func (h *ListingHandler) processListings(listings []domain.Listing) {
 	// No-op for now as operational status display is removed
 }
 
-
 func (h *ListingHandler) buildListingViewData(c echo.Context, listings []domain.Listing) map[string]interface{} {
 	ctx := c.Request().Context()
 	data := map[string]interface{}{
