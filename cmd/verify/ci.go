@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/jadecobra/agbalumo/internal/maintenance"
@@ -135,9 +136,26 @@ var precommitCmd = &cobra.Command{
 			return fmt.Errorf("robustness audit failed: %w", err)
 		}
 
-		// 6. Coverage gate check (optional for pre-commit but good for anti-degradation)
-		if err := coverageCmd.RunE(cmd, args); err != nil {
-			return err
+		// 6. Test only staged packages (fast path)
+		if len(stagedGoFiles) == 0 {
+			fmt.Println("⏩ No Go files staged. Skipping test phase.")
+		} else {
+			fmt.Println("🧪 Running tests on staged packages only...")
+			dirMap := make(map[string]bool)
+			for _, file := range stagedGoFiles {
+				dir := filepath.Dir(file)
+				dirMap[dir] = true
+			}
+			for dir := range dirMap {
+				pkgPath := "./" + dir
+				if dir == "." {
+					pkgPath = "."
+				}
+				fmt.Printf("   Testing %s...\n", pkgPath)
+				if err := runCmd("go", "test", "-short", pkgPath); err != nil {
+					return fmt.Errorf("tests failed in %s: %w", pkgPath, err)
+				}
+			}
 		}
 
 		// 6b. CSS rebuild if templates changed
