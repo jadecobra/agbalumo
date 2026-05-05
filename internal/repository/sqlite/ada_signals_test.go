@@ -25,7 +25,6 @@ func TestAdaSignalsPersistence(t *testing.T) {
 		Address:           "Lagos Street",
 		HeatLevel:         5,
 		RegionalSpecialty: "Yoruba • Lagos Style",
-		TopDish:           "Lagos Suya",
 	}
 
 	saveTestListing(t, ctx, repo, listing)
@@ -40,8 +39,5 @@ func TestAdaSignalsPersistence(t *testing.T) {
 	}
 	if got.RegionalSpecialty != "Yoruba • Lagos Style" {
 		t.Errorf("expected RegionalSpecialty Yoruba • Lagos Style, got %q", got.RegionalSpecialty)
-	}
-	if got.TopDish != "Lagos Suya" {
-		t.Errorf("expected TopDish Lagos Suya, got %q", got.TopDish)
 	}
 }

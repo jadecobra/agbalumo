@@ -30,7 +30,6 @@ type ListingFormRequest struct {
 	JobApplyURL       string `form:"job_apply_url"`
 	Company           string `form:"company"`
 	PayRange          string `form:"pay_range"`
-	TopDish           string `form:"top_dish"`
 	RegionalSpecialty string `form:"regional_specialty"`
 	HeatLevel         int    `form:"heat_level"`
 	RemoveImage       bool   `form:"remove_image"`
@@ -55,7 +54,6 @@ func (req *ListingFormRequest) ToListing(l *domain.Listing) error {
 	l.PayRange = req.PayRange
 	l.HeatLevel = req.HeatLevel
 	l.RegionalSpecialty = req.RegionalSpecialty
-	l.TopDish = req.TopDish
 
 	if err := parseDeadline(req, l); err != nil {
 		return err

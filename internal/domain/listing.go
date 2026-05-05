@@ -30,7 +30,6 @@ type Listing struct {
 	EnrichmentAttemptedAt *time.Time    `json:"enrichment_attempted_at" form:"enrichment_attempted_at"`
 	RatingUpdatedAt       *time.Time    `json:"rating_updated_at" form:"rating_updated_at"`
 	JobApplyURL           string        `json:"job_apply_url" form:"job_apply_url"`
-	TopDish               string        `json:"top_dish" form:"top_dish"`
 	City                  string        `json:"city" form:"city"`
 	State                 string        `json:"state" form:"state"`
 	Country               string        `json:"country" form:"country"`

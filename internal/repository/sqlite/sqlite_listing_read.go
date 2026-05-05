@@ -36,7 +36,7 @@ func scanListing(s Scanner) (domain.Listing, error) {
 		&eventStart, &eventEnd,
 		&l.Skills, &jobStart, &l.JobApplyURL,
 		&l.Company, &l.PayRange, &l.Status, &l.Featured,
-		&l.HeatLevel, &l.RegionalSpecialty, &l.TopDish,
+		&l.HeatLevel, &l.RegionalSpecialty,
 		&l.PaymentMethods, &l.MenuURL,
 		&l.Latitude, &l.Longitude,
 		&l.DeliveryPlatforms,

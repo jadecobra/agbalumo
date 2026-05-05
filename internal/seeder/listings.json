@@ -222,8 +222,7 @@
         "address": "5201 Forest Ln, Dallas, TX 75243",
         "contact_email": "mama@put.com",
         "heat_level": 4,
-        "regional_specialty": "Yoruba",
-        "top_dish": "Egusi Soup"
+        "regional_specialty": "Yoruba"
       },
       {
         "title": "Accra Chop Bar",
@@ -235,8 +234,7 @@
         "address": "5302 Collins St, Arlington, TX 76014",
         "contact_phone": "+155560601",
         "heat_level": 3,
-        "regional_specialty": "Ga",
-        "top_dish": "Banku & Tilapia"
+        "regional_specialty": "Ga"
       }
     ]
   }

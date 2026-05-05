@@ -91,7 +91,6 @@ const (
 	FieldContactWhatsApp   = "contact_whatsapp"
 	FieldJobStartDate      = "job_start_date"
 	FieldJobApplyURL       = "job_apply_url"
-	FieldTopDish           = "top_dish"
 	FieldRegionalSpecialty = "regional_specialty"
 	FieldHeatLevel         = "heat_level"
 	FieldRemoveImage       = "remove_image"

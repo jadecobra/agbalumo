@@ -14,7 +14,6 @@ import (
 type AdaSignals struct {
 	PaymentMethods    string
 	MenuURL           string
-	TopDish           string
 	RegionalSpecialty string
 	HeatLevel         int
 }
@@ -133,8 +132,6 @@ func (s *WebsiteScraper) handleTag(z *html.Tokenizer, base *url.URL, state *scra
 	tagName := string(tn)
 
 	switch tagName {
-	case "h1", "h2":
-		s.handleHeading(z, signals)
 	case "a":
 		if hasAttr {
 			s.handleAnchor(z, base, state, signals)
@@ -142,16 +139,7 @@ func (s *WebsiteScraper) handleTag(z *html.Tokenizer, base *url.URL, state *scra
 	}
 }
 
-func (s *WebsiteScraper) handleHeading(z *html.Tokenizer, signals *AdaSignals) {
-	if signals.TopDish != "" {
-		return
-	}
-	z.Next()
-	text := strings.TrimSpace(string(z.Text()))
-	if s.isLikelySignature(text) {
-		signals.TopDish = text
-	}
-}
+	// Signature dish scraping decommissioned due to reliability issues (ADR-20260505)
 
 func (s *WebsiteScraper) handleAnchor(z *html.Tokenizer, base *url.URL, state *scrapeState, signals *AdaSignals) {
 	for {

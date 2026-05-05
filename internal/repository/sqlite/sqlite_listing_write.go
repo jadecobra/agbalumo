@@ -76,8 +76,8 @@ func (r *SQLiteRepository) insertBatch(ctx context.Context, tx *sql.Tx, batch []
 }
 
 func (r *SQLiteRepository) buildBulkInsertSQL(batch []domain.Listing) (string, []interface{}) {
-	const numFields = 41
-	const placeholders = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	const numFields = 40
+	const placeholders = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
 	var sb strings.Builder
 	// Pre-allocate approximate size: len(batch) * len(placeholders) + SQL header/footer
@@ -101,7 +101,7 @@ func (r *SQLiteRepository) buildBulkInsertSQL(batch []domain.Listing) (string, [
 }
 
 func (r *SQLiteRepository) listingArgs(l domain.Listing) []interface{} {
-	args := make([]interface{}, 41)
+	args := make([]interface{}, 40)
 	r.fillListingArgs(args, 0, l)
 	return args
 }
@@ -137,17 +137,16 @@ func (r *SQLiteRepository) fillListingArgs(args []interface{}, offset int, l dom
 	args[offset+27] = l.Featured
 	args[offset+28] = l.HeatLevel
 	args[offset+29] = l.RegionalSpecialty
-	args[offset+30] = l.TopDish
-	args[offset+31] = l.PaymentMethods
-	args[offset+32] = l.MenuURL
-	args[offset+33] = l.Latitude
-	args[offset+34] = l.Longitude
-	args[offset+35] = l.EnrichmentAttemptedAt
-	args[offset+36] = l.DeliveryPlatforms
-	args[offset+37] = l.Rating
-	args[offset+38] = l.ReviewCount
-	args[offset+39] = l.RatingUpdatedAt
-	args[offset+40] = l.StructuredHours
+	args[offset+30] = l.PaymentMethods
+	args[offset+31] = l.MenuURL
+	args[offset+32] = l.Latitude
+	args[offset+33] = l.Longitude
+	args[offset+34] = l.EnrichmentAttemptedAt
+	args[offset+35] = l.DeliveryPlatforms
+	args[offset+36] = l.Rating
+	args[offset+37] = l.ReviewCount
+	args[offset+38] = l.RatingUpdatedAt
+	args[offset+39] = l.StructuredHours
 }
 
 func (r *SQLiteRepository) ensureStatus(s domain.ListingStatus) string {

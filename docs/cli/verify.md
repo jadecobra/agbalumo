@@ -41,7 +41,7 @@ agbalumo verify browser
 ##### enrich
 
 
-Enrich listings with Ada sensory signals (Heat Level, Signature Dish, Regional Specialty, Menu URL).
+Enrich listings with Ada sensory signals (Heat Level, Regional Specialty, Menu URL).
 
 ```bash
 agbalumo verify enrich [--limit=10]

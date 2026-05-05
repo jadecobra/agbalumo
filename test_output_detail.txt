@@ -1,0 +1,17 @@
+2026/05/05 10:00:58 WARN Using default admin code - set ADMIN_CODE for production
+time=2026-05-05T10:00:58.542-05:00 level=INFO msg="Starting category seed from config" path=config/categories.json
+time=2026-05-05T10:00:58.542-05:00 level=INFO msg="Completed category seed"
+time=2026-05-05T10:00:58.542-05:00 level=INFO msg="Database empty. Seeding data..."
+time=2026-05-05T10:00:58.543-05:00 level=ERROR msg="Failed to load seed data" error="invalid character '}' looking for beginning of object key string"
+time=2026-05-05T10:00:58.543-05:00 level=INFO msg="[Background] Service started. Ticking every 1 hour."
+=== RUN   TestListingDetail
+time=2026-05-05T10:00:58.568-05:00 level=INFO msg=request status=200 URI=/listings/fragment
+time=2026-05-05T10:00:58.590-05:00 level=INFO msg=request status=200 URI=/listings/fragment
+    server_public_test.go:98: 
+        	Error Trace:	/Users/johnnyblase/gym/agbalumo/cmd/server_public_test.go:98
+        	Error:      	"<!-- BEGIN TEMPLATE: listing_list -->\n\n<div id=\"featured-section\" hx-swap-oob=\"true\">\n    \n</div>\n\n\n<div class=\"col-span-full flex flex-col items-center justify-center py-16 text-center animate-in fade-in duration-500\">\n    <span class=\"material-symbols-outlined text-4xl text-stone-400 dark:text-stone-500 mb-4\">search_off</span>\n    <h3 class=\"text-lg font-bold text-earth-cream mb-2 font-display\">\n        No listings found\n    </h3>\n    <p class=\"text-sm text-stone-400 mb-6 max-w-xs\">\n        We couldn't find spots matching that query.\n    </p>\n\n    \n\n    <a href=\"/\" hx-get=\"/listings/fragment\" hx-target=\"#listings-container\" data-testid=\"view-all-listings-link\"\n        class=\"px-5 h-11 flex items-center justify-center bg-earth-accent text-white font-bold font-display tracking-widest text-xs uppercase hover:bg-earth-accent/90 transition-all border border-earth-accent-light\">\n        View All Listings\n    </a>\n</div>\n\n\n<div id=\"pagination\" class=\"flex items-center justify-center space-x-2 py-8\" hx-boost=\"true\" hx-swap-oob=\"true\">\n\n</div>\n\n" does not contain "data-modal-action=\"close\""
+        	Test:       	TestListingDetail
+--- FAIL: TestListingDetail (0.05s)
+FAIL
+FAIL	github.com/jadecobra/agbalumo/cmd	0.438s
+FAIL

@@ -1,20 +1,33 @@
-# Decision Log
+# Task: Decommission 'Signature Dish' Feature
 
-- **Decision**: Remove the "Open Now / Closed" status indicator from listing cards and detail modals.
-- **Date**: 2026-05-04
-- **Reason**: The signal is unreliable due to missing time zone context and data source fragility. Providing incorrect information violates the "Zero-Cognitive-Load Curation" and "Truth over Feature" principles.
-- **Tradeoff**: Loss of "Open Now" feature in favor of system reliability and user trust.
-- **Constraint**: Any UI element that depends on server-side time without location-aware precision must be removed until localized time support is implemented.
+The "Signature Dish" feature is providing unreliable data in production and needs to be removed to maintain data integrity and user trust.
 
-# Execution Plan
+## Phase 1: Planning & ADR
+- [x] Identify all occurrences of `TopDish` and "Signature Dish"
+- [x] Create ADR-20260505 documenting the decommissioning
+- [x] Get approval for the decommissioning plan
 
-## Phase 2: Autonomous Execution Loop (TDD)
-- [x] **TDD (Red)**: Update `listing_card_test.go` and `listing_read_test.go` to assert absence of status badges.
-- [x] **Refactor Backend**: Remove `IsCurrentlyOpen` from `domain.Listing` and its calculation in `ListingHandler`.
-- [x] **Update UI (Green)**: Remove status badges from `listing_card.html` and `modal_detail.html`.
-- [x] **Codify Lesson**: Add `[TRIGGER: TIME_SENSITIVE_SIGNAL]` to `coding-standards.md`.
+## Phase 2: Implementation
 
-## Phase 3: Audit & Resilience
-- [x] **ADR**: Create `docs/adr/2026-05-04-remove-unreliable-open-status.md`.
-- [x] **Verification**: Run `go test ./...` and `go run ./cmd/verify visual-audit`.
-- [x] **Final CI**: Run `go run ./cmd/verify precommit` and `git push`.
+### Domain & Logic
+- [x] Remove `TopDish` from `internal/domain/listing.go`
+- [x] Remove `FieldTopDish` from `internal/domain/constants.go`
+- [x] Remove `TopDish` from `AdaSignals` in `internal/service/scraper.go` and disable scraping logic
+- [x] Remove `TopDish` mapping in `internal/service/scraper_job.go`
+- [x] Remove `TopDish` scan/write in `internal/repository/sqlite/`
+
+### UI & Templates
+- [x] Remove "Signature Dish" rendering from `ui/templates/partials/listing_card.html`
+- [x] Remove "Signature Dish" rendering from `ui/templates/partials/modal_detail.html`
+- [x] Remove `top_dish` input from `ui/templates/components/listing_form_common_fields.html`
+
+### Cleanup
+- [x] Update `internal/module/listing/listing_form.go`
+- [x] Update all affected tests (scraper, repository, renderer)
+- [x] Update documentation in `docs/cli/verify.md`
+
+## Phase 3: Verification
+- [x] Run `go run ./cmd/verify preflight`
+- [x] Run all Go tests `go test ./...`
+- [x] Run `go run ./cmd/verify precommit`
+- [x] Perform browser verification of listings and forms

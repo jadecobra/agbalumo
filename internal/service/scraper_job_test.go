@@ -19,7 +19,7 @@ func TestScraperJob_EnrichListings(t *testing.T) {
 
 	// 1. Setup mock server
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, _ = fmt.Fprintln(w, `<html><body><h1>Signature Jollof</h1><p>Very spicy and hot!</p><p>Pay via Zelle</p></body></html>`)
+		_, _ = fmt.Fprintln(w, `<html><body><p>Very spicy and hot!</p><p>Pay via Zelle</p></body></html>`)
 	}))
 	defer ts.Close()
 
@@ -63,9 +63,6 @@ func TestScraperJob_EnrichListings(t *testing.T) {
 	}
 	if updated.HeatLevel != 2 { // "spicy" and "hot"
 		t.Errorf("HeatLevel = %d, want 2", updated.HeatLevel)
-	}
-	if updated.TopDish != "Signature Jollof" {
-		t.Errorf("TopDish = %q, want %q", updated.TopDish, "Signature Jollof")
 	}
 	if updated.PaymentMethods != "Zelle" {
 		t.Errorf("PaymentMethods = %q, want %q", updated.PaymentMethods, "Zelle")

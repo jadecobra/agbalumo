@@ -27,7 +27,6 @@ func TestWebsiteScraper_Heuristics(t *testing.T) {
 			expected: AdaSignals{
 				HeatLevel:      2, // "spicy", "hot"
 				PaymentMethods: "Zelle, Venmo",
-				TopDish:        "Our Signature Jollof",
 				MenuURL:        "http://example.com/downloads/menu.pdf",
 			},
 		},
@@ -52,7 +51,6 @@ func TestWebsiteScraper_Heuristics(t *testing.T) {
 			expected: AdaSignals{
 				HeatLevel:      0,
 				PaymentMethods: "",
-				TopDish:        "",
 				MenuURL:        "",
 			},
 		},
@@ -87,9 +85,6 @@ func assertAdaSignalsMatch(t *testing.T, name string, got, want AdaSignals) {
 	}
 	if got.PaymentMethods != want.PaymentMethods {
 		t.Errorf("%s: PaymentMethods = %q, want %q", name, got.PaymentMethods, want.PaymentMethods)
-	}
-	if got.TopDish != want.TopDish {
-		t.Errorf("%s: TopDish = %q, want %q", name, got.TopDish, want.TopDish)
 	}
 	if got.MenuURL != want.MenuURL {
 		t.Errorf("%s: MenuURL = %q, want %q", name, got.MenuURL, want.MenuURL)
