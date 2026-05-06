@@ -6,39 +6,40 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jadecobra/agbalumo/cmd/cli"
 	"github.com/jadecobra/agbalumo/internal/domain"
 )
 
 var testDeadline = time.Now().Add(24 * time.Hour)
 
 func TestGenerateID(t *testing.T) {
-	id1 := generateID()
-	id2 := generateID()
+	id1 := cli.GenerateID()
+	id2 := cli.GenerateID()
 
 	if id1 == "" {
-		t.Error("generateID() should return non-empty string")
+		t.Error("GenerateID() should return non-empty string")
 	}
 
 	if id1 == id2 {
-		t.Error("generateID() should return unique IDs")
+		t.Error("GenerateID() should return unique IDs")
 	}
 }
 
 func TestGetDatabaseURL(t *testing.T) {
 	t.Run("default", func(t *testing.T) {
 		_ = os.Unsetenv("DATABASE_URL")
-		url := getDatabaseURL()
+		url := cli.GetDatabaseURL()
 		if url != ".tester/data/agbalumo.db" {
-			t.Errorf("getDatabaseURL() = %v, want .tester/data/agbalumo.db", url)
+			t.Errorf("GetDatabaseURL() = %v, want .tester/data/agbalumo.db", url)
 		}
 	})
 
 	t.Run("from env", func(t *testing.T) {
 		_ = os.Setenv("DATABASE_URL", "custom.db")
 		defer func() { _ = os.Unsetenv("DATABASE_URL") }()
-		url := getDatabaseURL()
+		url := cli.GetDatabaseURL()
 		if url != "custom.db" {
-			t.Errorf("getDatabaseURL() = %v, want custom.db", url)
+			t.Errorf("GetDatabaseURL() = %v, want custom.db", url)
 		}
 	})
 }
@@ -50,9 +51,9 @@ func TestInitRepo(t *testing.T) {
 	_ = os.Setenv("DATABASE_URL", dbPath)
 	defer func() { _ = os.Unsetenv("DATABASE_URL") }()
 
-	repo := initRepo()
+	repo := cli.InitRepo()
 	if repo == nil {
-		t.Error("initRepo() should return non-nil repo")
+		t.Error("InitRepo() should return non-nil repo")
 	}
 }
 
@@ -75,7 +76,7 @@ func TestPrintListing(t *testing.T) {
 		IsActive:        true,
 	}
 
-	printListing(rootCmd, listing)
+	cli.PrintListing(rootCmd, listing)
 }
 
 func TestPrintListingWithDeadline(t *testing.T) {
@@ -88,7 +89,7 @@ func TestPrintListingWithDeadline(t *testing.T) {
 		Deadline: testDeadline,
 	}
 
-	printListing(rootCmd, listing)
+	cli.PrintListing(rootCmd, listing)
 }
 
 func TestPrintListingSummary(t *testing.T) {
@@ -100,7 +101,7 @@ func TestPrintListingSummary(t *testing.T) {
 		Status: domain.ListingStatusApproved,
 	}
 
-	printListingSummary(rootCmd, listing)
+	cli.PrintListingSummary(rootCmd, listing)
 }
 
 func TestPrintListingAllFields(t *testing.T) {
@@ -131,5 +132,5 @@ func TestPrintListingAllFields(t *testing.T) {
 		PayRange:         "$120k-$150k",
 	}
 
-	printListing(rootCmd, listing)
+	cli.PrintListing(rootCmd, listing)
 }

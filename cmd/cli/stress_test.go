@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"context"
@@ -19,17 +19,8 @@ func TestStressCmd_Success(t *testing.T) {
 		_ = os.Remove(dbPath)
 	}()
 
-	// Since rootCmd executes stress via `rootCmd.Execute()`,
-	// we set arguments directly to sub-command.
-	// `ResolveSeedConfig` logic implies if `args` has an element, it might use it as db path.
-	// `agbalumo stress custom.db --count 50`
-	rootCmd.SetArgs([]string{"stress", dbPath, "--count", "50"})
-
-	// Execute command
-	err := rootCmd.Execute()
-	if err != nil {
-		t.Fatalf("unexpected error executing stress command: %v", err)
-	}
+	stressCount = 50
+	StressCmd.Run(StressCmd, []string{dbPath})
 
 	// Verify database state
 	repo, err := sqlite.NewSQLiteRepository(dbPath)

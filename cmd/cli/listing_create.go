@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"context"
@@ -21,10 +21,10 @@ can be specified via flags.`,
   # Create a job listing with a deadline
   agbalumo listing create --title "Backend Developer" --type Job --deadline 2026-12-31`,
 	Run: func(cmd *cobra.Command, args []string) {
-		repo := initRepo()
+		repo := InitRepo()
 
 		listing := domain.Listing{
-			ID:          generateID(),
+			ID:          GenerateID(),
 			OwnerID:     flagOwnerID,
 			OwnerOrigin: flagOrigin,
 			Type:        domain.Category(flagType),
@@ -33,17 +33,17 @@ can be specified via flags.`,
 			Status:      domain.ListingStatusApproved,
 		}
 
-		applyListingUpdates(&listing)
+		ApplyListingUpdates(&listing)
 
-		exitOnErr(repo.Save(context.Background(), listing), domain.MsgFailedToCreateListing)
+		ExitOnErr(repo.Save(context.Background(), listing), domain.MsgFailedToCreateListing)
 
-		if !flagText {
+		if !FlagText {
 			data, _ := json.MarshalIndent(listing, "", "  ")
 			cmd.Println(string(data))
 			return
 		}
 
 		cmd.Printf("Listing created successfully: %s\n", listing.ID)
-		printListing(cmd, listing)
+		PrintListing(cmd, listing)
 	},
 }

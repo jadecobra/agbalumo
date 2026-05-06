@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"context"
@@ -19,7 +19,7 @@ func TestListingCommands_RunCoverage(t *testing.T) {
 		_ = os.Unsetenv("DATABASE_URL")
 	}()
 
-	repo := initRepo()
+	repo := InitRepo()
 
 	// Ensure the repo is clean
 	listings, _, _ := repo.FindAll(context.Background(), "", "", "", 0.0, 0.0, 0.0, "", "", false, 100, 0)
@@ -53,7 +53,7 @@ func runListingCommandsTestsPart1(t *testing.T, repo domain.ListingRepository) {
 		flagApplyURL = "job.com"
 		flagCompany = "TestCo"
 		flagPayRange = "100k"
-		flagText = false // output json
+		FlagText = false // output json
 
 		listingCreateCmd.Run(listingCreateCmd, nil)
 
@@ -72,19 +72,19 @@ func runListingCommandsTestsPart1(t *testing.T, repo domain.ListingRepository) {
 		assert.Equal(t, domain.Category("Service"), found.Type)
 		assert.Equal(t, "Accra", found.City)
 
-		// Run with flagText = true to hit the format print path
+		// Run with FlagText = true to hit the format print path
 		flagTitle = "CLI Test Create Text"
-		flagText = true
+		FlagText = true
 		listingCreateCmd.Run(listingCreateCmd, nil)
 	})
 
 	t.Run("List", func(t *testing.T) {
 		// Output text
-		flagText = true
+		FlagText = true
 		listingListCmd.Run(listingListCmd, nil)
 
 		// Output JSON
-		flagText = false
+		FlagText = false
 		listingListCmd.Run(listingListCmd, nil)
 	})
 
@@ -94,11 +94,11 @@ func runListingCommandsTestsPart1(t *testing.T, repo domain.ListingRepository) {
 			targetID := allListings[0].ID
 
 			// JSON format
-			flagText = false
+			FlagText = false
 			listingGetCmd.Run(listingGetCmd, []string{targetID})
 
 			// Text format
-			flagText = true
+			FlagText = true
 			listingGetCmd.Run(listingGetCmd, []string{targetID})
 		}
 	})
@@ -131,7 +131,7 @@ func runListingCommandsTestsPart2(t *testing.T, repo domain.ListingRepository) {
 			flagPayRange = "200k"
 
 			// JSON output
-			flagText = false
+			FlagText = false
 			listingUpdateCmd.Run(listingUpdateCmd, []string{targetID})
 
 			updated, err := repo.FindByID(context.Background(), targetID)
@@ -143,7 +143,7 @@ func runListingCommandsTestsPart2(t *testing.T, repo domain.ListingRepository) {
 			// Hit the text output path
 			flagTitle = "Updated Title 2"
 			flagRemoveImage = false
-			flagText = true
+			FlagText = true
 			listingUpdateCmd.Run(listingUpdateCmd, []string{targetID})
 		}
 	})

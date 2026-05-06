@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var adminCmd = &cobra.Command{
+var AdminCmd = &cobra.Command{
 	Use:   "admin",
 	Short: "Admin operations",
 	Long: `The admin command provides administrative subcommands for managing 
@@ -18,11 +18,11 @@ and viewing claim requests.`,
 
 func runListingStatusCmd(status domain.ListingStatus, action string) func(*cobra.Command, []string) {
 	return func(cmd *cobra.Command, args []string) {
-		repo := initRepo()
+		repo := InitRepo()
 		listing, err := repo.FindByID(context.Background(), args[0])
-		exitOnErr(err, "Listing not found")
+		ExitOnErr(err, "Listing not found")
 		listing.Status = status
-		exitOnErr(repo.Save(context.Background(), listing), fmt.Sprintf("Failed to %s listing", action))
+		ExitOnErr(repo.Save(context.Background(), listing), fmt.Sprintf("Failed to %s listing", action))
 		fmt.Printf("Listing %sd: %s\n", action, args[0])
 	}
 }
@@ -45,13 +45,13 @@ var adminFeaturedCmd = &cobra.Command{
 	Short: "Toggle featured status of a listing",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		repo := initRepo()
+		repo := InitRepo()
 
 		listing, err := repo.FindByID(context.Background(), args[0])
-		exitOnErr(err, "Listing not found")
+		ExitOnErr(err, "Listing not found")
 
 		listing.Featured = !listing.Featured
-		exitOnErr(repo.Save(context.Background(), listing), domain.MsgFailedToUpdateListing)
+		ExitOnErr(repo.Save(context.Background(), listing), domain.MsgFailedToUpdateListing)
 
 		status := "featured"
 		if !listing.Featured {
@@ -65,12 +65,12 @@ var adminPendingClaimsCmd = &cobra.Command{
 	Use:   "pending-claims",
 	Short: "List pending claim requests",
 	Run: func(cmd *cobra.Command, args []string) {
-		repo := initRepo()
+		repo := InitRepo()
 
 		claims, err := repo.GetPendingClaimRequests(context.Background())
-		exitOnErr(err, "Failed to get pending claims")
+		ExitOnErr(err, "Failed to get pending claims")
 
-		if printListResponse(cmd, claims, len(claims), "No pending claim requests") {
+		if PrintListResponse(cmd, claims, len(claims), "No pending claim requests") {
 			return
 		}
 
@@ -86,12 +86,12 @@ var adminUsersCmd = &cobra.Command{
 	Use:   "users",
 	Short: "List all users",
 	Run: func(cmd *cobra.Command, args []string) {
-		repo := initRepo()
+		repo := InitRepo()
 
 		users, err := repo.GetAllUsers(context.Background(), 100, 0)
-		exitOnErr(err, "Failed to get users")
+		ExitOnErr(err, "Failed to get users")
 
-		if printListResponse(cmd, users, len(users), "No users found") {
+		if PrintListResponse(cmd, users, len(users), "No users found") {
 			return
 		}
 
@@ -111,25 +111,24 @@ var adminPromoteCmd = &cobra.Command{
 	Short: "Promote a user to admin by user ID",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		repo := initRepo()
+		repo := InitRepo()
 
 		user, err := repo.FindUserByID(context.Background(), args[0])
-		exitOnErr(err, "User not found")
+		ExitOnErr(err, "User not found")
 
 		user.Role = domain.UserRoleAdmin
-		exitOnErr(repo.SaveUser(context.Background(), user), "Failed to promote user")
+		ExitOnErr(repo.SaveUser(context.Background(), user), "Failed to promote user")
 
 		fmt.Printf("User promoted to admin: %s\n", args[0])
 	},
 }
 
 func init() {
-	adminCmd.AddCommand(adminApproveCmd)
-	adminCmd.AddCommand(adminRejectCmd)
-	adminCmd.AddCommand(adminFeaturedCmd)
-	adminCmd.AddCommand(adminPendingClaimsCmd)
-	adminCmd.AddCommand(adminUsersCmd)
-	adminCmd.AddCommand(adminPromoteCmd)
+	AdminCmd.AddCommand(adminApproveCmd)
+	AdminCmd.AddCommand(adminRejectCmd)
+	AdminCmd.AddCommand(adminFeaturedCmd)
+	AdminCmd.AddCommand(adminPendingClaimsCmd)
+	AdminCmd.AddCommand(adminUsersCmd)
+	AdminCmd.AddCommand(adminPromoteCmd)
 
-	rootCmd.AddCommand(adminCmd)
 }

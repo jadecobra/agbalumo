@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"context"
@@ -23,7 +23,7 @@ and uses the Google Geocoding API to attempt to populate the city.`,
 			os.Exit(1)
 		}
 
-		repo := initRepo()
+		repo := InitRepo()
 		geocodingSvc := service.NewGoogleGeocodingService(cfg.GoogleMapsAPIKey)
 		ctx := context.Background()
 
@@ -67,5 +67,4 @@ and uses the Google Geocoding API to attempt to populate the city.`,
 }
 
 func init() {
-	rootCmd.AddCommand(listingBackfillCitiesCmd)
 }

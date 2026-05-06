@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var seedCmd = &cobra.Command{
+var SeedCmd = &cobra.Command{
 	Use:   "seed",
 	Short: "Seed the database with initial data",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -32,7 +32,6 @@ var seedCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(seedCmd)
 }
 
 // ResolveSeedConfig determines the database path from arguments or environment variables.

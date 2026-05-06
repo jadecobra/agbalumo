@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var categoryCmd = &cobra.Command{
+var CategoryCmd = &cobra.Command{
 	Use:   "category",
 	Short: "Manage categories",
 	Long: `The category command provides subcommands to add and list categories 
@@ -24,7 +24,7 @@ properly classify and filter listings.`,
   agbalumo category add "Professional Services" --claimable`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		repo := initRepo()
+		repo := InitRepo()
 
 		name := args[0]
 		claimable, _ := cmd.Flags().GetBool("claimable")
@@ -36,7 +36,7 @@ properly classify and filter listings.`,
 			Active:    true,  // active by default
 		}
 
-		exitOnErr(repo.SaveCategory(context.Background(), cat), "Failed to save category")
+		ExitOnErr(repo.SaveCategory(context.Background(), cat), "Failed to save category")
 
 		fmt.Printf("Successfully added category: '%s'\n", name)
 	},
@@ -46,12 +46,12 @@ var categoryListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all active categories",
 	Run: func(cmd *cobra.Command, args []string) {
-		repo := initRepo()
+		repo := InitRepo()
 
 		categories, err := repo.GetCategories(context.Background(), domain.CategoryFilter{ActiveOnly: false})
-		exitOnErr(err, "Failed to get categories")
+		ExitOnErr(err, "Failed to get categories")
 
-		if printListResponse(cmd, categories, len(categories), "No categories found.") {
+		if PrintListResponse(cmd, categories, len(categories), "No categories found.") {
 			return
 		}
 
@@ -66,8 +66,7 @@ var categoryListCmd = &cobra.Command{
 
 func init() {
 	categoryAddCmd.Flags().BoolP("claimable", "c", false, "Is this category claimable?")
-	categoryCmd.AddCommand(categoryAddCmd)
-	categoryCmd.AddCommand(categoryListCmd)
+	CategoryCmd.AddCommand(categoryAddCmd)
+	CategoryCmd.AddCommand(categoryListCmd)
 
-	rootCmd.AddCommand(categoryCmd)
 }

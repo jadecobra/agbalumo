@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"context"
@@ -13,22 +13,22 @@ var listingUpdateCmd = &cobra.Command{
 	Short: "Update a listing",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		repo := initRepo()
+		repo := InitRepo()
 
 		listing, err := repo.FindByID(context.Background(), args[0])
-		exitOnErr(err, "Listing not found")
+		ExitOnErr(err, "Listing not found")
 
-		applyListingUpdates(&listing)
+		ApplyListingUpdates(&listing)
 
-		exitOnErr(repo.Save(context.Background(), listing), domain.MsgFailedToUpdateListing)
+		ExitOnErr(repo.Save(context.Background(), listing), domain.MsgFailedToUpdateListing)
 
-		if !flagText {
+		if !FlagText {
 			data, _ := json.MarshalIndent(listing, "", "  ")
 			cmd.Println(string(data))
 			return
 		}
 
 		cmd.Printf("Listing updated successfully: %s\n", listing.ID)
-		printListing(cmd, listing)
+		PrintListing(cmd, listing)
 	},
 }

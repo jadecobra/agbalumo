@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 
 // Listing flags are now defined in shared.go
 
-var listingCmd = &cobra.Command{
+var ListingCmd = &cobra.Command{
 	Use:   "listing",
 	Short: "Manage listings",
 	Long: `The listing command provides subcommands to create, list, retrieve, update, and delete 
@@ -20,26 +20,25 @@ products, jobs, events, or requests within the community.`,
 }
 
 func init() {
-	listingCmd.AddCommand(listingCreateCmd)
-	listingCmd.AddCommand(listingListCmd)
-	listingCmd.AddCommand(listingGetCmd)
-	listingCmd.AddCommand(listingUpdateCmd)
-	listingCmd.AddCommand(listingDeleteCmd)
-	listingCmd.AddCommand(listingBackfillCitiesCmd)
+	ListingCmd.AddCommand(listingCreateCmd)
+	ListingCmd.AddCommand(listingListCmd)
+	ListingCmd.AddCommand(listingGetCmd)
+	ListingCmd.AddCommand(listingUpdateCmd)
+	ListingCmd.AddCommand(listingDeleteCmd)
+	ListingCmd.AddCommand(listingBackfillCitiesCmd)
 
-	rootCmd.AddCommand(listingCmd)
 
-	bindListingFlags(listingCreateCmd, false)
-	bindListingFlags(listingUpdateCmd, true)
+	BindListingFlags(listingCreateCmd, false)
+	BindListingFlags(listingUpdateCmd, true)
 
 	_ = listingCreateCmd.MarkFlagRequired(domain.FieldTitle)
 }
 
-func generateID() string {
+func GenerateID() string {
 	return fmt.Sprintf("cli-%s", uuid.New().String()[:8])
 }
 
-func printListing(cmd *cobra.Command, l domain.Listing) {
+func PrintListing(cmd *cobra.Command, l domain.Listing) {
 	cmd.Println("==================================")
 	cmd.Printf("ID:              %s\n", l.ID)
 	cmd.Printf("Title:           %s\n", l.Title)
@@ -75,6 +74,6 @@ func printListing(cmd *cobra.Command, l domain.Listing) {
 	}
 }
 
-func printListingSummary(cmd *cobra.Command, l domain.Listing) {
+func PrintListingSummary(cmd *cobra.Command, l domain.Listing) {
 	cmd.Printf("[%s] %s - %s (%s) [%s]\n", l.ID, l.Title, l.Type, l.City, l.Status)
 }

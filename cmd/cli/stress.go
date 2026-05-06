@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 
 var stressCount int
 
-var stressCmd = &cobra.Command{
+var StressCmd = &cobra.Command{
 	Use:   "stress",
 	Short: "Generate stress test data for listings",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -46,6 +46,5 @@ var stressCmd = &cobra.Command{
 }
 
 func init() {
-	stressCmd.Flags().IntVarP(&stressCount, "count", "c", 10000, "Number of listings to generate")
-	rootCmd.AddCommand(stressCmd)
+	StressCmd.Flags().IntVarP(&stressCount, "count", "c", 10000, "Number of listings to generate")
 }

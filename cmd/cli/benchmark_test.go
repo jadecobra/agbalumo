@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"path/filepath"
@@ -17,12 +17,8 @@ func TestBenchmarkCmd_Success(t *testing.T) {
 		t.Fatalf("failed to open test database: %v", err)
 	}
 
-	rootCmd.SetArgs([]string{"benchmark", dbPath, "--warmup"})
-
-	err = rootCmd.Execute()
-	if err != nil {
-		t.Fatalf("unexpected error executing benchmark command: %v", err)
-	}
+	warmup = true
+	BenchmarkCmd.Run(BenchmarkCmd, []string{dbPath})
 
 	// Make sure warmup flag successfully resets
 	warmup = false // Reset manually for testing environment pollution

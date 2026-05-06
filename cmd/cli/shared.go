@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"encoding/json"
@@ -14,6 +14,7 @@ import (
 )
 
 var (
+	FlagText        bool
 	flagTitle       string
 	flagType        string
 	flagOrigin      string
@@ -45,8 +46,8 @@ const (
 	defaultType   = "Business"
 )
 
-func initRepo() *sqlite.SQLiteRepository {
-	dbPath := getDatabaseURL()
+func InitRepo() *sqlite.SQLiteRepository {
+	dbPath := GetDatabaseURL()
 	repo, err := sqlite.NewSQLiteRepository(dbPath)
 	if err != nil {
 		slog.Error("Failed to connect to database", "error", err)
@@ -55,22 +56,22 @@ func initRepo() *sqlite.SQLiteRepository {
 	return repo
 }
 
-func getDatabaseURL() string {
+func GetDatabaseURL() string {
 	if dbURL := os.Getenv(domain.EnvKeyDatabaseURL); dbURL != "" {
 		return dbURL
 	}
 	return domain.DefaultDatabaseURL
 }
 
-func exitOnErr(err error, msg string) {
+func ExitOnErr(err error, msg string) {
 	if err != nil {
 		slog.Error(msg, "error", err)
 		os.Exit(1)
 	}
 }
 
-// bindListingFlags adds all common listing flags to the given command.
-func bindListingFlags(cmd *cobra.Command, isUpdate bool) {
+// BindListingFlags adds all common listing flags to the given command.
+func BindListingFlags(cmd *cobra.Command, isUpdate bool) {
 	f := cmd.Flags()
 	if isUpdate {
 		f.StringVarP(&flagTitle, domain.FieldTitle, "t", "", "New title")
@@ -145,7 +146,7 @@ func applyTime(flag, layout, name string, dst *time.Time) {
 	}
 }
 
-func applyListingUpdates(listing *domain.Listing) {
+func ApplyListingUpdates(listing *domain.Listing) {
 	applyStringField(flagTitle, &listing.Title)
 	applyStringField(flagDescription, &listing.Description)
 	applyStringField(flagCity, &listing.City)
@@ -168,9 +169,9 @@ func applyListingUpdates(listing *domain.Listing) {
 	applyStringField(flagPayRange, &listing.PayRange)
 }
 
-func printListResponse(cmd *cobra.Command, items any, count int, emptyMsg string) bool {
+func PrintListResponse(cmd *cobra.Command, items any, count int, emptyMsg string) bool {
 	if count == 0 {
-		if !flagText {
+		if !FlagText {
 			cmd.Println("[]")
 		} else {
 			cmd.Println(emptyMsg)
@@ -178,7 +179,7 @@ func printListResponse(cmd *cobra.Command, items any, count int, emptyMsg string
 		return true
 	}
 
-	if !flagText {
+	if !FlagText {
 		data, _ := json.MarshalIndent(items, "", "  ")
 		cmd.Println(string(data))
 		return true

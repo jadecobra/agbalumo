@@ -5,21 +5,21 @@ import (
 	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/module"
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
+	"github.com/jadecobra/agbalumo/internal/module"
 	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
 )
 
 type AdminDashboardViewModel struct {
-	ClaimRequests   []domain.ClaimRequest
-	FeedbackCounts  map[domain.FeedbackType]int
-	ListingGrowth   []domain.DailyMetric
-	UserGrowth      []domain.DailyMetric
-	Feedbacks       []domain.Feedback
-	Users           []domain.User
-	Categories      []domain.CategoryData
-	FlashMessage    interface{}
+	ClaimRequests  []domain.ClaimRequest
+	FeedbackCounts map[domain.FeedbackType]int
+	ListingGrowth  []domain.DailyMetric
+	UserGrowth     []domain.DailyMetric
+	Feedbacks      []domain.Feedback
+	Users          []domain.User
+	Categories     []domain.CategoryData
+	FlashMessage   interface{}
 	module.BaseViewData
 	AdaDiscoveryAvg float64
 	UserCount       int

@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 
 var warmup bool
 
-var benchmarkCmd = &cobra.Command{
+var BenchmarkCmd = &cobra.Command{
 	Use:   "benchmark",
 	Short: "Run read-heavy queries to benchmark SQLite performance",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -73,6 +73,5 @@ var benchmarkCmd = &cobra.Command{
 }
 
 func init() {
-	benchmarkCmd.Flags().BoolVar(&warmup, "warmup", false, "Execute queries 5 times in a loop before measuring time")
-	rootCmd.AddCommand(benchmarkCmd)
+	BenchmarkCmd.Flags().BoolVar(&warmup, "warmup", false, "Execute queries 5 times in a loop before measuring time")
 }

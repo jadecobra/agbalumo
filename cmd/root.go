@@ -1,10 +1,9 @@
 package cmd
 
 import (
+	"github.com/jadecobra/agbalumo/cmd/cli"
 	"github.com/spf13/cobra"
 )
-
-var flagText bool
 
 var rootCmd = &cobra.Command{
 	Use:   "agbalumo",
@@ -33,5 +32,6 @@ func Execute() error {
 }
 
 func init() {
-	rootCmd.PersistentFlags().BoolVar(&flagText, "text", false, "Output in human-readable text format (JSON is default)")
+	rootCmd.PersistentFlags().BoolVar(&cli.FlagText, "text", false, "Output in human-readable text format (JSON is default)")
+	cli.RegisterCommands(rootCmd)
 }

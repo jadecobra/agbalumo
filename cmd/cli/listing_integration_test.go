@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"context"
@@ -19,7 +19,7 @@ func TestListingCLI_ImageFlags(t *testing.T) {
 		_ = os.Unsetenv("DATABASE_URL")
 	}()
 
-	repo := initRepo()
+	repo := InitRepo()
 
 	// 1. Create a listing with an image via CLI
 	listingID := "cli-test-image"

@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"context"
@@ -14,7 +14,7 @@ var listingDeleteCmd = &cobra.Command{
 	Short: "Delete a listing",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		repo := initRepo()
+		repo := InitRepo()
 
 		if err := repo.Delete(context.Background(), args[0]); err != nil {
 			slog.Error("Failed to delete listing", "error", err)
