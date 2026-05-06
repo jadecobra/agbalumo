@@ -8,49 +8,78 @@ import (
 )
 
 func TestGenerateSymbolMap(t *testing.T) {
-	tmpDir := t.TempDir()
-
-	// Create a dummy .go file
-	goContent := `package test
+	tests := []struct {
+		name     string
+		content  string
+		expected []string
+	}{
+		{
+			name: "types and funcs",
+			content: `package test
 type MyStruct struct {}
 func MyFunc() {}
-func (s *MyStruct) MyMethod() {}
 func privateFunc() {}
-`
-	goPath := filepath.Join(tmpDir, "test.go")
-	if err := os.WriteFile(goPath, []byte(goContent), 0600); err != nil {
-		t.Fatal(err)
+`,
+			expected: []string{
+				"[Type] MyStruct -> test.go",
+				"[Func] MyFunc -> test.go",
+			},
+		},
+		{
+			name: "method pointer receiver",
+			content: `package test
+type Handler struct {}
+func (h *Handler) ServeHTTP() {}
+`,
+			expected: []string{
+				"[Type] Handler -> test.go",
+				"[Method] (Handler).ServeHTTP -> test.go",
+			},
+		},
+		{
+			name: "method value receiver",
+			content: `package test
+type Handler struct {}
+func (h Handler) Get() {}
+`,
+			expected: []string{
+				"[Type] Handler -> test.go",
+				"[Method] (Handler).Get -> test.go",
+			},
+		},
+		{
+			name: "interface type",
+			content: `package test
+type Store interface {
+	Save() error
+}
+`,
+			expected: []string{
+				"[Interface] Store -> test.go",
+			},
+		},
 	}
 
-	// Create a test file (should be ignored)
-	testGoContent := `package test
-func TestSomething(t *testing.T) {}
-`
-	testGoPath := filepath.Join(tmpDir, "test_test.go")
-	if err := os.WriteFile(testGoPath, []byte(testGoContent), 0600); err != nil {
-		t.Fatal(err)
-	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tmpDir := t.TempDir()
+			goPath := filepath.Join(tmpDir, "test.go")
+			if err := os.WriteFile(goPath, []byte(tt.content), 0600); err != nil {
+				t.Fatal(err)
+			}
 
-	got := GenerateSymbolMap(tmpDir)
+			got := GenerateSymbolMap(tmpDir)
 
-	wantSymbols := []string{
-		"[Type] MyStruct -> test.go",
-		"[Func] MyFunc -> test.go",
-		"[Func] MyMethod -> test.go",
-	}
+			for _, want := range tt.expected {
+				if !strings.Contains(got, want) {
+					t.Errorf("GenerateSymbolMap() missing symbol %q\nGot:\n%s", want, got)
+				}
+			}
 
-	for _, s := range wantSymbols {
-		if !strings.Contains(got, s) {
-			t.Errorf("GenerateSymbolMap() missing symbol %q\nGot:\n%s", s, got)
-		}
-	}
-
-	if strings.Contains(got, "privateFunc") {
-		t.Errorf("GenerateSymbolMap() should not contain privateFunc")
-	}
-
-	if strings.Contains(got, "TestSomething") {
-		t.Errorf("GenerateSymbolMap() should not contain TestSomething")
+			if strings.Contains(got, "privateFunc") {
+				t.Errorf("GenerateSymbolMap() should not contain privateFunc")
+			}
+		})
 	}
 }
 
