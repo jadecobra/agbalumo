@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestFeedbackHandler_HandleModal(t *testing.T) {
+func TestFeedbackHandler_HandleFeedbackForm(t *testing.T) {
 	t.Parallel()
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/feedback/modal", nil)
@@ -27,7 +27,7 @@ func TestFeedbackHandler_HandleModal(t *testing.T) {
 
 	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 
-	err := h.HandleModal(c)
+	err := h.HandleFeedbackForm(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
 }

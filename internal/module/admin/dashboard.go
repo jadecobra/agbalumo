@@ -2,26 +2,28 @@ package admin
 
 import (
 	"context"
-	"net/http"
 	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/module"
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
 	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
 )
 
-type dashboardData struct {
+type AdminDashboardViewModel struct {
 	ClaimRequests   []domain.ClaimRequest
 	FeedbackCounts  map[domain.FeedbackType]int
 	ListingGrowth   []domain.DailyMetric
 	UserGrowth      []domain.DailyMetric
 	Feedbacks       []domain.Feedback
-	Categories      []domain.CategoryData
 	Users           []domain.User
+	Categories      []domain.CategoryData
+	FlashMessage    interface{}
+	module.BaseViewData
+	AdaDiscoveryAvg float64
 	UserCount       int
 	ListingCount    int
-	AdaDiscoveryAvg float64
 }
 
 // HandleDashboard renders the admin dashboard.
@@ -42,25 +44,26 @@ func (h *AdminHandler) HandleDashboard(c echo.Context) error {
 		}
 	}
 
-	return c.Render(http.StatusOK, "admin_dashboard.html", map[string]interface{}{
-		"ClaimRequests":  data.ClaimRequests,
-		"UserCount":      data.UserCount,
-		"FeedbackCounts": data.FeedbackCounts,
-		"ListingGrowth":  data.ListingGrowth,
-		"UserGrowth":     data.UserGrowth,
-		"Feedbacks":      data.Feedbacks,
-		"User":           c.Get(domain.CtxKeyUser),
+	vm := AdminDashboardViewModel{
+		BaseViewData:    h.PopulateBase(c),
+		ClaimRequests:   data.ClaimRequests,
+		FeedbackCounts:  data.FeedbackCounts,
+		ListingGrowth:   data.ListingGrowth,
+		UserGrowth:      data.UserGrowth,
+		Feedbacks:       data.Feedbacks,
+		Users:           data.Users,
+		Categories:      data.Categories,
+		UserCount:       data.UserCount,
+		ListingCount:    data.ListingCount,
+		AdaDiscoveryAvg: data.AdaDiscoveryAvg,
+		FlashMessage:    flashMsg,
+	}
 
-		"FlashMessage":    flashMsg,
-		"ListingCount":    data.ListingCount,
-		"Categories":      data.Categories,
-		"Users":           data.Users,
-		"AdaDiscoveryAvg": data.AdaDiscoveryAvg,
-	})
+	return h.RenderTyped(c, "admin_dashboard.html", vm)
 }
 
-func (h *AdminHandler) loadDashboardData(ctx context.Context, c echo.Context) (dashboardData, error) {
-	var data dashboardData
+func (h *AdminHandler) loadDashboardData(ctx context.Context, c echo.Context) (AdminDashboardViewModel, error) {
+	var data AdminDashboardViewModel
 	var err error
 
 	data.ClaimRequests, err = h.App.DB.GetPendingClaimRequests(ctx)

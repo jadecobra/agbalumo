@@ -7,29 +7,41 @@ import (
 	"github.com/google/uuid"
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/infra/env"
+	"github.com/jadecobra/agbalumo/internal/module"
 	"github.com/jadecobra/agbalumo/internal/module/user"
 	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
 )
 
 type FeedbackHandler struct {
-	App *env.AppEnv
+	module.BaseHandler
 }
 
 func NewFeedbackHandler(app *env.AppEnv) *FeedbackHandler {
-	return &FeedbackHandler{App: app}
+	return &FeedbackHandler{
+		BaseHandler: module.BaseHandler{App: app},
+	}
+}
+
+type FeedbackViewModel struct {
+	Path string
+	module.BaseViewData
 }
 
 // RegisterRoutes registers the feedback routes
 func (h *FeedbackHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddleware) {
 	feedbackGroup := e.Group("/feedback", authMw.RequireAuth)
-	feedbackGroup.GET("/modal", h.HandleModal)
+	feedbackGroup.GET("/modal", h.HandleFeedbackForm)
 	feedbackGroup.POST("", h.HandleSubmit)
 }
 
-// HandleModal renders the feedback modal form
-func (h *FeedbackHandler) HandleModal(c echo.Context) error {
-	return c.Render(http.StatusOK, "modal_feedback.html", nil)
+// HandleFeedbackForm renders the feedback modal form
+func (h *FeedbackHandler) HandleFeedbackForm(c echo.Context) error {
+	vm := FeedbackViewModel{
+		BaseViewData: h.PopulateBase(c),
+		Path:         c.Request().URL.Path,
+	}
+	return h.RenderTyped(c, "modal_feedback.html", vm)
 }
 
 // HandleSubmit processes the feedback form submission

@@ -9,13 +9,17 @@ import (
 
 // BaseViewData represents the common data required by all page templates.
 type BaseViewData struct {
-	User          interface{}
-	Counts        map[string]int
-	Env           string
-	CSRF          string
-	Categories    []domain.CategoryData
-	DevMode       bool
-	HasGoogleAuth bool
+	User             interface{}
+	Counts           map[string]int
+	Env              string
+	CSRF             string
+	Categories       []domain.CategoryData
+	FilterType       string
+	City             string
+	GoogleMapsApiKey string
+	Radius           float64
+	DevMode          bool
+	HasGoogleAuth    bool
 }
 
 // BaseHandler provides shared dependencies and utilities for all module handlers.
@@ -34,9 +38,10 @@ func (h *BaseHandler) LogError(c echo.Context, msg string, err error) {
 // and returns a BaseViewData struct.
 func (h *BaseHandler) PopulateBase(c echo.Context) BaseViewData {
 	data := BaseViewData{
-		Env:           h.App.Cfg.Env,
-		DevMode:       h.App.Cfg.Env == "development",
-		HasGoogleAuth: h.App.Cfg.HasGoogleAuth,
+		Env:              h.App.Cfg.Env,
+		DevMode:          h.App.Cfg.Env == "development",
+		HasGoogleAuth:    h.App.Cfg.HasGoogleAuth,
+		GoogleMapsApiKey: h.App.Cfg.GoogleMapsAPIKey,
 	}
 
 	categories, err := h.App.CategorizationSvc.GetActiveCategories(c.Request().Context())
