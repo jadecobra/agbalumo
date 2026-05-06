@@ -34,8 +34,8 @@ User Request → `cmd/serve.go` → `cmd/server.go::SetupServer()` → `internal
 - Implementation: `internal/repository/sqlite/sqlite.go::SQLiteRepository`
 
 ## Verification Tools
-Run `go run ./cmd/verify map --depth 2` for directory tree.
-Run `go run ./cmd/verify map --symbols` for exported type/func index.
-Run `go run ./cmd/verify map --templates` for template dependency graph.
-Run `go run ./cmd/verify schema` for SQLite schema.
-Run `go run ./cmd/verify trace` for request lifecycle observability.
+- Run `go run ./cmd/verify map --depth 2` for directory tree.
+- Run `go run ./cmd/verify map --symbols` for exported type/func index.
+- Run `go run ./cmd/verify map --templates` for template dependency graph.
+- Run `go run ./cmd/verify schema` for SQLite schema.
+- Run `go run ./cmd/verify trace` for request lifecycle observability.

@@ -25,6 +25,16 @@ var mapCmd = &cobra.Command{
 			return nil
 		}
 
+		routes, _ := cmd.Flags().GetBool("routes")
+		if routes {
+			res, err := maintenance.GenerateRouteMap()
+			if err != nil {
+				return err
+			}
+			fmt.Println(res)
+			return nil
+		}
+
 		fmt.Println(maintenance.GeneratePrunedTree(".", depth))
 		return nil
 	},
@@ -34,4 +44,5 @@ func init() {
 	mapCmd.Flags().Int("depth", 2, "Max depth for directory tree")
 	mapCmd.Flags().Bool("symbols", false, "Generate symbol map")
 	mapCmd.Flags().Bool("templates", false, "Generate template map")
+	mapCmd.Flags().Bool("routes", false, "Generate route map from live server bootstrap")
 }
