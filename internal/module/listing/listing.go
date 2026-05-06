@@ -46,6 +46,35 @@ func (h *ListingHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddlewa
 	authGroup.GET("/saved", h.HandleSavedListings)
 }
 
+type HomeViewModel struct {
+	module.BaseViewData
+	Listings         []domain.Listing
+	Featured         []domain.Listing
+	Locations        []domain.Location
+	SavedIDs         map[string]bool
+	Query            string
+	City             string
+	FilterType       string
+	GoogleMapsApiKey string
+	Source           string
+	Radius           float64
+	TotalCount       int
+	Pagination       Pagination
+}
+
+type ListingFragmentViewModel struct {
+	Listings   []domain.Listing
+	Featured   []domain.Listing
+	SavedIDs   map[string]bool
+	User       interface{}
+	Query      string
+	City       string
+	FilterType string
+	Source     string
+	Radius     float64
+	Pagination Pagination
+}
+
 // Home Handler
 func (h *ListingHandler) HandleHome(c echo.Context) error {
 	ctx := c.Request().Context()
@@ -60,30 +89,22 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 
 	var (
 		listings   []domain.Listing
-		counts     map[domain.Category]int
 		featured   []domain.Listing
 		locations  []domain.Location
-		categories []domain.CategoryData
 		savedIDs   []string
 
-		listingsErr   error
-		countsErr     error
-		featuredErr   error
-		locationsErr  error
-		categoriesErr error
+		listingsErr  error
+		featuredErr  error
+		locationsErr error
 
 		wg sync.WaitGroup
 	)
 
 	var totalCount int
-	wg.Add(4)
+	wg.Add(3)
 	go func() {
 		defer wg.Done()
 		listings, totalCount, listingsErr = h.App.DB.FindAll(ctx, params.Type, params.Query, params.City, lat, lng, params.Radius, "", "", false, limit, p.Offset)
-	}()
-	go func() {
-		defer wg.Done()
-		counts, countsErr = h.App.DB.GetCounts(ctx)
 	}()
 	go func() {
 		defer wg.Done()
@@ -94,11 +115,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		locations, locationsErr = h.App.DB.GetLocations(ctx)
 	}()
 
-	wg.Add(2)
-	go func() {
-		defer wg.Done()
-		categories, categoriesErr = h.App.CategorizationSvc.GetActiveCategories(ctx)
-	}()
+	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		if u := c.Get(domain.CtxKeyUser); u != nil {
@@ -114,32 +131,39 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		return ui.RespondError(c, listingsErr)
 	}
 
-	h.LogError(c, "failed to get listing counts", countsErr)
 	h.LogError(c, "failed to get featured listings", featuredErr)
 	h.LogError(c, "failed to get locations", locationsErr)
-	h.LogError(c, "failed to get categories", categoriesErr)
 
 	h.processListings(listings)
 	h.processListings(featured)
 
-	return h.RenderWithBaseContext(c, domain.TemplateIndex, map[string]interface{}{
-		"Listings":         listings,
-		"Pagination":       Pagination{Page: p.Page, TotalPages: (totalCount + limit - 1) / limit, HasNextPage: p.Offset+len(listings) < totalCount, TotalCount: totalCount},
-		"FeaturedListings": featured,
-		"Counts":           h.mapCounts(counts),
-		"Locations":        locations,
-		"TotalCount":       totalCount,
-		"Categories":       categories,
-		"Category":         params.Type,
-		"City":             params.City,
-		"Radius":           params.Radius,
-		"QueryText":        params.Query,
-		"User":             c.Get(domain.CtxKeyUser),
-		"SavedIDs":         savedIDs,
-		// NOTE: HandleHome uses goroutines for parallel fetching.
-		// For simpler handlers, use h.buildListingViewData(c, listings).
-		"GoogleMapsApiKey": h.App.Cfg.GoogleMapsAPIKey,
-	})
+	savedMap := make(map[string]bool)
+	for _, id := range savedIDs {
+		savedMap[id] = true
+	}
+
+	vm := HomeViewModel{
+		BaseViewData: h.PopulateBase(c),
+		Listings:     listings,
+		Featured:     featured,
+		SavedIDs:     savedMap,
+		City:         params.City,
+		FilterType:       params.Type,
+		TotalCount:       totalCount,
+		Pagination: Pagination{
+			Page:        p.Page,
+			TotalPages:  (totalCount + limit - 1) / limit,
+			HasNextPage: p.Offset+len(listings) < totalCount,
+			TotalCount:  totalCount,
+		},
+		Locations:        locations,
+		Radius:           params.Radius,
+		GoogleMapsApiKey: h.App.Cfg.GoogleMapsAPIKey,
+		Source:           c.QueryParam("source"),
+		Query:            params.Query,
+	}
+
+	return h.RenderTyped(c, domain.TemplateIndex, vm)
 }
 
 // Fragment Handler (HTMX)
@@ -161,14 +185,30 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	h.processListings(listings)
 	h.processListings(featured)
 
-	data := h.buildListingViewData(c, listings)
-	data["Pagination"] = Pagination{Page: p.Page, TotalPages: (totalCount + p.Limit - 1) / p.Limit, HasNextPage: p.Offset+len(listings) < totalCount, TotalCount: totalCount}
-	data["FeaturedListings"] = featured
-	data["Category"] = params.Type
-	data["City"] = params.City
-	data["Radius"] = params.Radius
-	data["QueryText"] = params.Query
-	return c.Render(http.StatusOK, "listing_list", data)
+	savedIDs := h.getSavedIDs(c)
+	savedMap := make(map[string]bool)
+	for _, id := range savedIDs {
+		savedMap[id] = true
+	}
+
+	vm := ListingFragmentViewModel{
+		Listings:   listings,
+		Featured:   featured,
+		SavedIDs:   savedMap,
+		Query:      params.Query,
+		City:       params.City,
+		FilterType: params.Type,
+		Radius:     params.Radius,
+		Pagination: Pagination{
+			Page:        p.Page,
+			TotalPages:  (totalCount + p.Limit - 1) / p.Limit,
+			HasNextPage: p.Offset+len(listings) < totalCount,
+			TotalCount:  totalCount,
+		},
+		User:   c.Get(domain.CtxKeyUser),
+		Source: c.QueryParam("source"),
+	}
+	return h.RenderTyped(c, "listing_list", vm)
 }
 
 // Detail Handler
@@ -247,19 +287,28 @@ func (h *ListingHandler) processListings(listings []domain.Listing) {
 }
 
 func (h *ListingHandler) buildListingViewData(c echo.Context, listings []domain.Listing) map[string]interface{} {
-	ctx := c.Request().Context()
+	savedIDs := h.getSavedIDs(c)
+	savedMap := make(map[string]bool)
+	for _, id := range savedIDs {
+		savedMap[id] = true
+	}
+
 	data := map[string]interface{}{
 		"Listings": listings,
 		"User":     c.Get(domain.CtxKeyUser),
-	}
-	// Inject saved IDs for authenticated users
-	if u := c.Get(domain.CtxKeyUser); u != nil {
-		if user, ok := u.(*domain.User); ok {
-			savedIDs, _ := h.App.DB.GetSavedListingIDs(ctx, user.ID)
-			data["SavedIDs"] = savedIDs
-		}
+		"SavedIDs": savedMap,
 	}
 	return data
+}
+
+func (h *ListingHandler) getSavedIDs(c echo.Context) []string {
+	if u := c.Get(domain.CtxKeyUser); u != nil {
+		if user, ok := u.(*domain.User); ok {
+			savedIDs, _ := h.App.DB.GetSavedListingIDs(c.Request().Context(), user.ID)
+			return savedIDs
+		}
+	}
+	return nil
 }
 
 func (h *ListingHandler) mapCounts(counts map[domain.Category]int) map[string]int {

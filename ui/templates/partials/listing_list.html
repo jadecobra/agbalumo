@@ -1,7 +1,7 @@
 {{ define "listing_list" }}
 <!-- Featured Section OOB Swap -->
 <div id="featured-section" hx-swap-oob="true">
-    {{ if .FeaturedListings }}
+    {{ if .Featured }}
     <div class="mb-12">
         <div class="flex items-center justify-between mb-8 px-1">
             <h3 class="text-xs font-bold uppercase tracking-[0.4em] text-earth-ochre">Featured Selection</h3>
@@ -9,7 +9,7 @@
         </div>
         <!-- Horizontal Scroll Container -->
         <div class="flex gap-4 overflow-x-auto pb-8 snap-x no-scrollbar">
-            {{ range .FeaturedListings }}
+            {{ range .Featured }}
                 {{ template "featured_card" dict "Listing" . "User" $.User }}
             {{ end }}
         </div>
@@ -45,7 +45,7 @@
         
         <button type="button" data-testid="expand-radius-btn"
             class="px-6 h-12 flex items-center justify-center bg-earth-ochre text-earth-dark font-bold font-display tracking-widest text-xs uppercase hover:bg-earth-ochre-light transition-all shadow-lg shadow-earth-ochre/20 active:scale-95 mx-auto"
-            hx-get="/listings/fragment?radius={{ $nextRadius }}{{ if .City }}&city={{ .City }}{{ end }}{{ if .Category }}&type={{ .Category }}{{ end }}{{ if .QueryText }}&q={{ .QueryText }}{{ end }}" 
+            hx-get="/listings/fragment?radius={{ $nextRadius }}{{ if .City }}&city={{ .City }}{{ end }}{{ if .FilterType }}&type={{ .FilterType }}{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}" 
             hx-target="#listings-container" 
             hx-indicator="#listings-loading"
             data-testid="expand-radius-btn"

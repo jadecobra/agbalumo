@@ -42,8 +42,7 @@
         {{ end }}
 
         {{ if $.User }}
-        {{ $isSaved := false }}
-        {{ range $.SavedIDs }}{{ if eq . $.Listing.ID }}{{ $isSaved = true }}{{ end }}{{ end }}
+        {{ $isSaved := index $.SavedIDs .Listing.ID }}
         {{ template "save_button" dict "ListingID" .Listing.ID "IsSaved" $isSaved }}
         {{ end }}
 

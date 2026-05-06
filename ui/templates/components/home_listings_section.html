@@ -46,7 +46,7 @@
 
         <!-- Featured Section (Ada focus) -->
         <div id="featured-section" hx-swap-oob="true">
-            {{ if .FeaturedListings }}
+            {{ if .Featured }}
             <div class="mb-12">
                 <div class="flex items-center justify-between mb-8 px-1">
                     <h3 class="text-xs font-bold uppercase tracking-[0.4em] text-earth-ochre">Featured Selection</h3>
@@ -54,7 +54,7 @@
                 </div>
                 <!-- Horizontal Scroll Container -->
                 <div class="flex gap-4 overflow-x-auto pb-8 snap-x no-scrollbar">
-                    {{ range .FeaturedListings }}
+                    {{ range .Featured }}
                         {{ template "featured_card" dict "Listing" . "User" $.User }}
                     {{ end }}
                 </div>
