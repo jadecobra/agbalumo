@@ -10,16 +10,16 @@ User Request → `cmd/serve.go` → `cmd/server.go::SetupServer()` → `internal
 
 | User Intent | Handler | Data Access | Template |
 |---|---|---|---|
-| Search for food | `internal/module/listing/listing.go::HandleHome` | `internal/repository/sqlite/sqlite_listing_read.go::FindAll` | `ui/templates/index.html` → `partials/listing_list.html` → `partials/listing_card.html` |
-| View listing detail | `internal/module/listing/listing.go::HandleDetail` | `sqlite_listing_read.go::FindByID` | `partials/modal_detail.html` |
-| Save a listing | `internal/module/listing/listing_save.go::HandleSaveToggle` | `sqlite_saved_listing.go` | `partials/save_button.html` |
-| Filter saved listings | `internal/module/listing/listing_save.go::HandleSavedListings` | `sqlite_saved_listing.go` | `partials/listing_list.html` |
-| Create listing | `internal/module/listing/listing_mutations.go::HandleCreate` | `sqlite_listing_write.go::Save` | `partials/modal_create_listing.html` |
-| Edit listing | `internal/module/listing/listing_mutations.go::HandleUpdate` | `sqlite_listing_write.go::Save` | `partials/modal_edit_listing.html` |
-| Admin dashboard | `internal/module/admin/dashboard.go::HandleDashboard` | `sqlite_stats.go`, `sqlite_listing_read.go` | `admin_dashboard.html` |
-| Auth (Google OAuth) | `internal/module/auth/` | `sqlite_user.go` | redirect flow |
-| Submit feedback | `internal/module/feedback/` | `sqlite/feedback.go` | `partials/modal_feedback.html` |
-| About page | `internal/common/page_handler.go::HandleAbout` | none | `about.html` |
+| Search for food | `internal/module/listing/listing.go` | `internal/repository/sqlite/sqlite_listing_read.go` | `ui/templates/index.html` → `ui/templates/partials/listing_list.html` |
+| View listing detail | `internal/module/listing/listing.go` | `internal/repository/sqlite/sqlite_listing_read.go` | `ui/templates/partials/modal_detail.html` |
+| Save a listing | `internal/module/listing/listing_save.go` | `internal/repository/sqlite/sqlite_saved_listing.go` | `ui/templates/partials/save_button.html` |
+| Filter saved listings | `internal/module/listing/listing_save.go` | `internal/repository/sqlite/sqlite_saved_listing.go` | `ui/templates/partials/listing_list.html` |
+| Create listing | `internal/module/listing/listing_mutations.go` | `internal/repository/sqlite/sqlite_listing_write.go` | `ui/templates/partials/modal_create_listing.html` |
+| Edit listing | `internal/module/listing/listing_mutations.go` | `internal/repository/sqlite/sqlite_listing_write.go` | `ui/templates/partials/modal_edit_listing.html` |
+| Admin dashboard | `internal/module/admin/dashboard.go` | `internal/repository/sqlite/sqlite_stats.go` | `ui/templates/admin_dashboard.html` |
+| Auth (Google OAuth) | `internal/module/auth/` | `internal/repository/sqlite/sqlite_user.go` | redirect flow |
+| Submit feedback | `internal/module/feedback/` | `internal/repository/sqlite/feedback.go` | `ui/templates/partials/modal_feedback.html` |
+| About page | `internal/common/page_handler.go` | none | `ui/templates/about.html` |
 
 ## Module Structure (actual handler locations)
 - `internal/module/listing/` — Public listing CRUD, search, save, featured

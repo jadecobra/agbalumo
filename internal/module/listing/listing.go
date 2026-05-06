@@ -57,9 +57,9 @@ type HomeViewModel struct {
 	FilterType       string
 	GoogleMapsApiKey string
 	Source           string
+	Pagination       Pagination
 	Radius           float64
 	TotalCount       int
-	Pagination       Pagination
 }
 
 type ListingFragmentViewModel struct {
@@ -71,8 +71,8 @@ type ListingFragmentViewModel struct {
 	City       string
 	FilterType string
 	Source     string
-	Radius     float64
 	Pagination Pagination
+	Radius     float64
 }
 
 // Home Handler
@@ -88,10 +88,10 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	}
 
 	var (
-		listings   []domain.Listing
-		featured   []domain.Listing
-		locations  []domain.Location
-		savedIDs   []string
+		listings  []domain.Listing
+		featured  []domain.Listing
+		locations []domain.Location
+		savedIDs  []string
 
 		listingsErr  error
 		featuredErr  error
@@ -148,8 +148,8 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		Featured:     featured,
 		SavedIDs:     savedMap,
 		City:         params.City,
-		FilterType:       params.Type,
-		TotalCount:       totalCount,
+		FilterType:   params.Type,
+		TotalCount:   totalCount,
 		Pagination: Pagination{
 			Page:        p.Page,
 			TotalPages:  (totalCount + limit - 1) / limit,
@@ -288,9 +288,12 @@ func (h *ListingHandler) processListings(listings []domain.Listing) {
 
 func (h *ListingHandler) buildListingViewData(c echo.Context, listings []domain.Listing) map[string]interface{} {
 	savedIDs := h.getSavedIDs(c)
-	savedMap := make(map[string]bool)
-	for _, id := range savedIDs {
-		savedMap[id] = true
+	var savedMap map[string]bool
+	if len(savedIDs) > 0 {
+		savedMap = make(map[string]bool)
+		for _, id := range savedIDs {
+			savedMap[id] = true
+		}
 	}
 
 	data := map[string]interface{}{

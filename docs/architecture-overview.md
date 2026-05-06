@@ -46,7 +46,7 @@ Agbalumo uses a single-file SQLite database with Write-Ahead Logging (WAL) enabl
 - CSRF verification middleware runs on specific POST operations.
 
 ## 6. Dependency Injection
-- All application dependencies are centralized in `internal/infra/env/AppEnv`.
+- All application dependencies are centralized in `internal/infra/env/env.go`.
 - `AppEnv` holds: DB (ListingRepository), Config, Logger, and all service interfaces (CSV, Geocoding, Image, Listing, Categorization, Metrics).
 - Module handlers receive `*AppEnv` via their constructor (e.g., `listing.NewListingHandler(app)`).
 - See `docs/ATLAS.md` for the complete intent-to-file mapping.

@@ -80,7 +80,7 @@ func init() {
 		browserCmd,
 
 		// Drift Domain
-
+		docDriftCmd,
 		apiSpecCmd,
 		templateDriftCmd,
 

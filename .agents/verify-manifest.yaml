@@ -82,6 +82,10 @@ tools:
     trigger: database_comprehension
     description: "Dumps the active SQLite schema deterministically"
 
+  - name: doc-drift
+    trigger: documentation_change
+    description: "Detects stale file path references in architecture docs"
+
   - name: trace
     trigger: observability, request_lifecycle
     description: "Observes the request lifecycle (Middleware -> DB -> UI) with aggressive logging"
