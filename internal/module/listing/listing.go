@@ -75,6 +75,21 @@ type ListingFragmentViewModel struct {
 	Radius     float64
 }
 
+type DetailViewModel struct {
+	module.BaseViewData
+	Listing          domain.Listing
+	Category         domain.CategoryData
+	GoogleMapsApiKey string
+}
+
+type EditViewModel struct {
+	module.BaseViewData
+	Listing          domain.Listing
+	TargetID         string
+	Source           string
+	GoogleMapsApiKey string
+}
+
 // Home Handler
 func (h *ListingHandler) HandleHome(c echo.Context) error {
 	ctx := c.Request().Context()
@@ -224,12 +239,14 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 	// Fetch category data to check if claimable
 	category, _ := h.App.DB.GetCategory(ctx, string(listing.Type))
 
-	return c.Render(http.StatusOK, "modal_detail", map[string]interface{}{
-		"Listing":          listing,
-		"Category":         category,
-		"User":             c.Get(domain.CtxKeyUser),
-		"GoogleMapsApiKey": h.App.Cfg.GoogleMapsAPIKey,
-	})
+	vm := DetailViewModel{
+		BaseViewData:     h.PopulateBase(c),
+		Listing:          listing,
+		Category:         category,
+		GoogleMapsApiKey: h.App.Cfg.GoogleMapsAPIKey,
+	}
+
+	return h.RenderTyped(c, "modal_detail", vm)
 }
 
 // HandleEdit renders the edit modal
@@ -246,13 +263,15 @@ func (h *ListingHandler) HandleEdit(c echo.Context) error {
 	}
 	source := c.QueryParam(domain.ParamSource)
 
-	return h.RenderWithBaseContext(c, "modal_edit_listing", map[string]interface{}{
-		"Listing":          listing,
-		"TargetID":         targetID,
-		"Source":           source,
-		"GoogleMapsApiKey": h.App.Cfg.GoogleMapsAPIKey,
-	})
+	vm := EditViewModel{
+		BaseViewData:     h.PopulateBase(c),
+		Listing:          listing,
+		TargetID:         targetID,
+		Source:           source,
+		GoogleMapsApiKey: h.App.Cfg.GoogleMapsAPIKey,
+	}
 
+	return h.RenderTyped(c, "modal_edit_listing", vm)
 }
 
 // Helper methods

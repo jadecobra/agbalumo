@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jadecobra/agbalumo/internal/common"
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/module"
 	"github.com/jadecobra/agbalumo/internal/module/user"
 	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
@@ -16,6 +17,11 @@ import (
 
 const errTitleExists = "Title already exists. Please choose a different title."
 const tmplListingCard = "listing_card"
+
+type ListingCardViewModel struct {
+	module.BaseViewData
+	Listing *domain.Listing
+}
 
 // Create Handler
 func (h *ListingHandler) HandleCreate(c echo.Context) error {
@@ -150,15 +156,12 @@ func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error
 		return c.NoContent(http.StatusOK)
 	}
 
-	var usr interface{}
-	if u := c.Get(domain.CtxKeyUser); u != nil {
-		usr = u
+	vm := ListingCardViewModel{
+		BaseViewData: h.PopulateBase(c),
+		Listing:      l,
 	}
 
-	return h.RenderWithBaseContext(c, tmplListingCard, map[string]interface{}{
-		"Listing": l,
-		"User":    usr,
-	})
+	return h.RenderTyped(c, tmplListingCard, vm)
 }
 
 func (h *ListingHandler) autoPopulateLocation(ctx context.Context, l *domain.Listing) {

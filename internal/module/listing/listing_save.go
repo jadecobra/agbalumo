@@ -5,9 +5,23 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/module/user"
+	"github.com/jadecobra/agbalumo/internal/module"
 	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
 )
+
+type SavedListingsViewModel struct {
+	module.BaseViewData
+	Listings   []domain.Listing
+	Featured   []domain.Listing
+	SavedIDs   map[string]bool
+	Source     string
+	City       string
+	Radius     float64
+	FilterType string
+	Query      string
+	Pagination Pagination
+}
 
 func (h *ListingHandler) HandleSaveToggle(c echo.Context) error {
 	u, err := user.RequireUserAPI(c)
@@ -51,15 +65,25 @@ func (h *ListingHandler) HandleSavedListings(c echo.Context) error {
 
 	// Fetch full listing objects for saved IDs
 	var listings []domain.Listing
+	savedIDs := make(map[string]bool)
 	for _, sl := range savedListings {
 		l, err := h.App.DB.FindByID(ctx, sl.ListingID)
 		if err != nil {
 			continue // skip deleted listings
 		}
 		listings = append(listings, l)
+		savedIDs[sl.ListingID] = true
 	}
 
-	data := h.buildListingViewData(c, listings)
-	data["Source"] = "saved"
-	return c.Render(http.StatusOK, "listing_list", data)
+	vm := SavedListingsViewModel{
+		BaseViewData: h.PopulateBase(c),
+		Listings:     listings,
+		SavedIDs:     savedIDs,
+		Source:       "saved",
+		Pagination: Pagination{
+			TotalCount: len(listings),
+		},
+	}
+
+	return h.RenderTyped(c, "listing_list", vm)
 }
