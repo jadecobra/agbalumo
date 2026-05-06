@@ -27,6 +27,7 @@ var (
 	templateRegex = regexp.MustCompile(`{{\s*template\s*"([^"]+)"\s*(?:dict\s+(.+?))?\s*}}`)
 	refRegex      = regexp.MustCompile(`(?:\$|)\.(\w+)`)
 	keyRegex      = regexp.MustCompile(`"(\w+)"`)
+	actionRegex   = regexp.MustCompile(`{{(.*?)}}`)
 )
 
 func BuildTemplateGraph(dir string) (map[string]*TemplateNode, error) {
@@ -86,9 +87,15 @@ func processDefinition(path, sContent string, matches [][]int, i int, match []in
 
 func extractNodeReferences(block string) []string {
 	refs := make(map[string]bool)
-	refMatches := refRegex.FindAllStringSubmatch(block, -1)
-	for _, rm := range refMatches {
-		refs[rm[1]] = true
+	// First, find all {{ ... }} blocks
+	actionMatches := actionRegex.FindAllStringSubmatch(block, -1)
+	for _, am := range actionMatches {
+		actionContent := am[1]
+		// Then, find references only within the action content
+		refMatches := refRegex.FindAllStringSubmatch(actionContent, -1)
+		for _, rm := range refMatches {
+			refs[rm[1]] = true
+		}
 	}
 	var sortedRefs []string
 	for r := range refs {
