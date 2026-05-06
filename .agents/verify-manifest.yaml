@@ -48,6 +48,14 @@ commands:
     trigger: skill_change
     description: Validate skill resolver coverage
 
+  - name: root-hygiene
+    trigger: before_commit
+    description: Verify root directory cleanliness
+
+  - name: janitor
+    trigger: root_directory_clutter
+    description: Move stale root artifacts to .tester/
+
 skills:
   - name: go-tdd
     trigger: test_authoring, feature_implementation, bug_fix

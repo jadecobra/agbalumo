@@ -176,3 +176,8 @@ var checkResolvableCmd = makeSimpleCmd("check-resolvable", "Validate skill resol
 	fmt.Println("✅ Skill resolvability check passed.")
 	return nil
 })
+
+var rootHygieneCmd = makeSimpleCmd("root-hygiene", "Verify that the root directory is clean and contains no unexpected files", func() error {
+	fmt.Println("🔍 Checking root directory hygiene...")
+	return maintenance.VerifyRootHygiene(".")
+})

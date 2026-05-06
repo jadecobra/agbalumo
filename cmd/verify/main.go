@@ -114,6 +114,7 @@ func init() {
 		mapCmd,
 		schemaCmd,
 		traceCmd,
+		rootHygieneCmd,
 	)
 }
 

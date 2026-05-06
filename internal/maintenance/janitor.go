@@ -15,6 +15,8 @@ func RunJanitor(rootDir string) error {
 		"precommit_check.txt",
 		"index_test.html",
 		"server.log",
+		"test_output_detail.txt",
+		"listings.db",
 	}
 
 	testerDir := filepath.Join(rootDir, ".tester")
