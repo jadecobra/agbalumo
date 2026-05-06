@@ -3,6 +3,7 @@ package maintenance
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -122,5 +123,33 @@ func checkCardCallers(t *testing.T, card *TemplateNode) {
 	}
 	if !foundListing {
 		t.Errorf("expected 'Listing' in DictKeys for page.html call, got %v", pageCall.DictKeys)
+	}
+}
+
+func TestExtractNodeReferences(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected []string
+	}{
+		{
+			name:     "IgnoreJSAndCSS",
+			input:    `<div>{{ .Listing.Title }}</div><script>let x = document.getElementById();</script><style>margin: .5em;</style>`,
+			expected: []string{"Listing", "Title"},
+		},
+		{
+			name:     "MultipleActions",
+			input:    `{{ .A }} {{ .B }}`,
+			expected: []string{"A", "B"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := extractNodeReferences(tt.input)
+			if strings.Join(got, ",") != strings.Join(tt.expected, ",") {
+				t.Errorf("expected %v, got %v", tt.expected, got)
+			}
+		})
 	}
 }
