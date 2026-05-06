@@ -8,26 +8,33 @@ import (
 )
 
 func (h *ListingHandler) HandleProfile(c echo.Context) error {
-	u, err := user.RequireUser(c)
-	if err != nil || u == nil {
+	uRaw, err := user.RequireUser(c)
+	if err != nil || uRaw == nil {
 		return err
 	}
 
 	p := GetPagination(c, 50)
-	listings, _, err := h.App.DB.FindAllByOwner(c.Request().Context(), u.ID, p.Limit, p.Offset)
+	listings, _, err := h.App.DB.FindAllByOwner(c.Request().Context(), uRaw.ID, p.Limit, p.Offset)
 	if err != nil {
 		return ui.RespondError(c, err)
 	}
 
-	data := map[string]interface{}{
-		"User":             u,
-		"Listings":         listings,
-		"GoogleMapsApiKey": h.App.Cfg.GoogleMapsAPIKey,
+	savedIDs := h.getSavedIDs(c)
+	savedMap := make(map[string]bool)
+	for _, id := range savedIDs {
+		savedMap[id] = true
+	}
+
+	vm := ProfileViewModel{
+		BaseViewData:     h.PopulateBase(c),
+		Listings:         listings,
+		SavedIDs:         savedMap,
+		GoogleMapsApiKey: h.App.Cfg.GoogleMapsAPIKey,
 	}
 
 	if c.Request().Header.Get("HX-Request") == "true" {
-		return h.RenderWithBaseContext(c, "modal_profile", data)
+		return h.RenderTyped(c, "modal_profile", vm)
 	}
 
-	return h.RenderWithBaseContext(c, "profile.html", data)
+	return h.RenderTyped(c, "profile.html", vm)
 }

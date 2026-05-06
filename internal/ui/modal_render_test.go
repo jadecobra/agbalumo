@@ -1,4 +1,4 @@
-package ui
+package ui_test
 
 import (
 	"bytes"
@@ -7,13 +7,15 @@ import (
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/module/listing"
+	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
 )
 
 func TestModalMenuRendering(t *testing.T) {
 	// Initialize renderer with real templates
 	// We need to point to the correct relative path for templates
-	renderer, err := NewTemplateRenderer("../../ui/templates/*.html", "../../ui/templates/partials/*.html", "../../ui/templates/components/*.html")
+	renderer, err := ui.NewTemplateRenderer("../../ui/templates/*.html", "../../ui/templates/partials/*.html", "../../ui/templates/components/*.html")
 	if err != nil {
 		t.Fatalf("Failed to create renderer: %v", err)
 	}
@@ -23,7 +25,7 @@ func TestModalMenuRendering(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	listing := domain.Listing{
+	l := domain.Listing{
 		ID:          "test-123",
 		Title:       "Test Restaurant",
 		Type:        domain.Food,
@@ -34,8 +36,9 @@ func TestModalMenuRendering(t *testing.T) {
 		IsActive:    true,
 	}
 
-	data := echo.Map{
-		"Listing": listing,
+	data := listing.DetailViewModel{
+		Listing:  l,
+		SavedIDs: make(map[string]bool),
 	}
 
 	t.Run("prominent_menu_button_exists", func(t *testing.T) {

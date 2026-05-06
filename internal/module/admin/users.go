@@ -1,13 +1,18 @@
 package admin
 
 import (
-	"net/http"
-
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/module"
 	"github.com/jadecobra/agbalumo/internal/module/listing"
 	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
 )
+
+type AdminUsersViewModel struct {
+	Users []domain.User
+	module.BaseViewData
+	Pagination listing.Pagination
+}
 
 // HandleUsers renders the list of users for admins.
 func (h *AdminHandler) HandleUsers(c echo.Context) error {
@@ -19,10 +24,11 @@ func (h *AdminHandler) HandleUsers(c echo.Context) error {
 	}
 	p.HasNextPage = len(users) == p.Limit
 
-	return c.Render(http.StatusOK, "admin_users.html", map[string]interface{}{
-		"Users": users,
-		"User":  c.Get(domain.CtxKeyUser),
+	vm := AdminUsersViewModel{
+		BaseViewData: h.PopulateBase(c),
+		Users:        users,
+		Pagination:   p,
+	}
 
-		"Pagination": p,
-	})
+	return h.RenderTyped(c, "admin_users.html", vm)
 }

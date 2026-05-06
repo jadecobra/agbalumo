@@ -19,8 +19,8 @@ const errTitleExists = "Title already exists. Please choose a different title."
 const tmplListingCard = "listing_card"
 
 type ListingCardViewModel struct {
-	module.BaseViewData
 	Listing *domain.Listing
+	module.BaseViewData
 }
 
 // Create Handler

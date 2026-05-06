@@ -21,8 +21,8 @@ func NewPageHandler(app *env.AppEnv) *PageHandler {
 
 // AboutViewModel represents the strongly-typed data passed to the about page template.
 type AboutViewModel struct {
-	module.BaseViewData
 	Config *config.Config
+	module.BaseViewData
 }
 
 // HandleAbout renders the generic about page.

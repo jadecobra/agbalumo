@@ -7,10 +7,22 @@ import (
 	"strings"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/module"
 	"github.com/jadecobra/agbalumo/internal/module/listing"
 	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
 )
+
+type AdminListingsViewModel struct {
+	Category  string
+	SortField string
+	SortOrder string
+	QueryText string
+	Listings  []domain.Listing
+	module.BaseViewData
+	Pagination listing.Pagination
+	TotalCount int
+}
 
 const tmplListingTableRow = "admin_listing_table_row"
 
@@ -33,32 +45,23 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 
 	hasNextPage := pagination.Offset+len(listings) < totalCountRows
 
-	counts, err := h.App.DB.GetCounts(ctx)
-	if err != nil {
-		c.Logger().Errorf("failed to get listing counts: %v", err)
-		counts = make(map[domain.Category]int)
+	vm := AdminListingsViewModel{
+		BaseViewData: h.PopulateBase(c),
+		Listings:     listings,
+		Pagination: listing.Pagination{
+			Page:        pagination.Page,
+			TotalPages:  (totalCountRows + pagination.Limit - 1) / pagination.Limit,
+			HasNextPage: hasNextPage,
+			TotalCount:  totalCountRows,
+		},
+		Category:   category,
+		SortField:  sortField,
+		SortOrder:  sortOrder,
+		QueryText:  queryText,
+		TotalCount: totalCountRows,
 	}
 
-	categories, err := h.App.DB.GetCategories(ctx, domain.CategoryFilter{})
-	if err != nil {
-		c.Logger().Errorf("failed to get categories: %v", err)
-		categories = []domain.CategoryData{}
-	}
-
-	strCounts, _ := listing.ConvertCounts(counts)
-
-	return c.Render(http.StatusOK, "admin_listings.html", map[string]interface{}{
-		"Listings":   listings,
-		"Pagination": listing.Pagination{Page: pagination.Page, TotalPages: (totalCountRows + pagination.Limit - 1) / pagination.Limit, HasNextPage: hasNextPage, TotalCount: totalCountRows},
-		"Category":   category,
-		"SortField":  sortField,
-		"SortOrder":  sortOrder,
-		"QueryText":  queryText,
-		"Counts":     strCounts,
-		"Categories": categories,
-		"TotalCount": totalCountRows, // Use totalCountRows from FindAll for consistent count
-		"User":       c.Get(domain.CtxKeyUser),
-	})
+	return h.RenderTyped(c, "admin_listings.html", vm)
 }
 
 // HandleListingRow renders a single table row for a listing.

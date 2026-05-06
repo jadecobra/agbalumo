@@ -47,47 +47,56 @@ func (h *ListingHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddlewa
 }
 
 type HomeViewModel struct {
-	module.BaseViewData
-	Listings         []domain.Listing
-	Featured         []domain.Listing
-	Locations        []domain.Location
 	SavedIDs         map[string]bool
+	Source           string
 	Query            string
 	City             string
 	FilterType       string
 	GoogleMapsApiKey string
-	Source           string
-	Pagination       Pagination
-	Radius           float64
-	TotalCount       int
+	Featured         []domain.Listing
+	Locations        []domain.Location
+	Listings         []domain.Listing
+	module.BaseViewData
+	Pagination Pagination
+	Radius     float64
+	TotalCount int
 }
 
 type ListingFragmentViewModel struct {
-	Listings   []domain.Listing
-	Featured   []domain.Listing
-	SavedIDs   map[string]bool
 	User       interface{}
+	SavedIDs   map[string]bool
 	Query      string
 	City       string
 	FilterType string
 	Source     string
+	Listings   []domain.Listing
+	Featured   []domain.Listing
 	Pagination Pagination
 	Radius     float64
 }
 
 type DetailViewModel struct {
-	module.BaseViewData
-	Listing          domain.Listing
-	Category         domain.CategoryData
 	GoogleMapsApiKey string
+	Category         domain.CategoryData
+	SavedIDs         map[string]bool
+	module.BaseViewData
+	Listing  domain.Listing
+	CanClaim bool
 }
 
 type EditViewModel struct {
-	module.BaseViewData
-	Listing          domain.Listing
 	TargetID         string
 	Source           string
 	GoogleMapsApiKey string
+	module.BaseViewData
+	Listing domain.Listing
+}
+
+type ProfileViewModel struct {
+	SavedIDs         map[string]bool
+	GoogleMapsApiKey string
+	Listings         []domain.Listing
+	module.BaseViewData
 }
 
 // Home Handler
@@ -239,11 +248,20 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 	// Fetch category data to check if claimable
 	category, _ := h.App.DB.GetCategory(ctx, string(listing.Type))
 
+	canClaim := category.Claimable && listing.OwnerID == ""
+	savedIDs := h.getSavedIDs(c)
+	savedMap := make(map[string]bool)
+	for _, id := range savedIDs {
+		savedMap[id] = true
+	}
+
 	vm := DetailViewModel{
 		BaseViewData:     h.PopulateBase(c),
 		Listing:          listing,
 		Category:         category,
 		GoogleMapsApiKey: h.App.Cfg.GoogleMapsAPIKey,
+		CanClaim:         canClaim,
+		SavedIDs:         savedMap,
 	}
 
 	return h.RenderTyped(c, "modal_detail", vm)

@@ -1,10 +1,10 @@
 {{ define "button_sharp" }}
-<button type="{{ if .Type }}{{ .Type }}{{ else }}button{{ end }}" {{ if .ID }}id="{{ .ID }}" {{ end }} {{ if .DataAction
-    }}data-action="{{ .DataAction }}" {{ end }} {{ if .DataTarget }}data-target="{{ .DataTarget }}" {{ end }} {{ if
-    .HXPost }}hx-post="{{ .HXPost }}" {{ end }} {{ if .HXTarget }}hx-target="{{ .HXTarget }}" {{ end }} {{ if .HXSwap
-    }}hx-swap="{{ .HXSwap }}" {{ end }} {{ if .HXConfirm }}hx-confirm="{{ .HXConfirm }}" {{ end }}
-    {{ if .Attr }}{{ .Attr | safeHTMLAttr }}{{ end }}
-    class="{{ if .Classes }}{{ .Classes }}{{ else }}bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark px-8 py-3 font-bold capitalize text-xs tracking-widest transition-all active:scale-95 disabled:opacity-50{{ end }}">
+<button type="{{ if index . "Type" }}{{ .Type }}{{ else }}button{{ end }}" {{ if index . "ID" }}id="{{ .ID }}" {{ end }} {{ if index . "DataAction"
+    }}data-action="{{ .DataAction }}" {{ end }} {{ if index . "DataTarget" }}data-target="{{ .DataTarget }}" {{ end }} {{ if
+    index . "HXPost" }}hx-post="{{ .HXPost }}" {{ end }} {{ if index . "HXTarget" }}hx-target="{{ .HXTarget }}" {{ end }} {{ if index . "HXSwap"
+    }}hx-swap="{{ .HXSwap }}" {{ end }} {{ if index . "HXConfirm" }}hx-confirm="{{ .HXConfirm }}" {{ end }}
+    {{ if index . "Attr" }}{{ .Attr | safeHTMLAttr }}{{ end }}
+    class="{{ if index . "Classes" }}{{ .Classes }}{{ else }}bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark px-8 py-3 font-bold capitalize text-xs tracking-widest transition-all active:scale-95 disabled:opacity-50{{ end }}">
     {{ .Label }}
 </button>
 {{ end }}
@@ -22,21 +22,21 @@
 {{ end }}
 
 {{ define "metric_stat_sharp" }}
-{{ if .Link }}
+{{ if index . "Link" }}
 <a href="{{ .Link }}"
     class="text-center flex-1 flex flex-col items-center py-6 px-4 cursor-pointer hover:bg-earth-ochre/10 transition-colors group"
     title="Click to see more">
     <span class="text-3xl font-serif font-bold text-earth-dark group-hover:text-earth-ochre transition-colors">{{ .Value }}</span>
     <span class="text-[10px] font-bold capitalize tracking-wider mt-1 text-earth-dark opacity-80 group-hover:opacity-100 transition-opacity">{{ .Label }}</span>
 </a>
-{{ else if .HXGet }}
+{{ else if index . "HXGet" }}
 <button type="button" hx-get="{{ .HXGet }}" hx-target="{{ .HXTarget }}" hx-swap="innerHTML" data-testid="metric-stat-btn-{{ .Label }}"
     class="text-center flex-1 flex flex-col items-center py-6 px-4 cursor-pointer hover:bg-earth-ochre/10 transition-colors group focus:outline-none"
     title="Click to see more">
     <span class="text-3xl font-serif font-bold text-earth-dark group-hover:text-earth-ochre transition-colors">{{ .Value }}</span>
     <span class="text-[10px] font-bold capitalize tracking-wider mt-1 text-earth-dark opacity-80 group-hover:opacity-100 transition-opacity">{{ .Label }}</span>
 </button>
-{{ else if .Modal }}
+{{ else if index . "Modal" }}
 <button type="button" data-action="open-modal" data-target="{{ .Modal }}" data-modal-target="{{ .Modal }}"
     class="text-center flex-1 flex flex-col items-center py-6 px-4 cursor-pointer hover:bg-earth-ochre/10 transition-colors group focus:outline-none"
     title="Click to see more">
@@ -53,16 +53,16 @@
 
 {{ define "status_badge_sharp" }}
 <span
-    class="px-2 py-0.5 text-[10px] font-bold capitalize tracking-widest {{ if .ColorClasses }}{{ .ColorClasses }}{{ else }}bg-white/10 text-white/70{{ end }}">
+    class="px-2 py-0.5 text-[10px] font-bold capitalize tracking-widest {{ if index . "ColorClasses" }}{{ .ColorClasses }}{{ else }}bg-white/10 text-white/70{{ end }}">
     {{ .Label }}
 </span>
 {{ end }}
 
 {{ define "admin_tool_btn_sharp" }}
-<button {{ if .Target }}data-action="open-modal" data-target="{{ .Target }}"{{ end }}
-    {{ if .HXGet }}hx-get="{{ .HXGet }}"{{ end }}
-    {{ if .HXTarget }}hx-target="{{ .HXTarget }}"{{ end }}
-    {{ if .HXSwap }}hx-swap="{{ .HXSwap }}"{{ else if .HXGet }}hx-swap="innerHTML"{{ end }}
+<button {{ if index . "Target" }}data-action="open-modal" data-target="{{ .Target }}"{{ end }}
+    {{ if index . "HXGet" }}hx-get="{{ .HXGet }}"{{ end }}
+    {{ if index . "HXTarget" }}hx-target="{{ .HXTarget }}"{{ end }}
+    {{ if index . "HXSwap" }}hx-swap="{{ .HXSwap }}"{{ else if index . "HXGet" }}hx-swap="innerHTML"{{ end }}
     class="flex-1 flex flex-col items-center py-6 px-4 cursor-pointer hover:bg-earth-ochre/10 transition-colors group focus:outline-none">
     <div class="flex items-center gap-4">
         <div class="w-12 h-12 {{ .IconBgClass }} flex items-center justify-center {{ .IconColorClass }}">
@@ -74,57 +74,58 @@
 {{ end }}
 
 {{ define "modal_base" }}
-<dialog id="{{ .ID }}" {{ if .AutoOpen }}data-auto-open="true"{{ end }} {{ if .DialogDataTarget }}data-target="{{ .DialogDataTarget }}"{{ end }} {{ if .DialogDataListingId }}data-listing-id="{{ .DialogDataListingId }}"{{ end }}
-    class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-none {{ if .MaxWidthClass }}{{ .MaxWidthClass }}{{ else }}md:max-w-sm{{ end }} {{ if .MarginClass }}{{ .MarginClass }}{{ else }}m-auto{{ end }} shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed {{ if .InsetClass }}{{ .InsetClass }}{{ else }}inset-0{{ end }} z-50 h-full md:h-auto border border-white/20">
-    <div {{ if .ContentID }}id="{{ .ContentID }}"{{ end }} class="bg-surface-dark/95 backdrop-blur-xl relative flex flex-col h-full md:h-auto {{ if .MaxHeightClass }}{{ .MaxHeightClass }}{{ else }}md:max-h-[85vh]{{ end }} overflow-hidden">
+<dialog id="{{ .ID }}" {{ if index . "AutoOpen" }}data-auto-open="true"{{ end }} {{ if index . "DialogDataTarget" }}data-target="{{ .DialogDataTarget }}"{{ end }} {{ if index . "DialogDataListingId" }}data-listing-id="{{ .DialogDataListingId }}"{{ end }}
+    class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-none {{ if index . "MaxWidthClass" }}{{ .MaxWidthClass }}{{ else }}md:max-w-sm{{ end }} {{ if index . "MarginClass" }}{{ .MarginClass }}{{ else }}m-auto{{ end }} shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed {{ if index . "InsetClass" }}{{ .InsetClass }}{{ else }}inset-0{{ end }} z-50 h-full md:h-auto border border-white/20">
+    <div {{ if index . "ContentID" }}id="{{ .ContentID }}"{{ end }} class="bg-surface-dark/95 backdrop-blur-xl relative flex flex-col h-full md:h-auto {{ if index . "MaxHeightClass" }}{{ .MaxHeightClass }}{{ else }}md:max-h-[85vh]{{ end }} overflow-hidden">
         
         <!-- Scrollable Inner Content -->
-        <div class="{{ if .NoPadding }}p-0{{ else }}p-6{{ end }} relative {{ if not .CustomScroll }}overflow-y-auto{{ end }} flex-1 flex flex-col min-h-0">
+        <div class="{{ if index . "NoPadding" }}p-0{{ else }}p-6{{ end }} relative {{ if not (index . "CustomScroll") }}overflow-y-auto{{ end }} flex-1 flex flex-col min-h-0">
             <!-- Decorative Background -->
-            {{ if not .NoDecorativeBg }}
-            <div class="absolute top-0 right-0 w-32 h-32 {{ if .DecorativeBgClass }}{{ .DecorativeBgClass }}{{ else }}bg-earth-accent/10{{ end }} blur-3xl -z-10 transform translate-x-10 -translate-y-10"></div>
+            {{ if not (index . "NoDecorativeBg") }}
+            <div class="absolute top-0 right-0 w-32 h-32 {{ if index . "DecorativeBgClass" }}{{ .DecorativeBgClass }}{{ else }}bg-earth-accent/10{{ end }} blur-3xl -z-10 transform translate-x-10 -translate-y-10"></div>
             {{ end }}
-
-            {{ if not .NoHeader }}
-            <div class="flex justify-between items-start mb-8 {{ .HeaderClass }}">
+ 
+            {{ if not (index . "NoHeader") }}
+            <div class="flex justify-between items-start mb-8 {{ index . "HeaderClass" }}">
                 <h2 class="font-serif italic text-4xl leading-tight text-white drop-shadow-md">{{ .Title }}</h2>
-                {{ if .ShowCloseIcon }}
+                {{ if index . "ShowCloseIcon" }}
                 <button data-modal-action="close" class="text-white/50 hover:text-white transition-colors focus:outline-none p-1">
                     <span class="material-symbols-outlined">close</span>
                 </button>
                 {{ end }}
             </div>
             {{ end }}
-
-            {{ if .IsForm }}
-            <form {{ if .FormAction }}hx-post="{{ .FormAction }}"{{ end }} {{ if .FormPut }}hx-put="{{ .FormPut }}"{{ end }} {{ if .FormSwap }}hx-swap="{{ .FormSwap }}"{{ end }} {{ if .FormTarget }}hx-target="{{ .FormTarget }}"{{ end }} method="{{ if .FormMethod }}{{ .FormMethod }}{{ else }}POST{{ end }}" {{ if .FormEnctype }}enctype="{{ .FormEnctype }}"{{ end }} {{ if .FormID }}id="{{ .FormID }}"{{ end }} {{ if .FormAfterRequest }}hx-on::after-request="{{ .FormAfterRequest }}"{{ end }}
-                class="flex flex-col gap-5 flex-1" autocomplete="off" {{ if not .NoSubmitClose }}data-modal-action-submit-close{{ end }}>
+ 
+            {{ if index . "IsForm" }}
+            <form {{ if index . "FormAction" }}hx-post="{{ .FormAction }}"{{ end }} {{ if index . "FormPut" }}hx-put="{{ .FormPut }}"{{ end }} {{ if index . "FormSwap" }}hx-swap="{{ .FormSwap }}"{{ end }} {{ if index . "FormTarget" }}hx-target="{{ .FormTarget }}"{{ end }} method="{{ if index . "FormMethod" }}{{ .FormMethod }}{{ else }}POST{{ end }}" {{ if index . "FormEnctype" }}enctype="{{ .FormEnctype }}"{{ end }} {{ if index . "FormID" }}id="{{ .FormID }}"{{ end }} {{ if index . "FormAfterRequest" }}hx-on::after-request="{{ .FormAfterRequest }}"{{ end }}
+                class="flex flex-col gap-5 flex-1" autocomplete="off" {{ if not (index . "NoSubmitClose") }}data-modal-action-submit-close{{ end }}>
             {{ else }}
             <div class="flex flex-col flex-1 w-full">
             {{ end }}
-
-                {{ if eq .InnerTemplate "modal_create_listing_fields" }}
+ 
+                {{ $inner := index . "InnerTemplate" }}
+                {{ if eq $inner "modal_create_listing_fields" }}
                     {{ template "modal_create_listing_fields" .Data }}
-                {{ else if eq .InnerTemplate "modal_edit_listing_fields" }}
+                {{ else if eq $inner "modal_edit_listing_fields" }}
                     {{ template "modal_edit_listing_fields" .Data }}
-                {{ else if eq .InnerTemplate "modal_detail_content" }}
+                {{ else if eq $inner "modal_detail_content" }}
                     {{ template "modal_detail_content" .Data }}
-                {{ else if eq .InnerTemplate "modal_profile_content" }}
+                {{ else if eq $inner "modal_profile_content" }}
                     {{ template "modal_profile_content" .Data }}
-                {{ else if eq .InnerTemplate "modal_feedback_content" }}
+                {{ else if eq $inner "modal_feedback_content" }}
                     {{ template "modal_feedback_content" .Data }}
                 {{ end }}
-
-            {{ if .IsForm }}
+ 
+            {{ if index . "IsForm" }}
             </form>
             {{ else }}
             </div>
             {{ end }}
         </div> <!-- End Scrollable Area -->
-
-        {{ if not .NoBottomClose }}
+ 
+        {{ if not (index . "NoBottomClose") }}
         <!-- Sticky Footer -->
-        <div class="shrink-0 bg-surface-dark border-t border-white/5 z-20 {{ if .NoPadding }}p-0{{ else }}px-6 py-4{{ end }}">
+        <div class="shrink-0 bg-surface-dark border-t border-white/5 z-20 {{ if index . "NoPadding" }}p-0{{ else }}px-6 py-4{{ end }}">
             <!-- CLOSE button — large touch target for mobile -->
             <button type="button" data-modal-action="close"
                 class="w-full bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark font-bold capitalize text-xs tracking-widest py-4 transition-colors active:scale-95">

@@ -1,7 +1,7 @@
 // template_render_test.go tests that templates render correct HTML output
 // when given specific data. These tests replace expensive browser verification
 // for component-level changes. Run: go test ./internal/ui/... -run TestRender
-package ui
+package ui_test
 
 import (
 	"testing"
@@ -34,7 +34,7 @@ func TestRender_ListingCard_WithSavedIDs(t *testing.T) {
 	out := renderPartial(t, "listing_card", map[string]interface{}{
 		"Listing":  domain.Listing{ID: "abc-123", Title: "Test Food", Type: domain.Food},
 		"User":     &domain.User{ID: "u1"},
-		"SavedIDs": []string{"abc-123"},
+		"SavedIDs": map[string]bool{"abc-123": true},
 		"Index":    0,
 	})
 	assert.Contains(t, out, "save-btn-abc-123") // heart button rendered
@@ -43,8 +43,10 @@ func TestRender_ListingCard_WithSavedIDs(t *testing.T) {
 
 func TestRender_ListingCard_NoUser_NoHeart(t *testing.T) {
 	out := renderPartial(t, "listing_card", map[string]interface{}{
-		"Listing": domain.Listing{ID: "abc-123", Title: "Test"},
-		"Index":   0,
+		"Listing":  domain.Listing{ID: "abc-123", Title: "Test"},
+		"Index":    0,
+		"SavedIDs": map[string]bool{},
+		"User":     nil,
 	})
 	assert.NotContains(t, out, "save-btn") // no heart for anonymous
 }

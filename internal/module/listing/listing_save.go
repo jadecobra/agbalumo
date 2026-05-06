@@ -4,23 +4,23 @@ import (
 	"net/http"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/module/user"
 	"github.com/jadecobra/agbalumo/internal/module"
+	"github.com/jadecobra/agbalumo/internal/module/user"
 	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
 )
 
 type SavedListingsViewModel struct {
-	module.BaseViewData
-	Listings   []domain.Listing
-	Featured   []domain.Listing
 	SavedIDs   map[string]bool
 	Source     string
 	City       string
-	Radius     float64
 	FilterType string
 	Query      string
+	Listings   []domain.Listing
+	Featured   []domain.Listing
+	module.BaseViewData
 	Pagination Pagination
+	Radius     float64
 }
 
 func (h *ListingHandler) HandleSaveToggle(c echo.Context) error {

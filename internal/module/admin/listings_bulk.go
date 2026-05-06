@@ -7,8 +7,15 @@ import (
 	"net/url"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/module"
 	"github.com/labstack/echo/v4"
 )
+
+type AdminDeleteViewModel struct {
+	Error string
+	IDs   []string
+	module.BaseViewData
+}
 
 // HandleBulkAction processes bulk approvals, rejections, and deletions.
 func (h *AdminHandler) HandleBulkAction(c echo.Context) error {
@@ -98,9 +105,9 @@ func (h *AdminHandler) HandleAdminDeleteView(c echo.Context) error {
 		}
 	}
 
-	return c.Render(http.StatusOK, "admin_delete_confirm.html", map[string]interface{}{
-		"IDs":  ids,
-		"User": c.Get(domain.CtxKeyUser),
+	return h.RenderTyped(c, "admin_delete_confirm.html", AdminDeleteViewModel{
+		BaseViewData: h.PopulateBase(c),
+		IDs:          ids,
 	})
 }
 
@@ -116,10 +123,10 @@ func (h *AdminHandler) HandleAdminDeleteAction(c echo.Context) error {
 	}
 
 	if adminCode != h.App.Cfg.AdminCode {
-		return c.Render(http.StatusOK, "admin_delete_confirm.html", map[string]interface{}{
-			"IDs":   ids,
-			"Error": "Invalid Admin Code. Deletion aborted.",
-			"User":  c.Get(domain.CtxKeyUser),
+		return h.RenderTyped(c, "admin_delete_confirm.html", AdminDeleteViewModel{
+			BaseViewData: h.PopulateBase(c),
+			IDs:          ids,
+			Error:        "Invalid Admin Code. Deletion aborted.",
 		})
 	}
 

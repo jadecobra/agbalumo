@@ -13,10 +13,10 @@ type BaseViewData struct {
 	Counts           map[string]int
 	Env              string
 	CSRF             string
-	Categories       []domain.CategoryData
 	FilterType       string
 	City             string
 	GoogleMapsApiKey string
+	Categories       []domain.CategoryData
 	Radius           float64
 	DevMode          bool
 	HasGoogleAuth    bool

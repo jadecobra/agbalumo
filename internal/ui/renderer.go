@@ -87,6 +87,32 @@ func (t *TemplateRenderer) GetFuncMap() template.FuncMap {
 	return t.funcMap
 }
 
+// GetAllTemplateNames returns all defined template names (pages, layouts, partials)
+func (t *TemplateRenderer) GetAllTemplateNames() []string {
+	uniqueNames := make(map[string]bool)
+	for _, tmpl := range t.templates {
+		for _, def := range tmpl.Templates() {
+			uniqueNames[def.Name()] = true
+		}
+	}
+	var names []string
+	for name := range uniqueNames {
+		names = append(names, name)
+	}
+	return names
+}
+
+// RenderDefinition searches all template sets for the named definition and renders it.
+// Used primarily for testing partials and page-specific blocks.
+func (t *TemplateRenderer) RenderDefinition(w io.Writer, name string, data interface{}) error {
+	for _, tmpl := range t.templates {
+		if d := tmpl.Lookup(name); d != nil {
+			return tmpl.ExecuteTemplate(w, name, data)
+		}
+	}
+	return fmt.Errorf("template definition %q not found in any template set", name)
+}
+
 func (t *TemplateRenderer) loadCountryData() error {
 	paths := []string{
 		"ui/data/countries.json",
@@ -160,7 +186,7 @@ func compileTemplates(layouts, partials, pages []string, funcMap template.FuncMa
 }
 
 func parseTemplateFiles(page string, layouts, partials []string, funcMap template.FuncMap) (*template.Template, error) {
-	tmpl := template.New(filepath.Base(page)).Funcs(funcMap)
+	tmpl := template.New(filepath.Base(page)).Funcs(funcMap).Option("missingkey=error")
 
 	if len(layouts) > 0 {
 		if _, err := tmpl.ParseFiles(layouts...); err != nil {

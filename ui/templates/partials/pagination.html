@@ -16,12 +16,12 @@
     {{ end }}
  
     {{ range .Pagination.GetPageRange }}
-    <a href="?page={{ . }}{{ if .FilterType }}&type={{ .FilterType }}{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}" 
+    <a href="?page={{ . }}{{ if $.FilterType }}&type={{ $.FilterType }}{{ end }}{{ if $.Query }}&q={{ $.Query }}{{ end }}" 
        class="flex items-center justify-center w-10 h-10 border {{ if eq . $.Pagination.Page }}border-earth-accent bg-earth-accent text-earth-dark{{ else }}border-white/20 text-earth-cream hover:bg-white/10{{ end }} transition-all duration-300 font-medium"
-       hx-get="/listings/fragment?page={{ . }}{{ if .FilterType }}&type={{ .FilterType }}{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}"
+       hx-get="/listings/fragment?page={{ . }}{{ if $.FilterType }}&type={{ $.FilterType }}{{ end }}{{ if $.Query }}&q={{ $.Query }}{{ end }}"
        hx-target="#listings-container"
        hx-indicator="#listings-loading"
-       hx-push-url="?page={{ . }}{{ if .FilterType }}&type={{ .FilterType }}{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}">
+       hx-push-url="?page={{ . }}{{ if $.FilterType }}&type={{ $.FilterType }}{{ end }}{{ if $.Query }}&q={{ $.Query }}{{ end }}">
         {{ . }}
     </a>
     {{ end }}

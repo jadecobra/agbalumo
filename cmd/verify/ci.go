@@ -172,6 +172,14 @@ var precommitCmd = &cobra.Command{
 			}
 		}
 
+		// 6c. Template Contract Verification (if templates staged)
+		if len(stagedHTMLFiles) > 0 {
+			fmt.Println("📜 Templates staged. Verifying deterministic contracts...")
+			if err := runCmd("go", "test", "./internal/ui/", "-v", "-run", "TestGlobalTemplateCoverage"); err != nil {
+				return fmt.Errorf("template contract verification failed: %w", err)
+			}
+		}
+
 		// 7. Design gate check (ensures no rounding in admin or hardcoded hex)
 		if err := designCmd.RunE(cmd, args); err != nil {
 			return err
