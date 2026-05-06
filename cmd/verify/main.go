@@ -83,6 +83,7 @@ func init() {
 		docDriftCmd,
 		apiSpecCmd,
 		templateDriftCmd,
+		templateContractCmd,
 
 		// Jobs Domain
 		locationBackfillCmd,
