@@ -90,6 +90,3 @@ tools:
     trigger: observability, request_lifecycle
     description: "Observes the request lifecycle (Middleware -> DB -> UI) with aggressive logging"
 
-  - name: template-contract
-    trigger: template_change, handler_change
-    description: "Cross-references template field references against ViewModel struct fields"

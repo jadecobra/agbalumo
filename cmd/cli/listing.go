@@ -27,7 +27,6 @@ func init() {
 	ListingCmd.AddCommand(listingDeleteCmd)
 	ListingCmd.AddCommand(listingBackfillCitiesCmd)
 
-
 	BindListingFlags(listingCreateCmd, false)
 	BindListingFlags(listingUpdateCmd, true)
 

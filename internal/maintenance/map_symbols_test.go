@@ -83,23 +83,3 @@ type Store interface {
 	}
 }
 
-func TestGenerateTemplateMap(t *testing.T) {
-	tmpDir := t.TempDir()
-
-	// Create a dummy .html file
-	htmlContent := `{{ define "my_partial" }}
-  <div>Hello</div>
-{{ end }}
-`
-	htmlPath := filepath.Join(tmpDir, "template.html")
-	if err := os.WriteFile(htmlPath, []byte(htmlContent), 0600); err != nil {
-		t.Fatal(err)
-	}
-
-	got := GenerateTemplateMap(tmpDir)
-
-	want := "[Template] my_partial -> template.html"
-	if !strings.Contains(got, want) {
-		t.Errorf("GenerateTemplateMap() missing %q\nGot:\n%s", want, got)
-	}
-}

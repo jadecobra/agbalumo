@@ -83,7 +83,6 @@ func init() {
 		docDriftCmd,
 		apiSpecCmd,
 		templateDriftCmd,
-		templateContractCmd,
 
 		// Jobs Domain
 		locationBackfillCmd,
@@ -112,7 +111,6 @@ func init() {
 		visualAuditCmd,
 		skillConformanceCmd,
 		checkResolvableCmd,
-		templateGraphCmd,
 		mapCmd,
 		schemaCmd,
 		traceCmd,

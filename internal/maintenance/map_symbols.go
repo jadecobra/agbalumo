@@ -73,25 +73,3 @@ func extractSymbolsFromFile(fset *token.FileSet, path, rel string) []string {
 	})
 	return extracted
 }
-
-// GenerateTemplateMap calls the existing BuildTemplateGraph and returns a formatted template map.
-func GenerateTemplateMap(rootDir string) string {
-	graph, err := BuildTemplateGraph(rootDir)
-	if err != nil {
-		return fmt.Sprintf("Error building template graph: %v", err)
-	}
-
-	var templates []string
-	for name, node := range graph {
-		rel := node.DefinedIn
-		if absRoot, err := filepath.Abs(rootDir); err == nil {
-			if r, err := filepath.Rel(absRoot, node.DefinedIn); err == nil {
-				rel = r
-			}
-		}
-		templates = append(templates, fmt.Sprintf("[Template] %s -> %s", name, rel))
-	}
-
-	sort.Strings(templates)
-	return strings.Join(templates, "\n")
-}
