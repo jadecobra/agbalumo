@@ -42,10 +42,30 @@ func extractSymbolsFromFile(fset *token.FileSet, path, rel string) []string {
 		switch x := n.(type) {
 		case *ast.TypeSpec:
 			if x.Name.IsExported() {
-				extracted = append(extracted, fmt.Sprintf("[Type] %s -> %s", x.Name.Name, rel))
+				label := "[Type]"
+				if _, ok := x.Type.(*ast.InterfaceType); ok {
+					label = "[Interface]"
+				}
+				extracted = append(extracted, fmt.Sprintf("%s %s -> %s", label, x.Name.Name, rel))
 			}
 		case *ast.FuncDecl:
 			if x.Name.IsExported() {
+				if x.Recv != nil && len(x.Recv.List) > 0 {
+					recvType := ""
+					t := x.Recv.List[0].Type
+					if star, ok := t.(*ast.StarExpr); ok {
+						if ident, ok := star.X.(*ast.Ident); ok {
+							recvType = ident.Name
+						}
+					} else if ident, ok := t.(*ast.Ident); ok {
+						recvType = ident.Name
+					}
+
+					if recvType != "" {
+						extracted = append(extracted, fmt.Sprintf("[Method] (%s).%s -> %s", recvType, x.Name.Name, rel))
+						return true
+					}
+				}
 				extracted = append(extracted, fmt.Sprintf("[Func] %s -> %s", x.Name.Name, rel))
 			}
 		}
