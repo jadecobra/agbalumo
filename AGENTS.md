@@ -37,6 +37,7 @@ Git is our only state tracker.
 - **Git as Source of Truth**: Execute atomic commits automatically after passing tests.
 - **Convention**: Use strict Conventional Commits format (type(scope): description).
   - **Valid types**: `feat`, `fix`, `test`, `refactor`, `chore`.
+- **Remote CI Guard**: Work is NOT complete until the remote CI pipeline is 'green'. You MUST monitor push results via `gh run watch` or `./scripts/pushw.sh`.
 - NEVER remove files from `.gitignore` without explicit approval.
 
 ## EXECUTION & TDD RULES
