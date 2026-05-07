@@ -1,8 +1,12 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/spf13/cobra"
 )
 
 func TestCICmdHasWithDockerFlag(t *testing.T) {
@@ -43,5 +47,74 @@ func TestBrowserCmdRegistered(t *testing.T) {
 	}
 	if !found {
 		t.Fatal("browser subcommand is not registered")
+	}
+}
+
+func TestGetVerificationOpts(t *testing.T) {
+	origDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() {
+		if err := os.Chdir(origDir); err != nil {
+			t.Error(err)
+		}
+	}()
+
+	tests := []struct {
+		name         string
+		expectedPath string
+		setupFiles   []string
+	}{
+		{
+			name:         "canonical path exists",
+			setupFiles:   []string{".agents/coverage.json"},
+			expectedPath: ".agents/coverage.json",
+		},
+		{
+			name:         "canonical and fallback both exist",
+			setupFiles:   []string{".agents/coverage.json", ".metrics/coverage"},
+			expectedPath: ".agents/coverage.json",
+		},
+		{
+			name:         "only fallback exists",
+			setupFiles:   []string{".metrics/coverage"},
+			expectedPath: ".metrics/coverage",
+		},
+		{
+			name:         "none exist, default to fallback",
+			setupFiles:   []string{},
+			expectedPath: ".metrics/coverage",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			performVerificationTest(t, tt.setupFiles, tt.expectedPath)
+		})
+	}
+}
+
+func performVerificationTest(t *testing.T, files []string, expected string) {
+	subDir := t.TempDir()
+	if err := os.Chdir(subDir); err != nil {
+		t.Fatal(err)
+	}
+
+	for _, f := range files {
+		if err := os.MkdirAll(filepath.Dir(f), 0750); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(f, []byte("{}"), 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	cmd := &cobra.Command{}
+	setupVerifyFlags(cmd)
+	_, path := getVerificationOpts(cmd)
+
+	if path != expected {
+		t.Errorf("expected path %s, got %s", expected, path)
 	}
 }

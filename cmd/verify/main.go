@@ -48,10 +48,10 @@ func getVerificationOpts(cmd *cobra.Command) (bool, string) {
 	race, _ := cmd.Flags().GetBool("race")
 	path, _ := cmd.Flags().GetString("threshold-path")
 	if path == "" {
-		if _, err := os.Stat(".metrics/coverage"); err == nil {
+		if _, err := os.Stat(".agents/coverage.json"); err == nil {
+			path = ".agents/coverage.json"
+		} else if _, err := os.Stat(".metrics/coverage"); err == nil {
 			path = ".metrics/coverage"
-		} else if _, err := os.Stat(".agents/coverage-threshold"); err == nil {
-			path = ".agents/coverage-threshold"
 		} else {
 			path = ".metrics/coverage"
 		}

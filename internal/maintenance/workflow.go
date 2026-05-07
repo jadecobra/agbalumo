@@ -119,8 +119,8 @@ func verifyRefactorGate(rootDir string) error {
 	if err := runTests(rootDir); err != nil {
 		return err
 	}
-	if err := CompareCoverageThreshold(".metrics/coverage"); err != nil {
-		if e := CompareCoverageThreshold(".agents/coverage-threshold"); e != nil {
+	if err := CompareCoverageThreshold(".agents/coverage.json"); err != nil {
+		if e := CompareCoverageThreshold(".metrics/coverage"); e != nil {
 			return fmt.Errorf("REFACTOR phase violation: coverage threshold not met: %w", e)
 		}
 	}

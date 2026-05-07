@@ -131,7 +131,7 @@ Use `github.com/stretchr/testify/mock`. Place mocks in `internal/mock/`.
 
 ### Coverage & Rules
 - **TDD:** Write failing tests (RED) FIRST.
-- **Coverage:** Thresholds are defined in `.agents/coverage-thresholds.json`. NEVER lower these value.
+- **Coverage:** Thresholds are defined in `.agents/coverage.json`. NEVER lower these value.
 - **Persona Sync:** Changes to rules MUST be mirrored in `GEMINI.md` and `.agents/rules/`.
 - **Functions:** Keep functions small and single-purpose (SRP).
 - **Comments:** Code should be self-documenting; avoid unnecessary comments.

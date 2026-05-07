@@ -1,5 +1,12 @@
 ---
+name: Design Critique
 description: 3-phase design critique — deterministic audit, Flash grading, optional taste review.
+triggers:
+  - "/design-critique"
+  - "critique design"
+  - "review ui"
+  - "harsh review"
+mutating: false
 ---
 # /design-critique (v2)
 
