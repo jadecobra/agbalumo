@@ -19,7 +19,10 @@ const errTitleExists = "Title already exists. Please choose a different title."
 const tmplListingCard = "listing_card"
 
 type ListingCardViewModel struct {
-	Listing *domain.Listing
+	Listing   *domain.Listing
+	IDPrefix  string
+	SavedIDs  map[string]bool
+	GridClass string
 	module.BaseViewData
 }
 
@@ -156,9 +159,17 @@ func (h *ListingHandler) processAndSave(c echo.Context, l *domain.Listing) error
 		return c.NoContent(http.StatusOK)
 	}
 
+	savedIDs := h.getSavedIDs(c)
+	savedMap := make(map[string]bool)
+	for _, id := range savedIDs {
+		savedMap[id] = true
+	}
+
 	vm := ListingCardViewModel{
 		BaseViewData: h.PopulateBase(c),
 		Listing:      l,
+		SavedIDs:     savedMap,
+		IDPrefix:     "", // Default for home/profile cards
 	}
 
 	return h.RenderTyped(c, tmplListingCard, vm)

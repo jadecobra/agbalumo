@@ -15,27 +15,23 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// Country represents a country with a name and flag emoji.
-type Country struct {
-	Name string `json:"name"`
-	Flag string `json:"flag"`
+type TemplateRenderer struct {
+	templates      map[string]*template.Template
+	funcMap        template.FuncMap
+	patterns       []string
+	CountryRegions []Region
 }
 
-// Region represents a geographical region containing countries.
 type Region struct {
 	Region    string    `json:"region"`
 	Countries []Country `json:"countries"`
 }
 
-// TemplateRenderer is a custom html/template renderer for Echo framework
-type TemplateRenderer struct {
-	templates      map[string]*template.Template
-	funcMap        template.FuncMap
-	CountryRegions []Region
-	patterns       []string
+type Country struct {
+	Name string `json:"name"`
+	Flag string `json:"flag"`
 }
 
-// NewTemplateRenderer creates a new instance of TemplateRenderer with parsed templates
 func NewTemplateRenderer(patterns ...string) (*TemplateRenderer, error) {
 	var allFiles []string
 	for _, pattern := range patterns {
@@ -138,24 +134,48 @@ func (t *TemplateRenderer) loadCountryData() error {
 
 func categorizeTemplateFiles(files []string) (layouts, partials, pages []string) {
 	for _, file := range files {
+		ext := filepath.Ext(file)
+		if ext != ".html" {
+			continue
+		}
+
+		dir := filepath.Base(filepath.Dir(file))
 		baseName := filepath.Base(file)
-		if baseName == "base.html" {
+		if dir == "layouts" || baseName == "base.html" {
 			layouts = append(layouts, file)
-		} else if strings.Contains(file, "partials") || strings.Contains(file, "components") {
+		} else if dir == "partials" || dir == "components" {
 			partials = append(partials, file)
 		} else {
 			pages = append(pages, file)
 		}
 	}
-	return
+	return layouts, partials, pages
 }
 
 func BuildGlobalFuncMap() template.FuncMap {
 	return template.FuncMap{
+		"add": func(a, b int) int {
+			return a + b
+		},
+		"sub": func(a, b int) int {
+			return a - b
+		},
+		"mul": func(a, b int) int {
+			return a * b
+		},
+		"mod": func(a, b int) int {
+			if b == 0 {
+				return 0
+			}
+			return a % b
+		},
+		"div": func(a, b int) float64 {
+			if b == 0 {
+				return 0
+			}
+			return float64(a) / float64(b)
+		},
 		"split":            strings.Split,
-		"mod":              func(i, j int) int { return i % j },
-		"add":              func(i, j int) int { return i + j },
-		"sub":              func(i, j int) int { return i - j },
 		"seq":              seq,
 		"dict":             dict,
 		"toJson":           toJson,
@@ -224,17 +244,8 @@ func (t *TemplateRenderer) recompileTemplates() {
 
 // Render renders a template document
 func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	// Dev-mode hot reload: recompile templates on every request if patterns are available
-	if os.Getenv(domain.EnvKeyAppEnv) != domain.EnvProduction && len(t.patterns) > 0 {
-		t.recompileTemplates()
-	}
-
-	// Inject CSRF token if data is a map
-	if viewContext, isMap := data.(map[string]interface{}); isMap {
-		token := c.Get("csrf")
-		viewContext["CSRF"] = token
-		viewContext["CountryRegions"] = t.CountryRegions
-	}
+	t.maybeRecompile()
+	t.injectContext(data, c)
 
 	// Semantic Tagging for Agentic Discovery (Non-Production Only)
 	if os.Getenv(domain.EnvKeyAppEnv) != domain.EnvProduction {
@@ -243,19 +254,44 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 
 	tmpl, ok := t.templates[name]
 	if !ok {
-		// Fallback: Check if it's a partial by trying to execute it on a default template set
-		// We can use any existing template set because they all include all partials.
-		// Let's try to find "index.html" or just use the first available one.
-		for _, t := range t.templates {
-			tmpl = t
-			break
-		}
-		if tmpl == nil {
-			return errors.New("template not found and no default template available: " + name)
-		}
-		// Try to execute the named partial on this template set
-		// Note: ExecuteTemplate returns error if name is not found
-		return tmpl.ExecuteTemplate(w, name, data)
+		return t.renderFallback(w, name, data)
 	}
-	return tmpl.ExecuteTemplate(w, name, data)
+
+	err := tmpl.ExecuteTemplate(w, name, data)
+	if err != nil {
+		slog.Error("Template execution failed", "template", name, "error", err)
+	}
+	return err
+}
+
+func (t *TemplateRenderer) maybeRecompile() {
+	if os.Getenv(domain.EnvKeyAppEnv) != domain.EnvProduction && len(t.patterns) > 0 {
+		t.recompileTemplates()
+	}
+}
+
+func (t *TemplateRenderer) injectContext(data interface{}, c echo.Context) {
+	if viewContext, isMap := data.(map[string]interface{}); isMap {
+		token := c.Get("csrf")
+		viewContext["CSRF"] = token
+		viewContext["CountryRegions"] = t.CountryRegions
+	}
+}
+
+func (t *TemplateRenderer) renderFallback(w io.Writer, name string, data interface{}) error {
+	var tmpl *template.Template
+	for _, tSet := range t.templates {
+		tmpl = tSet
+		break
+	}
+
+	if tmpl == nil {
+		return errors.New("template not found and no default template available: " + name)
+	}
+
+	err := tmpl.ExecuteTemplate(w, name, data)
+	if err != nil {
+		slog.Error("Template execution failed (fallback)", "template", name, "error", err)
+	}
+	return err
 }

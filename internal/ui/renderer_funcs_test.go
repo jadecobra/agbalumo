@@ -87,8 +87,13 @@ func verifyOtherTemplateFuncs(t *testing.T, tempDir string, c echo.Context) {
 func setupRenderer(t *testing.T, dir, name, content string) *TemplateRenderer {
 	t.Helper()
 	path := filepath.Join(dir, name)
-	_ = os.WriteFile(filepath.Clean(path), []byte(content), 0600)
-	r, _ := NewTemplateRenderer(filepath.Join(dir, "*.html"))
+	if err := os.WriteFile(filepath.Clean(path), []byte(content), 0600); err != nil {
+		t.Fatalf("Failed to write template file: %v", err)
+	}
+	r, err := NewTemplateRenderer(filepath.Join(dir, "*.html"))
+	if err != nil {
+		t.Fatalf("Failed to create renderer: %v", err)
+	}
 	return r
 }
 

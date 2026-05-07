@@ -32,10 +32,12 @@ func TestRender_SaveButton_Unsaved(t *testing.T) {
 
 func TestRender_ListingCard_WithSavedIDs(t *testing.T) {
 	out := renderPartial(t, "listing_card", map[string]interface{}{
-		"Listing":  domain.Listing{ID: "abc-123", Title: "Test Food", Type: domain.Food},
-		"User":     &domain.User{ID: "u1"},
-		"SavedIDs": map[string]bool{"abc-123": true},
-		"Index":    0,
+		"Listing":   domain.Listing{ID: "abc-123", Title: "Test Food", Type: domain.Food},
+		"User":      &domain.User{ID: "u1"},
+		"SavedIDs":  map[string]bool{"abc-123": true},
+		"Index":     0,
+		"IDPrefix":  "",
+		"GridClass": "",
 	})
 	assert.Contains(t, out, "save-btn-abc-123") // heart button rendered
 	assert.Contains(t, out, "Test Food")        // title rendered
@@ -43,10 +45,12 @@ func TestRender_ListingCard_WithSavedIDs(t *testing.T) {
 
 func TestRender_ListingCard_NoUser_NoHeart(t *testing.T) {
 	out := renderPartial(t, "listing_card", map[string]interface{}{
-		"Listing":  domain.Listing{ID: "abc-123", Title: "Test"},
-		"Index":    0,
-		"SavedIDs": map[string]bool{},
-		"User":     nil,
+		"Listing":   domain.Listing{ID: "abc-123", Title: "Test"},
+		"Index":     0,
+		"SavedIDs":  map[string]bool{},
+		"User":      nil,
+		"IDPrefix":  "",
+		"GridClass": "",
 	})
 	assert.NotContains(t, out, "save-btn") // no heart for anonymous
 }

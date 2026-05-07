@@ -36,19 +36,23 @@ func GenerateRouteMap() (string, error) {
 
 	var lines []string
 	for _, r := range e.Routes() {
-		// Skip internal echo routes and noise
-		if r.Method == "echo_route_not_found" {
-			continue
+		if !isInternalRoute(r.Method, r.Path, r.Name) {
+			lines = append(lines, fmt.Sprintf("%-6s %-30s →  %s", r.Method, r.Path, r.Name))
 		}
-		if strings.Contains(r.Name, "github.com/labstack/echo") && !strings.Contains(r.Name, "agbalumo") {
-			if r.Path == "/*" || r.Path == "/static/*" {
-				continue
-			}
-		}
-		lines = append(lines, fmt.Sprintf("%-6s %-30s →  %s", r.Method, r.Path, r.Name))
 	}
 
 	sort.Strings(lines)
-
 	return strings.Join(lines, "\n"), nil
+}
+
+func isInternalRoute(method, path, name string) bool {
+	if method == "echo_route_not_found" {
+		return true
+	}
+	if strings.Contains(name, "github.com/labstack/echo") && !strings.Contains(name, "agbalumo") {
+		if path == "/*" || path == "/static/*" {
+			return true
+		}
+	}
+	return false
 }

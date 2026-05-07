@@ -2,6 +2,7 @@ bin/
 tmp/
 lint-results*.txt
 listings.db
+test_output.txt
 test_output_detail.txt
 .tester/data/agbalumo.db
 .tester/data/agbalumo.db-*

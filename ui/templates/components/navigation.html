@@ -97,7 +97,7 @@
                             {{ range .Categories }}
                             {{ if and (ne .Name "Food") (ne .Name "Request") }}
                             <button type="button" data-category-name="{{ .Name }}" data-testid="ag-filter-category-{{ .Name }}"
-                                class="text-left px-5 py-4 text-[11px] font-bold capitalize tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq .FilterType .Name }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
+                                class="text-left px-5 py-4 text-[11px] font-bold capitalize tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq $.FilterType .Name }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
                                 {{ if .Name }}{{ .Name }}{{ else }}Category{{ end }} ({{ if $.Counts }}{{ if index $.Counts .Name }}{{ index $.Counts .Name }}{{ else }}0{{ end }}{{ else }}0{{ end }})
                             </button>
                             {{ end }}

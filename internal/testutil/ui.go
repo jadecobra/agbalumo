@@ -122,13 +122,17 @@ func NewRealTemplateForPage(t *testing.T, pageName string) *template.Template {
 	}
 
 	projectRoot := findProjectRoot(t, wd)
+	tmpl := template.New("base").Funcs(createTestFuncMap())
 
-	partialPattern := filepath.Join(projectRoot, "ui", "templates", "partials", "*.html")
-	componentPattern := filepath.Join(projectRoot, "ui", "templates", "components", "*.html")
+	parseTemplateFiles(t, tmpl, projectRoot, pageName)
+	parseTemplateGlobs(t, tmpl, projectRoot)
 
+	return tmpl
+}
+
+func createTestFuncMap() template.FuncMap {
 	funcMap := ui.BuildGlobalFuncMap()
 	funcMap["countryFlag"] = func(name string) string {
-		// Minimal mock for tests that don't need real flags
 		if name == "Nigeria" {
 			return "🇳🇬"
 		}
@@ -143,8 +147,10 @@ func NewRealTemplateForPage(t *testing.T, pageName string) *template.Template {
 		}
 		return ""
 	}
-	tmpl := template.New("base").Funcs(funcMap)
+	return funcMap
+}
 
+func parseTemplateFiles(t *testing.T, tmpl *template.Template, projectRoot, pageName string) {
 	paths := []string{
 		filepath.Join(projectRoot, "ui", "templates", domain.TemplateBase),
 		filepath.Join(projectRoot, "ui", "templates", domain.TemplateError),
@@ -154,21 +160,21 @@ func NewRealTemplateForPage(t *testing.T, pageName string) *template.Template {
 		paths = append(paths, filepath.Join(projectRoot, "ui", "templates", pageName))
 	}
 
-	tmpl, err = tmpl.ParseFiles(paths...)
-	if err != nil {
+	if _, err := tmpl.ParseFiles(paths...); err != nil {
 		t.Fatalf("Failed to parse templates for %s: %v", pageName, err)
 	}
+}
 
-	_, err = tmpl.ParseGlob(partialPattern)
-	if err != nil {
+func parseTemplateGlobs(t *testing.T, tmpl *template.Template, projectRoot string) {
+	partialPattern := filepath.Join(projectRoot, "ui", "templates", "partials", "*.html")
+	componentPattern := filepath.Join(projectRoot, "ui", "templates", "components", "*.html")
+
+	if _, err := tmpl.ParseGlob(partialPattern); err != nil {
 		t.Fatalf("Failed to parse partial templates: %v", err)
 	}
-	_, err = tmpl.ParseGlob(componentPattern)
-	if err != nil {
+	if _, err := tmpl.ParseGlob(componentPattern); err != nil {
 		t.Fatalf("Failed to parse component templates: %v", err)
 	}
-
-	return tmpl
 }
 
 // SetupTestRendererForPage returns a RealTemplateRenderer for a specific page.

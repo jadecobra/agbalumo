@@ -121,9 +121,8 @@ func (h *AdminHandler) HandleLoginAction(c echo.Context) error {
 }
 
 func (h *AdminHandler) renderLoginView(c echo.Context, errMsg string) error {
-	data := map[string]interface{}{}
-	if errMsg != "" {
-		data["Error"] = errMsg
+	data := map[string]interface{}{
+		"Error": errMsg,
 	}
 	return c.Render(http.StatusOK, "admin_login.html", data)
 }

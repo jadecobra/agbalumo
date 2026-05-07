@@ -71,12 +71,12 @@ Detect undefined template functions in HTML templates.
 agbalumo verify template-drift
 ```
 
-##### template-graph
+##### doc-drift
 
-Visualize template dependencies and detect data contract gaps (missing dict keys).
+Detect stale file path references in architectural documentation.
 
 ```bash
-agbalumo verify template-graph [template-name]
+agbalumo verify doc-drift
 ```
 
 ##### context-cost
@@ -271,4 +271,20 @@ Dumps the active SQLite schema deterministically.
 
 ```bash
 agbalumo verify schema
+```
+
+##### trace
+
+Observe the request lifecycle (Middleware -> DB -> UI) with aggressive logging.
+
+```bash
+agbalumo verify trace [path] [--method=GET]
+```
+
+##### root-hygiene
+
+Verify root directory cleanliness and ensure no tracked artifacts are present.
+
+```bash
+agbalumo verify root-hygiene
 ```

@@ -41,35 +41,50 @@ func extractSymbolsFromFile(fset *token.FileSet, path, rel string) []string {
 	ast.Inspect(node, func(n ast.Node) bool {
 		switch x := n.(type) {
 		case *ast.TypeSpec:
-			if x.Name.IsExported() {
-				label := "[Type]"
-				if _, ok := x.Type.(*ast.InterfaceType); ok {
-					label = "[Interface]"
-				}
-				extracted = append(extracted, fmt.Sprintf("%s %s -> %s", label, x.Name.Name, rel))
+			if extractedType := handleTypeSpec(x, rel); extractedType != "" {
+				extracted = append(extracted, extractedType)
 			}
 		case *ast.FuncDecl:
-			if x.Name.IsExported() {
-				if x.Recv != nil && len(x.Recv.List) > 0 {
-					recvType := ""
-					t := x.Recv.List[0].Type
-					if star, ok := t.(*ast.StarExpr); ok {
-						if ident, ok := star.X.(*ast.Ident); ok {
-							recvType = ident.Name
-						}
-					} else if ident, ok := t.(*ast.Ident); ok {
-						recvType = ident.Name
-					}
-
-					if recvType != "" {
-						extracted = append(extracted, fmt.Sprintf("[Method] (%s).%s -> %s", recvType, x.Name.Name, rel))
-						return true
-					}
-				}
-				extracted = append(extracted, fmt.Sprintf("[Func] %s -> %s", x.Name.Name, rel))
+			if extractedFunc := handleFuncDecl(x, rel); extractedFunc != "" {
+				extracted = append(extracted, extractedFunc)
 			}
 		}
 		return true
 	})
 	return extracted
+}
+
+func handleTypeSpec(x *ast.TypeSpec, rel string) string {
+	if !x.Name.IsExported() {
+		return ""
+	}
+	label := "[Type]"
+	if _, ok := x.Type.(*ast.InterfaceType); ok {
+		label = "[Interface]"
+	}
+	return fmt.Sprintf("%s %s -> %s", label, x.Name.Name, rel)
+}
+
+func handleFuncDecl(x *ast.FuncDecl, rel string) string {
+	if !x.Name.IsExported() {
+		return ""
+	}
+	if x.Recv != nil && len(x.Recv.List) > 0 {
+		recvType := extractReceiverType(x.Recv.List[0].Type)
+		if recvType != "" {
+			return fmt.Sprintf("[Method] (%s).%s -> %s", recvType, x.Name.Name, rel)
+		}
+	}
+	return fmt.Sprintf("[Func] %s -> %s", x.Name.Name, rel)
+}
+
+func extractReceiverType(t ast.Expr) string {
+	if star, ok := t.(*ast.StarExpr); ok {
+		if ident, ok := star.X.(*ast.Ident); ok {
+			return ident.Name
+		}
+	} else if ident, ok := t.(*ast.Ident); ok {
+		return ident.Name
+	}
+	return ""
 }

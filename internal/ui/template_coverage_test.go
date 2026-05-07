@@ -226,9 +226,11 @@ var TemplateMockRegistry = map[string]interface{}{
 		Pagination: listing.Pagination{Page: 1, TotalPages: 1},
 	},
 	"listing_card": map[string]interface{}{
-		"Listing":  mockListing,
-		"SavedIDs": map[string]bool{},
-		"User":     mockUser,
+		"Listing":   mockListing,
+		"SavedIDs":  map[string]bool{},
+		"User":      mockUser,
+		"IDPrefix":  "",
+		"GridClass": "",
 	},
 
 	"button_sharp": map[string]interface{}{
