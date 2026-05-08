@@ -29,9 +29,13 @@ func TestCheckAgentsCoverage(t *testing.T) {
 	writeTestFile(t, tmpDir, filepath.Join("not_go", "info.txt"), "some text")
 	writeTestFile(t, tmpDir, filepath.Join("vendor/pkg", "main.go"), "package main")
 
-	missing, err := CheckAgentsCoverage(tmpDir)
+	missing, total, err := CheckAgentsCoverage(tmpDir)
 	if err != nil {
 		t.Fatalf("CheckAgentsCoverage failed: %v", err)
+	}
+
+	if total != 2 {
+		t.Errorf("expected 2 total packages, got %d", total)
 	}
 
 	if len(missing) != 1 || missing[0] != "pkg_b" {

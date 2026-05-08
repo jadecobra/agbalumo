@@ -17,13 +17,14 @@ var excludedDirs = map[string]bool{
 
 // CheckAgentsCoverage walks the rootDir and finds Go packages missing AGENTS.md.
 // A Go package is defined as a directory containing at least one .go file.
-func CheckAgentsCoverage(rootDir string) ([]string, error) {
+func CheckAgentsCoverage(rootDir string) ([]string, int, error) {
 	var missing []string
-	err := filepath.Walk(rootDir, walker(rootDir, &missing))
-	return missing, err
+	var total int
+	err := filepath.Walk(rootDir, walker(rootDir, &missing, &total))
+	return missing, total, err
 }
 
-func walker(rootDir string, missing *[]string) filepath.WalkFunc {
+func walker(rootDir string, missing *[]string, total *int) filepath.WalkFunc {
 	return func(path string, info os.FileInfo, err error) error {
 		if err != nil || !info.IsDir() {
 			return err
@@ -38,18 +39,21 @@ func walker(rootDir string, missing *[]string) filepath.WalkFunc {
 			return filepath.SkipDir
 		}
 
-		return checkDir(path, rel, missing)
+		return checkDir(path, rel, missing, total)
 	}
 }
 
-func checkDir(path, rel string, missing *[]string) error {
+func checkDir(path, rel string, missing *[]string, total *int) error {
 	isPkg, hasAgents, err := analyzeDir(path)
 	if err != nil {
 		return err
 	}
 
-	if isPkg && !hasAgents {
-		*missing = append(*missing, rel)
+	if isPkg {
+		*total++
+		if !hasAgents {
+			*missing = append(*missing, rel)
+		}
 	}
 	return nil
 }
