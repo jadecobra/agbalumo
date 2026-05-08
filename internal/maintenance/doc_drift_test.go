@@ -39,6 +39,12 @@ Valid: ` + "`go run ./cmd/verify ci`" + `
 Stale Task: ` + "`task pre-commit`" + `
 Invalid Verify: ` + "`go run ./cmd/verify nonexistent`" + `
 `
+	manifestContent := `
+commands:
+  - name: ci
+`
+	_ = os.MkdirAll(filepath.Join(tmpDir, ".agents"), 0700)
+	_ = os.WriteFile(filepath.Join(tmpDir, ".agents/verify-manifest.yaml"), []byte(manifestContent), 0600)
 	_ = os.WriteFile(docPath, []byte(content), 0600)
 
 	t.Run("detects stale commands", func(t *testing.T) {

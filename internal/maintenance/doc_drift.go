@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"gopkg.in/yaml.v3"
 )
 
 // DriftViolation represents a stale file reference in documentation.
@@ -14,6 +16,15 @@ type DriftViolation struct {
 	ReferencedPath string
 	Line           int
 	Exists         bool
+}
+
+type manifest struct {
+	Commands []struct {
+		Name string `yaml:"name"`
+	} `yaml:"commands"`
+	Tools []struct {
+		Name string `yaml:"name"`
+	} `yaml:"tools"`
 }
 
 var (
@@ -39,6 +50,35 @@ func CheckDocDrift(rootDir string) ([]DriftViolation, error) {
 	return violations, nil
 }
 
+func loadValidSubcommands(rootDir string) (map[string]bool, error) {
+	manifestPath := filepath.Join(rootDir, ".agents/verify-manifest.yaml")
+	data, err := os.ReadFile(manifestPath) //nolint:gosec // maintenance utility reads project-root manifest
+	if err != nil {
+		if os.IsNotExist(err) {
+			return make(map[string]bool), nil
+		}
+		return nil, err
+	}
+
+	var m manifest
+	if err := yaml.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+
+	cmdMap := make(map[string]bool)
+	for _, c := range m.Commands {
+		if c.Name != "" {
+			cmdMap[c.Name] = true
+		}
+	}
+	for _, t := range m.Tools {
+		if t.Name != "" {
+			cmdMap[t.Name] = true
+		}
+	}
+	return cmdMap, nil
+}
+
 // CheckCommandDrift scans all documentation for stale command references.
 func CheckCommandDrift(rootDir string) ([]DriftViolation, error) {
 	docs, err := findMarkdownDocs(rootDir)
@@ -46,18 +86,9 @@ func CheckCommandDrift(rootDir string) ([]DriftViolation, error) {
 		return nil, err
 	}
 
-	subcommands := []string{
-		"browser", "ci", "design", "doc-drift", "api-spec", "template-drift",
-		"location-backfill", "enrich", "context-cost", "coverage", "audit", "verify-shas",
-		"ci-tools", "js-syntax", "gitleaks", "ignored-files", "critique", "heal",
-		"perf", "check-gates", "watch", "gosec-rationale", "preflight",
-		"session-context", "janitor", "dump-invariants", "visual-audit",
-		"skill-conformance", "check-resolvable", "map", "schema", "trace",
-		"root-hygiene", "precommit", "test",
-	}
-	cmdMap := make(map[string]bool)
-	for _, c := range subcommands {
-		cmdMap[c] = true
+	cmdMap, err := loadValidSubcommands(rootDir)
+	if err != nil {
+		return nil, err
 	}
 
 	var violations []DriftViolation

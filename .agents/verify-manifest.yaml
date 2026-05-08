@@ -15,6 +15,14 @@ commands:
     trigger: design_critique
     description: Run deterministic visual audit (static + Playwright)
 
+  - name: design
+    trigger: template_change
+    description: Verify brand compliance and design tokens
+
+  - name: map
+    trigger: architectural_discovery
+    description: Map system symbols, routes, and templates
+
   - name: heal
     trigger: after_critique_violations
     description: Auto-fix structural issues
