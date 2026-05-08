@@ -28,7 +28,7 @@ func TestVerifyPlaywrightConfig(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name:    "valid config with complex structure",
+			name: "valid config with complex structure",
 			content: `export default defineConfig({
   reporter: [['html', { open: 'never' }]],
   use: { ... }

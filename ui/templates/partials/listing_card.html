@@ -82,38 +82,26 @@
                     <span class="text-xs md:text-sm" title="Featured Listing">🍊</span>
                     {{ end }}
                     
-                    {{ $flag := countryFlag .Listing.OwnerOrigin }}
-                    {{ if .Listing.EnrichmentAttemptedAt }}
-                        {{ $eFlag := countryFlag .Listing.RegionalSpecialty }}
-                        {{ if $eFlag }}{{ $flag = $eFlag }}{{ end }}
-                    {{ end }}
-
-                    {{ if $flag }}
-                    <span class="ml-1 opacity-90 flex items-center gap-1" title="{{ if .Listing.EnrichmentAttemptedAt }}Verified Origin: {{ .Listing.RegionalSpecialty }}{{ else }}Poster Origin: {{ .Listing.OwnerOrigin }}{{ end }}">
-                        {{ $flag }}
-                        {{ if .Listing.EnrichmentAttemptedAt }}
-                        <span class="material-symbols-outlined text-[14px] md:text-[16px] text-blue-500 font-bold" title="Verified by Agbalumo">verified</span>
-                        {{ end }}
-                    </span>
-                    {{ end }}
                 </h3>
             </div>
         </div>
  
          {{ if eq .Listing.Type "Food" }}
          <div class="flex flex-col gap-2 mb-4 md:mb-6 mt-1">
-             {{ if .Listing.RegionalSpecialty }}
-                 {{ $showBadge := true }}
-                 {{ if isCountry .Listing.RegionalSpecialty }}
-                     {{ $showBadge = false }}
+             {{ if or .Listing.RegionalSpecialty .Listing.OwnerOrigin }}
+                 {{ $flag := countryFlag .Listing.OwnerOrigin }}
+                 {{ if .Listing.EnrichmentAttemptedAt }}
+                     {{ $eFlag := countryFlag .Listing.RegionalSpecialty }}
+                     {{ if $eFlag }}{{ $flag = $eFlag }}{{ end }}
                  {{ end }}
 
-                 {{ if $showBadge }}
                  <div class="flex items-center gap-2 text-secondary">
                      <span class="material-symbols-outlined text-[18px]">workspace_premium</span>
-                     <span class="text-xs md:text-sm font-bold tracking-wide">Origin: {{ .Listing.RegionalSpecialty }}</span>
+                     <span class="text-xs md:text-sm font-bold tracking-wide flex items-center gap-1.5">
+                        {{ if $flag }}<span>{{ $flag }}</span>{{ end }}
+                        {{ if .Listing.RegionalSpecialty }}{{ if not (isCountry .Listing.RegionalSpecialty) }}<span>{{ .Listing.RegionalSpecialty }}</span>{{ end }}{{ end }}
+                     </span>
                  </div>
-                 {{ end }}
              {{ end }}
          </div>
          {{ end }}

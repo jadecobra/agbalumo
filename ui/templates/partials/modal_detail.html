@@ -34,31 +34,6 @@
                     <span
                         class="bg-earth-accent/90 text-white text-[10px] capitalize font-bold px-2 py-0.5  tracking-wider shadow-sm">{{
                         .Listing.Type }}</span>
-                    {{ $flag := countryFlag .Listing.OwnerOrigin }}
-                    {{ if .Listing.EnrichmentAttemptedAt }}
-                        {{ $eFlag := countryFlag .Listing.RegionalSpecialty }}
-                        {{ if $eFlag }}{{ $flag = $eFlag }}{{ end }}
-                    {{ end }}
-
-                    {{ if $flag }}
-                    <span class="text-xl shadow-sm flex items-center gap-1" title="{{ if .Listing.EnrichmentAttemptedAt }}Verified Origin: {{ .Listing.RegionalSpecialty }}{{ else }}Poster Origin: {{ .Listing.OwnerOrigin }}{{ end }}">
-                        {{ $flag }}
-                        {{ if .Listing.EnrichmentAttemptedAt }}
-                        <span class="material-symbols-outlined text-[16px] text-blue-400 font-bold" title="Verified by Agbalumo">verified</span>
-                        {{ end }}
-                    </span>
-                    {{ end }}
-
-                    {{ if .Listing.RegionalSpecialty }}
-                        {{ if not (isCountry .Listing.RegionalSpecialty) }}
-                        <span class="bg-secondary/90 text-white text-[10px] capitalize font-bold px-2 py-0.5 tracking-wider shadow-sm">{{ .Listing.RegionalSpecialty }}</span>
-                        {{ end }}
-                    {{ end }}
-                    {{ if gt .Listing.HeatLevel 0 }}
-                    <div class="flex items-center gap-0.5 ml-1">
-                        {{ if ge .Listing.HeatLevel 1 }}🌶️{{ end }}{{ if ge .Listing.HeatLevel 2 }}🌶️{{ end }}{{ if ge .Listing.HeatLevel 3 }}🌶️{{ end }}{{ if ge .Listing.HeatLevel 4 }}🌶️{{ end }}{{ if ge .Listing.HeatLevel 5 }}🌶️{{ end }}
-                    </div>
-                    {{ end }}
                 </div>
                 <h2 class="text-2xl font-bold font-serif leading-tight">{{ .Listing.Title }}</h2>
             </div>
@@ -76,6 +51,34 @@
                             }}</span>{{ end }}
                     </div>
                 </a>
+
+                {{ $flag := countryFlag .Listing.OwnerOrigin }}
+                {{ if .Listing.EnrichmentAttemptedAt }}
+                    {{ $eFlag := countryFlag .Listing.RegionalSpecialty }}
+                    {{ if $eFlag }}{{ $flag = $eFlag }}{{ end }}
+                {{ end }}
+
+                {{ if or $flag .Listing.RegionalSpecialty (gt .Listing.HeatLevel 0) }}
+                <div class="flex flex-wrap items-center gap-3 mt-1 text-text-main/80 dark:text-earth-cream/80">
+                    {{ if $flag }}
+                    <div class="flex items-center gap-1.5" title="{{ if .Listing.EnrichmentAttemptedAt }}Verified Origin: {{ .Listing.RegionalSpecialty }}{{ else }}Poster Origin: {{ .Listing.OwnerOrigin }}{{ end }}">
+                        <span class="text-lg">{{ $flag }}</span>
+                        {{ if .Listing.RegionalSpecialty }}
+                            {{ if not (isCountry .Listing.RegionalSpecialty) }}
+                            <span class="text-xs font-bold tracking-wide">{{ .Listing.RegionalSpecialty }}</span>
+                            {{ end }}
+                        {{ end }}
+                    </div>
+                    {{ end }}
+
+                    {{ if gt .Listing.HeatLevel 0 }}
+                    <div class="flex items-center gap-0.5 py-0.5 px-2 bg-stone-100 dark:bg-white/5 border border-stone-200 dark:border-white/10">
+                        <span class="text-[10px] font-bold uppercase tracking-widest mr-1 opacity-70">Heat:</span>
+                        {{ if ge .Listing.HeatLevel 1 }}🌶️{{ end }}{{ if ge .Listing.HeatLevel 2 }}🌶️{{ end }}{{ if ge .Listing.HeatLevel 3 }}🌶️{{ end }}{{ if ge .Listing.HeatLevel 4 }}🌶️{{ end }}{{ if ge .Listing.HeatLevel 5 }}🌶️{{ end }}
+                    </div>
+                    {{ end }}
+                </div>
+                {{ end }}
 
                 {{ if and .User (eq .User.ID .Listing.OwnerID) }}
                 <button hx-get="/listings/{{.Listing.ID}}/edit" hx-target="body" hx-swap="beforeend" data-testid="edit-listing-btn"
