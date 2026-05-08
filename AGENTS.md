@@ -81,7 +81,7 @@ Skills are step-by-step procedures in `.agents/skills/`. You MUST read the relev
 | CI Parity | Pushing changes, CI failure, production parity | `.agents/skills/ci-parity/SKILL.md` |
 | Flash Planning | /plan, /architect, planning sessions, prompt decomposition | .agents/skills/flash-plan/SKILL.md |
 | UI Cohesion | Template change, design review, visual audit | `.agents/skills/ui-cohesion/SKILL.md` |
-| Design Critique | /design-critique, design review, UI audit | `.agents/workflows/design-critique.md` |
+| Design Critique | /design-critique, design review, UI audit | `.agents/skills/design-critique/SKILL.md` |
 
 
 **Rule**: When a new skill is created, add it to this table and to `.agents/verify-manifest.yaml`.

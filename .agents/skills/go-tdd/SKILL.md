@@ -7,7 +7,7 @@ triggers:
   - "implementing features"
   - "TDD"
   - "red green refactor"
-mutating: false
+mutating: true
 ---
 # Go TDD Skill
 ## Session Start

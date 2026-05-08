@@ -52,6 +52,54 @@ commands:
     trigger: before_commit
     description: Verify root directory cleanliness
 
+  - name: audit
+    trigger: after_implementation
+    description: Performance, Auth, and Security gates
+
+  - name: verify-shas
+    trigger: ci_config_change
+    description: Verify integrity of tool SHAs
+
+  - name: ci-tools
+    trigger: ci_config_change
+    description: Audit local CI tool versions
+
+  - name: gitleaks
+    trigger: before_commit
+    description: Scan for secrets in staged changes
+
+  - name: ignored-files
+    trigger: before_commit
+    description: Ensure no sensitive files are tracked
+
+  - name: perf
+    trigger: after_implementation
+    description: Benchmark system constraints
+
+  - name: watch
+    trigger: development
+    description: Monitor push results via gh run watch
+
+  - name: gosec-rationale
+    trigger: security_change
+    description: Verify security audit rationales
+
+  - name: session-context
+    trigger: session_start
+    description: Load session-specific constraints
+
+  - name: dump-invariants
+    trigger: config_change
+    description: Dump system invariants to JSON
+
+  - name: coverage
+    trigger: after_implementation
+    description: Verify test coverage thresholds
+
+  - name: test
+    trigger: test_authoring
+    description: Run package-level unit tests
+
   - name: janitor
     trigger: root_directory_clutter
     description: Move stale root artifacts to .tester/
@@ -97,4 +145,8 @@ tools:
   - name: trace
     trigger: observability, request_lifecycle
     description: "Observes the request lifecycle (Middleware -> DB -> UI) with aggressive logging"
+
+  - name: template-contract
+    trigger: template_change
+    description: "Enforces strictly typed ViewModel contracts for UI templates"
 

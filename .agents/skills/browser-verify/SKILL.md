@@ -7,7 +7,7 @@ triggers:
   - "layout check"
   - "viewport audit"
   - "visual regression"
-mutating: false
+mutating: true
 ---
 # Browser Verification Skill
 
