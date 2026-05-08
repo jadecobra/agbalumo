@@ -16,7 +16,7 @@ description: Phase 3: Audit & Resilience
 3. **Disk-Parity Test**: Run tests against a temporary file-backed SQLite DB (not just `:memory:`) to verify WAL-mode/concurrency behavior.
 4. **Chaos/Resilience**: Identify the weakest architectural boundary of the new feature based on the project structure:
 - `repository/`: Inject database timeouts or connection drops.
-- `handler/` & `middleware/`: Inject malformed payloads or test rate limit exhaustion.
+- `module/` & `middleware/`: Inject malformed payloads or test rate limit exhaustion.
 - `service/`: Force business logic edge cases or unexpected interface nil returns.
 5. **The Resilience Halt**: If chaos tests break the app, HALT and explain. Propose 2-3 patterns (e.g., Circuit Breaker). WAIT for user decision.
 6. **Contract Verification**:

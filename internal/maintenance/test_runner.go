@@ -10,7 +10,7 @@ import (
 )
 
 // RunTests executes the Go test suite with race detection and coverage.
-// It also enforces the coverage threshold defined in .metrics/coverage or .agents/coverage-threshold.
+// It also enforces the coverage threshold defined in .agents/coverage.json.
 func RunTests(pkg string, race bool, thresholdPath string, short bool, parallel int) error {
 	args := []string{"test", "-v", "-coverprofile=.tester/coverage/coverage.out"}
 	if race {
