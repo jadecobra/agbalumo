@@ -185,6 +185,15 @@ var precommitCmd = &cobra.Command{
 			return err
 		}
 
+		// 8. Documentation Drift Check (if .md files staged)
+		stagedMDFiles, _ := getStagedFiles(".md")
+		if len(stagedMDFiles) > 0 {
+			fmt.Println("📚 Documentation staged. Verifying path/command integrity...")
+			if err := docDriftCmd.RunE(cmd, args); err != nil {
+				return err
+			}
+		}
+
 		fmt.Println("✅ Pre-commit verification passed!")
 		return nil
 	},

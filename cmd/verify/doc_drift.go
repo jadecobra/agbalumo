@@ -17,6 +17,18 @@ var docDriftCmd = &cobra.Command{
 			return fmt.Errorf("failed to check doc drift: %w", err)
 		}
 
+		cmdViolations, err := maintenance.CheckCommandDrift(".")
+		if err != nil {
+			return fmt.Errorf("failed to check command drift: %w", err)
+		}
+		violations = append(violations, cmdViolations...)
+
+		cfgViolations, err := maintenance.CheckConfigPathDrift(".")
+		if err != nil {
+			return fmt.Errorf("failed to check config path drift: %w", err)
+		}
+		violations = append(violations, cfgViolations...)
+
 		if len(violations) == 0 {
 			fmt.Println("✅ No documentation drift detected.")
 			return nil
@@ -24,7 +36,7 @@ var docDriftCmd = &cobra.Command{
 
 		fmt.Printf("❌ Detected %d stale documentation references:\n", len(violations))
 		for _, v := range violations {
-			fmt.Printf("  %s:%d -> %s (Not Found)\n", v.DocFile, v.Line, v.ReferencedPath)
+			fmt.Printf("  %s:%d -> %s (Stale/Invalid)\n", v.DocFile, v.Line, v.ReferencedPath)
 		}
 
 		os.Exit(1)

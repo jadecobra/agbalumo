@@ -48,7 +48,7 @@ func CheckCommandDrift(rootDir string) ([]DriftViolation, error) {
 
 	subcommands := []string{
 		"browser", "ci", "design", "doc-drift", "api-spec", "template-drift",
-		"location-backfill", "enrich", "cost", "coverage", "audit", "verify-shas",
+		"location-backfill", "enrich", "context-cost", "coverage", "audit", "verify-shas",
 		"ci-tools", "js-syntax", "gitleaks", "ignored-files", "critique", "heal",
 		"perf", "check-gates", "watch", "gosec-rationale", "preflight",
 		"session-context", "janitor", "dump-invariants", "visual-audit",

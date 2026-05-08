@@ -120,7 +120,7 @@ func TestFeatureName(t *testing.T) {
 ```
 
 ### Mocks
-Use `github.com/stretchr/testify/mock`. Place mocks in `internal/mock/`.
+Use `github.com/stretchr/testify/mock`. Place mocks in `internal/testutil/`.
 
 ### Test Helpers & Anti-Duplication
 - **Use Standards First:** Always check `internal/testutil/` for centralized UI, authentication, or seeding helpers (like `setupAdminTestContext`, `testutil.NewMainTemplate`) before creating custom ones inline.
@@ -132,7 +132,7 @@ Use `github.com/stretchr/testify/mock`. Place mocks in `internal/mock/`.
 ### Coverage & Rules
 - **TDD:** Write failing tests (RED) FIRST.
 - **Coverage:** Thresholds are defined in `.agents/coverage.json`. NEVER lower these value.
-- **Persona Sync:** Changes to rules MUST be mirrored in `GEMINI.md` and `.agents/rules/`.
+- **Persona Sync:** Changes to rules MUST be mirrored in `GEMINI.md` and `.agents/skills/`.
 - **Functions:** Keep functions small and single-purpose (SRP).
 - **Comments:** Code should be self-documenting; avoid unnecessary comments.
 
