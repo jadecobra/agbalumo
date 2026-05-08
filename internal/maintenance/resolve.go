@@ -67,12 +67,27 @@ func intentMatches(intent, triggerStr string) bool {
 	return false
 }
 
-func wordMatches(iNorm, tNorm string) bool {
-	tWords := strings.Fields(tNorm)
-	for _, tw := range tWords {
-		if len(tw) >= 3 && strings.Contains(iNorm, tw) {
-			return true
+func wordMatches(intentNorm, triggerNorm string) bool {
+	triggerWords := strings.Fields(triggerNorm)
+	if len(triggerWords) == 0 {
+		return false
+	}
+
+	intentWords := strings.Fields(intentNorm)
+	intentWordMap := make(map[string]bool)
+	for _, w := range intentWords {
+		intentWordMap[w] = true
+	}
+
+	matchCount := 0
+	for _, tw := range triggerWords {
+		if intentWordMap[tw] {
+			matchCount++
 		}
 	}
-	return false
+
+	// Requirement: strictly more than half of the trigger's words appear in the intent
+	// This ensures "config change" (2 words) matches "ci_config_change" (2/3 matches)
+	// but "config change" does NOT match "ui_change" (1/2 matches)
+	return matchCount*2 > len(triggerWords)
 }

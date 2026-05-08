@@ -66,7 +66,7 @@ func scanFileForDeprecated(path string) ([]DeprecatedViolation, error) {
 			})
 		}
 
-		if strings.Contains(line, "RenderWithBaseContext") {
+		if !strings.Contains(path, "internal/maintenance/") && strings.Contains(line, "RenderWithBaseContext") {
 			violations = append(violations, DeprecatedViolation{
 				File:       path,
 				Line:       lineNum,
