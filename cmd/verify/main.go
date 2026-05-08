@@ -116,6 +116,7 @@ func init() {
 		traceCmd,
 		rootHygieneCmd,
 		resolveCmd,
+		agentsCoverageCmd,
 	)
 }
 

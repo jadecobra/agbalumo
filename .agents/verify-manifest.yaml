@@ -64,6 +64,10 @@ commands:
     trigger: session_start
     description: Resolve intent to skills/workflows
 
+  - name: agents-coverage
+    trigger: session_start
+    description: "Check for missing AGENTS.md in Go packages"
+
   - name: audit
     trigger: after_implementation
     description: Performance, Auth, and Security gates
