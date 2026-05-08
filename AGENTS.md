@@ -82,6 +82,9 @@ Skills are step-by-step procedures in `.agents/skills/`. You MUST read the relev
 | Flash Planning | /plan, /architect, planning sessions, prompt decomposition | .agents/skills/flash-plan/SKILL.md |
 | UI Cohesion | Template change, design review, visual audit | `.agents/skills/ui-cohesion/SKILL.md` |
 | Design Critique | /design-critique, design review, UI audit | `.agents/skills/design-critique/SKILL.md` |
+| Flash Review | Flash output review, check implementation | `.agents/skills/flash-review/SKILL.md` |
+| Verify Authoring | Add verify subcommand, automate check | `.agents/skills/verify-authoring/SKILL.md` |
+
 
 
 **Rule**: When a new skill is created, add it to this table and to `.agents/verify-manifest.yaml`.

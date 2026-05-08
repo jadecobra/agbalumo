@@ -1,0 +1,62 @@
+---
+name: "Flash Review"
+description: "Post-Flash execution verification checklist — deterministic action-by-action review."
+triggers:
+  - "review flash output"
+  - "check implementation"
+  - "verify flash changes"
+  - "flash implemented"
+mutating: false
+---
+
+# Flash Review Skill
+
+## Trigger
+After a Flash model implements changes from a planning prompt, use this skill to verify correctness.
+
+## Procedure
+
+### Phase 1 — Action Verification (Deterministic)
+For each action item in the original prompt:
+1. Use `grep_search` or `view_file` to confirm the change was applied at the specified location
+2. Check: Does the change match the prompt's specification exactly?
+3. Record: ✅ Applied / ❌ Missing / ⚠️ Partial
+
+### Phase 2 — Gate Sweep (Deterministic)
+Run ALL applicable verification gates:
+```bash
+go build ./...
+go run ./cmd/verify doc-drift
+go run ./cmd/verify skill-conformance
+go run ./cmd/verify check-resolvable
+go run ./cmd/verify template-contract
+go run ./cmd/verify deprecated
+go run ./cmd/verify agents-coverage
+```
+Record pass/fail for each.
+
+### Phase 3 — TDD Verification
+If the prompt included a TDD section:
+1. Run the specified test commands
+2. Verify all tests pass
+3. Check test names match the prompt's specification
+
+### Phase 4 — Residual Scan (Reasoning)
+1. Search for stale references related to the changes (e.g., old paths, old function names)
+2. Check if the prompt's commit message convention was followed
+3. Identify any secondary effects the changes might have caused
+
+### Output Format
+```
+## Flash Review: [Prompt Name]
+### Actions: X/Y verified
+### Gates: X/Y passed  
+### Tests: X/Y passed
+### Residuals: [count] found
+### Verdict: CLEAN / [N] RESIDUALS
+```
+
+### Rules
+- Do NOT fix residuals during review. Report them for a follow-up prompt.
+- If >50% of actions failed verification, flag the entire prompt for re-execution.
+- Score delta is optional — only compute if a baseline score was established.

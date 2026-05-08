@@ -149,6 +149,14 @@ skills:
     trigger: /design-critique, critique design, review ui, harsh review
     path: .agents/skills/design-critique/SKILL.md
 
+  - name: flash-review
+    trigger: flash_review, after_flash_implementation
+    path: .agents/skills/flash-review/SKILL.md
+
+  - name: verify-authoring
+    trigger: tool_creation, automate_check
+    path: .agents/skills/verify-authoring/SKILL.md
+
   - name: design-rubric
     trigger: design_critique
     path: .agents/workflows/design-rubric.md
