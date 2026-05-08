@@ -121,10 +121,11 @@ func (h *AdminHandler) HandleLoginAction(c echo.Context) error {
 }
 
 func (h *AdminHandler) renderLoginView(c echo.Context, errMsg string) error {
-	data := map[string]interface{}{
-		"Error": errMsg,
+	data := AdminLoginViewModel{
+		BaseViewData: h.PopulateBase(c),
+		Error:        errMsg,
 	}
-	return c.Render(http.StatusOK, "admin_login.html", data)
+	return h.RenderTyped(c, "admin_login.html", data)
 }
 
 func (h *AdminHandler) redirectWithFlash(c echo.Context, msg, targetURL string) error {

@@ -46,59 +46,6 @@ func (h *ListingHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddlewa
 	authGroup.GET("/saved", h.HandleSavedListings)
 }
 
-type HomeViewModel struct {
-	SavedIDs         map[string]bool
-	Source           string
-	Query            string
-	City             string
-	FilterType       string
-	GoogleMapsApiKey string
-	Featured         []domain.Listing
-	Locations        []domain.Location
-	Listings         []domain.Listing
-	module.BaseViewData
-	Pagination Pagination
-	Radius     float64
-	TotalCount int
-}
-
-type ListingFragmentViewModel struct {
-	User       interface{}
-	SavedIDs   map[string]bool
-	Query      string
-	City       string
-	FilterType string
-	Source     string
-	Listings   []domain.Listing
-	Featured   []domain.Listing
-	Pagination Pagination
-	Radius     float64
-}
-
-type DetailViewModel struct {
-	GoogleMapsApiKey string
-	Category         domain.CategoryData
-	SavedIDs         map[string]bool
-	module.BaseViewData
-	Listing  domain.Listing
-	CanClaim bool
-}
-
-type EditViewModel struct {
-	TargetID         string
-	Source           string
-	GoogleMapsApiKey string
-	module.BaseViewData
-	Listing domain.Listing
-}
-
-type ProfileViewModel struct {
-	SavedIDs         map[string]bool
-	GoogleMapsApiKey string
-	Listings         []domain.Listing
-	module.BaseViewData
-}
-
 // Home Handler
 func (h *ListingHandler) HandleHome(c echo.Context) error {
 	ctx := c.Request().Context()
@@ -321,24 +268,6 @@ func (h *ListingHandler) parseQueryParams(c echo.Context) queryParams {
 
 func (h *ListingHandler) processListings(listings []domain.Listing) {
 	// No-op for now as operational status display is removed
-}
-
-func (h *ListingHandler) buildListingViewData(c echo.Context, listings []domain.Listing) map[string]interface{} {
-	savedIDs := h.getSavedIDs(c)
-	var savedMap map[string]bool
-	if len(savedIDs) > 0 {
-		savedMap = make(map[string]bool)
-		for _, id := range savedIDs {
-			savedMap[id] = true
-		}
-	}
-
-	data := map[string]interface{}{
-		"Listings": listings,
-		"User":     c.Get(domain.CtxKeyUser),
-		"SavedIDs": savedMap,
-	}
-	return data
 }
 
 func (h *ListingHandler) getSavedIDs(c echo.Context) []string {

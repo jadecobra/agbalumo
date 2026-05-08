@@ -6,12 +6,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type MetricRequest struct {
-	Metadata map[string]interface{} `json:"metadata"`
-	Event    string                 `json:"event"`
-	Value    float64                `json:"value"`
-}
-
 // HandleMetricsIngestion receives frontend metrics and logs/saves them.
 func (h *ListingHandler) HandleMetricsIngestion(c echo.Context) error {
 	var req MetricRequest
@@ -25,7 +19,7 @@ func (h *ListingHandler) HandleMetricsIngestion(c echo.Context) error {
 
 	// Capture IP or UserAgent if needed from context
 	if req.Metadata == nil {
-		req.Metadata = make(map[string]interface{})
+		req.Metadata = make(map[string]any)
 	}
 	req.Metadata["ua"] = c.Request().UserAgent()
 

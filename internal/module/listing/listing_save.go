@@ -1,27 +1,11 @@
 package listing
 
 import (
-	"net/http"
-
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/module"
 	"github.com/jadecobra/agbalumo/internal/module/user"
 	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
 )
-
-type SavedListingsViewModel struct {
-	SavedIDs   map[string]bool
-	Source     string
-	City       string
-	FilterType string
-	Query      string
-	Listings   []domain.Listing
-	Featured   []domain.Listing
-	module.BaseViewData
-	Pagination Pagination
-	Radius     float64
-}
 
 func (h *ListingHandler) HandleSaveToggle(c echo.Context) error {
 	u, err := user.RequireUserAPI(c)
@@ -45,10 +29,12 @@ func (h *ListingHandler) HandleSaveToggle(c echo.Context) error {
 		return ui.RespondError(c, err)
 	}
 
-	return c.Render(http.StatusOK, "save_button", map[string]interface{}{
-		"ListingID": id,
-		"IsSaved":   !saved,
-	})
+	vm := SaveButtonViewModel{
+		ListingID: id,
+		IsSaved:   !saved,
+	}
+
+	return h.RenderTyped(c, "save_button", vm)
 }
 
 func (h *ListingHandler) HandleSavedListings(c echo.Context) error {
