@@ -288,3 +288,34 @@ Verify root directory cleanliness and ensure no tracked artifacts are present.
 ```bash
 agbalumo verify root-hygiene
 ```
+##### agents-coverage
+
+Check for missing AGENTS.md files in Go packages.
+
+```bash
+agbalumo verify agents-coverage
+```
+
+##### deprecated
+
+Scan for deprecated patterns (map[string]interface{}, RenderWithBaseContext).
+
+```bash
+agbalumo verify deprecated
+```
+
+##### resolve
+
+Resolve intent to skills/workflows.
+
+```bash
+agbalumo verify resolve [intent]
+```
+
+##### template-contract
+
+Enforce strictly typed ViewModel contracts for UI templates.
+
+```bash
+agbalumo verify template-contract
+```
