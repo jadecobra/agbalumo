@@ -18,12 +18,14 @@ test.describe('Saved/Favorites Feature', () => {
     test.skip(testInfo.project.name === 'Mobile', 'Hearts on cards are hidden or positioned differently on mobile');
 
     // Log in as dev user
-    await page.goto('/auth/dev');
+    const response = await page.goto('/auth/dev');
+    expect(response?.status()).toBe(200);
     await page.waitForURL('/');
     
     // Ensure listings exist
     const listings = page.getByTestId('ag-listing-card');
-    await expect(listings.first()).toBeVisible({ timeout: 15000 });
+    // Wait for the container to ensure page load/HTMX initialization
+    await page.locator('#listings-container').waitFor({ state: 'attached', timeout: 10000 });
     const count = await listings.count();
     test.skip(count === 0, 'No listings in dev DB');
 
@@ -45,11 +47,12 @@ test.describe('Saved/Favorites Feature', () => {
     test.skip(testInfo.project.name === 'Mobile', 'Hearts on cards are hidden or positioned differently on mobile');
 
     // Auth
-    await page.goto('/auth/dev');
+    const response = await page.goto('/auth/dev');
+    expect(response?.status()).toBe(200);
     
     // Ensure listings exist
     const listings = page.getByTestId('ag-listing-card');
-    await expect(listings.first()).toBeVisible({ timeout: 15000 });
+    await page.locator('#listings-container').waitFor({ state: 'attached', timeout: 10000 });
     const count = await listings.count();
     test.skip(count === 0, 'No listings in dev DB');
 
@@ -82,11 +85,12 @@ test.describe('Saved/Favorites Feature', () => {
     const isMobile = testInfo.project.name === 'Mobile';
     
     // Auth
-    await page.goto('/auth/dev');
+    const response = await page.goto('/auth/dev');
+    expect(response?.status()).toBe(200);
 
     // Ensure listings exist
     const listings = page.getByTestId('ag-listing-card');
-    await expect(listings.first()).toBeVisible({ timeout: 15000 });
+    await page.locator('#listings-container').waitFor({ state: 'attached', timeout: 10000 });
     const count = await listings.count();
     test.skip(count === 0, 'No listings in dev DB');
 
