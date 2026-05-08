@@ -181,3 +181,7 @@ var rootHygieneCmd = makeSimpleCmd("root-hygiene", "Verify that the root directo
 	fmt.Println("🔍 Checking root directory hygiene...")
 	return maintenance.VerifyRootHygiene(".")
 })
+
+var playwrightConfigCmd = makeSimpleCmd("playwright-config", "Verify playwright config prevents port exhaustion", func() error {
+	return maintenance.VerifyPlaywrightConfig(".")
+})

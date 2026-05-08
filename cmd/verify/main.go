@@ -119,6 +119,7 @@ func init() {
 		rootHygieneCmd,
 		resolveCmd,
 		agentsCoverageCmd,
+		playwrightConfigCmd,
 	)
 }
 
