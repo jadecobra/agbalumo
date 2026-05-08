@@ -146,7 +146,7 @@ func printInvariants(rootDir string) {
 }
 
 func printSkillsAndCommands(rootDir string, modifiedFiles []string) {
-	manifest, err := loadVerifyManifest(rootDir)
+	manifest, err := LoadVerifyManifest(rootDir)
 	if err != nil {
 		return
 	}
@@ -156,7 +156,7 @@ func printSkillsAndCommands(rootDir string, modifiedFiles []string) {
 	printMatchedCommands(manifest.Commands, matchedTriggers)
 }
 
-func loadVerifyManifest(rootDir string) (*VerifyManifest, error) {
+func LoadVerifyManifest(rootDir string) (*VerifyManifest, error) {
 	manifestPath := filepath.Join(rootDir, ".agents/verify-manifest.yaml")
 	// #nosec G304 -- manifest path is trusted project metadata
 	content, err := os.ReadFile(manifestPath)

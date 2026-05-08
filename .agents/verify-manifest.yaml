@@ -60,6 +60,10 @@ commands:
     trigger: before_commit
     description: Verify root directory cleanliness
 
+  - name: resolve
+    trigger: session_start
+    description: Resolve intent to skills/workflows
+
   - name: audit
     trigger: after_implementation
     description: Performance, Auth, and Security gates
