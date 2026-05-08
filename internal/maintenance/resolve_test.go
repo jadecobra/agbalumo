@@ -18,6 +18,9 @@ commands:
   - name: browser
     trigger: ui_change
     description: UI tests
+  - name: ci-tools
+    trigger: ci_config_change
+    description: CI Tools
 
 skills:
   - name: go-tdd
@@ -47,7 +50,11 @@ skills:
 		},
 		{
 			intent:   "ui change",
-			expected: []string{"browser", "browser-verify"},
+			expected: []string{"browser", "browser-verify"}, // Should NOT match ci-tools
+		},
+		{
+			intent:   "config change",
+			expected: []string{"ci-tools"}, // Matches 2/3 words of ci_config_change
 		},
 		{
 			intent:   "nonexistent intent",

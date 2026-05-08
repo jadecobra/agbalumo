@@ -17,7 +17,7 @@ func TestCheckDeprecatedPatterns(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	// Expect 3 violations: 
+	// Expect 3 violations:
 	// 1. map[string]interface{} in internal/module/bad.go
 	// 2. map[string]interface{} in internal/handler/bad.go
 	// 3. RenderWithBaseContext in internal/service/bad.go
@@ -73,6 +73,13 @@ func TestHandle(t *testing.T) {
 	data := map[string]interface{}{}
 	_ = data
 }`), 0600)
+
+	// internal/maintenance/scanner.go (should be ignored for RenderWithBaseContext)
+	maintScanner := filepath.Join(tmpDir, "internal", "maintenance", "scanner.go")
+	_ = os.MkdirAll(filepath.Dir(maintScanner), 0750)
+	_ = os.WriteFile(maintScanner, []byte(`package maintenance
+const pattern = "RenderWithBaseContext"
+`), 0600)
 }
 
 func validateDeprecatedViolations(t *testing.T, violations []DeprecatedViolation) {
