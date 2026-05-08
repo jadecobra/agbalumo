@@ -10,3 +10,11 @@ This package handles HTTP routing and business logic. It is the core of the appl
 ## Logic & Services
 *   **Validation**: Perform input validation in the handler before passing data to the service. Use struct tags and the project's validator if available.
 *   **Indemnity**: Handlers should be as "thin" as possible. If a handler exceeds 50 lines, extract the logic into a private helper or a service method.
+
+## Quick Reference
+* `user.GetUser(c) → (*domain.User, bool)`
+* `ui.RespondError(c, err)` — renders error page
+* `testutil.SetupTestRepository(t)` — SQLite in-memory test DB
+* `testutil.NewMainTemplate()` — minimal templates for fragment testing
+* `testutil.NewRealTemplate(t)` — full filesystem templates for regression testing
+* HTMX Detection: `c.Request().Header.Get("HX-Request") == "true"`

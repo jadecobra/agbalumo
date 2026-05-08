@@ -69,6 +69,7 @@ func RunPreflight(rootDir string) error {
 	printStrictLessons(rootDir, domains)
 	printSkillsAndCommands(rootDir, modifiedFiles)
 	printInvariants(rootDir)
+	fmt.Println("📍 Navigation: see docs/ATLAS.md for intent-to-file mapping")
 
 	return nil
 }
