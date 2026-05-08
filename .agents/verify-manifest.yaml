@@ -166,3 +166,7 @@ tools:
     trigger: template_change
     description: "Enforces strictly typed ViewModel contracts for UI templates"
 
+  - name: deprecated
+    trigger: after_implementation
+    description: "Scan for deprecated patterns (map[string]interface{}, RenderWithBaseContext)"
+
