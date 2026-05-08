@@ -25,7 +25,7 @@ var mockUser = domain.User{
 
 var baseData = module.BaseViewData{
 	Env:  "test",
-	User: mockUser,
+	User: &mockUser,
 	CSRF: "test-csrf",
 }
 

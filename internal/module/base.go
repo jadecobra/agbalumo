@@ -9,7 +9,7 @@ import (
 
 // BaseViewData represents the common data required by all page templates.
 type BaseViewData struct {
-	User             interface{}
+	User             *domain.User
 	Counts           map[string]int
 	Env              string
 	CSRF             string
@@ -64,7 +64,11 @@ func (h *BaseHandler) PopulateBase(c echo.Context) BaseViewData {
 	}
 
 	if u := c.Get("User"); u != nil {
-		data.User = u
+		if user, ok := u.(domain.User); ok {
+			data.User = &user
+		} else if userPtr, ok := u.(*domain.User); ok {
+			data.User = userPtr
+		}
 	}
 
 	if csrf := c.Get("csrf"); csrf != nil {
@@ -79,61 +83,4 @@ func (h *BaseHandler) PopulateBase(c echo.Context) BaseViewData {
 // RenderTyped is the preferred way to render templates with typed ViewModels.
 func (h *BaseHandler) RenderTyped(c echo.Context, tmpl string, data interface{}) error {
 	return c.Render(http.StatusOK, tmpl, data)
-}
-
-// RenderWithBaseContext is a shared helper that injects common data (Categories, Env, etc.)
-// into the data map before rendering.
-// Deprecated: Use PopulateBase() + typed ViewModel structs.
-func (h *BaseHandler) RenderWithBaseContext(c echo.Context, tmpl string, data map[string]interface{}) error {
-
-	h.injectCategories(c, data)
-	h.injectCounts(c, data)
-
-	data["Env"] = h.App.Cfg.Env
-	data["DevMode"] = h.App.Cfg.Env == "development"
-	data["HasGoogleAuth"] = h.App.Cfg.HasGoogleAuth
-
-	// Add User if present in context
-	if u := c.Get("User"); u != nil {
-		data["User"] = u
-	}
-
-	if csrf := c.Get("csrf"); csrf != nil {
-		data["CSRF"] = csrf
-	}
-
-	return c.Render(http.StatusOK, tmpl, data)
-}
-
-func (h *BaseHandler) injectCategories(c echo.Context, data map[string]interface{}) {
-	if _, exists := data["Categories"]; exists {
-		return
-	}
-
-	categories, err := h.App.CategorizationSvc.GetActiveCategories(c.Request().Context())
-	if err != nil {
-		c.Logger().Errorf("Failed to retrieve categories: %v", err)
-		data["Categories"] = []interface{}{}
-		return
-	}
-	data["Categories"] = categories
-}
-
-func (h *BaseHandler) injectCounts(c echo.Context, data map[string]interface{}) {
-	if _, exists := data["Counts"]; exists {
-		return
-	}
-
-	counts, err := h.App.DB.GetCounts(c.Request().Context())
-	if err != nil {
-		c.Logger().Errorf("Failed to retrieve counts: %v", err)
-		data["Counts"] = map[string]int{}
-		return
-	}
-
-	strCounts := make(map[string]int)
-	for cat, count := range counts {
-		strCounts[string(cat)] = count
-	}
-	data["Counts"] = strCounts
 }

@@ -60,18 +60,15 @@ func TestPopulateBase(t *testing.T) {
 					t.Errorf("expected User to be nil, got %v", data.User)
 				}
 			} else {
-				// This will fail to compile or fail type assertion if BaseViewData.User is interface{}
-				// or if it's not correctly handled in PopulateBase
-				user, ok := data.User.(*domain.User)
-				if !ok {
-					t.Errorf("expected User to be *domain.User, got %T", data.User)
+				if data.User == nil {
+					t.Errorf("expected User to be non-nil")
 					return
 				}
-				if user.ID != tt.wantUser.ID {
-					t.Errorf("expected User ID %s, got %s", tt.wantUser.ID, user.ID)
+				if data.User.ID != tt.wantUser.ID {
+					t.Errorf("expected User ID %s, got %s", tt.wantUser.ID, data.User.ID)
 				}
-				if user.Name != tt.wantUser.Name {
-					t.Errorf("expected User Name %s, got %s", tt.wantUser.Name, user.Name)
+				if data.User.Name != tt.wantUser.Name {
+					t.Errorf("expected User Name %s, got %s", tt.wantUser.Name, data.User.Name)
 				}
 			}
 		})
