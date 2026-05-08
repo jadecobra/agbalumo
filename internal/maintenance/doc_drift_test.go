@@ -105,3 +105,39 @@ func setupMockFilesystem(t *testing.T, tmpDir string) {
 		}
 	}
 }
+
+func TestCheckCommandDrift_DynamicFromManifest(t *testing.T) {
+	tmpDir := t.TempDir()
+	_ = os.MkdirAll(filepath.Join(tmpDir, ".agents"), 0700)
+	_ = os.MkdirAll(filepath.Join(tmpDir, "docs"), 0700)
+
+	manifestContent := `
+commands:
+  - name: my-new-cmd
+tools:
+  - name: my-tool
+`
+	_ = os.WriteFile(filepath.Join(tmpDir, ".agents/verify-manifest.yaml"), []byte(manifestContent), 0600)
+
+	docContent := `
+# Docs
+Valid: ` + "`go run ./cmd/verify my-new-cmd`" + `
+Valid: ` + "`go run ./cmd/verify my-tool`" + `
+Stale: ` + "`go run ./cmd/verify nonexistent`" + `
+`
+	_ = os.WriteFile(filepath.Join(tmpDir, "docs/test.md"), []byte(docContent), 0600)
+
+	violations, err := CheckCommandDrift(tmpDir)
+	if err != nil {
+		t.Fatalf("CheckCommandDrift failed: %v", err)
+	}
+
+	// With current hardcoded list, "my-new-cmd" and "my-tool" are missing, so it should find 3 violations.
+	// Once implemented, it should only find 1 (nonexistent).
+	if len(violations) != 1 {
+		t.Errorf("expected 1 violation, got %d", len(violations))
+		for _, v := range violations {
+			t.Logf("Found unexpected violation: %s", v.ReferencedPath)
+		}
+	}
+}
