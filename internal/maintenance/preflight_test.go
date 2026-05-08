@@ -144,3 +144,58 @@ func runGit(t *testing.T, dir string, args ...string) {
 		t.Fatalf("git %v failed: %v\nOutput: %s", args, err, string(out))
 	}
 }
+
+func TestFilterLessonsByTrigger(t *testing.T) {
+	input := `* **Lesson 1** [TRIGGER: handler_change]: Description 1.
+* **Lesson 2** [TRIGGER: security_change]: Description 2.
+* **Lesson 3** [TRIGGER: template_change]: Description 3.
+* **Lesson 4**: Untagged lesson.`
+
+	tests := []struct {
+		name            string
+		matchedTriggers map[string]bool
+		expected        []string
+	}{
+		{
+			name:            "match handler_change",
+			matchedTriggers: map[string]bool{"handler_change": true},
+			expected:        []string{"Lesson 1", "Lesson 4"},
+		},
+		{
+			name:            "match template and security",
+			matchedTriggers: map[string]bool{"template_change": true, "security_change": true},
+			expected:        []string{"Lesson 2", "Lesson 3", "Lesson 4"},
+		},
+		{
+			name:            "no matches",
+			matchedTriggers: map[string]bool{"something_else": true},
+			expected:        []string{"Lesson 4"},
+		},
+		{
+			name:            "empty matches",
+			matchedTriggers: map[string]bool{},
+			expected:        []string{"Lesson 4"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := filterLessonsByTrigger(input, tt.matchedTriggers)
+			verifyFilteredOutput(t, got, tt.expected)
+		})
+	}
+}
+
+func verifyFilteredOutput(t *testing.T, got string, expected []string) {
+	t.Helper()
+	for _, exp := range expected {
+		if !strings.Contains(got, exp) {
+			t.Errorf("expected %q in output, but not found\nOutput: %s", exp, got)
+		}
+	}
+	// Verify count
+	lines := strings.Split(strings.TrimSpace(got), "\n")
+	if len(lines) != len(expected) && !(len(lines) == 1 && lines[0] == "" && len(expected) == 0) {
+		t.Errorf("expected %d lines, got %d\nOutput: %s", len(expected), len(lines), got)
+	}
+}

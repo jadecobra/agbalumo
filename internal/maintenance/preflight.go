@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -59,6 +60,8 @@ func RunPreflight(rootDir string) error {
 		return nil
 	}
 
+	matchedTriggers := getMatchedTriggers(modifiedFiles)
+
 	fmt.Println("📋 Preflight Context for this session")
 	fmt.Println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 	fmt.Printf("Modified domains: [%s]\n", strings.Join(domains, ", "))
@@ -66,8 +69,8 @@ func RunPreflight(rootDir string) error {
 	classifyAndPrintStagedFiles(rootDir)
 
 	printPackageConstraints(rootDir, domains)
-	printStrictLessons(rootDir, domains)
-	printSkillsAndCommands(rootDir, modifiedFiles)
+	printStrictLessons(rootDir, domains, matchedTriggers)
+	printSkillsAndCommands(rootDir, modifiedFiles, matchedTriggers)
 	printInvariants(rootDir)
 	fmt.Println("📍 Navigation: see docs/ATLAS.md for intent-to-file mapping")
 
@@ -103,7 +106,7 @@ func printPackageConstraints(rootDir string, domains []string) {
 	}
 }
 
-func printStrictLessons(rootDir string, domains []string) {
+func printStrictLessons(rootDir string, domains []string, matchedTriggers map[string]bool) {
 	sections := collectLessonSections(domains)
 	if len(sections) == 0 {
 		return
@@ -117,10 +120,57 @@ func printStrictLessons(rootDir string, domains []string) {
 
 	for _, section := range sections {
 		if content, ok := lessons[section]; ok {
+			filtered := filterLessonsByTrigger(content, matchedTriggers)
+			if filtered == "" {
+				continue
+			}
 			fmt.Printf("⚠️  Active Strict Lessons (%s):\n", section)
-			fmt.Printf("  %s\n", strings.ReplaceAll(content, "\n", "\n  "))
+			fmt.Printf("  %s\n", strings.ReplaceAll(filtered, "\n", "\n  "))
 		}
 	}
+}
+
+var triggerRegex = regexp.MustCompile(`\[TRIGGER:\s*(\w+)\]`)
+
+func filterLessonsByTrigger(sectionContent string, matchedTriggers map[string]bool) string {
+	lines := strings.Split(sectionContent, "\n")
+	var filtered []string
+	var currentBullet strings.Builder
+
+	for _, line := range lines {
+		if strings.HasPrefix(line, "* ") {
+			if bullet := flushBullet(&currentBullet, matchedTriggers); bullet != "" {
+				filtered = append(filtered, bullet)
+			}
+		}
+		if currentBullet.Len() > 0 {
+			currentBullet.WriteString("\n")
+		}
+		currentBullet.WriteString(line)
+	}
+	if bullet := flushBullet(&currentBullet, matchedTriggers); bullet != "" {
+		filtered = append(filtered, bullet)
+	}
+
+	return strings.Join(filtered, "\n")
+}
+
+func flushBullet(sb *strings.Builder, matchedTriggers map[string]bool) string {
+	if sb.Len() == 0 {
+		return ""
+	}
+	bullet := strings.TrimSpace(sb.String())
+	sb.Reset()
+	matches := triggerRegex.FindStringSubmatch(bullet)
+	if len(matches) > 1 {
+		// Bullet has a trigger tag, only include if matched
+		trigger := matches[1]
+		if !matchedTriggers[trigger] {
+			return ""
+		}
+	}
+	// No trigger tag or matched trigger, include bullet
+	return bullet
 }
 
 func printInvariants(rootDir string) {
@@ -145,13 +195,12 @@ func printInvariants(rootDir string) {
 	}
 }
 
-func printSkillsAndCommands(rootDir string, modifiedFiles []string) {
+func printSkillsAndCommands(rootDir string, modifiedFiles []string, matchedTriggers map[string]bool) {
 	manifest, err := LoadVerifyManifest(rootDir)
 	if err != nil {
 		return
 	}
 
-	matchedTriggers := getMatchedTriggers(modifiedFiles)
 	printMatchedSkills(manifest.Skills, matchedTriggers)
 	printMatchedCommands(manifest.Commands, matchedTriggers)
 }
@@ -220,6 +269,7 @@ func isManifestItemMatched(triggerStr string, matchedTriggers map[string]bool) b
 func getMatchedTriggers(modifiedFiles []string) map[string]bool {
 	matched := make(map[string]bool)
 	for _, f := range modifiedFiles {
+		base := filepath.Base(f)
 		if strings.HasSuffix(f, "_test.go") || strings.HasPrefix(f, "internal/") {
 			matched["test_authoring"] = true
 			matched["feature_implementation"] = true
@@ -228,6 +278,27 @@ func getMatchedTriggers(modifiedFiles []string) map[string]bool {
 		if isUIDomain(f) {
 			matched["ui_change"] = true
 			matched["browser_subagent"] = true
+		}
+
+		if isCIDomain(f) {
+			matched["ci_config_change"] = true
+		}
+
+		// New specific triggers
+		if strings.HasSuffix(f, ".html") {
+			matched["template_change"] = true
+		}
+		if strings.HasSuffix(f, ".css") || strings.HasPrefix(base, "tailwind") {
+			matched["design_change"] = true
+		}
+		if strings.Contains(f, "handler") || strings.Contains(f, "module") {
+			matched["handler_change"] = true
+		}
+		if strings.HasSuffix(f, ".md") {
+			matched["documentation_change"] = true
+		}
+		if strings.Contains(f, "security") || strings.Contains(f, "auth") || strings.Contains(f, "crypto") {
+			matched["security_change"] = true
 		}
 	}
 	return matched
