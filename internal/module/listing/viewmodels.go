@@ -8,8 +8,8 @@ import (
 // SaveButtonViewModel is the typed data for the save/unsave toggle fragment.
 type SaveButtonViewModel struct {
 	ListingID string
-	IsSaved   bool
 	Classes   string
+	IsSaved   bool
 }
 
 // MetricRequest represents the payload for frontend metric ingestion.
