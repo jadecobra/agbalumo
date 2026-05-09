@@ -217,6 +217,14 @@ Verify that Playwright configuration prevents port exhaustion by mandating `open
 agbalumo verify playwright-config
 ```
 
+##### snapshot-parity
+
+Verify that every -darwin.png snapshot has a corresponding -linux.png snapshot.
+
+```bash
+agbalumo verify snapshot-parity
+```
+
 ##### preflight
 
 Dump active rules relevant to staged/modified files.
