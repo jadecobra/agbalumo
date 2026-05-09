@@ -269,39 +269,43 @@ func isManifestItemMatched(triggerStr string, matchedTriggers map[string]bool) b
 func getMatchedTriggers(modifiedFiles []string) map[string]bool {
 	matched := make(map[string]bool)
 	for _, f := range modifiedFiles {
-		base := filepath.Base(f)
-		if strings.HasSuffix(f, "_test.go") || strings.HasPrefix(f, "internal/") {
-			matched["test_authoring"] = true
-			matched["feature_implementation"] = true
-			matched["bug_fix"] = true
-		}
-		if isUIDomain(f) {
-			matched["ui_change"] = true
-			matched["browser_subagent"] = true
-		}
-
-		if isCIDomain(f) {
-			matched["ci_config_change"] = true
-		}
-
-		// New specific triggers
-		if strings.HasSuffix(f, ".html") {
-			matched["template_change"] = true
-		}
-		if strings.HasSuffix(f, ".css") || strings.HasPrefix(base, "tailwind") {
-			matched["design_change"] = true
-		}
-		if strings.Contains(f, "handler") || strings.Contains(f, "module") {
-			matched["handler_change"] = true
-		}
-		if strings.HasSuffix(f, ".md") {
-			matched["documentation_change"] = true
-		}
-		if strings.Contains(f, "security") || strings.Contains(f, "auth") || strings.Contains(f, "crypto") {
-			matched["security_change"] = true
-		}
+		classifyFile(f, matched)
 	}
 	return matched
+}
+
+func classifyFile(f string, matched map[string]bool) {
+	base := filepath.Base(f)
+	if strings.HasSuffix(f, "_test.go") || strings.HasPrefix(f, "internal/") {
+		matched["test_authoring"] = true
+		matched["feature_implementation"] = true
+		matched["bug_fix"] = true
+	}
+	if isUIDomain(f) {
+		matched["ui_change"] = true
+		matched["browser_subagent"] = true
+	}
+	if isCIDomain(f) {
+		matched["ci_config_change"] = true
+	}
+
+	// Extension and path-based triggers
+	switch {
+	case strings.HasSuffix(f, ".html"):
+		matched["template_change"] = true
+	case strings.HasSuffix(f, ".css") || strings.HasPrefix(base, "tailwind"):
+		matched["design_change"] = true
+	case strings.HasSuffix(f, ".md"):
+		matched["documentation_change"] = true
+	}
+
+	// Keyword-based triggers
+	if strings.Contains(f, "handler") || strings.Contains(f, "module") {
+		matched["handler_change"] = true
+	}
+	if strings.Contains(f, "security") || strings.Contains(f, "auth") || strings.Contains(f, "crypto") {
+		matched["security_change"] = true
+	}
 }
 
 func getGitModifiedFiles(rootDir string) ([]string, error) {

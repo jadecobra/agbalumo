@@ -54,23 +54,29 @@ func TestPopulateBase(t *testing.T) {
 			tt.setupContext(c)
 
 			data := h.PopulateBase(c)
-
-			if tt.wantUser == nil {
-				if data.User != nil {
-					t.Errorf("expected User to be nil, got %v", data.User)
-				}
-			} else {
-				if data.User == nil {
-					t.Errorf("expected User to be non-nil")
-					return
-				}
-				if data.User.ID != tt.wantUser.ID {
-					t.Errorf("expected User ID %s, got %s", tt.wantUser.ID, data.User.ID)
-				}
-				if data.User.Name != tt.wantUser.Name {
-					t.Errorf("expected User Name %s, got %s", tt.wantUser.Name, data.User.Name)
-				}
-			}
+			verifyUser(t, data.User, tt.wantUser)
 		})
+	}
+}
+
+func verifyUser(t *testing.T, got, want *domain.User) {
+	t.Helper()
+	if want == nil {
+		if got != nil {
+			t.Errorf("expected User to be nil, got %v", got)
+		}
+		return
+	}
+
+	if got == nil {
+		t.Errorf("expected User to be non-nil")
+		return
+	}
+
+	if got.ID != want.ID {
+		t.Errorf("expected User ID %s, got %s", want.ID, got.ID)
+	}
+	if got.Name != want.Name {
+		t.Errorf("expected User Name %s, got %s", want.Name, got.Name)
 	}
 }

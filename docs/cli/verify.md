@@ -201,6 +201,14 @@ Run tests with race detection and coverage enforcement.
 agbalumo verify test [pkg] [--race=true] [--threshold-path=path]
 ```
 
+##### playwright-config
+
+Verify that Playwright configuration prevents port exhaustion by mandating `open: 'never'`.
+
+```bash
+agbalumo verify playwright-config
+```
+
 ##### preflight
 
 Dump active rules relevant to staged/modified files.

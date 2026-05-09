@@ -6,7 +6,6 @@ import (
 	"os/exec"
 	"regexp"
 	"strconv"
-	"strings"
 )
 
 // RunTests executes the Go test suite with race detection and coverage.
@@ -76,12 +75,5 @@ func calculateTotalCoverage(profilePath string) (float64, error) {
 }
 
 func readThreshold(path string) (float64, error) {
-	data, err := os.ReadFile(path) //nolint:gosec // maintenance utility
-	if err != nil {
-		if os.IsNotExist(err) {
-			return 80.0, nil // Default to 80% if file missing
-		}
-		return 0, fmt.Errorf("failed to read threshold file: %w", err)
-	}
-	return strconv.ParseFloat(strings.TrimSpace(string(data)), 64)
+	return getThresholdValue(path, "")
 }

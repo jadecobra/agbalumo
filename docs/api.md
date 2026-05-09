@@ -29,6 +29,7 @@ The API uses session-based authentication with cookies.
 | GET | `/login` | Redirect to `/auth/google/login` (legacy compat) |
 | GET | `/dev/login` | Redirect to `/auth/dev` (dev compat) |
 | GET | `/healthz` | Health check (returns 200 OK) |
+| GET | `/sandbox` | Component sandbox for UI testing |
 | POST | `/api/metrics` | Ingest user interaction metrics |
 
 ## Public Endpoints

@@ -1,0 +1,13 @@
+sandbox:
+  get:
+    summary: Component sandbox
+    description: Isolated environment for UI component testing (non-production only)
+    tags:
+      - Public
+    responses:
+      '200':
+        description: HTML page
+        content:
+          text/html:
+            schema:
+              type: string

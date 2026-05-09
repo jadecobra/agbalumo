@@ -44,40 +44,55 @@ func (h *BaseHandler) PopulateBase(c echo.Context) BaseViewData {
 		GoogleMapsApiKey: h.App.Cfg.GoogleMapsAPIKey,
 	}
 
+	h.populateCategories(c, &data)
+	h.populateCounts(c, &data)
+	h.populateUser(c, &data)
+	h.populateCSRF(c, &data)
+
+	return data
+}
+
+func (h *BaseHandler) populateCategories(c echo.Context, data *BaseViewData) {
 	categories, err := h.App.CategorizationSvc.GetActiveCategories(c.Request().Context())
 	if err != nil {
 		c.Logger().Errorf("Failed to retrieve categories: %v", err)
 	} else {
 		data.Categories = categories
 	}
+}
 
+func (h *BaseHandler) populateCounts(c echo.Context, data *BaseViewData) {
 	counts, err := h.App.DB.GetCounts(c.Request().Context())
 	if err != nil {
 		c.Logger().Errorf("Failed to retrieve counts: %v", err)
 		data.Counts = map[string]int{}
-	} else {
-		strCounts := make(map[string]int)
-		for cat, count := range counts {
-			strCounts[string(cat)] = count
-		}
-		data.Counts = strCounts
+		return
 	}
-
-	if u := c.Get("User"); u != nil {
-		if user, ok := u.(domain.User); ok {
-			data.User = &user
-		} else if userPtr, ok := u.(*domain.User); ok {
-			data.User = userPtr
-		}
+	strCounts := make(map[string]int)
+	for cat, count := range counts {
+		strCounts[string(cat)] = count
 	}
+	data.Counts = strCounts
+}
 
+func (h *BaseHandler) populateUser(c echo.Context, data *BaseViewData) {
+	u := c.Get("User")
+	if u == nil {
+		return
+	}
+	if user, ok := u.(domain.User); ok {
+		data.User = &user
+	} else if userPtr, ok := u.(*domain.User); ok {
+		data.User = userPtr
+	}
+}
+
+func (h *BaseHandler) populateCSRF(c echo.Context, data *BaseViewData) {
 	if csrf := c.Get("csrf"); csrf != nil {
 		if s, ok := csrf.(string); ok {
 			data.CSRF = s
 		}
 	}
-
-	return data
 }
 
 // RenderTyped is the preferred way to render templates with typed ViewModels.

@@ -111,6 +111,9 @@ paths:
   /dev/login:
     $ref: './openapi/paths/auth.yaml#/dev_login'
 
+  /sandbox:
+    $ref: './openapi/paths/dev.yaml#/sandbox'
+
   # Authentication Routes
   /auth/dev:
     $ref: './openapi/paths/auth.yaml#/dev'
