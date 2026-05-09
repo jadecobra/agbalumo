@@ -19,6 +19,12 @@ var designCmd = &cobra.Command{
 			return fmt.Errorf("failed to check design standards: %w", err)
 		}
 
+		tokenViolations, err := maintenance.CheckTokenStrictness("ui/templates")
+		if err != nil {
+			return fmt.Errorf("failed to check token strictness: %w", err)
+		}
+		violations = append(violations, tokenViolations...)
+
 		keyGaps, err := maintenance.CheckTemplateKeyGaps("ui/templates")
 		if err != nil {
 			return fmt.Errorf("failed to check template key gaps: %w", err)
