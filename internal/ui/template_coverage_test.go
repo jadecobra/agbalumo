@@ -188,7 +188,7 @@ var TemplateMockRegistry = map[string]interface{}{
 		"SortField":  "",
 		"SortOrder":  "",
 	},
-	"save_button": map[string]interface{}{"ListingID": "1", "IsSaved": true},
+	"save_button": map[string]interface{}{"ListingID": "1", "IsSaved": true, "Classes": ""},
 	"modal_feedback": feedback.FeedbackViewModel{
 		BaseViewData: baseData,
 		Path:         "/test",

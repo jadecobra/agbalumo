@@ -43,7 +43,7 @@
 
         {{ if $.User }}
         {{ $isSaved := index $.SavedIDs .Listing.ID }}
-        {{ template "save_button" dict "ListingID" .Listing.ID "IsSaved" $isSaved }}
+        {{ template "save_button" dict "ListingID" .Listing.ID "IsSaved" $isSaved "Classes" "" }}
         {{ end }}
 
         <!-- Edit/Delete Buttons (Hover Only) -->

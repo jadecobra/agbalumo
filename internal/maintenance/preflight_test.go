@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/jadecobra/agbalumo/internal/testutil"
 )
 
 func TestPreflight(t *testing.T) {
@@ -137,9 +138,7 @@ func validatePreflightOutput(t *testing.T, r io.Reader) {
 }
 
 func runGit(t *testing.T, dir string, args ...string) {
-	// #nosec G204 -- test helper running git commands in temp directory
-	cmd := exec.Command("git", args...)
-	cmd.Dir = dir
+	cmd := testutil.IsolatedGitCommand(dir, args...)
 	if out, err := cmd.CombinedOutput(); err != nil {
 		t.Fatalf("git %v failed: %v\nOutput: %s", args, err, string(out))
 	}

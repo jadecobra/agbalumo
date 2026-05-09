@@ -116,6 +116,10 @@ commands:
     trigger: test_authoring
     description: Run package-level unit tests
 
+  - name: test-isolation
+    trigger: test_authoring
+    description: Verify test files isolate git environments properly
+
   - name: janitor
     trigger: root_directory_clutter
     description: Move stale root artifacts to .tester/

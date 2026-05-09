@@ -2,9 +2,10 @@ package maintenance
 
 import (
 	"os"
-	"os/exec"
 	"path/filepath"
 	"testing"
+
+	"github.com/jadecobra/agbalumo/internal/testutil"
 )
 
 func setupTestGitRepo(t *testing.T) string {
@@ -14,8 +15,7 @@ func setupTestGitRepo(t *testing.T) string {
 	}
 
 	runGit := func(args ...string) {
-		cmd := exec.Command("git", args...) //nolint:gosec // maintenance utility uses git in tests
-		cmd.Dir = tmpDir
+		cmd := testutil.IsolatedGitCommand(tmpDir, args...)
 		if out, err := cmd.CombinedOutput(); err != nil {
 			t.Fatalf("git %v failed: %v\nOutput: %s", args, err, string(out))
 		}
@@ -40,8 +40,7 @@ func TestInferCurrentPhase(t *testing.T) {
 	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	runGit := func(args ...string) {
-		cmd := exec.Command("git", args...) //nolint:gosec // maintenance utility uses git in tests
-		cmd.Dir = tmpDir
+		cmd := testutil.IsolatedGitCommand(tmpDir, args...)
 		_ = cmd.Run()
 	}
 

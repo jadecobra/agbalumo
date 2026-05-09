@@ -201,6 +201,14 @@ Run tests with race detection and coverage enforcement.
 agbalumo verify test [pkg] [--race=true] [--threshold-path=path]
 ```
 
+##### test-isolation
+
+Verify that test files properly isolate git environments from the parent process.
+
+```bash
+agbalumo verify test-isolation
+```
+
 ##### playwright-config
 
 Verify that Playwright configuration prevents port exhaustion by mandating `open: 'never'`.

@@ -14,6 +14,7 @@ func TestRender_SaveButton_Saved(t *testing.T) {
 	out := renderPartial(t, "save_button", map[string]interface{}{
 		"ListingID": "abc-123",
 		"IsSaved":   true,
+		"Classes":   "",
 	})
 	assert.Contains(t, out, `id="save-btn-abc-123"`)
 	assert.Contains(t, out, "favorite")           // filled heart icon
@@ -25,6 +26,7 @@ func TestRender_SaveButton_Unsaved(t *testing.T) {
 	out := renderPartial(t, "save_button", map[string]interface{}{
 		"ListingID": "abc-123",
 		"IsSaved":   false,
+		"Classes":   "",
 	})
 	assert.Contains(t, out, "favorite_border") // outline heart
 	assert.Contains(t, out, "text-stone-400")  // unsaved state color

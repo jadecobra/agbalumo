@@ -120,6 +120,7 @@ func init() {
 		resolveCmd,
 		agentsCoverageCmd,
 		playwrightConfigCmd,
+		testIsolationCmd,
 	)
 }
 

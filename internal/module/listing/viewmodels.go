@@ -9,6 +9,7 @@ import (
 type SaveButtonViewModel struct {
 	ListingID string
 	IsSaved   bool
+	Classes   string
 }
 
 // MetricRequest represents the payload for frontend metric ingestion.

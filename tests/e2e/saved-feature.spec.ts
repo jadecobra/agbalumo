@@ -63,19 +63,31 @@ test.describe('Saved/Favorites Feature', () => {
     // Check if already saved and unsave first if so, to have a clean start
     const isSaved = await heart.evaluate(el => el.classList.contains('text-red-500'));
     if (isSaved) {
+        const responsePromise = page.waitForResponse(res => 
+            res.url().includes('/save') && res.request().method() === 'POST' && res.status() === 200
+        );
         await heart.click();
+        await responsePromise;
         await expect(firstListing.getByTestId('ag-save-btn')).toHaveClass(/text-stone-400/);
     }
     
     // Click heart to save
     const heartToSave = firstListing.getByTestId('ag-save-btn');
+    const savePromise = page.waitForResponse(res => 
+        res.url().includes('/save') && res.request().method() === 'POST' && res.status() === 200
+    );
     await heartToSave.click();
+    await savePromise;
     
     // Wait for HTMX swap and assert class changes (text-red-500 for saved)
     await expect(firstListing.getByTestId('ag-save-btn')).toHaveClass(/text-red-500/);
 
     // Click again to unsave
+    const unsavePromise = page.waitForResponse(res => 
+        res.url().includes('/save') && res.request().method() === 'POST' && res.status() === 200
+    );
     await firstListing.getByTestId('ag-save-btn').click();
+    await unsavePromise;
     
     // Assert toggled back (text-stone-400 for unsaved)
     await expect(firstListing.getByTestId('ag-save-btn')).toHaveClass(/text-stone-400/);
@@ -109,7 +121,11 @@ test.describe('Saved/Favorites Feature', () => {
     const heart = firstListing.getByTestId('ag-save-btn');
     const isSaved = await heart.evaluate(el => el.classList.contains('text-red-500'));
     if (!isSaved) {
+        const savePromise = page.waitForResponse(res => 
+            res.url().includes('/save') && res.request().method() === 'POST' && res.status() === 200
+        );
         await heart.click();
+        await savePromise;
         await expect(firstListing.getByTestId('ag-save-btn')).toHaveClass(/text-red-500/);
     }
 

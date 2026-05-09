@@ -13,7 +13,7 @@ import (
 func IsolatedGitCommand(dir string, args ...string) *exec.Cmd {
 	cmd := exec.Command("git", args...) //nolint:gosec // intended for test utilities
 	cmd.Dir = dir
-	
+
 	// Filter out GIT_ environment variables
 	var cleanEnv []string
 	for _, env := range os.Environ() {
