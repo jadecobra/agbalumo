@@ -23,6 +23,8 @@ Read this file at session start. Match intent against triggers. Read the skill f
 | /design-critique, critique design, review ui, harsh review | `.agents/skills/design-critique/SKILL.md` |
 | review flash output, check implementation, verify flash changes | `.agents/skills/flash-review/SKILL.md` |
 | add verify subcommand, new verify tool, automate this check | `.agents/skills/verify-authoring/SKILL.md` |
+| audit codebase, health check, score the codebase, review infrastructure, how healthy is the codebase | `.agents/skills/codebase-audit/SKILL.md` |
+| migrate handler, typed viewmodel, fix deprecated map, viewmodel migration | `.agents/skills/viewmodel-migration/SKILL.md` |
 
 
 

@@ -157,6 +157,14 @@ skills:
     trigger: tool_creation, automate_check
     path: .agents/skills/verify-authoring/SKILL.md
 
+  - name: codebase-audit
+    trigger: audit_codebase, health_check, review_infrastructure
+    path: .agents/skills/codebase-audit/SKILL.md
+
+  - name: viewmodel-migration
+    trigger: migrate_handler, typed_viewmodel, viewmodel_migration
+    path: .agents/skills/viewmodel-migration/SKILL.md
+
   - name: design-rubric
     trigger: design_critique
     path: .agents/workflows/design-rubric.md

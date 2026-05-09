@@ -84,6 +84,8 @@ Skills are step-by-step procedures in `.agents/skills/`. You MUST read the relev
 | Design Critique | /design-critique, design review, UI audit | `.agents/skills/design-critique/SKILL.md` |
 | Flash Review | Flash output review, check implementation | `.agents/skills/flash-review/SKILL.md` |
 | Verify Authoring | Add verify subcommand, automate check | `.agents/skills/verify-authoring/SKILL.md` |
+| Codebase Audit | Audit codebase, health check, score infrastructure | `.agents/skills/codebase-audit/SKILL.md` |
+| ViewModel Migration | Migrate handler to typed ViewModel | `.agents/skills/viewmodel-migration/SKILL.md` |
 
 
 
