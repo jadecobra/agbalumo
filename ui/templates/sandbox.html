@@ -1,35 +1,37 @@
+{{ template "base.html" . }}
+
 {{ define "title" }}Component Sandbox - agbalumo{{ end }}
 
 {{ define "content" }}
 <div class="max-w-7xl mx-auto px-4 py-12">
     <header class="mb-12 border-b-4 border-earth-dark pb-6">
         <h1 class="text-5xl font-black uppercase tracking-tighter text-earth-dark">Component Sandbox</h1>
-        <p class="text-earth-dark/60 font-medium mt-2">Aesthetic verification and isolation testing for agbalumo UI tokens.</p>
+        <p class="text-earth-dark/80 font-medium mt-2">Aesthetic verification and isolation testing for agbalumo UI tokens.</p>
     </header>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
         <!-- Typography -->
         <section class="space-y-6">
             <div class="flex items-center gap-3 border-l-8 border-earth-ochre pl-4">
-                <span class="material-symbols-outlined text-earth-ochre">text_fields</span>
+                <span class="material-symbols-outlined text-earth-ochre" aria-hidden="true">text_fields</span>
                 <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Typography</h2>
             </div>
             <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] space-y-8">
                 <div>
-                    <span class="text-[10px] capitalize font-bold text-earth-dark/40 block mb-2 tracking-widest">Display black</span>
+                    <span class="text-[10px] capitalize font-bold text-earth-dark/70 block mb-2 tracking-widest">Display black</span>
                     <p class="text-4xl font-black uppercase tracking-tighter text-earth-dark">The quick brown fox</p>
                 </div>
                 <div>
-                    <span class="text-[10px] capitalize font-bold text-earth-dark/40 block mb-2 tracking-widest">Display bold</span>
+                    <span class="text-[10px] capitalize font-bold text-earth-dark/70 block mb-2 tracking-widest">Display bold</span>
                     <p class="text-3xl font-bold tracking-tight text-earth-dark">Jumps over the lazy dog</p>
                 </div>
                 <div>
-                    <span class="text-[10px] capitalize font-bold text-earth-dark/40 block mb-2 tracking-widest">Body medium</span>
+                    <span class="text-[10px] capitalize font-bold text-earth-dark/70 block mb-2 tracking-widest">Body medium</span>
                     <p class="text-base font-medium text-earth-dark/80">Agbalumo uses a brutalist yet premium typography system focusing on high legibility and strong hierarchy.</p>
                 </div>
                 <div>
-                    <span class="text-[10px] capitalize font-bold text-earth-dark/40 block mb-2 tracking-widest">Caption mono</span>
-                    <p class="font-mono text-sm text-earth-ochre"># 2026-05-09 UI_VERIFICATION_COMPLETE</p>
+                    <span class="text-[10px] capitalize font-bold text-earth-dark/70 block mb-2 tracking-widest">Caption mono</span>
+                    <p class="font-mono text-sm text-earth-clay"># 2026-05-09 UI_VERIFICATION_COMPLETE</p>
                 </div>
             </div>
         </section>
@@ -37,21 +39,21 @@
         <!-- Buttons -->
         <section class="space-y-6">
             <div class="flex items-center gap-3 border-l-8 border-earth-accent pl-4">
-                <span class="material-symbols-outlined text-earth-accent">smart_button</span>
+                <span class="material-symbols-outlined text-earth-accent" aria-hidden="true">smart_button</span>
                 <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Buttons</h2>
             </div>
             <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] flex flex-wrap gap-4">
                 <button class="px-6 py-3 bg-earth-dark text-white font-black capitalize tracking-widest hover:bg-earth-dark/90 active:translate-y-1 transition-all">
                     Primary action
                 </button>
-                <button class="px-6 py-3 bg-earth-accent text-white font-black capitalize tracking-widest hover:bg-earth-accent-light shadow-[4px_4px_0px_0px_rgba(45,35,18,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all">
+                <button class="px-6 py-3 bg-earth-accent text-earth-dark font-black capitalize tracking-widest hover:bg-earth-accent-light shadow-[4px_4px_0px_0px_rgba(45,35,18,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all">
                     Accent action
                 </button>
                 <button class="px-6 py-3 border-4 border-earth-dark text-earth-dark font-black capitalize tracking-widest hover:bg-earth-sand transition-colors">
                     Secondary
                 </button>
-                <button class="p-3 bg-earth-ochre text-white rounded-full hover:rotate-12 transition-transform">
-                    <span class="material-symbols-outlined">add</span>
+                <button class="p-3 bg-earth-ochre text-white rounded-full hover:rotate-12 transition-transform" aria-label="Add component">
+                    <span class="material-symbols-outlined" aria-hidden="true">add</span>
                 </button>
             </div>
         </section>
@@ -59,12 +61,12 @@
         <!-- Badges -->
         <section class="space-y-6">
             <div class="flex items-center gap-3 border-l-8 border-earth-sand pl-4">
-                <span class="material-symbols-outlined text-earth-ochre">badge</span>
+                <span class="material-symbols-outlined text-earth-ochre" aria-hidden="true">badge</span>
                 <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Badges</h2>
             </div>
             <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] flex flex-wrap gap-4">
                 <span class="px-3 py-1 bg-earth-dark text-white text-xs font-black uppercase tracking-tighter">Verified</span>
-                <span class="px-3 py-1 bg-earth-ochre/10 text-earth-ochre border border-earth-ochre/20 text-xs font-bold rounded-full">New Listing</span>
+                <span class="px-3 py-1 bg-earth-ochre/10 text-earth-dark border border-earth-ochre/20 text-xs font-bold rounded-full">New Listing</span>
                 <span class="px-3 py-1 bg-green-500/10 text-green-700 text-xs font-bold capitalize tracking-widest flex items-center gap-1">
                     <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Active
                 </span>
@@ -75,7 +77,7 @@
         <!-- Modals -->
         <section class="space-y-6">
             <div class="flex items-center gap-3 border-l-8 border-black pl-4">
-                <span class="material-symbols-outlined">window</span>
+                <span class="material-symbols-outlined" aria-hidden="true">window</span>
                 <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Modals & Feedback</h2>
             </div>
             <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] space-y-4">
@@ -84,12 +86,13 @@
                     hx-target="body" 
                     hx-swap="beforeend"
                     class="w-full px-6 py-4 bg-earth-sand/30 border-4 border-dashed border-earth-dark text-earth-dark font-bold hover:bg-earth-sand transition-colors flex items-center justify-between"
+                    aria-label="Launch Feedback Modal"
                 >
                     Launch Feedback Modal
-                    <span class="material-symbols-outlined">launch</span>
+                    <span class="material-symbols-outlined" aria-hidden="true">launch</span>
                 </button>
-                <div class="p-4 bg-yellow-50 border-4 border-yellow-200 flex gap-4">
-                    <span class="material-symbols-outlined text-yellow-600">warning</span>
+                <div class="p-4 bg-yellow-50 border-4 border-yellow-200 flex gap-4" role="alert">
+                    <span class="material-symbols-outlined text-yellow-600" aria-hidden="true">warning</span>
                     <p class="text-sm font-medium text-yellow-800">Warning: Components shown here are in isolation. Integration may vary.</p>
                 </div>
             </div>

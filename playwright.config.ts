@@ -33,4 +33,10 @@ export default defineConfig({
       use: { viewport: { width: 1920, height: 1080 } },
     },
   ],
+  webServer: {
+    command: 'go run main.go serve',
+    url: 'https://localhost:8443',
+    reuseExistingServer: !process.env.CI,
+    ignoreHTTPSErrors: true,
+  },
 });

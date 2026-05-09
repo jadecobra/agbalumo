@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html class="light" lang="en" data-template-file="ui/templates/base.html">
 
 <head>
@@ -16,77 +17,56 @@
     <!-- Main App Container -->
     <div class="relative flex min-h-screen w-full bg-background-light dark:bg-background-dark shadow-2xl">
 
-        <!-- Main Content Area -->
-        <main id="main-content" class="flex-1 flex flex-col min-h-screen no-scrollbar relative w-full pb-20 md:pb-0">
+        <!-- Unified Layout Wrapper -->
+        <div class="flex-1 flex flex-col min-h-screen no-scrollbar relative w-full pb-20 md:pb-0">
 
             {{ template "navigation" . }}
 
             <!-- Content -->
-            {{ block "content" . }}{{ end }}
+            <main id="main-content" class="flex-1">
+                {{ block "content" . }}{{ end }}
+            </main>
 
             <!-- Fruit-Themed Footer -->
             {{ template "footer" . }}
-        </main>
+
+            <!-- Mobile Bottom Navigation (Brutalist, Low-Profile) -->
+            <nav id="mobile-bottom-nav" class="md:hidden" aria-label="Mobile Navigation">
+                <!-- Post -->
+                <button data-auth-action="modal" data-modal-id="create-listing-modal"
+                    data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
+                    class="flex flex-col items-center justify-center gap-1 text-earth-accent hover:text-earth-accent-light transition-colors w-16">
+                    <span class="material-symbols-outlined text-[24px]" aria-hidden="true">add_circle</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider font-display text-white">Post</span>
+                </button>
+
+                {{ if .User }}
+                <!-- Feedback -->
+                <button hx-get="/feedback/modal" hx-target="body" hx-swap="beforeend" data-testid="mobile-feedback-btn"
+                    class="flex flex-col items-center justify-center gap-1 text-white/80 hover:text-white transition-colors w-16">
+                    <span class="material-symbols-outlined text-[24px]" aria-hidden="true">feedback</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider font-display text-white">Feedback</span>
+                </button>
+
+                <!-- Profile -->
+                <button hx-get="/profile" hx-target="body" hx-swap="beforeend" data-testid="mobile-account-btn"
+                    class="flex flex-col items-center justify-center gap-1 text-white/80 hover:text-white transition-colors w-16">
+                    <img src="{{ .User.AvatarURL }}" alt="Profile" class="w-6 h-6 border border-white/20 object-cover">
+                    <span class="text-[10px] font-bold uppercase tracking-wider font-display text-white">Account</span>
+                </button>
+                {{ else }}
+                <!-- Sign In -->
+                <a href="/auth/google/login"
+                    class="flex flex-col items-center justify-center gap-1 text-white/80 hover:text-white transition-colors w-16">
+                    <span class="material-symbols-outlined text-[24px]" aria-hidden="true">account_circle</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider font-display text-white">Sign In</span>
+                </a>
+                {{ end }}
+            </nav>
+        </div>
     </div>
 
-    <style>
-      #mobile-bottom-nav {
-        position: fixed !important;
-        top: calc(100vh - 64px) !important;
-        top: calc(100dvh - 64px) !important;
-        left: 0 !important;
-        right: 0 !important;
-        width: 100% !important;
-        height: 64px !important;
-        background-color: var(--brand-color-earth-dark) !important;
-        border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: space-around !important;
-        z-index: 99999 !important;
-        padding-bottom: env(safe-area-inset-bottom) !important;
-      }
-      @media (min-width: 768px) {
-        #mobile-bottom-nav {
-          display: none !important;
-        }
-      }
-    </style>
-    <!-- Mobile Bottom Navigation (Brutalist, Low-Profile) -->
-    <nav id="mobile-bottom-nav" class="md:hidden">
-        <!-- Post -->
-        <button data-auth-action="modal" data-modal-id="create-listing-modal"
-            data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
-            class="flex flex-col items-center justify-center gap-1 text-earth-accent hover:text-earth-accent-light transition-colors w-16">
-            <span class="material-symbols-outlined text-[24px]">add_circle</span>
-            <span class="text-[10px] font-bold uppercase tracking-wider font-display">Post</span>
-        </button>
-
-        {{ if .User }}
-        <!-- Feedback -->
-        <button hx-get="/feedback/modal" hx-target="body" hx-swap="beforeend" data-testid="mobile-feedback-btn"
-            class="flex flex-col items-center justify-center gap-1 text-white/60 hover:text-white transition-colors w-16">
-            <span class="material-symbols-outlined text-[24px]">feedback</span>
-            <span class="text-[10px] font-bold uppercase tracking-wider font-display">Feedback</span>
-        </button>
-
-        <!-- Profile -->
-        <button hx-get="/profile" hx-target="body" hx-swap="beforeend" data-testid="mobile-account-btn"
-            class="flex flex-col items-center justify-center gap-1 text-white/60 hover:text-white transition-colors w-16">
-            <img src="{{ .User.AvatarURL }}" alt="Profile" class="w-6 h-6 border border-white/20 object-cover">
-            <span class="text-[10px] font-bold uppercase tracking-wider font-display">Account</span>
-        </button>
-        {{ else }}
-        <!-- Sign In -->
-        <a href="/auth/google/login"
-            class="flex flex-col items-center justify-center gap-1 text-white/60 hover:text-white transition-colors w-16">
-            <span class="material-symbols-outlined text-[24px]">account_circle</span>
-            <span class="text-[10px] font-bold uppercase tracking-wider font-display">Sign In</span>
-        </a>
-        {{ end }}
-    </nav>
-
-    <div id="modal-container"></div>
+    <div id="modal-container" role="dialog" aria-modal="true" aria-label="Modal container"></div>
 
     {{ template "modal_create_listing.html" . }}
     {{ template "modal_login_prompt.html" . }}
@@ -95,7 +75,7 @@
     <div id="sr-announcements" aria-live="polite" aria-atomic="true" class="sr-only"></div>
 
     <!-- Toast Container -->
-    <div id="toast-container"></div>
+    <div id="toast-container" role="log" aria-live="polite" aria-label="Notifications"></div>
     <script src="/static/js/ada-metrics.js" defer></script>
 </body>
 
