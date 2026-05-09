@@ -3,7 +3,6 @@ package auth_test
 import (
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/gorilla/sessions"
@@ -34,7 +33,6 @@ func TestAuthHandler_DevLogin_Production(t *testing.T) {
 }
 
 func TestAuthHandler_DevLogin_Success(t *testing.T) {
-	t.Parallel()
 	e := echo.New()
 	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
 
@@ -49,8 +47,7 @@ func TestAuthHandler_DevLogin_Success(t *testing.T) {
 	defer cleanup()
 	h := auth.NewAuthHandler(app)
 
-	_ = os.Setenv("AGBALUMO_ENV", "development")
-	defer func() { _ = os.Unsetenv("AGBALUMO_ENV") }()
+	t.Setenv("AGBALUMO_ENV", "development")
 
 	err := h.DevLogin(c)
 	assert.NoError(t, err)

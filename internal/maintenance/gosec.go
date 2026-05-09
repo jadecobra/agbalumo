@@ -7,13 +7,18 @@ import (
 	"strings"
 )
 
+const (
+	extGo   = ".go"
+	vVendor = "vendor"
+)
+
 // CheckGosecRationale verifies that all // #nosec directives include a rationale comment.
 // Rationale must be preceded by a hyphen (-) or double-hyphen (--).
 func CheckGosecRationale(rootDir string) error {
 	var invalid []string
 
 	err := filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".go") {
+		if err != nil || info.IsDir() || !strings.HasSuffix(path, extGo) {
 			return err
 		}
 
@@ -43,7 +48,7 @@ func shouldSkipPath(rootDir, path string) bool {
 	}
 	pathParts := strings.Split(filepath.ToSlash(rel), "/")
 	for _, part := range pathParts {
-		if part == "vendor" || part == ".tester" || part == "tmp" || part == ".go" {
+		if part == vVendor || part == ".tester" || part == "tmp" || part == extGo {
 			return true
 		}
 	}

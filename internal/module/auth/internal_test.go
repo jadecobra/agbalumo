@@ -15,10 +15,20 @@ import (
 // --- RealGoogleProvider.getRedirectURL Tests ---
 
 func TestRealGoogleProvider_getRedirectURL_BaseURL(t *testing.T) {
-	// t.Parallel() removed due to os.Setenv usage
-	_ = os.Setenv("BASE_URL", "http://192.168.1.5:8080")
-	defer func() { _ = os.Unsetenv("BASE_URL") }()
-	_ = os.Unsetenv("GOOGLE_REDIRECT_URL")
+	t.Setenv("BASE_URL", "http://192.168.1.5:8080")
+
+	// Ensure clean env for other vars
+	for _, key := range []string{"GOOGLE_REDIRECT_URL"} {
+		old, existed := os.LookupEnv(key)
+		_ = os.Unsetenv(key)
+		t.Cleanup(func() {
+			if existed {
+				_ = os.Setenv(key, old)
+			} else {
+				_ = os.Unsetenv(key)
+			}
+		})
+	}
 
 	p := NewRealGoogleProvider()
 	got := p.getRedirectURL("http", "localhost:8080")
@@ -27,10 +37,20 @@ func TestRealGoogleProvider_getRedirectURL_BaseURL(t *testing.T) {
 }
 
 func TestRealGoogleProvider_getRedirectURL_GoogleRedirectURL(t *testing.T) {
-	// t.Parallel() removed due to os.Setenv usage
-	_ = os.Unsetenv("BASE_URL")
-	_ = os.Setenv("GOOGLE_REDIRECT_URL", "https://custom.example.com/callback")
-	defer func() { _ = os.Unsetenv("GOOGLE_REDIRECT_URL") }()
+	t.Setenv("GOOGLE_REDIRECT_URL", "https://custom.example.com/callback")
+
+	// Ensure clean env for other vars
+	for _, key := range []string{"BASE_URL"} {
+		old, existed := os.LookupEnv(key)
+		_ = os.Unsetenv(key)
+		t.Cleanup(func() {
+			if existed {
+				_ = os.Setenv(key, old)
+			} else {
+				_ = os.Unsetenv(key)
+			}
+		})
+	}
 
 	p := NewRealGoogleProvider()
 	got := p.getRedirectURL("https", "localhost:8080")
@@ -39,10 +59,17 @@ func TestRealGoogleProvider_getRedirectURL_GoogleRedirectURL(t *testing.T) {
 }
 
 func TestRealGoogleProvider_getRedirectURL_DynamicHTTPS(t *testing.T) {
-	// t.Parallel() removed due to os.Setenv usage
-	_ = os.Unsetenv("BASE_URL")
-	_ = os.Unsetenv("GOOGLE_REDIRECT_URL")
-	_ = os.Unsetenv("AGBALUMO_ENV")
+	for _, key := range []string{"BASE_URL", "GOOGLE_REDIRECT_URL", "AGBALUMO_ENV"} {
+		old, existed := os.LookupEnv(key)
+		_ = os.Unsetenv(key)
+		t.Cleanup(func() {
+			if existed {
+				_ = os.Setenv(key, old)
+			} else {
+				_ = os.Unsetenv(key)
+			}
+		})
+	}
 
 	p := NewRealGoogleProvider()
 	got := p.getRedirectURL("https", "localhost:8443")
@@ -51,10 +78,17 @@ func TestRealGoogleProvider_getRedirectURL_DynamicHTTPS(t *testing.T) {
 }
 
 func TestRealGoogleProvider_getRedirectURL_DynamicHTTP(t *testing.T) {
-	// t.Parallel() removed due to os.Setenv usage
-	_ = os.Unsetenv("BASE_URL")
-	_ = os.Unsetenv("GOOGLE_REDIRECT_URL")
-	_ = os.Unsetenv("AGBALUMO_ENV")
+	for _, key := range []string{"BASE_URL", "GOOGLE_REDIRECT_URL", "AGBALUMO_ENV"} {
+		old, existed := os.LookupEnv(key)
+		_ = os.Unsetenv(key)
+		t.Cleanup(func() {
+			if existed {
+				_ = os.Setenv(key, old)
+			} else {
+				_ = os.Unsetenv(key)
+			}
+		})
+	}
 
 	p := NewRealGoogleProvider()
 	got := p.getRedirectURL("http", "localhost:8080")
@@ -63,11 +97,20 @@ func TestRealGoogleProvider_getRedirectURL_DynamicHTTP(t *testing.T) {
 }
 
 func TestRealGoogleProvider_getRedirectURL_Production(t *testing.T) {
-	// t.Parallel() removed due to os.Setenv usage
-	_ = os.Unsetenv("BASE_URL")
-	_ = os.Unsetenv("GOOGLE_REDIRECT_URL")
-	_ = os.Setenv("AGBALUMO_ENV", "production")
-	defer func() { _ = os.Unsetenv("AGBALUMO_ENV") }()
+	t.Setenv("AGBALUMO_ENV", "production")
+
+	// Ensure clean env for other vars
+	for _, key := range []string{"BASE_URL", "GOOGLE_REDIRECT_URL"} {
+		old, existed := os.LookupEnv(key)
+		_ = os.Unsetenv(key)
+		t.Cleanup(func() {
+			if existed {
+				_ = os.Setenv(key, old)
+			} else {
+				_ = os.Unsetenv(key)
+			}
+		})
+	}
 
 	p := NewRealGoogleProvider()
 	got := p.getRedirectURL("https", "agbalumo.fly.dev")
@@ -78,10 +121,17 @@ func TestRealGoogleProvider_getRedirectURL_Production(t *testing.T) {
 // --- RealGoogleProvider.GetAuthCodeURL Test ---
 
 func TestRealGoogleProvider_GetAuthCodeURL(t *testing.T) {
-	// t.Parallel() removed due to os.Setenv usage
-	_ = os.Unsetenv("BASE_URL")
-	_ = os.Unsetenv("GOOGLE_REDIRECT_URL")
-	_ = os.Unsetenv("AGBALUMO_ENV")
+	for _, key := range []string{"BASE_URL", "GOOGLE_REDIRECT_URL", "AGBALUMO_ENV"} {
+		old, existed := os.LookupEnv(key)
+		_ = os.Unsetenv(key)
+		t.Cleanup(func() {
+			if existed {
+				_ = os.Setenv(key, old)
+			} else {
+				_ = os.Unsetenv(key)
+			}
+		})
+	}
 
 	p := NewRealGoogleProvider()
 	url := p.GetAuthCodeURL("test-state", "http", "localhost:8080")

@@ -2,7 +2,6 @@ package auth_test
 
 import (
 	"net/url"
-	"os"
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/module/auth"
@@ -50,24 +49,14 @@ func TestRealGoogleProvider_GetRedirectURL(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Save current env
-			oldBase := os.Getenv("BASE_URL")
-			oldRedirect := os.Getenv("GOOGLE_REDIRECT_URL")
-			oldEnv := os.Getenv("AGBALUMO_ENV")
-			defer func() {
-				_ = os.Setenv("BASE_URL", oldBase)
-				_ = os.Setenv("GOOGLE_REDIRECT_URL", oldRedirect)
-				_ = os.Setenv("AGBALUMO_ENV", oldEnv)
-			}()
-
-			// Clear env
-			_ = os.Unsetenv("BASE_URL")
-			_ = os.Unsetenv("GOOGLE_REDIRECT_URL")
-			_ = os.Unsetenv("AGBALUMO_ENV")
+			// Clear env using t.Setenv to ensure clean state for each subtest
+			t.Setenv("BASE_URL", "")
+			t.Setenv("GOOGLE_REDIRECT_URL", "")
+			t.Setenv("AGBALUMO_ENV", "")
 
 			// Set test env
 			for k, v := range tt.env {
-				_ = os.Setenv(k, v)
+				t.Setenv(k, v)
 			}
 
 			p := auth.NewRealGoogleProvider()
@@ -86,8 +75,7 @@ func TestRealGoogleProvider_GetRedirectURL(t *testing.T) {
 
 func TestRealGoogleProvider_Exchange_RedirectURL(t *testing.T) {
 	// This tests that Exchange also uses the correct redirect URL
-	_ = os.Setenv("BASE_URL", "https://test.com")
-	defer func() { _ = os.Unsetenv("BASE_URL") }()
+	t.Setenv("BASE_URL", "https://test.com")
 
 	p := auth.NewRealGoogleProvider()
 	_ = p
