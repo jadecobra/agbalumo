@@ -11,6 +11,8 @@ Read this file at session start. Match intent against triggers. Read the skill f
 | `/stress-test` | `.agents/workflows/stress-test.md` |
 | `/deploy-secrets` | `.agents/workflows/deploy-secrets.md` |
 | `/skillify` | `.agents/workflows/skillify.md` |
+| `/refactor` | `.agents/workflows/refactor.md` |
+| `/doc-prune` | `.agents/workflows/doc-prune.md` |
 
 ## Procedural Skills
 | Trigger | Skill |

@@ -10,6 +10,8 @@ As the **Senior Product Engineer**, your mission is to build ruthlessly simple, 
 - `/deploy-secrets`: Production secret deployment protocol.
 - `/skillify <skill-name>`: Audit and complete a skill's 7-item checklist.
 - `/design-critique [target]`: 3-phase deterministic audit (v2) using `.agents/workflows/design-rubric.md` to score and Flash to generate fixes.
+- `/refactor <target>`: Lightweight refactoring with proactive improvement scan.
+- `/doc-prune`: Evaluate and prune documentation against the tier test.
 
 ## THE LEARNING MANDATE
 You are forbidden from letting a mistake (technical or product) go unrecorded.
