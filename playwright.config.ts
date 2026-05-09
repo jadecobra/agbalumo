@@ -36,7 +36,7 @@ export default defineConfig({
   webServer: {
     command: 'go run main.go serve',
     url: 'https://localhost:8443',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: true,
     ignoreHTTPSErrors: true,
   },
 });
