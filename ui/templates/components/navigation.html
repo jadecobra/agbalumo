@@ -195,7 +195,14 @@
                 </div>
                 {{ else }}
                 <div class="flex items-center gap-2">
-                    {{ if .DevMode }}
+                    {{ if ne .Env "production" }}
+                    <a href="/sandbox" aria-label="Component Sandbox"
+                        data-testid="ag-nav-sandbox-btn"
+                        class="flex items-center gap-2 bg-earth-dark/10 hover:bg-earth-dark/20 text-earth-dark px-4 h-10 transition-all font-semibold font-display text-[10px] capitalize tracking-widest border border-earth-dark/20"
+                        title="UI Component Sandbox">
+                        <span class="material-symbols-outlined text-[18px]">grid_view</span>
+                        Sandbox
+                    </a>
                     <a href="/auth/dev" aria-label="Dev Login"
                         data-testid="ag-nav-dev-login-btn"
                         class="flex items-center gap-2 bg-earth-ochre/10 hover:bg-earth-ochre/20 text-earth-ochre px-4 h-10 transition-all font-semibold font-display text-[10px] capitalize tracking-widest border border-earth-ochre/20"

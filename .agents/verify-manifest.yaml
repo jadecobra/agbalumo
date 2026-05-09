@@ -154,7 +154,7 @@ skills:
     path: .agents/skills/flash-review/SKILL.md
 
   - name: verify-authoring
-    trigger: tool_creation, automate_check
+    trigger: add_verify_subcommand, new_verify_tool, automate_check, tool_creation
     path: .agents/skills/verify-authoring/SKILL.md
 
   - name: codebase-audit

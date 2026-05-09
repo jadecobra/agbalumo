@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/common"
 	"github.com/jadecobra/agbalumo/internal/module"
 	"github.com/jadecobra/agbalumo/internal/module/admin"
 	"github.com/jadecobra/agbalumo/internal/module/feedback"
@@ -75,6 +76,9 @@ var TemplateMockRegistry = map[string]interface{}{
 	"admin_delete_confirm.html": admin.AdminDeleteViewModel{
 		BaseViewData: baseData,
 		IDs:          []string{"1", "2"},
+	},
+	"sandbox.html": common.SandboxViewModel{
+		BaseViewData: baseData,
 	},
 
 	// Components/Partials (Keys match defined name OR filename without .html)

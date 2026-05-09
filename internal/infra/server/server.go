@@ -186,6 +186,10 @@ func setupRoutes(e *echo.Echo, app *env.AppEnv) {
 	e.GET("/dev/login", func(c echo.Context) error {
 		return c.Redirect(http.StatusMovedPermanently, "/auth/dev")
 	})
+
+	if app.Cfg.Env != domain.EnvProduction {
+		e.GET("/sandbox", pageHandler.HandleSandbox)
+	}
 }
 
 func StaticCacheHeaders() echo.MiddlewareFunc {
