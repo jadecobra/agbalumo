@@ -219,6 +219,9 @@ func (s *WebsiteScraper) isLikelySignature(text string) bool {
 }
 
 func (s *WebsiteScraper) isMenuLink(link string) bool {
+	if s.isExcluded(link) {
+		return false
+	}
 	lower := strings.ToLower(link)
 	indicators := []string{"menu", "order", "glassguide", "doordash", "ubereats", "grubhub", "chownow", "toasttab", "clover"}
 	for _, ind := range indicators {
@@ -230,10 +233,29 @@ func (s *WebsiteScraper) isMenuLink(link string) bool {
 }
 
 func (s *WebsiteScraper) isMenuText(text string) bool {
+	if s.isExcluded(text) {
+		return false
+	}
 	lower := strings.ToLower(text)
 	indicators := []string{"menu", "order", "order online"}
 	for _, ind := range indicators {
 		if strings.Contains(lower, ind) {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *WebsiteScraper) isExcluded(val string) bool {
+	lower := strings.ToLower(val)
+	exclusions := []string{
+		"zingmyorder.com/how-it-works",
+		"zingmyorder.com/about",
+		"zingmyorder.com/contact",
+		"powered by zingmyorder",
+	}
+	for _, exc := range exclusions {
+		if strings.Contains(lower, exc) {
 			return true
 		}
 	}

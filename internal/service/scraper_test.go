@@ -68,6 +68,25 @@ func TestWebsiteScraper_Heuristics(t *testing.T) {
 				MenuURL: "http://example.com/carte",
 			},
 		},
+		{
+			name: "ZingMyOrder Marketing Link Excluded",
+			html: `<html><body>
+				<a href="https://zingmyorder.com/restaurants/legit-restaurant">Order Now</a>
+				<footer>
+					<a href="https://zingmyorder.com/how-it-works/">Powered by Zingmyorder</a>
+				</footer>
+			</body></html>`,
+			expected: AdaSignals{
+				MenuURL: "https://zingmyorder.com/restaurants/legit-restaurant",
+			},
+		},
+		{
+			name: "ZingMyOrder Marketing Link Alone Is Not Picked",
+			html: `<footer><a href="https://zingmyorder.com/how-it-works/">Powered by Zingmyorder</a></footer>`,
+			expected: AdaSignals{
+				MenuURL: "",
+			},
+		},
 	}
 
 	for _, tt := range tests {
