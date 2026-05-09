@@ -91,6 +91,7 @@ func TestWebsiteScraper_Heuristics(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// Enforces Strict Lesson: Platform Attribution Exclusion
 			signals := scraper.parseHTML(strings.NewReader(tt.html), "http://example.com")
 			assertAdaSignalsMatch(t, tt.name, signals, tt.expected)
 		})
