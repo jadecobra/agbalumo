@@ -190,3 +190,20 @@ var testIsolationCmd = makeSimpleCmd("test-isolation", "Verify that test files p
 	fmt.Println("🔍 Checking Test Isolation for Git Commands...")
 	return maintenance.VerifyTestIsolation(".")
 })
+
+var snapshotParityCmd = makeSimpleCmd("snapshot-parity", "Verify that every -darwin.png snapshot has a corresponding -linux.png snapshot", func() error {
+	fmt.Println("🔍 Checking Visual Snapshot Parity (Darwin vs Linux)...")
+	violations, err := maintenance.CheckSnapshotParity(".")
+	if err != nil {
+		return err
+	}
+	if len(violations) > 0 {
+		fmt.Printf("❌ Found %d snapshot parity violations:\n", len(violations))
+		for _, v := range violations {
+			fmt.Printf("  - %s: %s\n", v.File, v.Message)
+		}
+		return fmt.Errorf("snapshot parity check failed")
+	}
+	fmt.Println("✅ All darwin snapshots have linux counterparts.")
+	return nil
+})
