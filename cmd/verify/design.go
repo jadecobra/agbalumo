@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// Replaces Strict Lesson: UI Cohesion Enforcement
 var designCmd = &cobra.Command{
 	Use:   "design",
 	Short: "Detect UI Dialect violations (rounding in admin, hardcoded hex codes)",

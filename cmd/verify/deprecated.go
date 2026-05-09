@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// Replaces Strict Lesson: Strict ViewModel Mandate
 var deprecatedCmd = &cobra.Command{
 	Use:   "deprecated",
 	Short: "Scan for deprecated patterns in Go files",

@@ -129,8 +129,8 @@ commands:
     description: "Verify playwright config prevents port exhaustion"
 
   - name: snapshot-parity
-    trigger: before_push
-    description: "Verify every darwin snapshot has a linux counterpart"
+    trigger: before_push, test_authoring
+    description: "Fail if darwin snapshots exist without matching linux variants"
 
 skills:
   - name: go-tdd

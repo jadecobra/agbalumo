@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// Replaces Strict Lesson: Documentation Single Writer
 var docDriftCmd = &cobra.Command{
 	Use:   "doc-drift",
 	Short: "Detect stale file path references in documentation",

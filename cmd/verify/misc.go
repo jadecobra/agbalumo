@@ -54,14 +54,17 @@ var auditCmd = &cobra.Command{
 	},
 }
 
+// Replaces Strict Lesson: Action SHA Verification
 var verifyShasCmd = makeSimpleCmd("verify-shas", "Verify all GitHub Action SHAs are pinned", func() error {
 	return maintenance.VerifyActionSHAs(".")
 })
 
+// Replaces Strict Lesson: CI Infrastructure Linting, CI Orchestration Audit
 var ciToolsCmd = makeSimpleCmd("ci-tools", "Verify CI toolset availability and OS friendliness", func() error {
 	return maintenance.VerifyCITools(".")
 })
 
+// Replaces Strict Lesson: JavaScript Reliability & Security, Initialization Guard
 var jsSyntaxCmd = makeSimpleCmd("js-syntax", "Verify JavaScript syntax using node -c", func() error {
 	return maintenance.VerifyJSSyntax(".")
 })
@@ -177,6 +180,7 @@ var checkResolvableCmd = makeSimpleCmd("check-resolvable", "Validate skill resol
 	return nil
 })
 
+// Replaces Strict Lesson: Root Hygiene
 var rootHygieneCmd = makeSimpleCmd("root-hygiene", "Verify that the root directory is clean and contains no unexpected files", func() error {
 	fmt.Println("🔍 Checking root directory hygiene...")
 	return maintenance.VerifyRootHygiene(".")
