@@ -52,30 +52,30 @@ func checkFileTokenStrictness(path string) ([]DesignViolation, error) {
 	// Explicit whitelist for pervasive values not yet tokenized in tailwind.config.js
 	// or values used for Material Symbols and architectural layout patterns.
 	whitelist := map[string]bool{
-		"text-[10px]": true, // Caption size
-		"text-[11px]": true, // Nav item size
-		"text-[12px]": true, // Small icon size
-		"text-[14px]": true, // Standard icon size / small text
-		"text-[16px]": true, // Icon size
-		"text-[18px]": true, // Icon size
-		"text-[20px]": true, // Icon size
-		"text-[24px]": true, // Icon size
-		"text-[28px]": true, // Large icon size
-		"text-[32px]": true, // Hero icon size
-		"text-[48px]": true, // Modal icon size
-		"h-[35vh]":    true, // Modal header aspect
-		"h-[80px]":    true, // Header height
-		"h-[85vh]":    true, // Modal max height
-		"h-[90vh]":    true, // Modal max height
-		"h-[90dvh]":   true, // Dynamic viewport height
-		"h-[120px]":   true, // Header height
-		"h-[280px]":   true, // Card height
-		"w-[150px]":   true, // Table cell width
-		"w-[200px]":   true, // Table cell width
-		"w-[240px]":   true, // Featured card width
-		"w-[400px]":   true, // Modal side drawer width
+		"text-[10px]":         true, // Caption size
+		"text-[11px]":         true, // Nav item size
+		"text-[12px]":         true, // Small icon size
+		"text-[14px]":         true, // Standard icon size / small text
+		"text-[16px]":         true, // Icon size
+		"text-[18px]":         true, // Icon size
+		"text-[20px]":         true, // Icon size
+		"text-[24px]":         true, // Icon size
+		"text-[28px]":         true, // Large icon size
+		"text-[32px]":         true, // Hero icon size
+		"text-[48px]":         true, // Modal icon size
+		"h-[35vh]":            true, // Modal header aspect
+		"h-[80px]":            true, // Header height
+		"h-[85vh]":            true, // Modal max height
+		"h-[90vh]":            true, // Modal max height
+		"h-[90dvh]":           true, // Dynamic viewport height
+		"h-[120px]":           true, // Header height
+		"h-[280px]":           true, // Card height
+		"w-[150px]":           true, // Table cell width
+		"w-[200px]":           true, // Table cell width
+		"w-[240px]":           true, // Featured card width
+		"w-[400px]":           true, // Modal side drawer width
 		"w-[calc(100%-2rem)]": true, // Floating mobile nav
-		"border-[3px]": true, // Brutalist border weight
+		"border-[3px]":        true, // Brutalist border weight
 	}
 
 	for scanner.Scan() {
