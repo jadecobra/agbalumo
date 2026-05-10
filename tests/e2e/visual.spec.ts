@@ -12,3 +12,17 @@ test.describe('Sandbox Visual Regression', () => {
     });
   });
 });
+
+test.describe('Listing Modal Visual Regression', () => {
+  test('capture and diff the listing detail modal', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('ag-listing-card').first()).toBeVisible();
+    await page.getByTestId('ag-listing-card').first().click();
+    await expect(page.locator('dialog[id^="detail-modal-"]')).toBeVisible();
+    await page.waitForTimeout(500);
+    await expect(page).toHaveScreenshot('listing-modal-baseline.png', {
+      fullPage: true,
+      maxDiffPixelRatio: 0.05,
+    });
+  });
+});
