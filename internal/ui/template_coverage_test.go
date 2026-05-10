@@ -237,8 +237,8 @@ var TemplateMockRegistry = map[string]interface{}{
 		"GridClass": "",
 	},
 	"rating_stars": map[string]interface{}{
-		"Rating":      4.5,
-		"ReviewCount": 10,
+		"Listing":        mockListing,
+		"TextColorClass": "text-earth-ochre dark:text-yellow-600",
 	},
 
 	"button_sharp": map[string]interface{}{

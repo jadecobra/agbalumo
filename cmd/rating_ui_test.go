@@ -10,6 +10,7 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
+	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -52,4 +53,49 @@ func TestRatingLegibility(t *testing.T) {
 
 	// Check for legibility classes (no text-[10px] for ratings)
 	assert.NotContains(t, body, `text-[10px] md:text-xs text-yellow-500 font-bold flex items-center gap-0.5" data-testid="listing-rating"`)
+}
+
+func TestRatingComponent(t *testing.T) {
+	renderer := e.Renderer.(*ui.TemplateRenderer)
+
+	listing := domain.Listing{
+		Rating:      4.2,
+		ReviewCount: 15,
+	}
+
+	tests := []struct {
+		name           string
+		data           map[string]interface{}
+		expectContains []string
+	}{
+		{
+			name: "Standard ochre color",
+			data: map[string]interface{}{
+				"Listing":        listing,
+				"TextColorClass": "text-earth-ochre dark:text-yellow-600",
+			},
+			expectContains: []string{"text-earth-ochre dark:text-yellow-600", "4.2", "(15)"},
+		},
+		{
+			name: "High contrast white color",
+			data: map[string]interface{}{
+				"Listing":        listing,
+				"TextColorClass": "text-white drop-shadow-md",
+			},
+			expectContains: []string{"text-white drop-shadow-md", "4.2", "(15)"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var buf strings.Builder
+			err := renderer.RenderDefinition(&buf, "rating_stars", tt.data)
+			assert.NoError(t, err)
+
+			output := buf.String()
+			for _, exp := range tt.expectContains {
+				assert.Contains(t, output, exp)
+			}
+		})
+	}
 }

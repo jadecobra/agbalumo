@@ -1,7 +1,10 @@
 {{ define "rating_stars" }}
-<div class="flex items-center gap-1" title="{{ printf "%.1f" .Rating }} stars from {{ .ReviewCount }} reviews">
+{{ $listing := index . "Listing" }}
+{{ $textColor := index . "TextColorClass" }}
+{{ if not $textColor }}{{ $textColor = "text-earth-ochre dark:text-yellow-600" }}{{ end }}
+<div class="flex items-center gap-1" title="{{ printf "%.1f" $listing.Rating }} stars from {{ $listing.ReviewCount }} reviews">
     <div class="flex items-center -space-x-0.5">
-        {{ $rating := .Rating }}
+        {{ $rating := $listing.Rating }}
         {{ range $i := seq 1 5 }}
             {{ $f := float64 $i }}
             {{ if ge $rating $f }}
@@ -13,8 +16,8 @@
             {{ end }}
         {{ end }}
     </div>
-    <span class="text-[11px] md:text-xs font-bold text-earth-ochre dark:text-yellow-600 ml-1" data-testid="listing-rating-value">
-        {{ printf "%.1f" .Rating }} <span class="text-text-sub dark:text-stone-400 font-medium">({{ .ReviewCount }})</span>
+    <span class="text-[11px] md:text-xs font-bold {{ $textColor }} ml-1" data-testid="listing-rating-value">
+        {{ printf "%.1f" $listing.Rating }} <span class="text-text-sub dark:text-stone-400 font-medium">({{ $listing.ReviewCount }})</span>
     </span>
 </div>
 {{ end }}
