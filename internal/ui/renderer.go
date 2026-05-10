@@ -186,6 +186,12 @@ func BuildGlobalFuncMap() template.FuncMap {
 		"displayCity":      displayCity,
 		"fallbackImageURL": fallbackImageURL,
 		"hasDelivery":      hasDelivery,
+		"float64": func(i int) float64 {
+			return float64(i)
+		},
+		"subF": func(a, b float64) float64 {
+			return a - b
+		},
 		"Countries": func() []Region {
 			return nil
 		},

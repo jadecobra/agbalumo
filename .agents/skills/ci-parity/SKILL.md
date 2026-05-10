@@ -2,7 +2,7 @@
 name: CI Parity and Push Protocol
 description: Ensure local CI parity with production and monitor remote CI execution.
 triggers:
-  - "pushing changes"
+  - "push changes"
   - "CI failure"
   - "production parity"
 mutating: false
@@ -28,3 +28,10 @@ mutating: false
    - Identify the failed job and step.
    - Run `gh run view <run-id> --log-failed` to extract the traceback.
    - Do NOT mark the task as complete until the remote CI passes.
+
+## Post-Execution Health Check
+1. Verify that the local server is running and healthy:
+   `go run ./cmd/verify uptime`
+   *Insight: This ensures the local dev environment is not left in a broken or stopped state after agent activity.*
+
+2. If it fails, restore the server using `go run ./cmd/verify watch`.

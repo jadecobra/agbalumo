@@ -80,7 +80,7 @@ Skills are step-by-step procedures in `.agents/skills/`. You MUST read the relev
 |-------|-------------------|------|
 | Go TDD | Writing tests, fixing bugs, implementing features | `.agents/skills/go-tdd/SKILL.md` |
 | Browser Verification | Any UI change, browser subagent task | `.agents/skills/browser-verify/SKILL.md` |
-| CI Parity | Pushing changes, CI failure, production parity | `.agents/skills/ci-parity/SKILL.md` |
+| CI Parity | Push changes, CI failure, production parity | `.agents/skills/ci-parity/SKILL.md` |
 | Flash Planning | /plan, /architect, planning sessions, prompt decomposition | .agents/skills/flash-plan/SKILL.md |
 | UI Cohesion | Template change, design review, visual audit | `.agents/skills/ui-cohesion/SKILL.md` |
 | Design Critique | /design-critique, design review, UI audit | `.agents/skills/design-critique/SKILL.md` |

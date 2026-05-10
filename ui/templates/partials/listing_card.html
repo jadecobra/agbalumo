@@ -70,9 +70,7 @@
                 <div class="flex items-center gap-2">
                     <span class="text-[10px] md:text-xs uppercase font-bold tracking-[0.1em] text-earth-accent">{{ .Listing.Type }}</span>
                     {{ if gt .Listing.ReviewCount 0 }}
-                    <span class="text-[10px] md:text-xs text-yellow-500 font-bold flex items-center gap-0.5" data-testid="listing-rating">
-                        ⭐ {{ printf "%.1f" .Listing.Rating }} ({{ .Listing.ReviewCount }})
-                    </span>
+                    {{ template "rating_stars" .Listing }}
                     {{ end }}
                 </div>
                 <h3

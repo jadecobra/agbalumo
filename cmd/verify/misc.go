@@ -211,3 +211,15 @@ var snapshotParityCmd = makeSimpleCmd("snapshot-parity", "Verify that every -dar
 	fmt.Println("✅ All darwin snapshots have linux counterparts.")
 	return nil
 })
+
+var uptimeCmd = &cobra.Command{
+	Use:   "uptime",
+	Short: "Verify that the local server is running and reachable",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		targetURL := os.Getenv("APP_URL")
+		if targetURL == "" {
+			targetURL = "https://localhost:8443"
+		}
+		return maintenance.CheckServerUptime(targetURL)
+	},
+}

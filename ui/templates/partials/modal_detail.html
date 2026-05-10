@@ -34,6 +34,11 @@
                     <span
                         class="bg-earth-accent/90 text-white text-[10px] capitalize font-bold px-2 py-0.5  tracking-wider shadow-sm">{{
                         .Listing.Type }}</span>
+                    {{ if gt .Listing.ReviewCount 0 }}
+                    <div class="bg-white/10 backdrop-blur-sm px-2 py-0.5 rounded-none border border-white/20">
+                        {{ template "rating_stars" .Listing }}
+                    </div>
+                    {{ end }}
                 </div>
                 <h2 class="text-2xl font-bold font-serif leading-tight">{{ .Listing.Title }}</h2>
             </div>

@@ -122,6 +122,7 @@ func init() {
 		playwrightConfigCmd,
 		testIsolationCmd,
 		snapshotParityCmd,
+		uptimeCmd,
 	)
 }
 

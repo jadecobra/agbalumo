@@ -16,6 +16,11 @@ mutating: true
 - **Manual/Exploratory Checks**: The `browser_subagent` tool should NOW ONLY be used for exploratory testing of new features, assessing visual/aesthetic quality, and dealing with external third-party integrations.
 - **Continuous Automation**: If you find yourself repeating a manual subagent check, you MUST trigger the `/learn` workflow to extract that check into a Playwright test.
 
+## Step 1.5: Server Uptime Check (MANDATORY)
+Before running any browser-based tests, you MUST ensure the local server is running and reachable:
+- Run `go run ./cmd/verify uptime`
+- If it fails, start the server in the background using `go run ./cmd/verify watch &` (or equivalent) and wait for readiness.
+
 ## UI TDD Workflow (Aesthetic/Layout Tweaks)
 When modifying templates, CSS, or client-side assets where standard Go unit tests do not apply:
 1. **Identify Visual Issue**: Use `browser_subagent` to capture a baseline "Before" screenshot and isolate the layout flaw.
@@ -28,7 +33,7 @@ When modifying templates, CSS, or client-side assets where standard Go unit test
 
 1. Read `.agents/invariants.json` — get `protocol` and `port` fields
 2. Construct the base URL: `{protocol}://localhost:{port}`
-3. Verify server is running: `lsof -i :{port}` — if no output, start server first
+3. Verify server is running: `go run ./cmd/verify uptime` — if it fails, start the server first using `go run ./cmd/verify watch`
 4. Read `.env` for `BASE_URL` as override — if set, use that instead
 ## Verification Checklist
 For EVERY UI element verified, you MUST check ALL of:

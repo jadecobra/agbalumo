@@ -236,6 +236,10 @@ var TemplateMockRegistry = map[string]interface{}{
 		"IDPrefix":  "",
 		"GridClass": "",
 	},
+	"rating_stars": map[string]interface{}{
+		"Rating":      4.5,
+		"ReviewCount": 10,
+	},
 
 	"button_sharp": map[string]interface{}{
 		"Label": "Test",

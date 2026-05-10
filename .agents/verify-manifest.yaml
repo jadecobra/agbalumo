@@ -132,6 +132,10 @@ commands:
     trigger: before_push, test_authoring
     description: "Fail if darwin snapshots exist without matching linux variants"
 
+  - name: uptime
+    trigger: session_done, development
+    description: "Verify that the local server is running and reachable"
+
 skills:
   - name: go-tdd
     trigger: test_authoring, feature_implementation, bug_fix
