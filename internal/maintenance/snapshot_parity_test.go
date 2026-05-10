@@ -9,37 +9,43 @@ import (
 func TestCheckSnapshotParity(t *testing.T) {
 	tests := []struct {
 		name      string
-		files     []string
+		files     map[string]string // filename -> content
 		wantViol  bool
 		wantCount int
 	}{
 		{
 			name:      "darwin only - fail",
-			files:     []string{"test-darwin.png"},
+			files:     map[string]string{"test-darwin.png": "content1"},
 			wantViol:  true,
 			wantCount: 1,
 		},
 		{
-			name:      "darwin and linux - pass",
-			files:     []string{"test-darwin.png", "test-linux.png"},
+			name:      "darwin and linux different - pass",
+			files:     map[string]string{"test-darwin.png": "content1", "test-linux.png": "content2"},
 			wantViol:  false,
 			wantCount: 0,
 		},
 		{
+			name:      "darwin and linux identical - fail",
+			files:     map[string]string{"test-darwin.png": "identical", "test-linux.png": "identical"},
+			wantViol:  true,
+			wantCount: 1,
+		},
+		{
 			name:      "linux only - pass",
-			files:     []string{"test-linux.png"},
+			files:     map[string]string{"test-linux.png": "content1"},
 			wantViol:  false,
 			wantCount: 0,
 		},
 		{
 			name:      "multiple darwin, some missing linux",
-			files:     []string{"a-darwin.png", "a-linux.png", "b-darwin.png"},
+			files:     map[string]string{"a-darwin.png": "c1", "a-linux.png": "c2", "b-darwin.png": "c3"},
 			wantViol:  true,
 			wantCount: 1,
 		},
 		{
 			name:      "non-snapshot files ignored",
-			files:     []string{"readme.md", "test.go"},
+			files:     map[string]string{"readme.md": "c1", "test.go": "c2"},
 			wantViol:  false,
 			wantCount: 0,
 		},
@@ -62,15 +68,15 @@ func TestCheckSnapshotParity(t *testing.T) {
 	}
 }
 
-func setupSnapshots(t *testing.T, root string, files []string) {
+func setupSnapshots(t *testing.T, root string, files map[string]string) {
 	t.Helper()
 	dir := filepath.Join(root, "tests/e2e/visual.spec.ts-snapshots")
-	if err := os.MkdirAll(dir, 0750); err != nil { // G301 fix
+	if err := os.MkdirAll(dir, 0750); err != nil {
 		t.Fatalf("failed to create snapshots dir: %v", err)
 	}
-	for _, f := range files {
+	for f, content := range files {
 		path := filepath.Join(dir, f)
-		if err := os.WriteFile(path, []byte("test"), 0600); err != nil { // G306 fix
+		if err := os.WriteFile(path, []byte(content), 0600); err != nil {
 			t.Fatalf("failed to write file %s: %v", f, err)
 		}
 	}

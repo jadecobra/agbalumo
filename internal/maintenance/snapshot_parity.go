@@ -12,7 +12,8 @@ type SnapshotParityViolation struct {
 	Message string
 }
 
-// CheckSnapshotParity ensures that every -darwin.png snapshot has a corresponding -linux.png snapshot.
+// CheckSnapshotParity ensures that every -darwin.png snapshot has a corresponding -linux.png snapshot
+// and that they are not bitwise identical (which implies they were likely copied without being generated).
 func CheckSnapshotParity(rootDir string) ([]SnapshotParityViolation, error) {
 	snapshotDir := filepath.Join(rootDir, "tests/e2e/visual.spec.ts-snapshots")
 	if _, err := os.Stat(snapshotDir); os.IsNotExist(err) {
@@ -25,7 +26,7 @@ func CheckSnapshotParity(rootDir string) ([]SnapshotParityViolation, error) {
 	}
 
 	darwin, linux := mapSnapshots(files)
-	return findMissingLinux(darwin, linux), nil
+	return findSnapshotViolations(snapshotDir, darwin, linux), nil
 }
 
 func mapSnapshots(files []os.DirEntry) (map[string]bool, map[string]bool) {
@@ -45,7 +46,7 @@ func mapSnapshots(files []os.DirEntry) (map[string]bool, map[string]bool) {
 	return darwin, linux
 }
 
-func findMissingLinux(darwin, linux map[string]bool) []SnapshotParityViolation {
+func findSnapshotViolations(snapshotDir string, darwin, linux map[string]bool) []SnapshotParityViolation {
 	var violations []SnapshotParityViolation
 	for base := range darwin {
 		if !linux[base] {
@@ -53,6 +54,25 @@ func findMissingLinux(darwin, linux map[string]bool) []SnapshotParityViolation {
 				File:    base + "-darwin.png",
 				Message: fmt.Sprintf("Snapshot %s-darwin.png is missing its linux counterpart (%s-linux.png)", base, base),
 			})
+			continue
+		}
+
+		// Check for bitwise identity
+		darwinPath := filepath.Join(snapshotDir, base+"-darwin.png")
+		linuxPath := filepath.Join(snapshotDir, base+"-linux.png")
+
+		// #nosec G304
+		dContent, errD := os.ReadFile(darwinPath)
+		// #nosec G304
+		lContent, errL := os.ReadFile(linuxPath)
+
+		if errD == nil && errL == nil {
+			if string(dContent) == string(lContent) {
+				violations = append(violations, SnapshotParityViolation{
+					File:    base + "-linux.png",
+					Message: "Snapshot is bitwise identical to its darwin counterpart; it was likely copied rather than generated on Linux",
+				})
+			}
 		}
 	}
 	return violations
