@@ -75,8 +75,8 @@
 
 {{ define "modal_base" }}
 <dialog id="{{ .ID }}" {{ if index . "AutoOpen" }}data-auto-open="true"{{ end }} {{ if index . "DialogDataTarget" }}data-target="{{ .DialogDataTarget }}"{{ end }} {{ if index . "DialogDataListingId" }}data-listing-id="{{ .DialogDataListingId }}"{{ end }}
-    class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-none {{ if index . "MaxWidthClass" }}{{ .MaxWidthClass }}{{ else }}md:max-w-sm{{ end }} {{ if index . "MarginClass" }}{{ .MarginClass }}{{ else }}m-auto{{ end }} shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed {{ if index . "InsetClass" }}{{ .InsetClass }}{{ else }}inset-0{{ end }} z-50 h-full md:h-auto border border-stone-200 dark:border-stone-800">
-    <div {{ if index . "ContentID" }}id="{{ .ContentID }}"{{ end }} class="bg-white dark:bg-surface-dark relative flex flex-col h-full md:h-auto {{ if index . "MaxHeightClass" }}{{ .MaxHeightClass }}{{ else }}md:max-h-[85vh]{{ end }} overflow-hidden">
+    class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-none {{ if index . "MaxWidthClass" }}{{ .MaxWidthClass }}{{ else }}md:max-w-sm{{ end }} {{ if index . "MarginClass" }}{{ .MarginClass }}{{ else }}m-auto{{ end }} shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed {{ if index . "InsetClass" }}{{ .InsetClass }}{{ else }}inset-0{{ end }} z-50 h-full md:h-auto">
+    <div {{ if index . "ContentID" }}id="{{ .ContentID }}"{{ end }} class="bg-white dark:bg-surface-dark relative flex flex-col h-full md:h-auto {{ if index . "MaxHeightClass" }}{{ .MaxHeightClass }}{{ else }}md:max-h-[85vh]{{ end }} overflow-hidden border border-stone-200 dark:border-stone-800">
         
         <!-- Scrollable Inner Content -->
         <div class="{{ if index . "NoPadding" }}p-0{{ else }}p-6{{ end }} relative {{ if not (index . "CustomScroll") }}overflow-y-auto{{ end }} flex-1 flex flex-col min-h-0">

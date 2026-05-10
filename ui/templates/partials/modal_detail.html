@@ -57,20 +57,18 @@
                     </div>
                 </a>
 
-                {{ $flag := countryFlag .Listing.OwnerOrigin }}
-                {{ if .Listing.EnrichmentAttemptedAt }}
-                    {{ $eFlag := countryFlag .Listing.RegionalSpecialty }}
-                    {{ if $eFlag }}{{ $flag = $eFlag }}{{ end }}
-                {{ end }}
+                {{ $activeOrigin := .Listing.OwnerOrigin }}
+                {{ if .Listing.EnrichmentAttemptedAt }}{{ if .Listing.RegionalSpecialty }}{{ $activeOrigin = .Listing.RegionalSpecialty }}{{ end }}{{ end }}
+                {{ $flag := countryFlag $activeOrigin }}
 
-                {{ if or $flag .Listing.RegionalSpecialty (gt .Listing.HeatLevel 0) }}
+                {{ if or $flag $activeOrigin (gt .Listing.HeatLevel 0) }}
                 <div class="flex flex-wrap items-center gap-3 mt-1 text-text-main/80 dark:text-earth-cream/80">
                     {{ if $flag }}
                     <div class="flex items-center gap-1.5" title="{{ if .Listing.EnrichmentAttemptedAt }}Verified Origin: {{ .Listing.RegionalSpecialty }}{{ else }}Poster Origin: {{ .Listing.OwnerOrigin }}{{ end }}">
                         <span class="text-lg">{{ $flag }}</span>
-                        {{ if .Listing.RegionalSpecialty }}
-                            {{ if not (isCountry .Listing.RegionalSpecialty) }}
-                            <span class="text-xs font-bold tracking-wide">{{ .Listing.RegionalSpecialty }}</span>
+                        {{ if $activeOrigin }}
+                            {{ if not (isCountry $activeOrigin) }}
+                            <span class="text-xs font-bold tracking-wide">{{ $activeOrigin }}</span>
                             {{ end }}
                         {{ end }}
                     </div>
@@ -97,7 +95,6 @@
                     class="inline">
                     <button type="submit"
                         class="bg-earth-accent/10 hover:bg-earth-accent/20 text-earth-accent text-xs font-bold px-3 py-1  transition-colors flex items-center gap-1">
-                        <span class="material-symbols-outlined text-[14px]">verified</span>
                         Claim this Listing
                     </button>
                 </form>

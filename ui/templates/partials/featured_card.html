@@ -39,9 +39,6 @@
                 {{ if $flag }}
                 <span class="text-xl flex items-center gap-1" title="{{ if .Listing.EnrichmentAttemptedAt }}Verified Origin: {{ .Listing.RegionalSpecialty }}{{ else }}Poster Origin: {{ .Listing.OwnerOrigin }}{{ end }}">
                     {{ $flag }}
-                    {{ if .Listing.EnrichmentAttemptedAt }}
-                    <span class="material-symbols-outlined text-[16px] text-blue-400 font-bold" title="Verified by Agbalumo">verified</span>
-                    {{ end }}
                 </span>
                 {{ end }}
 
