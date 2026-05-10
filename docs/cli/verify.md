@@ -343,3 +343,11 @@ Enforce strictly typed ViewModel contracts for UI templates.
 ```bash
 agbalumo verify template-contract
 ```
+
+##### uptime
+
+Verify that the local development server is running and responding.
+
+```bash
+agbalumo verify uptime
+```
