@@ -126,6 +126,7 @@ func init() {
 		snapshotParityCmd,
 		uptimeCmd,
 		playwrightVersionCmd,
+		gitCleanCmd,
 	)
 }
 

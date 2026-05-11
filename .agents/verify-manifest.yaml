@@ -84,6 +84,10 @@ commands:
     trigger: ci_config_change, test_authoring
     description: "Verify Playwright Docker image version matches package.json"
 
+  - name: git-clean
+    trigger: ci, before_push
+    description: "Verify that the repository has no uncommitted changes"
+
   - name: gitleaks
     trigger: before_commit
     description: Scan for secrets in staged changes

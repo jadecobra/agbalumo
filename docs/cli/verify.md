@@ -359,3 +359,11 @@ Verify that the local development server is running and responding.
 ```bash
 agbalumo verify uptime
 ```
+
+##### git-clean
+
+Verify that the repository has no uncommitted changes (unstaged or untracked).
+
+```bash
+agbalumo verify git-clean
+```

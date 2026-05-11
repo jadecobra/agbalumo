@@ -229,3 +229,7 @@ var playwrightVersionCmd = makeSimpleCmd("playwright-version", "Verify Playwrigh
 	fmt.Println("🔍 Verifying Playwright Docker Version Parity...")
 	return maintenance.VerifyPlaywrightVersionParity(".")
 })
+
+var gitCleanCmd = makeSimpleCmd("git-clean", "Verify that the repository has no uncommitted changes", func() error {
+	return maintenance.VerifyGitClean(".")
+})

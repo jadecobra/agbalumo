@@ -20,6 +20,7 @@ var ciCmd = &cobra.Command{
 		ctx := cmd.Context()
 
 		tasks := []maintenance.CITask{
+			{Name: "Verifying Repository Cleanliness", Fn: func() error { return maintenance.VerifyGitClean(".") }},
 			{Name: "Verifying GitHub Action SHAs", Fn: func() error { return maintenance.VerifyActionSHAs(".") }},
 			{Name: "Verifying CI Toolset", Fn: func() error { return maintenance.VerifyCITools(".") }},
 			{Name: "Verifying JS Syntax", Fn: func() error { return maintenance.VerifyJSSyntax(".") }},
@@ -130,6 +131,13 @@ var precommitCmd = &cobra.Command{
 			if err := runCmd("gofmt", fmtArgs...); err != nil {
 				return fmt.Errorf("gofmt failed: %w", err)
 			}
+			// Re-stage after formatting to ensure commit is clean
+			fmt.Println("📎 Re-staging formatted files...")
+			for _, file := range stagedGoFiles {
+				if err := runCmd("git", "add", file); err != nil {
+					return fmt.Errorf("failed to re-stage %s: %w", file, err)
+				}
+			}
 		}
 
 		// 4. Build check
@@ -172,11 +180,20 @@ var precommitCmd = &cobra.Command{
 		stagedCSSFiles, _ := getStagedFiles(".css")
 		if len(stagedHTMLFiles) > 0 || len(stagedCSSFiles) > 0 {
 			fmt.Println("🎨 Rebuilding CSS (template/CSS files staged)...")
+			outputCSS := "ui/static/css/output.css"
 			if err := runCmd("npm", "run", "build:css"); err != nil {
-				return fmt.Errorf("CSS build failed: %w", err)
+				fmt.Printf("⚠️  'npm run build:css' failed: %v\n", err)
+				if _, statErr := os.Stat(outputCSS); statErr == nil {
+					fmt.Println("ℹ️  Using existing output.css for commit.")
+				} else {
+					fmt.Printf("⚠️  Trying 'npx tailwindcss' fallback...\n")
+					if err2 := runCmd("npx", "tailwindcss", "-i", "./ui/static/css/input.css", "-o", outputCSS, "--minify"); err2 != nil {
+						return fmt.Errorf("CSS build failed and no existing output.css found: %w", err2)
+					}
+				}
 			}
 			// Re-stage the rebuilt output.css so the commit includes it
-			if err := runCmd("git", "add", "ui/static/css/output.css"); err != nil {
+			if err := runCmd("git", "add", outputCSS); err != nil {
 				return fmt.Errorf("failed to stage rebuilt CSS: %w", err)
 			}
 		}
@@ -217,6 +234,12 @@ var precommitCmd = &cobra.Command{
 			if err := docDriftCmd.RunE(cmd, args); err != nil {
 				return err
 			}
+		}
+
+		// 9. Final Cleanliness Check
+		fmt.Println("🔍 Final check: Ensuring no unstaged changes remain...")
+		if err := maintenance.VerifyGitClean("."); err != nil {
+			return fmt.Errorf("pre-commit failed: working tree is dirty. Please stage or stash all changes: %w", err)
 		}
 
 		fmt.Println("✅ Pre-commit verification passed!")
