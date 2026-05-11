@@ -1,51 +1,54 @@
 package maintenance
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
 )
 
+type snapshotParityTestCase struct {
+	name      string
+	files     string // JSON map
+	wantCount int
+	wantViol  bool
+}
+
 func TestCheckSnapshotParity(t *testing.T) {
-	tests := []struct { //nolint:govet
-		wantCount int
-		wantViol  bool
-		name      string
-		files     map[string]string
-	}{
+	tests := []snapshotParityTestCase{
 		{
 			name:      "darwin only - fail",
-			files:     map[string]string{"test-darwin.png": "content1"},
+			files:     `{"test-darwin.png": "content1"}`,
 			wantViol:  true,
 			wantCount: 1,
 		},
 		{
 			name:      "darwin and linux different - pass",
-			files:     map[string]string{"test-darwin.png": "content1", "test-linux.png": "content2"},
+			files:     `{"test-darwin.png": "content1", "test-linux.png": "content2"}`,
 			wantViol:  false,
 			wantCount: 0,
 		},
 		{
 			name:      "darwin and linux identical - fail",
-			files:     map[string]string{"test-darwin.png": "identical", "test-linux.png": "identical"},
+			files:     `{"test-darwin.png": "identical", "test-linux.png": "identical"}`,
 			wantViol:  true,
 			wantCount: 1,
 		},
 		{
 			name:      "linux only - pass",
-			files:     map[string]string{"test-linux.png": "content1"},
+			files:     `{"test-linux.png": "content1"}`,
 			wantViol:  false,
 			wantCount: 0,
 		},
 		{
 			name:      "multiple darwin, some missing linux",
-			files:     map[string]string{"a-darwin.png": "c1", "a-linux.png": "c2", "b-darwin.png": "c3"},
+			files:     `{"a-darwin.png": "c1", "a-linux.png": "c2", "b-darwin.png": "c3"}`,
 			wantViol:  true,
 			wantCount: 1,
 		},
 		{
 			name:      "non-snapshot files ignored",
-			files:     map[string]string{"readme.md": "c1", "test.go": "c2"},
+			files:     `{"readme.md": "c1", "test.go": "c2"}`,
 			wantViol:  false,
 			wantCount: 0,
 		},
@@ -54,7 +57,11 @@ func TestCheckSnapshotParity(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tmpDir := t.TempDir()
-			setupSnapshots(t, tmpDir, tt.files)
+			var fileMap map[string]string
+			if err := json.Unmarshal([]byte(tt.files), &fileMap); err != nil {
+				t.Fatalf("failed to unmarshal files: %v", err)
+			}
+			setupSnapshots(t, tmpDir, fileMap)
 
 			violations, err := CheckSnapshotParity(tmpDir)
 			if err != nil {
