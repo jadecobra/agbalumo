@@ -123,6 +123,7 @@ func init() {
 		testIsolationCmd,
 		snapshotParityCmd,
 		uptimeCmd,
+		playwrightVersionCmd,
 	)
 }
 

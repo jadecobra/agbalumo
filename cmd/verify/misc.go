@@ -223,3 +223,9 @@ var uptimeCmd = &cobra.Command{
 		return maintenance.CheckServerUptime(targetURL)
 	},
 }
+
+// Replaces Strict Lesson: Playwright Local Linux Gate
+var playwrightVersionCmd = makeSimpleCmd("playwright-version", "Verify Playwright Docker image matches package.json version", func() error {
+	fmt.Println("🔍 Verifying Playwright Docker Version Parity...")
+	return maintenance.VerifyPlaywrightVersionParity(".")
+})

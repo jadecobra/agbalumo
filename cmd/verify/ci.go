@@ -46,6 +46,7 @@ var ciCmd = &cobra.Command{
 			{Name: "Checking Template Drift", Fn: func() error { return templateDriftCmd.RunE(cmd, args) }},
 			{Name: "Checking UI Design standards", Fn: func() error { return designCmd.RunE(cmd, args) }},
 			{Name: "Checking Visual Snapshot Parity", Fn: func() error { return snapshotParityCmd.RunE(cmd, args) }},
+			{Name: "Checking Playwright Docker Parity", Fn: func() error { return playwrightVersionCmd.RunE(cmd, args) }},
 			{Name: "Checking Coverage Threshold", Fn: func() error { return coverageCmd.RunE(cmd, args) }},
 			{Name: "Running Performance Audit (Benchmarks)", Fn: func() error { return perfCmd.RunE(cmd, args) }},
 			{Name: "Dynamic Server Startup Audit", Fn: func() error { return maintenance.VerifyServerStartup(".") }},

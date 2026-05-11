@@ -225,6 +225,14 @@ Verify that every -darwin.png snapshot has a corresponding -linux.png snapshot.
 agbalumo verify snapshot-parity
 ```
 
+##### playwright-version
+
+Verify that the Playwright Docker image version used in CI matches the `@playwright/test` version in `package.json`.
+
+```bash
+agbalumo verify playwright-version
+```
+
 ##### preflight
 
 Dump active rules relevant to staged/modified files.

@@ -21,7 +21,7 @@ func (h *AuthHandler) DevLogin(c echo.Context) error {
 		email = h.App.Cfg.DevAuthEmail
 	}
 
-	if h.App.Cfg.Env != domain.EnvDevelopment {
+	if h.App.Cfg.Env != domain.EnvDevelopment && h.App.Cfg.Env != domain.EnvTest {
 		return ui.RespondErrorMsg(c, http.StatusForbidden, "Dev login disabled in production")
 	}
 

@@ -4,6 +4,7 @@ const (
 	// Env
 	EnvProduction  = "production"
 	EnvDevelopment = "development"
+	EnvTest        = "test"
 
 	// Env var keys
 	EnvKeyDatabaseURL        = "DATABASE_URL"

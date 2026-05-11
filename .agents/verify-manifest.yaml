@@ -80,6 +80,10 @@ commands:
     trigger: ci_config_change
     description: Audit local CI tool versions
 
+  - name: playwright-version
+    trigger: ci_config_change, test_authoring
+    description: "Verify Playwright Docker image version matches package.json"
+
   - name: gitleaks
     trigger: before_commit
     description: Scan for secrets in staged changes

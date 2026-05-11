@@ -2,10 +2,13 @@ package maintenance
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
+	"strings"
 	"sync"
 	"time"
 
@@ -79,12 +82,58 @@ func QuietRunCmd(name string, args ...string) error {
 // RunPlaywrightInDocker executes Playwright tests inside a Linux Docker container to ensure platform parity.
 func RunPlaywrightInDocker(cwd string) error {
 	fmt.Println("🐳 Running Playwright E2E Tests in Linux Container...")
-	// Note: We use -v $(pwd):/app -w /app to mount the current directory and run the tests.
-	// We use --update-snapshots to ensure the Linux snapshots are regenerated if UI changed.
+
+	// 1. Cross-compile the server for Linux (matching host architecture for Docker parity)
+	fmt.Println("🦀 Cross-compiling server for Linux...")
+	buildCmd := exec.Command("go", "build", "-o", "server-linux", "main.go")
+	buildCmd.Env = append(os.Environ(), "GOOS=linux", "GOARCH="+runtime.GOARCH)
+	buildCmd.Dir = cwd
+	if out, err := buildCmd.CombinedOutput(); err != nil {
+		return fmt.Errorf("failed to build linux binary: %v\n%s", err, out)
+	}
+	defer func() { _ = os.Remove(filepath.Join(cwd, "server-linux")) }()
+
+	// 2. Resolve Docker tag dynamically from package.json
+	image := getPlaywrightDockerTag(cwd)
+
+	// 3. Run Playwright in Docker using the pre-built binary
+	// We use -e AGBALUMO_TEST_SERVER_COMMAND to point to the linux binary.
+	// We run 'npm ci' first to ensure node_modules parity.
 	return QuietRunCmd("docker", "run", "--rm",
 		"-v", cwd+":/app",
 		"-w", "/app",
-		"mcr.microsoft.com/playwright:v1.52.0-noble",
-		"npx", "playwright", "test", "tests/e2e/visual.spec.ts", "--update-snapshots",
+		"-e", "AGBALUMO_TEST_SERVER_COMMAND=./server-linux serve",
+		"-e", "AGBALUMO_ENV=test",
+		image,
+		"sh", "-c", "npm ci && npx playwright test",
 	)
+}
+
+// getPlaywrightDockerTag resolves the appropriate Playwright Docker image tag from package.json.
+func getPlaywrightDockerTag(cwd string) string {
+	fallback := "mcr.microsoft.com/playwright:v1.59.1-noble"
+	data, err := os.ReadFile(filepath.Join(cwd, "package.json")) //nolint:gosec // G304: Maintenance utility reads project config
+	if err != nil {
+		return fallback
+	}
+
+	var pkg struct {
+		DevDependencies map[string]string `json:"devDependencies"`
+	}
+	if err := json.Unmarshal(data, &pkg); err != nil {
+		return fallback
+	}
+
+	ver, ok := pkg.DevDependencies["@playwright/test"]
+	if !ok {
+		return fallback
+	}
+
+	// Strip caret/tilde
+	ver = strings.TrimLeft(ver, "^~")
+	if ver == "" {
+		return fallback
+	}
+
+	return fmt.Sprintf("mcr.microsoft.com/playwright:v%s-noble", ver)
 }

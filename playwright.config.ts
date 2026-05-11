@@ -34,7 +34,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'go run main.go serve',
+    command: `sh -c "${process.env.AGBALUMO_TEST_SERVER_COMMAND || 'go run main.go serve'}"`,
     url: 'https://localhost:8443',
     reuseExistingServer: true,
     ignoreHTTPSErrors: true,
