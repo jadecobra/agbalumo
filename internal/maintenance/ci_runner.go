@@ -75,6 +75,7 @@ func QuietRunCmd(name string, args ...string) error {
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
 }
+
 // RunPlaywrightInDocker executes Playwright tests inside a Linux Docker container to ensure platform parity.
 func RunPlaywrightInDocker(cwd string) error {
 	fmt.Println("🐳 Running Playwright E2E Tests in Linux Container...")
