@@ -14,6 +14,7 @@ type snapshotParityTestCase struct {
 	wantViol  bool
 }
 
+//nolint:gocognit
 func TestCheckSnapshotParity(t *testing.T) {
 	tests := []snapshotParityTestCase{
 		{
