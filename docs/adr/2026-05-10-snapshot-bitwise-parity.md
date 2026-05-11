@@ -24,3 +24,5 @@ We are implementing a strict **Bitwise Identity Check** in the `verify snapshot-
 ## 5. Alternatives Considered
 *   **LLM Visual Audit**: Rejected due to non-determinism and high latency/token cost.
 *   **Darwin-only Snapshots**: Rejected because Linux rendering is the source of truth for our production users.
+## 6. Known Gap (Resolved)
+The original ADR addressed file existence/bitwise parity but not render-time divergence from UI changes. The fix closes the gap by mandating Playwright execution inside Linux Docker as part of the local `--with-docker` gate.

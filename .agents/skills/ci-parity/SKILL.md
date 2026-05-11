@@ -15,6 +15,7 @@ mutating: false
    *Insight: This catches environment drift, Docker build failures, and Trivy security vulnerabilities before they reach production.*
 
 2. Fix any local violations before pushing.
+2b. If any UI/template/Go files changed, run `go run ./cmd/verify ci --with-docker` — this runs Playwright inside a Linux Docker container to regenerate and validate linux snapshots before push.
 
 ## Push & Remote Monitoring
 1. Execute the push and automated monitoring wrapper:

@@ -199,7 +199,7 @@ func (r *SQLiteRepository) buildListingWhere(filters ListingFilters) (string, []
 
 func (r *SQLiteRepository) buildOrderClause(sortField, sortOrder string) string {
 	if sortField == "" {
-		return "featured DESC, heat_level DESC, rating DESC, created_at DESC"
+		return "featured DESC, heat_level DESC, rating DESC, created_at DESC, id ASC"
 	}
 
 	field := "created_at"
@@ -220,9 +220,9 @@ func (r *SQLiteRepository) buildOrderClause(sortField, sortOrder string) string 
 	}
 
 	if field == domain.FieldFeatured {
-		return domain.FieldFeatured + " " + order + ", created_at DESC"
+		return domain.FieldFeatured + " " + order + ", created_at DESC, id ASC"
 	}
-	return domain.FieldFeatured + " DESC, " + field + " " + order
+	return domain.FieldFeatured + " DESC, " + field + " " + order + ", id ASC"
 }
 
 func (r *SQLiteRepository) getCount(ctx context.Context, table, where string, args []interface{}) (int, error) {
@@ -271,7 +271,7 @@ func (r *SQLiteRepository) FindAllByOwner(ctx context.Context, ownerID string, l
 		return nil, 0, err
 	}
 
-	listings, err := r.queryListingsSimple(ctx, where+" ORDER BY created_at DESC LIMIT ? OFFSET ?", append(args, limit, offset)...)
+	listings, err := r.queryListingsSimple(ctx, where+" ORDER BY created_at DESC, id ASC LIMIT ? OFFSET ?", append(args, limit, offset)...)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -333,7 +333,7 @@ func (r *SQLiteRepository) GetFeaturedListings(ctx context.Context, category str
 		FeaturedOnly: true,
 	}
 	where, args := r.buildListingWhere(filters)
-	return r.queryListingsSimple(ctx, where+" ORDER BY created_at DESC LIMIT 3", args...)
+	return r.queryListingsSimple(ctx, where+" ORDER BY created_at DESC, id ASC LIMIT 3", args...)
 }
 
 func (r *SQLiteRepository) FindEnrichmentTargets(ctx context.Context, limit int) ([]domain.Listing, error) {

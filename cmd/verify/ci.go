@@ -51,12 +51,19 @@ var ciCmd = &cobra.Command{
 			{Name: "Dynamic Server Startup Audit", Fn: func() error { return maintenance.VerifyServerStartup(".") }},
 		}
 
+		withDocker, _ := cmd.Flags().GetBool("with-docker")
+		if withDocker {
+			tasks = append(tasks, maintenance.CITask{
+				Name: "Running Playwright E2E Tests (Linux via Docker)",
+				Fn:   func() error { return maintenance.RunPlaywrightInDocker(".") },
+			})
+		}
+
 		// Run group 1: All checks in parallel (scaled by NumCPU)
 		if err := maintenance.RunParallelCI(ctx, tasks); err != nil {
 			return err
 		}
 
-		withDocker, _ := cmd.Flags().GetBool("with-docker")
 		if withDocker {
 			fmt.Println("\n=== Docker Build & Security Scan ===")
 			if err := runDockerBuild(); err != nil {

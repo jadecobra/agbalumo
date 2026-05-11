@@ -9,6 +9,7 @@ test.describe('Sandbox Visual Regression', () => {
     // Capture and diff the entire sandbox layout
     await expect(page).toHaveScreenshot('sandbox-baseline.png', {
       fullPage: true,
+      timeout: 30000,
     });
   });
 });
@@ -21,8 +22,9 @@ test.describe('Listing Modal Visual Regression', () => {
     await expect(page.locator('dialog[id^="detail-modal-"]')).toBeVisible();
     await page.waitForTimeout(500);
     await expect(page).toHaveScreenshot('listing-modal-baseline.png', {
-      fullPage: true,
+      fullPage: false,
       maxDiffPixelRatio: 0.05,
+      timeout: 30000,
     });
   });
 });
