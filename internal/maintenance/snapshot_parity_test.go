@@ -7,11 +7,11 @@ import (
 )
 
 func TestCheckSnapshotParity(t *testing.T) {
-	tests := []struct {
-		name      string
-		files     map[string]string // filename -> content
-		wantViol  bool
+	tests := []struct { //nolint:govet
 		wantCount int
+		wantViol  bool
+		name      string
+		files     map[string]string
 	}{
 		{
 			name:      "darwin only - fail",
