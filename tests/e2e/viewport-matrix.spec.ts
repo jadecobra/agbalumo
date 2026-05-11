@@ -9,7 +9,7 @@ import { test, expect } from '@playwright/test';
 const routes = [
   { name: 'Home', path: '/' },
   { name: 'Search', path: '/?q=African' },
-  { name: 'Listing Details', path: '/listings/001500a7-70cd-452e-9cfa-46014c625371' },
+  { name: 'Listing Details', path: '/listings/01345a65-5897-3594-822e-22e9e0fe1f35' },
 ];
 
 for (const route of routes) {

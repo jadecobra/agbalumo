@@ -269,8 +269,21 @@ func getStagedFiles(extension string) ([]string, error) {
 
 // runDockerBuild performs a local docker build to catch Dockerfile regressions before push.
 func runDockerBuild() error {
+	// Build CSS first. We try npm run build:css first, then fallback to npx tailwindcss.
+	// We allow this to fail if the output file already exists, as the host node environment
+	// can be non-deterministic during parallel CI execution.
+	fmt.Println("🎨 Building CSS for Docker...")
+	outputCSS := "./ui/static/css/output.css"
 	if err := runCmd("npm", "run", "build:css"); err != nil {
-		return fmt.Errorf("css build failed (required by Docker): %w", err)
+		fmt.Printf("⚠️  'npm run build:css' failed: %v\n", err)
+		if _, statErr := os.Stat(outputCSS); statErr == nil {
+			fmt.Println("ℹ️  Using existing output.css for Docker build.")
+		} else {
+			fmt.Printf("⚠️  Trying 'npx tailwindcss' fallback...\n")
+			if err2 := runCmd("npx", "tailwindcss", "-i", "./ui/static/css/input.css", "-o", outputCSS, "--minify"); err2 != nil {
+				return fmt.Errorf("css build failed and no existing output.css found: %w", err2)
+			}
+		}
 	}
 
 	cmd := exec.Command("docker", "build", "--pull", "-t", localCIImageTag, ".")

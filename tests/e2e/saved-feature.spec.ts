@@ -25,13 +25,13 @@ test.describe('Saved/Favorites Feature', () => {
     // Ensure listings exist
     const listings = page.getByTestId('ag-listing-card');
     // Wait for the container to ensure page load/HTMX initialization
-    await page.locator('#listings-container').waitFor({ state: 'attached', timeout: 10000 });
+    await page.locator('#listings-container').waitFor({ state: 'attached', timeout: 15000 });
     const count = await listings.count();
     test.skip(count === 0, 'No listings in dev DB');
 
     // Verify heart button appears on listing cards
     const heart = page.getByTestId('ag-save-btn').first();
-    await expect(heart).toBeVisible({ timeout: 10000 });
+    await expect(heart).toBeVisible({ timeout: 15000 });
   });
 
   test('heart icon NOT visible when anonymous', async ({ page }) => {

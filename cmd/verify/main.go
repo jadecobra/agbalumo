@@ -8,8 +8,10 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "verify",
-	Short: "Agbalumo Maintenance and Verification Utility",
+	Use:           "verify",
+	Short:         "Agbalumo Maintenance and Verification Utility",
+	SilenceUsage:  true,
+	SilenceErrors: true, // We handle errors in main
 }
 
 func makeSimpleCmd(use, short string, fn func() error) *cobra.Command {
@@ -129,6 +131,9 @@ func init() {
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {
+		if err.Error() != "" {
+			_, _ = os.Stderr.WriteString("Error: " + err.Error() + "\n")
+		}
 		os.Exit(1)
 	}
 }
