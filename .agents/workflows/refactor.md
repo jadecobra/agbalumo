@@ -7,6 +7,7 @@ description: Lightweight refactoring workflow with proactive improvement scan.
 Lightweight alternative to `/build-feature` for pure refactoring tasks (renaming, structural moves, dead code removal, pattern migration). Skips product interrogation.
 
 ## Phase 1: Baseline (Deterministic)
+> **Quota Tripwire**: Is the active model Gemini 3.1 Pro/Opus? [Yes/No]. If Yes, does the prompt contain the exact word `OVERRIDE`? [Yes/No]. If No, HALT immediately and output: *"Refactoring is an expensive execution loop. Switch to Gemini 3 Flash or reply OVERRIDE to continue."* Do not proceed until overridden or switched.
 1. Run `go run ./cmd/verify preflight`
 2. Run `go test ./...` — record pass count and coverage as baseline
 3. Run `go run ./cmd/verify deprecated` — record violation count as baseline
@@ -50,6 +51,7 @@ Present ≤3 **tool-grounded** improvement suggestions to the user. Each suggest
 1. Run `go run ./cmd/verify precommit`
 2. Compare test count and coverage against Phase 1 baseline — must not decrease
 3. If improvements were approved and implemented, amend the commit or add a follow-up commit
+4. **Remote Verification**: Execute `./scripts/pushw.sh` or `gh run watch` immediately after pushing to ensure the remote CI remains green. Work is not complete until remote verification passes.
 
 ## Completion
 Output a single-line summary: `refactor(<scope>): <what changed> | tests: <pass>/<total> | deprecated: <before>→<after>`

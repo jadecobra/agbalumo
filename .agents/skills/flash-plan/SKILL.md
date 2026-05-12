@@ -99,7 +99,8 @@ Every generated prompt MUST include these sections in this order:
 6. **TDD**: Test file path, what to test, table-driven test reminder, `internal/testutil/` check.
 7. **Verification**: `precommit`, `go test`, and any additional verify subcommands from manifest.
 8. **Commit**: Conventional commit message.
-9. **ADR** (if applicable): Full approved ADR content with target file path and template reference.
+9. **Push & Monitor**: Execute `./scripts/pushw.sh` and DO NOT mark the task as complete until the remote CI passes.
+10. **ADR** (if applicable): Full approved ADR content with target file path and template reference.
 
 For documentation-only changes, replace sections 5-6 with file write instructions and state "No TDD" explicitly.
 

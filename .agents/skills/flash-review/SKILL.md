@@ -41,7 +41,12 @@ If the prompt included a TDD section:
 2. Verify all tests pass
 3. Check test names match the prompt's specification
 
-### Phase 4 — Residual Scan (Reasoning)
+### Phase 4 — CI & Push Verification
+1. Verify that the agent executed `./scripts/pushw.sh`.
+2. Confirm the remote CI run passed (you can manually verify using `gh run watch` if needed).
+3. Do NOT mark the review as complete or CLEAN until the remote CI is green.
+
+### Phase 5 — Residual Scan (Reasoning)
 1. Search for stale references related to the changes (e.g., old paths, old function names)
 2. Check if the prompt's commit message convention was followed
 3. Identify any secondary effects the changes might have caused
@@ -52,6 +57,7 @@ If the prompt included a TDD section:
 ### Actions: X/Y verified
 ### Gates: X/Y passed  
 ### Tests: X/Y passed
+### CI Parity: ✅ Passed / ❌ Failed
 ### Residuals: [count] found
 ### Verdict: CLEAN / [N] RESIDUALS
 ```

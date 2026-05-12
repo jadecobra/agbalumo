@@ -66,11 +66,11 @@ Before any task execution, you MUST:
 
 Rule: Skipping the resolver is a protocol violation.
 
-## QUOTA PROTECTION GATE (Action-Bound)
-If you detect you are running as a high-tier reasoning model (Gemini 3.1 Pro, Opus), you are constrained to read-only architecture.
-If you determine the task requires MUTATING tools (`replace_file_content`, `multi_replace_file_content`, `write_to_file`, `run_command`) without an explicit 'OVERRIDE' instruction from the user:
-1. HALT immediately. Do NOT execute the mutating tool.
-2. Output ONLY: *"Task requires codebase mutation. To preserve quota, delegate to Gemini 3 Flash via `/Flash Planning`, or reply 'OVERRIDE' to execute natively."*
+## QUOTA PROTECTION GATE (Meta vs Product Boundary)
+To optimize cost and performance, we enforce a strict boundary between Product execution (TDD loops) and Meta execution (Architecture/Rules).
+1. **Product Code (High-Tier HALT)**: If you are running as a high-tier model (e.g., Gemini 3.1 Pro) and the task involves mutating product code (`internal/`, `ui/`, `cmd/`, `tests/`), you MUST HALT and prompt the user to delegate to Gemini 3 Flash or explicitly provide an `OVERRIDE`.
+2. **Meta-Work (Flash HALT)**: If the task involves mutating workflow rules, architecture docs, or `AGENTS.md` (e.g., `/learn`), Flash models MUST HALT and escalate to a High-Tier model to prevent corruption. High-Tier models execute Meta-Work natively.
+*Note: The actual enforcement of this gate is injected directly into the execution workflows (e.g., build-feature-phase2.md).*
 
 ## SKILLS (Procedural Knowledge)
 

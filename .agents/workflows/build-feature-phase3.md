@@ -26,9 +26,12 @@ description: Phase 3: Audit & Resilience
    - use `browser_subagent` to capture a screenshot of the "Find Food" flow and embed it in the walkthrough.
 - Verify the "Final Truth" against the persona requirements (e.g., "Is the pivot visible?").
 - **HARD GATE**: You are forbidden from drafting the `walkthrough.md` or summarizing completion until this step is documented with a screenshot and checked off in `task.md`.
-8. **Knowledge Extraction (Skill & Tool Audit)**:
+8. **Push & Remote Verification**:
+   - Execute `./scripts/pushw.sh` to push the commit.
+   - You MUST wait for the script to return success or manually verify `gh run watch` is green before proceeding.
+9. **Knowledge Extraction (Skill & Tool Audit)**:
    - Review the session's `task.md` Decision Log and git log.
    - If any multi-step procedure was repeated ≥2 times during this session, or required ≥2 correction attempts: extract it into a new Skill in `.agents/skills/`.
    - If any manual check could be automated with a deterministic pass/fail: propose a new `verify` subcommand.
    - Update `.agents/verify-manifest.yaml` and `AGENTS.md` with any new skills or tools.
-**Completion**: When all phases are complete and the final commit is made, summarize the architectural decisions and test coverage for the user in a single, concise chat message.
+**Completion**: When all phases are complete, the remote CI is green, and the final commit is made, summarize the architectural decisions and test coverage for the user in a single, concise chat message.

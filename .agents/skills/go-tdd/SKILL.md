@@ -11,6 +11,7 @@ mutating: true
 ---
 # Go TDD Skill
 ## Session Start
+> **Quota Tripwire**: Is the active model Gemini 3.1 Pro/Opus? [Yes/No]. If Yes, does the prompt contain the exact word `OVERRIDE`? [Yes/No]. If No, HALT immediately and output: *"TDD is an expensive execution loop. Switch to Gemini 3 Flash or reply OVERRIDE to continue."* Do not proceed until overridden or switched.
 1. Run `go run ./cmd/verify preflight` — review active rules
 2. Run `go run ./cmd/verify check-gates` — detect current TDD phase
 ## RED Phase (Write Failing Test)
