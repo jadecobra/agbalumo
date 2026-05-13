@@ -8,8 +8,9 @@ import (
 
 // Replaces Strict Lesson: UI Regression Verification
 var browserCmd = &cobra.Command{
-	Use:   "browser",
-	Short: "Execute Playwright end-to-end UI verification tests",
+	Use:                "browser",
+	Short:              "Execute Playwright end-to-end UI verification tests",
+	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("🎭 Running Playwright E2E tests...")
 		if len(args) > 0 {
