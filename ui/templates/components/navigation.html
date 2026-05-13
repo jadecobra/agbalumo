@@ -232,29 +232,13 @@
             </div>
         </div>
 
-        <!-- Mobile Action Buttons (Visible only on mobile header) -->
         <div class="flex md:hidden items-center gap-2">
-            <!-- Removed mobile Ask button for Ada focus -->
-            <button data-auth-action="modal" data-modal-id="create-listing-modal"
-                data-testid="ag-nav-post-btn-mobile"
-                data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}" aria-label="Post"
-                class="w-11 h-11 flex items-center justify-center bg-earth-accent text-white shadow-sm active:scale-95">
-                <span class="material-symbols-outlined text-[20px]">add</span>
-            </button>
+            <!-- Redundant 'Post' and 'Account' buttons removed to favor mobile-bottom-nav -->
             {{ if .User }}
             <button hx-get="/saved" hx-target="#listings-container" hx-indicator="#listings-loading" data-testid="ag-nav-saved-btn-mobile"
                 class="w-11 h-11 flex items-center justify-center text-stone-400 hover:text-red-400">
                 <span class="material-symbols-outlined text-[20px]">favorite</span>
             </button>
-            <button class="w-11 h-11 flex items-center justify-center" hx-get="/profile" hx-target="body" hx-swap="beforeend" data-testid="ag-nav-profile-btn-mobile">
-                <img src="{{ .User.AvatarURL }}" alt="Profile" class="w-8 h-8 shadow-sm object-cover">
-            </button>
-            {{ else }}
-            <a href="/auth/google/login" aria-label="Sign In"
-                data-testid="ag-nav-signin-btn-mobile"
-                class="w-11 h-11 flex items-center justify-center text-text-sub hover:text-text-main transition-colors">
-                <span class="material-symbols-outlined text-[24px]">person</span>
-            </a>
             {{ end }}
         </div>
     </div>
