@@ -148,6 +148,10 @@ commands:
     trigger: pre_flight_optimization
     description: "Aggressively compress core agent files into a single bundle"
 
+  - name: hitboxes
+    trigger: ui_change, design_critique
+    description: "Audit touch target hitboxes and interaction layer overlays"
+
 skills:
   - name: go-tdd
     trigger: test_authoring, feature_implementation, bug_fix

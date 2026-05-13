@@ -128,6 +128,7 @@ func init() {
 		playwrightVersionCmd,
 		gitCleanCmd,
 		minifyContextCmd,
+		hitboxesCmd,
 	)
 }
 

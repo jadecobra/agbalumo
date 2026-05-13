@@ -39,7 +39,8 @@ func CheckHitboxes(targetURL string) ([]HitboxViolation, error) {
 
 	// Mobile viewport audit (44x44 rule is specifically for touch targets)
 	context, err := browser.NewContext(playwright.BrowserNewContextOptions{
-		Viewport: &playwright.Size{Width: 375, Height: 812},
+		Viewport:          &playwright.Size{Width: 375, Height: 812},
+		IgnoreHttpsErrors: playwright.Bool(true),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("could not create browser context: %w", err)
