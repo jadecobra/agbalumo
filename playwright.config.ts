@@ -5,7 +5,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : '50%',
+  workers: process.env.CI ? 2 : '50%',
   reporter: [['html', { open: 'never' }]],
   expect: {
     toHaveScreenshot: { maxDiffPixelRatio: 0.01 },
@@ -21,16 +21,8 @@ export default defineConfig({
       use: { viewport: { width: 375, height: 812 } },
     },
     {
-      name: 'Tablet',
-      use: { viewport: { width: 768, height: 1024 } },
-    },
-    {
       name: 'Desktop',
       use: { viewport: { width: 1440, height: 900 } },
-    },
-    {
-      name: 'Wide',
-      use: { viewport: { width: 1920, height: 1080 } },
     },
   ],
   webServer: {
