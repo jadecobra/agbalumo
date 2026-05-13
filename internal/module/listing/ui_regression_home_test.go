@@ -99,11 +99,11 @@ func TestSearchBarTheme(t *testing.T) {
 
 	content := string(templateContent)
 
-	if !strings.Contains(content, `bg-transparent shadow-sm border border-white/20`) {
+	if !strings.Contains(content, `bg-earth-sand/30 shadow-sm border border-earth-clay/10`) {
 		t.Error("Search Bar wrapper missing transparent sharp-edged styling")
 	}
 
-	if !strings.Contains(content, `text-earth-cream bg-transparent`) {
+	if !strings.Contains(content, `text-text-main bg-transparent`) {
 		t.Error("Search Bar input missing transparent styling")
 	}
 }
