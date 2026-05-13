@@ -123,6 +123,31 @@ test.describe('Visual Audit', () => {
     await expect(page.locator('h1')).toHaveCount(1);
   });
 
+  test('create listing modal opens and has no console errors', async ({ page }, testInfo) => {
+    await loginAsDev(page);
+    const errors: string[] = [];
+    page.on('console', msg => {
+      if (msg.type() === 'error') errors.push(msg.text());
+    });
+    
+    await page.goto('/');
+    const postBtn = testInfo.project.name === 'Mobile' 
+      ? page.locator('[data-testid="ag-nav-post-btn-mobile"]')
+      : page.locator('[data-testid="ag-nav-post-btn-desktop"]');
+    await postBtn.click();
+    
+    // Wait for modal
+    const modal = page.locator('dialog[open]');
+    await expect(modal).toBeVisible();
+    await expect(modal.locator('h2').first()).toContainText('Post');
+    
+    // Verify some key fields exist
+    await expect(page.locator('input[name="title"]')).toBeVisible();
+    await expect(page.locator('textarea[name="description"]')).toBeVisible();
+    
+    expect(errors, `Errors on Post modal: ${errors.join(', ')}`).toHaveLength(0);
+  });
+
   test('cards visible above fold at desktop', async ({ page }, testInfo) => {
     if (testInfo.project.name !== 'Desktop') test.skip();
 
