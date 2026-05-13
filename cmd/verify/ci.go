@@ -51,8 +51,6 @@ var ciCmd = &cobra.Command{
 			{Name: "Checking Coverage Threshold", Fn: func() error { return coverageCmd.RunE(cmd, args) }},
 			{Name: "Running Performance Audit (Benchmarks)", Fn: func() error { return perfCmd.RunE(cmd, args) }},
 			{Name: "Dynamic Server Startup Audit", Fn: func() error { return maintenance.VerifyServerStartup(".") }},
-			{Name: "Checking Quota Compliance", Fn: func() error { return quotaGateCmd.RunE(cmd, args) }},
-			{Name: "Verifying Preflight Tax", Fn: func() error { return preflightTaxCmd.RunE(cmd, args) }},
 		}
 
 		withDocker, _ := cmd.Flags().GetBool("with-docker")
@@ -97,12 +95,6 @@ var precommitCmd = &cobra.Command{
 			return err
 		}
 		if err := maintenance.VerifyJSSyntax("."); err != nil {
-			return err
-		}
-		if err := preflightTaxCmd.RunE(cmd, args); err != nil {
-			return err
-		}
-		if err := quotaGateCmd.RunE(cmd, args); err != nil {
 			return err
 		}
 

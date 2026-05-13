@@ -367,19 +367,3 @@ Verify that the repository has no uncommitted changes (unstaged or untracked).
 ```bash
 agbalumo verify git-clean
 ```
-
-##### quota-gate
-
-Verify that high-tier model usage (Pro/Opus) includes the `OVERRIDE` flag in the commit message.
-
-```bash
-agbalumo verify quota-gate
-```
-
-##### preflight-tax
-
-Enforce strict size limits on the agent preflight bundle to prevent context rot.
-
-```bash
-agbalumo verify preflight-tax
-```

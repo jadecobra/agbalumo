@@ -57,6 +57,12 @@ Before any architectural reasoning:
 - Get user approval before embedding it in a Flash prompt.
 - The approved ADR text goes inline in the Flash prompt so Flash commits the file.
 
+### Step 5: Red Team / Adversarial Audit
+- Before finalizing any plan, brutally critique its chronological reality.
+- **Identify Bypasses**: Can this mechanism be easily circumvented or does it rely on stale post-hoc data?
+- **Boundary Check**: Does this solve an Agent/Host environment problem using application code? (Violation of Agent/Host Boundary).
+- If the proposed solution fails this adversarial audit, ABORT the plan and propose a viable alternative.
+
 ## Prompt Decomposition (Decision-Count Heuristic)
 
 Split by **decision count**, not by architectural layer.

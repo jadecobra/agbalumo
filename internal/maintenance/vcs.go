@@ -109,14 +109,3 @@ func filterDirtyLines(statusOutput string) []string {
 	}
 	return dirty
 }
-
-// GetLastCommitMessage returns the message of the most recent commit.
-func GetLastCommitMessage(rootDir string) (string, error) {
-	cmd := exec.Command("git", "log", "-1", "--pretty=%B")
-	cmd.Dir = rootDir
-	out, err := cmd.Output()
-	if err != nil {
-		return "", fmt.Errorf("failed to get last commit message: %w", err)
-	}
-	return string(out), nil
-}

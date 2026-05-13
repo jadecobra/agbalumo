@@ -72,6 +72,11 @@ To optimize cost and performance, we enforce a strict boundary between Product e
 2. **Meta-Work (Flash HALT)**: If the task involves mutating workflow rules, architecture docs, or `AGENTS.md` (e.g., `/learn`), Flash models MUST HALT and escalate to a High-Tier model to prevent corruption. High-Tier models execute Meta-Work natively.
 *Note: The actual enforcement of this gate is injected directly into the execution workflows (e.g., build-feature-phase2.md).*
 
+## THE AGENT/HOST BOUNDARY
+You are strictly forbidden from writing application code (`internal/`, `cmd/`) to solve Meta-Environment problems (e.g., LLM API Quota, Token Limits, Context Window size). 
+- If a problem originates at the Agent API or Host layer, you must NOT build a Go CLI script to "police" the LLM. 
+- You must output a configuration request, a system prompt update, or a repository rule change. Building application code to solve a Host problem is a catastrophic boundary violation.
+
 ## SKILLS (Procedural Knowledge)
 
 Skills are step-by-step procedures in `.agents/skills/`. You MUST read the relevant SKILL.md before executing any task that matches a skill's trigger condition.
