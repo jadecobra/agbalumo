@@ -89,9 +89,7 @@
             <div class="flex justify-between items-start mb-8 {{ index . "HeaderClass" }}">
                 <h2 class="font-serif italic text-4xl leading-tight text-white drop-shadow-md">{{ .Title }}</h2>
                 {{ if index . "ShowCloseIcon" }}
-                <button data-modal-action="close" class="text-white/50 hover:text-white transition-colors focus:outline-none p-1">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
+                {{ template "btn_close" dict "Classes" "text-white/50 hover:text-white" }}
                 {{ end }}
             </div>
             {{ end }}
@@ -139,7 +137,7 @@
 
 {{ define "btn_close" }}
 <button type="button" 
-        {{ if index . "Action" }}data-action="{{ .Action }}"{{ else }}data-modal-action="close"{{ end }} 
+        {{ $action := index . "Action" }}{{ if $action }}data-action="{{ $action }}"{{ else }}data-modal-action="close"{{ end }} 
         class="btn-close {{ index . "Classes" }}" 
         aria-label="Close">
     <span class="material-symbols-outlined text-[20px]">close</span>

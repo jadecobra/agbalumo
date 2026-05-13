@@ -2,41 +2,41 @@
 
 {{ define "modal_feedback_content" }}
         <!-- Header -->
-        <div class="flex items-center justify-between p-4 border-b border-white/10 bg-white/5 backdrop-blur-sm">
-            <h2 class="text-xl font-bold font-serif text-earth-cream flex items-center gap-2">
+        <div class="flex items-center justify-between p-4 border-b border-stone-200 bg-stone-50">
+            <h2 class="text-xl font-bold font-serif text-text-main flex items-center gap-2">
                 <span class="material-symbols-outlined text-earth-accent">feedback</span>
                 Submit Feedback
             </h2>
-            {{ template "btn_close" dict "Classes" "text-stone-400 hover:text-white hover:bg-white/10" }}
+            {{ template "btn_close" dict "Classes" "text-stone-400 hover:text-text-main hover:bg-black/5" }}
         </div>
 
         <!-- Form Content -->
         <div class="p-6 space-y-4">
             <!-- Type -->
             <div class="space-y-1">
-                <label class="block text-sm font-bold text-earth-cream/70">Feedback Type</label>
+                <label class="block text-sm font-bold text-text-sub">Feedback Type</label>
                 <div class="flex gap-4">
                     <label class="flex items-center gap-2 cursor-pointer">
                         <input type="radio" name="type" value="Issue" class="text-earth-accent focus:ring-earth-accent"
                             checked>
-                        <span class="text-sm font-medium text-earth-cream">Issue</span>
+                        <span class="text-sm font-medium text-text-main">Issue</span>
                     </label>
                     <label class="flex items-center gap-2 cursor-pointer">
                         <input type="radio" name="type" value="Feature" class="text-earth-accent focus:ring-earth-accent">
-                        <span class="text-sm font-medium text-earth-cream">Feature Request</span>
+                        <span class="text-sm font-medium text-text-main">Feature Request</span>
                     </label>
                     <label class="flex items-center gap-2 cursor-pointer">
                         <input type="radio" name="type" value="Other" class="text-earth-accent focus:ring-earth-accent">
-                        <span class="text-sm font-medium text-earth-cream">Other</span>
+                        <span class="text-sm font-medium text-text-main">Other</span>
                     </label>
                 </div>
             </div>
 
             <!-- Content -->
             <div class="space-y-1">
-                <label for="feedback-content" class="block text-sm font-bold text-earth-cream/70">MORE</label>
+                <label for="feedback-content" class="block text-sm font-bold text-text-sub">Message</label>
                 <textarea id="feedback-content" name="content" rows="4" required
-                    class="w-full border border-white/20 bg-white/5 focus:border-earth-accent focus:ring-1 focus:ring-earth-accent outline-none transition-all text-sm resize-none text-earth-cream placeholder:text-earth-cream/40"
+                    class="w-full border border-stone-200 bg-white focus:border-earth-accent focus:ring-1 focus:ring-earth-accent outline-none transition-all text-sm resize-none text-text-main placeholder:text-text-sub/70"
                     placeholder="Tell us about the issue or feature..."></textarea>
             </div>
 
