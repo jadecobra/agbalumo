@@ -267,6 +267,7 @@ var TemplateMockRegistry = map[string]interface{}{
 	"btn_close": map[string]interface{}{
 		"Classes": "",
 		"Action":  "close",
+		"TestID":  "test-id",
 	},
 	"modal_base": map[string]interface{}{
 		"ID":    "test",
@@ -281,6 +282,7 @@ var TemplateMockRegistry = map[string]interface{}{
 	"modal_edit_listing_fields": listing.EditViewModel{
 		Listing: mockListing,
 	},
+	"modal_login_prompt_content": baseData,
 }
 
 func TestGlobalTemplateCoverage(t *testing.T) {

@@ -66,6 +66,10 @@ module.exports = {
                 'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
                 'juicy': '0 8px 30px -4px rgba(255, 138, 0, 0.15)',
                 'lifted': '0 16px 40px -8px rgba(255, 138, 0, 0.2)',
+            },
+            spacing: {
+                '70vh': '70vh',
+                '90vh': '90vh',
             }
         },
     },

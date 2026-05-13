@@ -1,5 +1,8 @@
 {{ define "modal_login_prompt.html" }}
-<dialog id="login-prompt-modal" class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-sm m-auto shadow-2xl border border-stone-200">
+{{ template "modal_base" dict "ID" "login-prompt-modal" "MaxWidthClass" "md:max-w-sm" "MarginClass" "m-auto" "NoPadding" true "NoHeader" true "NoBottomClose" true "InnerTemplate" "modal_login_prompt_content" "Data" . }}
+{{ end }}
+
+{{ define "modal_login_prompt_content" }}
     <div class="bg-white relative flex flex-col p-8 overflow-hidden">
         {{ template "btn_close" dict "Classes" "absolute right-4 top-4 text-text-sub hover:text-text-main z-50" }}
         
@@ -29,5 +32,4 @@
             </div>
         </div>
     </div>
-</dialog>
 {{ end }}

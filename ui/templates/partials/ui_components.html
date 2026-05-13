@@ -88,9 +88,7 @@
             {{ if not (index . "NoHeader") }}
             <div class="flex justify-between items-start mb-8 {{ index . "HeaderClass" }}">
                 <h2 class="font-serif italic text-4xl leading-tight text-white drop-shadow-md">{{ .Title }}</h2>
-                {{ if index . "ShowCloseIcon" }}
-                {{ template "btn_close" dict "Classes" "text-white/50 hover:text-white" }}
-                {{ end }}
+                {{ template "btn_close" dict "Classes" "text-text-sub hover:text-text-main" }}
             </div>
             {{ end }}
  
@@ -138,7 +136,8 @@
 {{ define "btn_close" }}
 <button type="button" 
         {{ $action := index . "Action" }}{{ if $action }}data-action="{{ $action }}"{{ else }}data-modal-action="close"{{ end }} 
-        class="btn-close {{ index . "Classes" }}" 
+        {{ if index . "TestID" }}data-testid="{{ index . "TestID" }}"{{ end }}
+        class="btn-close {{ if index . "Classes" }}{{ index . "Classes" }}{{ end }}" 
         aria-label="Close">
     <span class="material-symbols-outlined text-[20px]">close</span>
 </button>
