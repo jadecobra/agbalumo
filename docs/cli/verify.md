@@ -375,3 +375,11 @@ Compile and minify core agent files into a single bundle to reduce token consump
 ```bash
 agbalumo verify minify-context
 ```
+
+##### hitboxes
+
+Audit touch target hitboxes and interaction layer overlays for mobile ergonomics.
+
+```bash
+agbalumo verify hitboxes
+```
