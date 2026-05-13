@@ -136,7 +136,7 @@ Use `github.com/stretchr/testify/mock`. Place mocks in `internal/testutil/`.
 - **Functions:** Keep functions small and single-purpose (SRP).
 - **Comments:** Code should be self-documenting; avoid unnecessary comments.
 
-> **UI Component Constraint**: Do NOT write raw HTML form, button, or modal elements directly into major page templates. You MUST utilize or propose existing component definitions located inside `ui/templates/components/`. All colors, spacing, and visual effects must be derived exclusively from `tailwind.config.js` logic natively—no arbitrary hex codes or custom CSS outside of the Tailwind engine.
+> **UI Component Constraint**: While Tailwind utility classes are preferred for layouts, heavily repeated UI atoms (e.g., close buttons, modal backdrops) MUST be abstracted into `@layer components` in `input.css` or unified Go templates (`ui_components.html`). Do not use raw, fragmented utility strings for universal elements.
 
 ## Strict Lessons
 
@@ -149,6 +149,7 @@ This section contains corrections and constraints derived from the `[/learn]` wo
 
 
 ### UI & Frontend
+* **Semantic UI Atoms** [TRIGGER: ui_change, modal_creation]: The agent is FORBIDDEN from hardcoding raw utility classes for universal atoms (close buttons, toast wrappers, standard surfaces). You MUST use predefined partials (e.g., {{ template "btn_close" }}) or semantic CSS classes.
 * **UI Interactivity & Performance Depth** [TRIGGER: browser_subagent, ui_change]: Browser verification MUST NOT only check for element existence. It MUST verify state transitions (e.g., arrow rotation, modal dismissal), interaction depth (e.g., scrollability, mobile bottom-sheet transitions), and performance impact. Any asset degrading LCP by >100ms is a visual bug and must be lazy-loaded or optimized.
 * **Idempotency & Duplicate branding Guard** [TRIGGER: js_or_css_change, template_change]: Prevent duplicate event bindings and redundant branding by using idempotent initialization flags (e.g., `window._is_bound`) and auditing template block boundaries. UI components MUST NOT initialize via `DOMContentLoaded` if they are registered in the centralized `initApp()` sequence.
 * **UI Dialect & Positioning Awareness** [TRIGGER: ui_positioning, ui_dialect]: Distinguish between **Brand** (Rounded) and **Sharp** (Admin) dialects. **Sharp** templates prohibit rounding classes. When positioning overlays, verify vertical clearance at 1440x900 to prevent viewport collisions.

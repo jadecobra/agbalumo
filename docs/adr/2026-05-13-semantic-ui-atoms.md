@@ -22,7 +22,7 @@ Specifically, we will implement:
 
 ## 4. Consequences
 *   **Technical Tradeoffs**: Deviates slightly from "pure" utility-first Tailwind by re-introducing semantic components, but the scale of the project justifies O(1) maintenance.
-*   **Observability**: Verified via `go run ./cmd/verify design` and visual regression snapshots.
+*   **Observability**: Verified via `go run ./cmd/verify design` and visual regression snapshots. Future iteration of `cmd/verify/design` must be updated to flag hardcoded literal colors (`bg-earth-cream`) outside of the `input.css` boundaries.
 *   **SQLite Impact**: None.
 
 ## 5. Alternatives Considered

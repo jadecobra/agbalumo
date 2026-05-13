@@ -29,6 +29,7 @@ For any change to `listing_card.html` or `modal_detail.html`:
 - [ ] Modal footer uses `bg-white dark:bg-surface-dark`
 - [ ] Text colors use `text-text-main dark:text-earth-cream` (not hardcoded `text-earth-cream` alone)
 - [ ] Borders use `border-stone-200 dark:border-stone-800` (not `border-white/10` alone)
+- [ ] All close buttons and universal actions use semantic partials (e.g., {{ template "btn_close" }}) instead of inline utility classes.
 ## Step 3: Badge Density Audit
 For any change to card or modal header areas:
 - [ ] Card header shows ≤3 metadata items (Type + Rating + Title)
