@@ -41,8 +41,8 @@ func TestAdminDashboardFooterPosition(t *testing.T) {
 
 	body := rec.Body.String()
 
-	// The footer has class "footer-fruit"
-	footerIdx := strings.Index(body, domain.ClassFooter)
+	// Use LastIndex because ClassFooter ("footer-fruit") also appears in the inlined CSS in the <head>
+	footerIdx := strings.LastIndex(body, domain.ClassFooter)
 	if footerIdx == -1 {
 		t.Fatalf("Footer with class '%s' not found in rendered HTML", domain.ClassFooter)
 	}
