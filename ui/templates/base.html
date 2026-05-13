@@ -35,7 +35,7 @@
                 <!-- Post -->
                 <button data-auth-action="modal" data-modal-id="create-listing-modal"
                     data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
-                    class="flex flex-col items-center justify-center gap-1 text-earth-accent hover:text-earth-accent-light transition-colors w-16">
+                    class="flex flex-col items-center justify-center gap-1 text-earth-accent hover:text-earth-accent-light transition-all active:scale-95 w-16 h-full">
                     <span class="material-symbols-outlined text-[24px]" aria-hidden="true">add_circle</span>
                     <span class="text-[10px] font-bold uppercase tracking-wider font-display text-white">Post</span>
                 </button>
@@ -43,21 +43,21 @@
                 {{ if .User }}
                 <!-- Feedback -->
                 <button hx-get="/feedback/modal" hx-target="body" hx-swap="beforeend" data-testid="mobile-feedback-btn"
-                    class="flex flex-col items-center justify-center gap-1 text-white/80 hover:text-white transition-colors w-16">
+                    class="flex flex-col items-center justify-center gap-1 text-white/80 hover:text-white transition-all active:scale-95 w-16 h-full">
                     <span class="material-symbols-outlined text-[24px]" aria-hidden="true">feedback</span>
                     <span class="text-[10px] font-bold uppercase tracking-wider font-display text-white">Feedback</span>
                 </button>
 
                 <!-- Profile -->
                 <button hx-get="/profile" hx-target="body" hx-swap="beforeend" data-testid="mobile-account-btn"
-                    class="flex flex-col items-center justify-center gap-1 text-white/80 hover:text-white transition-colors w-16">
+                    class="flex flex-col items-center justify-center gap-1 text-white/80 hover:text-white transition-all active:scale-95 w-16 h-full">
                     <img src="{{ .User.AvatarURL }}" alt="Profile" class="w-6 h-6 border border-white/20 object-cover">
                     <span class="text-[10px] font-bold uppercase tracking-wider font-display text-white">Account</span>
                 </button>
                 {{ else }}
                 <!-- Sign In -->
                 <a href="/auth/google/login"
-                    class="flex flex-col items-center justify-center gap-1 text-white/80 hover:text-white transition-colors w-16">
+                    class="flex flex-col items-center justify-center gap-1 text-white/80 hover:text-white transition-all active:scale-95 w-16 h-full">
                     <span class="material-symbols-outlined text-[24px]" aria-hidden="true">account_circle</span>
                     <span class="text-[10px] font-bold uppercase tracking-wider font-display text-white">Sign In</span>
                 </a>
