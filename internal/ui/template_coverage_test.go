@@ -264,6 +264,10 @@ var TemplateMockRegistry = map[string]interface{}{
 		"Icon":           "icon",
 		"Label":          "Test",
 	},
+	"btn_close": map[string]interface{}{
+		"Classes": "",
+		"Action":  "close",
+	},
 	"modal_base": map[string]interface{}{
 		"ID":    "test",
 		"Title": "Test Modal",

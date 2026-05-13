@@ -9,10 +9,7 @@
                 <span class="material-symbols-outlined text-earth-accent">account_circle</span>
                 My Profile
             </h2>
-            <button data-modal-action="close" class="p-2 hover:bg-white/10 transition-colors text-earth-cream">
-                <span class="material-symbols-outlined">close</span>
-                <span class="sr-only">Close</span>
-            </button>
+            {{ template "btn_close" dict "Classes" "text-earth-cream hover:bg-white/10" }}
         </div>
 
         <!-- Profile Info -->

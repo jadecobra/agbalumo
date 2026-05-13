@@ -136,3 +136,12 @@
     </div>
 </dialog>
 {{ end }}
+
+{{ define "btn_close" }}
+<button type="button" 
+        {{ if index . "Action" }}data-action="{{ .Action }}"{{ else }}data-modal-action="close"{{ end }} 
+        class="btn-close {{ index . "Classes" }}" 
+        aria-label="Close">
+    <span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+{{ end }}

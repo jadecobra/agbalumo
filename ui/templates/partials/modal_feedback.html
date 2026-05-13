@@ -7,11 +7,7 @@
                 <span class="material-symbols-outlined text-earth-accent">feedback</span>
                 Submit Feedback
             </h2>
-            <button type="button" data-modal-action="close"
-                class="p-2 hover:bg-white/10 text-stone-400 hover:text-white transition-colors">
-                <span class="material-symbols-outlined">close</span>
-                <span class="sr-only">Close</span>
-            </button>
+            {{ template "btn_close" dict "Classes" "text-stone-400 hover:text-white hover:bg-white/10" }}
         </div>
 
         <!-- Form Content -->

@@ -28,6 +28,12 @@
   }
 }
 
+@layer components {
+  .btn-close {
+    @apply flex items-center justify-center p-2 text-text-sub hover:text-text-main hover:bg-black/5 rounded-none transition-colors focus-visible:outline-none focus-visible:ring-2;
+  }
+}
+
 /* ── agbalumo Brand Design Tokens ── */
 :root {
   /* Colors — Mapped from Generated Tokens */
