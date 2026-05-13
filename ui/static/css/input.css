@@ -152,10 +152,7 @@
 
 /* ── Fruit Footer Pattern ── */
 .footer-fruit {
-  background: linear-gradient(to bottom,
-      var(--color-background),
-      var(--color-surface));
-  border-top: 2px solid rgba(255, 138, 0, 0.15);
+  background: var(--color-background);
 }
 
 /* ── Juicy Bounce Animation ── */

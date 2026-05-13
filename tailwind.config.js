@@ -14,7 +14,7 @@ module.exports = {
                 },
                 secondary: '#005D3A',
                 background: {
-                    light: '#F8F9FA',
+                    light: '#FAF8F1',
                     dark: '#1C1C1E',
                 },
                 surface: {

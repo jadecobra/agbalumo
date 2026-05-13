@@ -1,10 +1,10 @@
 {{ define "navigation" }}
 <!-- Unified Top Header (Glassmorphic) -->
-<header class="{{ block "header_classes" . }}sticky top-0 z-[110] w-full bg-earth-dark border-b
-    border-earth-clay/20 transition-all duration-300{{ end }}" 
+<header class="{{ block "header_classes" . }}sticky top-0 z-[110] w-full bg-white/80 backdrop-blur-md border-b
+    border-earth-clay/10 transition-all duration-300{{ end }}" 
     data-agent-template="navigation.html">
     <!-- Mobile Full Width Logo -->
-    <div class="md:hidden flex flex-col justify-center items-center w-full py-2 border-b border-white/10">
+    <div class="md:hidden flex flex-col justify-center items-center w-full py-2 border-b border-earth-clay/5">
         <div class="flex flex-col items-center">
             <picture>
                 <source srcset="/static/images/logo.webp" type="image/webp">
@@ -35,12 +35,12 @@
         {{ block "header_search" . }}
         <div class="flex-1 max-w-2xl relative">
             <div
-                class="search-glow relative flex items-center h-11 md:h-12  bg-transparent shadow-sm border border-white/20 group focus-within:border-earth-accent transition-all">
-                <div class="grid place-items-center h-full w-10 md:w-12 text-white/50">
+                class="search-glow relative flex items-center h-11 md:h-12  bg-earth-sand/30 shadow-sm border border-earth-clay/10 group focus-within:border-earth-accent transition-all">
+                <div class="grid place-items-center h-full w-10 md:w-12 text-text-sub/70">
                     <span class="material-symbols-outlined text-[18px] md:text-[20px]">search</span>
                 </div>
                 <input
-                    class="peer h-full w-full outline-none text-sm text-earth-cream bg-transparent pr-4 placeholder:text-white/40 font-medium focus:outline-none focus:ring-0 focus:border-0 focus:shadow-none focus:shadow-none focus:outline-none"
+                    class="peer h-full w-full outline-none text-sm text-text-main bg-transparent pr-4 placeholder:text-text-sub/70 font-medium focus:outline-none focus:ring-0 focus:border-0 focus:shadow-none focus:shadow-none focus:outline-none"
                     id="search-nav" name="q"
                     data-testid="ag-home-search-input"
                     placeholder="Search... (e.g. 'Jollof', 'Tailor')" type="search" hx-get="/listings/fragment"
@@ -49,7 +49,7 @@
 
                 <!-- Filters Toggle (Relocated from Hero) -->
                 <button type="button" data-testid="ag-home-filters-toggle-desktop"
-                    class="flex h-full items-center justify-center px-4 text-white/60 hover:text-white transition-colors border-l border-white/10"
+                    class="flex h-full items-center justify-center px-4 text-text-sub hover:text-text-main transition-colors border-l border-earth-clay/10"
                     aria-label="Toggle Filters">
                     <span class="material-symbols-outlined text-[20px]">tune</span>
                 </button>
@@ -213,7 +213,7 @@
                     {{ end }}
                     <a href="/auth/google/login" aria-label="Sign In"
                         data-testid="ag-nav-signin-btn"
-                        class="flex items-center gap-2 border border-white/20 hover:bg-white/10 text-white hover:text-earth-cream px-4 h-10 transition-all font-semibold font-display text-sm whitespace-nowrap {{ if not .HasGoogleAuth }}opacity-50{{ end }}"
+                        class="flex items-center gap-2 border border-earth-clay/20 hover:bg-earth-sand/20 text-text-main px-4 h-10 transition-all font-semibold font-display text-sm whitespace-nowrap {{ if not .HasGoogleAuth }}opacity-50{{ end }}"
                         {{ if not .HasGoogleAuth }}title="Google OAuth not configured in .env"{{ end }}>
                         <span class="material-symbols-outlined text-[18px]">login</span>
                         Sign In
@@ -243,7 +243,7 @@
             {{ else }}
             <a href="/auth/google/login" aria-label="Sign In"
                 data-testid="ag-nav-signin-btn-mobile"
-                class="w-11 h-11 flex items-center justify-center text-white/80 hover:text-white transition-colors">
+                class="w-11 h-11 flex items-center justify-center text-text-sub hover:text-text-main transition-colors">
                 <span class="material-symbols-outlined text-[24px]">person</span>
             </a>
             {{ end }}
