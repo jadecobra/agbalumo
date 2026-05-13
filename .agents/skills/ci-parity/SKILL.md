@@ -10,12 +10,15 @@ mutating: false
 # CI Parity & Push Protocol Skill
 
 ## Local Verification (Pre-Push)
-1. Run full local CI suite mirroring production:
-   `go run ./cmd/verify ci --with-docker`
-   *Insight: This catches environment drift, Docker build failures, and Trivy security vulnerabilities before they reach production.*
+
+To avoid CI Matrix Bloat and exorbitant local time costs, you MUST NOT run the entire test suite blindly if only a subset of files changed.
+
+1. **Determine Execution Path:**
+   - **Fast Path (Diff-based/Sharded):** If you only changed specific UI components or templates, run Playwright strictly for those impacted routes using `--focus` or equivalent test filters: `go run ./cmd/verify ci --with-docker --focus=visual.spec.ts`.
+   - **Full Path (Architecture/Core Changes):** If you modified core `internal/domain` logic, dependencies, or Dockerfiles, run the full suite: `go run ./cmd/verify ci --with-docker`.
 
 2. Fix any local violations before pushing.
-2b. If any UI/template/Go files changed, run `go run ./cmd/verify ci --with-docker` — this runs Playwright inside a Linux Docker container to regenerate and validate linux snapshots before push.
+   *Insight: Running in Docker ensures we catch environment drift and security vulnerabilities before production, but we must use target filters to preserve velocity.*
 
 ## Push & Remote Monitoring
 1. Execute the push and automated monitoring wrapper:
