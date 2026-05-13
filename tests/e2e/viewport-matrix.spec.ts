@@ -9,14 +9,27 @@ import { test, expect } from '@playwright/test';
 const routes = [
   { name: 'Home', path: '/' },
   { name: 'Search', path: '/?q=African' },
-  { name: 'Listing Details', path: '/listings/01345a65-5897-3594-822e-22e9e0fe1f35' },
+  { name: 'Listing Details', path: '/listings/dynamic' },
 ];
 
 for (const route of routes) {
   test.describe(`Route: ${route.name}`, () => {
     test(`layout integrity check`, async ({ page }) => {
+      let targetPath = route.path;
+
+      if (targetPath === '/listings/dynamic') {
+        await page.goto('/');
+        const listingCard = page.getByTestId('ag-listing-card').first();
+        await expect(listingCard).toBeVisible();
+        const hxGet = await listingCard.locator('div[hx-get^="/listings/"]').first().getAttribute('hx-get');
+        if (!hxGet) {
+          throw new Error('Could not find a valid listing href dynamically');
+        }
+        targetPath = hxGet;
+      }
+
       // Navigate to the route
-      await page.goto(route.path);
+      await page.goto(targetPath);
       
       // Wait for the page to be stable
       await page.waitForLoadState('load');

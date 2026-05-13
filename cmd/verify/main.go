@@ -127,6 +127,8 @@ func init() {
 		uptimeCmd,
 		playwrightVersionCmd,
 		gitCleanCmd,
+		quotaGateCmd,
+		preflightTaxCmd,
 	)
 }
 

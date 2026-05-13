@@ -143,6 +143,14 @@ commands:
   - name: uptime
     trigger: session_done, development
     description: "Verify that the local server is running and reachable"
+    
+  - name: quota-gate
+    trigger: before_commit
+    description: "Verify high-tier model usage requires OVERRIDE"
+
+  - name: preflight-tax
+    trigger: session_start, before_commit
+    description: "Enforce strict size limits on agent preflight bundle"
 
 skills:
   - name: go-tdd
