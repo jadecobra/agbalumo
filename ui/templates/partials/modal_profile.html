@@ -4,12 +4,12 @@
 
 {{ define "modal_profile_content" }}
         <!-- Header -->
-        <div class="flex items-center justify-between p-4 border-b border-stone-200 bg-stone-50 shrink-0">
-            <h2 class="text-xl font-bold font-serif text-text-main flex items-center gap-2">
+        <div class="flex items-center justify-between p-4 border-b border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-surface-dark/50 shrink-0">
+            <h2 class="text-xl font-bold font-serif text-text-main dark:text-earth-cream flex items-center gap-2">
                 <span class="material-symbols-outlined text-earth-accent">account_circle</span>
                 My Profile
             </h2>
-            {{ template "btn_close" dict "Classes" "text-text-sub hover:text-text-main hover:bg-black/5" }}
+            {{ template "btn_close" dict "Classes" "text-text-sub hover:text-text-main dark:hover:bg-white/5" }}
         </div>
 
         <!-- Profile Info -->
@@ -26,13 +26,13 @@
                         class="text-base md:text-lg font-bold font-serif text-text-main flex flex-wrap items-center gap-2">
                         <span class="truncate">{{ .User.Name }}</span>
                         <span
-                            class="px-2 py-0.5 bg-earth-accent/10 text-earth-accent text-[10px] uppercase font-bold tracking-wider shrink-0">AGBA</span>
+                            class="px-2 py-0.5 bg-earth-accent text-earth-dark text-[10px] uppercase font-bold tracking-wider shrink-0">AGBA</span>
                     </h3>
-                    <p class="text-sm text-text-sub flex items-center gap-1 mt-0.5">
+                    <p class="text-sm text-text-main dark:text-earth-cream flex items-center gap-1 mt-0.5">
                         <span class="material-symbols-outlined text-[14px]">mail</span>
                         <span class="truncate">{{ .User.Email }}</span>
                     </p>
-                    <p class="text-xs text-text-sub/70 mt-1 flex items-center gap-1">
+                    <p class="text-xs text-text-main/80 dark:text-earth-cream/80 mt-1 flex items-center gap-1">
                         <span class="material-symbols-outlined text-[12px]">calendar_today</span>
                         Joined {{ .User.CreatedAt.Format "January 2006" }}
                     </p>
@@ -43,14 +43,14 @@
             <div class="flex flex-col sm:flex-row gap-2 w-full">
                 <button hx-get="/feedback/modal" hx-target="body" hx-swap="beforeend" data-testid="profile-feedback-btn"
                     hx-on:click="closeModal('profile-modal')"
-                    class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white/5 text-earth-cream font-bold text-sm hover:bg-white/10 transition-all">
+                    class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-stone-100 dark:bg-white/5 text-text-main dark:text-earth-cream font-bold text-sm hover:bg-stone-200 dark:hover:bg-white/10 transition-all border border-stone-200 dark:border-white/10">
                     <span
-                        class="uppercase tracking-[0.3em] text-[10px] md:text-xs font-bold text-earth-ochre drop-shadow-sm">Feedback</span>
+                        class="uppercase tracking-[0.3em] text-[10px] md:text-xs font-bold text-earth-accent dark:text-earth-ochre drop-shadow-sm">Feedback</span>
                 </button>
                 <a href="/auth/logout"
-                    class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white/5 text-red-400 font-bold text-sm hover:bg-red-900/20 transition-all">
+                    class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-stone-100 dark:bg-white/5 text-red-600 dark:text-red-400 font-bold text-sm hover:bg-red-50 dark:hover:bg-red-900/20 transition-all border border-stone-200 dark:border-white/10">
                     <span
-                        class="uppercase tracking-[0.3em] text-[10px] md:text-xs font-bold text-earth-ochre drop-shadow-sm">
+                        class="uppercase tracking-[0.3em] text-[10px] md:text-xs font-bold text-earth-accent dark:text-earth-ochre drop-shadow-sm">
                         Sign Out
                     </span>
                 </a>
@@ -64,7 +64,7 @@
                     <span class="material-symbols-outlined text-earth-accent">list_alt</span>
                     My Listings &amp; Requests
                 </h3>
-                <span class="text-xs font-bold text-text-sub bg-stone-100 px-2 py-1">{{
+                <span class="text-xs font-bold text-text-main dark:text-earth-cream bg-stone-100 dark:bg-white/10 px-2 py-1">{{
                     len .Listings }} Items</span>
             </div>
 
@@ -86,7 +86,7 @@
                     requests yet. Start connecting with the community!</p>
                 <div class="flex gap-3 justify-center">
                     <button hx-on:click="openModal('create-listing-modal'); closeModal('profile-modal')"
-                        class="px-5 py-2.5 bg-earth-accent text-white font-bold hover:bg-earth-accent/90 transition-all text-sm flex items-center gap-2">
+                        class="px-5 py-2.5 bg-earth-accent text-earth-dark font-bold hover:bg-earth-accent/90 transition-all text-sm flex items-center gap-2">
                         <span class="material-symbols-outlined text-[18px]">add_circle</span>
                         Post
                     </button>
@@ -96,11 +96,5 @@
             {{ end }}
         </div>
 
-        <!-- CLOSE button — large touch target, always visible at bottom -->
-        <div class="p-4 border-t border-stone-200 bg-stone-50 shrink-0">
-            <button data-modal-action="close"
-                class="w-full bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark font-bold uppercase text-xs tracking-widest py-4 transition-colors active:scale-95">
-                CLOSE
-            </button>
-        </div>
+
 {{ end }}

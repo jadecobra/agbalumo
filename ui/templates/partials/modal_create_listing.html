@@ -1,4 +1,4 @@
-{{ template "modal_base" dict "ID" "create-listing-modal" "Title" "Post" "IsForm" true "FormAction" "/listings" "FormSwap" "afterbegin transition:true" "FormTarget" "#listings-container" "FormEnctype" "multipart/form-data" "InnerTemplate" "modal_create_listing_fields" "Data" . "ShowCloseIcon" true }}
+{{ template "modal_base" dict "ID" "create-listing-modal" "Title" "Post" "IsForm" true "FormAction" "/listings" "FormSwap" "afterbegin transition:true" "FormTarget" "#listings-container" "FormEnctype" "multipart/form-data" "InnerTemplate" "modal_create_listing_fields" "Data" . "NoBottomClose" true }}
 
 {{ define "modal_create_listing_fields" }}
             <input type="hidden" name="_csrf" value="{{ .CSRF }}">

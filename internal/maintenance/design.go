@@ -76,6 +76,13 @@ func checkFileStandards(path string) ([]DesignViolation, error) {
 		violations = append(violations, checkInlineStyles(path, lineNumber, line)...)
 		violations = append(violations, checkMissingTestIDs(path, lineNumber, line)...)
 		violations = append(violations, checkDeadSpacers(path, lineNumber, line)...)
+		violations = append(violations, checkAdHocColors(path, lineNumber, line)...)
+	}
+
+	// File-level checks
+	fv, err := checkRedundantCloseButtons(path)
+	if err == nil {
+		violations = append(violations, fv...)
 	}
 
 	return violations, scanner.Err()
@@ -263,6 +270,57 @@ func checkDeadSpacers(path string, lineNum int, line string) []DesignViolation {
 			Line:    lineNum,
 			Content: line,
 			Reason:  "Empty section element creates dead vertical space",
+		})
+	}
+	return v
+}
+
+func checkRedundantCloseButtons(path string) ([]DesignViolation, error) {
+	// Only relevant for modal templates, excluding components definitions
+	if !strings.Contains(path, "modal_") || strings.Contains(path, "ui_components.html") {
+		return nil, nil
+	}
+
+	// #nosec G304 -- verification utility scans local templates only
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = file.Close() }()
+
+	scanner := bufio.NewScanner(file)
+	closeActions := 0
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.Contains(line, "data-modal-action=\"close\"") || strings.Contains(line, "template \"btn_close\"") {
+			closeActions++
+		}
+	}
+
+	if closeActions > 1 {
+		return []DesignViolation{{
+			File:   path,
+			Reason: fmt.Sprintf("Multiple close actions detected (%d). Modals MUST have exactly one primary close mechanism to prevent UI clutter.", closeActions),
+		}}, nil
+	}
+	return nil, nil
+}
+
+func checkAdHocColors(path string, lineNum int, line string) []DesignViolation {
+	var v []DesignViolation
+	// Catch things like bg-white/5 or hover:bg-black/5 which are often used for "fake" transparency that breaks themes
+	re := regexp.MustCompile(`(bg|text)-(white|black|stone-\d+)/\d+`)
+	matches := re.FindAllString(line, -1)
+	for _, match := range matches {
+		// Exceptions for backdrop or specific gradients if needed, but generally these should be themed tokens
+		if strings.Contains(line, "backdrop:") || strings.Contains(line, "bg-gradient") {
+			continue
+		}
+		v = append(v, DesignViolation{
+			File:    path,
+			Line:    lineNum,
+			Content: line,
+			Reason:  fmt.Sprintf("Ad-hoc color transparency '%s' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.", match),
 		})
 	}
 	return v
