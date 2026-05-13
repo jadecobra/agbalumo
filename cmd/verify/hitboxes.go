@@ -5,16 +5,20 @@ import (
 	"os"
 
 	"github.com/jadecobra/agbalumo/internal/maintenance"
+	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 )
+
+const defaultTargetURL = "https://localhost:8443"
 
 var hitboxesCmd = &cobra.Command{
 	Use:   "hitboxes",
 	Short: "Audit touch target hitboxes and interaction layers",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		_ = godotenv.Load(".env")
 		targetURL := os.Getenv("BASE_URL")
 		if targetURL == "" {
-			targetURL = "http://localhost:8080"
+			targetURL = defaultTargetURL
 		}
 
 		fmt.Printf("🔍 Auditing hitboxes at %s...\n", targetURL)

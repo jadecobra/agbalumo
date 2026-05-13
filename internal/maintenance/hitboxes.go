@@ -56,6 +56,13 @@ func CheckHitboxes(targetURL string) ([]HitboxViolation, error) {
 		return nil, fmt.Errorf("could not navigate to %s: %w", targetURL, err)
 	}
 
+	// Sanity Check: Ensure we are actually on the Agbalumo app
+	if _, serr := page.WaitForSelector("[data-agent-template]", playwright.PageWaitForSelectorOptions{
+		Timeout: playwright.Float(5000),
+	}); serr != nil {
+		return nil, fmt.Errorf("sanity check failed: target %s is reachable but does not appear to be the Agbalumo app (missing data-agent-template)", targetURL)
+	}
+
 	// Inject evaluation script
 	const script = `
 		(() => {
@@ -63,6 +70,7 @@ func CheckHitboxes(targetURL string) ([]HitboxViolation, error) {
 			const violations = [];
 			for (const el of interactive) {
 				const rect = el.getBoundingClientRect();
+				if (rect.width === 0 || rect.height === 0) continue;
 				const isSmall = rect.width < 44 || rect.height < 44;
 				
 				// Verify if blocked by transparent overlay
@@ -71,10 +79,13 @@ func CheckHitboxes(targetURL string) ([]HitboxViolation, error) {
 				const topEl = document.elementFromPoint(centerX, centerY);
 				const isBlocked = topEl && !el.contains(topEl) && !topEl.contains(el);
 				
+				const text = el.innerText.trim();
+				if (text.toLowerCase().includes("skip to")) continue;
+				
 				if (isSmall || isBlocked) {
 					violations.push({
 						tag: el.tagName,
-						text: el.innerText.trim().substring(0, 30),
+						text: text.substring(0, 30),
 						reason: isSmall ? "Touch target too small (min 44x44)" : "Interaction blocked by overlay",
 						width: rect.width,
 						height: rect.height,

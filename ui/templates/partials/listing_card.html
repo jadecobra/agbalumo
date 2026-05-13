@@ -50,12 +50,12 @@
         {{ if and .User (eq .User.ID .Listing.OwnerID) }}
         <div class="absolute top-4 left-4 flex gap-2 z-30 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
-                class="bg-white/90 backdrop-blur-md text-text-main p-2 shadow-lg hover:bg-white transition-all active:scale-95"
+                class="bg-white/90 backdrop-blur-md text-text-main w-11 h-11 flex items-center justify-center shadow-lg hover:bg-white transition-all active:scale-95"
                 hx-get="/listings/{{ .Listing.ID }}/edit?target={{ .IDPrefix }}listing-{{ .Listing.ID }}" hx-target="#modal-container" hx-swap="innerHTML">
                 <span class="material-symbols-outlined text-[18px]">edit</span>
             </button>
             <button
-                class="bg-red-500/90 backdrop-blur-md text-white p-2 shadow-lg hover:bg-red-500 transition-all active:scale-95"
+                class="bg-red-500/90 backdrop-blur-md text-white w-11 h-11 flex items-center justify-center shadow-lg hover:bg-red-500 transition-all active:scale-95"
                 hx-delete="/listings/{{ .Listing.ID }}" hx-confirm="Are you sure?">
                 <span class="material-symbols-outlined text-[18px]">delete</span>
             </button>
@@ -136,10 +136,10 @@
             {{ end }}
 
             <button
-                class="text-earth-accent font-bold flex items-center gap-1 group/btn p-3 -mr-3"
+                class="text-earth-accent font-bold flex items-center gap-1 group/btn w-11 h-11 justify-center -mr-3 relative z-20"
                 data-testid="ag-listing-card-details">
                 <span
-                    class="material-symbols-outlined text-[12px] md:text-[14px] transition-transform group-hover:translate-x-1">expand_circle_right</span>
+                    class="material-symbols-outlined text-[14px] md:text-[16px] transition-transform group-hover:translate-x-1">expand_circle_right</span>
             </button>
         </div>
     </div>
