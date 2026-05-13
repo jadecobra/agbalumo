@@ -144,6 +144,10 @@ commands:
     trigger: session_done, development
     description: "Verify that the local server is running and reachable"
 
+  - name: minify-context
+    trigger: pre_flight_optimization
+    description: "Aggressively compress core agent files into a single bundle"
+
 skills:
   - name: go-tdd
     trigger: test_authoring, feature_implementation, bug_fix

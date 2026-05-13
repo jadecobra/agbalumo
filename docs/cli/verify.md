@@ -367,3 +367,11 @@ Verify that the repository has no uncommitted changes (unstaged or untracked).
 ```bash
 agbalumo verify git-clean
 ```
+
+##### minify-context
+
+Compile and minify core agent files into a single bundle to reduce token consumption.
+
+```bash
+agbalumo verify minify-context
+```
