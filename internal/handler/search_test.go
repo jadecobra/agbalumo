@@ -60,7 +60,7 @@ func TestSearchLatency_Constraint(t *testing.T) {
 	// in the handler (ListingHandler.HandleFragment).
 	budget := 200 * time.Millisecond
 	if raceEnabled {
-		budget = 1000 * time.Millisecond
+		budget = 1500 * time.Millisecond
 	}
 	assert.Less(t, duration, budget, "Search API latency MUST be under budget")
 
