@@ -1,8 +1,9 @@
 {{ define "navigation" }}
 <!-- Unified Top Header (Glassmorphic) -->
-<header class="{{ block "header_classes" . }}sticky top-0 z-[110] w-full bg-white/80 backdrop-blur-md border-b
-    border-earth-clay/10 transition-all duration-300{{ end }}" 
+<header class="{{ block "header_classes" . }}sticky top-0 z-[110] w-full bg-white/90 border-b
+    border-earth-clay/10 transition-all duration-300{{ end }} relative" 
     data-agent-template="navigation.html">
+    <div class="absolute inset-0 backdrop-blur-md -z-10 pointer-events-none"></div>
     <!-- Mobile Full Width Logo -->
     <div class="md:hidden flex flex-col justify-center items-center w-full py-2 border-b border-earth-clay/5">
         <div class="flex flex-col items-center">
@@ -68,11 +69,18 @@
                     summary::-webkit-details-marker { display: none; }
                 </style>
 
-                <!-- Mobile handle (Sharp) -->
-                <div class="flex justify-center pt-3 pb-1 md:hidden relative shrink-0 pointer-events-none">
-                    <div class="w-12 h-1 bg-earth-dark/10 pointer-events-none"></div>
-                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-auto">
-                        {{ template "btn_close" dict "Action" "close" "Classes" "text-earth-clay hover:text-earth-dark" "TestID" "ag-home-filters-close" }}
+                <!-- Mobile Filter Header (Handle + Close) -->
+                <div class="flex justify-between items-center px-4 pt-4 pb-2 md:hidden relative shrink-0 border-b border-earth-dark/5">
+                    <!-- Visual Handle (Non-interactive) -->
+                    <div class="absolute inset-x-0 top-3 flex justify-center pointer-events-none">
+                        <div class="w-12 h-1 bg-earth-dark/10 rounded-full"></div>
+                    </div>
+                    
+                    <div class="flex-1"></div> <!-- Spacer to push close button to the right -->
+                    
+                    <!-- Close Button (High-contrast, Large touch target) -->
+                    <div class="relative z-10">
+                        {{ template "btn_close" dict "Action" "close" "Classes" "text-earth-clay hover:text-earth-dark p-3" "TestID" "ag-home-filters-close" }}
                     </div>
                 </div>
 

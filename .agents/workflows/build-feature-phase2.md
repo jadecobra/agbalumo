@@ -30,3 +30,4 @@ description: Phase 2: Autonomous Execution Loop (TDD)
 
 ### Verification
 - Run `go run ./cmd/verify precommit` before commit to ensure all gates pass.
+- **UI Modifications**: If you modified any HTML, CSS, or UI templates, you MUST explicitly run `go run ./cmd/verify browser` locally to catch visual and interaction regressions, as `precommit` intentionally skips them.

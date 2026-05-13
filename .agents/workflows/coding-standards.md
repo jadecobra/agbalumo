@@ -149,6 +149,7 @@ This section contains corrections and constraints derived from the `[/learn]` wo
 
 
 ### UI & Frontend
+* **UI Blindspot Protocol (Mandatory Local E2E)** [TRIGGER: ui_change, template_change, css_change]: `go run ./cmd/verify preflight` intentionally skips Playwright tests for speed. Therefore, any task mutating HTML, CSS, or UI templates MUST explicitly execute `go run ./cmd/verify browser` locally to catch visual and interaction bugs before pushing.
 * **Semantic UI Atoms** [TRIGGER: ui_change, modal_creation]: The agent is FORBIDDEN from hardcoding raw utility classes for universal atoms (close buttons, toast wrappers, standard surfaces). You MUST use predefined partials (e.g., {{ template "btn_close" }}) or semantic CSS classes.
 * **UI Interactivity & Performance Depth** [TRIGGER: browser_subagent, ui_change]: Browser verification MUST NOT only check for element existence. It MUST verify state transitions (e.g., arrow rotation, modal dismissal), interaction depth (e.g., scrollability, mobile bottom-sheet transitions), and performance impact. Any asset degrading LCP by >100ms is a visual bug and must be lazy-loaded or optimized.
 * **Idempotency & Duplicate branding Guard** [TRIGGER: js_or_css_change, template_change]: Prevent duplicate event bindings and redundant branding by using idempotent initialization flags (e.g., `window._is_bound`) and auditing template block boundaries. UI components MUST NOT initialize via `DOMContentLoaded` if they are registered in the centralized `initApp()` sequence.
@@ -166,6 +167,8 @@ This section contains corrections and constraints derived from the `[/learn]` wo
 
 
 ### Testing
+* **Flaky Test Eradication (Performance Assertions)** [TRIGGER: test_authoring, flake_fix]: Pass/Fail unit tests MUST NOT contain hardcoded latency budgets (e.g., `assert.Less(duration, 1000ms)`). Performance constraints should be measured in dedicated benchmark suites (`go test -bench`), not in standard unit tests that block standard execution paths.
+* **CI Cost Awareness (Matrix Bloat)** [TRIGGER: e2e_change, playwright_config]: Agents are forbidden from adding new viewports or matrix dimensions to CI pipelines (e.g., Playwright `projects`) without explicitly calculating the CI time cost and implementing a parallelization strategy (e.g., sharding or increasing workers).
 * **Test Parallelism & Env Safety** [TRIGGER: test_authoring]: Use `t.Setenv()` for setting env vars in tests. Raw `os.Setenv` without cleanup is forbidden as it causes flaky CI failures across unrelated test files.
 * **Code Duplication & Critique** [TRIGGER: refactoring]: Prioritize resolving "Code Duplication" (clone groups) from `critique`. Quantify improvements by comparing clone group counts before and after refactoring.
 * **E2E & Visual Regression** [TRIGGER: visual_testing, htmx]: Playwright tests MUST use relative paths. HTMX assertions MUST use `page.waitForResponse()` to avoid timing flakes. New modals MUST include visual snapshots in `visual.spec.ts`.
