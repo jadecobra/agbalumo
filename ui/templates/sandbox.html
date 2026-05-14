@@ -18,19 +18,19 @@
             </div>
             <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] space-y-8">
                 <div>
-                    <span class="text-[10px] capitalize font-bold text-earth-dark/70 block mb-2 tracking-widest">Display black</span>
+                    <span class="text-[10px] capitalize font-bold text-text-sub dark:text-earth-dark/70 block mb-2 tracking-widest">Display black</span>
                     <p class="text-4xl font-black uppercase tracking-tighter text-earth-dark">The quick brown fox</p>
                 </div>
                 <div>
-                    <span class="text-[10px] capitalize font-bold text-earth-dark/70 block mb-2 tracking-widest">Display bold</span>
+                    <span class="text-[10px] capitalize font-bold text-text-sub dark:text-earth-dark/70 block mb-2 tracking-widest">Display bold</span>
                     <p class="text-3xl font-bold tracking-tight text-earth-dark">Jumps over the lazy dog</p>
                 </div>
                 <div>
-                    <span class="text-[10px] capitalize font-bold text-earth-dark/70 block mb-2 tracking-widest">Body medium</span>
+                    <span class="text-[10px] capitalize font-bold text-text-sub dark:text-earth-dark/70 block mb-2 tracking-widest">Body medium</span>
                     <p class="text-base font-medium text-earth-dark/80">Agbalumo uses a brutalist yet premium typography system focusing on high legibility and strong hierarchy.</p>
                 </div>
                 <div>
-                    <span class="text-[10px] capitalize font-bold text-earth-dark/70 block mb-2 tracking-widest">Caption mono</span>
+                    <span class="text-[10px] capitalize font-bold text-text-sub dark:text-earth-dark/70 block mb-2 tracking-widest">Caption mono</span>
                     <p class="font-mono text-sm text-earth-clay"># 2026-05-09 UI_VERIFICATION_COMPLETE</p>
                 </div>
             </div>
@@ -46,7 +46,7 @@
                 <button class="px-6 py-3 bg-earth-dark text-white font-black capitalize tracking-widest hover:bg-earth-dark/90 active:translate-y-1 transition-all">
                     Primary action
                 </button>
-                <button class="px-6 py-3 bg-earth-accent/10 border-4 border-earth-accent text-earth-accent font-black capitalize tracking-widest hover:bg-earth-accent/20 transition-all">
+                <button class="px-6 py-3 bg-earth-accent/10 border-4 border-earth-accent text-earth-dark font-black capitalize tracking-widest hover:bg-earth-accent/20 transition-all">
                     Accent action
                 </button>
                 <button class="px-6 py-3 border-4 border-earth-dark text-earth-dark font-black capitalize tracking-widest hover:bg-earth-sand transition-colors">
@@ -76,10 +76,10 @@
             <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] flex flex-wrap gap-4">
                 <span class="px-3 py-1 bg-earth-dark text-white text-xs font-black uppercase tracking-tighter">Verified</span>
                 <span class="px-3 py-1 bg-earth-ochre/10 text-earth-dark border border-earth-ochre/20 text-xs font-bold">New Listing</span>
-                <span class="px-3 py-1 bg-earth-accent/10 text-earth-accent text-xs font-bold capitalize tracking-widest flex items-center gap-1">
+                <span class="px-3 py-1 bg-earth-accent/10 text-earth-dark text-xs font-bold capitalize tracking-widest flex items-center gap-1">
                     <span class="w-2 h-2 bg-earth-accent rounded-full animate-pulse"></span> Active
                 </span>
-                <span class="px-3 py-1 bg-earth-accent text-white text-[10px] font-black uppercase tracking-widest">Featured</span>
+                <span class="px-3 py-1 bg-earth-accent text-earth-dark text-[10px] font-black uppercase tracking-widest">Featured</span>
             </div>
         </section>
 
@@ -91,16 +91,16 @@
             </div>
             <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] space-y-6">
                 <div class="flex items-center gap-4">
-                    <input type="checkbox" class="w-6 h-6 border-4 border-earth-dark text-earth-accent focus:ring-earth-accent" checked>
-                    <label class="font-bold text-earth-dark">Checkbox checked</label>
+                    <input type="checkbox" id="sandbox-checkbox" class="w-6 h-6 border-4 border-earth-dark text-earth-accent focus:ring-earth-accent" checked>
+                    <label for="sandbox-checkbox" class="text-sm font-bold text-earth-dark">Checkbox checked</label>
                 </div>
                 <div class="flex items-center gap-4">
-                    <input type="radio" class="w-6 h-6 border-4 border-earth-dark text-earth-accent focus:ring-earth-accent" checked>
-                    <label class="font-bold text-earth-dark">Radio checked</label>
+                    <input type="radio" id="sandbox-radio" class="w-6 h-6 border-4 border-earth-dark text-earth-accent focus:ring-earth-accent" checked>
+                    <label for="sandbox-radio" class="text-sm font-bold text-earth-dark">Radio checked</label>
                 </div>
                 <div class="space-y-2">
-                    <label class="block text-xs font-black capitalize text-earth-dark/60">Text Input</label>
-                    <input type="text" placeholder="Enter text..." class="w-full px-4 py-3 bg-white border-4 border-earth-dark text-earth-dark font-bold placeholder:text-earth-dark/30 focus:outline-none focus:ring-4 focus:ring-earth-accent/20">
+                    <label for="sandbox-input" class="block text-xs font-black capitalize text-earth-dark/60">Text Input</label>
+                    <input type="text" id="sandbox-input" placeholder="Enter text..." class="w-full px-4 py-3 bg-white border-4 border-earth-dark text-earth-dark font-bold placeholder:text-earth-dark/30 focus:outline-none focus:ring-4 focus:ring-earth-accent/20">
                 </div>
             </div>
         </section>
@@ -116,7 +116,7 @@
                     <div class="w-8 h-8 border-4 border-earth-sand border-t-earth-accent rounded-full animate-spin"></div>
                     <span class="text-[10px] font-black capitalize">Loading</span>
                 </div>
-                <div class="flex items-center gap-2 text-green-600">
+                <div class="flex items-center gap-3 text-secondary">
                     <span class="material-symbols-outlined">check_circle</span>
                     <span class="font-bold">Success</span>
                 </div>
@@ -147,7 +147,7 @@
                     hx-get="/auth/login-prompt" 
                     hx-target="body" 
                     hx-swap="beforeend"
-                    class="px-6 py-4 bg-earth-accent/10 border-4 border-dashed border-earth-accent text-earth-accent font-bold hover:bg-earth-accent/20 transition-colors flex items-center gap-4"
+                    class="px-6 py-4 bg-earth-accent/10 border-4 border-dashed border-earth-accent text-earth-dark font-bold hover:bg-earth-accent/20 transition-colors flex items-center gap-4"
                 >
                     Launch Login Prompt
                     <span class="material-symbols-outlined" aria-hidden="true">lock_person</span>
@@ -164,7 +164,7 @@
             <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] flex flex-wrap gap-12 items-center">
                 <!-- Agbalumo Ratings -->
                 <div class="space-y-2">
-                    <label class="text-[10px] font-black capitalize text-stone-400">Rating System (🍊)</label>
+                    <label class="text-[10px] font-black capitalize text-text-sub dark:text-stone-400">Rating System (🍊)</label>
                     <div class="flex items-center gap-1">
                         <div class="flex items-center -space-x-0.5">
                             <span class="text-sm">🍊</span>
@@ -173,15 +173,15 @@
                             <span class="text-sm opacity-70 grayscale-[0.5]">🍊</span>
                             <span class="text-sm opacity-30 grayscale">🍊</span>
                         </div>
-                        <span class="text-xs font-bold text-earth-ochre ml-1">3.5 <span class="text-stone-400 font-medium">(12)</span></span>
+                        <span class="text-xs font-bold text-earth-clay ml-1">3.5 <span class="text-text-sub dark:text-stone-400 font-medium">(12)</span></span>
                     </div>
                 </div>
 
                 <!-- Save Buttons -->
                 <div class="space-y-2">
-                    <label class="text-[10px] font-black capitalize text-stone-400">Save States</label>
+                    <label class="text-[10px] font-black capitalize text-text-sub dark:text-stone-400">Save States</label>
                     <div class="flex gap-4">
-                        <button class="w-11 h-11 flex items-center justify-center text-stone-400 hover:text-red-400 transition-colors">
+                        <button class="w-11 h-11 flex items-center justify-center text-text-sub dark:text-stone-400 hover:text-red-400 transition-colors">
                             <span class="material-symbols-outlined text-[20px]">favorite_border</span>
                         </button>
                         <button class="w-11 h-11 flex items-center justify-center text-red-500">
@@ -228,12 +228,12 @@
                     </div>
                     <div class="p-6 flex flex-col flex-1">
                         <div class="flex items-center gap-2 mb-2">
-                            <span class="text-xs capitalize font-bold tracking-widest text-earth-accent">Food</span>
+                            <span class="text-xs capitalize font-bold tracking-widest text-text-sub dark:text-earth-accent">Food</span>
                         </div>
                         <h3 class="text-xl font-bold text-earth-dark mb-4">Brutalist Jollof Joint</h3>
-                        <p class="text-stone-600 text-sm line-clamp-2 mb-6">Authentic West African flavors served in a premium, high-contrast environment.</p>
+                        <p class="text-text-main dark:text-stone-600 text-sm line-clamp-2 mb-6">Authentic West African flavors served in a premium, high-contrast environment.</p>
                         <div class="mt-auto pt-4 border-t border-stone-100 flex justify-between items-center">
-                            <div class="flex items-center gap-1.5 text-stone-500">
+                            <div class="flex items-center gap-1.5 text-text-sub dark:text-stone-500">
                                 <span class="material-symbols-outlined text-sm">location_on</span>
                                 <span class="text-xs font-bold capitalize">Lagos, NG</span>
                             </div>
@@ -245,17 +245,17 @@
                 <!-- Featured Badge Variant -->
                 <div class="listing-card card-juicy group relative flex flex-col overflow-hidden bg-white border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] transition-all">
                     <div class="relative w-full h-48 bg-earth-ochre/5 flex items-center justify-center">
-                        <div class="absolute top-4 right-4 bg-earth-accent text-white px-3 py-1 text-[10px] font-black tracking-widest">FEATURED</div>
+                        <div class="absolute top-4 right-4 bg-earth-accent text-earth-dark px-3 py-1 text-[10px] font-black tracking-widest">FEATURED</div>
                         <span class="material-symbols-outlined text-6xl text-earth-ochre/20">volunteer_activism</span>
                     </div>
                     <div class="p-6">
                         <div class="flex items-center gap-2 mb-2">
-                            <span class="text-xs capitalize font-bold tracking-widest text-earth-ochre">Community</span>
+                            <span class="text-xs capitalize font-bold tracking-widest text-text-sub dark:text-earth-ochre">Community</span>
                         </div>
                         <h3 class="text-xl font-bold text-earth-dark">Community Hub</h3>
-                        <p class="text-stone-600 text-sm mt-2 mb-6">Example of a featured community listing card.</p>
+                        <p class="text-text-main dark:text-stone-600 text-sm mt-2 mb-6">Example of a featured community listing card.</p>
                         <div class="mt-auto pt-4 border-t border-stone-100 flex justify-between items-center">
-                            <div class="flex items-center gap-1.5 text-stone-500">
+                            <div class="flex items-center gap-1.5 text-text-sub dark:text-stone-500">
                                 <span class="material-symbols-outlined text-sm">location_on</span>
                                 <span class="text-xs font-bold capitalize">London, UK</span>
                             </div>
@@ -278,7 +278,7 @@
                     <div class="w-12 h-12 flex items-center justify-center border-2 border-stone-100 group-hover:border-earth-accent transition-colors">
                         <span class="material-symbols-outlined text-2xl text-earth-dark group-hover:text-earth-accent">{{ . }}</span>
                     </div>
-                    <span class="text-[10px] font-mono text-stone-400 capitalize">{{ . }}</span>
+                    <span class="text-[10px] font-mono text-text-sub dark:text-stone-400 capitalize">{{ . }}</span>
                 </div>
                 {{ end }}
             </div>
@@ -295,7 +295,7 @@
                     <span class="material-symbols-outlined text-5xl text-stone-200">search_off</span>
                 </div>
                 <h3 class="text-2xl font-black capitalize tracking-tight text-earth-dark mb-2">No listings found</h3>
-                <p class="text-stone-500 max-w-md text-sm">We couldn't find anything matching your criteria. Try adjusting your filters or expanding your search area.</p>
+                <p class="text-text-sub dark:text-stone-500 max-w-md text-sm">We couldn't find anything matching your criteria. Try adjusting your filters or expanding your search area.</p>
                 <button class="mt-8 px-8 py-3 bg-earth-dark text-white font-bold capitalize tracking-widest hover:bg-earth-ochre transition-colors">
                     Clear all filters
                 </button>

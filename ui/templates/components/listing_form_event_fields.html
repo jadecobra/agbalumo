@@ -1,20 +1,20 @@
 {{ define "listing_form_event_fields" }}
 <div id="{{ .IDPrefix }}event-dates-section" class="grid grid-cols-2 gap-4 {{ if not .Visible }}hidden{{ end }}">
     <div class="flex flex-col gap-1.5">
-        <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Event
+        <label class="text-[10px] font-bold uppercase tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Event
             Start</label>
-        <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
+        <div class="bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 p-1 flex items-center">
             <input name="event_start" type="datetime-local"
                 value='{{ if and .Listing (not .Listing.EventStart.IsZero) }}{{ .Listing.EventStart.Format "2006-01-02T15:04" }}{{ end }}'
-                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-sm md:text-base outline-none transition-all placeholder:text-earth-cream/50 color-scheme-dark">
+                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-text-main dark:text-white font-light text-sm md:text-base outline-none transition-all placeholder:text-text-sub/70 dark:placeholder:text-earth-cream/70 color-scheme-dark">
         </div>
     </div>
     <div class="flex flex-col gap-1.5">
-        <label class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Event End</label>
-        <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
+        <label class="text-[10px] font-bold uppercase tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Event End</label>
+        <div class="bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 p-1 flex items-center">
             <input name="event_end" type="datetime-local"
                 value='{{ if and .Listing (not .Listing.EventEnd.IsZero) }}{{ .Listing.EventEnd.Format "2006-01-02T15:04" }}{{ end }}'
-                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-sm md:text-base outline-none transition-all placeholder:text-earth-cream/50 color-scheme-dark">
+                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-text-main dark:text-white font-light text-sm md:text-base outline-none transition-all placeholder:text-text-sub/70 dark:placeholder:text-earth-cream/70 color-scheme-dark">
         </div>
     </div>
 </div>

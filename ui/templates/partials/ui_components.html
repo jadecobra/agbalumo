@@ -87,7 +87,7 @@
  
             {{ if not (index . "NoHeader") }}
             <div class="flex justify-between items-start mb-8 {{ index . "HeaderClass" }}">
-                <h2 class="font-serif italic text-4xl leading-tight text-white drop-shadow-md">{{ .Title }}</h2>
+                <h2 class="font-serif italic text-4xl leading-tight text-text-main dark:text-earth-cream drop-shadow-sm">{{ .Title }}</h2>
                 {{ template "btn_close" dict "Classes" "text-text-sub hover:text-text-main" }}
             </div>
             {{ end }}
