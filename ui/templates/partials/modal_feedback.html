@@ -14,19 +14,19 @@
         <div class="p-6 space-y-4">
             <!-- Type -->
             <div class="space-y-1">
-                <label class="block text-sm font-bold text-text-sub">Feedback Type</label>
+                <span class="block text-sm font-bold text-text-sub">Feedback Type</span>
                 <div class="flex gap-4">
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="type" value="Issue" class="text-earth-accent focus:ring-earth-accent"
+                    <label for="feedback-type-issue" class="flex items-center gap-2 cursor-pointer">
+                        <input id="feedback-type-issue" type="radio" name="type" value="Issue" class="text-earth-accent focus:ring-earth-accent"
                             checked>
                         <span class="text-sm font-medium text-text-main">Issue</span>
                     </label>
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="type" value="Feature" class="text-earth-accent focus:ring-earth-accent">
+                    <label for="feedback-type-feature" class="flex items-center gap-2 cursor-pointer">
+                        <input id="feedback-type-feature" type="radio" name="type" value="Feature" class="text-earth-accent focus:ring-earth-accent">
                         <span class="text-sm font-medium text-text-main">Feature Request</span>
                     </label>
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="type" value="Other" class="text-earth-accent focus:ring-earth-accent">
+                    <label for="feedback-type-other" class="flex items-center gap-2 cursor-pointer">
+                        <input id="feedback-type-other" type="radio" name="type" value="Other" class="text-earth-accent focus:ring-earth-accent">
                         <span class="text-sm font-medium text-text-main">Other</span>
                     </label>
                 </div>

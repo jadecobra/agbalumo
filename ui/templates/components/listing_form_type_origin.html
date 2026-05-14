@@ -1,9 +1,9 @@
 {{ define "listing_form_type_origin" }}
 <!-- Type -->
 <div class="flex flex-col gap-1.5 z-20">
-    <label class="text-[10px] font-bold uppercase tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Type</label>
+    <label for="listing-type" class="text-[10px] font-bold uppercase tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Type</label>
     <div class="custom-dropdown relative w-full z-10">
-        <input type="hidden" name="type" value="{{ if .SelectedType }}{{ .SelectedType }}{{ else }}Business{{ end }}" required>
+        <input id="listing-type" type="hidden" name="type" value="{{ if .SelectedType }}{{ .SelectedType }}{{ else }}Business{{ end }}" required>
         <button type="button" data-dropdown-toggle
             class="w-full bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 px-4 py-3 h-12 flex justify-between items-center text-text-main dark:text-white font-light text-base outline-none transition-all placeholder:text-text-sub/70 dark:placeholder:text-earth-cream/70 cursor-pointer">
             <span class="dropdown-display pointer-events-none">{{ if .SelectedType }}{{ .SelectedType }}{{ else }}Business{{ end }}</span>
@@ -22,9 +22,9 @@
 
 <!-- Origin -->
 <div class="flex flex-col gap-1.5 z-10 mt-1">
-    <label class="text-[10px] font-bold uppercase tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Origin</label>
+    <label for="listing-origin" class="text-[10px] font-bold uppercase tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Origin</label>
     <div class="custom-dropdown relative w-full z-10">
-        <input type="hidden" name="owner_origin" value="{{ if .SelectedOrigin }}{{ .SelectedOrigin }}{{ else }}Nigeria{{ end }}" required>
+        <input id="listing-origin" type="hidden" name="owner_origin" value="{{ if .SelectedOrigin }}{{ .SelectedOrigin }}{{ else }}Nigeria{{ end }}" required>
         <button type="button" data-dropdown-toggle
             class="w-full bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 px-4 py-3 h-12 flex justify-between items-center text-text-main dark:text-white font-light text-base outline-none transition-all placeholder:text-text-sub/70 dark:placeholder:text-earth-cream/70 cursor-pointer">
             <span class="dropdown-display pointer-events-none">{{ if .SelectedOrigin }}{{ .SelectedOrigin }}{{ else }}Nigeria{{ end }}</span>

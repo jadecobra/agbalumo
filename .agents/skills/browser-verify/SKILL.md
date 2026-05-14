@@ -12,8 +12,9 @@ mutating: true
 # Browser Verification Skill
 
 ## Execution Strategy: Automated vs. Manual
-- **Deterministic Checks**: You MUST ALWAYS run `go run ./cmd/verify browser` for deterministic layout and regression checks.
-- **Manual/Exploratory Checks**: The `browser_subagent` tool should NOW ONLY be used for exploratory testing of new features, assessing visual/aesthetic quality, and dealing with external third-party integrations.
+- `go run ./cmd/verify browser` runs the COMPLETE Omni-Surface Matrix (visual-audit.spec.ts).
+- Do NOT use browser_subagent to duplicate viewport checks already in the spec.
+- Use browser_subagent ONLY for: new features not yet in the spec, and taste/aesthetic judgment calls.
 - **Continuous Automation**: If you find yourself repeating a manual subagent check, you MUST trigger the `/learn` workflow to extract that check into a Playwright test.
 
 ## Step 1.5: Server Uptime Check (MANDATORY)

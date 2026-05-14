@@ -71,7 +71,7 @@
             <div class="border-t border-white/10 pt-6">
                 <p class="text-[10px] font-bold text-earth-ochre capitalize tracking-[0.2em] mb-4">Add New Category</p>
                 <form action="/admin/categories" method="POST" class="space-y-4">
-                    <input type="hidden" name="_csrf" value="{{ .CSRF }}">
+                    <input id="csrf-token-category" type="hidden" name="_csrf" value="{{ .CSRF }}">
 
                     <div>
                         <label for="categoryName"

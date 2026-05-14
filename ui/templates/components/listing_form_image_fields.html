@@ -1,6 +1,6 @@
 {{ define "listing_form_image_fields" }}
 <div class="flex flex-col gap-1.5">
-    <label class="text-[10px] font-bold uppercase tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Photo
+    <label for="{{ if .IDPrefix }}{{ .IDPrefix }}image-input-{{ .ListingID }}{{ else }}image-input{{ end }}" class="text-[10px] font-bold uppercase tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Photo
         (Optional)</label>
 
     {{ if .IDPrefix }}
@@ -10,8 +10,7 @@
     <!-- New Image Preview -->
     <div id="{{ if .IDPrefix }}{{ .IDPrefix }}image-preview-container-{{ .ListingID }}{{ else }}image-preview-container{{ end }}"
         class="hidden relative mb-2">
-        <img id="{{ if .IDPrefix }}{{ .IDPrefix }}image-preview-{{ .ListingID }}{{ else }}image-preview{{ end }}"
-            class="h-24 w-24 object-cover border border-stone-200 dark:border-white/20" alt="Preview">
+        <img id="{{ if .IDPrefix }}{{ .IDPrefix }}image-preview-{{ .ListingID }}{{ else }}image-preview{{ end }}" class="h-24 w-24 object-cover border border-stone-200 dark:border-white/20" alt="Preview">
         <button type="button" {{ if .IDPrefix }}hx-on:click="removeEditImagePreview('{{ .ListingID }}')" {{ else
             }}id="remove-image-btn" {{ end }}
             class="absolute -top-2 -right-2 bg-earth-ochre text-earth-dark p-1 hover:bg-earth-ochre-light shadow-lg">
@@ -22,7 +21,7 @@
     <!-- Existing Image (Edit Mode) -->
     {{ if and .IDPrefix .ImageURL }}
     <div id="{{ .IDPrefix }}existing-image-{{ .ListingID }}" class="mb-2 relative inline-block">
-        <img src="{{ .ImageURL }}" class="h-24 w-24 object-cover border border-stone-200 dark:border-white/20">
+        <img src="{{ .ImageURL }}" alt="Listing Image" class="h-24 w-24 object-cover border border-stone-200 dark:border-white/20">
         <button type="button" hx-on:click="clearEditImage('{{ .ListingID }}')"
             class="absolute -top-2 -right-2 bg-earth-ochre text-earth-dark p-1 hover:bg-earth-ochre-light shadow-lg">
             <span class="material-symbols-outlined text-[16px]">close</span>
@@ -32,8 +31,7 @@
 
     <!-- File Input -->
     <div class="bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 p-1 flex items-center">
-        <input name="image" type="file" accept="image/*"
-            id="{{ if .IDPrefix }}{{ .IDPrefix }}image-input-{{ .ListingID }}{{ else }}image-input{{ end }}"
+        <input id="{{ if .IDPrefix }}{{ .IDPrefix }}image-input-{{ .ListingID }}{{ else }}image-input{{ end }}" name="image" type="file" accept="image/*"
             class="w-full text-text-main dark:text-white font-light text-sm file:mr-3 file:py-3 file:px-6 file:border-0 file:text-[10px] file:uppercase file:tracking-widest file:font-bold file:bg-stone-200 dark:file:bg-earth-cream/10 file:text-text-main dark:file:text-white hover:file:bg-stone-300 dark:hover:file:bg-earth-cream/20 transition-all cursor-pointer bg-transparent py-1 pl-1 outline-none">
     </div>
 </div>

@@ -40,9 +40,8 @@
                 <div class="grid place-items-center h-full w-10 md:w-12 text-text-sub/70">
                     <span class="material-symbols-outlined text-[18px] md:text-[20px]">search</span>
                 </div>
-                <input
+                <input id="search-nav" name="q"
                     class="peer h-full w-full outline-none text-sm text-text-main bg-transparent pr-4 placeholder:text-text-sub/70 font-medium focus:outline-none focus:ring-0 focus:border-0 focus:shadow-none focus:shadow-none focus:outline-none"
-                    id="search-nav" name="q"
                     data-testid="ag-home-search-input"
                     placeholder="Search... (e.g. 'Jollof', 'Tailor')" type="search" hx-get="/listings/fragment"
                     hx-target="#listings-container" hx-indicator="#listings-loading"

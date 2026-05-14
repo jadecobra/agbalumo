@@ -37,9 +37,8 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="h-8 w-8 shrink-0">
-                                            <img class="h-8 w-8 object-cover border border-white/10"
-                                                src="{{ if .AvatarURL }}{{ .AvatarURL }}{{ else }}/static/images/default-avatar.png{{ end }}"
-                                                alt="{{ .Name }}">
+                                            <img alt="User Avatar" class="h-8 w-8 object-cover border border-white/10"
+                                                src="{{ if .AvatarURL }}{{ .AvatarURL }}{{ else }}/static/images/default-avatar.png{{ end }}">
                                         </div>
                                         <div class="ml-4">
                                             <div class="text-xs font-bold text-white capitalize tracking-wide">{{ .Name

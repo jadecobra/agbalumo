@@ -7,6 +7,7 @@ triggers:
   - "production parity"
 mutating: false
 ---
+
 # CI Parity & Push Protocol Skill
 
 ## Local Verification (Pre-Push)
@@ -18,12 +19,33 @@ To avoid CI Matrix Bloat and exorbitant local time costs, you MUST NOT run the e
    - **Full Path (Architecture/Core Changes):** If you modified core `internal/domain` logic, dependencies, or Dockerfiles, run the full suite: `go run ./cmd/verify ci --with-docker`.
 
 2. Fix any local violations before pushing.
-   *Insight: Running in Docker ensures we catch environment drift and security vulnerabilities before production, but we must use target filters to preserve velocity.*
+
+## Linux Snapshot Synchronization (MANDATORY after any UI change touching snapshots)
+
+Visual snapshots are platform-specific. Darwin snapshots generated locally will always diverge from the Linux CI environment. Run this after any change that affects snapshot-covered templates (`sandbox.html`, `modal_detail.html`):
+
+```bash
+# ARM64 Mac (Apple Silicon) — matches CI runner architecture
+GOOS=linux GOARCH=arm64 go build -o server-linux main.go && \
+docker run --rm -v $(pwd):/app -w /app \
+  -e "AGBALUMO_TEST_SERVER_COMMAND=./server-linux serve" \
+  -e "AGBALUMO_ENV=test" \
+  mcr.microsoft.com/playwright:v1.59.1-noble \
+  sh -c "npx playwright test visual.spec.ts --update-snapshots" && \
+rm server-linux
+```
+
+Then verify parity before committing:
+
+```bash
+go run ./cmd/verify snapshot-parity
+```
 
 ## Push & Remote Monitoring
+
 1. Execute the push and automated monitoring wrapper:
    `./scripts/pushw.sh`
-   *Insight: This atomically executes the push and polls the GitHub API for the specific commit's CI run ID to resolve race conditions.*
+   _Insight: This atomically executes the push and polls the GitHub API for the specific commit's CI run ID to resolve race conditions._
 
 2. Manual Fallback (if the script fails or is bypassed):
    `gh run watch`
@@ -34,8 +56,9 @@ To avoid CI Matrix Bloat and exorbitant local time costs, you MUST NOT run the e
    - Do NOT mark the task as complete until the remote CI passes.
 
 ## Post-Execution Health Check
+
 1. Verify that the local server is running and healthy:
    `go run ./cmd/verify uptime`
-   *Insight: This ensures the local dev environment is not left in a broken or stopped state after agent activity.*
+   _Insight: This ensures the local dev environment is not left in a broken or stopped state after agent activity._
 
 2. If it fails, restore the server using `go run ./cmd/verify watch`.

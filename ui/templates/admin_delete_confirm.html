@@ -28,10 +28,10 @@
         {{ end }}
 
         <form method="POST" action="/admin/listings/delete">
-            <input type="hidden" name="_csrf" value="{{ $.CSRF }}">
+            <input id="csrf-token-delete-confirm" type="hidden" name="_csrf" value="{{ $.CSRF }}">
 
             {{ range .IDs }}
-            <input type="hidden" name="id" value="{{ . }}">
+            <input id="delete-listing-id" type="hidden" name="id" value="{{ . }}">
             {{ end }}
 
             <div class="mb-8">
