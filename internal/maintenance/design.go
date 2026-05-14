@@ -51,6 +51,10 @@ func checkFileStandards(path string) ([]DesignViolation, error) {
 	var violations []DesignViolation
 
 	// #nosec G304 -- verification utility scans local templates only
+	content, _ := os.ReadFile(path)
+	hasLabel := strings.Contains(string(content), "<label")
+
+	// #nosec G304 -- verification utility scans local templates only
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -77,6 +81,7 @@ func checkFileStandards(path string) ([]DesignViolation, error) {
 		violations = append(violations, checkMissingTestIDs(path, lineNumber, line)...)
 		violations = append(violations, checkDeadSpacers(path, lineNumber, line)...)
 		violations = append(violations, checkAdHocColors(path, lineNumber, line)...)
+		violations = append(violations, checkA11ySemantics(path, lineNumber, line, hasLabel)...)
 	}
 
 	// File-level checks
@@ -324,4 +329,71 @@ func checkAdHocColors(path string, lineNum int, line string) []DesignViolation {
 		})
 	}
 	return v
+}
+
+func checkA11ySemantics(path string, lineNum int, line string, hasLabel bool) []DesignViolation {
+	var v []DesignViolation
+
+	v = append(v, checkIconButtonA11y(path, lineNum, line)...)
+	v = append(v, checkLabelA11y(path, lineNum, line)...)
+	v = append(v, checkInputA11y(path, lineNum, line, hasLabel)...)
+	v = append(v, checkImgA11y(path, lineNum, line)...)
+
+	return v
+}
+
+func checkIconButtonA11y(path string, lineNum int, line string) []DesignViolation {
+	if strings.Contains(line, "<button") && strings.Contains(line, "class=") &&
+		strings.Contains(line, "icon") && !strings.Contains(line, "aria-label=") {
+		if regexp.MustCompile(`class="[^"]*icon[^"]*"`).MatchString(line) {
+			return []DesignViolation{{
+				File:    path,
+				Line:    lineNum,
+				Content: line,
+				Reason:  "Icon-only button missing aria-label (required for screen readers)",
+			}}
+		}
+	}
+	return nil
+}
+
+func checkLabelA11y(path string, lineNum int, line string) []DesignViolation {
+	if strings.Contains(line, "<label") && !strings.Contains(line, "for=") {
+		return []DesignViolation{{
+			File:    path,
+			Line:    lineNum,
+			Content: line,
+			Reason:  "Label missing 'for' attribute to associate with input",
+		}}
+	}
+	return nil
+}
+
+func checkInputA11y(path string, lineNum int, line string, hasLabel bool) []DesignViolation {
+	if !hasLabel {
+		return nil
+	}
+	if strings.Contains(line, "<input") || strings.Contains(line, "<textarea") || strings.Contains(line, "<select") {
+		if !strings.Contains(line, "id=") {
+			return []DesignViolation{{
+				File:    path,
+				Line:    lineNum,
+				Content: line,
+				Reason:  "Form input missing 'id' attribute (required when labels are present in file)",
+			}}
+		}
+	}
+	return nil
+}
+
+func checkImgA11y(path string, lineNum int, line string) []DesignViolation {
+	if strings.Contains(line, "<img") && !strings.Contains(line, "alt=") {
+		return []DesignViolation{{
+			File:    path,
+			Line:    lineNum,
+			Content: line,
+			Reason:  "Image missing 'alt' attribute (use alt=\"\" for decorative images)",
+		}}
+	}
+	return nil
 }

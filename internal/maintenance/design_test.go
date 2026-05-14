@@ -253,3 +253,33 @@ func TestCheckDeadSpacers(t *testing.T) {
 		})
 	}
 }
+func TestA11ySemantics(t *testing.T) {
+	tests := []struct {
+		name       string
+		line       string
+		hasLabel   bool
+		shouldFail bool
+	}{
+		{name: "icon button missing aria-label", line: `<button class="icon-close"><svg...`, shouldFail: true},
+		{name: "icon button with aria-label", line: `<button aria-label="Close" class="icon-close"><svg...`, shouldFail: false},
+		{name: "label without for", line: `<label>Name</label>`, shouldFail: true},
+		{name: "label with for", line: `<label for="name">Name</label>`, shouldFail: false},
+		{name: "input missing id (with label)", line: `<input type="text">`, hasLabel: true, shouldFail: true},
+		{name: "input with id (with label)", line: `<input id="name">`, hasLabel: true, shouldFail: false},
+		{name: "input missing id (no label)", line: `<input type="text">`, hasLabel: false, shouldFail: false},
+		{name: "img missing alt", line: `<img src="x.jpg">`, shouldFail: true},
+		{name: "img with decorative alt", line: `<img src="x.jpg" alt="">`, shouldFail: false},
+		{name: "img with alt text", line: `<img src="x.jpg" alt="A photo">`, shouldFail: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			v := checkA11ySemantics("test.html", 1, tt.line, tt.hasLabel)
+			if tt.shouldFail && len(v) == 0 {
+				t.Errorf("expected violation for %s, got none", tt.line)
+			}
+			if !tt.shouldFail && len(v) > 0 {
+				t.Errorf("expected no violation for %s, got %d", tt.line, len(v))
+			}
+		})
+	}
+}

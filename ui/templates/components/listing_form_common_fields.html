@@ -1,8 +1,8 @@
 {{ define "listing_form_title" }}
 <div class="flex flex-col gap-1.5">
-    <label class="text-[10px] font-bold capitalize tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Title</label>
+    <label for="listing-title" class="text-[10px] font-bold capitalize tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Title</label>
     <div class="bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 p-1 flex items-center" data-agent-template="listing_form_title">
-        <input required name="title" type="text" value="{{ .Value }}" placeholder="e.g., Mama's Kitchen"
+        <input id="listing-title" required name="title" type="text" value="{{ .Value }}" placeholder="e.g., Mama's Kitchen"
             data-testid="ag-listing-form-title"
             class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-text-main dark:text-white font-light text-base outline-none transition-all placeholder:text-text-sub/70 dark:placeholder:text-earth-cream/70">
     </div>
@@ -11,9 +11,9 @@
 
 {{ define "listing_form_description" }}
 <div class="flex flex-col gap-1.5">
-    <label class="text-[10px] font-bold capitalize tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Description</label>
+    <label for="listing-description" class="text-[10px] font-bold capitalize tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Description</label>
     <div class="bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 p-1 flex items-center" data-agent-template="listing_form_description">
-        <textarea required name="description" rows="3" placeholder="Tell us about your listing..."
+        <textarea id="listing-description" required name="description" rows="3" placeholder="Tell us about your listing..."
             data-testid="ag-listing-form-description"
             class="w-full bg-transparent border-none px-4 py-3 focus:ring-0 text-text-main dark:text-white font-light text-base outline-none transition-all placeholder:text-text-sub/70 dark:placeholder:text-earth-cream/70 resize-none">{{ .Value }}</textarea>
     </div>
@@ -24,17 +24,17 @@
 {{ $regionalSpecialty := "" }}{{ if . }}{{ $regionalSpecialty = .RegionalSpecialty }}{{ end }}
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 border-l-4 border-secondary bg-secondary/5 p-4 mb-6" data-agent-template="listing_form_ada_signals">
     <div class="flex flex-col gap-1.5">
-        <label class="text-[10px] font-bold capitalize tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Heat Level (0-5)</label>
+        <label for="listing-heat-level" class="text-[10px] font-bold capitalize tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Heat Level (0-5)</label>
         <div class="bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 p-1 flex items-center">
-            <input name="heat_level" type="number" min="0" max="5" value="{{ $heatLevel }}" placeholder="0"
+            <input id="listing-heat-level" name="heat_level" type="number" min="0" max="5" value="{{ $heatLevel }}" placeholder="0"
                 data-testid="ag-listing-form-heat-level"
                 class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-text-main dark:text-white font-light text-base outline-none transition-all placeholder:text-text-sub/70 dark:placeholder:text-earth-cream/70">
         </div>
     </div>
     <div class="flex flex-col gap-1.5">
-        <label class="text-[10px] font-bold capitalize tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Regional Specialty</label>
+        <label for="listing-regional-specialty" class="text-[10px] font-bold capitalize tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Regional Specialty</label>
         <div class="bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 p-1 flex items-center">
-            <input name="regional_specialty" type="text" value="{{ $regionalSpecialty }}" placeholder="e.g. Yoruba"
+            <input id="listing-regional-specialty" name="regional_specialty" type="text" value="{{ $regionalSpecialty }}" placeholder="e.g. Yoruba"
                 data-testid="ag-listing-form-regional-specialty"
                 class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-text-main dark:text-white font-light text-base outline-none transition-all placeholder:text-text-sub/70 dark:placeholder:text-earth-cream/70">
         </div>
@@ -45,7 +45,7 @@
 {{ define "listing_form_location" }}
 <div class="grid grid-cols-1 gap-4">
     <div class="flex flex-col gap-1.5">
-        <label class="text-[10px] font-bold capitalize tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Address
+        <label for="{{ .IDPrefix }}address-input{{ if .ListingID }}-{{ .ListingID }}{{ end }}" class="text-[10px] font-bold capitalize tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Address
             (Validated)</label>
         <div class="bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 p-1 flex flex-col relative w-full overflow-hidden" data-agent-template="listing_form_location">
             <input id="{{ .IDPrefix }}address-input{{ if .ListingID }}-{{ .ListingID }}{{ end }}" name="address"
