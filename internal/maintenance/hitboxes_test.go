@@ -17,7 +17,7 @@ func TestCheckHitboxes_Small(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		_, _ = fmt.Fprint(w, `
-			<html>
+			<html data-agent-template="agbalumo-brutalist">
 				<body>
 					<button style="width: 20px; height: 20px;">Small</button>
 					<button style="width: 50px; height: 50px;">Large</button>
@@ -50,7 +50,7 @@ func TestCheckHitboxes_Blocked(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		_, _ = fmt.Fprint(w, `
-			<html>
+			<html data-agent-template="agbalumo-brutalist">
 				<body>
 					<button style="width: 100px; height: 100px; position: absolute; top: 0; left: 0;">Click Me</button>
 					<div class="overlay" style="position: absolute; top: 0; left: 0; width: 100px; height: 100px; z-index: 10;"></div>
