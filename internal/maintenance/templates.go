@@ -97,6 +97,11 @@ func extractFromBlock(inner string) []string {
 
 func extractFirstWord(input string, stripRange bool) []string {
 	inner := strings.TrimSpace(input)
+	// Strip whitespace trimming characters
+	inner = strings.TrimPrefix(inner, "-")
+	inner = strings.TrimSuffix(inner, "-")
+	inner = strings.TrimSpace(inner)
+
 	if stripRange && strings.HasPrefix(inner, "range") {
 		inner = strings.TrimSpace(strings.TrimPrefix(inner, "range"))
 	}
