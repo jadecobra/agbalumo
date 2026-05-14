@@ -53,7 +53,7 @@
 
 {{ define "status_badge_sharp" }}
 <span
-    class="px-2 py-0.5 text-[10px] font-bold capitalize tracking-widest {{ if index . "ColorClasses" }}{{ .ColorClasses }}{{ else }}bg-white/10 text-earth-cream/70{{ end }}">
+    class="px-2 py-0.5 text-[10px] font-bold capitalize tracking-widest {{ if index . "ColorClasses" }}{{ .ColorClasses }}{{ else }}bg-earth-cream/10 text-earth-cream/70{{ end }}">
     {{ .Label }}
 </span>
 {{ end }}
@@ -75,7 +75,7 @@
 
 {{ define "modal_base" }}
 <dialog id="{{ .ID }}" {{ if index . "AutoOpen" }}data-auto-open="true"{{ end }} {{ if index . "DialogDataTarget" }}data-target="{{ .DialogDataTarget }}"{{ end }} {{ if index . "DialogDataListingId" }}data-listing-id="{{ .DialogDataListingId }}"{{ end }}
-    class="backdrop:bg-black/50 bg-transparent p-0 w-full max-w-none {{ if index . "MaxWidthClass" }}{{ .MaxWidthClass }}{{ else }}md:max-w-sm{{ end }} {{ if index . "MarginClass" }}{{ .MarginClass }}{{ else }}m-auto{{ end }} shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed {{ if index . "InsetClass" }}{{ .InsetClass }}{{ else }}inset-0{{ end }} z-50 h-full md:h-auto">
+    class="backdrop:bg-surface-dark/50 bg-transparent p-0 w-full max-w-none {{ if index . "MaxWidthClass" }}{{ .MaxWidthClass }}{{ else }}md:max-w-sm{{ end }} {{ if index . "MarginClass" }}{{ .MarginClass }}{{ else }}m-auto{{ end }} shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed {{ if index . "InsetClass" }}{{ .InsetClass }}{{ else }}inset-0{{ end }} z-50 h-full md:h-auto">
     <div {{ if index . "ContentID" }}id="{{ .ContentID }}"{{ end }} class="bg-white dark:bg-surface-dark relative flex flex-col h-full md:h-auto {{ if index . "MaxHeightClass" }}{{ .MaxHeightClass }}{{ else }}md:max-h-[85vh]{{ end }} overflow-hidden border border-stone-200 dark:border-stone-800">
         
         <!-- Scrollable Inner Content -->

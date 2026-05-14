@@ -17,7 +17,7 @@
 
 
 
-            {{ template "btn_close" dict "Classes" "absolute top-4 right-4 bg-white/90 hover:bg-white text-stone-900 shadow-lg z-[60]" }}
+            {{ template "btn_close" dict "Classes" "absolute top-4 right-4 bg-earth-cream/90 hover:bg-white text-stone-900 shadow-lg z-[60]" }}
 
             {{ if $.User }}
             {{ $isSaved := false }}
@@ -67,7 +67,7 @@
                     {{ end }}
 
                     {{ if gt .Listing.HeatLevel 0 }}
-                    <div class="flex items-center gap-0.5 py-0.5 px-2 bg-stone-100 dark:bg-white/5 border border-stone-200 dark:border-white/10">
+                    <div class="flex items-center gap-0.5 py-0.5 px-2 bg-stone-100 dark:bg-earth-cream/5 border border-stone-200 dark:border-white/10">
                         <span class="text-[10px] font-bold uppercase tracking-widest mr-1 opacity-70">Heat:</span>
                         {{ if ge .Listing.HeatLevel 1 }}🌶️{{ end }}{{ if ge .Listing.HeatLevel 2 }}🌶️{{ end }}{{ if ge .Listing.HeatLevel 3 }}🌶️{{ end }}{{ if ge .Listing.HeatLevel 4 }}🌶️{{ end }}{{ if ge .Listing.HeatLevel 5 }}🌶️{{ end }}
                     </div>
@@ -139,7 +139,7 @@
 
             <!-- Company & Pay for Jobs -->
             {{ if eq .Listing.Type "Job" }}
-            <div class="flex flex-col gap-2 mb-6 bg-white/5 p-4  border border-stone-200 dark:border-white/10">
+            <div class="flex flex-col gap-2 mb-6 bg-earth-cream/5 p-4  border border-stone-200 dark:border-white/10">
                 <div class="flex items-center gap-2.5 text-text-main dark:text-earth-cream">
                     <span class="material-symbols-outlined text-[20px] text-earth-accent">business</span>
                     <span class="font-bold capitalize tracking-widest text-sm">{{ .Listing.Company }}</span>
@@ -191,7 +191,7 @@
             </h4>
             <div class="flex flex-wrap gap-2 mb-6">
                 {{ range (split .Listing.Skills ",") }}
-                <span class="bg-white/10 text-text-main dark:text-earth-cream px-3 py-1  text-xs font-bold border border-white/10">
+                <span class="bg-earth-cream/10 text-text-main dark:text-earth-cream px-3 py-1  text-xs font-bold border border-white/10">
                     {{ . }}
                 </span>
                 {{ end }}
@@ -218,7 +218,7 @@
 
                 {{ if .Listing.ContactPhone }}
                 <a href="tel:{{ .Listing.ContactPhone }}" data-ada-discovery="phone"
-                    class="flex items-center gap-3 p-3  bg-stone-50 dark:bg-white/5 text-text-main dark:text-earth-cream hover:bg-white/10 border-stone-200 dark:border-white/10 transition-colors">
+                    class="flex items-center gap-3 p-3  bg-stone-50 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 border-stone-200 dark:border-white/10 transition-colors">
                     <span class="material-symbols-outlined">call</span>
                     <span class="font-medium text-sm">Call {{ .Listing.ContactPhone }}</span>
                 </a>
@@ -227,7 +227,7 @@
                 {{ if not (eq .Listing.Type "Food") }}
                 {{ if .Listing.ContactEmail }}
                 <a href="mailto:{{ .Listing.ContactEmail }}" data-ada-discovery="email"
-                    class="flex items-center gap-3 p-3  bg-stone-50 dark:bg-white/5 text-text-main dark:text-earth-cream hover:bg-white/10 transition-colors border border-stone-200 dark:border-white/10">
+                    class="flex items-center gap-3 p-3  bg-stone-50 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 transition-colors border border-stone-200 dark:border-white/10">
                     <span class="material-symbols-outlined">mail</span>
                     <span class="font-medium text-sm">Email</span>
                 </a>

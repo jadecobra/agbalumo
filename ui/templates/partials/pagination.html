@@ -4,7 +4,7 @@
 {{ if gt .Pagination.TotalPages 1 }}
     {{ if gt .Pagination.Page 1 }}
     <a href="?page={{ sub .Pagination.Page 1 }}{{ if .FilterType }}&type={{ .FilterType }}{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}" 
-       class="flex items-center justify-center w-10 h-10 border border-white/20 text-earth-cream hover:bg-white/10 transition-all duration-300"
+       class="flex items-center justify-center w-10 h-10 border border-white/20 text-earth-cream hover:bg-earth-cream/10 transition-all duration-300"
        hx-get="/listings/fragment?page={{ sub .Pagination.Page 1 }}{{ if .FilterType }}&type={{ .FilterType }}{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}"
        hx-target="#listings-container"
        hx-indicator="#listings-loading"
@@ -17,7 +17,7 @@
  
     {{ range .Pagination.GetPageRange }}
     <a href="?page={{ . }}{{ if $.FilterType }}&type={{ $.FilterType }}{{ end }}{{ if $.Query }}&q={{ $.Query }}{{ end }}" 
-       class="flex items-center justify-center w-10 h-10 border {{ if eq . $.Pagination.Page }}border-earth-accent bg-earth-accent text-earth-dark{{ else }}border-white/20 text-earth-cream hover:bg-white/10{{ end }} transition-all duration-300 font-medium"
+       class="flex items-center justify-center w-10 h-10 border {{ if eq . $.Pagination.Page }}border-earth-accent bg-earth-accent text-earth-dark{{ else }}border-white/20 text-earth-cream hover:bg-earth-cream/10{{ end }} transition-all duration-300 font-medium"
        hx-get="/listings/fragment?page={{ . }}{{ if $.FilterType }}&type={{ $.FilterType }}{{ end }}{{ if $.Query }}&q={{ $.Query }}{{ end }}"
        hx-target="#listings-container"
        hx-indicator="#listings-loading"
@@ -28,7 +28,7 @@
  
     {{ if .Pagination.HasNextPage }}
     <a href="?page={{ add .Pagination.Page 1 }}{{ if .FilterType }}&type={{ .FilterType }}{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}" 
-       class="flex items-center justify-center w-10 h-10 border border-white/20 text-earth-cream hover:bg-white/10 transition-all duration-300"
+       class="flex items-center justify-center w-10 h-10 border border-white/20 text-earth-cream hover:bg-earth-cream/10 transition-all duration-300"
        hx-get="/listings/fragment?page={{ add .Pagination.Page 1 }}{{ if .FilterType }}&type={{ .FilterType }}{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}"
        hx-target="#listings-container"
        hx-indicator="#listings-loading"

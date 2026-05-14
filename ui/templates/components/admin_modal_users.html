@@ -9,31 +9,31 @@
             class="inline-block align-bottom bg-earth-dark border border-white/10 text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl w-full p-8 relative">
 
             <button @click="$el.closest('#admin-modal-container').innerHTML = ''"
-                class="absolute top-6 right-6 text-white/30 hover:text-white transition-colors">
+                class="absolute top-6 right-6 text-earth-cream/30 hover:text-white transition-colors">
                 <span class="material-symbols-outlined">close</span>
             </button>
 
             <h2 class="text-3xl font-serif text-white mb-8 capitalize tracking-tight">Recent Users</h2>
 
-            <div class="bg-white/5 border border-white/10 overflow-hidden">
+            <div class="bg-earth-cream/5 border border-white/10 overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-white/10">
-                        <thead class="bg-white/5">
+                        <thead class="bg-earth-cream/5">
                             <tr>
                                 <th
-                                    class="px-6 py-4 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+                                    class="px-6 py-4 text-left text-[10px] font-bold text-earth-cream/50 capitalize tracking-[0.2em]">
                                     User</th>
                                 <th
-                                    class="px-6 py-4 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+                                    class="px-6 py-4 text-left text-[10px] font-bold text-earth-cream/50 capitalize tracking-[0.2em]">
                                     Role</th>
                                 <th
-                                    class="px-6 py-4 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+                                    class="px-6 py-4 text-left text-[10px] font-bold text-earth-cream/50 capitalize tracking-[0.2em]">
                                     Joined</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-white/5">
                             {{ range .Users }}
-                            <tr class="hover:bg-white/5 transition-colors">
+                            <tr class="hover:bg-earth-cream/5 transition-colors">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="h-8 w-8 shrink-0">
@@ -44,7 +44,7 @@
                                         <div class="ml-4">
                                             <div class="text-xs font-bold text-white capitalize tracking-wide">{{ .Name
                                                 }}</div>
-                                            <div class="text-[10px] text-white/40 capitalize tracking-widest">{{ .Email
+                                            <div class="text-[10px] text-earth-cream/40 capitalize tracking-widest">{{ .Email
                                                 }}</div>
                                         </div>
                                     </div>
@@ -59,7 +59,7 @@
                                     {{ end }}
                                 </td>
                                 <td
-                                    class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-white/40 capitalize tracking-widest">
+                                    class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-earth-cream/40 capitalize tracking-widest">
                                     {{ .CreatedAt.Format "Jan 02, 2006" }}
                                 </td>
                             </tr>
@@ -68,7 +68,7 @@
                     </table>
                 </div>
                 {{ if not .Users }}
-                <div class="p-12 text-center text-white/30 border-t border-white/5">
+                <div class="p-12 text-center text-earth-cream/30 border-t border-white/5">
                     <p class="capitalize tracking-[0.3em] text-[10px] font-bold">No users found</p>
                 </div>
                 {{ end }}
@@ -80,7 +80,7 @@
                     View All Users <span class="material-symbols-outlined text-sm">expand_circle_right</span>
                 </a>
                 <button type="button" @click="$el.closest('#admin-modal-container').innerHTML = ''"
-                    class="bg-white/10 hover:bg-white/20 text-white px-8 py-3 font-bold capitalize text-xs tracking-widest transition-all">
+                    class="bg-earth-cream/10 hover:bg-earth-cream/20 text-white px-8 py-3 font-bold capitalize text-xs tracking-widest transition-all">
                     Close
                 </button>
             </div>

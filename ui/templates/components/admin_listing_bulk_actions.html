@@ -1,10 +1,10 @@
 {{ define "admin_listing_bulk_actions" }}
 <div class="mb-6 flex items-center justify-between">
     <div class="flex items-center gap-3">
-        <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50" id="selectionCount">0
+        <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-earth-cream/50" id="selectionCount">0
             selected</span>
         <select name="action"
-            class="block text-[10px] uppercase tracking-widest font-bold bg-white/5 border-white/10 text-white focus:outline-none focus:border-earth-ochre px-4 py-2 transition-colors disabled:opacity-50"
+            class="block text-[10px] uppercase tracking-widest font-bold bg-earth-cream/5 border-white/10 text-white focus:outline-none focus:border-earth-ochre px-4 py-2 transition-colors disabled:opacity-50"
             disabled id="bulkActionSelect">
             <option value="" class="bg-earth-dark">Bulk Actions...</option>
             <option value="approve" class="bg-earth-dark">Approve Selected</option>
@@ -13,7 +13,7 @@
             <option value="change_category" class="bg-earth-dark">Change Category</option>
         </select>
         <select name="new_category" id="newCategorySelect"
-            class="hidden text-[10px] uppercase tracking-widest font-bold bg-white/5 border-white/10 text-white focus:outline-none focus:border-earth-ochre px-4 py-2 transition-colors">
+            class="hidden text-[10px] uppercase tracking-widest font-bold bg-earth-cream/5 border-white/10 text-white focus:outline-none focus:border-earth-ochre px-4 py-2 transition-colors">
             <option value="" class="bg-earth-dark">Select Category...</option>
             {{ range .Categories }}
             <option value="{{ .Name }}" class="bg-earth-dark">{{ .Name }}</option>

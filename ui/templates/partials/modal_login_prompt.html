@@ -4,7 +4,7 @@
 
 {{ define "modal_login_prompt_content" }}
     <div class="bg-white relative flex flex-col p-8 overflow-hidden">
-        {{ template "btn_close" dict "Classes" "absolute right-4 top-4 text-text-sub hover:text-text-main z-50" }}
+        {{- /* Redundant close removed: using 'Maybe Later' as primary close action */ -}}
         
         <div class="flex flex-col items-center gap-6 py-4">
             <div class="flex flex-col items-center gap-2 text-center">

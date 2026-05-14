@@ -5,15 +5,15 @@
     <div class="flex items-center justify-between mb-8">
         <h1 class="text-3xl font-bold text-earth-cream">Users</h1>
         <a href="/admin"
-            class="px-5 py-2.5 bg-white/10 text-earth-cream  hover:bg-white/20 transition-all font-bold text-sm flex items-center gap-1 active:scale-95">
+            class="px-5 py-2.5 bg-earth-cream/10 text-earth-cream  hover:bg-earth-cream/20 transition-all font-bold text-sm flex items-center gap-1 active:scale-95">
             <span class="material-symbols-outlined text-[18px]">arrow_circle_left</span> Back
         </a>
     </div>
 
-    <div class="bg-white/5  shadow-soft border border-white/10 overflow-hidden">
+    <div class="bg-earth-cream/5  shadow-soft border border-white/10 overflow-hidden">
         <div class="overflow-x-auto no-scrollbar">
             <table class="min-w-full divide-y divide-white/10">
-                <thead class="bg-white/5">
+                <thead class="bg-earth-cream/5">
                     <tr>
                         <th class="px-6 py-4 text-left text-xs font-bold text-earth-cream/70 capitalize tracking-wider">
                             User</th>
@@ -23,9 +23,9 @@
                             Joined</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white/5 divide-y divide-white/10">
+                <tbody class="bg-earth-cream/5 divide-y divide-white/10">
                     {{ range .Users }}
-                    <tr class="hover:bg-white/10 transition-colors">
+                    <tr class="hover:bg-earth-cream/10 transition-colors">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
                                 <div class="h-10 w-10 shrink-0">
@@ -76,7 +76,7 @@
         <div>
             {{ if gt .Pagination.Page 1 }}
             <a href="/admin/users?page={{ add .Pagination.Page -1 }}"
-                class="px-5 py-2.5 bg-white/10 text-earth-cream  hover:bg-white/20 transition-all font-bold text-sm flex items-center gap-1 active:scale-95">
+                class="px-5 py-2.5 bg-earth-cream/10 text-earth-cream  hover:bg-earth-cream/20 transition-all font-bold text-sm flex items-center gap-1 active:scale-95">
                 <span class="material-symbols-outlined text-[18px]">chevron_left</span> Prev
             </a>
             {{ end }}
@@ -85,7 +85,7 @@
         <div>
             {{ if .Pagination.HasNextPage }}
             <a href="/admin/users?page={{ add .Pagination.Page 1 }}"
-                class="px-5 py-2.5 bg-white/10 text-earth-cream  hover:bg-white/20 transition-all font-bold text-sm flex items-center gap-1 active:scale-95">
+                class="px-5 py-2.5 bg-earth-cream/10 text-earth-cream  hover:bg-earth-cream/20 transition-all font-bold text-sm flex items-center gap-1 active:scale-95">
                 Next <span class="material-symbols-outlined text-[18px]">chevron_right</span>
             </a>
             {{ end }}

@@ -1,0 +1,417 @@
+🔍 Checking UI Design Standards...
+
+📄 ui/templates/about.html
+  L84: Ad-hoc color transparency 'bg-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  <div class="relative z-10 py-20 px-6 bg-white/50 text-center">
+
+📄 ui/templates/admin_dashboard.html
+  L49: Ad-hoc color transparency 'text-white/40' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  <div class="p-16 text-center text-white/40 border border-white/5 bg-white/2">
+  L49: Ad-hoc color transparency 'bg-white/2' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  <div class="p-16 text-center text-white/40 border border-white/5 bg-white/2">
+
+📄 ui/templates/admin_listings.html
+  L34: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  <div class="bg-white/5 border border-white/10 overflow-hidden">
+  L45: Ad-hoc color transparency 'bg-white/2' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                      <td colspan="8" class="px-6 py-16 text-center border-t border-white/5 bg-white/2">
+  L48: Ad-hoc color transparency 'text-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                                  class="material-symbols-outlined text-white/10 text-5xl mb-6">search_off</span>
+
+📄 ui/templates/admin_users.html
+  L8: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  class="px-5 py-2.5 bg-white/10 text-earth-cream  hover:bg-white/20 transition-all font-bold text-sm flex items-center gap-1 active:scale-95">
+  L8: Ad-hoc color transparency 'bg-white/20' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  class="px-5 py-2.5 bg-white/10 text-earth-cream  hover:bg-white/20 transition-all font-bold text-sm flex items-center gap-1 active:scale-95">
+  L13: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+          <div class="bg-white/5  shadow-soft border border-white/10 overflow-hidden">
+  L16: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      <thead class="bg-white/5">
+  L26: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      <tbody class="bg-white/5 divide-y divide-white/10">
+  L28: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          <tr class="hover:bg-white/10 transition-colors">
+  L79: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      class="px-5 py-2.5 bg-white/10 text-earth-cream  hover:bg-white/20 transition-all font-bold text-sm flex items-center gap-1 active:scale-95">
+  L79: Ad-hoc color transparency 'bg-white/20' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      class="px-5 py-2.5 bg-white/10 text-earth-cream  hover:bg-white/20 transition-all font-bold text-sm flex items-center gap-1 active:scale-95">
+  L88: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      class="px-5 py-2.5 bg-white/10 text-earth-cream  hover:bg-white/20 transition-all font-bold text-sm flex items-center gap-1 active:scale-95">
+  L88: Ad-hoc color transparency 'bg-white/20' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      class="px-5 py-2.5 bg-white/10 text-earth-cream  hover:bg-white/20 transition-all font-bold text-sm flex items-center gap-1 active:scale-95">
+
+📄 ui/templates/components/admin_feedback_item.html
+  L3: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+          class="flex items-center justify-between p-6 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer group">
+  L5: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+              <div class="w-14 h-14 bg-white/5 flex items-center justify-center shrink-0 border border-white/10">
+  L8: Ad-hoc color transparency 'text-white/40' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      class="text-white/40 group-hover:text-earth-ochre transition-colors">
+  L23: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      {{ template "status_badge_sharp" dict "Label" .Type "ColorClasses" `bg-white/10
+  L24: Ad-hoc color transparency 'text-white/70' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      text-white/70` }}
+  L27: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  <p class="font-bold text-[10px] uppercase tracking-[0.2em] text-white/50">
+  L35: Ad-hoc color transparency 'text-white/30' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  class="w-10 h-10 flex items-center justify-center text-white/30 hover:text-earth-ochre transition-colors"
+
+📄 ui/templates/components/admin_listing_bulk_actions.html
+  L4: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+              <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50" id="selectionCount">0
+  L7: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  class="block text-[10px] uppercase tracking-widest font-bold bg-white/5 border-white/10 text-white focus:outline-none focus:border-earth-ochre px-4 py-2 transition-colors disabled:opacity-50"
+  L16: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  class="hidden text-[10px] uppercase tracking-widest font-bold bg-white/5 border-white/10 text-white focus:outline-none focus:border-earth-ochre px-4 py-2 transition-colors">
+
+📄 ui/templates/components/admin_listing_filters.html
+  L25: Ad-hoc color transparency 'bg-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          class="block w-full pl-10 pr-3 py-2 border border-earth-dark/10 bg-white/50 text-earth-dark shadow-sm focus:outline-none focus:ring-1 focus:ring-earth-ochre focus:border-earth-ochre sm:text-sm rounded-none transition-all" />
+  L28: Ad-hoc color transparency 'bg-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  <a href="/admin/listings{{ if .Category }}?category={{ .Category }}{{ end }}" class="flex items-center justify-center px-3 py-2 border border-l-0 border-earth-dark/10 bg-white/50 text-earth-dark/60 hover:text-earth-dark hover:bg-white/80 transition-all rounded-none" title="Clear Search">
+  L28: Ad-hoc color transparency 'bg-white/80' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  <a href="/admin/listings{{ if .Category }}?category={{ .Category }}{{ end }}" class="flex items-center justify-center px-3 py-2 border border-l-0 border-earth-dark/10 bg-white/50 text-earth-dark/60 hover:text-earth-dark hover:bg-white/80 transition-all rounded-none" title="Clear Search">
+
+📄 ui/templates/components/admin_listing_table_header.html
+  L2: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+      <thead class="bg-white/5">
+  L6: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      class="border-white/10 text-earth-ochre shadow-sm focus:border-earth-ochre focus:ring focus:ring-earth-ochre focus:ring-opacity-50 bg-white/5">
+  L8: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+              <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+  L14: Ad-hoc color transparency 'text-white/30' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `date`}}text-earth-ochre{{else}}text-white/30 opacity-0 group-hover:opacity-100{{end}}">
+  L20: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+              <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+  L26: Ad-hoc color transparency 'text-white/30' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `title`}}text-earth-ochre{{else}}text-white/30 opacity-0 group-hover:opacity-100{{end}}">
+  L32: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+              <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+  L38: Ad-hoc color transparency 'text-white/30' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `type`}}text-earth-ochre{{else}}text-white/30 opacity-0 group-hover:opacity-100{{end}}">
+  L44: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+              <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+  L50: Ad-hoc color transparency 'text-white/30' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `status`}}text-earth-ochre{{else}}text-white/30 opacity-0 group-hover:opacity-100{{end}}">
+  L56: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+              <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+  L59: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+              <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+  L62: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+              <th class="px-6 py-4 text-center text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+  L68: Ad-hoc color transparency 'text-white/30' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `featured`}}text-earth-ochre{{else}}text-white/30 opacity-0 group-hover:opacity-100{{end}}">
+  L74: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+              <th class="px-6 py-4 text-right text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+
+📄 ui/templates/components/admin_listing_table_row.html
+  L4: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+          hx-trigger="listing-updated-{{.ID}} from:body" hx-get="/admin/listings/{{.ID}}/row" hx-swap="outerHTML" class="{{ if not .IsActive }}bg-white/5{{ end }} hover:bg-white/5 transition-colors">
+  L4: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+          hx-trigger="listing-updated-{{.ID}} from:body" hx-get="/admin/listings/{{.ID}}/row" hx-swap="outerHTML" class="{{ if not .IsActive }}bg-white/5{{ end }} hover:bg-white/5 transition-colors">
+  L8: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  class="row-checkbox border-white/10 text-earth-ochre shadow-sm focus:border-earth-ochre focus:ring focus:ring-earth-ochre focus:ring-opacity-50 bg-white/5">
+  L10: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+          <td class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-white/50 tracking-[0.1em]">
+  L20: Ad-hoc color transparency 'text-white/60' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+          <td class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-white/60 capitalize tracking-[0.2em]">
+  L34: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+              {{ template "status_badge_sharp" dict "Label" .Status "ColorClasses" `bg-white/10
+  L35: Ad-hoc color transparency 'text-white/60' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+              text-white/60` }}
+  L40: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  class="ml-2 px-2 py-0.5 inline-flex font-bold bg-white/10 text-white/60 capitalize tracking-wider text-[10px]">Inactive</span>
+  L40: Ad-hoc color transparency 'text-white/60' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  class="ml-2 px-2 py-0.5 inline-flex font-bold bg-white/10 text-white/60 capitalize tracking-wider text-[10px]">Inactive</span>
+  L43: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+          <td class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-white/50 tracking-[0.1em]">
+  L46: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+          <td class="px-6 py-4 text-[10px] font-bold text-white/50 truncate max-w-[150px] capitalize tracking-[0.1em]">
+  L47: Ad-hoc color transparency 'text-white/30' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+              {{ if .OwnerID }}{{ .OwnerID }}{{ else }}<span class="italic text-white/30 tracking-[0.2em]">UNOWNED</span>{{
+  L55: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  class="px-3 py-1 text-[10px] font-bold capitalize tracking-widest transition-all {{ if .Featured }}bg-earth-ochre text-earth-dark{{ else }}bg-white/5 text-white/70 hover:bg-white/20{{ end }}"
+  L55: Ad-hoc color transparency 'text-white/70' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  class="px-3 py-1 text-[10px] font-bold capitalize tracking-widest transition-all {{ if .Featured }}bg-earth-ochre text-earth-dark{{ else }}bg-white/5 text-white/70 hover:bg-white/20{{ end }}"
+  L55: Ad-hoc color transparency 'bg-white/20' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  class="px-3 py-1 text-[10px] font-bold capitalize tracking-widest transition-all {{ if .Featured }}bg-earth-ochre text-earth-dark{{ else }}bg-white/5 text-white/70 hover:bg-white/20{{ end }}"
+  L63: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  class="w-8 h-8 inline-flex items-center justify-center border border-white/10 text-white/50 hover:text-earth-ochre hover:border-earth-ochre transition-all"
+
+📄 ui/templates/components/admin_modal_bulk.html
+  L12: Ad-hoc color transparency 'text-white/30' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      class="absolute top-6 right-6 text-white/30 hover:text-white transition-colors">
+  L30: Ad-hoc color transparency 'bg-white/2' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          class="border-2 border-dashed border-white/10 p-12 text-center hover:border-earth-ochre/50 transition-colors bg-white/2 cursor-pointer group relative transition-all duration-300">
+  L35: Ad-hoc color transparency 'text-white/20' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                  class="material-symbols-outlined text-white/20 text-4xl mb-4 group-hover:text-earth-ochre transition-colors">add</span>
+  L36: Ad-hoc color transparency 'text-white/60' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                              <p id="csvUploadText" class="text-[10px] font-bold capitalize tracking-[0.2em] text-white/60">
+  L42: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      <div class="bg-white/5 p-6 shadow-inner border border-white/5">
+  L44: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          <p class="text-[10px] font-bold capitalize tracking-widest text-white/50 leading-relaxed">
+  L46: Ad-hoc color transparency 'text-white/80' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                              Optional: <span class="text-white/80 italic">email, phone, category, city</span>
+  L52: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                              class="bg-white/10 hover:bg-white/20 text-white px-8 py-3 font-bold capitalize text-xs tracking-widest transition-all">
+  L52: Ad-hoc color transparency 'bg-white/20' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                              class="bg-white/10 hover:bg-white/20 text-white px-8 py-3 font-bold capitalize text-xs tracking-widest transition-all">
+
+📄 ui/templates/components/admin_modal_category.html
+  L12: Ad-hoc color transparency 'text-white/30' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      class="absolute top-6 right-6 text-white/30 hover:text-white transition-colors">
+  L26: Ad-hoc color transparency 'bg-white/2' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  <div class="mb-8 border border-white/10 bg-white/2 max-h-48 overflow-y-auto">
+  L28: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          <thead class="bg-white/5 sticky top-0">
+  L31: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                      class="px-4 py-3 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+  L34: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                      class="px-4 py-3 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+  L37: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                      class="px-4 py-3 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+  L43: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                              <tr class="hover:bg-white/5 transition-colors">
+  L56: Ad-hoc color transparency 'text-white/30' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                      <span class="text-white/30">No</span>
+  L65: Ad-hoc color transparency 'bg-white/2' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  <div class="mb-8 p-8 text-center border border-white/5 bg-white/2">
+  L66: Ad-hoc color transparency 'text-white/30' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      <p class="text-[10px] font-bold text-white/30 capitalize tracking-[0.3em]">No categories yet</p>
+  L78: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                  class="block text-[10px] font-bold capitalize tracking-widest text-white/50 mb-2">Category
+  L81: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                  class="w-full bg-white/5 border border-white/10 text-white text-xs font-bold capitalize tracking-wide px-4 py-3 placeholder-white/20 focus:outline-none focus:border-earth-ochre transition-colors">
+  L88: Ad-hoc color transparency 'text-white/70' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                  class="text-[10px] font-bold capitalize tracking-widest text-white/70 cursor-pointer">Allow
+  L94: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                  class="bg-white/10 hover:bg-white/20 text-white px-8 py-3 font-bold capitalize text-xs tracking-widest transition-all">
+  L94: Ad-hoc color transparency 'bg-white/20' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                  class="bg-white/10 hover:bg-white/20 text-white px-8 py-3 font-bold capitalize text-xs tracking-widest transition-all">
+
+📄 ui/templates/components/admin_modal_charts.html
+  L12: Ad-hoc color transparency 'text-white/30' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      class="absolute top-6 right-6 text-white/30 hover:text-white transition-colors">
+  L19: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      <div class="bg-white/5 p-6 border border-white/5">
+  L24: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      <div class="bg-white/5 p-6 border border-white/5">
+  L34: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          class="bg-white/10 hover:bg-white/20 text-white px-8 py-3 font-bold uppercase text-xs tracking-widest transition-all">
+  L34: Ad-hoc color transparency 'bg-white/20' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          class="bg-white/10 hover:bg-white/20 text-white px-8 py-3 font-bold uppercase text-xs tracking-widest transition-all">
+
+📄 ui/templates/components/admin_modal_moderation.html
+  L20: Ad-hoc color transparency 'text-white/30' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          class="text-white/30 hover:text-white transition-colors">
+  L25: Ad-hoc color transparency 'bg-black/20' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  <div class="overflow-y-auto grow p-8 bg-black/20">
+  L27: Ad-hoc color transparency 'bg-white/2' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      <div class="border border-white/10 bg-white/2">
+  L29: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                              <thead class="bg-white/5">
+  L32: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                          class="px-6 py-5 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+  L35: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                          class="px-6 py-5 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+  L38: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                          class="px-6 py-5 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+  L41: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                          class="px-6 py-5 text-right text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+  L48: Ad-hoc color transparency 'bg-white/2' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                      class="hover:bg-white/2 transition-colors border-l-2 border-transparent hover:border-earth-ochre">
+  L49: Ad-hoc color transparency 'text-white/60' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                      <td class="px-6 py-5 whitespace-nowrap text-[10px] font-bold text-white/60">
+  L59: Ad-hoc color transparency 'text-white/40' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                          <div class="text-[10px] text-white/40">{{ .UserEmail }}</div>
+  L81: Ad-hoc color transparency 'bg-white/2' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          class="p-20 text-center border border-white/5 bg-white/2 flex flex-col items-center justify-center">
+  L82: Ad-hoc color transparency 'text-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          <span class="material-symbols-outlined text-white/10 text-5xl mb-6">inventory_2</span>
+  L90: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          class="bg-white/10 hover:bg-white/20 text-white px-10 py-3 font-bold capitalize text-xs tracking-widest transition-all">
+  L90: Ad-hoc color transparency 'bg-white/20' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          class="bg-white/10 hover:bg-white/20 text-white px-10 py-3 font-bold capitalize text-xs tracking-widest transition-all">
+
+📄 ui/templates/components/admin_modal_users.html
+  L12: Ad-hoc color transparency 'text-white/30' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      class="absolute top-6 right-6 text-white/30 hover:text-white transition-colors">
+  L18: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  <div class="bg-white/5 border border-white/10 overflow-hidden">
+  L21: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                              <thead class="bg-white/5">
+  L24: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                          class="px-6 py-4 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+  L27: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                          class="px-6 py-4 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+  L30: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                          class="px-6 py-4 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+  L36: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                  <tr class="hover:bg-white/5 transition-colors">
+  L47: Ad-hoc color transparency 'text-white/40' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                                  <div class="text-[10px] text-white/40 capitalize tracking-widest">{{ .Email
+  L62: Ad-hoc color transparency 'text-white/40' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                                          class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-white/40 capitalize tracking-widest">
+  L71: Ad-hoc color transparency 'text-white/30' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      <div class="p-12 text-center text-white/30 border-t border-white/5">
+  L83: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          class="bg-white/10 hover:bg-white/20 text-white px-8 py-3 font-bold capitalize text-xs tracking-widest transition-all">
+  L83: Ad-hoc color transparency 'bg-white/20' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          class="bg-white/10 hover:bg-white/20 text-white px-8 py-3 font-bold capitalize text-xs tracking-widest transition-all">
+
+📄 ui/templates/components/listing_form_common_fields.html
+  L7: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
+  L18: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  class="w-full bg-transparent border-none px-4 py-3 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50 resize-none">{{ .Value }}</textarea>
+  L31: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
+  L39: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
+  L54: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50 truncate"
+  L66: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
+  L79: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
+
+📄 ui/templates/components/listing_form_contact_fields.html
+  L10: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
+  L22: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
+  L33: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
+
+📄 ui/templates/components/listing_form_event_fields.html
+  L9: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-sm md:text-base outline-none transition-all placeholder:text-white/50 color-scheme-dark">
+  L17: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-sm md:text-base outline-none transition-all placeholder:text-white/50 color-scheme-dark">
+
+📄 ui/templates/components/listing_form_image_fields.html
+  L37: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  class="w-full text-white font-light text-sm file:mr-3 file:py-3 file:px-6 file: file:border-0 file:text-[10px] file:uppercase file:tracking-widest file:font-bold file:bg-white/10 file:text-white hover:file:bg-white/20 transition-all cursor-pointer bg-transparent py-1 pl-1 outline-none">
+  L37: Ad-hoc color transparency 'bg-white/20' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  class="w-full text-white font-light text-sm file:mr-3 file:py-3 file:px-6 file: file:border-0 file:text-[10px] file:uppercase file:tracking-widest file:font-bold file:bg-white/10 file:text-white hover:file:bg-white/20 transition-all cursor-pointer bg-transparent py-1 pl-1 outline-none">
+
+📄 ui/templates/components/listing_form_job_fields.html
+  L9: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
+  L18: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
+  L26: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      class="w-full bg-transparent border-none px-4 py-3 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50 resize-none">{{ if .Listing }}{{ .Listing.Skills }}{{ end }}</textarea>
+  L36: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-sm md:text-base outline-none transition-all placeholder:text-white/50 color-scheme-dark">
+  L45: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
+
+📄 ui/templates/components/listing_form_type_origin.html
+  L8: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  class="w-full bg-earth-sand/10 border border-white/20 px-4 py-3 h-12 flex justify-between items-center text-white font-light text-base outline-none transition-all placeholder:text-white/50 cursor-pointer">
+  L10: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  <span class="material-symbols-outlined text-[20px] text-white/50 pointer-events-none">expand_more</span>
+  L29: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  class="w-full bg-earth-sand/10 border border-white/20 px-4 py-3 h-12 flex justify-between items-center text-white font-light text-base outline-none transition-all placeholder:text-white/50 cursor-pointer">
+  L31: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  <span class="material-symbols-outlined text-[20px] text-white/50 pointer-events-none">expand_more</span>
+
+📄 ui/templates/components/mobile_nav.html
+  L15: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  class="flex flex-col items-center justify-center flex-1 h-full text-white/50 hover:text-white transition-colors">
+  L20: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  class="flex flex-col items-center justify-center flex-1 h-full text-white/50 hover:text-white transition-colors">
+  L26: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  class="flex flex-col items-center justify-center flex-1 h-full text-white/50 hover:text-white transition-colors">
+  L31: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  class="flex flex-col items-center justify-center flex-1 h-full text-white/50 hover:text-white transition-colors">
+
+📄 ui/templates/components/navigation.html
+  L3: Ad-hoc color transparency 'bg-white/80' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+      <header class="{{ block "header_classes" . }}sticky top-0 z-[110] w-full bg-white/80 border-b
+
+📄 ui/templates/partials/admin_pagination.html
+  L6: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+             class="flex items-center justify-center w-10 h-10 border border-white/20 text-earth-cream hover:bg-white/10 transition-all duration-300">
+  L15: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+             class="flex items-center justify-center w-10 h-10 border {{ if eq . $.Pagination.Page }}border-earth-accent bg-earth-accent text-earth-dark{{ else }}border-white/20 text-earth-cream hover:bg-white/10{{ end }} transition-all duration-300 font-medium">
+  L22: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+             class="flex items-center justify-center w-10 h-10 border border-white/20 text-earth-cream hover:bg-white/10 transition-all duration-300">
+
+📄 ui/templates/partials/featured_card.html
+  L26: Ad-hoc color transparency 'bg-white/20' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      class="px-3 py-1 bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] uppercase font-bold  tracking-wider shadow-sm">
+  L45: Ad-hoc color transparency 'text-white/80' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      <span class="text-xs font-medium text-white/80 uppercase tracking-widest truncate">{{ .Listing.City
+
+📄 ui/templates/partials/listing_card.html
+  L17: Ad-hoc color transparency 'bg-stone-900/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+              <div class="absolute inset-0 bg-stone-50 dark:bg-stone-900/50 overflow-hidden">
+  L53: Ad-hoc color transparency 'bg-white/90' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      class="bg-white/90 backdrop-blur-md text-text-main w-11 h-11 flex items-center justify-center shadow-lg hover:bg-white transition-all active:scale-95"
+
+📄 ui/templates/partials/listing_list.html
+  L8: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  <div class="h-px flex-1 bg-white/10 mx-6"></div>
+
+📄 ui/templates/partials/modal_detail.html
+  L20: Ad-hoc color transparency 'bg-white/90' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  {{ template "btn_close" dict "Classes" "absolute top-4 right-4 bg-white/90 hover:bg-white text-stone-900 shadow-lg z-[60]" }}
+  L70: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          <div class="flex items-center gap-0.5 py-0.5 px-2 bg-stone-100 dark:bg-white/5 border border-stone-200 dark:border-white/10">
+  L142: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  <div class="flex flex-col gap-2 mb-6 bg-white/5 p-4  border border-stone-200 dark:border-white/10">
+  L194: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      <span class="bg-white/10 text-text-main dark:text-earth-cream px-3 py-1  text-xs font-bold border border-white/10">
+  L221: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          class="flex items-center gap-3 p-3  bg-stone-50 dark:bg-white/5 text-text-main dark:text-earth-cream hover:bg-white/10 border-stone-200 dark:border-white/10 transition-colors">
+  L221: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          class="flex items-center gap-3 p-3  bg-stone-50 dark:bg-white/5 text-text-main dark:text-earth-cream hover:bg-white/10 border-stone-200 dark:border-white/10 transition-colors">
+  L230: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          class="flex items-center gap-3 p-3  bg-stone-50 dark:bg-white/5 text-text-main dark:text-earth-cream hover:bg-white/10 transition-colors border border-stone-200 dark:border-white/10">
+  L230: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          class="flex items-center gap-3 p-3  bg-stone-50 dark:bg-white/5 text-text-main dark:text-earth-cream hover:bg-white/10 transition-colors border border-stone-200 dark:border-white/10">
+
+📄 ui/templates/partials/modal_edit_listing.html
+  L37: Ad-hoc color transparency 'text-white/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                              class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-sm md:text-base outline-none transition-all placeholder:text-white/50 color-scheme-dark">
+
+📄 ui/templates/partials/modal_feedback.html
+  L10: Ad-hoc color transparency 'bg-black/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  {{ template "btn_close" dict "Classes" "text-stone-400 hover:text-text-main hover:bg-black/5" }}
+
+📄 ui/templates/partials/modal_login_prompt.html
+  L0: Multiple close actions detected (2). Modals MUST have exactly one primary close mechanism to prevent UI clutter.
+      
+
+📄 ui/templates/partials/modal_profile.html
+  L12: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                  {{ template "btn_close" dict "Classes" "text-text-sub hover:text-text-main dark:hover:bg-white/5" }}
+  L46: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-stone-100 dark:bg-white/5 text-text-main dark:text-earth-cream font-bold text-sm hover:bg-stone-200 dark:hover:bg-white/10 transition-all border border-stone-200 dark:border-white/10">
+  L46: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-stone-100 dark:bg-white/5 text-text-main dark:text-earth-cream font-bold text-sm hover:bg-stone-200 dark:hover:bg-white/10 transition-all border border-stone-200 dark:border-white/10">
+  L51: Ad-hoc color transparency 'bg-white/5' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                          class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-stone-100 dark:bg-white/5 text-red-600 dark:text-red-400 font-bold text-sm hover:bg-red-50 dark:hover:bg-red-900/20 transition-all border border-stone-200 dark:border-white/10">
+  L67: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+                      <span class="text-xs font-bold text-text-main dark:text-earth-cream bg-stone-100 dark:bg-white/10 px-2 py-1">{{
+
+📄 ui/templates/partials/pagination.html
+  L7: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+             class="flex items-center justify-center w-10 h-10 border border-white/20 text-earth-cream hover:bg-white/10 transition-all duration-300"
+  L20: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+             class="flex items-center justify-center w-10 h-10 border {{ if eq . $.Pagination.Page }}border-earth-accent bg-earth-accent text-earth-dark{{ else }}border-white/20 text-earth-cream hover:bg-white/10{{ end }} transition-all duration-300 font-medium"
+  L31: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+             class="flex items-center justify-center w-10 h-10 border border-white/20 text-earth-cream hover:bg-white/10 transition-all duration-300"
+
+📄 ui/templates/partials/save_button.html
+  L6: Ad-hoc color transparency 'bg-white/90' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+          class="{{ if .Classes }}{{ .Classes }}{{ else }}absolute top-4 right-4 z-30{{ end }} w-11 h-11 flex items-center justify-center bg-white/90 backdrop-blur-md shadow-md transition-all active:scale-90 focus:ring-2 focus:ring-red-300 focus:outline-none htmx-request:opacity-50 {{ if .IsSaved }}text-red-500{{ else }}text-stone-400 hover:text-red-400{{ end }}"
+
+📄 ui/templates/partials/ui_components.html
+  L56: Ad-hoc color transparency 'bg-white/10' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+          class="px-2 py-0.5 text-[10px] font-bold capitalize tracking-widest {{ if index . "ColorClasses" }}{{ .ColorClasses }}{{ else }}bg-white/10 text-earth-cream/70{{ end }}">
+Error: design violations detected (173 issues)
+exit status 1

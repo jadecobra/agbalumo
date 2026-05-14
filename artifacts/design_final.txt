@@ -1,0 +1,15 @@
+🔍 Checking UI Design Standards...
+
+📄 ui/templates/partials/listing_card.html
+  L17: Ad-hoc color transparency 'bg-stone-900/50' detected. Use semantic tokens (e.g., bg-surface-dark/50) or theme-aware classes.
+              <div class="absolute inset-0 bg-stone-50 dark:bg-stone-900/50 overflow-hidden">
+
+📄 ui/templates/partials/modal_feedback.html
+  L10: Hardcoded dark background bypasses light/dark theme sync (ADR: surface-theme-unification)
+                  {{ template "btn_close" dict "Classes" "text-stone-400 hover:text-text-main hover:bg-earth-dark/5" }}
+
+📄 ui/templates/partials/ui_components.html
+  L78: Hardcoded dark background bypasses light/dark theme sync (ADR: surface-theme-unification)
+          class="backdrop:bg-earth-dark/50 bg-transparent p-0 w-full max-w-none {{ if index . "MaxWidthClass" }}{{ .MaxWidthClass }}{{ else }}md:max-w-sm{{ end }} {{ if index . "MarginClass" }}{{ .MarginClass }}{{ else }}m-auto{{ end }} shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed {{ if index . "InsetClass" }}{{ .InsetClass }}{{ else }}inset-0{{ end }} z-50 h-full md:h-auto">
+Error: design violations detected (3 issues)
+exit status 1

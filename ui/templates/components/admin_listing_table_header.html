@@ -1,77 +1,77 @@
 {{ define "admin_listing_table_header" }}
-<thead class="bg-white/5">
+<thead class="bg-earth-cream/5">
     <tr>
         <th scope="col" class="px-6 py-4 text-left w-10">
             <input type="checkbox" id="selectAll"
-                class="border-white/10 text-earth-ochre shadow-sm focus:border-earth-ochre focus:ring focus:ring-earth-ochre focus:ring-opacity-50 bg-white/5">
+                class="border-white/10 text-earth-ochre shadow-sm focus:border-earth-ochre focus:ring focus:ring-earth-ochre focus:ring-opacity-50 bg-earth-cream/5">
         </th>
-        <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+        <th class="px-6 py-4 text-left text-[10px] font-bold text-earth-cream/50 capitalize tracking-[0.2em]">
             <!-- prettier-ignore -->
             <a href="/admin/listings?page={{.Pagination.Page}}{{if .Category}}&category={{.Category}}{{end}}&sort=date{{if eq .SortOrder `ASC`}}&order=desc{{else}}&order=asc{{end}}"
                 class="group inline-flex items-center hover:text-earth-ochre transition-colors">
                 Date
                 <span
-                    class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `date`}}text-earth-ochre{{else}}text-white/30 opacity-0 group-hover:opacity-100{{end}}">
+                    class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `date`}}text-earth-ochre{{else}}text-earth-cream/30 opacity-0 group-hover:opacity-100{{end}}">
                     {{if and (eq .SortField `date`) (eq .SortOrder
                     `ASC`)}}arrow_circle_up{{else}}arrow_circle_down{{end}}
                 </span>
             </a>
         </th>
-        <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+        <th class="px-6 py-4 text-left text-[10px] font-bold text-earth-cream/50 capitalize tracking-[0.2em]">
             <!-- prettier-ignore -->
             <a href="/admin/listings?page={{.Pagination.Page}}{{if .Category}}&category={{.Category}}{{end}}&sort=title{{if eq .SortOrder `DESC`}}&order=asc{{else}}&order=desc{{end}}"
                 class="group inline-flex items-center hover:text-earth-ochre transition-colors">
                 Title
                 <span
-                    class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `title`}}text-earth-ochre{{else}}text-white/30 opacity-0 group-hover:opacity-100{{end}}">
+                    class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `title`}}text-earth-ochre{{else}}text-earth-cream/30 opacity-0 group-hover:opacity-100{{end}}">
                     {{if and (eq .SortField `title`) (eq .SortOrder
                     `DESC`)}}arrow_circle_down{{else}}arrow_circle_up{{end}}
                 </span>
             </a>
         </th>
-        <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+        <th class="px-6 py-4 text-left text-[10px] font-bold text-earth-cream/50 capitalize tracking-[0.2em]">
             <!-- prettier-ignore -->
             <a href="/admin/listings?page={{.Pagination.Page}}{{if .Category}}&category={{.Category}}{{end}}&sort=type{{if eq .SortOrder `ASC`}}&order=desc{{else}}&order=asc{{end}}"
                 class="group inline-flex items-center hover:text-earth-ochre transition-colors">
                 Type
                 <span
-                    class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `type`}}text-earth-ochre{{else}}text-white/30 opacity-0 group-hover:opacity-100{{end}}">
+                    class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `type`}}text-earth-ochre{{else}}text-earth-cream/30 opacity-0 group-hover:opacity-100{{end}}">
                     {{if and (eq .SortField `type`) (eq .SortOrder
                     `ASC`)}}arrow_circle_up{{else}}arrow_circle_down{{end}}
                 </span>
             </a>
         </th>
-        <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+        <th class="px-6 py-4 text-left text-[10px] font-bold text-earth-cream/50 capitalize tracking-[0.2em]">
             <!-- prettier-ignore -->
             <a href="/admin/listings?page={{.Pagination.Page}}{{if .Category}}&category={{.Category}}{{end}}&sort=status{{if eq .SortOrder `ASC`}}&order=desc{{else}}&order=asc{{end}}"
                 class="group inline-flex items-center hover:text-earth-ochre transition-colors">
                 Status
                 <span
-                    class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `status`}}text-earth-ochre{{else}}text-white/30 opacity-0 group-hover:opacity-100{{end}}">
+                    class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `status`}}text-earth-ochre{{else}}text-earth-cream/30 opacity-0 group-hover:opacity-100{{end}}">
                     {{if and (eq .SortField `status`) (eq .SortOrder
                     `ASC`)}}arrow_circle_up{{else}}arrow_circle_down{{end}}
                 </span>
             </a>
         </th>
-        <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+        <th class="px-6 py-4 text-left text-[10px] font-bold text-earth-cream/50 capitalize tracking-[0.2em]">
             Enriched
         </th>
-        <th class="px-6 py-4 text-left text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+        <th class="px-6 py-4 text-left text-[10px] font-bold text-earth-cream/50 capitalize tracking-[0.2em]">
             Owner
         </th>
-        <th class="px-6 py-4 text-center text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+        <th class="px-6 py-4 text-center text-[10px] font-bold text-earth-cream/50 capitalize tracking-[0.2em]">
             <!-- prettier-ignore -->
             <a href="/admin/listings?page={{.Pagination.Page}}{{if .Category}}&category={{.Category}}{{end}}&sort=featured{{if eq .SortOrder `DESC`}}&order=asc{{else}}&order=desc{{end}}"
                 class="group inline-flex items-center hover:text-earth-ochre transition-colors justify-center w-full">
                 Featured
                 <span
-                    class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `featured`}}text-earth-ochre{{else}}text-white/30 opacity-0 group-hover:opacity-100{{end}}">
+                    class="ml-1 material-symbols-outlined text-[14px] {{if eq .SortField `featured`}}text-earth-ochre{{else}}text-earth-cream/30 opacity-0 group-hover:opacity-100{{end}}">
                     {{if and (eq .SortField `featured`) (eq .SortOrder
                     `DESC`)}}arrow_circle_down{{else}}arrow_circle_up{{end}}
                 </span>
             </a>
         </th>
-        <th class="px-6 py-4 text-right text-[10px] font-bold text-white/50 capitalize tracking-[0.2em]">
+        <th class="px-6 py-4 text-right text-[10px] font-bold text-earth-cream/50 capitalize tracking-[0.2em]">
             Actions</th>
     </tr>
 </thead>

@@ -7,7 +7,7 @@
         <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
             <input name="contact_email" type="email" placeholder="Email"
                 value="{{ if .Listing }}{{ .Listing.ContactEmail }}{{ else if .User }}{{ .User.Email }}{{ end }}"
-                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
+                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-earth-cream/50">
         </div>
     </div>
 
@@ -19,7 +19,7 @@
         <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
             <input name="contact_phone" type="tel" placeholder="+1..."
                 value="{{ if .Listing }}{{ .Listing.ContactPhone }}{{ end }}"
-                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
+                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-earth-cream/50">
         </div>
     </div>
 
@@ -30,7 +30,7 @@
         <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
             <input name="contact_whatsapp" type="tel" placeholder="+1..."
                 value="{{ if .Listing }}{{ .Listing.ContactWhatsApp }}{{ end }}"
-                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-white/50">
+                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-earth-cream/50">
         </div>
     </div>
     {{ end }}

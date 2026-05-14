@@ -1,13 +1,13 @@
 {{ define "admin_listing_table_row" }}
 <tr id="listing-row-{{ .ID }}" 
     data-agent-template="admin_listing_table_row.html"
-    hx-trigger="listing-updated-{{.ID}} from:body" hx-get="/admin/listings/{{.ID}}/row" hx-swap="outerHTML" class="{{ if not .IsActive }}bg-white/5{{ end }} hover:bg-white/5 transition-colors">
+    hx-trigger="listing-updated-{{.ID}} from:body" hx-get="/admin/listings/{{.ID}}/row" hx-swap="outerHTML" class="{{ if not .IsActive }}bg-earth-cream/5{{ end }} hover:bg-earth-cream/5 transition-colors">
     <td class="px-6 py-4 whitespace-nowrap">
         <input type="checkbox" name="selectedListings" value="{{ .ID }}"
             data-testid="ag-listing-checkbox-{{ .ID }}"
-            class="row-checkbox border-white/10 text-earth-ochre shadow-sm focus:border-earth-ochre focus:ring focus:ring-earth-ochre focus:ring-opacity-50 bg-white/5">
+            class="row-checkbox border-white/10 text-earth-ochre shadow-sm focus:border-earth-ochre focus:ring focus:ring-earth-ochre focus:ring-opacity-50 bg-earth-cream/5">
     </td>
-    <td class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-white/50 tracking-[0.1em]">
+    <td class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-earth-cream/50 tracking-[0.1em]">
         {{ .CreatedAt.Format "Jan 02, 2006" }}
     </td>
     <td class="px-6 py-4 text-xs font-bold text-white capitalize tracking-wider">
@@ -17,7 +17,7 @@
             .Title
             }}</a>
     </td>
-    <td class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-white/60 capitalize tracking-[0.2em]">
+    <td class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-earth-cream/60 capitalize tracking-[0.2em]">
         {{ .Type }}
     </td>
     <td class="px-6 py-4 whitespace-nowrap text-[10px] capitalize font-bold">
@@ -31,20 +31,20 @@
         {{ template "status_badge_sharp" dict "Label" "Pending" "ColorClasses"
         `bg-earth-ochre/20 text-earth-ochre-light` }}
         {{ else }}
-        {{ template "status_badge_sharp" dict "Label" .Status "ColorClasses" `bg-white/10
-        text-white/60` }}
+        {{ template "status_badge_sharp" dict "Label" .Status "ColorClasses" `bg-earth-cream/10
+        text-earth-cream/60` }}
         {{ end }}
 
         {{ if not .IsActive }}
         <span
-            class="ml-2 px-2 py-0.5 inline-flex font-bold bg-white/10 text-white/60 capitalize tracking-wider text-[10px]">Inactive</span>
+            class="ml-2 px-2 py-0.5 inline-flex font-bold bg-earth-cream/10 text-earth-cream/60 capitalize tracking-wider text-[10px]">Inactive</span>
         {{ end }}
     </td>
-    <td class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-white/50 tracking-[0.1em]">
+    <td class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-earth-cream/50 tracking-[0.1em]">
         {{ if .EnrichmentAttemptedAt }}{{ .EnrichmentAttemptedAt.Format "Jan 02, 2006" }}{{ else }}-{{ end }}
     </td>
-    <td class="px-6 py-4 text-[10px] font-bold text-white/50 truncate max-w-[150px] capitalize tracking-[0.1em]">
-        {{ if .OwnerID }}{{ .OwnerID }}{{ else }}<span class="italic text-white/30 tracking-[0.2em]">UNOWNED</span>{{
+    <td class="px-6 py-4 text-[10px] font-bold text-earth-cream/50 truncate max-w-[150px] capitalize tracking-[0.1em]">
+        {{ if .OwnerID }}{{ .OwnerID }}{{ else }}<span class="italic text-earth-cream/30 tracking-[0.2em]">UNOWNED</span>{{
         end
         }}
     </td>
@@ -52,7 +52,7 @@
         <button hx-post="/admin/listings/{{ .ID }}/featured" data-testid="ag-listing-feature-btn-{{ .ID }}"
             hx-vals='{"featured": "{{ if not .Featured }}true{{ else }}false{{ end }}"}' hx-target="closest tr"
             hx-swap="outerHTML"
-            class="px-3 py-1 text-[10px] font-bold capitalize tracking-widest transition-all {{ if .Featured }}bg-earth-ochre text-earth-dark{{ else }}bg-white/5 text-white/70 hover:bg-white/20{{ end }}"
+            class="px-3 py-1 text-[10px] font-bold capitalize tracking-widest transition-all {{ if .Featured }}bg-earth-ochre text-earth-dark{{ else }}bg-earth-cream/5 text-earth-cream/70 hover:bg-earth-cream/20{{ end }}"
             title="{{ if .Featured }}Unfeature{{ else }}Feature{{ end }}">
             {{ if .Featured }}Featured{{ else }}Feature{{ end }}
         </button>
@@ -60,7 +60,7 @@
     <td
         class="px-6 py-4 whitespace-nowrap text-right space-x-2 flex justify-end items-center h-full pt-6 border-0 align-middle">
         <a href="#" hx-get="/listings/{{ .ID }}/edit?target=listing-row-{{ .ID }}&source=admin" hx-target="body" hx-swap="beforeend" data-testid="ag-listing-edit-btn-{{ .ID }}"
-            class="w-8 h-8 inline-flex items-center justify-center border border-white/10 text-white/50 hover:text-earth-ochre hover:border-earth-ochre transition-all"
+            class="w-8 h-8 inline-flex items-center justify-center border border-white/10 text-earth-cream/50 hover:text-earth-ochre hover:border-earth-ochre transition-all"
             title="Edit Listing">
             <span class="material-symbols-outlined text-[16px]">edit</span>
         </a>
