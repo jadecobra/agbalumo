@@ -92,6 +92,9 @@ Before outputting any prompt, the architect MUST verify:
 - [ ] Cross-prompt dependencies eliminated or stated as explicit assumptions
 - [ ] Every UI prompt explicitly defines "Hover, Focus, Loading, and Empty states"
 - [ ] Every UI prompt actively avoids "generic 'AI Slop' patterns"
+- [ ] Every UI prompt adding a new color token annotates the WCAG contrast ratio against the three surfaces: `earth-cream`, `white`, `earth-dark`
+- [ ] Every UI prompt creating a form control specifies the `id`/`for` association strategy
+- [ ] Every UI prompt adding a new component to `ui_components.html` includes an action to document it in `sandbox.html`
 
 ## Prompt Template
 
@@ -123,3 +126,6 @@ For documentation-only changes, replace sections 5-6 with file write instruction
 | Missing Strict Lesson tags | Flash violates coding standards | List relevant trigger tags in Pre-conditions |
 | ADR in chat only | Content lost between conversations | Embed full ADR text in Flash prompt |
 | Template without TDD section | Flash skips test-first | Always include TDD section, even for small features |
+| UI token without contrast annotation | Violates WCAG silently; caught by Axe, not static gate | Annotate every new token with contrast ratios |
+| New component without sandbox update | Sandbox drifts from implementation; `verify sandbox-parity` blocks CI | Always include sandbox.html doc step for new components |
+| Form control without id/for spec | a11y failure caught only at Axe runtime | Specify labeling strategy in the action item |

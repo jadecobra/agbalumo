@@ -38,7 +38,7 @@
         <!-- New Badge -->
         {{ if isNew .Listing.CreatedAt }}
         {{ $right := "right-4" }}{{ if $.User }}{{ $right = "right-14" }}{{ end }}
-        {{ template "status_badge_sharp" dict "Label" "NEW" "ColorClasses" (printf "absolute top-4 %s bg-earth-accent text-white shadow-lg z-20 animate-juice-bounce" $right) }}
+        {{ template "status_badge_sharp" dict "Label" "NEW" "ColorClasses" (printf "absolute top-4 %s bg-earth-accent !text-earth-dark shadow-lg z-20 animate-juice-bounce" $right) }}
         {{ end }}
 
         {{ if $.User }}

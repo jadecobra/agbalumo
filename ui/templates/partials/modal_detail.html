@@ -105,7 +105,7 @@
 
             {{ if or (hasDelivery .Listing.DeliveryPlatforms "UberEats") (hasDelivery .Listing.DeliveryPlatforms "DoorDash") (hasDelivery .Listing.DeliveryPlatforms "Grubhub") }}
             <div id="delivery-block" class="mb-6">
-                <h4 class="font-bold text-text-main dark:text-earth-cream mb-2 text-sm capitalize tracking-wide">Order Delivery</h4>
+                <h3 class="font-bold text-text-main dark:text-earth-cream mb-2 text-sm capitalize tracking-wide">Order Delivery</h3>
                 <div class="flex flex-wrap gap-2">
                     {{ if hasDelivery .Listing.DeliveryPlatforms "UberEats" }}
                     <span class="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold capitalize tracking-wider shadow-sm">
@@ -187,8 +187,8 @@
             </div>
 
             <!-- Skills -->
-            <h4 class="font-bold text-text-main dark:text-earth-cream mb-2 text-sm capitalize tracking-wide">Skills Required
-            </h4>
+            <h3 class="font-bold text-text-main dark:text-earth-cream mb-2 text-sm capitalize tracking-wide">Skills Required
+            </h3>
             <div class="flex flex-wrap gap-2 mb-6">
                 {{ range (split .Listing.Skills ",") }}
                 <span class="bg-earth-cream/10 text-text-main dark:text-earth-cream px-3 py-1  text-xs font-bold border border-white/10">
@@ -200,13 +200,13 @@
             <!-- Apply URL logic moved to Contact section -->
             {{ end }}
 
-            <h4 class="font-bold text-text-main dark:text-earth-cream mb-2 text-sm capitalize tracking-wide">About</h4>
+            <h3 class="font-bold text-text-main dark:text-earth-cream mb-2 text-sm capitalize tracking-wide">About</h3>
             <p class="text-text-main dark:text-earth-cream text-sm leading-relaxed whitespace-pre-line mb-6">
                 {{ .Listing.Description }}
             </p>
 
             <!-- Contact Section -->
-            <h4 class="font-bold text-text-main dark:text-earth-cream mb-2 text-sm capitalize tracking-wide">Contact</h4>
+            <h3 class="font-bold text-text-main dark:text-earth-cream mb-2 text-sm capitalize tracking-wide">Contact</h3>
             <div class="flex flex-col gap-3">
                 {{ if .Listing.ContactWhatsApp }}
                 <a href="https://wa.me/{{ .Listing.ContactWhatsApp }}" target="_blank" data-ada-discovery="whatsapp"

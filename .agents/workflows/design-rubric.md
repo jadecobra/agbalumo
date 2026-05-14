@@ -1,5 +1,7 @@
 # Design Critique Scoring Rubric
 
+> Dimensions 1-6 score aesthetics. Dimension 7 scores correctness. A template MUST pass Dimension 7 before aesthetic scores are meaningful.
+
 ## Information Density (0-10)
 - Start at 10
 - -2 if cards NOT above fold at 1440px
@@ -36,3 +38,12 @@
 - -1 per forbidden rounding class
 - -1 per hardcoded modal background
 - -2 if generic placeholder images detected
+
+## Accessibility & Semantic Integrity (0-10)
+- Start at 10
+- -2 per icon-only button missing `aria-label` (caught by `verify design`)
+- -2 per form control missing explicit `for`/`id` association (caught by `verify design`)
+- -2 per `<img>` missing `alt` attribute (caught by `verify design`)
+- -1 per modal missing `role="dialog"` or `aria-labelledby`
+- -1 per Axe color-contrast violation reported in `a11y.spec.ts`
+- **Score < 8 = BLOCKER. Do not ship regardless of aesthetic scores.**
