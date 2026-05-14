@@ -24,7 +24,7 @@ test.describe('Design Integrity & Cohesion', () => {
     // Open Create Listing Modal (as dev)
     await page.goto('/auth/dev');
     await page.goto('/');
-    const postBtn = page.locator('[data-testid="ag-nav-post-btn-desktop"], [data-testid="ag-nav-post-btn-mobile"]').first();
+    const postBtn = page.locator('[data-testid="ag-nav-post-btn-desktop"]:visible, [data-testid="ag-nav-post-btn-mobile"]:visible').first();
     await postBtn.click();
     
     await expect(modal).toBeVisible();
@@ -37,7 +37,7 @@ test.describe('Design Integrity & Cohesion', () => {
     await page.goto('/');
     
     // Open Listing Detail Modal
-    await page.locator('[data-testid="ag-listing-card"]').first().locator('[hx-get^="/listings/"]').click();
+    await page.locator('[data-testid="ag-listing-card"]').first().locator('[hx-get^="/listings/"]:visible').click();
     const modal = page.locator('dialog[open]');
     await expect(modal).toBeVisible();
     
@@ -54,7 +54,7 @@ test.describe('Design Integrity & Cohesion', () => {
     await page.goto('/');
     
     // Open Profile Modal
-    const profileBtn = page.locator('[data-testid="ag-nav-profile-btn"], [data-testid="mobile-account-btn"]').first();
+    const profileBtn = page.locator('[data-testid="ag-nav-profile-btn"]:visible, [data-testid="mobile-account-btn"]:visible, [data-testid="mobile-profile-btn"]:visible').first();
     await profileBtn.click();
     
     const modal = page.locator('dialog[open]');

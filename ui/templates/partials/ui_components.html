@@ -110,6 +110,8 @@
                     {{ template "modal_profile_content" .Data }}
                 {{ else if eq $inner "modal_feedback_content" }}
                     {{ template "modal_feedback_content" .Data }}
+                {{ else if eq $inner "modal_login_prompt_content" }}
+                    {{ template "modal_login_prompt_content" .Data }}
                 {{ end }}
  
             {{ if index . "IsForm" }}
