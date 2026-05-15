@@ -391,3 +391,11 @@ Verify all ui_components.html partials are documented in sandbox.html.
 ```bash
 agbalumo verify sandbox-parity
 ```
+
+##### a11y-map
+
+Parse latest Playwright a11y test-results and map violations to template files.
+
+```bash
+agbalumo verify a11y-map
+```
