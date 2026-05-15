@@ -1,9 +1,8 @@
 {{ define "navigation" }}
-<!-- Unified Top Header (Glassmorphic) -->
-<header class="{{ block "header_classes" . }}sticky top-0 z-[110] w-full bg-earth-cream/80 border-b
-    border-earth-clay/10 transition-all duration-300{{ end }} relative" 
+<!-- Unified Top Header (Opaque Brutalist) -->
+<header class="{{ block "header_classes" . }}sticky top-0 z-[110] w-full bg-earth-cream border-b
+    border-earth-clay/20 transition-all duration-300{{ end }} relative" 
     data-agent-template="navigation.html">
-    <div class="absolute inset-0 backdrop-blur-md -z-10 pointer-events-none"></div>
     <!-- Mobile Full Width Logo -->
     <div class="md:hidden flex flex-col justify-center items-center w-full py-2 border-b border-earth-clay/5 pointer-events-none">
         <div class="flex flex-col items-center">
@@ -11,7 +10,7 @@
                 <source srcset="/static/images/logo.webp" type="image/webp">
                 <img src="/static/images/logo.png" alt="agbalumo Logo" class="h-12 w-auto object-contain">
             </picture>
-            <span class="text-[10px] text-earth-accent font-medium tracking-wide -mt-1 font-display">find what you want</span>
+            <span class="text-[10px] text-earth-clay font-medium tracking-wide -mt-1 font-display">find what you want</span>
         </div>
     </div>
 
@@ -26,7 +25,7 @@
                     <img src="/static/images/logo.png" alt="agbalumo Logo"
                         class="h-8 md:h-10 object-contain group-hover:scale-105 transition-transform">
                 </picture>
-                <span class="text-[10px] text-earth-accent font-medium tracking-wide -mt-1 font-display">find
+                <span class="text-[10px] text-earth-clay font-medium tracking-wide -mt-1 font-display">find
                     what
                     you want</span>
             </div>
@@ -167,12 +166,12 @@
             <nav class="flex items-center gap-1">
                 {{ if .User }}
                 <button hx-get="/feedback/modal" hx-target="body" hx-swap="beforeend" data-testid="ag-nav-feedback-btn"
-                    class="p-2  text-stone-500 hover:text-earth-accent hover:bg-surface-dark/40 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors"
+                    class="w-12 h-12 flex items-center justify-center text-stone-500 hover:text-earth-accent hover:bg-surface-dark/40 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors"
                     title="Feedback" aria-label="Feedback">
                     <span class="material-symbols-outlined">feedback</span>
                 </button>
                 <button hx-get="/saved" hx-target="#listings-container" hx-indicator="#listings-loading" data-testid="ag-nav-saved-btn"
-                    class="p-2 text-stone-500 hover:text-red-400 hover:bg-surface-dark/40 transition-colors"
+                    class="w-12 h-12 flex items-center justify-center text-stone-500 hover:text-red-400 hover:bg-surface-dark/40 transition-colors"
                     title="Saved Listings" aria-label="Saved Listings">
                     <span class="material-symbols-outlined">favorite</span>
                 </button>
@@ -216,7 +215,7 @@
                     </a>
                     <a href="/auth/dev" aria-label="Dev Login"
                         data-testid="ag-nav-dev-login-btn"
-                        class="flex items-center gap-2 bg-earth-ochre/10 hover:bg-earth-ochre/20 text-earth-ochre px-4 h-10 transition-all font-semibold font-display text-[10px] capitalize tracking-widest border border-earth-ochre/20"
+                        class="flex items-center gap-2 bg-earth-clay/10 hover:bg-earth-clay/20 text-earth-clay px-4 h-10 transition-all font-semibold font-display text-[10px] capitalize tracking-widest border border-earth-clay/20"
                         title="Quick Login for Development">
                         <span class="material-symbols-outlined text-[18px]">developer_mode</span>
                         Dev Login
