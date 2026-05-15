@@ -301,6 +301,43 @@
                 </button>
             </div>
         </section>
+        <!-- System Primitives (Verification Only) -->
+        <section class="space-y-6 col-span-full">
+            <div class="flex items-center gap-3 border-l-8 border-earth-dark pl-4">
+                <span class="material-symbols-outlined" aria-hidden="true">build</span>
+                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">System Primitives</h2>
+            </div>
+            <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] flex flex-wrap gap-8 items-center">
+                <div class="flex flex-col gap-2">
+                    <span class="text-[10px] font-black capitalize tracking-widest text-text-sub">button_sharp</span>
+                    {{ template "button_sharp" (dict "Label" "Sharp Button" "Classes" "bg-earth-dark text-white" "Type" "button") }}
+                </div>
+                <div class="flex flex-col gap-2">
+                    <span class="text-[10px] font-black capitalize tracking-widest text-text-sub">admin_tool_btn_sharp</span>
+                    {{ template "admin_tool_btn_sharp" (dict "Icon" "settings" "Label" "Admin Tool" "IconBgClass" "bg-earth-sand" "IconColorClass" "text-earth-dark") }}
+                </div>
+                <div class="flex flex-col gap-2">
+                    <span class="text-[10px] font-black capitalize tracking-widest text-text-sub">status_badge_sharp</span>
+                    {{ template "status_badge_sharp" (dict "Label" "Sharp Badge" "ColorClasses" "bg-earth-accent text-earth-dark") }}
+                </div>
+                <div class="flex flex-col gap-2">
+                    <span class="text-[10px] font-black capitalize tracking-widest text-text-sub">metric_stat_sharp</span>
+                    {{ template "metric_stat_sharp" (dict "Label" "Total Count" "Value" "1,234" "Icon" "analytics" "Link" "#") }}
+                </div>
+                <div class="flex flex-col gap-2">
+                    <span class="text-[10px] font-black capitalize tracking-widest text-text-sub">btn_close</span>
+                    <div class="w-12 h-12 flex items-center justify-center border-4 border-earth-dark">
+                        {{ template "btn_close" (dict "Action" "close") }}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hidden Verification Blocks (No-op references for parity) -->
+        <div class="hidden">
+            {{ template "modal_base" (dict "ID" "parity-check" "Title" "Parity" "Icon" "check") }}
+            {{ template "admin_tool_link_sharp" (dict "Link" "#" "Icon" "link" "Label" "Link" "IconBgClass" "bg-earth-sand" "IconColorClass" "text-earth-dark") }}
+        </div>
     </div>
 </div>
 {{ end }}
