@@ -156,6 +156,10 @@ commands:
     trigger: template_change
     description: "Verify all ui_components.html partials are documented in sandbox.html"
 
+  - name: a11y-map
+    trigger: a11y_violation
+    description: "Map Axe violations from Playwright test-results to template file:line"
+
 skills:
   - name: go-tdd
     trigger: test_authoring, feature_implementation, bug_fix

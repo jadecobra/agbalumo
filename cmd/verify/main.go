@@ -130,6 +130,7 @@ func init() {
 		minifyContextCmd,
 		hitboxesCmd,
 		sandboxParityCmd,
+		a11yMapCmd,
 	)
 }
 

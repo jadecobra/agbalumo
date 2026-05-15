@@ -383,3 +383,11 @@ Audit touch target hitboxes and interaction layer overlays for mobile ergonomics
 ```bash
 agbalumo verify hitboxes
 ```
+
+##### sandbox-parity
+
+Verify all ui_components.html partials are documented in sandbox.html.
+
+```bash
+agbalumo verify sandbox-parity
+```
