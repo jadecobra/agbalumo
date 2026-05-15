@@ -129,6 +129,7 @@ func init() {
 		gitCleanCmd,
 		minifyContextCmd,
 		hitboxesCmd,
+		sandboxParityCmd,
 	)
 }
 

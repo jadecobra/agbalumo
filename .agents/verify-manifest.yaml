@@ -152,6 +152,10 @@ commands:
     trigger: ui_change, design_critique
     description: "Audit touch target hitboxes and interaction layer overlays"
 
+  - name: sandbox-parity
+    trigger: template_change
+    description: "Verify all ui_components.html partials are documented in sandbox.html"
+
 skills:
   - name: go-tdd
     trigger: test_authoring, feature_implementation, bug_fix

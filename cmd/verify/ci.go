@@ -204,6 +204,9 @@ var precommitCmd = &cobra.Command{
 			if err := runCmd("go", "test", "./internal/ui/", "-v", "-run", "TestGlobalTemplateCoverage"); err != nil {
 				return fmt.Errorf("template contract verification failed: %w", err)
 			}
+			if err := sandboxParityCmd.RunE(cmd, args); err != nil {
+				return err
+			}
 		}
 
 		// 7. Design gate check (ensures no rounding in admin or hardcoded hex)
