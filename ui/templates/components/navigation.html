@@ -48,7 +48,7 @@
 
                 <!-- Filters Toggle (Relocated from Hero) -->
                 <button type="button" data-testid="ag-home-filters-toggle-desktop"
-                    class="flex h-12 items-center justify-center px-4 text-text-sub hover:text-text-main transition-colors border-l border-earth-clay/10"
+                    class="flex h-12 items-center justify-center px-4 text-stone-600 hover:text-text-main transition-colors border-l border-earth-clay/10"
                     aria-label="Toggle Filters">
                     <span class="material-symbols-outlined text-[20px]">tune</span>
                 </button>
@@ -166,12 +166,12 @@
             <nav class="flex items-center gap-1">
                 {{ if .User }}
                 <button hx-get="/feedback/modal" hx-target="body" hx-swap="beforeend" data-testid="ag-nav-feedback-btn"
-                    class="w-12 h-12 flex items-center justify-center text-stone-500 hover:text-earth-accent hover:bg-surface-dark/40 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors"
+                    class="w-12 h-12 flex items-center justify-center text-stone-600 hover:text-earth-accent hover:bg-surface-dark/40 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors"
                     title="Feedback" aria-label="Feedback">
                     <span class="material-symbols-outlined">feedback</span>
                 </button>
                 <button hx-get="/saved" hx-target="#listings-container" hx-indicator="#listings-loading" data-testid="ag-nav-saved-btn"
-                    class="w-12 h-12 flex items-center justify-center text-stone-500 hover:text-red-400 hover:bg-surface-dark/40 transition-colors"
+                    class="w-12 h-12 flex items-center justify-center text-stone-600 hover:text-red-400 hover:bg-surface-dark/40 transition-colors"
                     title="Saved Listings" aria-label="Saved Listings">
                     <span class="material-symbols-outlined">favorite</span>
                 </button>
@@ -237,7 +237,7 @@
             <!-- Redundant 'Post' and 'Account' buttons removed to favor mobile-bottom-nav -->
             {{ if .User }}
             <button hx-get="/saved" hx-target="#listings-container" hx-indicator="#listings-loading" data-testid="ag-nav-saved-btn-mobile"
-                class="w-11 h-11 flex items-center justify-center text-stone-400 hover:text-red-400">
+                class="w-11 h-11 flex items-center justify-center text-stone-600 hover:text-red-400">
                 <span class="material-symbols-outlined text-[20px]">favorite</span>
             </button>
             {{ end }}
