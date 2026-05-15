@@ -162,6 +162,7 @@ This section contains corrections and constraints derived from the `[/learn]` wo
 
 ### Infrastructure & Environment
 * **Environment & Protocol Awareness** [TRIGGER: browser_subagent, env_variable]: The agent MUST use domain-defined constants (e.g., `domain.EnvKeyAppEnv`) for env keys. Before initiating browser tasks, verify the active listener port and protocol (HTTPS vs HTTP) via `BASE_URL` in `.env` or server logs to avoid connection failures.
+* **BASE_URL Prohibition — No Guessing** [TRIGGER: browser_subagent, url_construction]: The agent is STRICTLY FORBIDDEN from guessing or heuristically constructing a target URL (e.g., assuming `localhost:8080`). The agent MUST read `BASE_URL` from `.env` as the first action before any browser subagent task. If `.env` is missing or `BASE_URL` is unset, the agent MUST halt and report the missing config to the user. Violation = production CI failure.
 * **Local Server & Audit Gates** [TRIGGER: session_done, ci_config_change]: The agent is FORBIDDEN from ending a session if the local server is down (verify via `uptime`). CLI-based CI pipelines MUST include a live server-startup check to catch nil-pointer regressions in routing.
 * **Scratch Directory Isolation** [TRIGGER: git_push]: Ensure temporary 'scratch' or 'brain' directories are in `.gitignore` and NEVER committed, as they interfere with remote CI linter phases.
 
@@ -173,6 +174,8 @@ This section contains corrections and constraints derived from the `[/learn]` wo
 * **Code Duplication & Critique** [TRIGGER: refactoring]: Prioritize resolving "Code Duplication" (clone groups) from `critique`. Quantify improvements by comparing clone group counts before and after refactoring.
 * **E2E & Visual Regression** [TRIGGER: visual_testing, htmx]: Playwright tests MUST use relative paths. HTMX assertions MUST use `page.waitForResponse()` to avoid timing flakes. New modals MUST include visual snapshots in `visual.spec.ts`.
 * **Visual Snapshot Platform Parity** [TRIGGER: snapshot_parity]: Visual snapshots MUST include linux-suffixed baselines generated via Docker. satisfy parity via `go run ./cmd/verify snapshot-parity`.
+* **Full E2E Mandate — No Filtered Runs Before Push** [TRIGGER: e2e_change, ui_change, git_push]: The agent is FORBIDDEN from running a filtered/scoped Playwright invocation (e.g., `--grep`, `-g`, specific file) as a substitute for the full suite before pushing. If `go run ./cmd/verify browser` fails, the agent MUST (1) report the full failure output to the user, (2) halt and await direction — it MUST NOT silently run a subset to "verify the fix" and push.
+* **AXE Accessibility Platform Parity Gate** [TRIGGER: a11y_change, ui_change, e2e_change]: The local Darwin environment produces different AXE contrast evaluations than the Linux CI container due to sub-pixel rendering and browser cache warm state. Any change touching color tokens, navigation, or card components MUST be validated by running the full `go run ./cmd/verify browser` suite in a cold-state browser (clear cache/incognito) before pushing. A local green result is NOT sufficient evidence of CI-green for accessibility checks.
 
  
 ### Scraping

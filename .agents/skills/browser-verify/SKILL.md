@@ -32,10 +32,9 @@ When modifying templates, CSS, or client-side assets where standard Go unit test
 
 ## Pre-flight (MANDATORY — always run before browser tasks)
 
-1. Read `.agents/invariants.json` — get `protocol` and `port` fields
-2. Construct the base URL: `{protocol}://localhost:{port}`
+1. **Read `.env` for `BASE_URL` — FIRST ACTION, NO EXCEPTIONS.** If `BASE_URL` is unset, HALT and report to user. NEVER guess or construct a URL heuristically.
+2. Read `.agents/invariants.json` — get `protocol` and `port` fields as fallback only
 3. Verify server is running: `go run ./cmd/verify uptime` — if it fails, start the server first using `go run ./cmd/verify watch`
-4. Read `.env` for `BASE_URL` as override — if set, use that instead
 ## Verification Checklist
 For EVERY UI element verified, you MUST check ALL of:
 - [ ] **Exists**: `document.querySelector(selector)` returns non-null
@@ -85,3 +84,15 @@ For ANY layout change, you MUST verify at:
 1. Document each check result in `task.md` with pass/fail
 2. For layout changes: capture before/after screenshots, save them as artifacts, and embed them in walkthrough
 3. For interactive changes: describe the state transition verified
+
+## Critical Failure Protocol (MANDATORY)
+If `go run ./cmd/verify browser` fails at any point:
+1. **HALT immediately.** Do NOT run a scoped/filtered subset (e.g., `npx playwright test a11y.spec.ts -g "..."`) to "verify the fix."
+2. Report the **full failure output** to the user with the exact error.
+3. **Await explicit user direction** before attempting any further push or test run.
+4. Rationale: scoped runs produce false-green signals — the Linux CI container runs the full unfiltered suite and will catch violations the scoped run masked.
+
+## AXE Accessibility Parity Warning
+Local Darwin rendering + warm browser cache can produce false-green AXE results that fail in the clean-room Linux CI container.
+- For any change touching **color tokens, navigation, listing cards, or modal contrast**: run the full suite, then explicitly check `test-results/` for any `error-context.md` artifacts generated even on passing runs.
+- If the previous push to CI failed on an AXE check that passed locally, the fix is NOT verified until CI is green. Do not declare victory.
