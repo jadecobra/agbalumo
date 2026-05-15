@@ -161,8 +161,8 @@ This section contains corrections and constraints derived from the `[/learn]` wo
 
 
 ### Infrastructure & Environment
-* **Environment & Protocol Awareness** [TRIGGER: browser_subagent, env_variable]: The agent MUST use domain-defined constants (e.g., `domain.EnvKeyAppEnv`) for env keys. Before initiating browser tasks, verify the active listener port and protocol (HTTPS vs HTTP) via `BASE_URL` in `.env` or server logs to avoid connection failures.
-* **BASE_URL Prohibition — No Guessing** [TRIGGER: browser_subagent, url_construction]: The agent is STRICTLY FORBIDDEN from guessing or heuristically constructing a target URL (e.g., assuming `localhost:8080`). The agent MUST read `BASE_URL` from `.env` as the first action before any browser subagent task. If `.env` is missing or `BASE_URL` is unset, the agent MUST halt and report the missing config to the user. Violation = production CI failure.
+* **Environment & Protocol Awareness** [TRIGGER: browser_subagent, env_variable]: The agent MUST use domain-defined constants (e.g., `domain.EnvKeyAppEnv`) for env keys. Before initiating browser tasks, construct the target URL from `.agents/invariants.json` (`protocol` + `port`) — this is the committed, canonical source of truth derived from BASE_URL. Do NOT read `.env` for URL construction (security risk — `.env` may contain secrets).
+* **Port Guessing Prohibition** [TRIGGER: browser_subagent, url_construction]: The agent is STRICTLY FORBIDDEN from guessing or hardcoding port numbers (e.g., assuming port `8080`). The canonical port is in `.agents/invariants.json`. Guessing a port is equivalent to ignoring available documentation and will cause a production CI failure.
 * **Local Server & Audit Gates** [TRIGGER: session_done, ci_config_change]: The agent is FORBIDDEN from ending a session if the local server is down (verify via `uptime`). CLI-based CI pipelines MUST include a live server-startup check to catch nil-pointer regressions in routing.
 * **Scratch Directory Isolation** [TRIGGER: git_push]: Ensure temporary 'scratch' or 'brain' directories are in `.gitignore` and NEVER committed, as they interfere with remote CI linter phases.
 

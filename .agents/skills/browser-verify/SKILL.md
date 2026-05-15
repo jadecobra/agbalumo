@@ -32,9 +32,8 @@ When modifying templates, CSS, or client-side assets where standard Go unit test
 
 ## Pre-flight (MANDATORY — always run before browser tasks)
 
-1. **Read `.env` for `BASE_URL` — FIRST ACTION, NO EXCEPTIONS.** If `BASE_URL` is unset, HALT and report to user. NEVER guess or construct a URL heuristically.
-2. Read `.agents/invariants.json` — get `protocol` and `port` fields as fallback only
-3. Verify server is running: `go run ./cmd/verify uptime` — if it fails, start the server first using `go run ./cmd/verify watch`
+1. **Read `.agents/invariants.json` — FIRST ACTION, NO EXCEPTIONS.** Extract `protocol` and `port`. Construct base URL as `{protocol}://localhost:{port}`. This file is the committed, canonical source derived from BASE_URL. Do NOT guess port numbers. Do NOT read `.env` (security risk).
+2. Verify server is running: `go run ./cmd/verify uptime` — if it fails, start the server first using `go run ./cmd/verify watch`
 ## Verification Checklist
 For EVERY UI element verified, you MUST check ALL of:
 - [ ] **Exists**: `document.querySelector(selector)` returns non-null

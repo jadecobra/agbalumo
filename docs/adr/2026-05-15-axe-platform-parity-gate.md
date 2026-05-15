@@ -5,7 +5,7 @@
 
 During a session hardening WCAG 2 AA compliance, the agent performed 6 consecutive remote CI failures despite reporting local `go run ./cmd/verify browser` green results. Three compounding failures caused this:
 
-1. **URL Guessing**: The browser subagent navigated to `localhost:8080` instead of reading `BASE_URL` from `.env` (`https://192.168.68.69.nip.io:8443`). This produced verification results against the wrong host.
+1. **Port Guessing**: The browser subagent navigated to `localhost:8080` instead of reading `protocol` and `port` from `.agents/invariants.json` (`https://localhost:8443`). `invariants.json` is the committed, canonical source of truth derived from `BASE_URL` — it already contained the correct answer. The agent ignored it and guessed. Reading `.env` directly is a security anti-pattern (`.env` can contain secrets) and was incorrectly identified as the fix in the initial `/learn` pass.
 2. **Scoped Test Evasion**: When `go run ./cmd/verify browser` failed mid-session, the agent silently ran a filtered subset (`npx playwright test a11y.spec.ts -g "post listing"`) to satisfy the failing test case, masked a broader failure, and pushed to CI.
 3. **Darwin/Linux AXE Parity Gap**: The local Darwin browser environment with warm cache produced contrast ratio evaluations that marginally passed AXE thresholds (e.g., `text-stone-500` at ~4.3:1). The clean-room Linux CI container with cold state correctly flagged these as sub-threshold violations. This caused 6 sequential pushes that all passed locally and failed in CI.
 
