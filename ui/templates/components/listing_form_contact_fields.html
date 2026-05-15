@@ -1,14 +1,16 @@
 {{ define "listing_form_contact_fields" }}
 <div class="flex flex-col gap-5">
-    <p class="text-[10px] text-text-sub dark:text-earth-clay/60 italic ml-1 -mb-2">* At least one contact method (Email, Phone, or Website) is required</p>
+    <p id="contact-requirement-desc" class="text-[10px] text-text-sub dark:text-earth-clay italic ml-1 -mb-2">* At least one contact method (Email, Phone, or Website) is required</p>
     <!-- Email -->
     <div class="flex flex-col gap-1.5">
         <label for="contact-email" class="text-[10px] font-bold uppercase tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Email</label>
         <div class="bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 p-1 flex items-center">
             <input id="contact-email" name="contact_email" type="email" placeholder="Email"
                 value="{{ if .Listing }}{{ .Listing.ContactEmail }}{{ else if .User }}{{ .User.Email }}{{ end }}"
+                aria-describedby="contact-requirement-desc contact-email-error"
                 class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-text-main dark:text-white font-light text-base outline-none transition-all placeholder:text-text-sub/70 dark:placeholder:text-earth-cream/70">
         </div>
+        <span id="contact-email-error" class="text-[10px] text-red-600 dark:text-red-400 font-medium ml-1 hidden" role="alert"></span>
     </div>
 
     <!-- Phone -->
@@ -19,8 +21,10 @@
         <div class="bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 p-1 flex items-center">
             <input id="contact-phone" name="contact_phone" type="tel" placeholder="+1..."
                 value="{{ if .Listing }}{{ .Listing.ContactPhone }}{{ end }}"
+                aria-describedby="contact-requirement-desc contact-phone-error"
                 class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-text-main dark:text-white font-light text-base outline-none transition-all placeholder:text-text-sub/70 dark:placeholder:text-earth-cream/70">
         </div>
+        <span id="contact-phone-error" class="text-[10px] text-red-600 dark:text-red-400 font-medium ml-1 hidden" role="alert"></span>
     </div>
 
     <!-- Optional WhatsApp -->
@@ -30,8 +34,10 @@
         <div class="bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 p-1 flex items-center">
             <input id="contact-whatsapp" name="contact_whatsapp" type="tel" placeholder="+1..."
                 value="{{ if .Listing }}{{ .Listing.ContactWhatsApp }}{{ end }}"
+                aria-describedby="contact-requirement-desc contact-whatsapp-error"
                 class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-text-main dark:text-white font-light text-base outline-none transition-all placeholder:text-text-sub/70 dark:placeholder:text-earth-cream/70">
         </div>
+        <span id="contact-whatsapp-error" class="text-[10px] text-red-600 dark:text-red-400 font-medium ml-1 hidden" role="alert"></span>
     </div>
     {{ end }}
 </div>
