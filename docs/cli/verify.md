@@ -399,3 +399,18 @@ Parse latest Playwright a11y test-results and map violations to template files.
 ```bash
 agbalumo verify a11y-map
 ```
+##### surface-parity
+
+Verify visual token parity between listing cards and modal details.
+
+```bash
+agbalumo verify surface-parity
+```
+
+##### sweep
+
+Run all structural and meta gates (build, doc-drift, deprecated, skill-conformance, etc.) in a single cold start.
+
+```bash
+agbalumo verify sweep
+```
