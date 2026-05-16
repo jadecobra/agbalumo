@@ -161,8 +161,7 @@ This section contains corrections and constraints derived from the `[/learn]` wo
 
 
 ### Infrastructure & Environment
-* **Environment & Protocol Awareness** [TRIGGER: browser_subagent, env_variable]: The agent MUST use domain-defined constants (e.g., `domain.EnvKeyAppEnv`) for env keys. Before initiating browser tasks, construct the target URL from `.agents/invariants.json` (`protocol` + `port`) — this is the committed, canonical source of truth derived from BASE_URL. Do NOT read `.env` for URL construction (security risk — `.env` may contain secrets).
-* **Port Guessing Prohibition** [TRIGGER: browser_subagent, url_construction]: The agent is STRICTLY FORBIDDEN from guessing or hardcoding port numbers (e.g., assuming port `8080`). The canonical port is in `.agents/invariants.json`. Guessing a port is equivalent to ignoring available documentation and will cause a production CI failure.
+* **Invariants Enforcement** [TRIGGER: browser_subagent, url_construction, env_variable]: The canonical server URL is constructed EXCLUSIVELY from `.agents/invariants.json` (`protocol` + `port`). The agent is FORBIDDEN from guessing ports, reading `.env` for URL construction, or using hardcoded URLs. Use `domain.EnvKeyAppEnv` for env keys. Guessing a port is equivalent to ignoring available documentation and will cause a production CI failure.
 * **Local Server & Audit Gates** [TRIGGER: session_done, ci_config_change]: The agent is FORBIDDEN from ending a session if the local server is down (verify via `uptime`). CLI-based CI pipelines MUST include a live server-startup check to catch nil-pointer regressions in routing.
 * **Scratch Directory Isolation** [TRIGGER: git_push]: Ensure temporary 'scratch' or 'brain' directories are in `.gitignore` and NEVER committed, as they interfere with remote CI linter phases.
 
