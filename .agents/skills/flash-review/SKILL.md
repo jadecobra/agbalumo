@@ -23,17 +23,7 @@ For each action item in the original prompt:
 3. Record: ✅ Applied / ❌ Missing / ⚠️ Partial
 
 ### Phase 2 — Gate Sweep (Deterministic)
-Run ALL applicable verification gates:
-```bash
-go build ./...
-go run ./cmd/verify doc-drift
-go run ./cmd/verify skill-conformance
-go run ./cmd/verify check-resolvable
-go run ./cmd/verify template-contract
-go run ./cmd/verify deprecated
-go run ./cmd/verify agents-coverage
-```
-Record pass/fail for each.
+Run `go run ./cmd/verify sweep`. Record pass/fail for each gate.
 
 ### Phase 3 — TDD Verification
 If the prompt included a TDD section:

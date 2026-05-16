@@ -16,25 +16,7 @@ mutating: false
 
 Run every verification gate and record pass/fail:
 
-```bash
-# Discovery & Navigation
-go run ./cmd/verify agents-coverage        # AGENTS.md coverage %
-go run ./cmd/verify resolve "test"          # Resolver working
-
-# Verification Tooling
-go run ./cmd/verify skill-conformance      # Skill YAML valid
-go run ./cmd/verify check-resolvable       # All skills resolvable
-
-# Documentation Integrity
-go run ./cmd/verify doc-drift              # No stale references
-
-# Architecture & Code
-go run ./cmd/verify deprecated             # No deprecated patterns
-go run ./cmd/verify template-contract      # ViewModel contracts valid
-
-# Quota Efficiency
-go run ./cmd/verify context-cost           # Token density
-```
+Run `go run ./cmd/verify sweep --json > /tmp/sweep.json`. Use the JSON output for Phase 2 scoring.
 
 Collect results into a table:
 ```
