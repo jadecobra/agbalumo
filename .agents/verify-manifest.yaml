@@ -160,6 +160,10 @@ commands:
     trigger: a11y_violation
     description: "Map Axe violations from Playwright test-results to template file:line"
 
+  - name: sweep
+    trigger: flash_review, architectural_audit
+    description: "Run all structural and meta gates in one cold start"
+
 skills:
   - name: go-tdd
     trigger: test_authoring, feature_implementation, bug_fix

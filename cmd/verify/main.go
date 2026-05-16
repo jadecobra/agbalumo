@@ -131,6 +131,7 @@ func init() {
 		hitboxesCmd,
 		sandboxParityCmd,
 		a11yMapCmd,
+		sweepCmd,
 	)
 }
 

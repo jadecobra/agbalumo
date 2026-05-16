@@ -16,6 +16,7 @@ var excludedDirs = map[string]bool{
 	".scratch":     true,
 	".tmp":         true,
 	".cache":       true,
+	"scratch":      true,
 }
 
 // CheckAgentsCoverage walks the rootDir and finds Go packages missing AGENTS.md.
