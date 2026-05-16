@@ -59,6 +59,22 @@ func DumpInvariants(rootDir string) error {
 	return nil
 }
 
+// LoadInvariants reads project-wide settings from .agents/invariants.json.
+func LoadInvariants(rootDir string) (*Invariants, error) {
+	path := filepath.Join(rootDir, ".agents", "invariants.json")
+	data, err := os.ReadFile(path) //nolint:gosec // maintenance utility
+	if err != nil {
+		return nil, fmt.Errorf("failed to read invariants.json: %w", err)
+	}
+
+	var inv Invariants
+	if err := json.Unmarshal(data, &inv); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal invariants: %w", err)
+	}
+
+	return &inv, nil
+}
+
 const (
 	defaultProtocol = "https"
 	defaultPort     = "8443"

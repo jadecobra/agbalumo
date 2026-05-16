@@ -48,7 +48,11 @@ var auditCmd = &cobra.Command{
 			Mode:      mode,
 		}
 		if cfg.TargetURL == "" {
-			cfg.TargetURL = "https://localhost:8443"
+			if inv, err := maintenance.LoadInvariants("."); err == nil {
+				cfg.TargetURL = fmt.Sprintf("%s://localhost:%s", inv.Protocol, inv.Port)
+			} else {
+				cfg.TargetURL = "https://localhost:8443"
+			}
 		}
 		return maintenance.RunSecurityAudit(cfg)
 	},
@@ -218,7 +222,11 @@ var uptimeCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		targetURL := os.Getenv("APP_URL")
 		if targetURL == "" {
-			targetURL = "https://localhost:8443"
+			if inv, err := maintenance.LoadInvariants("."); err == nil {
+				targetURL = fmt.Sprintf("%s://localhost:%s", inv.Protocol, inv.Port)
+			} else {
+				targetURL = "https://localhost:8443"
+			}
 		}
 		return maintenance.CheckServerUptime(targetURL)
 	},

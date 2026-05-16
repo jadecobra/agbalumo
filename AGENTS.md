@@ -61,6 +61,7 @@ Git is our only state tracker.
 Before any task execution, you MUST:
 
 - Run `go run ./cmd/verify preflight`
+- Read `.agents/invariants.json` — construct environment URLs exclusively from these values.
 - Read `.agents/skills/RESOLVER.md` — match task against triggers
 - Read `.agents/verify-manifest.yaml` — identify applicable verify commands
 - Read any matched `.agents/skills/*.md` files BEFORE writing code
