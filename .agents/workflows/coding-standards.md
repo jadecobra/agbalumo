@@ -156,6 +156,7 @@ This section contains corrections and constraints derived from the `[/learn]` wo
 * **UI Dialect & Positioning Awareness** [TRIGGER: ui_positioning, ui_dialect]: Distinguish between **Brand** (Rounded) and **Sharp** (Admin) dialects. **Sharp** templates prohibit rounding classes. When positioning overlays, verify vertical clearance at 1440x900 to prevent viewport collisions.
 * **Template Robustness** [TRIGGER: template_change]: UI templates MUST include fallback text for all dynamic data fields to prevent "invisible" elements from breaking layout.
 * **HTMX Micro-Interaction Guard** [TRIGGER: htmx]: Mandate `hx-indicator` (skeletons/spinners) and transition classes on all mutations to ensure fluid perceived performance.
+* **UI Interaction Dead-Zone Prevention** [TRIGGER: ui_change, z-index, overlay]: Any decorative element (icon, button, badge) positioned above a full-card HTMX click overlay via `z-index` MUST use `pointer-events-none`. If the decorative element needs its own click action, give it an explicit `hx-get`/`hx-post` instead of relying on the underlying overlay. Failure to do this creates a silent interaction dead-zone that Playwright will catch but is invisible to static analysis.
 
 
 
