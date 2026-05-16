@@ -17,6 +17,13 @@ mutating: true
 - Use browser_subagent ONLY for: new features not yet in the spec, and taste/aesthetic judgment calls.
 - **Continuous Automation**: If you find yourself repeating a manual subagent check, you MUST trigger the `/learn` workflow to extract that check into a Playwright test.
 
+## Step 1.0: Static A11y Gate (NEW — run FIRST)
+Run `go run ./cmd/verify a11y-check` — catches:
+- Missing aria-label on icon-only buttons
+- Missing for/id associations on form controls
+- Contrast-suspect token combinations (token on surface pairs below 4.5:1)
+  If violations exist, fix before proceeding to Step 1.5.
+
 ## Step 1.5: Server Uptime Check (MANDATORY)
 Before running any browser-based tests, you MUST ensure the local server is running and reachable:
 - Run `go run ./cmd/verify uptime`
@@ -83,6 +90,8 @@ For ANY layout change, you MUST verify at:
 1. Document each check result in `task.md` with pass/fail
 2. For layout changes: capture before/after screenshots, save them as artifacts, and embed them in walkthrough
 3. For interactive changes: describe the state transition verified
+4. **Automated Fix Loop**: If a visual regression or design violation is found during the audit, you MUST NOT stop at reporting the error. Instead, you must automatically apply the minimal CSS/Tailwind fix, commit it atomically using the `style(design): <fix description>` conventional format, and capture an "After" screenshot to prove the resolution.
+
 
 ## Critical Failure Protocol (MANDATORY)
 If `go run ./cmd/verify browser` fails at any point:
