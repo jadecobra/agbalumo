@@ -72,6 +72,7 @@ Rule: Skipping the resolver is a protocol violation.
 To optimize cost and performance, we enforce a strict boundary between Product execution (TDD loops) and Meta execution (Architecture/Rules).
 1. **Product Code (High-Tier HALT)**: If you are running as a high-tier model (e.g., Gemini 3.1 Pro) and the task involves mutating product code (`internal/`, `ui/`, `cmd/`, `tests/`), you MUST HALT and prompt the user to delegate to Gemini 3 Flash or explicitly provide an `OVERRIDE`.
 2. **Meta-Work (Flash HALT)**: If the task involves mutating workflow rules, architecture docs, or `AGENTS.md` (e.g., `/learn`), Flash models MUST HALT and escalate to a High-Tier model to prevent corruption. High-Tier models execute Meta-Work natively.
+3. **Cost Projection**: Any plan producing ≥2 execution prompts MUST include a Cost Projection table (model assignment, token estimates, break-even analysis). See `flash-plan/SKILL.md` § Cost Projection.
 *Note: The actual enforcement of this gate is injected directly into the execution workflows (e.g., build-feature-phase2.md).*
 
 ## THE AGENT/HOST BOUNDARY

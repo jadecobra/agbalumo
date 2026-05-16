@@ -95,6 +95,31 @@ Before outputting any prompt, the architect MUST verify:
 - [ ] Every UI prompt adding a new color token annotates the WCAG contrast ratio against the three surfaces: `earth-cream`, `white`, `earth-dark`
 - [ ] Every UI prompt creating a form control specifies the `id`/`for` association strategy
 - [ ] Every UI prompt adding a new component to `ui_components.html` includes an action to document it in `sandbox.html`
+- [ ] Cost Projection table is included (see § Cost Projection below)
+
+## Cost Projection (MANDATORY for ≥2 prompts)
+
+When the plan produces **2 or more execution prompts**, the architect MUST include a **Cost Projection** section in the plan artifact. This replaces ad-hoc reasoning with a deterministic rubric.
+
+### Required Table
+```
+| Phase | Model | Type | Est. Tokens In | Est. Tokens Out | Time |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 1 | Flash | Product TDD | ~1,200 | ~800 | 8 min |
+| 2 | Opus  | Meta edits  | ~1,500 | ~400 | 5 min |
+| **Total** | | | **~2,700** | **~1,200** | **~13 min** |
+```
+
+### Required Analysis
+- **Model Assignment Rationale**: For each phase, state *why* it's Flash vs Pro. Use the Quota Protection Gate rules as the decision boundary.
+- **Break-Even Point** (for infrastructure/tooling work only): Estimate per-session savings (e.g., reduced context ingestion, eliminated serial commands). Divide total token investment by per-session savings. If break-even exceeds **20 sessions**, challenge the investment via Complexity Kill-Switch.
+- **Exclusions Justification**: For items deliberately deferred, state *why* (low ROI, insufficient trigger frequency, architectural uncertainty).
+
+### Trigger
+This section fires automatically when the plan's decision-count heuristic produces ≥2 prompts. Single-prompt plans are exempt.
+
+### Anti-Sycophancy Check
+The cost projection is an adversarial artifact — it exists to challenge the plan, not justify it. If the break-even exceeds the threshold, the architect MUST state this and propose a cheaper alternative *before* the user sees the plan.
 
 ## Prompt Template
 
@@ -129,3 +154,4 @@ For documentation-only changes, replace sections 5-6 with file write instruction
 | UI token without contrast annotation | Violates WCAG silently; caught by Axe, not static gate | Annotate every new token with contrast ratios |
 | New component without sandbox update | Sandbox drifts from implementation; `verify sandbox-parity` blocks CI | Always include sandbox.html doc step for new components |
 | Form control without id/for spec | a11y failure caught only at Axe runtime | Specify labeling strategy in the action item |
+| Plan without Cost Projection | Pro model quota consumed without ROI tracking | Include Cost Projection table for ≥2 prompts |
