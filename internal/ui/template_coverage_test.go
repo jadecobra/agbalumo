@@ -283,6 +283,7 @@ var TemplateMockRegistry = map[string]interface{}{
 		Listing: mockListing,
 	},
 	"modal_login_prompt_content": baseData,
+	"location_permission_prompt": map[string]interface{}{},
 }
 
 func TestGlobalTemplateCoverage(t *testing.T) {

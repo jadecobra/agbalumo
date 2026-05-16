@@ -2,7 +2,9 @@
 
 {{ define "title" }}agbalumo: find what you want{{ end }}
 
-
+{{ define "extra_scripts" }}
+<script src="/static/js/geolocation.js" defer></script>
+{{ end }}
 {{ define "content" }}
 
 <div class="w-full bg-earth-cream text-text-main pb-24 md:pb-8" data-template-file="ui/templates/index.html">
@@ -11,4 +13,6 @@
     {{ template "home_listings_section" . }}
 
 </div>
+
+{{ template "location_permission_prompt" . }}
 {{ end }}
