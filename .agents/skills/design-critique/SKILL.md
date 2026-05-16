@@ -13,7 +13,7 @@ mutating: false
 
 **Phase 2 — Flash Grading** (cheap model):
 1. Read the JSON report from Phase 1.
-2. Score each of the 6 dimensions (0-10) using the rubric in `.agents/workflows/design-rubric.md`.
+2. Score each of the 6 dimensions (0-10) using the rubric in `./rubric.md`.
 3. For each violation, generate a grep-anchored fix prompt following `.agents/skills/flash-plan/SKILL.md`.
 4. Output: Scored critique artifact + fix prompts.
 

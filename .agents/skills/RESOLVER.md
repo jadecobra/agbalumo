@@ -13,6 +13,9 @@ Read this file at session start. Match intent against triggers. Read the skill f
 | `/skillify` | `.agents/workflows/skillify.md` |
 | `/refactor` | `.agents/workflows/refactor.md` |
 | `/doc-prune` | `.agents/workflows/doc-prune.md` |
+| `/debug` | `.agents/workflows/debug.md` |
+| `/hotfix` | `.agents/workflows/hotfix.md` |
+| `/red-team`, `/challenge` | `.agents/workflows/red-team.md` |
 
 ## Procedural Skills
 | Trigger | Skill |

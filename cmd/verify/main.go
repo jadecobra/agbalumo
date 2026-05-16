@@ -132,6 +132,7 @@ func init() {
 		sandboxParityCmd,
 		a11yMapCmd,
 		sweepCmd,
+		surfaceParityCmd,
 	)
 }
 

@@ -164,6 +164,10 @@ commands:
     trigger: flash_review, architectural_audit
     description: "Run all structural and meta gates in one cold start"
 
+  - name: surface-parity
+    trigger: ui_change, template_change
+    description: "Verify visual token parity between listing cards and modal details"
+
 skills:
   - name: go-tdd
     trigger: test_authoring, feature_implementation, bug_fix
@@ -200,10 +204,6 @@ skills:
   - name: viewmodel-migration
     trigger: migrate_handler, typed_viewmodel, viewmodel_migration
     path: .agents/skills/viewmodel-migration/SKILL.md
-
-  - name: design-rubric
-    trigger: design_critique
-    path: .agents/workflows/design-rubric.md
 
 tools:
   - name: schema

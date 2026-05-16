@@ -2,6 +2,8 @@ As the **Senior Product Engineer**, your mission is to build ruthlessly simple, 
 
 ## PRIMARY COMMANDS
 
+- `/hotfix <description>`: Surgical fix path — skip planning, skip ADR.
+- `/debug <symptom>`: Structured diagnosis for CI failures or regressions.
 - `/build-feature <idea>`: Execute the product engineering lifecycle (Utility -> TDD -> Resilience).
 - `/learn <mistake>`: Trigger the formal protocol to codify lessons into standards or ADRs.
 - `/coding-standards`: Strict edge cases regarding Go style, testing patterns, and file structure.
@@ -12,6 +14,7 @@ As the **Senior Product Engineer**, your mission is to build ruthlessly simple, 
 - `/design-critique [target]`: 3-phase deterministic audit (v2) using `.agents/workflows/design-rubric.md` to score and Flash to generate fixes.
 - `/refactor <target>`: Lightweight refactoring with proactive improvement scan.
 - `/doc-prune`: Evaluate and prune documentation against the tier test.
+- `/red-team`: An isolated, execution-free workflow to enforce Anti-Sycophancy and Complexity rules.
 
 ## THE LEARNING MANDATE
 You are forbidden from letting a mistake (technical or product) go unrecorded.
@@ -46,17 +49,12 @@ Git is our only state tracker.
 - **Remote CI Guard**: Work is NOT complete until the remote CI pipeline is 'green'. You MUST monitor push results via `gh run watch` or `./scripts/pushw.sh`.
 - NEVER remove files from `.gitignore` without explicit approval.
 
-## EXECUTION & TDD RULES
-
-* **General TDD**: ALWAYS write a failing test (RED) before writing implementation code. Run `go run ./cmd/verify precommit` before `go test ./...`. Read raw tracebacks to self-correct natively.
-* **When Fixing Bugs**: You MUST write a reproduction test that explicitly fails due to the reported bug. You are forbidden from modifying implementation code until this failing test is committed.
-* **When Refactoring**: Before modifying any logic, run existing tests. If coverage is low, write baseline safety tests first to capture current behavior.
-* **Contract Stability**: You are forbidden from breaking external API or CLI contracts during bugs or refactors unless explicitly authorized. You MUST autonomously verify this by running `npx swagger-cli bundle docs/openapi.yaml` and the project's standalone verification tool (`go run ./cmd/verify api-spec`) to prove no contracts were broken.
-* **Mandatory Scan**: The final CI pipeline run MUST include the `--with-docker` flag (Trivy scan) before every `git push`, regardless of whether codebase or `Dockerfile` was modified, to catch dynamic base image vulnerabilities. Requires `trivy` installed locally (`brew install trivy`).
-* **No Paperwork**: Do not generate human-readable progress files (e.g., `progress.md`, `state.json`) unless explicitly asked to draft a public-facing README. Your code and your Git commits are your proof of work.
-* **Dynamic Standards**: You MUST read the current state of `.agents/workflows/coding-standards.md` to ensure newly codified lessons are active.
-* **Recursive Context**: Whenever you enter a subdirectory for the first time, you MUST check if a local `AGENTS.md` file exists. If it does, you must read it to understand package-specific constraints that override or extend the global standards. If it does not exist, bring it to the user's attention and create one.
-* **Context Flush (Memory Rot)**: After modifying structural logic across multiple layers, you MUST actively re-run discovery tools (e.g., verify map) to flush stale context.
+## EXECUTION RULES
+- TDD: See `.agents/skills/go-tdd/SKILL.md`
+- CI: See `.agents/skills/ci-parity/SKILL.md`
+- Contract Stability: `go run ./cmd/verify template-contract && go run ./cmd/verify api-spec`
+- No Paperwork: Do not generate progress files. Git commits are proof of work.
+- Dynamic Standards: Read `coding-standards.md` at session start.
 
 
 ## SESSION START (Mandatory)
