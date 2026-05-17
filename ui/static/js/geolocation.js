@@ -35,19 +35,9 @@
         function triggerGeolocation(silent = false) {
             if ("geolocation" in navigator) {
                 const startTime = Date.now();
-                if (!silent) {
-                    allowBtn.disabled = true;
-                    allowBtn.innerText = "FINDING SPOTS...";
-                    allowBtn.classList.add('opacity-75', 'cursor-not-allowed');
-                }
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        if (!silent) {
-                            allowBtn.innerText = "FOUND!";
-                            setTimeout(hidePrompt, 300);
-                        } else {
-                            hidePrompt();
-                        }
+                        if (!silent) hidePrompt();
                         localStorage.setItem(STORAGE_KEY, 'true');
                         
                         const lat = position.coords.latitude;
@@ -62,17 +52,13 @@
                                     start_ts: startTime 
                                 },
                                 target: '#listings-container',
-                                swap: 'innerHTML',
-                                indicator: '#listings-loading'
+                                swap: 'innerHTML'
                             });
                         }
                     },
                     (error) => {
                         if (!silent) {
                             console.warn("Location access denied or failed:", error);
-                            allowBtn.innerText = "ALLOW LOCATION";
-                            allowBtn.disabled = false;
-                            allowBtn.classList.remove('opacity-75', 'cursor-not-allowed');
                             hidePrompt();
                         }
                         localStorage.setItem(STORAGE_KEY, 'true');

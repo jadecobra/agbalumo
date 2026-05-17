@@ -1,16 +1,12 @@
 package listing
 
 import (
-	"context"
-	"flag"
 	"github.com/jadecobra/agbalumo/internal/infra/env"
 	"github.com/jadecobra/agbalumo/internal/module/user"
 	"github.com/jadecobra/agbalumo/internal/ui"
 
 	"mime/multipart"
 	"net/http"
-	"os"
-	"strings"
 	"sync"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
@@ -19,18 +15,6 @@ import (
 	"strconv"
 	"time"
 )
-
-func isTesting() bool {
-	if flag.Lookup("test.v") != nil {
-		return true
-	}
-	for _, arg := range os.Args {
-		if strings.HasPrefix(arg, "-test.") {
-			return true
-		}
-	}
-	return strings.HasSuffix(os.Args[0], ".test") || strings.Contains(os.Args[0], "/_test/")
-}
 
 type ListingHandler struct {
 	module.BaseHandler
@@ -70,7 +54,17 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	p := GetPagination(c, limit)
 
 	params := h.parseQueryParams(c)
-	lat, lng := h.resolveGeoAndQuery(ctx, &params)
+	var lat, lng float64
+	if params.Lat != 0 && params.Lng != 0 {
+		lat, lng = params.Lat, params.Lng
+	} else if params.City != "" && params.Radius > 0 {
+		lat, lng, _ = h.App.GeocodingSvc.Geocode(ctx, params.City)
+	}
+
+	// Auto-filter for "Nigerian" if geolocated and no query provided
+	if (lat != 0 || lng != 0) && params.Query == "" {
+		params.Query = "Nigerian"
+	}
 
 	var (
 		listings  []domain.Listing
@@ -103,7 +97,11 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		savedIDs = h.getSavedIDs(c)
+		if u := c.Get(domain.CtxKeyUser); u != nil {
+			if user, ok := u.(*domain.User); ok {
+				savedIDs, _ = h.App.DB.GetSavedListingIDs(ctx, user.ID)
+			}
+		}
 	}()
 
 	wg.Wait()
@@ -156,7 +154,17 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	params := h.parseQueryParams(c)
 	p := GetPagination(c, 30)
 
-	lat, lng := h.resolveGeoAndQuery(c.Request().Context(), &params)
+	var lat, lng float64
+	if params.Lat != 0 && params.Lng != 0 {
+		lat, lng = params.Lat, params.Lng
+	} else if params.City != "" && params.Radius > 0 {
+		lat, lng, _ = h.App.GeocodingSvc.Geocode(c.Request().Context(), params.City)
+	}
+
+	// Auto-filter for "Nigerian" if geolocated and no query provided
+	if (lat != 0 || lng != 0) && params.Query == "" {
+		params.Query = "Nigerian"
+	}
 
 	listings, totalCount, err := h.App.DB.FindAll(c.Request().Context(), params.Type, params.Query, params.City, lat, lng, params.Radius, "", "", false, p.Limit, p.Offset)
 	if err != nil {
@@ -274,39 +282,14 @@ func (h *ListingHandler) parseQueryParams(c echo.Context) queryParams {
 		filterType = string(domain.Food)
 	}
 
-	radiusStr := c.QueryParam("radius")
-	latStr := c.QueryParam("lat")
-	lngStr := c.QueryParam("lng")
-	city := c.QueryParam(domain.FieldCity)
-
-	var radius float64
-	var lat float64
-	var lng float64
-
-	if radiusStr != "" {
-		radius, _ = strconv.ParseFloat(radiusStr, 64)
-	}
-	if latStr != "" {
-		lat, _ = strconv.ParseFloat(latStr, 64)
-	}
-	if lngStr != "" {
-		lng, _ = strconv.ParseFloat(lngStr, 64)
-	}
-
-	// Make geo-aware flow default with 10mi radius around Dallas, TX
-	// when no coordinates or city are provided.
-	if lat == 0 && lng == 0 && city == "" && !isTesting() {
-		lat = 32.7767
-		lng = -96.7970
-		if radius == 0 {
-			radius = 10.0
-		}
-	}
+	radius, _ := strconv.ParseFloat(c.QueryParam("radius"), 64)
+	lat, _ := strconv.ParseFloat(c.QueryParam("lat"), 64)
+	lng, _ := strconv.ParseFloat(c.QueryParam("lng"), 64)
 
 	return queryParams{
 		Type:   filterType,
 		Query:  c.QueryParam(domain.ParamQuery),
-		City:   city,
+		City:   c.QueryParam(domain.FieldCity),
 		Radius: radius,
 		Lat:    lat,
 		Lng:    lng,
@@ -315,21 +298,6 @@ func (h *ListingHandler) parseQueryParams(c echo.Context) queryParams {
 
 func (h *ListingHandler) processListings(listings []domain.Listing) {
 	// No-op for now as operational status display is removed
-}
-
-func (h *ListingHandler) resolveGeoAndQuery(ctx context.Context, params *queryParams) (float64, float64) {
-	var lat, lng float64
-	if params.Lat != 0 && params.Lng != 0 {
-		lat, lng = params.Lat, params.Lng
-	} else if params.City != "" && params.Radius > 0 {
-		lat, lng, _ = h.App.GeocodingSvc.Geocode(ctx, params.City)
-	}
-
-	// Auto-filter for "Nigerian" if geolocated and no query provided
-	if (lat != 0 || lng != 0) && params.Query == "" {
-		params.Query = "Nigerian"
-	}
-	return lat, lng
 }
 
 func (h *ListingHandler) getSavedIDs(c echo.Context) []string {

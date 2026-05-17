@@ -17,68 +17,60 @@ func TestListingCardRendering(t *testing.T) {
 	tmpl := setupListingCardTmpl(t)
 
 	t.Run("BasicRendering", func(t *testing.T) {
-		verifyBasicRendering(t, tmpl)
+		var buf bytes.Buffer
+		data := map[string]interface{}{
+			"Listing": domain.Listing{
+				ID:    "123",
+				Title: "Test Biz",
+			},
+			"User":      nil,
+			"IDPrefix":  "",
+			"GridClass": "",
+		}
+		if err := tmpl.ExecuteTemplate(&buf, "listing_card", data); err != nil {
+			t.Fatalf("Failed to render template: %v", err)
+		}
+
+		html := buf.String()
+		if !strings.Contains(html, `hx-get="/listings/123"`) {
+			t.Error("Overlay link div missing hx-get attribute")
+		}
 	})
 
 	t.Run("MobileCompactCardCTAs", func(t *testing.T) {
-		verifyMobileCompactCardCTAs(t, tmpl)
+		var buf bytes.Buffer
+		l := domain.Listing{
+			ID:           "789",
+			Title:        "Suya Grill",
+			MenuURL:      "https://suyagrill.com/menu",
+			WebsiteURL:   "https://suyagrill.com",
+			ContactPhone: "1234567890",
+			Type:         domain.Food,
+		}
+		data := map[string]interface{}{
+			"Listing":   l,
+			"User":      nil,
+			"IDPrefix":  "",
+			"GridClass": "",
+		}
+		if err := tmpl.ExecuteTemplate(&buf, "listing_card", data); err != nil {
+			t.Fatalf("Failed to render template: %v", err)
+		}
+		html := buf.String()
+		if !strings.Contains(html, `data-testid="ag-mobile-view-menu"`) {
+			t.Error("Missing mobile primary CTA 'View Menu'")
+		}
+		if !strings.Contains(html, `data-testid="ag-mobile-website"`) {
+			t.Error("Missing mobile secondary CTA 'Website'")
+		}
+		if !strings.Contains(html, `data-testid="ag-mobile-phone"`) {
+			t.Error("Missing mobile tertiary CTA 'Phone'")
+		}
 	})
 
 	t.Run("VerifiedOriginOverride", func(t *testing.T) {
 		verifyOriginOverride(t, tmpl)
 	})
-}
-
-func verifyBasicRendering(t *testing.T, tmpl *template.Template) {
-	var buf bytes.Buffer
-	data := map[string]interface{}{
-		"Listing": domain.Listing{
-			ID:    "123",
-			Title: "Test Biz",
-		},
-		"User":      nil,
-		"IDPrefix":  "",
-		"GridClass": "",
-	}
-	if err := tmpl.ExecuteTemplate(&buf, "listing_card", data); err != nil {
-		t.Fatalf("Failed to render template: %v", err)
-	}
-
-	html := buf.String()
-	if !strings.Contains(html, `hx-get="/listings/123"`) {
-		t.Error("Overlay link div missing hx-get attribute")
-	}
-}
-
-func verifyMobileCompactCardCTAs(t *testing.T, tmpl *template.Template) {
-	var buf bytes.Buffer
-	l := domain.Listing{
-		ID:           "789",
-		Title:        "Suya Grill",
-		MenuURL:      "https://suyagrill.com/menu",
-		WebsiteURL:   "https://suyagrill.com",
-		ContactPhone: "1234567890",
-		Type:         domain.Food,
-	}
-	data := map[string]interface{}{
-		"Listing":   l,
-		"User":      nil,
-		"IDPrefix":  "",
-		"GridClass": "",
-	}
-	if err := tmpl.ExecuteTemplate(&buf, "listing_card", data); err != nil {
-		t.Fatalf("Failed to render template: %v", err)
-	}
-	html := buf.String()
-	if !strings.Contains(html, `data-testid="ag-mobile-view-menu"`) {
-		t.Error("Missing mobile primary CTA 'View Menu'")
-	}
-	if !strings.Contains(html, `data-testid="ag-mobile-website"`) {
-		t.Error("Missing mobile secondary CTA 'Website'")
-	}
-	if !strings.Contains(html, `data-testid="ag-mobile-phone"`) {
-		t.Error("Missing mobile tertiary CTA 'Phone'")
-	}
 }
 
 func setupListingCardTmpl(t *testing.T) *template.Template {
