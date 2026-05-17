@@ -1,6 +1,8 @@
 package listing
 
 import (
+	"context"
+
 	"github.com/jadecobra/agbalumo/internal/infra/env"
 	"github.com/jadecobra/agbalumo/internal/module/user"
 	"github.com/jadecobra/agbalumo/internal/ui"
@@ -47,6 +49,18 @@ func (h *ListingHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddlewa
 	authGroup.GET("/saved", h.HandleSavedListings)
 }
 
+// Helper to resolve lat/lng coordinates for geo queries
+func (h *ListingHandler) resolveCoordinates(ctx context.Context, params *queryParams) (float64, float64) {
+	if params.Lat != 0 && params.Lng != 0 {
+		return params.Lat, params.Lng
+	}
+	if params.City != "" && params.Radius > 0 {
+		lat, lng, _ := h.App.GeocodingSvc.Geocode(ctx, params.City)
+		return lat, lng
+	}
+	return 0, 0
+}
+
 // Home Handler
 func (h *ListingHandler) HandleHome(c echo.Context) error {
 	ctx := c.Request().Context()
@@ -54,12 +68,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	p := GetPagination(c, limit)
 
 	params := h.parseQueryParams(c)
-	var lat, lng float64
-	if params.Lat != 0 && params.Lng != 0 {
-		lat, lng = params.Lat, params.Lng
-	} else if params.City != "" && params.Radius > 0 {
-		lat, lng, _ = h.App.GeocodingSvc.Geocode(ctx, params.City)
-	}
+	lat, lng := h.resolveCoordinates(ctx, &params)
 
 	// Auto-filter for "Nigerian" if geolocated and no query provided
 	if (lat != 0 || lng != 0) && params.Query == "" {
@@ -97,11 +106,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		if u := c.Get(domain.CtxKeyUser); u != nil {
-			if user, ok := u.(*domain.User); ok {
-				savedIDs, _ = h.App.DB.GetSavedListingIDs(ctx, user.ID)
-			}
-		}
+		savedIDs = h.getSavedIDs(c)
 	}()
 
 	wg.Wait()
@@ -154,12 +159,7 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	params := h.parseQueryParams(c)
 	p := GetPagination(c, 30)
 
-	var lat, lng float64
-	if params.Lat != 0 && params.Lng != 0 {
-		lat, lng = params.Lat, params.Lng
-	} else if params.City != "" && params.Radius > 0 {
-		lat, lng, _ = h.App.GeocodingSvc.Geocode(c.Request().Context(), params.City)
-	}
+	lat, lng := h.resolveCoordinates(c.Request().Context(), &params)
 
 	// Auto-filter for "Nigerian" if geolocated and no query provided
 	if (lat != 0 || lng != 0) && params.Query == "" {
