@@ -1,6 +1,7 @@
 package listing
 
 import (
+	"context"
 	"flag"
 	"github.com/jadecobra/agbalumo/internal/infra/env"
 	"github.com/jadecobra/agbalumo/internal/module/user"
@@ -69,17 +70,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	p := GetPagination(c, limit)
 
 	params := h.parseQueryParams(c)
-	var lat, lng float64
-	if params.Lat != 0 && params.Lng != 0 {
-		lat, lng = params.Lat, params.Lng
-	} else if params.City != "" && params.Radius > 0 {
-		lat, lng, _ = h.App.GeocodingSvc.Geocode(ctx, params.City)
-	}
-
-	// Auto-filter for "Nigerian" if geolocated and no query provided
-	if (lat != 0 || lng != 0) && params.Query == "" {
-		params.Query = "Nigerian"
-	}
+	lat, lng := h.resolveGeoAndQuery(ctx, &params)
 
 	var (
 		listings  []domain.Listing
@@ -112,11 +103,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		if u := c.Get(domain.CtxKeyUser); u != nil {
-			if user, ok := u.(*domain.User); ok {
-				savedIDs, _ = h.App.DB.GetSavedListingIDs(ctx, user.ID)
-			}
-		}
+		savedIDs = h.getSavedIDs(c)
 	}()
 
 	wg.Wait()
@@ -169,17 +156,7 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	params := h.parseQueryParams(c)
 	p := GetPagination(c, 30)
 
-	var lat, lng float64
-	if params.Lat != 0 && params.Lng != 0 {
-		lat, lng = params.Lat, params.Lng
-	} else if params.City != "" && params.Radius > 0 {
-		lat, lng, _ = h.App.GeocodingSvc.Geocode(c.Request().Context(), params.City)
-	}
-
-	// Auto-filter for "Nigerian" if geolocated and no query provided
-	if (lat != 0 || lng != 0) && params.Query == "" {
-		params.Query = "Nigerian"
-	}
+	lat, lng := h.resolveGeoAndQuery(c.Request().Context(), &params)
 
 	listings, totalCount, err := h.App.DB.FindAll(c.Request().Context(), params.Type, params.Query, params.City, lat, lng, params.Radius, "", "", false, p.Limit, p.Offset)
 	if err != nil {
@@ -338,6 +315,21 @@ func (h *ListingHandler) parseQueryParams(c echo.Context) queryParams {
 
 func (h *ListingHandler) processListings(listings []domain.Listing) {
 	// No-op for now as operational status display is removed
+}
+
+func (h *ListingHandler) resolveGeoAndQuery(ctx context.Context, params *queryParams) (float64, float64) {
+	var lat, lng float64
+	if params.Lat != 0 && params.Lng != 0 {
+		lat, lng = params.Lat, params.Lng
+	} else if params.City != "" && params.Radius > 0 {
+		lat, lng, _ = h.App.GeocodingSvc.Geocode(ctx, params.City)
+	}
+
+	// Auto-filter for "Nigerian" if geolocated and no query provided
+	if (lat != 0 || lng != 0) && params.Query == "" {
+		params.Query = "Nigerian"
+	}
+	return lat, lng
 }
 
 func (h *ListingHandler) getSavedIDs(c echo.Context) []string {
