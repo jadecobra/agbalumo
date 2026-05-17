@@ -11,38 +11,63 @@
 
         if (!prompt || !allowBtn || !dismissBtn) return;
 
-        // Check if already dismissed or if permission already granted/denied
-        if (localStorage.getItem(STORAGE_KEY)) return;
+        // Check for existing permission
+        if (navigator.permissions && navigator.permissions.query) {
+            navigator.permissions.query({ name: 'geolocation' }).then(result => {
+                if (result.state === 'granted') {
+                    // Auto-trigger if already granted
+                    triggerGeolocation(true);
+                } else if (result.state === 'prompt') {
+                    if (!localStorage.getItem(STORAGE_KEY)) {
+                        setTimeout(() => {
+                            prompt.classList.remove('hidden');
+                        }, 1500);
+                    }
+                }
+            });
+        } else if (!localStorage.getItem(STORAGE_KEY)) {
+            // Fallback for browsers that don't support permissions.query
+            setTimeout(() => {
+                prompt.classList.remove('hidden');
+            }, 1500);
+        }
 
-        // Show prompt with a small delay for better UX
-        setTimeout(() => {
-            prompt.classList.remove('hidden');
-        }, 1500);
-
-        allowBtn.addEventListener('click', () => {
+        function triggerGeolocation(silent = false) {
             if ("geolocation" in navigator) {
+                const startTime = Date.now();
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        console.log("Location access granted:", position);
-                        // Hide prompt and mark as dismissed so it doesn't show again
-                        hidePrompt();
+                        if (!silent) hidePrompt();
                         localStorage.setItem(STORAGE_KEY, 'true');
                         
-                        // Future: trigger HTMX search with lat/lon
-                        // For now, we just follow the "clean UX" requirement
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        if (window.htmx) {
+                            htmx.ajax('GET', '/listings/fragment', {
+                                values: { 
+                                    lat: lat, 
+                                    lng: lng, 
+                                    radius: 10,
+                                    start_ts: startTime 
+                                },
+                                target: '#listings-container',
+                                swap: 'innerHTML'
+                            });
+                        }
                     },
                     (error) => {
-                        console.warn("Location access denied or failed:", error);
-                        hidePrompt();
-                        // Mark as dismissed to avoid intrusion
+                        if (!silent) {
+                            console.warn("Location access denied or failed:", error);
+                            hidePrompt();
+                        }
                         localStorage.setItem(STORAGE_KEY, 'true');
                     }
                 );
-            } else {
-                hidePrompt();
-                localStorage.setItem(STORAGE_KEY, 'true');
             }
-        });
+        }
+
+        allowBtn.addEventListener('click', () => triggerGeolocation(false));
 
         dismissBtn.addEventListener('click', () => {
             hidePrompt();

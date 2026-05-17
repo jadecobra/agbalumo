@@ -72,6 +72,7 @@ func SetupTestAppEnv(t *testing.T) (*env.AppEnv, func()) {
 
 	_ = os.Setenv("ADMIN_CODE", "test-admin-code")
 	cfg := config.LoadConfig()
+	cfg.Env = domain.EnvTest
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 
 	app := env.NewAppEnv(

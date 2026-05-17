@@ -13,6 +13,7 @@ import (
 	"github.com/jadecobra/agbalumo/internal/module"
 	"github.com/labstack/echo/v4"
 	"strconv"
+	"time"
 )
 
 type ListingHandler struct {
@@ -54,8 +55,15 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 
 	params := h.parseQueryParams(c)
 	var lat, lng float64
-	if params.City != "" && params.Radius > 0 {
+	if params.Lat != 0 && params.Lng != 0 {
+		lat, lng = params.Lat, params.Lng
+	} else if params.City != "" && params.Radius > 0 {
 		lat, lng, _ = h.App.GeocodingSvc.Geocode(ctx, params.City)
+	}
+
+	// Auto-filter for "Nigerian" if geolocated and no query provided
+	if (lat != 0 || lng != 0) && params.Query == "" {
+		params.Query = "Nigerian"
 	}
 
 	var (
@@ -134,6 +142,10 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		Query:            params.Query,
 	}
 
+	if startTS := c.QueryParam("start_ts"); startTS != "" {
+		h.App.Logger.Info("Search latency metric", "start_ts", startTS, "now", time.Now().UnixMilli())
+	}
+
 	return h.RenderTyped(c, domain.TemplateIndex, vm)
 }
 
@@ -143,8 +155,15 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	p := GetPagination(c, 30)
 
 	var lat, lng float64
-	if params.City != "" && params.Radius > 0 {
+	if params.Lat != 0 && params.Lng != 0 {
+		lat, lng = params.Lat, params.Lng
+	} else if params.City != "" && params.Radius > 0 {
 		lat, lng, _ = h.App.GeocodingSvc.Geocode(c.Request().Context(), params.City)
+	}
+
+	// Auto-filter for "Nigerian" if geolocated and no query provided
+	if (lat != 0 || lng != 0) && params.Query == "" {
+		params.Query = "Nigerian"
 	}
 
 	listings, totalCount, err := h.App.DB.FindAll(c.Request().Context(), params.Type, params.Query, params.City, lat, lng, params.Radius, "", "", false, p.Limit, p.Offset)
@@ -179,6 +198,11 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 		User:   c.Get(domain.CtxKeyUser),
 		Source: c.QueryParam("source"),
 	}
+
+	if startTS := c.QueryParam("start_ts"); startTS != "" {
+		h.App.Logger.Info("Search latency metric (fragment)", "start_ts", startTS, "now", time.Now().UnixMilli())
+	}
+
 	return h.RenderTyped(c, "listing_list", vm)
 }
 
@@ -246,6 +270,8 @@ type queryParams struct {
 	Query  string
 	City   string
 	Radius float64
+	Lat    float64
+	Lng    float64
 }
 
 func (h *ListingHandler) parseQueryParams(c echo.Context) queryParams {
@@ -257,12 +283,16 @@ func (h *ListingHandler) parseQueryParams(c echo.Context) queryParams {
 	}
 
 	radius, _ := strconv.ParseFloat(c.QueryParam("radius"), 64)
+	lat, _ := strconv.ParseFloat(c.QueryParam("lat"), 64)
+	lng, _ := strconv.ParseFloat(c.QueryParam("lng"), 64)
 
 	return queryParams{
 		Type:   filterType,
 		Query:  c.QueryParam(domain.ParamQuery),
 		City:   c.QueryParam(domain.FieldCity),
 		Radius: radius,
+		Lat:    lat,
+		Lng:    lng,
 	}
 }
 

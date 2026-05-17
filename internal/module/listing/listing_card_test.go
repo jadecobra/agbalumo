@@ -37,6 +37,37 @@ func TestListingCardRendering(t *testing.T) {
 		}
 	})
 
+	t.Run("MobileCompactCardCTAs", func(t *testing.T) {
+		var buf bytes.Buffer
+		l := domain.Listing{
+			ID:           "789",
+			Title:        "Suya Grill",
+			MenuURL:      "https://suyagrill.com/menu",
+			WebsiteURL:   "https://suyagrill.com",
+			ContactPhone: "1234567890",
+			Type:         domain.Food,
+		}
+		data := map[string]interface{}{
+			"Listing":   l,
+			"User":      nil,
+			"IDPrefix":  "",
+			"GridClass": "",
+		}
+		if err := tmpl.ExecuteTemplate(&buf, "listing_card", data); err != nil {
+			t.Fatalf("Failed to render template: %v", err)
+		}
+		html := buf.String()
+		if !strings.Contains(html, `data-testid="ag-mobile-view-menu"`) {
+			t.Error("Missing mobile primary CTA 'View Menu'")
+		}
+		if !strings.Contains(html, `data-testid="ag-mobile-website"`) {
+			t.Error("Missing mobile secondary CTA 'Website'")
+		}
+		if !strings.Contains(html, `data-testid="ag-mobile-phone"`) {
+			t.Error("Missing mobile tertiary CTA 'Phone'")
+		}
+	})
+
 	t.Run("VerifiedOriginOverride", func(t *testing.T) {
 		verifyOriginOverride(t, tmpl)
 	})
