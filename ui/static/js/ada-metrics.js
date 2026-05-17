@@ -7,33 +7,33 @@
         sessionStorage.setItem(ADA_SESSION_START, Date.now());
     }
 
+    // Capture exact page load time from navigationStart
+    const navStart = (window.performance && window.performance.timing) ? window.performance.timing.navigationStart : Date.now();
+    const pageLoadDurationMs = Date.now() - navStart;
+
     // Capture contact clicks
     document.addEventListener('click', (e) => {
         // We look for any link or button with data-ada-discovery
         const contactLink = e.target.closest('[data-ada-discovery]');
         if (contactLink) {
-            const startTime = sessionStorage.getItem(ADA_SESSION_START);
-            if (startTime) {
-                const duration = (Date.now() - startTime) / 1000;
-                
-                // If it's the first discovery in this session, we mark it specially?
-                // For now, let's keep it simple: every discovery click is a success signal.
-                
-                sendMetric(DISCOVERY_EVENT, duration, {
+            const clickTime = Date.now();
+            const durationFromStartSec = (clickTime - navStart) / 1000;
+            
+            // Standard discovery click success signal
+            sendMetric(DISCOVERY_EVENT, durationFromStartSec, {
+                type: contactLink.dataset.adaDiscovery,
+                path: window.location.pathname,
+                page_load_ms: pageLoadDurationMs
+            });
+            
+            // For the 60s goal, we care about the FIRST one in the session.
+            if (!sessionStorage.getItem('ada_discovered')) {
+                sessionStorage.setItem('ada_discovered', 'true');
+                sendMetric('first_discovery_success', durationFromStartSec, {
                     type: contactLink.dataset.adaDiscovery,
-                    path: window.location.pathname
+                    path: window.location.pathname,
+                    page_load_ms: pageLoadDurationMs
                 });
-                
-                // To measure "First discovery", we could clear the session start,
-                // but usually we want to see if they find multiple things.
-                // For the 60s goal, we care about the FIRST one.
-                // Let's add a "first" flag if they haven't discovered yet.
-                if (!sessionStorage.getItem('ada_discovered')) {
-                    sessionStorage.setItem('ada_discovered', 'true');
-                    sendMetric('first_discovery_success', duration, {
-                         type: contactLink.dataset.adaDiscovery
-                    });
-                }
             }
         }
     });

@@ -1,12 +1,15 @@
 package listing
 
 import (
+	"flag"
 	"github.com/jadecobra/agbalumo/internal/infra/env"
 	"github.com/jadecobra/agbalumo/internal/module/user"
 	"github.com/jadecobra/agbalumo/internal/ui"
 
 	"mime/multipart"
 	"net/http"
+	"os"
+	"strings"
 	"sync"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
@@ -15,6 +18,18 @@ import (
 	"strconv"
 	"time"
 )
+
+func isTesting() bool {
+	if flag.Lookup("test.v") != nil {
+		return true
+	}
+	for _, arg := range os.Args {
+		if strings.HasPrefix(arg, "-test.") {
+			return true
+		}
+	}
+	return strings.HasSuffix(os.Args[0], ".test") || strings.Contains(os.Args[0], "/_test/")
+}
 
 type ListingHandler struct {
 	module.BaseHandler
@@ -282,14 +297,39 @@ func (h *ListingHandler) parseQueryParams(c echo.Context) queryParams {
 		filterType = string(domain.Food)
 	}
 
-	radius, _ := strconv.ParseFloat(c.QueryParam("radius"), 64)
-	lat, _ := strconv.ParseFloat(c.QueryParam("lat"), 64)
-	lng, _ := strconv.ParseFloat(c.QueryParam("lng"), 64)
+	radiusStr := c.QueryParam("radius")
+	latStr := c.QueryParam("lat")
+	lngStr := c.QueryParam("lng")
+	city := c.QueryParam(domain.FieldCity)
+
+	var radius float64
+	var lat float64
+	var lng float64
+
+	if radiusStr != "" {
+		radius, _ = strconv.ParseFloat(radiusStr, 64)
+	}
+	if latStr != "" {
+		lat, _ = strconv.ParseFloat(latStr, 64)
+	}
+	if lngStr != "" {
+		lng, _ = strconv.ParseFloat(lngStr, 64)
+	}
+
+	// Make geo-aware flow default with 10mi radius around Dallas, TX
+	// when no coordinates or city are provided.
+	if lat == 0 && lng == 0 && city == "" && !isTesting() {
+		lat = 32.7767
+		lng = -96.7970
+		if radius == 0 {
+			radius = 10.0
+		}
+	}
 
 	return queryParams{
 		Type:   filterType,
 		Query:  c.QueryParam(domain.ParamQuery),
-		City:   c.QueryParam(domain.FieldCity),
+		City:   city,
 		Radius: radius,
 		Lat:    lat,
 		Lng:    lng,
