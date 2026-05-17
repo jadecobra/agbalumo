@@ -7,7 +7,7 @@ test.describe('Design Integrity & Cohesion', () => {
     
     // Open Listing Detail Modal
     const firstCard = page.locator('[data-testid="ag-listing-card"]').first();
-    await firstCard.locator('[hx-get^="/listings/"]').click();
+    await firstCard.locator('div[hx-get^="/listings/"]').click();
     
     const modal = page.locator('dialog[open]');
     await expect(modal).toBeVisible();
@@ -37,7 +37,7 @@ test.describe('Design Integrity & Cohesion', () => {
     await page.goto('/');
     
     // Open Listing Detail Modal
-    await page.locator('[data-testid="ag-listing-card"]').first().locator('[hx-get^="/listings/"]:visible').click();
+    await page.locator('[data-testid="ag-listing-card"]').first().locator('div[hx-get^="/listings/"]:visible').click();
     const modal = page.locator('dialog[open]');
     await expect(modal).toBeVisible();
     

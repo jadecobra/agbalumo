@@ -2,14 +2,40 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Location Permission Prompt', () => {
   test.beforeEach(async ({ page }) => {
-    // Clear localStorage to ensure prompt shows
+    // Log browser messages for debugging
+    page.on('console', msg => {
+      console.log(`[BROWSER ${msg.type().toUpperCase()}] ${msg.text()}`);
+    });
+    // Clear localStorage and mock geolocation permission query to return 'prompt'
     await page.addInitScript(() => {
       window.localStorage.clear();
+      if (navigator.permissions) {
+        const originalQuery = navigator.permissions.query;
+        navigator.permissions.query = async (descriptor) => {
+          if (descriptor && descriptor.name === 'geolocation') {
+            return {
+              state: 'prompt',
+              onchange: null,
+            } as any;
+          }
+          return originalQuery.call(navigator.permissions, descriptor);
+        };
+      }
     });
     await page.goto('/');
   });
 
   test('should display the location permission prompt on home load', async ({ page }) => {
+    const state = await page.evaluate(async () => {
+      try {
+        const res = await navigator.permissions.query({ name: 'geolocation' });
+        return res.state;
+      } catch (e) {
+        return 'error: ' + e.message;
+      }
+    });
+    console.log('=== GEOLOCATION PERMISSION STATE ===:', state);
+
     const prompt = page.getByTestId('location-permission-prompt');
     await expect(prompt).toBeVisible({ timeout: 10000 });
     await expect(prompt).toContainText('Allow location to instantly show African owned spots');

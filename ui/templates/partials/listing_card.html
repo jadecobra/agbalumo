@@ -8,8 +8,127 @@
         hx-swap="beforeend">
     </div>
 
-    <!-- Image Section with Gradient Overlay -->
-    <div class="relative w-full h-32 md:h-auto md:aspect-[4/5] overflow-hidden">
+    <!-- Mobile Compact Card (Ada's 30s job) -->
+    <div class="flex flex-col md:hidden p-3 relative h-full justify-between select-none">
+        <div class="flex gap-3">
+            <!-- Square Image Section -->
+            <div class="relative w-20 h-20 shrink-0 overflow-hidden bg-stone-50 dark:bg-earth-dark/50 border border-stone-200 dark:border-white/10 select-none">
+                {{ if .Listing.ImageURL }}
+                <img src="{{.Listing.ImageURL}}" alt="{{.Listing.Title}}"
+                    class="w-full h-full object-cover">
+                {{ else if .Listing.WebsiteURL }}
+                <div class="absolute inset-0 bg-stone-50 dark:bg-earth-dark/50 overflow-hidden">
+                    <div class="absolute inset-0 bg-center bg-cover bg-no-repeat blur-xl opacity-50 scale-150 transform" style="background-image: url('{{ fallbackImageURL "" .Listing.WebsiteURL }}');"></div>
+                    <img src="{{ fallbackImageURL "" .Listing.WebsiteURL }}" alt="{{.Listing.Title}}"
+                        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 object-contain z-10 opacity-90">
+                </div>
+                {{ else }}
+                <div class="w-full h-full flex items-center justify-center p-2 text-center bg-gradient-to-br from-earth-accent/10 to-earth-accent/30">
+                    <span class="text-earth-clay/60 font-bold text-[10px] capitalize tracking-wide leading-tight line-clamp-2">
+                        {{ .Listing.Title }}
+                    </span>
+                </div>
+                {{ end }}
+
+                {{ if $.User }}
+                {{ $isSaved := index $.SavedIDs .Listing.ID }}
+                {{ template "save_button" dict "ListingID" .Listing.ID "IsSaved" $isSaved "Classes" "absolute top-0.5 right-0.5 z-30 w-8 h-8 bg-white dark:bg-surface-dark border border-stone-300 dark:border-stone-800 flex items-center justify-center text-stone-400 hover:text-red-400" }}
+                {{ end }}
+            </div>
+
+            <!-- Content Area -->
+            <div class="flex-1 min-w-0 flex flex-col justify-between">
+                <!-- Name + Distance + Category on one line -->
+                <div class="flex items-baseline justify-between gap-1.5 min-w-0">
+                    <div class="flex items-baseline gap-1 min-w-0 flex-1">
+                        <h3 class="text-sm font-bold text-text-main dark:text-earth-cream truncate leading-tight">
+                            {{ .Listing.Title }}
+                        </h3>
+                        <span class="text-[10px] capitalize font-bold tracking-wide text-text-sub dark:text-earth-accent shrink-0">
+                            ({{ .Listing.Type }})
+                        </span>
+                    </div>
+                    
+                    {{ if or .Listing.City .Listing.Address }}
+                    <span class="text-[10px] font-bold text-earth-clay dark:text-earth-accent shrink-0 flex items-center gap-0.5 leading-none">
+                        <span class="material-symbols-outlined text-[12px]">location_on</span>
+                        {{ displayCity .Listing.City .Listing.Address }}
+                    </span>
+                    {{ end }}
+                </div>
+
+                <!-- 1-line description max -->
+                <p class="text-text-sub dark:text-stone-400 text-xs truncate leading-normal mt-1">
+                    {{ if eq .Listing.Type "Food" }}
+                        {{ if .Listing.RegionalSpecialty }}{{ .Listing.RegionalSpecialty }} Specialty{{ else }}{{ .Listing.Description }}{{ end }}
+                    {{ else }}
+                        {{ .Listing.Description }}
+                    {{ end }}
+                </p>
+
+                <!-- Rating & New Badge row -->
+                <div class="flex items-center justify-between mt-1.5">
+                    <div class="flex items-center gap-1.5">
+                        {{ template "rating_stars" dict "Listing" .Listing "TextColorClass" "text-earth-clay dark:text-yellow-600" }}
+                        {{ if .Listing.Featured }}
+                        <span class="text-xs" title="Featured Listing">🍊</span>
+                        {{ end }}
+                    </div>
+
+                    {{ if isNew .Listing.CreatedAt }}
+                    {{ template "status_badge_sharp" dict "Label" "New" "ColorClasses" "bg-earth-accent !text-earth-dark text-[10px] px-1 py-0.5 font-bold shadow-sm z-20 animate-juice-bounce" }}
+                    {{ end }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Strict CTA Hierarchy Row -->
+        <div class="flex gap-2 mt-3 z-20 relative">
+            <!-- Primary View Menu/Spot Button -->
+            {{ if .Listing.MenuURL }}
+            <a href="{{ .Listing.MenuURL }}" target="_blank" rel="noopener noreferrer"
+                class="flex-1 h-12 flex items-center justify-center bg-earth-accent hover:bg-earth-accent-light active:bg-earth-accent text-white font-bold text-xs capitalize tracking-wide border-2 border-stone-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                data-testid="ag-mobile-view-menu">
+                View Menu
+            </a>
+            {{ else }}
+            <button type="button" hx-get="/listings/{{ .Listing.ID }}" hx-target="body" hx-swap="beforeend" data-testid="ag-mobile-view-details"
+                class="flex-1 h-12 flex items-center justify-center bg-earth-ochre hover:bg-earth-ochre-light active:bg-earth-ochre text-earth-dark font-bold text-xs capitalize tracking-wide border-2 border-stone-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
+                View Spot
+            </button>
+            {{ end }}
+
+            <!-- Secondary Website Button -->
+            {{ if .Listing.WebsiteURL }}
+            <a href="{{ .Listing.WebsiteURL }}" target="_blank" rel="noopener noreferrer"
+                class="h-12 px-3 flex items-center justify-center bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-text-main dark:text-earth-cream font-bold text-xs capitalize tracking-wide border-2 border-stone-800 dark:border-stone-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.1)] transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                data-testid="ag-mobile-website">
+                Website
+            </a>
+            {{ end }}
+
+            <!-- Tertiary Phone Button (Call/WhatsApp) -->
+            {{ if or .Listing.ContactPhone .Listing.ContactWhatsApp }}
+                {{ $phoneLink := "" }}
+                {{ $phoneIcon := "phone" }}
+                {{ if .Listing.ContactPhone }}
+                    {{ $phoneLink = printf "tel:%s" .Listing.ContactPhone }}
+                {{ else if .Listing.ContactWhatsApp }}
+                    {{ $phoneLink = printf "https://wa.me/%s" .Listing.ContactWhatsApp }}
+                    {{ $phoneIcon = "chat" }}
+                {{ end }}
+            <a href="{{ $phoneLink }}"
+                class="w-12 h-12 flex items-center justify-center bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-text-main dark:text-earth-cream font-bold border-2 border-stone-800 dark:border-stone-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.1)] transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                aria-label="Call or WhatsApp"
+                data-testid="ag-mobile-phone">
+                <span class="material-symbols-outlined text-[20px]">{{ $phoneIcon }}</span>
+            </a>
+            {{ end }}
+        </div>
+    </div>
+
+    <!-- Desktop Image Section with Gradient Overlay -->
+    <div class="hidden md:block relative w-full h-32 md:h-auto md:aspect-[4/5] overflow-hidden">
         {{ if .Listing.ImageURL }}
         <img src="{{.Listing.ImageURL}}" alt="{{.Listing.Title}}"
             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
@@ -63,8 +182,8 @@
         {{ end }}
     </div>
 
-    <!-- Content Section -->
-    <div class="flex flex-col flex-1 p-3 md:p-6 relative bg-white dark:bg-surface-dark">
+    <!-- Desktop Content Section -->
+    <div class="hidden md:flex flex-col flex-1 p-3 md:p-6 relative bg-white dark:bg-surface-dark">
         <div class="flex justify-between items-start mb-2 md:mb-3">
             <div class="flex flex-col gap-1">
                 <div class="flex items-center gap-2">

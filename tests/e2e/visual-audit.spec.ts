@@ -37,7 +37,7 @@ async function getFirstListingId(page: Page): Promise<string | null> {
   await page.goto('/');
   await page.waitForLoadState('networkidle');
   // Ensure we get a listing card, not a pagination fragment
-  const cardOverlay = page.locator('[data-testid="ag-listing-card"] [hx-get^="/listings/"]').first();
+  const cardOverlay = page.locator('[data-testid="ag-listing-card"] div[hx-get^="/listings/"]').first();
   const hxGet = await cardOverlay.getAttribute('hx-get');
   if (!hxGet) return null;
   const parts = hxGet.split('/');
@@ -98,8 +98,8 @@ test.describe('Visual Audit', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     const firstListing = page.locator('[data-testid="ag-listing-card"]').first();
-    const title = await firstListing.locator('h3').innerText();
-    const overlay = firstListing.locator('[hx-get^="/listings/"]');
+    const title = await firstListing.locator('h3').first().innerText();
+    const overlay = firstListing.locator('div[hx-get^="/listings/"]').first();
     await overlay.click();
     
     // Wait for modal to appear (dialog element)

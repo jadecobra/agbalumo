@@ -7,9 +7,7 @@ test.describe('Saved/Favorites Feature', () => {
   test.beforeEach(async ({ page }) => {
     // Log browser messages for debugging
     page.on('console', msg => {
-        if (msg.type() === 'error') {
-            console.log(`[BROWSER ERROR] ${msg.text()}`);
-        }
+        console.log(`[BROWSER LOG (${msg.type()})] ${msg.text()}`);
     });
   });
 
@@ -30,7 +28,30 @@ test.describe('Saved/Favorites Feature', () => {
     test.skip(count === 0, 'No listings in dev DB');
 
     // Verify heart button appears on listing cards
-    const heart = page.getByTestId('ag-save-btn').first();
+    console.log('=== VIEWPORT SIZE ===:', page.viewportSize());
+    
+    const card = page.locator('[data-testid="ag-listing-card"]').first();
+    console.log('Card bounding box:', await card.boundingBox());
+    console.log('Card computed display:', await card.evaluate(el => window.getComputedStyle(el).display));
+    
+    const desktopSection = card.locator('.hidden.md\\:block');
+    console.log('Desktop section bounding box:', await desktopSection.boundingBox());
+    console.log('Desktop section computed style:', await desktopSection.evaluate(el => {
+        const style = window.getComputedStyle(el);
+        return { display: style.display, visibility: style.visibility, opacity: style.opacity, width: style.width, height: style.height };
+    }));
+    
+    const btns = await page.locator('[data-testid="ag-save-btn"]').all();
+    console.log('=== SAVE BUTTONS COUNT ===:', btns.length);
+    for (let i = 0; i < btns.length; i++) {
+        const btnStyle = await btns[i].evaluate(el => {
+            const style = window.getComputedStyle(el);
+            return { display: style.display, visibility: style.visibility, opacity: style.opacity, width: style.width, height: style.height };
+        });
+        console.log(`Save button ${i}: visible = ${await btns[i].isVisible()}, boundingBox = ${JSON.stringify(await btns[i].boundingBox())}, style = ${JSON.stringify(btnStyle)}, classes = ${await btns[i].getAttribute('class')}`);
+    }
+
+    const heart = page.locator('[data-testid="ag-save-btn"]:visible').first();
     await expect(heart).toBeVisible({ timeout: 15000 });
   });
 
@@ -57,7 +78,7 @@ test.describe('Saved/Favorites Feature', () => {
     test.skip(count === 0, 'No listings in dev DB');
 
     const firstListing = listings.first();
-    const heart = firstListing.getByTestId('ag-save-btn');
+    const heart = firstListing.locator('[data-testid="ag-save-btn"]:visible').first();
     await expect(heart).toBeVisible();
 
     // Check if already saved and unsave first if so, to have a clean start
@@ -68,11 +89,11 @@ test.describe('Saved/Favorites Feature', () => {
         );
         await heart.click();
         await responsePromise;
-        await expect(firstListing.getByTestId('ag-save-btn')).toHaveClass(/text-stone-400/);
+        await expect(firstListing.locator('[data-testid="ag-save-btn"]:visible').first()).toHaveClass(/text-stone-400/);
     }
     
     // Click heart to save
-    const heartToSave = firstListing.getByTestId('ag-save-btn');
+    const heartToSave = firstListing.locator('[data-testid="ag-save-btn"]:visible').first();
     const savePromise = page.waitForResponse(res => 
         res.url().includes('/save') && res.request().method() === 'POST' && res.status() === 200
     );
@@ -80,17 +101,17 @@ test.describe('Saved/Favorites Feature', () => {
     await savePromise;
     
     // Wait for HTMX swap and assert class changes (text-red-500 for saved)
-    await expect(firstListing.getByTestId('ag-save-btn')).toHaveClass(/text-red-500/);
+    await expect(firstListing.locator('[data-testid="ag-save-btn"]:visible').first()).toHaveClass(/text-red-500/);
 
     // Click again to unsave
     const unsavePromise = page.waitForResponse(res => 
         res.url().includes('/save') && res.request().method() === 'POST' && res.status() === 200
     );
-    await firstListing.getByTestId('ag-save-btn').click();
+    await firstListing.locator('[data-testid="ag-save-btn"]:visible').first().click();
     await unsavePromise;
     
     // Assert toggled back (text-stone-400 for unsaved)
-    await expect(firstListing.getByTestId('ag-save-btn')).toHaveClass(/text-stone-400/);
+    await expect(firstListing.locator('[data-testid="ag-save-btn"]:visible').first()).toHaveClass(/text-stone-400/);
   });
 
   test('saved nav button filters to saved listings', async ({ page }, testInfo) => {
@@ -118,7 +139,7 @@ test.describe('Saved/Favorites Feature', () => {
 
     test.skip(isMobile, 'Saving from card not supported on mobile in this test');
 
-    const heart = firstListing.getByTestId('ag-save-btn');
+    const heart = firstListing.locator('[data-testid="ag-save-btn"]:visible').first();
     const isSaved = await heart.evaluate(el => el.classList.contains('text-red-500'));
     if (!isSaved) {
         const savePromise = page.waitForResponse(res => 
@@ -126,7 +147,7 @@ test.describe('Saved/Favorites Feature', () => {
         );
         await heart.click();
         await savePromise;
-        await expect(firstListing.getByTestId('ag-save-btn')).toHaveClass(/text-red-500/);
+        await expect(firstListing.locator('[data-testid="ag-save-btn"]:visible').first()).toHaveClass(/text-red-500/);
     }
 
     // Click nav heart
