@@ -1,6 +1,6 @@
 {{ define "listing_card" }}
 <div id="{{ .IDPrefix }}listing-{{.Listing.ID}}"
-    class="listing-card card-juicy group relative flex flex-col overflow-hidden bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-juicy transition-all duration-500 hover:-translate-y-1 {{ .GridClass }}"
+    class="listing-card card-juicy group relative flex flex-col h-full overflow-hidden bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-juicy transition-all duration-500 hover:-translate-y-1 {{ .GridClass }}"
     data-testid="ag-listing-card">
 
     <!-- Full Card Click Overlay (excluding buttons) -->
@@ -26,19 +26,6 @@
             </span>
         </div>
         {{ end }}
-
-        <!-- Gradient Overlay for Title & Buttons -->
-        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-
-        <!-- Centered Title Overlay (Bottom of Image) -->
-        <div class="absolute inset-x-3 bottom-3 text-center text-white z-20">
-            <h3 class="text-xs md:text-sm font-bold font-serif leading-tight drop-shadow-lg px-2 line-clamp-1">
-                {{ .Listing.Title }}
-                {{ if .Listing.Featured }}
-                <span class="text-xs md:text-sm" title="Featured Listing">🍊</span>
-                {{ end }}
-            </h3>
-        </div>
 
         <!-- Safe / Save Button -->
         {{ if $.User }}
@@ -89,6 +76,14 @@
             </div>
             {{ end }}
         </div>
+
+        <!-- Title Element -->
+        <h3 class="text-sm md:text-base font-bold font-serif leading-snug text-text-main dark:text-earth-cream mt-1.5 line-clamp-1 shrink-0">
+            {{ .Listing.Title }}
+            {{ if .Listing.Featured }}
+            <span class="text-xs md:text-sm" title="Featured Listing">🍊</span>
+            {{ end }}
+        </h3>
 
         <!-- Description/Sub-info Container -->
         <div class="flex-1 min-w-0 mt-1 md:mt-2 flex flex-col justify-start">

@@ -58,7 +58,17 @@ func verifyBasicRendering(t *testing.T, tmpl *template.Template) {
 	bottomHalf := parts[1]
 
 	// 1. Check card height constraint
-	if !strings.Contains(topHalf, "class=\"listing-card") || !strings.Contains(topHalf, "h-full") {
+	cardClassStart := strings.Index(topHalf, `class="listing-card`)
+	if cardClassStart == -1 {
+		t.Fatal("Could not find listing-card class definition in HTML")
+	}
+	remainingTop := topHalf[cardClassStart+7:]
+	cardClassEnd := strings.Index(remainingTop, `"`)
+	if cardClassEnd == -1 {
+		t.Fatal("Malformed class list quotes in HTML")
+	}
+	classContent := remainingTop[:cardClassEnd]
+	if !strings.Contains(classContent, "h-full") {
 		t.Error("Listing card container is missing 'h-full' height constraint class")
 	}
 
