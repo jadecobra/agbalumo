@@ -34,13 +34,6 @@ test.describe('Saved/Favorites Feature', () => {
     console.log('Card bounding box:', await card.boundingBox());
     console.log('Card computed display:', await card.evaluate(el => window.getComputedStyle(el).display));
     
-    const desktopSection = card.locator('.hidden.md\\:block');
-    console.log('Desktop section bounding box:', await desktopSection.boundingBox());
-    console.log('Desktop section computed style:', await desktopSection.evaluate(el => {
-        const style = window.getComputedStyle(el);
-        return { display: style.display, visibility: style.visibility, opacity: style.opacity, width: style.width, height: style.height };
-    }));
-    
     const btns = await page.locator('[data-testid="ag-save-btn"]').all();
     console.log('=== SAVE BUTTONS COUNT ===:', btns.length);
     for (let i = 0; i < btns.length; i++) {

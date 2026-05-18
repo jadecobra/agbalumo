@@ -137,13 +137,13 @@
             <!-- Primary View Menu/Spot Button -->
             {{ if .Listing.MenuURL }}
             <a href="{{ .Listing.MenuURL }}" target="_blank" rel="noopener noreferrer"
-                class="flex-1 h-9 md:h-10 flex items-center justify-center bg-earth-accent hover:bg-earth-accent-light active:bg-earth-accent text-white font-bold text-xs capitalize tracking-wide border-2 border-stone-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                class="flex-1 h-11 md:h-10 flex items-center justify-center bg-earth-accent hover:bg-earth-accent-light active:bg-earth-accent text-white font-bold text-xs capitalize tracking-wide transition-all"
                 data-testid="ag-mobile-view-menu">
                 View Menu
             </a>
             {{ else }}
             <button type="button" hx-get="/listings/{{ .Listing.ID }}" hx-target="body" hx-swap="beforeend" data-testid="ag-mobile-view-details"
-                class="flex-1 h-9 md:h-10 flex items-center justify-center bg-earth-ochre hover:bg-earth-ochre-light active:bg-earth-ochre text-earth-dark font-bold text-xs capitalize tracking-wide border-2 border-stone-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
+                class="flex-1 h-11 md:h-10 flex items-center justify-center bg-earth-ochre hover:bg-earth-ochre-light active:bg-earth-ochre text-earth-dark font-bold text-xs capitalize tracking-wide transition-all">
                 View Spot
             </button>
             {{ end }}
@@ -151,7 +151,7 @@
             <!-- Secondary Website Button -->
             {{ if .Listing.WebsiteURL }}
             <a href="{{ .Listing.WebsiteURL }}" target="_blank" rel="noopener noreferrer"
-                class="h-9 md:h-10 px-2 flex items-center justify-center bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-text-main dark:text-earth-cream font-bold text-xs capitalize tracking-wide border-2 border-stone-800 dark:border-stone-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.1)] transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                class="h-11 md:h-10 px-2 flex items-center justify-center bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-text-main dark:text-earth-cream font-bold text-xs capitalize tracking-wide transition-all"
                 data-testid="ag-mobile-website">
                 Website
             </a>
@@ -168,7 +168,7 @@
                     {{ $phoneIcon = "chat" }}
                 {{ end }}
             <a href="{{ $phoneLink }}"
-                class="w-9 md:w-10 h-9 md:h-10 flex items-center justify-center bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-text-main dark:text-earth-cream font-bold border-2 border-stone-800 dark:border-stone-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.1)] transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                class="w-11 md:w-10 h-11 md:h-10 flex items-center justify-center bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-text-main dark:text-earth-cream font-bold transition-all"
                 aria-label="Call or WhatsApp"
                 data-testid="ag-mobile-phone">
                 <span class="material-symbols-outlined text-[16px] md:text-[18px]">{{ $phoneIcon }}</span>
