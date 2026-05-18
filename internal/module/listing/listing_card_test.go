@@ -48,6 +48,27 @@ func verifyBasicRendering(t *testing.T, tmpl *template.Template) {
 	if !strings.Contains(html, `hx-get="/listings/123"`) {
 		t.Error("Overlay link div missing hx-get attribute")
 	}
+
+	// Layout and Title Position Assertions
+	parts := strings.Split(html, "h-1/2 p-3")
+	if len(parts) < 2 {
+		t.Fatal("Could not find bottom half signature 'h-1/2 p-3' in rendered card HTML")
+	}
+	topHalf := parts[0]
+	bottomHalf := parts[1]
+
+	// 1. Check card height constraint
+	if !strings.Contains(topHalf, "class=\"listing-card") || !strings.Contains(topHalf, "h-full") {
+		t.Error("Listing card container is missing 'h-full' height constraint class")
+	}
+
+	// 2. Check title position: title must not be overlayed in the Top Half
+	if strings.Contains(topHalf, "font-serif") || strings.Contains(topHalf, "drop-shadow-lg") {
+		t.Error("Title element h3 is still overlayed inside the Image Section (Top Half)")
+	}
+	if !strings.Contains(bottomHalf, "font-serif") || !strings.Contains(bottomHalf, "Test Biz") {
+		t.Error("Title element h3 is missing from the Content Section (Bottom Half)")
+	}
 }
 
 func verifyMobileCompactCardCTAs(t *testing.T, tmpl *template.Template) {
