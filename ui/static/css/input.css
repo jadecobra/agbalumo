@@ -32,6 +32,15 @@
   .btn-close {
     @apply flex items-center justify-center transition-all active:scale-95 duration-200;
   }
+
+  .btn-action-overlay {
+    background-color: rgba(0, 0, 0, 0.4);
+    @apply transition-colors duration-200;
+  }
+
+  .btn-action-overlay:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+  }
 }
 
 /* ── agbalumo Brand Design Tokens ── */

@@ -15,23 +15,29 @@
             {{ end }}
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
 
+            <!-- Top Right Action Buttons (Save & Close) -->
+            <div class="absolute top-4 right-4 flex items-center gap-2 z-[60]">
+                {{ if $.User }}
+                {{ $isSaved := index $.SavedIDs .Listing.ID }}
+                {{ template "save_button" dict "ListingID" .Listing.ID "IsSaved" $isSaved "Classes" "relative btn-action-overlay rounded-full backdrop-blur-sm drop-shadow-md text-white transition-all duration-200" }}
+                {{ end }}
 
+                {{ template "btn_close" dict "Classes" "relative w-11 h-11 btn-action-overlay rounded-full backdrop-blur-sm drop-shadow-md text-white hover:scale-110 transition-transform" }}
+            </div>
 
-            {{ template "btn_close" dict "Classes" "absolute top-4 right-4 bg-transparent text-white drop-shadow-md hover:scale-110 transition-transform z-[60]" }}
+            <!-- Centered Title -->
+            <div class="absolute inset-x-4 bottom-6 text-center text-white z-10">
+                <h2 class="text-2xl md:text-3xl font-bold font-serif leading-tight drop-shadow-lg px-4">{{ .Listing.Title }}</h2>
+            </div>
+        </div>
 
-            {{ if $.User }}
-            {{ $isSaved := index $.SavedIDs .Listing.ID }}
-            {{ template "save_button" dict "ListingID" .Listing.ID "IsSaved" $isSaved "Classes" "absolute top-4 right-14 z-[60]" }}
-            {{ end }}
-
-            <div class="absolute bottom-4 left-4 right-4 text-white">
-                <div class="flex items-center gap-2 mb-1 flex-wrap">
-                    <span
-                        class="bg-earth-accent/90 text-white text-[10px] capitalize font-bold px-2 py-0.5  tracking-wider shadow-sm">{{
-                        .Listing.Type }}</span>
-                    {{ template "rating_stars" dict "Listing" .Listing "TextColorClass" "text-white drop-shadow-md" }}
-                </div>
-                <h2 class="text-2xl font-bold font-serif leading-tight">{{ .Listing.Title }}</h2>
+        <!-- Pinned Metadata Row (Static during scrolling) -->
+        <div class="px-6 py-4 border-b border-stone-200 dark:border-stone-800 bg-white dark:bg-surface-dark shrink-0 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <span class="bg-earth-accent text-white text-xs capitalize font-bold px-2.5 py-1 tracking-wider shadow-sm">
+                    {{ .Listing.Type }}
+                </span>
+                {{ template "rating_stars" dict "Listing" .Listing "TextColorClass" "text-earth-clay dark:text-yellow-600" }}
             </div>
         </div>
 
