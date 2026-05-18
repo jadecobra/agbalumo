@@ -149,3 +149,42 @@ func TestHandleFragment_AdaDefaulting(t *testing.T) {
 	assert.Contains(t, rec3.Body.String(), "Houston Jollof")
 	assert.Contains(t, rec3.Body.String(), "Houston Hair")
 }
+
+func TestHandleFragment_FeaturedSectionOnlyOnPageOne(t *testing.T) {
+	t.Parallel()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
+
+	// Seed category and featured listing
+	_ = env.App.DB.SaveCategory(context.Background(), domain.CategoryData{ID: string(domain.Food), Name: "Food", Active: true})
+	testutil.SaveTestListing(t, env.App.DB, "featured-1", "Featured Spot", func(l *domain.Listing) {
+		l.Type = domain.Food
+		l.Featured = true
+		l.Status = domain.ListingStatusApproved
+		l.IsActive = true
+	})
+	testutil.SaveTestListing(t, env.App.DB, "regular-1", "Regular Spot 1", func(l *domain.Listing) {
+		l.Type = domain.Food
+		l.Status = domain.ListingStatusApproved
+		l.IsActive = true
+	})
+
+	// Case 1: Page 1 fragment request -> should return featured listings OOB swap
+	c1, rec1 := testutil.SetupModuleContext(http.MethodGet, "/listings/fragment?page=1", nil)
+	c1.Request().Header.Set("HX-Request", "true")
+	if err := h.HandleFragment(c1); err != nil {
+		t.Fatal(err)
+	}
+	assert.Contains(t, rec1.Body.String(), `id="featured-section" hx-swap-oob="true"`)
+	assert.Contains(t, rec1.Body.String(), "Featured Spot")
+
+	// Case 2: Page 2 fragment request -> should NOT return featured listings OOB swap
+	c2, rec2 := testutil.SetupModuleContext(http.MethodGet, "/listings/fragment?page=2", nil)
+	c2.Request().Header.Set("HX-Request", "true")
+	if err := h.HandleFragment(c2); err != nil {
+		t.Fatal(err)
+	}
+	assert.NotContains(t, rec2.Body.String(), `id="featured-section" hx-swap-oob="true"`)
+	assert.NotContains(t, rec2.Body.String(), "Featured Spot")
+}
