@@ -44,13 +44,21 @@
                         const lng = position.coords.longitude;
                         
                         if (window.htmx) {
+                            const urlParams = new URLSearchParams(window.location.search);
+                            const values = { 
+                                lat: lat, 
+                                lng: lng, 
+                                radius: 10,
+                                start_ts: startTime 
+                            };
+                            // Preserve existing query params like limit, type, and search queries
+                            for (const [key, val] of urlParams.entries()) {
+                                if (!(key in values)) {
+                                    values[key] = val;
+                                }
+                            }
                             htmx.ajax('GET', '/listings/fragment', {
-                                values: { 
-                                    lat: lat, 
-                                    lng: lng, 
-                                    radius: 10,
-                                    start_ts: startTime 
-                                },
+                                values: values,
                                 target: '#listings-container',
                                 swap: 'innerHTML'
                             });

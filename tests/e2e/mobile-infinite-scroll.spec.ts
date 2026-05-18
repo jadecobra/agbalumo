@@ -15,6 +15,10 @@ test.describe('Mobile Infinite Scroll & Desktop Pagination', () => {
     await page.goto('/?type=All&limit=3');
     await page.waitForLoadState('networkidle');
 
+    // Scroll sentinel into view to trigger intersection observer
+    const sentinel = page.locator('#infinite-scroll-sentinel');
+    await sentinel.scrollIntoViewIfNeeded();
+
     // 3. Wait for the fragment request to complete
     await requestPromise;
 
@@ -28,11 +32,9 @@ test.describe('Mobile Infinite Scroll & Desktop Pagination', () => {
     
     // We expect listing cards from both page 1 and page 2 (3 + 3 = 6 cards)
     const cards = listingsContainer.locator('[data-testid="ag-listing-card"]');
-    const count = await cards.count();
-    expect(count).toBe(6);
+    await expect(cards).toHaveCount(6);
 
     // 6. Sentinel should exist and be active for page 3
-    const sentinel = page.locator('#infinite-scroll-sentinel');
     await expect(sentinel).toBeVisible();
   });
 
