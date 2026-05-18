@@ -1,99 +1,149 @@
 {{ define "listing_card" }}
 <div id="{{ .IDPrefix }}listing-{{.Listing.ID}}"
-    class="listing-card card-juicy group relative flex flex-col overflow-hidden bg-white dark:bg-surface-dark border border-stone-100 dark:border-stone-800 shadow-sm hover:shadow-juicy transition-all duration-500 hover:-translate-y-1 {{ .GridClass }}"
+    class="listing-card card-juicy group relative flex flex-col overflow-hidden bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-juicy transition-all duration-500 hover:-translate-y-1 {{ .GridClass }}"
     data-testid="ag-listing-card">
 
-    <!-- Full Card Click Overlay -->
+    <!-- Full Card Click Overlay (excluding buttons) -->
     <div class="absolute inset-0 z-10 cursor-pointer" hx-get="/listings/{{ .Listing.ID }}" hx-target="body"
         hx-swap="beforeend">
     </div>
 
-    <!-- Mobile Compact Card (Ada's 30s job) -->
-    <div class="flex flex-col md:hidden p-3 relative h-full justify-between select-none">
-        <div class="flex gap-3">
-            <!-- Square Image Section -->
-            <div class="relative w-20 h-20 shrink-0 overflow-hidden bg-stone-50 dark:bg-earth-dark/50 border border-stone-200 dark:border-white/10 select-none">
-                {{ if .Listing.ImageURL }}
-                <img src="{{.Listing.ImageURL}}" alt="{{.Listing.Title}}"
-                    class="w-full h-full object-cover">
-                {{ else if .Listing.WebsiteURL }}
-                <div class="absolute inset-0 bg-stone-50 dark:bg-earth-dark/50 overflow-hidden">
-                    <div class="absolute inset-0 bg-center bg-cover bg-no-repeat blur-xl opacity-50 scale-150 transform" style="background-image: url('{{ fallbackImageURL "" .Listing.WebsiteURL }}');"></div>
-                    <img src="{{ fallbackImageURL "" .Listing.WebsiteURL }}" alt="{{.Listing.Title}}"
-                        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 object-contain z-10 opacity-90">
-                </div>
-                {{ else }}
-                <div class="w-full h-full flex items-center justify-center p-2 text-center bg-gradient-to-br from-earth-accent/10 to-earth-accent/30">
-                    <span class="text-earth-clay/60 font-bold text-[10px] capitalize tracking-wide leading-tight line-clamp-2">
-                        {{ .Listing.Title }}
-                    </span>
-                </div>
+    <!-- Image Section (Top Half) -->
+    <div class="relative w-full h-1/2 overflow-hidden bg-stone-50 dark:bg-earth-dark/50 select-none shrink-0 border-b border-stone-200 dark:border-stone-800">
+        {{ if .Listing.ImageURL }}
+        <img src="{{.Listing.ImageURL}}" alt="{{.Listing.Title}}"
+            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+        {{ else if .Listing.WebsiteURL }}
+        <div class="absolute inset-0 bg-stone-50 dark:bg-earth-dark/50 overflow-hidden">
+            <div class="absolute inset-0 bg-center bg-cover bg-no-repeat blur-xl opacity-50 scale-150 transform transition-transform duration-700 group-hover:scale-110" style="background-image: url('{{ fallbackImageURL "" .Listing.WebsiteURL }}');"></div>
+            <img src="{{ fallbackImageURL "" .Listing.WebsiteURL }}" alt="{{.Listing.Title}}"
+                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 object-contain z-10 drop-shadow-lg opacity-90 transition-transform duration-700 group-hover:scale-110">
+        </div>
+        {{ else }}
+        <div class="w-full h-full flex items-center justify-center p-4 text-center bg-gradient-to-br from-earth-accent/10 to-earth-accent/30">
+            <span class="text-earth-clay/60 font-bold text-sm uppercase tracking-widest leading-tight line-clamp-2">
+                {{ .Listing.Title }}
+            </span>
+        </div>
+        {{ end }}
+
+        <!-- Gradient Overlay for Title & Buttons -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+
+        <!-- Centered Title Overlay (Bottom of Image) -->
+        <div class="absolute inset-x-3 bottom-3 text-center text-white z-20">
+            <h3 class="text-xs md:text-sm font-bold font-serif leading-tight drop-shadow-lg px-2 line-clamp-1">
+                {{ .Listing.Title }}
+                {{ if .Listing.Featured }}
+                <span class="text-xs md:text-sm" title="Featured Listing">🍊</span>
                 {{ end }}
-
-                {{ if $.User }}
-                {{ $isSaved := index $.SavedIDs .Listing.ID }}
-                {{ template "save_button" dict "ListingID" .Listing.ID "IsSaved" $isSaved "Classes" "absolute top-0.5 right-0.5 z-30 w-8 h-8 bg-white dark:bg-surface-dark border border-stone-300 dark:border-stone-800 flex items-center justify-center text-stone-400 hover:text-red-400" }}
-                {{ end }}
-            </div>
-
-            <!-- Content Area -->
-            <div class="flex-1 min-w-0 flex flex-col justify-between">
-                <!-- Name + Distance + Category on one line -->
-                <div class="flex items-baseline justify-between gap-1.5 min-w-0">
-                    <div class="flex items-baseline gap-1 min-w-0 flex-1">
-                        <h3 class="text-sm font-bold text-text-main dark:text-earth-cream truncate leading-tight">
-                            {{ .Listing.Title }}
-                        </h3>
-                        <span class="text-[10px] capitalize font-bold tracking-wide text-text-sub dark:text-earth-accent shrink-0">
-                            ({{ .Listing.Type }})
-                        </span>
-                    </div>
-                    
-                    {{ if or .Listing.City .Listing.Address }}
-                    <span class="text-[10px] font-bold text-earth-clay dark:text-earth-accent shrink-0 flex items-center gap-0.5 leading-none">
-                        <span class="material-symbols-outlined text-[12px]">location_on</span>
-                        {{ displayCity .Listing.City .Listing.Address }}
-                    </span>
-                    {{ end }}
-                </div>
-
-                <!-- 1-line description max -->
-                <p class="text-text-sub dark:text-stone-400 text-xs truncate leading-normal mt-1">
-                    {{ if eq .Listing.Type "Food" }}
-                        {{ if .Listing.RegionalSpecialty }}{{ .Listing.RegionalSpecialty }} Specialty{{ else }}{{ .Listing.Description }}{{ end }}
-                    {{ else }}
-                        {{ .Listing.Description }}
-                    {{ end }}
-                </p>
-
-                <!-- Rating & New Badge row -->
-                <div class="flex items-center justify-between mt-1.5">
-                    <div class="flex items-center gap-1.5">
-                        {{ template "rating_stars" dict "Listing" .Listing "TextColorClass" "text-earth-clay dark:text-yellow-600" }}
-                        {{ if .Listing.Featured }}
-                        <span class="text-xs" title="Featured Listing">🍊</span>
-                        {{ end }}
-                    </div>
-
-                    {{ if isNew .Listing.CreatedAt }}
-                    {{ template "status_badge_sharp" dict "Label" "New" "ColorClasses" "bg-earth-accent !text-earth-dark text-[10px] px-1 py-0.5 font-bold shadow-sm z-20 animate-juice-bounce" }}
-                    {{ end }}
-                </div>
-            </div>
+            </h3>
         </div>
 
-        <!-- Strict CTA Hierarchy Row -->
-        <div class="flex gap-2 mt-3 z-20 relative">
+        <!-- Safe / Save Button -->
+        {{ if $.User }}
+        {{ $isSaved := index $.SavedIDs .Listing.ID }}
+        {{ template "save_button" dict "ListingID" .Listing.ID "IsSaved" $isSaved "Classes" "absolute top-2 right-2 z-30 btn-action-overlay rounded-full backdrop-blur-sm drop-shadow-md text-white transition-all duration-200" }}
+        {{ end }}
+
+        <!-- New Badge -->
+        {{ if isNew .Listing.CreatedAt }}
+        {{ $rightClass := "right-2" }}{{ if $.User }}{{ $rightClass = "right-12" }}{{ end }}
+        {{ template "status_badge_sharp" dict "Label" "NEW" "ColorClasses" (printf "absolute top-2 %s bg-earth-accent !text-earth-dark text-xs px-1.5 py-0.5 font-bold shadow-md z-20 animate-juice-bounce" $rightClass) }}
+        {{ end }}
+
+        <!-- Edit/Delete Buttons (Hover Only) -->
+        {{ if and .User (eq .User.ID .Listing.OwnerID) }}
+        <div class="absolute top-2 left-2 flex gap-1.5 z-30 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button
+                class="bg-earth-cream/90 backdrop-blur-md text-text-main w-8 h-8 flex items-center justify-center shadow-md hover:bg-white transition-all active:scale-95"
+                hx-get="/listings/{{ .Listing.ID }}/edit?target={{ .IDPrefix }}listing-{{ .Listing.ID }}" hx-target="#modal-container" hx-swap="innerHTML">
+                <span class="material-symbols-outlined text-[16px]">edit</span>
+            </button>
+            <button
+                class="bg-red-500/90 backdrop-blur-md text-white w-8 h-8 flex items-center justify-center shadow-md hover:bg-red-500 transition-all active:scale-95"
+                hx-delete="/listings/{{ .Listing.ID }}" hx-confirm="Are you sure?">
+                <span class="material-symbols-outlined text-[16px]">delete</span>
+            </button>
+        </div>
+        {{ end }}
+    </div>
+
+    <!-- Content Section (Bottom Half) -->
+    <div class="h-1/2 p-3 flex flex-col justify-between relative bg-white dark:bg-surface-dark select-none">
+        <!-- Metadata Row (Type & Ratings left, Location right) -->
+        <div class="flex items-center justify-between gap-1.5 shrink-0">
+            <div class="flex items-center gap-1.5">
+                <span class="bg-earth-accent text-white text-xs capitalize font-bold px-1.5 py-0.5 tracking-wider shadow-sm">
+                    {{ .Listing.Type }}
+                </span>
+                {{ template "rating_stars" dict "Listing" .Listing "TextColorClass" "text-earth-clay dark:text-yellow-600" }}
+            </div>
+            
+            {{ if or .Listing.City .Listing.Address }}
+            <div class="flex items-center gap-0.5 text-earth-clay dark:text-earth-accent shrink-0 leading-none">
+                <span class="material-symbols-outlined text-[12px] md:text-[14px]">location_on</span>
+                <span class="text-xs font-bold capitalize tracking-wide">
+                    {{ displayCity .Listing.City .Listing.Address }}
+                </span>
+            </div>
+            {{ end }}
+        </div>
+
+        <!-- Description/Sub-info Container -->
+        <div class="flex-1 min-w-0 mt-1 md:mt-2 flex flex-col justify-start">
+            {{ if eq .Listing.Type "Food" }}
+                {{ if or .Listing.RegionalSpecialty .Listing.OwnerOrigin }}
+                    {{ $activeOrigin := .Listing.OwnerOrigin }}
+                    {{ if .Listing.EnrichmentAttemptedAt }}{{ if .Listing.RegionalSpecialty }}{{ $activeOrigin = .Listing.RegionalSpecialty }}{{ end }}{{ end }}
+                    {{ $flag := countryFlag $activeOrigin }}
+                    {{ if or $flag $activeOrigin }}
+                    <div class="flex items-center gap-1 text-secondary text-xs font-bold mb-1 shrink-0">
+                        <span class="material-symbols-outlined text-[14px]">workspace_premium</span>
+                        <span class="tracking-wide flex items-center gap-1">
+                            {{ if $flag }}<span>{{ $flag }}</span>{{ end }}
+                            {{ if $activeOrigin }}{{ if not (isCountry $activeOrigin) }}<span>{{ $activeOrigin }}</span>{{ end }}{{ end }}
+                        </span>
+                    </div>
+                    {{ end }}
+                {{ end }}
+            {{ else if eq .Listing.Type "Job" }}
+                <div class="flex items-center gap-2 mb-1 text-xs font-semibold text-text-sub dark:text-stone-400 shrink-0">
+                    <div class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[12px]">business</span>
+                        <span class="truncate max-w-20 md:max-w-32">{{ .Listing.Company }}</span>
+                    </div>
+                    {{ if .Listing.PayRange }}
+                    <div class="flex items-center gap-1 text-text-main dark:text-earth-accent">
+                        <span class="material-symbols-outlined text-[12px]">payments</span>
+                        <span class="truncate">{{ .Listing.PayRange }}</span>
+                    </div>
+                    {{ end }}
+                </div>
+            {{ end }}
+
+            <!-- Clamped Description -->
+            <p class="text-text-sub dark:text-stone-400 text-xs leading-normal line-clamp-2 md:line-clamp-3">
+                {{ if eq .Listing.Type "Food" }}
+                    {{ if .Listing.RegionalSpecialty }}{{ .Listing.RegionalSpecialty }} Specialty. {{ .Listing.Description }}{{ else }}{{ .Listing.Description }}{{ end }}
+                {{ else }}
+                    {{ .Listing.Description }}
+                {{ end }}
+            </p>
+        </div>
+
+        <!-- Action CTA Row -->
+        <div class="mt-2 z-20 relative flex gap-1.5 shrink-0">
             <!-- Primary View Menu/Spot Button -->
             {{ if .Listing.MenuURL }}
             <a href="{{ .Listing.MenuURL }}" target="_blank" rel="noopener noreferrer"
-                class="flex-1 h-12 flex items-center justify-center bg-earth-accent hover:bg-earth-accent-light active:bg-earth-accent text-white font-bold text-xs capitalize tracking-wide border-2 border-stone-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                class="flex-1 h-9 md:h-10 flex items-center justify-center bg-earth-accent hover:bg-earth-accent-light active:bg-earth-accent text-white font-bold text-xs capitalize tracking-wide border-2 border-stone-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
                 data-testid="ag-mobile-view-menu">
                 View Menu
             </a>
             {{ else }}
             <button type="button" hx-get="/listings/{{ .Listing.ID }}" hx-target="body" hx-swap="beforeend" data-testid="ag-mobile-view-details"
-                class="flex-1 h-12 flex items-center justify-center bg-earth-ochre hover:bg-earth-ochre-light active:bg-earth-ochre text-earth-dark font-bold text-xs capitalize tracking-wide border-2 border-stone-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
+                class="flex-1 h-9 md:h-10 flex items-center justify-center bg-earth-ochre hover:bg-earth-ochre-light active:bg-earth-ochre text-earth-dark font-bold text-xs capitalize tracking-wide border-2 border-stone-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
                 View Spot
             </button>
             {{ end }}
@@ -101,7 +151,7 @@
             <!-- Secondary Website Button -->
             {{ if .Listing.WebsiteURL }}
             <a href="{{ .Listing.WebsiteURL }}" target="_blank" rel="noopener noreferrer"
-                class="h-12 px-3 flex items-center justify-center bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-text-main dark:text-earth-cream font-bold text-xs capitalize tracking-wide border-2 border-stone-800 dark:border-stone-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.1)] transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                class="h-9 md:h-10 px-2 flex items-center justify-center bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-text-main dark:text-earth-cream font-bold text-xs capitalize tracking-wide border-2 border-stone-800 dark:border-stone-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.1)] transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
                 data-testid="ag-mobile-website">
                 Website
             </a>
@@ -118,148 +168,12 @@
                     {{ $phoneIcon = "chat" }}
                 {{ end }}
             <a href="{{ $phoneLink }}"
-                class="w-12 h-12 flex items-center justify-center bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-text-main dark:text-earth-cream font-bold border-2 border-stone-800 dark:border-stone-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.1)] transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                class="w-9 md:w-10 h-9 md:h-10 flex items-center justify-center bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-text-main dark:text-earth-cream font-bold border-2 border-stone-800 dark:border-stone-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.1)] transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
                 aria-label="Call or WhatsApp"
                 data-testid="ag-mobile-phone">
-                <span class="material-symbols-outlined text-[20px]">{{ $phoneIcon }}</span>
+                <span class="material-symbols-outlined text-[16px] md:text-[18px]">{{ $phoneIcon }}</span>
             </a>
             {{ end }}
-        </div>
-    </div>
-
-    <!-- Desktop Image Section with Gradient Overlay -->
-    <div class="hidden md:block relative w-full h-32 md:h-auto md:aspect-[4/5] overflow-hidden">
-        {{ if .Listing.ImageURL }}
-        <img src="{{.Listing.ImageURL}}" alt="{{.Listing.Title}}"
-            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-        {{ else if .Listing.WebsiteURL }}
-        <div class="absolute inset-0 bg-stone-50 dark:bg-earth-dark/50 overflow-hidden">
-            <div class="absolute inset-0 bg-center bg-cover bg-no-repeat blur-xl opacity-50 scale-150 transform transition-transform duration-700 group-hover:scale-110" style="background-image: url('{{ fallbackImageURL "" .Listing.WebsiteURL }}');"></div>
-            <img src="{{ fallbackImageURL "" .Listing.WebsiteURL }}" alt="{{.Listing.Title}}"
-                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 object-contain z-10 drop-shadow-lg opacity-90 group-hover:scale-110 transition-transform duration-700">
-        </div>
-        {{ else }}
-        <div
-            class='w-full h-full flex items-center justify-center p-8 text-center bg-gradient-to-br from-earth-accent/10 to-earth-accent/30'>
-            <span class="text-earth-clay/60 font-bold text-lg uppercase tracking-widest leading-tight">
-                {{ .Listing.Title }}
-            </span>
-        </div>
-        {{ end }}
-
-
-        <!-- Subtle Top Gradient for Edit/Delete buttons -->
-        <div
-            class="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-        </div>
-
-
-        <!-- New Badge -->
-        {{ if isNew .Listing.CreatedAt }}
-        {{ $right := "right-4" }}{{ if $.User }}{{ $right = "right-14" }}{{ end }}
-        {{ template "status_badge_sharp" dict "Label" "NEW" "ColorClasses" (printf "absolute top-4 %s bg-earth-accent !text-earth-dark shadow-lg z-20 animate-juice-bounce" $right) }}
-        {{ end }}
-
-        {{ if $.User }}
-        {{ $isSaved := index $.SavedIDs .Listing.ID }}
-        {{ template "save_button" dict "ListingID" .Listing.ID "IsSaved" $isSaved "Classes" "" }}
-        {{ end }}
-
-        <!-- Edit/Delete Buttons (Hover Only) -->
-        {{ if and .User (eq .User.ID .Listing.OwnerID) }}
-        <div class="absolute top-4 left-4 flex gap-2 z-30 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button
-                class="bg-earth-cream/90 backdrop-blur-md text-text-main w-11 h-11 flex items-center justify-center shadow-lg hover:bg-white transition-all active:scale-95"
-                hx-get="/listings/{{ .Listing.ID }}/edit?target={{ .IDPrefix }}listing-{{ .Listing.ID }}" hx-target="#modal-container" hx-swap="innerHTML">
-                <span class="material-symbols-outlined text-[18px]">edit</span>
-            </button>
-            <button
-                class="bg-red-500/90 backdrop-blur-md text-white w-11 h-11 flex items-center justify-center shadow-lg hover:bg-red-500 transition-all active:scale-95"
-                hx-delete="/listings/{{ .Listing.ID }}" hx-confirm="Are you sure?">
-                <span class="material-symbols-outlined text-[18px]">delete</span>
-            </button>
-        </div>
-        {{ end }}
-    </div>
-
-    <!-- Desktop Content Section -->
-    <div class="hidden md:flex flex-col flex-1 p-3 md:p-6 relative bg-white dark:bg-surface-dark">
-        <div class="flex justify-between items-start mb-2 md:mb-3">
-            <div class="flex flex-col gap-1">
-                <div class="flex items-center gap-2">
-                    <span class="text-[10px] md:text-xs uppercase font-bold tracking-[0.1em] text-text-sub dark:text-earth-accent">{{ .Listing.Type }}</span>
-                    {{ template "rating_stars" dict "Listing" .Listing "TextColorClass" "text-earth-clay dark:text-yellow-600" }}
-                </div>
-                <h3
-                    class="text-sm md:text-xl font-bold text-text-main dark:text-earth-cream leading-tight flex items-center gap-2">
-                    {{ .Listing.Title }}
-                    {{ if .Listing.Featured }}
-                    <span class="text-xs md:text-sm" title="Featured Listing">🍊</span>
-                    {{ end }}
-                    
-                </h3>
-            </div>
-        </div>
- 
-         {{ if eq .Listing.Type "Food" }}
-         <div class="flex flex-col gap-2 mb-4 md:mb-6 mt-1">
-             {{ if or .Listing.RegionalSpecialty .Listing.OwnerOrigin }}
-                 {{ $activeOrigin := .Listing.OwnerOrigin }}
-                 {{ if .Listing.EnrichmentAttemptedAt }}{{ if .Listing.RegionalSpecialty }}{{ $activeOrigin = .Listing.RegionalSpecialty }}{{ end }}{{ end }}
-                 {{ $flag := countryFlag $activeOrigin }}
-
-
-                 <div class="flex items-center gap-2 text-secondary">
-                     <span class="material-symbols-outlined text-[18px]">workspace_premium</span>
-                     <span class="text-xs md:text-sm font-bold tracking-wide flex items-center gap-1.5">
-                        {{ if $flag }}<span>{{ $flag }}</span>{{ end }}
-                        {{ if $activeOrigin }}{{ if not (isCountry $activeOrigin) }}<span>{{ $activeOrigin }}</span>{{ end }}{{ end }}
-                     </span>
-                 </div>
-             {{ end }}
-         </div>
-         {{ end }}
- 
-         {{ if eq .Listing.Type "Job" }}
-         <div
-             class="flex flex-col gap-0.5 md:gap-1 mb-2 md:mb-3 text-[10px] md:text-xs font-semibold text-text-sub dark:text-stone-400">
-             <div class="flex items-center gap-1.5">
-                 <span class="material-symbols-outlined text-[14px] md:text-[16px]">business</span>
-                 {{ .Listing.Company }}
-             </div>
-             {{ if .Listing.PayRange }}
-             <div class="flex items-center gap-1.5 text-text-main dark:text-earth-accent">
-                 <span class="material-symbols-outlined text-[14px] md:text-[16px]">payments</span>
-                 {{ .Listing.PayRange }}
-             </div>
-             {{ end }}
-         </div>
-         {{ end }}
- 
-         {{ if not (eq .Listing.Type "Food") }}
-         <p class="text-text-sub dark:text-stone-400 text-[10px] md:text-xs line-clamp-2 leading-relaxed mb-4 md:mb-6">
-             {{ .Listing.Description }}
-         </p>
-         {{ end }}
-
-        <!-- Footer Info -->
-        <div
-            class="mt-auto flex items-center justify-between pt-3 md:pt-4 border-t border-stone-100 dark:border-stone-800">
-            {{ if or .Listing.City .Listing.Address }}
-            <div class="flex items-center gap-1 md:gap-1.5 text-text-sub dark:text-stone-400">
-                <span class="material-symbols-outlined text-[12px] md:text-[14px]">location_on</span>
-                <span class="text-[10px] md:text-xs font-bold capitalize tracking-wide">
-                    {{ displayCity .Listing.City .Listing.Address }}
-                </span>
-            </div>
-            {{ end }}
-
-            <button
-                class="text-earth-clay font-bold flex items-center gap-1 group/btn w-11 h-11 justify-center -mr-3 relative z-20 pointer-events-none"
-                data-testid="ag-listing-card-details">
-                <span
-                    class="material-symbols-outlined text-[14px] md:text-[16px] transition-transform group-hover:translate-x-1">expand_circle_right</span>
-            </button>
         </div>
     </div>
 </div>
