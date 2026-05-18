@@ -50,7 +50,10 @@ func GetPagination(c echo.Context, defaultLimit int) Pagination {
 	if page < 1 {
 		page = 1
 	}
-	limit := defaultLimit
+	limit, _ := strconv.Atoi(c.QueryParam("limit"))
+	if limit <= 0 {
+		limit = defaultLimit
+	}
 	offset := (page - 1) * limit
 	return Pagination{
 		Page:   page,

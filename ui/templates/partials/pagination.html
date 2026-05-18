@@ -1,14 +1,14 @@
 {{ define "pagination" }}
-<div id="pagination" class="flex items-center justify-center space-x-2 py-8" hx-boost="true" hx-swap-oob="true">
+<div id="pagination" class="hidden md:flex items-center justify-center space-x-2 py-8" hx-boost="true" hx-swap-oob="true">
 {{ if .Pagination.TotalPages }}
 {{ if gt .Pagination.TotalPages 1 }}
     {{ if gt .Pagination.Page 1 }}
-    <a href="?page={{ sub .Pagination.Page 1 }}{{ if .FilterType }}&type={{ .FilterType }}{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}" 
+    <a href="?page={{ sub .Pagination.Page 1 }}&type={{ if .FilterType }}{{ .FilterType }}{{ else }}All{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}{{ if .Pagination.Limit }}&limit={{ .Pagination.Limit }}{{ end }}" 
        class="flex items-center justify-center w-10 h-10 border border-white/20 text-earth-cream hover:bg-earth-cream/10 transition-all duration-300"
-       hx-get="/listings/fragment?page={{ sub .Pagination.Page 1 }}{{ if .FilterType }}&type={{ .FilterType }}{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}"
+       hx-get="/listings/fragment?page={{ sub .Pagination.Page 1 }}&type={{ if .FilterType }}{{ .FilterType }}{{ else }}All{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}{{ if .Pagination.Limit }}&limit={{ .Pagination.Limit }}{{ end }}"
        hx-target="#listings-container"
        hx-indicator="#listings-loading"
-       hx-push-url="?page={{ sub .Pagination.Page 1 }}{{ if .FilterType }}&type={{ .FilterType }}{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}">
+       hx-push-url="?page={{ sub .Pagination.Page 1 }}&type={{ if .FilterType }}{{ .FilterType }}{{ else }}All{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}{{ if .Pagination.Limit }}&limit={{ .Pagination.Limit }}{{ end }}">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
         </svg>
@@ -16,23 +16,23 @@
     {{ end }}
  
     {{ range .Pagination.GetPageRange }}
-    <a href="?page={{ . }}{{ if $.FilterType }}&type={{ $.FilterType }}{{ end }}{{ if $.Query }}&q={{ $.Query }}{{ end }}" 
+    <a href="?page={{ . }}&type={{ if $.FilterType }}{{ $.FilterType }}{{ else }}All{{ end }}{{ if $.Query }}&q={{ $.Query }}{{ end }}{{ if $.Pagination.Limit }}&limit={{ $.Pagination.Limit }}{{ end }}" 
        class="flex items-center justify-center w-10 h-10 border {{ if eq . $.Pagination.Page }}border-earth-accent bg-earth-accent text-earth-dark{{ else }}border-white/20 text-earth-cream hover:bg-earth-cream/10{{ end }} transition-all duration-300 font-medium"
-       hx-get="/listings/fragment?page={{ . }}{{ if $.FilterType }}&type={{ $.FilterType }}{{ end }}{{ if $.Query }}&q={{ $.Query }}{{ end }}"
+       hx-get="/listings/fragment?page={{ . }}&type={{ if $.FilterType }}{{ $.FilterType }}{{ else }}All{{ end }}{{ if $.Query }}&q={{ $.Query }}{{ end }}{{ if $.Pagination.Limit }}&limit={{ $.Pagination.Limit }}{{ end }}"
        hx-target="#listings-container"
        hx-indicator="#listings-loading"
-       hx-push-url="?page={{ . }}{{ if $.FilterType }}&type={{ $.FilterType }}{{ end }}{{ if $.Query }}&q={{ $.Query }}{{ end }}">
+       hx-push-url="?page={{ . }}&type={{ if $.FilterType }}{{ $.FilterType }}{{ else }}All{{ end }}{{ if $.Query }}&q={{ $.Query }}{{ end }}{{ if $.Pagination.Limit }}&limit={{ $.Pagination.Limit }}{{ end }}">
         {{ . }}
     </a>
     {{ end }}
  
     {{ if .Pagination.HasNextPage }}
-    <a href="?page={{ add .Pagination.Page 1 }}{{ if .FilterType }}&type={{ .FilterType }}{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}" 
+    <a href="?page={{ add .Pagination.Page 1 }}&type={{ if .FilterType }}{{ .FilterType }}{{ else }}All{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}{{ if .Pagination.Limit }}&limit={{ .Pagination.Limit }}{{ end }}" 
        class="flex items-center justify-center w-10 h-10 border border-white/20 text-earth-cream hover:bg-earth-cream/10 transition-all duration-300"
-       hx-get="/listings/fragment?page={{ add .Pagination.Page 1 }}{{ if .FilterType }}&type={{ .FilterType }}{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}"
+       hx-get="/listings/fragment?page={{ add .Pagination.Page 1 }}&type={{ if .FilterType }}{{ .FilterType }}{{ else }}All{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}{{ if .Pagination.Limit }}&limit={{ .Pagination.Limit }}{{ end }}"
        hx-target="#listings-container"
        hx-indicator="#listings-loading"
-       hx-push-url="?page={{ add .Pagination.Page 1 }}{{ if .FilterType }}&type={{ .FilterType }}{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}">
+       hx-push-url="?page={{ add .Pagination.Page 1 }}&type={{ if .FilterType }}{{ .FilterType }}{{ else }}All{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}{{ if .Pagination.Limit }}&limit={{ .Pagination.Limit }}{{ end }}">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
         </svg>

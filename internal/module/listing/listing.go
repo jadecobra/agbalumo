@@ -64,8 +64,8 @@ func (h *ListingHandler) resolveCoordinates(ctx context.Context, params *queryPa
 // Home Handler
 func (h *ListingHandler) HandleHome(c echo.Context) error {
 	ctx := c.Request().Context()
-	limit := 30
-	p := GetPagination(c, limit)
+	p := GetPagination(c, 30)
+	limit := p.Limit
 
 	params := h.parseQueryParams(c)
 	lat, lng := h.resolveCoordinates(ctx, &params)
@@ -136,6 +136,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		TotalCount:   totalCount,
 		Pagination: Pagination{
 			Page:        p.Page,
+			Limit:       limit,
 			TotalPages:  (totalCount + limit - 1) / limit,
 			HasNextPage: p.Offset+len(listings) < totalCount,
 			TotalCount:  totalCount,
@@ -171,9 +172,14 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 		return ui.RespondErrorMsg(c, http.StatusInternalServerError, err.Error())
 	}
 
-	featured, _ := h.App.DB.GetFeaturedListings(c.Request().Context(), params.Type, params.City)
+	var featured []domain.Listing
+	if p.Page == 1 {
+		featured, _ = h.App.DB.GetFeaturedListings(c.Request().Context(), params.Type, params.City)
+	}
 	h.processListings(listings)
-	h.processListings(featured)
+	if len(featured) > 0 {
+		h.processListings(featured)
+	}
 
 	savedIDs := h.getSavedIDs(c)
 	savedMap := make(map[string]bool)
@@ -191,6 +197,7 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 		Radius:     params.Radius,
 		Pagination: Pagination{
 			Page:        p.Page,
+			Limit:       p.Limit,
 			TotalPages:  (totalCount + p.Limit - 1) / p.Limit,
 			HasNextPage: p.Offset+len(listings) < totalCount,
 			TotalCount:  totalCount,

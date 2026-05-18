@@ -172,6 +172,7 @@ func TestHandleFragment_FeaturedSectionOnlyOnPageOne(t *testing.T) {
 
 	// Case 1: Page 1 fragment request -> should return featured listings OOB swap
 	c1, rec1 := testutil.SetupModuleContext(http.MethodGet, "/listings/fragment?page=1", nil)
+	c1.Echo().Renderer = &testutil.TemplateRenderer{Templates: testutil.NewRealTemplate(t)}
 	c1.Request().Header.Set("HX-Request", "true")
 	if err := h.HandleFragment(c1); err != nil {
 		t.Fatal(err)
@@ -181,6 +182,7 @@ func TestHandleFragment_FeaturedSectionOnlyOnPageOne(t *testing.T) {
 
 	// Case 2: Page 2 fragment request -> should NOT return featured listings OOB swap
 	c2, rec2 := testutil.SetupModuleContext(http.MethodGet, "/listings/fragment?page=2", nil)
+	c2.Echo().Renderer = &testutil.TemplateRenderer{Templates: testutil.NewRealTemplate(t)}
 	c2.Request().Header.Set("HX-Request", "true")
 	if err := h.HandleFragment(c2); err != nil {
 		t.Fatal(err)

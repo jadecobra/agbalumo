@@ -22,6 +22,7 @@ function initApp() {
     if (typeof setupFilterToggle === 'function') setupFilterToggle();
     setupTryButtons();
     setupSearchPills();
+    initInfiniteScroll();
 }
 
 function setupSearchPills() {
@@ -44,6 +45,10 @@ document.body.addEventListener('htmx:afterSwap', (evt) => {
     if (typeof initCustomDropdownsActiveState === 'function') {
         initCustomDropdownsActiveState(evt.detail.elt);
     }
+    // Re-init infinite scroll observer if the listings container or sentinel itself was swapped
+    if (evt.detail.target.id === 'listings-container' || evt.detail.target.id === 'infinite-scroll-sentinel') {
+        initInfiniteScroll();
+    }
 });
 
 function setupTryButtons() {
@@ -57,5 +62,20 @@ function setupTryButtons() {
             }
         }
     });
+}
+
+function initInfiniteScroll() {
+    const sentinel = document.getElementById('infinite-scroll-sentinel');
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && window.innerWidth < 768) {
+                sentinel.dispatchEvent(new CustomEvent('infinite-scroll'));
+            }
+        });
+    }, { rootMargin: '100px' });
+
+    observer.observe(sentinel);
 }
 

@@ -77,6 +77,16 @@
 
             {{ template "listing_card" dict "Listing" . "User" $.User "GridClass" $gridClass "Index" $i "SavedIDs" $.SavedIDs "IDPrefix" "" }}
             {{ end }}
+            {{ if .Pagination.HasNextPage }}
+            <div id="infinite-scroll-sentinel"
+                class="col-span-full h-16 flex items-center justify-center md:hidden"
+                hx-get="/listings/fragment?page={{ add .Pagination.Page 1 }}&type={{ if .FilterType }}{{ .FilterType }}{{ else }}All{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}{{ if .City }}&city={{ .City }}{{ end }}{{ if .Radius }}&radius={{ .Radius }}{{ end }}{{ if .Source }}&source={{ .Source }}{{ end }}{{ if .Pagination.Limit }}&limit={{ .Pagination.Limit }}{{ end }}"
+                hx-trigger="infinite-scroll"
+                hx-target="this"
+                hx-swap="outerHTML">
+                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-earth-ochre"></div>
+            </div>
+            {{ end }}
         </div>
 
         <!-- Pagination Controls -->

@@ -1,7 +1,6 @@
 {{ define "listing_list" }}
-<!-- Featured Section OOB Swap -->
+{{ if .Featured }}
 <div id="featured-section" hx-swap-oob="true">
-    {{ if .Featured }}
     <div class="mb-12">
         <div class="flex items-center justify-between mb-8 px-1">
             <h3 class="text-xs font-bold uppercase tracking-[0.4em] text-earth-ochre">Featured Selection</h3>
@@ -14,8 +13,8 @@
             {{ end }}
         </div>
     </div>
-    {{ end }}
 </div>
+{{ end }}
 
 <!-- Location Status OOB Swap -->
 <div id="location-status" hx-swap-oob="true">
@@ -31,7 +30,18 @@
 {{ range $i, $e := .Listings }}
 {{ template "listing_card" dict "Listing" . "User" $.User "GridClass" "" "Index" $i "SavedIDs" $.SavedIDs "IDPrefix" "" }}
 {{ end }}
+{{ if .Pagination.HasNextPage }}
+<div id="infinite-scroll-sentinel"
+    class="col-span-full h-16 flex items-center justify-center md:hidden"
+    hx-get="/listings/fragment?page={{ add .Pagination.Page 1 }}&type={{ if .FilterType }}{{ .FilterType }}{{ else }}All{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}{{ if .City }}&city={{ .City }}{{ end }}{{ if .Radius }}&radius={{ .Radius }}{{ end }}{{ if .Source }}&source={{ .Source }}{{ end }}{{ if .Pagination.Limit }}&limit={{ .Pagination.Limit }}{{ end }}"
+    hx-trigger="infinite-scroll"
+    hx-target="this"
+    hx-swap="outerHTML">
+    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-earth-ochre"></div>
+</div>
+{{ end }}
 {{ else }}
+{{ if eq .Pagination.Page 1 }}
 <div class="col-span-full flex flex-col items-center justify-center py-16 text-center animate-in fade-in duration-500">
     <span class="material-symbols-outlined text-4xl text-stone-400 dark:text-stone-500 mb-4">search_off</span>
     <h3 class="text-lg font-bold text-earth-cream mb-2 font-display">
@@ -70,6 +80,7 @@
         View All Listings
     </a>
 </div>
+{{ end }}
 {{ end }}
 {{ template "pagination" . }}
 {{ end }}
