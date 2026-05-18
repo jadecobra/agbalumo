@@ -71,6 +71,11 @@ go run ./cmd/verify snapshot-parity
    - Fix and re-push. Repeat from Step 1.
    - Do NOT mark the task as complete until the remote CI passes.
 
+## CI/CD Resiliency Standards
+
+1. **Native Host Execution for E2E Tests**: To avoid transient container initialization overhead ("Initialize containers failed") and fragile nested dependency configurations (e.g., `setup-go` failing within a Docker container), configure Playwright E2E jobs to run natively on the runner host (`runs-on: ubuntu-latest`) rather than within a container block.
+2. **Dynamic Browser Provisioning**: Install browsers and system-level library dependencies natively on the host using `npx playwright install --with-deps`. This is faster and immune to Docker daemon startup or pulling delays.
+
 ## Post-Execution Health Check
 
 1. Verify that the local server is running and healthy:
