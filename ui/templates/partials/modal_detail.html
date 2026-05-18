@@ -1,5 +1,5 @@
 {{ define "modal_detail" }}
-{{ template "modal_base" dict "ID" (print "detail-modal-" .Listing.ID) "MarginClass" "m-0 md:m-auto" "ContentID" "modal-content" "MaxHeightClass" "md:max-h-[90vh]" "NoPadding" true "NoDecorativeBg" true "NoHeader" true "NoBottomClose" true "CustomScroll" true "InnerTemplate" "modal_detail_content" "Data" . }}
+{{ template "modal_base" dict "ID" (print "detail-modal-" .Listing.ID) "MarginClass" "m-0 md:m-auto" "ContentID" "modal-content" "MaxHeightClass" "md:max-h-[90vh]" "MaxWidthClass" "md:max-w-4xl" "NoPadding" true "NoDecorativeBg" true "NoHeader" true "NoBottomClose" true "CustomScroll" true "InnerTemplate" "modal_detail_content" "Data" . }}
 {{ end }}
 
 {{ define "modal_detail_content" }}
@@ -43,220 +43,240 @@
 
         <!-- Scrollable Content -->
         <div class="p-6 overflow-y-auto bg-white dark:bg-surface-dark flex-1">
-            <div class="flex items-center justify-between mb-4">
-                <a href="https://www.google.com/maps/search/?api=1&query={{ urlquery .Listing.Address }},{{ urlquery .Listing.City }}" target="_blank" data-ada-discovery="maps" class="flex items-start gap-2 text-text-main/70 dark:text-earth-cream/70 hover:text-earth-accent transition-colors text-sm">
-                    <span class="material-symbols-outlined text-[18px] mt-0.5">location_on</span>
-                    <div class="flex flex-col">
-                        <span class="font-bold text-text-main dark:text-earth-cream leading-tight">{{
-                            .Listing.City }}</span>
-                        {{ if .Listing.Address }}<span class="text-xs opacity-80 font-medium">{{ .Listing.Address
-                            }}</span>{{ end }}
-                    </div>
-                </a>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                
+                <!-- Left Column: Core Info & Details -->
+                <div class="space-y-6">
+                    <!-- Location & Origin Row -->
+                    <div class="flex flex-wrap items-start justify-between gap-4 pb-4 border-b border-stone-100 dark:border-stone-800">
+                        <!-- Address / Map Link -->
+                        <a href="https://www.google.com/maps/search/?api=1&query={{ urlquery .Listing.Address }},{{ urlquery .Listing.City }}" target="_blank" data-ada-discovery="maps" class="flex items-start gap-2.5 text-text-main/70 dark:text-earth-cream/70 hover:text-earth-accent transition-colors text-sm">
+                            <span class="material-symbols-outlined text-xl text-earth-clay dark:text-earth-accent mt-0.5">location_on</span>
+                            <div class="flex flex-col">
+                                <span class="font-bold text-text-main dark:text-earth-cream leading-tight">{{ .Listing.City }}</span>
+                                {{ if .Listing.Address }}<span class="text-xs opacity-80 font-medium mt-0.5">{{ .Listing.Address }}</span>{{ end }}
+                            </div>
+                        </a>
 
-                {{ $activeOrigin := .Listing.OwnerOrigin }}
-                {{ if .Listing.EnrichmentAttemptedAt }}{{ if .Listing.RegionalSpecialty }}{{ $activeOrigin = .Listing.RegionalSpecialty }}{{ end }}{{ end }}
-                {{ $flag := countryFlag $activeOrigin }}
+                        <!-- Flags / Specialties / Heat Level -->
+                        {{ $activeOrigin := .Listing.OwnerOrigin }}
+                        {{ if .Listing.EnrichmentAttemptedAt }}{{ if .Listing.RegionalSpecialty }}{{ $activeOrigin = .Listing.RegionalSpecialty }}{{ end }}{{ end }}
+                        {{ $flag := countryFlag $activeOrigin }}
 
-                {{ if or $flag $activeOrigin (gt .Listing.HeatLevel 0) }}
-                <div class="flex flex-wrap items-center gap-3 mt-1 text-text-main/80 dark:text-earth-cream/80">
-                    {{ if $flag }}
-                    <div class="flex items-center gap-1.5" title="{{ if .Listing.EnrichmentAttemptedAt }}Verified Origin: {{ .Listing.RegionalSpecialty }}{{ else }}Poster Origin: {{ .Listing.OwnerOrigin }}{{ end }}">
-                        <span class="text-lg">{{ $flag }}</span>
-                        {{ if $activeOrigin }}
-                            {{ if not (isCountry $activeOrigin) }}
-                            <span class="text-xs font-bold tracking-wide">{{ $activeOrigin }}</span>
+                        {{ if or $flag $activeOrigin (gt .Listing.HeatLevel 0) }}
+                        <div class="flex flex-wrap items-center gap-3 text-text-main/80 dark:text-earth-cream/80">
+                            {{ if $flag }}
+                            <div class="flex items-center gap-1.5 py-1 px-2.5 bg-stone-50 dark:bg-earth-cream/5 border border-stone-200 dark:border-white/10" title="{{ if .Listing.EnrichmentAttemptedAt }}Verified Origin: {{ .Listing.RegionalSpecialty }}{{ else }}Poster Origin: {{ .Listing.OwnerOrigin }}{{ end }}">
+                                <span class="text-lg">{{ $flag }}</span>
+                                {{ if $activeOrigin }}
+                                    {{ if not (isCountry $activeOrigin) }}
+                                    <span class="text-xs font-bold tracking-wide capitalize">{{ $activeOrigin }}</span>
+                                    {{ end }}
+                                {{ end }}
+                            </div>
                             {{ end }}
+
+                            {{ if gt .Listing.HeatLevel 0 }}
+                            <div class="flex items-center gap-0.5 py-1 px-2.5 bg-stone-50 dark:bg-earth-cream/5 border border-stone-200 dark:border-white/10">
+                                <span class="text-xs font-bold capitalize tracking-widest mr-1 opacity-70">Heat:</span>
+                                {{ if ge .Listing.HeatLevel 1 }}🌶️{{ end }}{{ if ge .Listing.HeatLevel 2 }}🌶️{{ end }}{{ if ge .Listing.HeatLevel 3 }}🌶️{{ end }}{{ if ge .Listing.HeatLevel 4 }}🌶️{{ end }}{{ if ge .Listing.HeatLevel 5 }}🌶️{{ end }}
+                            </div>
+                            {{ end }}
+                        </div>
+                        {{ end }}
+                    </div>
+
+                    <!-- Owner / Claim Actions -->
+                    {{ if or (and .User (eq .User.ID .Listing.OwnerID)) .CanClaim }}
+                    <div class="p-4 bg-stone-50 dark:bg-earth-cream/5 border border-stone-200 dark:border-white/10 flex items-center justify-between gap-4">
+                        <span class="text-xs font-bold text-text-sub dark:text-stone-400">Controls:</span>
+                        {{ if and .User (eq .User.ID .Listing.OwnerID) }}
+                        <button hx-get="/listings/{{.Listing.ID}}/edit" hx-target="body" hx-swap="beforeend" data-testid="edit-listing-btn"
+                            class="bg-white hover:bg-stone-50 text-stone-700 text-xs font-bold px-4 py-2 border-2 border-stone-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
+                            Edit
+                        </button>
+                        {{ end }}
+
+                        {{ if .CanClaim }}
+                        <form hx-post="/listings/{{.Listing.ID}}/claim" hx-target="closest dialog" hx-swap="outerHTML" class="inline">
+                            <button type="submit"
+                                class="bg-earth-accent hover:bg-earth-accent-light text-white text-xs font-bold px-4 py-2 border-2 border-stone-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-base">verified</span>
+                                Claim
+                            </button>
+                        </form>
                         {{ end }}
                     </div>
                     {{ end }}
 
-                    {{ if gt .Listing.HeatLevel 0 }}
-                    <div class="flex items-center gap-0.5 py-0.5 px-2 bg-stone-100 dark:bg-earth-cream/5 border border-stone-200 dark:border-white/10">
-                        <span class="text-[10px] font-bold uppercase tracking-widest mr-1 opacity-70">Heat:</span>
-                        {{ if ge .Listing.HeatLevel 1 }}🌶️{{ end }}{{ if ge .Listing.HeatLevel 2 }}🌶️{{ end }}{{ if ge .Listing.HeatLevel 3 }}🌶️{{ end }}{{ if ge .Listing.HeatLevel 4 }}🌶️{{ end }}{{ if ge .Listing.HeatLevel 5 }}🌶️{{ end }}
+                    <!-- Job Specific Card -->
+                    {{ if eq .Listing.Type "Job" }}
+                    <div class="flex flex-col gap-3 bg-stone-50 dark:bg-earth-cream/5 p-5 border-2 border-stone-900 dark:border-stone-800 shadow-[3px_3px_0px_0px_rgba(45,35,18,1)]">
+                        <div class="flex items-center gap-2.5 text-text-main dark:text-earth-cream border-b border-stone-200 dark:border-white/10 pb-2">
+                            <span class="material-symbols-outlined text-xl text-earth-accent">business</span>
+                            <span class="font-black capitalize tracking-wider text-sm">{{ .Listing.Company }}</span>
+                        </div>
+                        
+                        {{ if .Listing.PayRange }}
+                        <div class="flex items-center gap-2.5 text-green-600 dark:text-green-400 border-b border-stone-200 dark:border-white/10 pb-2">
+                            <span class="material-symbols-outlined text-xl">payments</span>
+                            <span class="font-bold text-sm">{{ .Listing.PayRange }}</span>
+                        </div>
+                        {{ end }}
+
+                        <!-- Job Start Date -->
+                        <div class="flex items-center gap-2.5 text-text-main dark:text-earth-cream border-b border-stone-200 dark:border-white/10 pb-2">
+                            <span class="material-symbols-outlined text-xl text-blue-500">calendar_month</span>
+                            <div class="flex flex-col">
+                                <span class="text-xs font-bold text-text-sub dark:text-stone-400 capitalize tracking-wider leading-none">Start Date</span>
+                                <span class="text-xs font-bold mt-1">
+                                    {{ if not .Listing.JobStartDate.IsZero }}{{ .Listing.JobStartDate.Format "Mon, 02 Jan 2006" }}{{ else }}Immediate (ASAP){{ end }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Skills -->
+                        <div class="flex flex-col gap-2 mt-1">
+                            <span class="text-xs font-bold text-text-sub dark:text-stone-400 capitalize tracking-wider">Skills:</span>
+                            <div class="flex flex-wrap gap-2">
+                                {{ range (split .Listing.Skills ",") }}
+                                <span class="bg-earth-cream/10 text-text-main dark:text-earth-cream px-2.5 py-1 text-xs font-bold border border-stone-200 dark:border-white/10">
+                                    {{ . }}
+                                </span>
+                                {{ end }}
+                            </div>
+                        </div>
                     </div>
                     {{ end }}
-                </div>
-                {{ end }}
 
-                {{ if and .User (eq .User.ID .Listing.OwnerID) }}
-                <button hx-get="/listings/{{.Listing.ID}}/edit" hx-target="body" hx-swap="beforeend" data-testid="edit-listing-btn"
-                    class="bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold px-3 py-1  border border-stone-200 transition-colors">
-                    Edit Listing
-                </button>
-                {{ end }}
-
-                {{ if .CanClaim }}
-                <form hx-post="/listings/{{.Listing.ID}}/claim" hx-target="closest dialog" hx-swap="outerHTML"
-                    class="inline">
-                    <button type="submit"
-                        class="bg-earth-accent/10 hover:bg-earth-accent/20 text-earth-accent text-xs font-bold px-3 py-1  transition-colors flex items-center gap-1">
-                        Claim this Listing
-                    </button>
-                </form>
-                {{ end }}
-            </div>
-            
-            {{ if .Listing.MenuURL }}
-            <div id="cta-block" class="mb-6">
-                <a href="{{ .Listing.MenuURL }}" target="_blank" data-ada-discovery="menu"
-                    class="btn-leaf w-full flex items-center justify-center gap-2 py-3.5 font-bold uppercase tracking-widest text-sm shadow-md">
-                    <span class="material-symbols-outlined">restaurant_menu</span>
-                    View Menu
-                </a>
-            </div>
-            {{ end }}
-
-            {{ if or (hasDelivery .Listing.DeliveryPlatforms "UberEats") (hasDelivery .Listing.DeliveryPlatforms "DoorDash") (hasDelivery .Listing.DeliveryPlatforms "Grubhub") }}
-            <div id="delivery-block" class="mb-6">
-                <h3 class="font-bold text-text-main dark:text-earth-cream mb-2 text-sm capitalize tracking-wide">Order Delivery</h3>
-                <div class="flex flex-wrap gap-2">
-                    {{ if hasDelivery .Listing.DeliveryPlatforms "UberEats" }}
-                    <span class="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold capitalize tracking-wider shadow-sm">
-                        <span class="material-symbols-outlined text-[16px]">delivery_dining</span>
-                        UberEats
-                    </span>
+                    <!-- Event Specific Card -->
+                    {{ if and (eq .Listing.Type "Event") (not .Listing.EventStart.IsZero) }}
+                    <div class="flex items-start gap-3 bg-stone-50 dark:bg-earth-cream/5 p-4 border-2 border-stone-900 dark:border-stone-800 shadow-[3px_3px_0px_0px_rgba(45,35,18,1)]">
+                        <span class="material-symbols-outlined text-2xl text-earth-accent mt-0.5">event</span>
+                        <div class="flex flex-col">
+                            <span class="text-xs font-bold text-text-sub dark:text-stone-400 capitalize tracking-wider leading-none">Event Schedule</span>
+                            <span class="text-sm font-black text-text-main dark:text-earth-cream mt-1.5">
+                                {{ .Listing.EventStart.Format "Mon, 02 Jan 2006" }}
+                            </span>
+                            <span class="text-xs font-medium text-text-sub dark:text-stone-400 mt-1">
+                                {{ .Listing.EventStart.Format "15:04" }} - {{ if not .Listing.EventEnd.IsZero }}{{ .Listing.EventEnd.Format "15:04" }}{{ else }}Late{{ end }}
+                            </span>
+                        </div>
+                    </div>
                     {{ end }}
-                    {{ if hasDelivery .Listing.DeliveryPlatforms "DoorDash" }}
-                    <span class="flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 text-white text-xs font-bold capitalize tracking-wider shadow-sm">
-                        <span class="material-symbols-outlined text-[16px]">delivery_dining</span>
-                        DoorDash
-                    </span>
+
+                    <!-- About / Description -->
+                    <div class="space-y-2">
+                        <h3 class="font-bold text-text-main dark:text-earth-cream text-xs capitalize tracking-wider">About</h3>
+                        <p class="text-text-main dark:text-earth-cream text-sm leading-relaxed whitespace-pre-line">
+                            {{ .Listing.Description }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Right Column: Interactive CTAs & Contacts -->
+                <div class="space-y-6">
+                    <!-- Primary CTA (View Menu) -->
+                    {{ if .Listing.MenuURL }}
+                    <div id="cta-block">
+                        <a href="{{ .Listing.MenuURL }}" target="_blank" data-ada-discovery="menu"
+                            class="w-full flex items-center justify-center gap-2 py-4 bg-earth-accent hover:bg-earth-accent-light text-white font-black capitalize tracking-widest text-sm border-2 border-stone-900 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-x-1 active:translate-y-1 active:shadow-none">
+                            <span class="material-symbols-outlined">restaurant_menu</span>
+                            View Menu
+                        </a>
+                    </div>
                     {{ end }}
-                    {{ if hasDelivery .Listing.DeliveryPlatforms "Grubhub" }}
-                    <span class="flex items-center gap-1.5 px-3 py-1.5 bg-earth-accent text-white text-xs font-bold capitalize tracking-wider shadow-sm">
-                        <span class="material-symbols-outlined text-[16px]">delivery_dining</span>
-                        Grubhub
-                    </span>
+
+                    <!-- Primary CTA (Job Apply URL) -->
+                    {{ if .Listing.JobApplyURL }}
+                    <div id="apply-block">
+                        <a href="{{ .Listing.JobApplyURL }}" target="_blank" data-ada-discovery="apply"
+                            class="w-full flex items-center justify-center gap-2 py-4 bg-earth-accent hover:bg-earth-accent-light text-white font-black capitalize tracking-widest text-sm border-2 border-stone-900 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-x-1 active:translate-y-1 active:shadow-none">
+                            <span class="material-symbols-outlined">rocket_launch</span>
+                            Apply Now
+                        </a>
+                    </div>
                     {{ end }}
+
+                    <!-- Order Delivery Block -->
+                    {{ if or (hasDelivery .Listing.DeliveryPlatforms "UberEats") (hasDelivery .Listing.DeliveryPlatforms "DoorDash") (hasDelivery .Listing.DeliveryPlatforms "Grubhub") }}
+                    <div id="delivery-block" class="p-4 bg-stone-50 dark:bg-earth-cream/5 border border-stone-200 dark:border-white/10">
+                        <h3 class="font-bold text-text-main dark:text-earth-cream mb-3 text-xs capitalize tracking-wider">Order Delivery</h3>
+                        <div class="flex flex-wrap gap-2.5">
+                            {{ if hasDelivery .Listing.DeliveryPlatforms "UberEats" }}
+                            <span class="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 text-white text-xs font-bold capitalize tracking-wider shadow-sm border border-emerald-700">
+                                <span class="material-symbols-outlined text-base">delivery_dining</span>
+                                UberEats
+                            </span>
+                            {{ end }}
+                            {{ if hasDelivery .Listing.DeliveryPlatforms "DoorDash" }}
+                            <span class="flex items-center gap-1.5 px-3 py-2 bg-rose-600 text-white text-xs font-bold capitalize tracking-wider shadow-sm border border-rose-700">
+                                <span class="material-symbols-outlined text-base">delivery_dining</span>
+                                DoorDash
+                            </span>
+                            {{ end }}
+                            {{ if hasDelivery .Listing.DeliveryPlatforms "Grubhub" }}
+                            <span class="flex items-center gap-1.5 px-3 py-2 bg-earth-accent text-white text-xs font-bold capitalize tracking-wider shadow-sm border border-earth-accent-light">
+                                <span class="material-symbols-outlined text-base">delivery_dining</span>
+                                Grubhub
+                            </span>
+                            {{ end }}
+                        </div>
+                    </div>
+                    {{ end }}
+
+                    <!-- Hours of Operation -->
+                    {{ if .Listing.HoursOfOperation }}
+                    <div class="flex items-start gap-3 p-4 bg-stone-50 dark:bg-earth-cream/5 border border-stone-200 dark:border-white/10 text-sm">
+                        <span class="material-symbols-outlined text-xl text-earth-clay dark:text-earth-accent mt-0.5">schedule</span>
+                        <div class="flex flex-col">
+                            <span class="text-xs font-bold text-text-sub dark:text-stone-400 capitalize tracking-wider leading-none mb-1">Hours</span>
+                            <span class="font-bold text-text-main dark:text-earth-cream">{{ .Listing.HoursOfOperation }}</span>
+                        </div>
+                    </div>
+                    {{ end }}
+
+                    <!-- Contact Actions Grid (2x2 layout) -->
+                    <div class="space-y-3">
+                        <h3 class="font-bold text-text-main dark:text-earth-cream text-xs capitalize tracking-wider">Contact</h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            {{ if .Listing.ContactWhatsApp }}
+                            <a href="https://wa.me/{{ .Listing.ContactWhatsApp }}" target="_blank" data-ada-discovery="whatsapp"
+                                class="flex flex-col items-center justify-center p-3 bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 border-2 border-stone-900 dark:border-stone-700 shadow-[3px_3px_0px_0px_rgba(45,35,18,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.1)] transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-x-1 active:translate-y-1 active:shadow-none text-center h-20">
+                                <span class="material-symbols-outlined text-xl mb-1">chat</span>
+                                <span class="font-bold text-xs capitalize tracking-wider">WhatsApp</span>
+                            </a>
+                            {{ end }}
+
+                            {{ if .Listing.ContactPhone }}
+                            <a href="tel:{{ .Listing.ContactPhone }}" data-ada-discovery="phone"
+                                class="flex flex-col items-center justify-center p-3 bg-stone-50 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 border-2 border-stone-900 dark:border-stone-700 shadow-[3px_3px_0px_0px_rgba(45,35,18,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.1)] transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-x-1 active:translate-y-1 active:shadow-none text-center h-20">
+                                <span class="material-symbols-outlined text-xl mb-1">call</span>
+                                <span class="font-bold text-xs capitalize tracking-wider">Call</span>
+                            </a>
+                            {{ end }}
+
+                            {{ if not (eq .Listing.Type "Food") }}
+                            {{ if .Listing.ContactEmail }}
+                            <a href="mailto:{{ .Listing.ContactEmail }}" data-ada-discovery="email"
+                                class="flex flex-col items-center justify-center p-3 bg-stone-50 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 border-2 border-stone-900 dark:border-stone-700 shadow-[3px_3px_0px_0px_rgba(45,35,18,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.1)] transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-x-1 active:translate-y-1 active:shadow-none text-center h-20">
+                                <span class="material-symbols-outlined text-xl mb-1">mail</span>
+                                <span class="font-bold text-xs capitalize tracking-wider">Email</span>
+                            </a>
+                            {{ end }}
+                            {{ end }}
+
+                            {{ if .Listing.WebsiteURL }}
+                            <a href="{{ .Listing.WebsiteURL }}" target="_blank" data-ada-discovery="website"
+                                class="flex flex-col items-center justify-center p-3 bg-stone-50 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 border-2 border-stone-900 dark:border-stone-700 shadow-[3px_3px_0px_0px_rgba(45,35,18,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.1)] transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-x-1 active:translate-y-1 active:shadow-none text-center h-20">
+                                <span class="material-symbols-outlined text-xl mb-1">language</span>
+                                <span class="font-bold text-xs capitalize tracking-wider">Website</span>
+                            </a>
+                            {{ end }}
+                        </div>
+                    </div>
                 </div>
-            </div>
-            {{ end }}
 
-
-            {{ if .Listing.HoursOfOperation }}
-            <div class="flex items-start gap-2 text-text-main/70 dark:text-earth-cream/70 text-sm mb-4">
-                <span class="material-symbols-outlined text-[18px] mt-0.5">schedule</span>
-                <span class="font-medium text-text-main dark:text-earth-cream">{{ .Listing.HoursOfOperation }}</span>
-            </div>
-            {{ end }}
-
-            <!-- Company & Pay for Jobs -->
-            {{ if eq .Listing.Type "Job" }}
-            <div class="flex flex-col gap-2 mb-6 bg-earth-cream/5 p-4  border border-stone-200 dark:border-white/10">
-                <div class="flex items-center gap-2.5 text-text-main dark:text-earth-cream">
-                    <span class="material-symbols-outlined text-[20px] text-earth-accent">business</span>
-                    <span class="font-bold capitalize tracking-widest text-sm">{{ .Listing.Company }}</span>
-                </div>
-                {{ if .Listing.PayRange }}
-                <div class="flex items-center gap-2.5 text-green-600 dark:text-green-400">
-                    <span class="material-symbols-outlined text-[20px]">payments</span>
-                    <span class="font-bold text-sm">{{ .Listing.PayRange }}</span>
-                </div>
-                {{ end }}
-            </div>
-            {{ end }}
-
-            {{ if and (eq .Listing.Type "Event") (not .Listing.EventStart.IsZero) }}
-            <div
-                class="flex items-start gap-2 text-text-main/70 dark:text-earth-cream/70 text-sm mb-4 bg-purple-50 dark:bg-purple-900/10 p-3  border border-purple-100 dark:border-purple-900/30">
-                <span
-                    class="material-symbols-outlined text-[18px] mt-0.5 text-purple-600 dark:text-purple-400">event</span>
-                <div class="flex flex-col">
-                    <span class="font-bold text-text-main dark:text-earth-cream leading-tight">
-                        {{ .Listing.EventStart.Format "Mon, 02 Jan 2006" }}
-                    </span>
-                    <span class="text-xs opacity-80 font-medium">
-                        {{ .Listing.EventStart.Format "15:04" }} - {{ if not .Listing.EventEnd.IsZero }}{{
-                        .Listing.EventEnd.Format "15:04" }}{{ else }}Late{{ end }}
-                    </span>
-                </div>
-            </div>
-            {{ end }}
-
-
-            {{ if eq .Listing.Type "Job" }}
-            <!-- Job Start Date -->
-            <div
-                class="flex items-start gap-2 text-text-main/70 dark:text-earth-cream/70 text-sm mb-4 bg-blue-50 dark:bg-blue-900/10 p-3  border border-blue-100 dark:border-blue-900/30">
-                <span
-                    class="material-symbols-outlined text-[18px] mt-0.5 text-blue-600 dark:text-blue-400">calendar_month</span>
-                <div class="flex flex-col">
-                    <span class="font-bold text-text-main dark:text-earth-cream leading-tight">Start Date</span>
-                    <span class="text-xs opacity-80 font-medium whitespace-nowrap">
-                        {{ if not .Listing.JobStartDate.IsZero }}{{ .Listing.JobStartDate.Format "Mon, 02 Jan 2006" }}{{
-                        else }}ASAP{{ end }}
-                    </span>
-                </div>
-            </div>
-
-            <!-- Skills -->
-            <h3 class="font-bold text-text-main dark:text-earth-cream mb-2 text-sm capitalize tracking-wide">Skills Required
-            </h3>
-            <div class="flex flex-wrap gap-2 mb-6">
-                {{ range (split .Listing.Skills ",") }}
-                <span class="bg-earth-cream/10 text-text-main dark:text-earth-cream px-3 py-1  text-xs font-bold border border-white/10">
-                    {{ . }}
-                </span>
-                {{ end }}
-            </div>
-
-            <!-- Apply URL logic moved to Contact section -->
-            {{ end }}
-
-            <h3 class="font-bold text-text-main dark:text-earth-cream mb-2 text-sm capitalize tracking-wide">About</h3>
-            <p class="text-text-main dark:text-earth-cream text-sm leading-relaxed whitespace-pre-line mb-6">
-                {{ .Listing.Description }}
-            </p>
-
-            <!-- Contact Section -->
-            <h3 class="font-bold text-text-main dark:text-earth-cream mb-2 text-sm capitalize tracking-wide">Contact</h3>
-            <div class="flex flex-col gap-3">
-                {{ if .Listing.ContactWhatsApp }}
-                <a href="https://wa.me/{{ .Listing.ContactWhatsApp }}" target="_blank" data-ada-discovery="whatsapp"
-                    class="flex items-center gap-3 p-3  bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors border border-green-100 dark:border-green-800">
-                    <span class="material-symbols-outlined">chat</span>
-                    <span class="font-medium text-sm">WhatsApp</span>
-                </a>
-                {{ end }}
-
-                {{ if .Listing.ContactPhone }}
-                <a href="tel:{{ .Listing.ContactPhone }}" data-ada-discovery="phone"
-                    class="flex items-center gap-3 p-3  bg-stone-50 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 border-stone-200 dark:border-white/10 transition-colors">
-                    <span class="material-symbols-outlined">call</span>
-                    <span class="font-medium text-sm">Call {{ .Listing.ContactPhone }}</span>
-                </a>
-                {{ end }}
-
-                {{ if not (eq .Listing.Type "Food") }}
-                {{ if .Listing.ContactEmail }}
-                <a href="mailto:{{ .Listing.ContactEmail }}" data-ada-discovery="email"
-                    class="flex items-center gap-3 p-3  bg-stone-50 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 transition-colors border border-stone-200 dark:border-white/10">
-                    <span class="material-symbols-outlined">mail</span>
-                    <span class="font-medium text-sm">Email</span>
-                </a>
-                {{ end }}
-                {{ end }}
-
-
-                {{ if .Listing.WebsiteURL }}
-                <a href="{{ .Listing.WebsiteURL }}" target="_blank" data-ada-discovery="website"
-                    class="flex items-center gap-3 p-1 text-earth-secondary hover:text-earth-accent font-bold uppercase text-sm transition-colors">
-                    <span class="material-symbols-outlined text-[18px]">language</span>
-                    <span>Website</span>
-                </a>
-                {{ end }}
-
-                {{ if .Listing.JobApplyURL }}
-                <a href="{{ .Listing.JobApplyURL }}" target="_blank" data-ada-discovery="apply"
-                    class="flex items-center gap-3 p-3  bg-earth-accent text-white hover:bg-earth-accent/90 transition-colors shadow-lg shadow-earth-accent/20">
-                    <span class="material-symbols-outlined">rocket_launch</span>
-                    <span class="font-medium text-sm">Apply Now</span>
-                </a>
-                {{ end }}
             </div>
         </div>
-
-
 {{ end }}

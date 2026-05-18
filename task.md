@@ -1,34 +1,37 @@
-# Task: Detail Modal Element Restructuring
+# Task: Detail Card Grid Restructuring
 
 ## Decision Log
 
-- **Decision 1**: Relocate `.Listing.Type` (category) and `rating_stars` (ratings) out of the header image box into a dedicated, clean horizontal metadata row.
-- **Decision 2**: Keep the metadata row **static during scrolling** (fixed immediately below the image header and above the scrollable content). This will be achieved by inserting a new flex container in the modal's main column layout sibling to the image box and the scrollable `.overflow-y-auto` container.
-- **Decision 3**: Keep the close button (`btn_close`) overlaid absolute in the top-right corner of the header image box.
-- **Decision 4**: Keep the save button (`save_button`) as an absolute overlay inside the image box, but line it up side-by-side with the close button. Ensure they are the exact same size (`w-11 h-11`) and use matching dark translucent backgrounds (`bg-black/40 backdrop-blur-sm rounded-full`) for visual balance and premium contrast.
-- **Decision 5**: Center the title (`.Listing.Title`) horizontally at the bottom of the image box (centered text overlay on top of the bottom gradient scrim).
+- **Decision 1**: Restructure the detail modal scrollable content from a single vertical list into a responsive, premium two-column CSS grid on desktop viewports (`md:grid-cols-2`) and a clean single-column layout on mobile viewports.
+- **Decision 2**: Design the two columns with clear content segmentation:
+  - **Left Column**: Main info (Location/Map link, Specialties/Verified Origin flag, Job/Event specific details, and the "About" Description block).
+  - **Right Column**: Interactive CTAs, hours, and actions (View Menu, Order Delivery platforms, and Contact Info grid).
+- **Decision 3**: Transform the Contact Section from a vertical link list into a highly premium **2x2 Action Button Grid** on desktop (WhatsApp, Call, Email, Website) using high-contrast brutalist outlines, flat shadow offsets, and vibrant hover micro-animations to improve aesthetic density and click rates.
+- **Decision 4**: Expand the modal container's maximum width from the default `md:max-w-sm` (384px) to `md:max-w-4xl` (896px) on desktop to give the new grid layout sufficient breathing room and premium editorial feel.
+- **Decision 5**: Ensure WCAG 2 AA compliance for all new action grid elements, verifying contrast ratios against background surfaces (specifically `earth-cream`, `white`, and `earth-dark`).
 
 ---
 
 ## Execution Plan
 
 ### Phase 1: Planning and Approvals
-- [x] Define execution strategy and gain user approval on task.md and clarifying questions.
+- [ ] Present clarifying questions and obtain user approval on the grid layout and modal width adjustments.
+- [ ] Get sign-off on `task.md`.
 
 ### Phase 2: Autonomous Execution Loop (TDD)
-- [ ] Run standard Playwright E2E UI tests locally (`go run ./cmd/verify browser`) to capture the baseline state (RED).
-- [ ] Restructure `ui/templates/partials/modal_detail.html` (GREEN):
-  - Group close and save buttons inside a top-right absolute-positioned flex row container.
-  - Apply matching classes to close and save buttons to ensure identical sizing and styling.
-  - Center the title text overlay horizontally at the bottom of the image box.
-  - Extract category and ratings out of the image box.
-  - Insert a new pinned metadata row below the image box, styled with responsive spacing and clear borders.
+- [ ] Run preflight checks and execute existing Playwright E2E UI tests locally (`go run ./cmd/verify browser`) to capture the baseline state.
+- [ ] Restructure `ui/templates/partials/modal_detail.html`:
+  - Update `modal_base` invocation to pass `MaxWidthClass="md:max-w-4xl"` for desktop viewports.
+  - Group scrollable content inside a responsive grid: `<div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">`.
+  - Group address, origin flags, specialties, job/event cards, and description in the left column.
+  - Group CTA buttons, delivery block, hours of operation, and the new 2x2 contact action grid in the right column.
+- [ ] Modernize the contact section into a 2x2 grid (`grid grid-cols-2 gap-3`) with uniform touch target heights (minimum 44px) and matching brutalist button styles.
 - [ ] Verify accessibility, mobile responsiveness, and layout integrity across target viewports.
 
 ### Phase 3: Audit & Resilience
 - [ ] Run `go run ./cmd/verify design` to enforce brand compliance and check design tokens.
 - [ ] Run `go run ./cmd/verify browser` to execute the full E2E UI verification suite and ensure accessibility (Axe) and surface-parity tests pass.
-- [ ] Generate linux visual regression snapshots if Playwright baselines are impacted.
+- [ ] Generate Linux visual regression snapshots if Playwright baselines are impacted.
 - [ ] Run local CI audit checks (`go run ./cmd/verify precommit`).
-- [ ] Commit all changes atomically with strict Conventional Commits format (`style(ui): restructure detail modal elements and center title`).
+- [ ] Commit all changes atomically with strict Conventional Commits format (`feat(ui): restructure detail modal content into 2-column desktop grid and 2x2 contact grid`).
 - [ ] Run `./scripts/pushw.sh` or `gh run watch` to ensure the remote CI build passes.
