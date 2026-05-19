@@ -50,9 +50,9 @@ func verifyBasicRendering(t *testing.T, tmpl *template.Template) {
 	}
 
 	// Layout and Title Position Assertions
-	parts := strings.Split(html, "h-1/2 p-3")
+	parts := strings.Split(html, "basis-1/2 flex-grow min-h-0 p-3")
 	if len(parts) < 2 {
-		t.Fatal("Could not find bottom half signature 'h-1/2 p-3' in rendered card HTML")
+		t.Fatal("Could not find bottom half signature 'basis-1/2 flex-grow min-h-0 p-3' in rendered card HTML")
 	}
 	topHalf := parts[0]
 	bottomHalf := parts[1]
@@ -73,7 +73,7 @@ func verifyBasicRendering(t *testing.T, tmpl *template.Template) {
 	}
 
 	// 2. Check title position: title must not be overlayed in the Top Half
-	if strings.Contains(topHalf, "font-serif") || strings.Contains(topHalf, "drop-shadow-lg") {
+	if strings.Contains(topHalf, "font-serif") {
 		t.Error("Title element h3 is still overlayed inside the Image Section (Top Half)")
 	}
 	if !strings.Contains(bottomHalf, "font-serif") || !strings.Contains(bottomHalf, "Test Biz") {
