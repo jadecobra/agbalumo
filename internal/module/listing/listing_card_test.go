@@ -82,221 +82,242 @@ func verifyBasicRendering(t *testing.T, tmpl *template.Template) {
 }
 
 func verifyMobileCompactCardCTAs(t *testing.T, tmpl *template.Template) {
-	// Case 1: Food category + Menu + Website + Phone -> Only View Menu should render
 	t.Run("Food_AllAvailable", func(t *testing.T) {
-		var buf bytes.Buffer
-		l := domain.Listing{
-			ID:           "789",
-			Title:        "Suya Grill",
-			MenuURL:      "https://suyagrill.com/menu",
-			WebsiteURL:   "https://suyagrill.com",
-			ContactPhone: "1234567890",
-			Type:         domain.Food,
-		}
-		data := map[string]interface{}{
-			"Listing":   l,
-			"User":      nil,
-			"IDPrefix":  "",
-			"GridClass": "",
-		}
-		if err := tmpl.ExecuteTemplate(&buf, "listing_card", data); err != nil {
-			t.Fatalf("Failed to render template: %v", err)
-		}
-		html := buf.String()
-		if !strings.Contains(html, `data-testid="ag-mobile-view-menu"`) {
-			t.Error("Missing 'View Menu' action button")
-		}
-		if strings.Contains(html, `data-testid="ag-mobile-website"`) {
-			t.Error("Website button should not be rendered when View Menu is available")
-		}
-		if strings.Contains(html, `data-testid="ag-mobile-phone"`) {
-			t.Error("Phone button should not be rendered when View Menu is available")
-		}
-		if strings.Contains(html, `data-testid="ag-mobile-view-details"`) || strings.Contains(html, "View Spot") {
-			t.Error("View Spot button must not be rendered")
-		}
+		verifyFoodAllAvailable(t, tmpl)
 	})
 
-	// Case 2: Food category + Website + Phone (No Menu) -> Only Website should render
 	t.Run("Food_NoMenu_HasWebsite", func(t *testing.T) {
-		var buf bytes.Buffer
-		l := domain.Listing{
-			ID:           "789",
-			Title:        "Suya Grill",
-			WebsiteURL:   "https://suyagrill.com",
-			ContactPhone: "1234567890",
-			Type:         domain.Food,
-		}
-		data := map[string]interface{}{
-			"Listing":   l,
-			"User":      nil,
-			"IDPrefix":  "",
-			"GridClass": "",
-		}
-		if err := tmpl.ExecuteTemplate(&buf, "listing_card", data); err != nil {
-			t.Fatalf("Failed to render template: %v", err)
-		}
-		html := buf.String()
-		if strings.Contains(html, `data-testid="ag-mobile-view-menu"`) {
-			t.Error("View Menu button should not be rendered when no MenuURL is available")
-		}
-		if !strings.Contains(html, `data-testid="ag-mobile-website"`) {
-			t.Error("Missing 'Website' action button")
-		}
-		if strings.Contains(html, `data-testid="ag-mobile-phone"`) {
-			t.Error("Phone button should not be rendered when Website is available")
-		}
-		if strings.Contains(html, `data-testid="ag-mobile-view-details"`) || strings.Contains(html, "View Spot") {
-			t.Error("View Spot button must not be rendered")
-		}
+		verifyFoodNoMenuHasWebsite(t, tmpl)
 	})
 
-	// Case 3: Food category + Phone (No Menu, No Website) -> Only Phone should render
 	t.Run("Food_NoMenu_NoWebsite_HasPhone", func(t *testing.T) {
-		var buf bytes.Buffer
-		l := domain.Listing{
-			ID:           "789",
-			Title:        "Suya Grill",
-			ContactPhone: "1234567890",
-			Type:         domain.Food,
-		}
-		data := map[string]interface{}{
-			"Listing":   l,
-			"User":      nil,
-			"IDPrefix":  "",
-			"GridClass": "",
-		}
-		if err := tmpl.ExecuteTemplate(&buf, "listing_card", data); err != nil {
-			t.Fatalf("Failed to render template: %v", err)
-		}
-		html := buf.String()
-		if strings.Contains(html, `data-testid="ag-mobile-view-menu"`) {
-			t.Error("View Menu button should not be rendered")
-		}
-		if strings.Contains(html, `data-testid="ag-mobile-website"`) {
-			t.Error("Website button should not be rendered")
-		}
-		if !strings.Contains(html, `data-testid="ag-mobile-phone"`) {
-			t.Error("Missing 'Phone' action button")
-		}
-		if strings.Contains(html, `data-testid="ag-mobile-view-details"`) || strings.Contains(html, "View Spot") {
-			t.Error("View Spot button must not be rendered")
-		}
+		verifyFoodNoMenuNoWebsiteHasPhone(t, tmpl)
 	})
 
-	// Case 4: Food category + None (No Menu, No Website, No Phone) -> No action button
 	t.Run("Food_NoButtons", func(t *testing.T) {
-		var buf bytes.Buffer
-		l := domain.Listing{
-			ID:    "789",
-			Title: "Suya Grill",
-			Type:  domain.Food,
-		}
-		data := map[string]interface{}{
-			"Listing":   l,
-			"User":      nil,
-			"IDPrefix":  "",
-			"GridClass": "",
-		}
-		if err := tmpl.ExecuteTemplate(&buf, "listing_card", data); err != nil {
-			t.Fatalf("Failed to render template: %v", err)
-		}
-		html := buf.String()
-		if strings.Contains(html, `data-testid="ag-mobile-view-menu"`) ||
-			strings.Contains(html, `data-testid="ag-mobile-website"`) ||
-			strings.Contains(html, `data-testid="ag-mobile-phone"`) ||
-			strings.Contains(html, `data-testid="ag-mobile-view-details"`) ||
-			strings.Contains(html, "View Spot") {
-			t.Error("Expected no action buttons to be rendered")
-		}
+		verifyFoodNoButtons(t, tmpl)
 	})
 
-	// Case 5: Non-Food category + Website + Phone -> Only Website should render
 	t.Run("NonFood_HasWebsite_HasPhone", func(t *testing.T) {
-		var buf bytes.Buffer
-		l := domain.Listing{
-			ID:           "789",
-			Title:        "Not Food Biz",
-			WebsiteURL:   "https://notfood.com",
-			ContactPhone: "1234567890",
-			Type:         domain.Job,
-		}
-		data := map[string]interface{}{
-			"Listing":   l,
-			"User":      nil,
-			"IDPrefix":  "",
-			"GridClass": "",
-		}
-		if err := tmpl.ExecuteTemplate(&buf, "listing_card", data); err != nil {
-			t.Fatalf("Failed to render template: %v", err)
-		}
-		html := buf.String()
-		if !strings.Contains(html, `data-testid="ag-mobile-website"`) {
-			t.Error("Missing 'Website' action button")
-		}
-		if strings.Contains(html, `data-testid="ag-mobile-phone"`) {
-			t.Error("Phone button should not be rendered when Website is available")
-		}
-		if strings.Contains(html, `data-testid="ag-mobile-view-details"`) || strings.Contains(html, "View Spot") {
-			t.Error("View Spot button must not be rendered")
-		}
+		verifyNonFoodHasWebsiteHasPhone(t, tmpl)
 	})
 
-	// Case 6: Non-Food category + Phone (No Website) -> Only Phone should render
 	t.Run("NonFood_NoWebsite_HasPhone", func(t *testing.T) {
-		var buf bytes.Buffer
-		l := domain.Listing{
-			ID:           "789",
-			Title:        "Not Food Biz",
-			ContactPhone: "1234567890",
-			Type:         domain.Job,
-		}
-		data := map[string]interface{}{
-			"Listing":   l,
-			"User":      nil,
-			"IDPrefix":  "",
-			"GridClass": "",
-		}
-		if err := tmpl.ExecuteTemplate(&buf, "listing_card", data); err != nil {
-			t.Fatalf("Failed to render template: %v", err)
-		}
-		html := buf.String()
-		if strings.Contains(html, `data-testid="ag-mobile-website"`) {
-			t.Error("Website button should not be rendered")
-		}
-		if !strings.Contains(html, `data-testid="ag-mobile-phone"`) {
-			t.Error("Missing 'Phone' action button")
-		}
-		if strings.Contains(html, `data-testid="ag-mobile-view-details"`) || strings.Contains(html, "View Spot") {
-			t.Error("View Spot button must not be rendered")
-		}
+		verifyNonFoodNoWebsiteHasPhone(t, tmpl)
 	})
 
-	// Case 7: Non-Food category + None (No Website, No Phone) -> No action button
 	t.Run("NonFood_NoButtons", func(t *testing.T) {
-		var buf bytes.Buffer
-		l := domain.Listing{
-			ID:    "789",
-			Title: "Not Food Biz",
-			Type:  domain.Job,
-		}
-		data := map[string]interface{}{
-			"Listing":   l,
-			"User":      nil,
-			"IDPrefix":  "",
-			"GridClass": "",
-		}
-		if err := tmpl.ExecuteTemplate(&buf, "listing_card", data); err != nil {
-			t.Fatalf("Failed to render template: %v", err)
-		}
-		html := buf.String()
-		if strings.Contains(html, `data-testid="ag-mobile-website"`) ||
-			strings.Contains(html, `data-testid="ag-mobile-phone"`) ||
-			strings.Contains(html, `data-testid="ag-mobile-view-details"`) ||
-			strings.Contains(html, "View Spot") {
-			t.Error("Expected no action buttons to be rendered")
-		}
+		verifyNonFoodNoButtons(t, tmpl)
 	})
+}
+
+func verifyFoodAllAvailable(t *testing.T, tmpl *template.Template) {
+	var buf bytes.Buffer
+	l := domain.Listing{
+		ID:           "789",
+		Title:        "Suya Grill",
+		MenuURL:      "https://suyagrill.com/menu",
+		WebsiteURL:   "https://suyagrill.com",
+		ContactPhone: "1234567890",
+		Type:         domain.Food,
+	}
+	data := map[string]interface{}{
+		"Listing":   l,
+		"User":      nil,
+		"IDPrefix":  "",
+		"GridClass": "",
+	}
+	if err := tmpl.ExecuteTemplate(&buf, "listing_card", data); err != nil {
+		t.Fatalf("Failed to render template: %v", err)
+	}
+	html := buf.String()
+	if !strings.Contains(html, `data-testid="ag-mobile-view-menu"`) {
+		t.Error("Missing 'View Menu' action button")
+	}
+	if strings.Contains(html, `data-testid="ag-mobile-website"`) {
+		t.Error("Website button should not be rendered when View Menu is available")
+	}
+	if strings.Contains(html, `data-testid="ag-mobile-phone"`) {
+		t.Error("Phone button should not be rendered when View Menu is available")
+	}
+	if strings.Contains(html, `data-testid="ag-mobile-view-details"`) || strings.Contains(html, "View Spot") {
+		t.Error("View Spot button must not be rendered")
+	}
+}
+
+func verifyFoodNoMenuHasWebsite(t *testing.T, tmpl *template.Template) {
+	var buf bytes.Buffer
+	l := domain.Listing{
+		ID:           "789",
+		Title:        "Suya Grill",
+		WebsiteURL:   "https://suyagrill.com",
+		ContactPhone: "1234567890",
+		Type:         domain.Food,
+	}
+	data := map[string]interface{}{
+		"Listing":   l,
+		"User":      nil,
+		"IDPrefix":  "",
+		"GridClass": "",
+	}
+	if err := tmpl.ExecuteTemplate(&buf, "listing_card", data); err != nil {
+		t.Fatalf("Failed to render template: %v", err)
+	}
+	html := buf.String()
+	if strings.Contains(html, `data-testid="ag-mobile-view-menu"`) {
+		t.Error("View Menu button should not be rendered when no MenuURL is available")
+	}
+	if !strings.Contains(html, `data-testid="ag-mobile-website"`) {
+		t.Error("Missing 'Website' action button")
+	}
+	if strings.Contains(html, `data-testid="ag-mobile-phone"`) {
+		t.Error("Phone button should not be rendered when Website is available")
+	}
+	if strings.Contains(html, `data-testid="ag-mobile-view-details"`) || strings.Contains(html, "View Spot") {
+		t.Error("View Spot button must not be rendered")
+	}
+}
+
+func verifyFoodNoMenuNoWebsiteHasPhone(t *testing.T, tmpl *template.Template) {
+	var buf bytes.Buffer
+	l := domain.Listing{
+		ID:           "789",
+		Title:        "Suya Grill",
+		ContactPhone: "1234567890",
+		Type:         domain.Food,
+	}
+	data := map[string]interface{}{
+		"Listing":   l,
+		"User":      nil,
+		"IDPrefix":  "",
+		"GridClass": "",
+	}
+	if err := tmpl.ExecuteTemplate(&buf, "listing_card", data); err != nil {
+		t.Fatalf("Failed to render template: %v", err)
+	}
+	html := buf.String()
+	if strings.Contains(html, `data-testid="ag-mobile-view-menu"`) {
+		t.Error("View Menu button should not be rendered")
+	}
+	if strings.Contains(html, `data-testid="ag-mobile-website"`) {
+		t.Error("Website button should not be rendered")
+	}
+	if !strings.Contains(html, `data-testid="ag-mobile-phone"`) {
+		t.Error("Missing 'Phone' action button")
+	}
+	if strings.Contains(html, `data-testid="ag-mobile-view-details"`) || strings.Contains(html, "View Spot") {
+		t.Error("View Spot button must not be rendered")
+	}
+}
+
+func verifyFoodNoButtons(t *testing.T, tmpl *template.Template) {
+	var buf bytes.Buffer
+	l := domain.Listing{
+		ID:    "789",
+		Title: "Suya Grill",
+		Type:  domain.Food,
+	}
+	data := map[string]interface{}{
+		"Listing":   l,
+		"User":      nil,
+		"IDPrefix":  "",
+		"GridClass": "",
+	}
+	if err := tmpl.ExecuteTemplate(&buf, "listing_card", data); err != nil {
+		t.Fatalf("Failed to render template: %v", err)
+	}
+	html := buf.String()
+	if strings.Contains(html, `data-testid="ag-mobile-view-menu"`) ||
+		strings.Contains(html, `data-testid="ag-mobile-website"`) ||
+		strings.Contains(html, `data-testid="ag-mobile-phone"`) ||
+		strings.Contains(html, `data-testid="ag-mobile-view-details"`) ||
+		strings.Contains(html, "View Spot") {
+		t.Error("Expected no action buttons to be rendered")
+	}
+}
+
+func verifyNonFoodHasWebsiteHasPhone(t *testing.T, tmpl *template.Template) {
+	var buf bytes.Buffer
+	l := domain.Listing{
+		ID:           "789",
+		Title:        "Not Food Biz",
+		WebsiteURL:   "https://notfood.com",
+		ContactPhone: "1234567890",
+		Type:         domain.Job,
+	}
+	data := map[string]interface{}{
+		"Listing":   l,
+		"User":      nil,
+		"IDPrefix":  "",
+		"GridClass": "",
+	}
+	if err := tmpl.ExecuteTemplate(&buf, "listing_card", data); err != nil {
+		t.Fatalf("Failed to render template: %v", err)
+	}
+	html := buf.String()
+	if !strings.Contains(html, `data-testid="ag-mobile-website"`) {
+		t.Error("Missing 'Website' action button")
+	}
+	if strings.Contains(html, `data-testid="ag-mobile-phone"`) {
+		t.Error("Phone button should not be rendered when Website is available")
+	}
+	if strings.Contains(html, `data-testid="ag-mobile-view-details"`) || strings.Contains(html, "View Spot") {
+		t.Error("View Spot button must not be rendered")
+	}
+}
+
+func verifyNonFoodNoWebsiteHasPhone(t *testing.T, tmpl *template.Template) {
+	var buf bytes.Buffer
+	l := domain.Listing{
+		ID:           "789",
+		Title:        "Not Food Biz",
+		ContactPhone: "1234567890",
+		Type:         domain.Job,
+	}
+	data := map[string]interface{}{
+		"Listing":   l,
+		"User":      nil,
+		"IDPrefix":  "",
+		"GridClass": "",
+	}
+	if err := tmpl.ExecuteTemplate(&buf, "listing_card", data); err != nil {
+		t.Fatalf("Failed to render template: %v", err)
+	}
+	html := buf.String()
+	if strings.Contains(html, `data-testid="ag-mobile-website"`) {
+		t.Error("Website button should not be rendered")
+	}
+	if !strings.Contains(html, `data-testid="ag-mobile-phone"`) {
+		t.Error("Missing 'Phone' action button")
+	}
+	if strings.Contains(html, `data-testid="ag-mobile-view-details"`) || strings.Contains(html, "View Spot") {
+		t.Error("View Spot button must not be rendered")
+	}
+}
+
+func verifyNonFoodNoButtons(t *testing.T, tmpl *template.Template) {
+	var buf bytes.Buffer
+	l := domain.Listing{
+		ID:    "789",
+		Title: "Not Food Biz",
+		Type:  domain.Job,
+	}
+	data := map[string]interface{}{
+		"Listing":   l,
+		"User":      nil,
+		"IDPrefix":  "",
+		"GridClass": "",
+	}
+	if err := tmpl.ExecuteTemplate(&buf, "listing_card", data); err != nil {
+		t.Fatalf("Failed to render template: %v", err)
+	}
+	html := buf.String()
+	if strings.Contains(html, `data-testid="ag-mobile-website"`) ||
+		strings.Contains(html, `data-testid="ag-mobile-phone"`) ||
+		strings.Contains(html, `data-testid="ag-mobile-view-details"`) ||
+		strings.Contains(html, "View Spot") {
+		t.Error("Expected no action buttons to be rendered")
+	}
 }
 
 func setupListingCardTmpl(t *testing.T) *template.Template {
