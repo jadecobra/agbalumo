@@ -9,21 +9,14 @@
     </div>
 
     <!-- Image Section (Top Half) -->
-    <div class="relative w-full h-1/2 overflow-hidden bg-stone-50 dark:bg-earth-dark/50 select-none shrink-0 border-b border-stone-200 dark:border-stone-800">
+    <div class="relative w-full basis-1/2 overflow-hidden bg-stone-50 dark:bg-earth-dark/50 select-none shrink-0 border-b border-stone-200 dark:border-stone-800">
         {{ if .Listing.ImageURL }}
-        <img src="{{.Listing.ImageURL}}" alt="{{.Listing.Title}}"
-            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-        {{ else if .Listing.WebsiteURL }}
-        <div class="absolute inset-0 bg-stone-50 dark:bg-earth-dark/50 overflow-hidden">
-            <div class="absolute inset-0 bg-center bg-cover bg-no-repeat blur-xl opacity-50 scale-150 transform transition-transform duration-700 group-hover:scale-110" style="background-image: url('{{ fallbackImageURL "" .Listing.WebsiteURL }}');"></div>
-            <img src="{{ fallbackImageURL "" .Listing.WebsiteURL }}" alt="{{.Listing.Title}}"
-                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 object-contain z-10 drop-shadow-lg opacity-90 transition-transform duration-700 group-hover:scale-110">
-        </div>
+        <div class="w-full h-full bg-center bg-cover bg-white dark:bg-surface-dark transition-transform duration-700 group-hover:scale-110" style="background-image: url('{{.Listing.ImageURL}}');"></div>
         {{ else }}
-        <div class="w-full h-full flex items-center justify-center p-4 text-center bg-gradient-to-br from-earth-accent/10 to-earth-accent/30">
-            <span class="text-earth-clay/60 font-bold text-sm uppercase tracking-widest leading-tight line-clamp-2">
-                {{ .Listing.Title }}
-            </span>
+        <div class="w-full h-full flex items-center justify-center bg-stone-100 dark:bg-surface-dark relative overflow-hidden">
+            <div class="absolute inset-0 bg-center bg-cover bg-no-repeat blur-2xl opacity-50 scale-150 transform transition-transform duration-700 group-hover:scale-110" style="background-image: url('{{ fallbackImageURL "" .Listing.WebsiteURL }}');"></div>
+            <img src="{{ fallbackImageURL "" .Listing.WebsiteURL }}" alt=""
+                class="w-16 h-16 object-contain relative z-10 drop-shadow-lg opacity-90 transition-transform duration-700 group-hover:scale-110">
         </div>
         {{ end }}
 
@@ -57,7 +50,7 @@
     </div>
 
     <!-- Content Section (Bottom Half) -->
-    <div class="h-1/2 p-3 flex flex-col justify-between relative bg-white dark:bg-surface-dark select-none">
+    <div class="basis-1/2 flex-grow min-h-0 p-3 flex flex-col justify-between relative bg-white dark:bg-surface-dark select-none">
         <!-- Metadata Row (Type & Ratings left, Location right) -->
         <div class="flex items-center justify-between gap-1.5 shrink-0">
             <div class="flex items-center gap-1.5">
