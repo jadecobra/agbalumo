@@ -178,20 +178,54 @@ func VerifyCITools(rootDir string) error {
 		return fmt.Errorf("proprietary tool 'docker/scout-action' found without confirmed authentication")
 	}
 
-	if strings.Contains(content, "aquasecurity/trivy-action") {
-		fmt.Println("✅ PASS: Using Trivy for container scanning (Open Source, local-friendly).")
-		// Detect invalid trivy-version hallucination
-		if strings.Contains(content, "trivy-version:") {
-			return fmt.Errorf("invalid CI configuration: 'aquasecurity/trivy-action' uses 'version', not 'trivy-version'")
-		}
-		if !strings.Contains(content, "version:") {
-			fmt.Println("⚠️  WARNING: 'aquasecurity/trivy-action' missing explicit 'version' - using action default.")
-		}
-	} else {
-		fmt.Println("⚠️  WARNING: No container scanner detected in CI (expected Trivy).")
+	if err := verifyTrivyCheck(content); err != nil {
+		return err
+	}
+
+	if err := verifyResilientDeployCheck(content); err != nil {
+		return err
 	}
 
 	fmt.Println("✅ CI Toolset Verification Passed")
+	return nil
+}
+
+func verifyTrivyCheck(content string) error {
+	if !strings.Contains(content, "aquasecurity/trivy-action") {
+		fmt.Println("⚠️  WARNING: No container scanner detected in CI (expected Trivy).")
+		return nil
+	}
+
+	fmt.Println("✅ PASS: Using Trivy for container scanning (Open Source, local-friendly).")
+	if strings.Contains(content, "trivy-version:") {
+		return fmt.Errorf("invalid CI configuration: 'aquasecurity/trivy-action' uses 'version', not 'trivy-version'")
+	}
+	if !strings.Contains(content, "version:") {
+		fmt.Println("⚠️  WARNING: 'aquasecurity/trivy-action' missing explicit 'version' - using action default.")
+	}
+	return nil
+}
+
+func verifyResilientDeployCheck(content string) error {
+	for _, cmd := range []string{"flyctl deploy", "fly deploy"} {
+		idx := strings.Index(content, cmd)
+		if idx == -1 {
+			continue
+		}
+		// Extract a window around the command to isolate the deploy step
+		start := idx - 250
+		if start < 0 {
+			start = 0
+		}
+		end := idx + 100
+		if end > len(content) {
+			end = len(content)
+		}
+		block := content[start:end]
+		if !strings.Contains(block, "for i in") && !strings.Contains(block, "retry") {
+			return fmt.Errorf("invalid CI configuration: 'flyctl deploy' must implement automated retry logic with exponential backoff to handle platform 503 errors")
+		}
+	}
 	return nil
 }
 

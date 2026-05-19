@@ -165,6 +165,7 @@ This section contains corrections and constraints derived from the `[/learn]` wo
 * **Invariants Enforcement (Zero-Guessing Rule)** [TRIGGER: browser_subagent, url_construction, env_variable]: The canonical server URL is constructed EXCLUSIVELY from `.agents/invariants.json` (`protocol` + `port`). The agent is FORBIDDEN from guessing ports, reading `.env` for URL construction, or using hardcoded URLs. Guessing a port is equivalent to ignoring available documentation and will cause a mandatory `/learn` session and potential task rejection. Use `go run ./cmd/verify uptime` to verify the live URL before manual browser tasks.
 * **Local Server & Audit Gates** [TRIGGER: session_done, ci_config_change]: The agent is FORBIDDEN from ending a session if the local server is down (verify via `uptime`). CLI-based CI pipelines MUST include a live server-startup check to catch nil-pointer regressions in routing.
 * **Scratch Directory Isolation** [TRIGGER: git_push]: Ensure temporary 'scratch' or 'brain' directories are in `.gitignore` and NEVER committed, as they interfere with remote CI linter phases.
+* **Resilient Deployments (503 Outage Protection)** [TRIGGER: git_push, deployment_configuration]: CI/CD pipeline deployment jobs MUST implement automated retry logic with exponential backoff (e.g., trying up to 3 times with progressive sleep delays) for deployment commands (e.g. `flyctl deploy`) to withstand transient platform-level outages or 503 Service Unavailable errors. This is deterministically audited via `go run ./cmd/verify ci-tools`.
 
 
 ### Testing
