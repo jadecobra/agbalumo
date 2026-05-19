@@ -121,48 +121,66 @@
         </div>
 
         <!-- Action CTA Row -->
-        <div class="mt-2 z-20 relative flex gap-1.5 shrink-0">
-            <!-- Primary View Menu/Spot Button -->
+        {{ $showButton := false }}
+        {{ $buttonType := "" }}
+
+        {{ if eq .Listing.Type "Food" }}
             {{ if .Listing.MenuURL }}
+                {{ $showButton = true }}
+                {{ $buttonType = "menu" }}
+            {{ else if .Listing.WebsiteURL }}
+                {{ $showButton = true }}
+                {{ $buttonType = "website" }}
+            {{ else if or .Listing.ContactPhone .Listing.ContactWhatsApp }}
+                {{ $showButton = true }}
+                {{ $buttonType = "phone" }}
+            {{ end }}
+        {{ else }}
+            {{ if .Listing.WebsiteURL }}
+                {{ $showButton = true }}
+                {{ $buttonType = "website" }}
+            {{ else if or .Listing.ContactPhone .Listing.ContactWhatsApp }}
+                {{ $showButton = true }}
+                {{ $buttonType = "phone" }}
+            {{ end }}
+        {{ end }}
+
+        {{ if $showButton }}
+        <div class="mt-2 z-20 relative flex gap-1.5 shrink-0">
+            {{ if eq $buttonType "menu" }}
             <a href="{{ .Listing.MenuURL }}" target="_blank" rel="noopener noreferrer"
-                class="flex-1 h-11 md:h-10 flex items-center justify-center bg-earth-accent hover:bg-earth-accent-light active:bg-earth-accent text-white font-bold text-xs capitalize tracking-wide transition-all"
+                class="flex-1 w-full h-11 md:h-10 flex items-center justify-center bg-earth-accent hover:bg-earth-accent-light active:bg-earth-accent text-white font-bold text-xs capitalize tracking-wide transition-all rounded shadow-sm"
                 data-testid="ag-mobile-view-menu">
                 View Menu
             </a>
-            {{ else }}
-            <button type="button" hx-get="/listings/{{ .Listing.ID }}" hx-target="body" hx-swap="beforeend" data-testid="ag-mobile-view-details"
-                class="flex-1 h-11 md:h-10 flex items-center justify-center bg-earth-ochre hover:bg-earth-ochre-light active:bg-earth-ochre text-earth-dark font-bold text-xs capitalize tracking-wide transition-all">
-                View Spot
-            </button>
-            {{ end }}
-
-            <!-- Secondary Website Button -->
-            {{ if .Listing.WebsiteURL }}
+            {{ else if eq $buttonType "website" }}
             <a href="{{ .Listing.WebsiteURL }}" target="_blank" rel="noopener noreferrer"
-                class="h-11 md:h-10 px-2 flex items-center justify-center bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-text-main dark:text-earth-cream font-bold text-xs capitalize tracking-wide transition-all"
+                class="flex-1 w-full h-11 md:h-10 flex items-center justify-center bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-text-main dark:text-earth-cream font-bold text-xs capitalize tracking-wide transition-all border border-stone-200 dark:border-stone-800 rounded shadow-sm"
                 data-testid="ag-mobile-website">
                 Website
             </a>
-            {{ end }}
-
-            <!-- Tertiary Phone Button (Call/WhatsApp) -->
-            {{ if or .Listing.ContactPhone .Listing.ContactWhatsApp }}
+            {{ else if eq $buttonType "phone" }}
                 {{ $phoneLink := "" }}
                 {{ $phoneIcon := "phone" }}
+                {{ $phoneText := "" }}
                 {{ if .Listing.ContactPhone }}
                     {{ $phoneLink = printf "tel:%s" .Listing.ContactPhone }}
+                    {{ $phoneText = .Listing.ContactPhone }}
                 {{ else if .Listing.ContactWhatsApp }}
                     {{ $phoneLink = printf "https://wa.me/%s" .Listing.ContactWhatsApp }}
                     {{ $phoneIcon = "chat" }}
+                    {{ $phoneText = .Listing.ContactWhatsApp }}
                 {{ end }}
             <a href="{{ $phoneLink }}"
-                class="w-11 md:w-10 h-11 md:h-10 flex items-center justify-center bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-text-main dark:text-earth-cream font-bold transition-all"
+                class="flex-1 w-full h-11 md:h-10 flex items-center justify-center gap-2 bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-text-main dark:text-earth-cream font-bold text-xs capitalize tracking-wide transition-all border border-stone-200 dark:border-stone-800 rounded shadow-sm"
                 aria-label="Call or WhatsApp"
                 data-testid="ag-mobile-phone">
                 <span class="material-symbols-outlined text-[16px] md:text-[18px]">{{ $phoneIcon }}</span>
+                <span>{{ $phoneText }}</span>
             </a>
             {{ end }}
         </div>
+        {{ end }}
     </div>
 </div>
 {{ end }}
