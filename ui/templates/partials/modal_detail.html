@@ -19,7 +19,7 @@
             <div class="absolute top-4 right-4 flex items-center gap-2 z-[60]">
                 {{ if $.User }}
                 {{ $isSaved := index $.SavedIDs .Listing.ID }}
-                {{ template "save_button" dict "ListingID" .Listing.ID "IsSaved" $isSaved "Classes" "relative btn-action-overlay rounded-full backdrop-blur-sm drop-shadow-md text-white transition-all duration-200" }}
+                {{ template "save_button" dict "ListingID" .Listing.ID "IsSaved" $isSaved "Classes" "relative transition-all duration-200" }}
                 {{ end }}
 
                 {{ template "btn_close" dict "Classes" "relative w-11 h-11 btn-action-overlay rounded-full backdrop-blur-sm drop-shadow-md text-white hover:scale-110 transition-transform" }}
