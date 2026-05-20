@@ -167,7 +167,7 @@
             </a>
             {{ else if eq $buttonType "website" }}
             <a href="{{ .Listing.WebsiteURL }}" target="_blank" rel="noopener noreferrer"
-                class="flex-1 w-full h-11 md:h-10 flex items-center justify-center bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-text-main dark:text-earth-cream font-bold text-xs capitalize tracking-wide transition-all border border-stone-200 dark:border-stone-800 shadow-sm"
+                class="flex-1 w-full h-11 md:h-10 flex items-center justify-center bg-earth-clay hover:bg-earth-clay-dark active:bg-earth-clay text-white font-bold text-xs capitalize tracking-wide transition-all shadow-sm"
                 data-testid="ag-mobile-website">
                 Website
             </a>
@@ -184,7 +184,7 @@
                     {{ $phoneText = .Listing.ContactWhatsApp }}
                 {{ end }}
             <a href="{{ $phoneLink }}"
-                class="flex-1 w-full h-11 md:h-10 flex items-center justify-center gap-2 bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-text-main dark:text-earth-cream font-bold text-xs capitalize tracking-wide transition-all border border-stone-200 dark:border-stone-800 shadow-sm"
+                class="flex-1 w-full h-11 md:h-10 flex items-center justify-center gap-2 bg-earth-clay hover:bg-earth-clay-dark active:bg-earth-clay text-white font-bold text-xs capitalize tracking-wide transition-all shadow-sm"
                 aria-label="Call or WhatsApp"
                 data-testid="ag-mobile-phone">
                 <span class="material-symbols-outlined text-[16px] md:text-[18px]">{{ $phoneIcon }}</span>
