@@ -51,8 +51,11 @@ func TestModalMenuRendering(t *testing.T) {
 
 		// This specific check will FAIL currently because the code uses 'flex items-center' in the contact section
 		// The user wants a "button button-secondary" or similar prominent CTA.
-		if !strings.Contains(output, "View Menu") {
-			t.Errorf("Expected prominent 'View Menu' text not found")
+		if strings.Contains(output, "View Menu") {
+			t.Errorf("Expected 'Menu' but found 'View Menu'")
+		}
+		if !strings.Contains(output, "Menu") {
+			t.Errorf("Expected prominent 'Menu' text not found")
 		}
 
 		if !strings.Contains(output, "cta-block") {

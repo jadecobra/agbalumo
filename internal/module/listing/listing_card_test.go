@@ -131,8 +131,11 @@ func verifyFoodAllAvailable(t *testing.T, tmpl *template.Template) {
 		t.Fatalf("Failed to render template: %v", err)
 	}
 	html := buf.String()
-	if !strings.Contains(html, `data-testid="ag-mobile-view-menu"`) {
-		t.Error("Missing 'View Menu' action button")
+	if strings.Contains(html, "View Menu") {
+		t.Error("View Menu text should be changed to Menu")
+	}
+	if !strings.Contains(html, "Menu") {
+		t.Error("Missing 'Menu' action button text")
 	}
 	if strings.Contains(html, `data-testid="ag-mobile-website"`) {
 		t.Error("Website button should not be rendered when View Menu is available")
