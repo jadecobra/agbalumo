@@ -92,7 +92,7 @@ test.describe('Design Integrity & Cohesion', () => {
     }
 
     // 3. Error Page Bounce Orange Icon
-    await page.goto('/this-page-does-not-exist');
+    await page.goto('/listings/99999');
     const errorIcon = page.locator('.animate-bounce');
     const errorClassList = await errorIcon.evaluate(el => el.className);
     expect(errorClassList).not.toContain('border');
