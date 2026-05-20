@@ -414,3 +414,11 @@ Run all structural and meta gates (build, doc-drift, deprecated, skill-conforman
 ```bash
 agbalumo verify sweep
 ```
+
+##### cache-buster
+
+Verify CSS cache buster hash matches output.css.
+
+```bash
+agbalumo verify cache-buster
+```

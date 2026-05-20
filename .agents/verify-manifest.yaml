@@ -11,6 +11,10 @@ commands:
     trigger: after_implementation
     flags: ["--full for CI, default incremental"]
     
+  - name: cache-buster
+    trigger: before_push, template_change
+    description: Verify CSS cache buster hash matches output.css
+    
   - name: visual-audit
     trigger: design_critique
     description: Run deterministic visual audit (static + Playwright)

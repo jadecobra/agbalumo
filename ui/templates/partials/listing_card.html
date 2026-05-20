@@ -1,6 +1,6 @@
 {{ define "listing_card" }}
 <div id="{{ .IDPrefix }}listing-{{.Listing.ID}}"
-    class="listing-card card-juicy group relative flex flex-col h-full overflow-hidden bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-juicy transition-all duration-500 hover:-translate-y-1 {{ .GridClass }}"
+    class="listing-card card-juicy group relative flex flex-row even:flex-row-reverse md:flex-col h-48 md:h-full overflow-hidden bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-juicy transition-all duration-500 hover:-translate-y-1 {{ .GridClass }}"
     data-testid="ag-listing-card">
 
     <!-- Full Card Click Overlay (excluding buttons) -->
@@ -8,8 +8,8 @@
         hx-swap="beforeend">
     </div>
 
-    <!-- Image Section (Top Half) -->
-    <div class="relative w-full basis-1/2 overflow-hidden bg-stone-50 dark:bg-earth-dark/50 select-none shrink-0 border-b border-stone-200 dark:border-stone-800">
+    <!-- Image Section (Top Half/Left Side) -->
+    <div class="relative w-2/5 shrink-0 md:w-full md:basis-1/2 overflow-hidden bg-stone-50 dark:bg-earth-dark/50 select-none border-stone-200 dark:border-stone-800 border-b md:border-b group-even:border-l group-odd:border-r md:group-even:border-l-0 md:group-odd:border-r-0">
         {{ if .Listing.ImageURL }}
         <div class="w-full h-full bg-center bg-cover bg-white dark:bg-surface-dark transition-transform duration-700 group-hover:scale-110" style="background-image: url('{{.Listing.ImageURL}}');"></div>
         {{ else }}
@@ -23,7 +23,7 @@
         <!-- Safe / Save Button -->
         {{ if $.User }}
         {{ $isSaved := index $.SavedIDs .Listing.ID }}
-        {{ template "save_button" dict "ListingID" .Listing.ID "IsSaved" $isSaved "Classes" "absolute top-2 right-2 z-30 btn-action-overlay rounded-full backdrop-blur-sm drop-shadow-md text-white transition-all duration-200" }}
+        {{ template "save_button" dict "ListingID" .Listing.ID "IsSaved" $isSaved "Classes" "absolute top-2 right-2 z-30 btn-action-overlay backdrop-blur-sm drop-shadow-md text-white transition-all duration-200" }}
         {{ end }}
 
         <!-- New Badge -->
@@ -49,8 +49,8 @@
         {{ end }}
     </div>
 
-    <!-- Content Section (Bottom Half) -->
-    <div class="basis-1/2 flex-grow min-h-0 p-3 flex flex-col justify-between relative bg-white dark:bg-surface-dark select-none">
+    <!-- Content Section (Bottom Half/Right Side) -->
+    <div class="w-3/5 md:w-full md:basis-1/2 flex-grow min-h-0 p-3 flex flex-col justify-between relative bg-white dark:bg-surface-dark select-none">
         <!-- Metadata Row (Type & Ratings left, Location right) -->
         <div class="flex items-center justify-between gap-1.5 shrink-0">
             <div class="flex items-center gap-1.5 flex-wrap">
@@ -148,13 +148,13 @@
         <div class="mt-2 z-20 relative flex gap-1.5 shrink-0">
             {{ if eq $buttonType "menu" }}
             <a href="{{ .Listing.MenuURL }}" target="_blank" rel="noopener noreferrer"
-                class="flex-1 w-full h-11 md:h-10 flex items-center justify-center bg-earth-accent hover:bg-earth-accent-light active:bg-earth-accent text-white font-bold text-xs capitalize tracking-wide transition-all rounded shadow-sm"
+                class="flex-1 w-full h-11 md:h-10 flex items-center justify-center bg-earth-accent hover:bg-earth-accent-light active:bg-earth-accent text-white font-bold text-xs capitalize tracking-wide transition-all shadow-sm"
                 data-testid="ag-mobile-view-menu">
                 View Menu
             </a>
             {{ else if eq $buttonType "website" }}
             <a href="{{ .Listing.WebsiteURL }}" target="_blank" rel="noopener noreferrer"
-                class="flex-1 w-full h-11 md:h-10 flex items-center justify-center bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-text-main dark:text-earth-cream font-bold text-xs capitalize tracking-wide transition-all border border-stone-200 dark:border-stone-800 rounded shadow-sm"
+                class="flex-1 w-full h-11 md:h-10 flex items-center justify-center bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-text-main dark:text-earth-cream font-bold text-xs capitalize tracking-wide transition-all border border-stone-200 dark:border-stone-800 shadow-sm"
                 data-testid="ag-mobile-website">
                 Website
             </a>
@@ -171,7 +171,7 @@
                     {{ $phoneText = .Listing.ContactWhatsApp }}
                 {{ end }}
             <a href="{{ $phoneLink }}"
-                class="flex-1 w-full h-11 md:h-10 flex items-center justify-center gap-2 bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-text-main dark:text-earth-cream font-bold text-xs capitalize tracking-wide transition-all border border-stone-200 dark:border-stone-800 rounded shadow-sm"
+                class="flex-1 w-full h-11 md:h-10 flex items-center justify-center gap-2 bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-text-main dark:text-earth-cream font-bold text-xs capitalize tracking-wide transition-all border border-stone-200 dark:border-stone-800 shadow-sm"
                 aria-label="Call or WhatsApp"
                 data-testid="ag-mobile-phone">
                 <span class="material-symbols-outlined text-[16px] md:text-[18px]">{{ $phoneIcon }}</span>

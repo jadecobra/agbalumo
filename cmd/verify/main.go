@@ -133,6 +133,7 @@ func init() {
 		a11yMapCmd,
 		sweepCmd,
 		surfaceParityCmd,
+		cachebusterCmd,
 	)
 }
 

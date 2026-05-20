@@ -241,3 +241,7 @@ var playwrightVersionCmd = makeSimpleCmd("playwright-version", "Verify Playwrigh
 var gitCleanCmd = makeSimpleCmd("git-clean", "Verify that the repository has no uncommitted changes", func() error {
 	return maintenance.VerifyGitClean(".")
 })
+
+var cachebusterCmd = makeSimpleCmd("cache-buster", "Verify CSS cache buster hash matches output.css", func() error {
+	return maintenance.VerifyCacheBuster(".")
+})
