@@ -1,6 +1,6 @@
 {{ define "listing_card" }}
 <div id="{{ .IDPrefix }}listing-{{.Listing.ID}}"
-    class="listing-card card-juicy group relative flex flex-row even:flex-row-reverse md:flex-col h-48 md:h-full overflow-hidden bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-juicy transition-all duration-500 hover:-translate-y-1 {{ .GridClass }}"
+    class="listing-card card-juicy group relative flex flex-row even:flex-row-reverse md:flex-col h-auto md:h-full overflow-hidden bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-juicy transition-all duration-500 hover:-translate-y-1 {{ .GridClass }}"
     data-testid="ag-listing-card">
 
     <!-- Full Card Click Overlay (excluding buttons) -->
@@ -9,7 +9,7 @@
     </div>
 
     <!-- Image Section (Top Half/Left Side) -->
-    <div class="relative w-2/5 shrink-0 md:w-full md:basis-1/2 overflow-hidden bg-stone-50 dark:bg-earth-dark/50 select-none border-stone-200 dark:border-stone-800 border-b md:border-b group-even:border-l group-odd:border-r md:group-even:border-l-0 md:group-odd:border-r-0">
+    <div class="relative w-[45%] shrink-0 md:w-full md:basis-[45%] overflow-hidden bg-stone-50 dark:bg-earth-dark/50 select-none border-stone-200 dark:border-stone-800 border-b md:border-b group-even:border-l group-odd:border-r md:group-even:border-l-0 md:group-odd:border-r-0"> <!-- verify:allow-arbitrary -->
         {{ if .Listing.ImageURL }}
         <div class="w-full h-full bg-center bg-cover bg-white dark:bg-surface-dark transition-transform duration-700 group-hover:scale-110" style="background-image: url('{{.Listing.ImageURL}}');"></div>
         {{ else }}
@@ -50,8 +50,8 @@
     </div>
 
     <!-- Content Section (Bottom Half/Right Side) -->
-    <div class="w-3/5 md:w-full md:basis-1/2 flex-grow min-h-0 p-3 flex flex-col justify-between relative bg-white dark:bg-surface-dark select-none">
-        <!-- Metadata Row (Type & Ratings left, Location right) -->
+    <div class="w-[55%] md:w-full md:basis-[55%] flex-grow min-h-0 p-4 md:p-5 flex flex-col justify-between relative bg-earth-cream dark:bg-surface-dark select-none"> <!-- verify:allow-arbitrary -->
+        <!-- Metadata Row (Type & Ratings left) -->
         <div class="flex items-center justify-between gap-1.5 shrink-0">
             <div class="flex items-center gap-1.5 flex-wrap">
                 <span class="bg-earth-accent text-white text-xs capitalize font-bold px-1.5 py-0.5 tracking-wider shadow-sm">
@@ -73,27 +73,28 @@
                     {{ end }}
                 {{ end }}
             </div>
-            
-            {{ if or .Listing.City .Listing.Address }}
-            <div class="flex items-center gap-0.5 text-earth-clay dark:text-earth-accent shrink-0 leading-none">
-                <span class="material-symbols-outlined text-[12px] md:text-[14px]">location_on</span>
-                <span class="text-xs font-bold capitalize tracking-wide">
-                    {{ displayCity .Listing.City .Listing.Address }}
-                </span>
-            </div>
-            {{ end }}
         </div>
 
         <!-- Title Element -->
-        <h3 class="text-sm md:text-base font-bold font-serif leading-snug text-text-main dark:text-earth-cream mt-1.5 line-clamp-1 shrink-0">
+        <h3 class="text-xl md:text-2xl font-bold font-serif leading-snug text-text-main dark:text-earth-cream mt-2 shrink-0">
             {{ .Listing.Title }}
             {{ if .Listing.Featured }}
             <span class="text-xs md:text-sm" title="Featured Listing">🍊</span>
             {{ end }}
         </h3>
 
+        <!-- Location Element -->
+        {{ if or .Listing.City .Listing.Address }}
+        <div class="flex items-center gap-0.5 text-text-sub dark:text-stone-400 mt-1 shrink-0 leading-none">
+            <span class="material-symbols-outlined text-[14px]">location_on</span>
+            <span class="text-xs font-medium capitalize tracking-wide">
+                {{ displayCity .Listing.City .Listing.Address }}
+            </span>
+        </div>
+        {{ end }}
+
         <!-- Description/Sub-info Container -->
-        <div class="flex-1 min-w-0 mt-1 md:mt-2 flex flex-col justify-start">
+        <div class="flex-1 min-w-0 mt-2 flex flex-col justify-start">
             {{ if eq .Listing.Type "Job" }}
                 <div class="flex items-center gap-2 mb-1 text-xs font-semibold text-text-sub dark:text-stone-400 shrink-0">
                     <div class="flex items-center gap-1">
@@ -109,14 +110,15 @@
                 </div>
             {{ end }}
 
-            <!-- Clamped Description -->
-            <p class="text-text-sub dark:text-stone-400 text-xs leading-normal line-clamp-2 md:line-clamp-3">
+            <!-- Description as Bullets (Custom to avoid line-clamp collision with list-disc) -->
+            <div class="text-text-sub dark:text-stone-400 text-xs leading-relaxed mt-1 flex flex-col gap-0.5">
                 {{ if eq .Listing.Type "Food" }}
-                    {{ if .Listing.RegionalSpecialty }}{{ .Listing.RegionalSpecialty }} Specialty. {{ .Listing.Description }}{{ else }}{{ .Listing.Description }}{{ end }}
+                    {{ if .Listing.RegionalSpecialty }}<div class="flex gap-1.5"><span class="opacity-50 text-[10px] pt-0.5">•</span><span class="line-clamp-1">{{ .Listing.RegionalSpecialty }} Specialty.</span></div>{{ end }}
+                    {{ if .Listing.Description }}<div class="flex gap-1.5"><span class="opacity-50 text-[10px] pt-0.5">•</span><span class="line-clamp-2 md:line-clamp-3">{{ .Listing.Description }}</span></div>{{ end }}
                 {{ else }}
-                    {{ .Listing.Description }}
+                    {{ if .Listing.Description }}<div class="flex gap-1.5"><span class="opacity-50 text-[10px] pt-0.5">•</span><span class="line-clamp-2 md:line-clamp-3">{{ .Listing.Description }}</span></div>{{ end }}
                 {{ end }}
-            </p>
+            </div>
         </div>
 
         <!-- Action CTA Row -->
@@ -133,6 +135,9 @@
             {{ else if or .Listing.ContactPhone .Listing.ContactWhatsApp }}
                 {{ $showButton = true }}
                 {{ $buttonType = "phone" }}
+            {{ else }}
+                {{ $showButton = true }}
+                {{ $buttonType = "details" }}
             {{ end }}
         {{ else }}
             {{ if .Listing.WebsiteURL }}
@@ -141,14 +146,22 @@
             {{ else if or .Listing.ContactPhone .Listing.ContactWhatsApp }}
                 {{ $showButton = true }}
                 {{ $buttonType = "phone" }}
+            {{ else }}
+                {{ $showButton = true }}
+                {{ $buttonType = "details" }}
             {{ end }}
         {{ end }}
 
         {{ if $showButton }}
         <div class="mt-2 z-20 relative flex gap-1.5 shrink-0">
-            {{ if eq $buttonType "menu" }}
+            {{ if eq $buttonType "details" }}
+            <button class="flex-1 w-full h-11 md:h-10 flex items-center justify-center bg-earth-clay hover:bg-earth-clay-dark active:bg-earth-clay text-white font-bold text-xs capitalize tracking-wide transition-all shadow-sm"
+                data-testid="ag-mobile-view-details">
+                View Details
+            </button>
+            {{ else if eq $buttonType "menu" }}
             <a href="{{ .Listing.MenuURL }}" target="_blank" rel="noopener noreferrer"
-                class="flex-1 w-full h-11 md:h-10 flex items-center justify-center bg-earth-accent hover:bg-earth-accent-light active:bg-earth-accent text-white font-bold text-xs capitalize tracking-wide transition-all shadow-sm"
+                class="flex-1 w-full h-11 md:h-10 flex items-center justify-center bg-earth-clay hover:bg-earth-clay-dark active:bg-earth-clay text-white font-bold text-xs capitalize tracking-wide transition-all shadow-sm"
                 data-testid="ag-mobile-view-menu">
                 View Menu
             </a>

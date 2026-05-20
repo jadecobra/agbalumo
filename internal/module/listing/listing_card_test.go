@@ -50,9 +50,9 @@ func verifyBasicRendering(t *testing.T, tmpl *template.Template) {
 	}
 
 	// Layout and Title Position Assertions
-	parts := strings.Split(html, "basis-1/2 flex-grow min-h-0 p-3")
+	parts := strings.Split(html, "flex-grow min-h-0")
 	if len(parts) < 2 {
-		t.Fatal("Could not find bottom half signature 'basis-1/2 flex-grow min-h-0 p-3' in rendered card HTML")
+		t.Fatal("Could not find bottom half signature 'flex-grow min-h-0' in rendered card HTML")
 	}
 	topHalf := parts[0]
 	bottomHalf := parts[1]
@@ -227,12 +227,8 @@ func verifyFoodNoButtons(t *testing.T, tmpl *template.Template) {
 		t.Fatalf("Failed to render template: %v", err)
 	}
 	html := buf.String()
-	if strings.Contains(html, `data-testid="ag-mobile-view-menu"`) ||
-		strings.Contains(html, `data-testid="ag-mobile-website"`) ||
-		strings.Contains(html, `data-testid="ag-mobile-phone"`) ||
-		strings.Contains(html, `data-testid="ag-mobile-view-details"`) ||
-		strings.Contains(html, "View Spot") {
-		t.Error("Expected no action buttons to be rendered")
+	if !strings.Contains(html, `data-testid="ag-mobile-view-details"`) {
+		t.Error("Expected fallback View Details button to be rendered when no links are present")
 	}
 }
 
@@ -312,11 +308,8 @@ func verifyNonFoodNoButtons(t *testing.T, tmpl *template.Template) {
 		t.Fatalf("Failed to render template: %v", err)
 	}
 	html := buf.String()
-	if strings.Contains(html, `data-testid="ag-mobile-website"`) ||
-		strings.Contains(html, `data-testid="ag-mobile-phone"`) ||
-		strings.Contains(html, `data-testid="ag-mobile-view-details"`) ||
-		strings.Contains(html, "View Spot") {
-		t.Error("Expected no action buttons to be rendered")
+	if !strings.Contains(html, `data-testid="ag-mobile-view-details"`) {
+		t.Error("Expected fallback View Details button to be rendered when no links are present")
 	}
 }
 

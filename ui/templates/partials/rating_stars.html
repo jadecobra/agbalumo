@@ -17,7 +17,7 @@
         {{ end }}
     </div>
     <span class="text-[11px] md:text-xs font-bold {{ $textColor }} ml-1" data-testid="listing-rating-value">
-        {{ printf "%.1f" $listing.Rating }} <span class="text-text-sub dark:text-stone-400 font-medium">({{ $listing.ReviewCount }})</span>
+        {{ printf "%.1f" $listing.Rating }} <span class="text-text-sub dark:text-stone-400 font-medium">({{ $listing.ReviewCount }} Reviews)</span>
     </span>
 </div>
 {{ end }}

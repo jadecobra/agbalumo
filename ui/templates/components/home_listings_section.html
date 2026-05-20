@@ -26,7 +26,7 @@
         </div>
 
         <div id="listings-loading"
-            class="htmx-indicator hidden [&.htmx-request]:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 auto-rows-[192px] md:auto-rows-[400px] mb-12 duration-300">
+            class="htmx-indicator hidden [&.htmx-request]:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 auto-rows-[400px] md:auto-rows-[400px] mb-12 duration-300">
             <div class="bg-earth-sand/20 animate-pulse border border-earth-clay/5 flex flex-col justify-end p-6">
                 <div class="h-4 bg-earth-sand/40 w-2/3 mb-2"></div>
                 <div class="h-3 bg-earth-sand/40 w-1/3"></div>
@@ -71,7 +71,7 @@
         </div>
 
         <div id="listings-container"
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 auto-rows-[192px] md:auto-rows-[400px] grid-flow-dense transition-opacity duration-300">
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 auto-rows-[400px] md:auto-rows-[400px] grid-flow-dense transition-opacity duration-300">
             {{ range $i, $e := .Listings }}
             {{ $gridClass := "" }}
 

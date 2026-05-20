@@ -54,7 +54,7 @@ internal/repository/sqlite/agbalumo.db
 
 /harness
 tmp_harness
-.tester/tasks/NOTES.md
+.tester/tasks/
 # Scratch and temporary files
 scratch/
 

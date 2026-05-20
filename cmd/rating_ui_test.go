@@ -74,7 +74,7 @@ func TestRatingComponent(t *testing.T) {
 				"Listing":        listing,
 				"TextColorClass": "text-earth-ochre dark:text-yellow-600",
 			},
-			expectContains: []string{"text-earth-ochre dark:text-yellow-600", "4.2", "(15)"},
+			expectContains: []string{"text-earth-ochre dark:text-yellow-600", "4.2", "(15 Reviews)"},
 		},
 		{
 			name: "High contrast white color",
@@ -82,7 +82,7 @@ func TestRatingComponent(t *testing.T) {
 				"Listing":        listing,
 				"TextColorClass": "text-white drop-shadow-md",
 			},
-			expectContains: []string{"text-white drop-shadow-md", "4.2", "(15)"},
+			expectContains: []string{"text-white drop-shadow-md", "4.2", "(15 Reviews)"},
 		},
 	}
 

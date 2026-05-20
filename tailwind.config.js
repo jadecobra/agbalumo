@@ -27,6 +27,7 @@ module.exports = {
                 },
                 earth: {
                     clay: '#A0522D',
+                    'clay-dark': '#8B4513',
                     ochre: '#CC7722',
                     'ochre-light': '#E09540',
                     dark: '#1A120E',
