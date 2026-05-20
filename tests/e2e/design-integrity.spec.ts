@@ -97,5 +97,20 @@ test.describe('Design Integrity & Cohesion', () => {
     const errorClassList = await errorIcon.evaluate(el => el.className);
     expect(errorClassList).not.toContain('border');
   });
+
+  test('heart icon should not have borders or backgrounds', async ({ page }) => {
+    await page.goto('/auth/dev');
+    await page.goto('/');
+    const heartBtn = page.locator('[data-testid="ag-save-btn"]').first();
+    await expect(heartBtn).toBeVisible({ timeout: 15000 });
+    const classList = await heartBtn.evaluate(el => el.className);
+    
+    // Background and border removal validation
+    expect(classList).not.toContain('btn-action-overlay');
+    expect(classList).not.toContain('backdrop-blur-sm');
+    expect(classList).not.toContain('drop-shadow-md');
+    expect(classList).not.toContain('bg-');
+    expect(classList).not.toContain('border');
+  });
 });
 
