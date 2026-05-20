@@ -112,5 +112,27 @@ test.describe('Design Integrity & Cohesion', () => {
     expect(classList).not.toContain('bg-');
     expect(classList).not.toContain('border');
   });
+
+  test('close button should not have borders or backgrounds', async ({ page }) => {
+    await page.goto('/');
+    
+    // Open Listing Detail Modal
+    const firstCard = page.locator('[data-testid="ag-listing-card"]').first();
+    await firstCard.locator('div[hx-get^="/listings/"]').click();
+    const modal = page.locator('dialog[open]');
+    await expect(modal).toBeVisible();
+    
+    // Locate the close button inside the modal
+    const closeBtn = modal.locator('button[data-modal-action="close"]');
+    await expect(closeBtn).toBeVisible();
+    const classList = await closeBtn.evaluate(el => el.className);
+    
+    // Background and border removal validation
+    expect(classList).not.toContain('btn-action-overlay');
+    expect(classList).not.toContain('backdrop-blur-sm');
+    expect(classList).not.toContain('drop-shadow-md');
+    expect(classList).not.toContain('bg-');
+    expect(classList).not.toContain('border');
+  });
 });
 
