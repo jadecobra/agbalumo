@@ -71,4 +71,31 @@ test.describe('Design Integrity & Cohesion', () => {
     const contrastViolations = results.violations.filter(v => v.id === 'color-contrast');
     expect(contrastViolations, `Contrast violations in profile modal: ${JSON.stringify(contrastViolations, null, 2)}`).toHaveLength(0);
   });
+
+  test('icon containers should not have borders', async ({ page }) => {
+    // 1. Location Permission Prompt Icon Container
+    await page.goto('/');
+    const promptIcon = page.locator('[data-testid="location-permission-prompt"] .bg-earth-accent\\/20');
+    const promptClassList = await promptIcon.evaluate(el => el.className);
+    expect(promptClassList).not.toContain('border');
+
+    // 2. Verified / Poster Origin Flag Badge in Detail Modal
+    const firstCard = page.locator('[data-testid="ag-listing-card"]').first();
+    await firstCard.locator('div[hx-get^="/listings/"]').click();
+    const modal = page.locator('dialog[open]');
+    await expect(modal).toBeVisible();
+    
+    const flagBadge = modal.locator('div[title*="Origin:"]');
+    if (await flagBadge.count() > 0) {
+      const flagClassList = await flagBadge.first().evaluate(el => el.className);
+      expect(flagClassList).not.toContain('border');
+    }
+
+    // 3. Error Page Bounce Orange Icon
+    await page.goto('/this-page-does-not-exist');
+    const errorIcon = page.locator('.animate-bounce');
+    const errorClassList = await errorIcon.evaluate(el => el.className);
+    expect(errorClassList).not.toContain('border');
+  });
 });
+
