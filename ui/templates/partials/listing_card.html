@@ -75,14 +75,6 @@
             </div>
         </div>
 
-        <!-- Title Element -->
-        <h3 class="text-xl md:text-2xl font-bold font-serif leading-snug text-text-main dark:text-earth-cream mt-2 shrink-0">
-            {{ .Listing.Title }}
-            {{ if .Listing.Featured }}
-            <span class="text-xs md:text-sm" title="Featured Listing">🍊</span>
-            {{ end }}
-        </h3>
-
         <!-- Location Element -->
         {{ if or .Listing.City .Listing.Address }}
         <div class="flex items-center gap-0.5 text-text-sub dark:text-stone-400 mt-1 shrink-0 leading-none">
@@ -92,6 +84,14 @@
             </span>
         </div>
         {{ end }}
+
+        <!-- Title Element -->
+        <h3 class="text-xl md:text-2xl font-bold font-serif leading-snug text-text-main dark:text-earth-cream mt-2 shrink-0">
+            {{ .Listing.Title }}
+            {{ if .Listing.Featured }}
+            <span class="text-xs md:text-sm" title="Featured Listing">🍊</span>
+            {{ end }}
+        </h3>
 
         <!-- Description/Sub-info Container -->
         <div class="flex-1 min-w-0 mt-2 flex flex-col justify-start">
