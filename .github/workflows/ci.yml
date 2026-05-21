@@ -155,7 +155,7 @@ jobs:
           chmod +x server
           mkdir -p .tester/data .tester/servers certs
           openssl req -x509 -newkey rsa:4096 -keyout certs/key.pem -out certs/cert.pem -days 365 -nodes -subj "/CN=localhost"
-          export AGBALUMO_ENV=development
+          export AGBALUMO_ENV=test
           export DISABLE_RATE_LIMIT=true
           ./server seed
           nohup ./server serve > .tester/servers/server.log 2>&1 &
@@ -215,7 +215,7 @@ jobs:
           chmod +x server
           mkdir -p .tester/data .tester/servers certs
           openssl req -x509 -newkey rsa:4096 -keyout certs/key.pem -out certs/cert.pem -days 365 -nodes -subj "/CN=localhost"
-          export AGBALUMO_ENV=development
+          export AGBALUMO_ENV=test
           export DISABLE_RATE_LIMIT=true
           ./server seed
           nohup ./server serve > .tester/servers/server.log 2>&1 &
