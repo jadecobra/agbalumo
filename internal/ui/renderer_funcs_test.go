@@ -143,6 +143,16 @@ func TestFallbackImageURL(t *testing.T) {
 	}
 }
 
+func TestFallbackImageURL_TestEnv(t *testing.T) {
+	t.Setenv("AGBALUMO_ENV", "test")
+
+	got := fallbackImageURL("", "https://tastyfood.com/menu")
+	want := "/static/images/logo.png"
+	if got != want {
+		t.Errorf("fallbackImageURL in test env got %q, want %q", got, want)
+	}
+}
+
 func TestHasDelivery(t *testing.T) {
 	t.Parallel()
 	tests := []struct {

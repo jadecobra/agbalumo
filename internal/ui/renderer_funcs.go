@@ -5,6 +5,7 @@ import (
 	"errors"
 	"html/template"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
@@ -87,6 +88,10 @@ func displayCity(city, address string) string {
 func fallbackImageURL(imageURL, websiteURL string) string {
 	if imageURL != "" {
 		return imageURL
+	}
+	// Return default logo in test/trace environments to avoid network 404s/offline failures
+	if env := os.Getenv("AGBALUMO_ENV"); env == "test" || env == "trace" {
+		return domain.DefaultLogoPath
 	}
 	if websiteURL == "" {
 		return domain.DefaultLogoPath

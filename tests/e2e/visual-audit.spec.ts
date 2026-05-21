@@ -98,7 +98,8 @@ test.describe('Visual Audit', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     const firstListing = page.locator('[data-testid="ag-listing-card"]').first();
-    const title = await firstListing.locator('h3').first().innerText();
+    const rawTitle = await firstListing.locator('h3').first().innerText();
+    const title = rawTitle.replace('🍊', '').trim();
     const overlay = firstListing.locator('div[hx-get^="/listings/"]').first();
     await overlay.click();
     

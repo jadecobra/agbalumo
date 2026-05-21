@@ -50,6 +50,7 @@ Git is our only state tracker.
 ## SESSION START (Mandatory)
 Before any task execution, you MUST:
 - Run `go run ./cmd/verify preflight`
+- Read `.agents/invariants.json` — construct environment URLs exclusively from these values.
 - Read `.agents/skills/RESOLVER.md` — match task against triggers
 - Read `.agents/verify-manifest.yaml` — identify applicable verify commands
 - Read any matched `.agents/skills/*.md` files BEFORE writing code
@@ -59,6 +60,7 @@ Rule: Skipping the resolver is a protocol violation.
 To optimize cost and performance, we enforce a strict boundary between Product execution (TDD loops) and Meta execution (Architecture/Rules).
 1. **Product Code (High-Tier HALT)**: If you are running as a high-tier model (e.g., Gemini 3.1 Pro) and the task involves mutating product code (`internal/`, `ui/`, `cmd/`, `tests/`), you MUST HALT and prompt the user to delegate to Gemini 3 Flash or explicitly provide an `OVERRIDE`.
 2. **Meta-Work (Flash HALT)**: If the task involves mutating workflow rules, architecture docs, or `AGENTS.md` (e.g., `/learn`), Flash models MUST HALT and escalate to a High-Tier model to prevent corruption. High-Tier models execute Meta-Work natively.
+3. **Cost Projection**: Any plan producing ≥2 execution prompts MUST include a Cost Projection table (model assignment, token estimates, break-even analysis). See `flash-plan/SKILL.md` § Cost Projection.
 *Note: The actual enforcement of this gate is injected directly into the execution workflows (e.g., build-feature-phase2.md).*
 ## THE AGENT/HOST BOUNDARY
 You are strictly forbidden from writing application code (`internal/`, `cmd/`) to solve Meta-Environment problems (e.g., LLM API Quota, Token Limits, Context Window size). 
@@ -243,10 +245,12 @@ This section contains corrections and constraints derived from the `[/learn]` wo
 * **UI Dialect & Positioning Awareness** [TRIGGER: ui_positioning, ui_dialect]: Distinguish between **Brand** (Rounded) and **Sharp** (Admin) dialects. **Sharp** templates prohibit rounding classes. When positioning overlays, verify vertical clearance at 1440x900 to prevent viewport collisions.
 * **Template Robustness** [TRIGGER: template_change]: UI templates MUST include fallback text for all dynamic data fields to prevent "invisible" elements from breaking layout.
 * **HTMX Micro-Interaction Guard** [TRIGGER: htmx]: Mandate `hx-indicator` (skeletons/spinners) and transition classes on all mutations to ensure fluid perceived performance.
+* **UI Interaction Dead-Zone Prevention** [TRIGGER: ui_change, z-index, overlay]: Any decorative element (icon, button, badge) positioned above a full-card HTMX click overlay via `z-index` MUST use `pointer-events-none`. If the decorative element needs its own click action, give it an explicit `hx-get`/`hx-post` instead of relying on the underlying overlay. Failure to do this creates a silent interaction dead-zone that Playwright will catch but is invisible to static analysis.
 ### Infrastructure & Environment
-* **Invariants Enforcement** [TRIGGER: browser_subagent, url_construction, env_variable]: The canonical server URL is constructed EXCLUSIVELY from `.agents/invariants.json` (`protocol` + `port`). The agent is FORBIDDEN from guessing ports, reading `.env` for URL construction, or using hardcoded URLs. Use `domain.EnvKeyAppEnv` for env keys. Guessing a port is equivalent to ignoring available documentation and will cause a production CI failure.
+* **Invariants Enforcement (Zero-Guessing Rule)** [TRIGGER: browser_subagent, url_construction, env_variable]: The canonical server URL is constructed EXCLUSIVELY from `.agents/invariants.json` (`protocol` + `port`). The agent is FORBIDDEN from guessing ports, reading `.env` for URL construction, or using hardcoded URLs. Guessing a port is equivalent to ignoring available documentation and will cause a mandatory `/learn` session and potential task rejection. Use `go run ./cmd/verify uptime` to verify the live URL before manual browser tasks.
 * **Local Server & Audit Gates** [TRIGGER: session_done, ci_config_change]: The agent is FORBIDDEN from ending a session if the local server is down (verify via `uptime`). CLI-based CI pipelines MUST include a live server-startup check to catch nil-pointer regressions in routing.
 * **Scratch Directory Isolation** [TRIGGER: git_push]: Ensure temporary 'scratch' or 'brain' directories are in `.gitignore` and NEVER committed, as they interfere with remote CI linter phases.
+* **Resilient Deployments (503 Outage Protection)** [TRIGGER: git_push, deployment_configuration]: CI/CD pipeline deployment jobs MUST implement automated retry logic with exponential backoff (e.g., trying up to 3 times with progressive sleep delays) for deployment commands (e.g. `flyctl deploy`) to withstand transient platform-level outages or 503 Service Unavailable errors. This is deterministically audited via `go run ./cmd/verify ci-tools`.
 ### Testing
 * **Flaky Test Eradication (Performance Assertions)** [TRIGGER: test_authoring, flake_fix]: Pass/Fail unit tests MUST NOT contain hardcoded latency budgets (e.g., `assert.Less(duration, 1000ms)`). Performance constraints should be measured in dedicated benchmark suites (`go test -bench`), not in standard unit tests that block standard execution paths.
 * **CI Cost Awareness (Matrix Bloat)** [TRIGGER: e2e_change, playwright_config]: Agents are forbidden from adding new viewports or matrix dimensions to CI pipelines (e.g., Playwright `projects`) without explicitly calculating the CI time cost and implementing a parallelization strategy (e.g., sharding or increasing workers).
@@ -271,6 +275,10 @@ commands:
   - name: critique
     trigger: after_implementation
     flags: ["--full for CI, default incremental"]
+    
+  - name: cache-buster
+    trigger: before_push, template_change
+    description: Verify CSS cache buster hash matches output.css
     
   - name: visual-audit
     trigger: design_critique
