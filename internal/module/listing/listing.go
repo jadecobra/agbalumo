@@ -70,11 +70,6 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	params := h.parseQueryParams(c)
 	lat, lng := h.resolveCoordinates(ctx, &params)
 
-	// Auto-filter for "Nigerian" if geolocated and no query provided
-	if (lat != 0 || lng != 0) && params.Query == "" {
-		params.Query = "Nigerian"
-	}
-
 	var (
 		listings  []domain.Listing
 		featured  []domain.Listing
@@ -161,11 +156,6 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	p := GetPagination(c, 30)
 
 	lat, lng := h.resolveCoordinates(c.Request().Context(), &params)
-
-	// Auto-filter for "Nigerian" if geolocated and no query provided
-	if (lat != 0 || lng != 0) && params.Query == "" {
-		params.Query = "Nigerian"
-	}
 
 	listings, totalCount, err := h.App.DB.FindAll(c.Request().Context(), params.Type, params.Query, params.City, lat, lng, params.Radius, "", "", false, p.Limit, p.Offset)
 	if err != nil {

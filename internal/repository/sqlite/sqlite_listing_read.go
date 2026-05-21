@@ -199,7 +199,7 @@ func (r *SQLiteRepository) buildListingWhere(filters ListingFilters) (string, []
 
 func (r *SQLiteRepository) buildOrderClause(sortField, sortOrder string) string {
 	if sortField == "" {
-		return "featured DESC, heat_level DESC, rating DESC, created_at DESC, rowid ASC"
+		return "featured DESC, CASE WHEN (regional_specialty LIKE '%Nigerian%' OR owner_origin LIKE '%Nigerian%') THEN 0 ELSE 1 END, heat_level DESC, rating DESC, created_at DESC, rowid ASC"
 	}
 
 	field := "created_at"

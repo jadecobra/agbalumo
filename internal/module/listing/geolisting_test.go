@@ -70,7 +70,7 @@ func TestHandleHome_Geolocation(t *testing.T) {
 	lat, lng := 32.7767, -96.7970
 	radius := 10.0
 
-	mockStore.On("FindAll", mock.Anything, "Food", "Nigerian", "", lat, lng, radius, "", "", false, 30, 0).
+	mockStore.On("FindAll", mock.Anything, "Food", "", "", lat, lng, radius, "", "", false, 30, 0).
 		Return([]domain.Listing{{ID: "1", Title: "Naija Kitchen"}}, 1, nil)
 
 	req := httptest.NewRequest(http.MethodGet, "/?lat=32.7767&lng=-96.7970&radius=10", nil)
