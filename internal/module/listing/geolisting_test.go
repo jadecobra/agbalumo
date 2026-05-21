@@ -84,3 +84,32 @@ func TestHandleHome_Geolocation(t *testing.T) {
 
 	mockStore.AssertExpectations(t)
 }
+
+func TestHandleFragment_NigerianFirstNotExclusive(t *testing.T) {
+	e := echo.New()
+	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
+	mockStore := new(mockListingStore)
+	mockCatSvc := new(mockCategorizationService)
+	app := &env.AppEnv{
+		DB:                mockStore,
+		Cfg:               &config.Config{Env: "test"},
+		CategorizationSvc: mockCatSvc,
+	}
+	h := listing.NewListingHandler(app)
+
+	// Dallas coords
+	lat, lng := 32.7767, -96.7970
+	radius := 10.0
+
+	mockStore.On("FindAll", mock.Anything, "Food", "", "", lat, lng, radius, "", "", false, 30, 0).
+		Return([]domain.Listing{{ID: "1", Title: "Naija Kitchen"}}, 1, nil)
+
+	req := httptest.NewRequest(http.MethodGet, "/listings/fragment?lat=32.7767&lng=-96.7970&radius=10", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	err := h.HandleFragment(c)
+	assert.NoError(t, err)
+
+	mockStore.AssertExpectations(t)
+}

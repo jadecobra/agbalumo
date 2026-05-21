@@ -186,3 +186,30 @@ func TestFindAllByOwner(t *testing.T) {
 		t.Errorf("Expected 2 listings for user-1, got %d", len(res))
 	}
 }
+
+func TestBuildOrderClause_NigerianBoost(t *testing.T) {
+	t.Parallel()
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
+	ctx := context.Background()
+
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "1", Title: "Feat Non-Nigerian", Featured: true, OwnerOrigin: "Ghana", Status: domain.ListingStatusApproved, IsActive: true})
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "2", Title: "Feat Nigerian", Featured: true, OwnerOrigin: "Nigerian", Status: domain.ListingStatusApproved, IsActive: true})
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "3", Title: "Non-Feat Nigerian", Featured: false, RegionalSpecialty: "Nigerian Egusi", Status: domain.ListingStatusApproved, IsActive: true})
+	saveTestListing(t, ctx, repo, domain.Listing{ID: "4", Title: "Non-Feat Non-Nigerian", Featured: false, OwnerOrigin: "Ethiopia", Status: domain.ListingStatusApproved, IsActive: true})
+
+	res, _, err := repo.FindAll(ctx, "", "", "", 0.0, 0.0, 0.0, "", "", false, 10, 0)
+	if err != nil {
+		t.Fatalf("FindAll failed: %v", err)
+	}
+
+	if len(res) != 4 {
+		t.Fatalf("Expected 4 listings, got %d", len(res))
+	}
+
+	expectedIDs := []string{"2", "1", "3", "4"}
+	for i, expID := range expectedIDs {
+		if res[i].ID != expID {
+			t.Errorf("At index %d: expected listing ID %s, got %s (Title: %s)", i, expID, res[i].ID, res[i].Title)
+		}
+	}
+}
