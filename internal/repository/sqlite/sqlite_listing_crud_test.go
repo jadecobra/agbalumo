@@ -294,3 +294,73 @@ func TestDefaultSortingWithRating(t *testing.T) {
 		t.Errorf("Expected third listing to be sort-1, got %s", listings[2].ID)
 	}
 }
+
+func TestGetLocationsWithCoordinates(t *testing.T) {
+	t.Parallel()
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
+	ctx := context.Background()
+
+	l1 := domain.Listing{
+		ID:        "loc-1",
+		Title:     "Dallas Spot",
+		City:      "Dallas",
+		State:     "TX",
+		Country:   "USA",
+		Latitude:  32.7767,
+		Longitude: -96.7970,
+		IsActive:  true,
+		Status:    domain.ListingStatusApproved,
+		Type:      domain.Food,
+	}
+	l2 := domain.Listing{
+		ID:        "loc-2",
+		Title:     "Houston Spot",
+		City:      "Houston",
+		State:     "TX",
+		Country:   "USA",
+		Latitude:  29.7604,
+		Longitude: -95.3698,
+		IsActive:  true,
+		Status:    domain.ListingStatusApproved,
+		Type:      domain.Food,
+	}
+
+	if err := repo.Save(ctx, l1); err != nil {
+		t.Fatalf("Failed to save l1: %v", err)
+	}
+	if err := repo.Save(ctx, l2); err != nil {
+		t.Fatalf("Failed to save l2: %v", err)
+	}
+
+	locations, err := repo.GetLocations(ctx)
+	if err != nil {
+		t.Fatalf("GetLocations failed: %v", err)
+	}
+
+	assertLocationCoords(t, locations, "Dallas", 32.7767, -96.7970)
+	assertLocationCoords(t, locations, "Houston", 29.7604, -95.3698)
+}
+
+func assertLocationCoords(t *testing.T, locations []domain.Location, city string, lat, lng float64) {
+	t.Helper()
+	loc, found := findCity(locations, city)
+	if !found {
+		t.Errorf("%s not found in locations list", city)
+		return
+	}
+	if loc.Latitude == 0.0 || loc.Longitude == 0.0 {
+		t.Errorf("Expected %s location to have non-zero coordinates", city)
+	}
+	if loc.Latitude != lat || loc.Longitude != lng {
+		t.Errorf("Expected %s coords (%f, %f), got (%f, %f)", city, lat, lng, loc.Latitude, loc.Longitude)
+	}
+}
+
+func findCity(locations []domain.Location, city string) (domain.Location, bool) {
+	for _, loc := range locations {
+		if loc.City == city {
+			return loc, true
+		}
+	}
+	return domain.Location{}, false
+}
