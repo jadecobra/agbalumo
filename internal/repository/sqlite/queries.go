@@ -34,7 +34,7 @@ const (
 // Shared Read Queries
 const (
 	ListingGetCountsSQL    = `SELECT type, COUNT(*) FROM listings WHERE ` + ListingActiveApprovedSQL + ` GROUP BY type`
-	ListingGetLocationsSQL = `SELECT DISTINCT city, state, country FROM listings WHERE ` + ListingActiveApprovedSQL + ` AND city != '' ORDER BY country ASC, state ASC, city ASC`
+	ListingGetLocationsSQL = `SELECT city, state, country, AVG(latitude) AS latitude, AVG(longitude) AS longitude FROM listings WHERE ` + ListingActiveApprovedSQL + ` AND city != '' GROUP BY city, state, country ORDER BY country ASC, state ASC, city ASC`
 	ListingTitleExistsSQL  = `SELECT EXISTS(SELECT 1 FROM listings WHERE title = ?)`
 	UserGetCountSQL        = `SELECT COUNT(*) FROM users`
 )

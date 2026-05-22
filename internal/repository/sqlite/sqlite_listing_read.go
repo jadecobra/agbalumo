@@ -317,7 +317,7 @@ func (r *SQLiteRepository) GetLocations(ctx context.Context) ([]domain.Location,
 	var locations []domain.Location
 	for rows.Next() {
 		var loc domain.Location
-		if err := rows.Scan(&loc.City, &loc.State, &loc.Country); err != nil {
+		if err := rows.Scan(&loc.City, &loc.State, &loc.Country, &loc.Latitude, &loc.Longitude); err != nil {
 			return nil, err
 		}
 		locations = append(locations, loc)

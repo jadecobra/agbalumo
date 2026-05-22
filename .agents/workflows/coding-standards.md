@@ -169,6 +169,7 @@ This section contains corrections and constraints derived from the `[/learn]` wo
 
 
 ### Testing
+* **Mock Fidelity Guard** [TRIGGER: test_authoring, mock_creation, database_comprehension]: Any mock or stub used in unit or E2E tests for database or repository layers must strictly match the query capabilities of the actual database implementation. Mocks are strictly forbidden from fabricating data or populating functional fields (e.g. coordinates in `Location` structures) that the actual production database repository query fails to fetch or scan.
 * **Flaky Test Eradication (Performance Assertions)** [TRIGGER: test_authoring, flake_fix]: Pass/Fail unit tests MUST NOT contain hardcoded latency budgets (e.g., `assert.Less(duration, 1000ms)`). Performance constraints should be measured in dedicated benchmark suites (`go test -bench`), not in standard unit tests that block standard execution paths.
 * **CI Cost Awareness (Matrix Bloat)** [TRIGGER: e2e_change, playwright_config]: Agents are forbidden from adding new viewports or matrix dimensions to CI pipelines (e.g., Playwright `projects`) without explicitly calculating the CI time cost and implementing a parallelization strategy (e.g., sharding or increasing workers).
 * **Test Parallelism & Env Safety** [TRIGGER: test_authoring]: Use `t.Setenv()` for setting env vars in tests. Raw `os.Setenv` without cleanup is forbidden as it causes flaky CI failures across unrelated test files.
