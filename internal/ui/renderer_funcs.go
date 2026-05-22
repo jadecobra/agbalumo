@@ -3,7 +3,9 @@ package ui
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"html/template"
+	"math"
 	"net/url"
 	"os"
 	"strings"
@@ -176,5 +178,19 @@ func getCountryFlag(regions []Region, name string) string {
 // formatDistance returns a formatted distance string (e.g. "2.3 mi") between two coordinate pairs.
 // Returns empty string if any coordinate is zero (no geo data available).
 func formatDistance(userLat, userLng, listingLat, listingLng float64) string {
-	return ""
+	if userLat == 0 || userLng == 0 || listingLat == 0 || listingLng == 0 {
+		return ""
+	}
+	const earthRadiusMiles = 3959.0
+	dLat := (listingLat - userLat) * math.Pi / 180
+	dLng := (listingLng - userLng) * math.Pi / 180
+	a := math.Sin(dLat/2)*math.Sin(dLat/2) +
+		math.Cos(userLat*math.Pi/180)*math.Cos(listingLat*math.Pi/180)*
+			math.Sin(dLng/2)*math.Sin(dLng/2)
+	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
+	d := earthRadiusMiles * c
+	if d < 0.1 {
+		return "< 0.1 mi"
+	}
+	return fmt.Sprintf("%.1f mi", d)
 }

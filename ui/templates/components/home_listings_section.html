@@ -75,7 +75,7 @@
             {{ range $i, $e := .Listings }}
             {{ $gridClass := "" }}
 
-            {{ template "listing_card" dict "Listing" . "User" $.User "GridClass" $gridClass "Index" $i "SavedIDs" $.SavedIDs "IDPrefix" "" }}
+            {{ template "listing_card" dict "Listing" . "User" $.User "GridClass" $gridClass "Index" $i "SavedIDs" $.SavedIDs "IDPrefix" "" "UserLat" $.UserLat "UserLng" $.UserLng }}
             {{ end }}
             {{ if .Pagination.HasNextPage }}
             <div id="infinite-scroll-sentinel"

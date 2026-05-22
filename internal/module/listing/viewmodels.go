@@ -33,6 +33,8 @@ type HomeViewModel struct {
 	module.BaseViewData
 	Pagination Pagination
 	Radius     float64
+	UserLat    float64
+	UserLng    float64
 	TotalCount int
 }
 
@@ -48,6 +50,8 @@ type ListingFragmentViewModel struct {
 	Featured   []domain.Listing
 	Pagination Pagination
 	Radius     float64
+	UserLat    float64
+	UserLng    float64
 }
 
 // DetailViewModel represents the data for the listing detail modal.

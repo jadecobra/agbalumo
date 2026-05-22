@@ -184,6 +184,7 @@ func BuildGlobalFuncMap() template.FuncMap {
 		"safeHTMLAttr":     safeHTMLAttr,
 		"safeJS":           safeJS,
 		"displayCity":      displayCity,
+		"formatDistance":   formatDistance,
 		"fallbackImageURL": fallbackImageURL,
 		"hasDelivery":      hasDelivery,
 		"float64": func(i int) float64 {

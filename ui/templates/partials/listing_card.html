@@ -80,7 +80,7 @@
         <div class="flex items-center gap-0.5 text-text-sub dark:text-stone-400 mt-1 shrink-0 leading-none">
             <span class="material-symbols-outlined text-[14px]">location_on</span>
             <span class="text-xs font-medium capitalize tracking-wide">
-                {{ displayCity .Listing.City .Listing.Address }}
+                {{ displayCity .Listing.City .Listing.Address }}{{ $dist := formatDistance .UserLat .UserLng .Listing.Latitude .Listing.Longitude }}{{ if $dist }} · {{ $dist }}{{ end }}
             </span>
         </div>
         {{ end }}

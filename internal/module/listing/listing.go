@@ -138,6 +138,8 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		},
 		Locations:        locations,
 		Radius:           params.Radius,
+		UserLat:          lat,
+		UserLng:          lng,
 		GoogleMapsApiKey: h.App.Cfg.GoogleMapsAPIKey,
 		Source:           c.QueryParam("source"),
 		Query:            params.Query,
@@ -185,6 +187,8 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 		City:       params.City,
 		FilterType: params.Type,
 		Radius:     params.Radius,
+		UserLat:    lat,
+		UserLng:    lng,
 		Pagination: Pagination{
 			Page:        p.Page,
 			Limit:       p.Limit,
