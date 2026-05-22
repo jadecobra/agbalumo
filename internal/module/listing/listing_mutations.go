@@ -23,6 +23,8 @@ type ListingCardViewModel struct {
 	IDPrefix  string
 	SavedIDs  map[string]bool
 	GridClass string
+	UserLat   float64
+	UserLng   float64
 	module.BaseViewData
 }
 
