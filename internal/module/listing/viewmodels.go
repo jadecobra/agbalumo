@@ -93,4 +93,6 @@ type SavedListingsViewModel struct {
 	module.BaseViewData
 	Pagination Pagination
 	Radius     float64
+	UserLat    float64
+	UserLng    float64
 }

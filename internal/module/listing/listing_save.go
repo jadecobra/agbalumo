@@ -44,6 +44,9 @@ func (h *ListingHandler) HandleSavedListings(c echo.Context) error {
 	}
 	ctx := c.Request().Context()
 
+	params := h.parseQueryParams(c)
+	lat, lng := h.resolveCoordinates(ctx, &params)
+
 	savedListings, err := h.App.DB.GetSavedListings(ctx, u.ID)
 	if err != nil {
 		return ui.RespondError(c, err)
@@ -69,6 +72,8 @@ func (h *ListingHandler) HandleSavedListings(c echo.Context) error {
 		Pagination: Pagination{
 			TotalCount: len(listings),
 		},
+		UserLat: lat,
+		UserLng: lng,
 	}
 
 	return h.RenderTyped(c, "listing_list", vm)
