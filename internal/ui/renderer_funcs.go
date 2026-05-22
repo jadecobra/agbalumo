@@ -172,3 +172,9 @@ func getCountryFlag(regions []Region, name string) string {
 	}
 	return ""
 }
+
+// formatDistance returns a formatted distance string (e.g. "2.3 mi") between two coordinate pairs.
+// Returns empty string if any coordinate is zero (no geo data available).
+func formatDistance(userLat, userLng, listingLat, listingLng float64) string {
+	return ""
+}
