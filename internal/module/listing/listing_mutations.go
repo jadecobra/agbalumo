@@ -20,12 +20,12 @@ const tmplListingCard = "listing_card"
 
 type ListingCardViewModel struct {
 	Listing   *domain.Listing
-	IDPrefix  string
 	SavedIDs  map[string]bool
+	IDPrefix  string
 	GridClass string
-	UserLat   float64
-	UserLng   float64
 	module.BaseViewData
+	UserLat float64
+	UserLng float64
 }
 
 // Create Handler

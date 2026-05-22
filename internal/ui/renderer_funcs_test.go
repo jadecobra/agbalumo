@@ -83,21 +83,6 @@ func verifyOtherTemplateFuncs(t *testing.T, tempDir string, c echo.Context) {
 		}
 	})
 
-	t.Run("formatDistance", func(t *testing.T) {
-		t.Parallel()
-		// Dallas coords to Arlington coords ≈ 18.5 miles
-		result := formatDistance(32.7767, -96.7970, 32.6998, -97.1081)
-		// Should be approximately "18.5 mi" — verify it's a valid distance string
-		if !strings.HasSuffix(result, " mi") {
-			t.Errorf("expected distance suffix 'mi', got %q", result)
-		}
-
-		// Zero coords should return empty
-		result = formatDistance(0, 0, 32.6998, -97.1081)
-		if result != "" {
-			t.Errorf("expected empty for zero coords, got %q", result)
-		}
-	})
 }
 
 func setupRenderer(t *testing.T, dir, name, content string) *TemplateRenderer {
@@ -218,5 +203,21 @@ func TestHasDelivery(t *testing.T) {
 				t.Errorf("hasDelivery(%q, %q) = %v, want %v", tt.platforms, tt.platformName, got, tt.want)
 			}
 		})
+	}
+}
+
+func TestFormatDistance(t *testing.T) {
+	t.Parallel()
+	// Dallas coords to Arlington coords ≈ 18.5 miles
+	result := formatDistance(32.7767, -96.7970, 32.6998, -97.1081)
+	// Should be approximately "18.5 mi" — verify it's a valid distance string
+	if !strings.HasSuffix(result, " mi") {
+		t.Errorf("expected distance suffix 'mi', got %q", result)
+	}
+
+	// Zero coords should return empty
+	result = formatDistance(0, 0, 32.6998, -97.1081)
+	if result != "" {
+		t.Errorf("expected empty for zero coords, got %q", result)
 	}
 }
