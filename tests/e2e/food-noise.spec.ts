@@ -2,6 +2,10 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Noise Removal Verification for Food Listings', () => {
   test.beforeEach(async ({ page }) => {
+    // Prevent location prompt from overlaying and blocking cards on mobile
+    await page.addInitScript(() => {
+      window.sessionStorage.setItem('agbalumo_geo_dismissed', 'true');
+    });
     await page.goto('/');
     await page.waitForFunction(() => typeof (window as any).filterState !== 'undefined', { timeout: 10000 });
   });

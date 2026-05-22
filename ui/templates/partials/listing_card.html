@@ -3,11 +3,6 @@
     class="listing-card card-juicy group relative flex flex-row even:flex-row-reverse md:flex-col h-auto md:h-full overflow-hidden bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-juicy transition-all duration-500 hover:-translate-y-1 {{ .GridClass }}"
     data-testid="ag-listing-card">
 
-    <!-- Full Card Click Overlay (excluding buttons) -->
-    <div class="absolute inset-0 z-10 cursor-pointer" hx-get="/listings/{{ .Listing.ID }}" hx-target="body"
-        hx-swap="beforeend">
-    </div>
-
     <!-- Image Section (Top Half/Left Side) -->
     <div class="relative w-[45%] shrink-0 md:w-full md:basis-[45%] overflow-hidden bg-stone-50 dark:bg-earth-dark/50 select-none border-stone-200 dark:border-stone-800 border-b md:border-b group-even:border-l group-odd:border-r md:group-even:border-l-0 md:group-odd:border-r-0"> <!-- verify:allow-arbitrary -->
         {{ if .Listing.ImageURL }}
@@ -193,6 +188,11 @@
             {{ end }}
         </div>
         {{ end }}
+    </div>
+
+    <!-- Full Card Click Overlay (excluding buttons) -->
+    <div class="absolute inset-0 z-10 cursor-pointer" hx-get="/listings/{{ .Listing.ID }}" hx-target="body"
+        hx-swap="beforeend">
     </div>
 </div>
 {{ end }}

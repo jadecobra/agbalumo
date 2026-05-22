@@ -12,6 +12,11 @@ test.describe('UX Constraint: Ada Journey', () => {
   test('Ada should find and view a listing in under 60 seconds', async ({ page }) => {
     const startTime = Date.now();
 
+    // Prevent location prompt from overlaying and blocking cards on mobile
+    await page.addInitScript(() => {
+      window.sessionStorage.setItem('agbalumo_geo_dismissed', 'true');
+    });
+
     // 1. Landing on the site
     // We wait for networkidle to ensure initial assets are loaded
     await page.goto('/');
