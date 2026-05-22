@@ -31,27 +31,29 @@ type HomeViewModel struct {
 	Locations        []domain.Location
 	Listings         []domain.Listing
 	module.BaseViewData
-	Pagination Pagination
-	Radius     float64
-	UserLat    float64
-	UserLng    float64
-	TotalCount int
+	Pagination   Pagination
+	Radius       float64
+	UserLat      float64
+	UserLng      float64
+	TotalCount   int
+	FallbackCity string
 }
 
 // ListingFragmentViewModel represents the data for the listing list fragment.
 type ListingFragmentViewModel struct {
-	User       interface{}
-	SavedIDs   map[string]bool
-	Query      string
-	City       string
-	FilterType string
-	Source     string
-	Listings   []domain.Listing
-	Featured   []domain.Listing
-	Pagination Pagination
-	Radius     float64
-	UserLat    float64
-	UserLng    float64
+	User         interface{}
+	SavedIDs     map[string]bool
+	Query        string
+	City         string
+	FilterType   string
+	Source       string
+	Listings     []domain.Listing
+	Featured     []domain.Listing
+	Pagination   Pagination
+	Radius       float64
+	UserLat      float64
+	UserLng      float64
+	FallbackCity string
 }
 
 // DetailViewModel represents the data for the listing detail modal.
@@ -91,8 +93,9 @@ type SavedListingsViewModel struct {
 	Listings   []domain.Listing
 	Featured   []domain.Listing
 	module.BaseViewData
-	Pagination Pagination
-	Radius     float64
-	UserLat    float64
-	UserLng    float64
+	Pagination   Pagination
+	Radius       float64
+	UserLat      float64
+	UserLng      float64
+	FallbackCity string
 }

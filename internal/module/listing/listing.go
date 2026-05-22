@@ -2,6 +2,7 @@ package listing
 
 import (
 	"context"
+	"math"
 
 	"github.com/jadecobra/agbalumo/internal/infra/env"
 	"github.com/jadecobra/agbalumo/internal/module/user"
@@ -116,6 +117,32 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	h.processListings(listings)
 	h.processListings(featured)
 
+	var fallbackCity string
+	if totalCount == 0 && lat != 0.0 && lng != 0.0 {
+		if locationsErr == nil && len(locations) > 0 {
+			var closestLocation domain.Location
+			minDist := -1.0
+			for _, loc := range locations {
+				if loc.Latitude != 0.0 && loc.Longitude != 0.0 {
+					dist := haversineDistance(lat, lng, loc.Latitude, loc.Longitude)
+					if minDist < 0 || dist < minDist {
+						minDist = dist
+						closestLocation = loc
+					}
+				}
+			}
+			if minDist >= 0 && closestLocation.City != "" {
+				fallbackListings, fallbackCount, fallbackErr := h.App.DB.FindAll(ctx, params.Type, params.Query, closestLocation.City, 0, 0, 0, "", "", false, 6, 0)
+				if fallbackErr == nil {
+					listings = fallbackListings
+					totalCount = fallbackCount
+					fallbackCity = closestLocation.City
+					h.processListings(listings)
+				}
+			}
+		}
+	}
+
 	savedMap := make(map[string]bool)
 	for _, id := range savedIDs {
 		savedMap[id] = true
@@ -143,6 +170,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		GoogleMapsApiKey: h.App.Cfg.GoogleMapsAPIKey,
 		Source:           c.QueryParam("source"),
 		Query:            params.Query,
+		FallbackCity:     fallbackCity,
 	}
 
 	if startTS := c.QueryParam("start_ts"); startTS != "" {
@@ -173,6 +201,33 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 		h.processListings(featured)
 	}
 
+	var fallbackCity string
+	if totalCount == 0 && lat != 0.0 && lng != 0.0 {
+		locations, locationsErr := h.App.DB.GetLocations(c.Request().Context())
+		if locationsErr == nil && len(locations) > 0 {
+			var closestLocation domain.Location
+			minDist := -1.0
+			for _, loc := range locations {
+				if loc.Latitude != 0.0 && loc.Longitude != 0.0 {
+					dist := haversineDistance(lat, lng, loc.Latitude, loc.Longitude)
+					if minDist < 0 || dist < minDist {
+						minDist = dist
+						closestLocation = loc
+					}
+				}
+			}
+			if minDist >= 0 && closestLocation.City != "" {
+				fallbackListings, fallbackCount, fallbackErr := h.App.DB.FindAll(c.Request().Context(), params.Type, params.Query, closestLocation.City, 0, 0, 0, "", "", false, 6, 0)
+				if fallbackErr == nil {
+					listings = fallbackListings
+					totalCount = fallbackCount
+					fallbackCity = closestLocation.City
+					h.processListings(listings)
+				}
+			}
+		}
+	}
+
 	savedIDs := h.getSavedIDs(c)
 	savedMap := make(map[string]bool)
 	for _, id := range savedIDs {
@@ -196,8 +251,9 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 			HasNextPage: p.Offset+len(listings) < totalCount,
 			TotalCount:  totalCount,
 		},
-		User:   c.Get(domain.CtxKeyUser),
-		Source: c.QueryParam("source"),
+		User:         c.Get(domain.CtxKeyUser),
+		Source:       c.QueryParam("source"),
+		FallbackCity: fallbackCity,
 	}
 
 	if startTS := c.QueryParam("start_ts"); startTS != "" {
@@ -353,4 +409,15 @@ func (h *ListingHandler) findAndAuthListing(c echo.Context, id string) (domain.L
 		return domain.Listing{}, nil, err
 	}
 	return listing, uRaw, nil
+}
+
+func haversineDistance(lat1, lon1, lat2, lon2 float64) float64 {
+	const earthRadiusMiles = 3959.0
+	dLat := (lat2 - lat1) * math.Pi / 180
+	dLng := (lon2 - lon1) * math.Pi / 180
+	a := math.Sin(dLat/2)*math.Sin(dLat/2) +
+		math.Cos(lat1*math.Pi/180)*math.Cos(lat2*math.Pi/180)*
+			math.Sin(dLng/2)*math.Sin(dLng/2)
+	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
+	return earthRadiusMiles * c
 }

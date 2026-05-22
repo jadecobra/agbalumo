@@ -18,18 +18,18 @@
                     // Auto-trigger if already granted
                     triggerGeolocation(true);
                 } else if (result.state === 'prompt') {
-                    if (!localStorage.getItem(STORAGE_KEY)) {
+                    if (!sessionStorage.getItem(STORAGE_KEY)) {
                         setTimeout(() => {
                             prompt.classList.remove('hidden');
-                        }, 1500);
+                        }, 500);
                     }
                 }
             });
-        } else if (!localStorage.getItem(STORAGE_KEY)) {
+        } else if (!sessionStorage.getItem(STORAGE_KEY)) {
             // Fallback for browsers that don't support permissions.query
             setTimeout(() => {
                 prompt.classList.remove('hidden');
-            }, 1500);
+            }, 500);
         }
 
         function triggerGeolocation(silent = false) {
@@ -38,10 +38,34 @@
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
                         if (!silent) hidePrompt();
-                        localStorage.setItem(STORAGE_KEY, 'true');
+                        sessionStorage.setItem(STORAGE_KEY, 'true');
                         
                         const lat = position.coords.latitude;
                         const lng = position.coords.longitude;
+
+                        // Save coordinates in sessionStorage for coordination
+                        sessionStorage.setItem('agbalumo_lat', lat);
+                        sessionStorage.setItem('agbalumo_lng', lng);
+                        
+                        // Try to sync/update Near Me button if active on page
+                        if (typeof applyActiveState === 'function') {
+                            applyActiveState();
+                        } else {
+                            // Find and update the Near Me button styling/text directly as a fallback/sync
+                            const nearMeBtn = document.getElementById('near-me-btn');
+                            if (nearMeBtn) {
+                                const ACTIVE_CLASSES = ['bg-earth-ochre/20', 'text-earth-ochre', 'hover:bg-earth-ochre/30', 'border-earth-ochre/50'];
+                                const DEFAULT_CLASSES = ['bg-earth-sand/30', 'text-text-main', 'hover:bg-earth-sand/50', 'border-earth-clay/10'];
+                                DEFAULT_CLASSES.forEach(c => nearMeBtn.classList.remove(c));
+                                ACTIVE_CLASSES.forEach(c => nearMeBtn.classList.add(c));
+                                const textSpan = document.getElementById('near-me-text');
+                                if (textSpan) textSpan.textContent = '📍 Nearby';
+                                const spinner = document.getElementById('near-me-spinner');
+                                if (spinner) spinner.classList.add('hidden');
+                                const icon = document.getElementById('near-me-icon');
+                                if (icon) icon.classList.remove('hidden');
+                            }
+                        }
                         
                         if (window.htmx) {
                             const urlParams = new URLSearchParams(window.location.search);
@@ -57,6 +81,13 @@
                                     values[key] = val;
                                 }
                             }
+                            
+                            // Visual feedback transition
+                            const container = document.getElementById('listings-container');
+                            if (container) {
+                                container.style.opacity = '0.3';
+                            }
+
                             htmx.ajax('GET', '/listings/fragment', {
                                 values: values,
                                 target: '#listings-container',
@@ -69,7 +100,7 @@
                             console.warn("Location access denied or failed:", error);
                             hidePrompt();
                         }
-                        localStorage.setItem(STORAGE_KEY, 'true');
+                        sessionStorage.setItem(STORAGE_KEY, 'true');
                     }
                 );
             }
@@ -79,7 +110,7 @@
 
         dismissBtn.addEventListener('click', () => {
             hidePrompt();
-            localStorage.setItem(STORAGE_KEY, 'true');
+            sessionStorage.setItem(STORAGE_KEY, 'true');
         });
     }
 

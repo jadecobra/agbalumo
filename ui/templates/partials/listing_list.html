@@ -27,6 +27,26 @@
 </div>
 
 {{ if .Listings }}
+{{ if .FallbackCity }}
+<div class="col-span-full mb-8 text-center p-6 bg-earth-sand/10 border border-earth-clay/10 animate-in fade-in duration-500">
+    <span class="material-symbols-outlined text-4xl text-stone-400 mb-2">location_off</span>
+    <h3 class="text-lg font-bold text-text-main mb-2">Nothing nearby yet</h3>
+    <p class="text-sm text-text-sub mb-4">We couldn't find spots near you, but here's what's popular in <span class="text-earth-ochre font-bold">{{ .FallbackCity }}</span>:</p>
+</div>
+{{ range $i, $e := .Listings }}
+    {{ template "listing_card" dict "Listing" . "User" $.User "GridClass" "" "Index" $i "SavedIDs" $.SavedIDs "IDPrefix" "fallback-" "UserLat" 0.0 "UserLng" 0.0 }}
+{{ end }}
+<div class="col-span-full mt-12 text-center p-8 bg-earth-sand/20 border border-earth-clay/10">
+    <p class="text-sm text-text-sub mb-4">Know an African spot in your area?</p>
+    <button type="button" data-auth-action="modal" data-modal-id="create-listing-modal"
+        data-testid="fallback-post-spot-btn"
+        data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
+        class="inline-flex items-center gap-2 bg-earth-accent hover:bg-earth-accent/90 text-earth-dark px-6 py-3 font-semibold text-sm transition-all active:scale-95">
+        <span class="material-symbols-outlined text-[18px]">add_circle</span>
+        Post it on agbalumo
+    </button>
+</div>
+{{ else }}
 {{ range $i, $e := .Listings }}
 {{ template "listing_card" dict "Listing" . "User" $.User "GridClass" "" "Index" $i "SavedIDs" $.SavedIDs "IDPrefix" "" "UserLat" $.UserLat "UserLng" $.UserLng }}
 {{ end }}
@@ -39,6 +59,7 @@
     hx-swap="outerHTML">
     <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-earth-ochre"></div>
 </div>
+{{ end }}
 {{ end }}
 {{ else }}
 {{ if eq .Pagination.Page 1 }}
