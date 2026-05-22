@@ -9,7 +9,7 @@
         <div class="w-full h-full bg-center bg-cover bg-white dark:bg-surface-dark transition-transform duration-700 group-hover:scale-110" style="background-image: url('{{.Listing.ImageURL}}');"></div>
         {{ else }}
         <div class="w-full h-full flex items-center justify-center bg-stone-100 dark:bg-surface-dark relative overflow-hidden">
-            <div class="absolute inset-0 bg-center bg-cover bg-no-repeat blur-2xl opacity-50 scale-150 transform transition-transform duration-700 group-hover:scale-110" style="background-image: url('{{ fallbackImageURL "" .Listing.WebsiteURL }}');"></div>
+            <div class="absolute w-full h-full bg-center bg-cover bg-no-repeat blur-2xl opacity-50 scale-150 transform transition-transform duration-700 group-hover:scale-110" style="background-image: url('{{ fallbackImageURL "" .Listing.WebsiteURL }}');"></div>
             <img src="{{ fallbackImageURL "" .Listing.WebsiteURL }}" alt=""
                 class="w-16 h-16 object-contain relative z-10 drop-shadow-lg opacity-90 transition-transform duration-700 group-hover:scale-110">
         </div>
@@ -191,7 +191,7 @@
     </div>
 
     <!-- Full Card Click Overlay (excluding buttons) -->
-    <div class="absolute inset-0 z-10 cursor-pointer" hx-get="/listings/{{ .Listing.ID }}" hx-target="body"
+    <div class="absolute inset-0 z-[15] cursor-pointer" hx-get="/listings/{{ .Listing.ID }}" hx-target="body"
         hx-swap="beforeend">
     </div>
 </div>

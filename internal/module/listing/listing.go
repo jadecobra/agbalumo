@@ -118,29 +118,8 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	h.processListings(featured)
 
 	var fallbackCity string
-	if totalCount == 0 && lat != 0.0 && lng != 0.0 {
-		if locationsErr == nil && len(locations) > 0 {
-			var closestLocation domain.Location
-			minDist := -1.0
-			for _, loc := range locations {
-				if loc.Latitude != 0.0 && loc.Longitude != 0.0 {
-					dist := haversineDistance(lat, lng, loc.Latitude, loc.Longitude)
-					if minDist < 0 || dist < minDist {
-						minDist = dist
-						closestLocation = loc
-					}
-				}
-			}
-			if minDist >= 0 && closestLocation.City != "" {
-				fallbackListings, fallbackCount, fallbackErr := h.App.DB.FindAll(ctx, params.Type, params.Query, closestLocation.City, 0, 0, 0, "", "", false, 6, 0)
-				if fallbackErr == nil {
-					listings = fallbackListings
-					totalCount = fallbackCount
-					fallbackCity = closestLocation.City
-					h.processListings(listings)
-				}
-			}
-		}
+	if locationsErr == nil {
+		listings, totalCount, fallbackCity = h.resolveFallback(ctx, totalCount, lat, lng, locations, listings, &params)
 	}
 
 	savedMap := make(map[string]bool)
@@ -202,30 +181,8 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	}
 
 	var fallbackCity string
-	if totalCount == 0 && lat != 0.0 && lng != 0.0 {
-		locations, locationsErr := h.App.DB.GetLocations(c.Request().Context())
-		if locationsErr == nil && len(locations) > 0 {
-			var closestLocation domain.Location
-			minDist := -1.0
-			for _, loc := range locations {
-				if loc.Latitude != 0.0 && loc.Longitude != 0.0 {
-					dist := haversineDistance(lat, lng, loc.Latitude, loc.Longitude)
-					if minDist < 0 || dist < minDist {
-						minDist = dist
-						closestLocation = loc
-					}
-				}
-			}
-			if minDist >= 0 && closestLocation.City != "" {
-				fallbackListings, fallbackCount, fallbackErr := h.App.DB.FindAll(c.Request().Context(), params.Type, params.Query, closestLocation.City, 0, 0, 0, "", "", false, 6, 0)
-				if fallbackErr == nil {
-					listings = fallbackListings
-					totalCount = fallbackCount
-					fallbackCity = closestLocation.City
-					h.processListings(listings)
-				}
-			}
-		}
+	if locations, locationsErr := h.App.DB.GetLocations(c.Request().Context()); locationsErr == nil {
+		listings, totalCount, fallbackCity = h.resolveFallback(c.Request().Context(), totalCount, lat, lng, locations, listings, &params)
 	}
 
 	savedIDs := h.getSavedIDs(c)
@@ -420,4 +377,39 @@ func haversineDistance(lat1, lon1, lat2, lon2 float64) float64 {
 			math.Sin(dLng/2)*math.Sin(dLng/2)
 	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
 	return earthRadiusMiles * c
+}
+
+func (h *ListingHandler) resolveFallback(ctx context.Context, totalCount int, lat, lng float64, locations []domain.Location, listings []domain.Listing, params *queryParams) ([]domain.Listing, int, string) {
+	if totalCount > 0 || lat == 0.0 || lng == 0.0 || len(locations) == 0 {
+		return listings, totalCount, ""
+	}
+
+	closest, found := findClosestLocation(lat, lng, locations)
+	if !found || closest.City == "" {
+		return listings, totalCount, ""
+	}
+
+	fallbackListings, fallbackCount, fallbackErr := h.App.DB.FindAll(ctx, params.Type, params.Query, closest.City, 0, 0, 0, "", "", false, 6, 0)
+	if fallbackErr != nil {
+		return listings, totalCount, ""
+	}
+
+	h.processListings(fallbackListings)
+	return fallbackListings, fallbackCount, closest.City
+}
+
+func findClosestLocation(lat, lng float64, locations []domain.Location) (domain.Location, bool) {
+	var closest domain.Location
+	minDist := -1.0
+	for _, loc := range locations {
+		if loc.Latitude == 0.0 || loc.Longitude == 0.0 {
+			continue
+		}
+		dist := haversineDistance(lat, lng, loc.Latitude, loc.Longitude)
+		if minDist < 0 || dist < minDist {
+			minDist = dist
+			closest = loc
+		}
+	}
+	return closest, minDist >= 0
 }

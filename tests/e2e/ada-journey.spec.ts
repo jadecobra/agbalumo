@@ -45,6 +45,13 @@ test.describe('UX Constraint: Ada Journey', () => {
     await page.waitForTimeout(2000);
 
     // 4. Clicking a listing
+    // Dismiss the location prompt if it is visible to avoid blocking/intercepting clicks on mobile viewports
+    const dismissBtn = page.getByTestId('location-permission-dismiss');
+    if (await dismissBtn.isVisible()) {
+      await dismissBtn.click();
+      await page.waitForTimeout(500); // Wait for the prompt dismiss animation
+    }
+
     const listingCard = page.getByTestId('ag-listing-card').first();
     await expect(listingCard).toBeVisible({ timeout: 10000 });
     

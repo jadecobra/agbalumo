@@ -27,22 +27,23 @@ type HomeViewModel struct {
 	City             string
 	FilterType       string
 	GoogleMapsApiKey string
-	Featured         []domain.Listing
-	Locations        []domain.Location
+	FallbackCity     string
 	Listings         []domain.Listing
+	Locations        []domain.Location
+	Featured         []domain.Listing
 	module.BaseViewData
-	Pagination   Pagination
-	Radius       float64
-	UserLat      float64
-	UserLng      float64
-	TotalCount   int
-	FallbackCity string
+	Pagination Pagination
+	Radius     float64
+	UserLat    float64
+	UserLng    float64
+	TotalCount int
 }
 
 // ListingFragmentViewModel represents the data for the listing list fragment.
 type ListingFragmentViewModel struct {
 	User         interface{}
 	SavedIDs     map[string]bool
+	FallbackCity string
 	Query        string
 	City         string
 	FilterType   string
@@ -53,7 +54,6 @@ type ListingFragmentViewModel struct {
 	Radius       float64
 	UserLat      float64
 	UserLng      float64
-	FallbackCity string
 }
 
 // DetailViewModel represents the data for the listing detail modal.
@@ -85,17 +85,17 @@ type ProfileViewModel struct {
 
 // SavedListingsViewModel represents the data for the saved listings page.
 type SavedListingsViewModel struct {
-	SavedIDs   map[string]bool
-	Source     string
-	City       string
-	FilterType string
-	Query      string
-	Listings   []domain.Listing
-	Featured   []domain.Listing
-	module.BaseViewData
-	Pagination   Pagination
-	Radius       float64
-	UserLat      float64
-	UserLng      float64
+	SavedIDs     map[string]bool
+	Source       string
+	City         string
+	FilterType   string
+	Query        string
 	FallbackCity string
+	Featured     []domain.Listing
+	Listings     []domain.Listing
+	module.BaseViewData
+	Pagination Pagination
+	Radius     float64
+	UserLat    float64
+	UserLng    float64
 }
