@@ -21,7 +21,8 @@ func TestHandleCreate_GeocodingFallback(t *testing.T) {
 	defer env.Cleanup()
 
 	mockGeocoding := &testutil.MockGeocodingService{}
-	mockGeocoding.On("GetCity", context.Background(), "1600 Amphitheatre Parkway, Mountain View, CA").Return("Mountain View", nil)
+	mockGeocoding.On("GetCity", testifyMock.Anything, "1600 Amphitheatre Parkway, Mountain View, CA").Return("Mountain View", nil)
+	mockGeocoding.On("Geocode", testifyMock.Anything, "1600 Amphitheatre Parkway, Mountain View, CA").Return(37.4220, -122.0841, nil)
 
 	env.App.GeocodingSvc = mockGeocoding
 	h := listmod.NewListingHandler(env.App)
@@ -77,4 +78,3 @@ func TestHandleCreate_GeocodingCoordinates(t *testing.T) {
 	assert.Equal(t, 32.9188, listings[0].Latitude, "Latitude should be geocoded")
 	assert.Equal(t, -96.7519, listings[0].Longitude, "Longitude should be geocoded")
 }
-

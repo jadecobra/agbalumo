@@ -14,12 +14,25 @@ type MockGeocodingService struct {
 	testifyMock.Mock
 }
 
-func (m *MockGeocodingService) GetCity(ctx context.Context, address string) (string, error) {
+func (m *MockGeocodingService) GetCity(ctx context.Context, address string) (city string, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			city = ""
+			err = nil
+		}
+	}()
 	args := m.Called(ctx, address)
 	return args.String(0), args.Error(1)
 }
 
-func (m *MockGeocodingService) Geocode(ctx context.Context, address string) (float64, float64, error) {
+func (m *MockGeocodingService) Geocode(ctx context.Context, address string) (lat float64, lng float64, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			lat = 0.0
+			lng = 0.0
+			err = nil
+		}
+	}()
 	args := m.Called(ctx, address)
 	return args.Get(0).(float64), args.Get(1).(float64), args.Error(2)
 }

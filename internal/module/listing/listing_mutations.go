@@ -190,7 +190,22 @@ func (h *ListingHandler) autoPopulateLocation(ctx context.Context, l *domain.Lis
 		}
 	}
 
-	// 2. Fallbacks using local extraction
+	// 2. Fetch coordinates via GeocodingSvc if available
+	if h.App.GeocodingSvc != nil && (l.Latitude == 0.0 || l.Longitude == 0.0) {
+		lat, lng, err := h.App.GeocodingSvc.Geocode(ctx, l.Address)
+		if err == nil && lat != 0.0 && lng != 0.0 {
+			l.Latitude = lat
+			l.Longitude = lng
+		} else if l.City != "" {
+			lat, lng, err = h.App.GeocodingSvc.Geocode(ctx, l.City)
+			if err == nil && lat != 0.0 && lng != 0.0 {
+				l.Latitude = lat
+				l.Longitude = lng
+			}
+		}
+	}
+
+	// 3. Fallbacks using local extraction
 	if l.City == "" {
 		l.City = domain.ExtractCityFromAddress(l.Address)
 	}
