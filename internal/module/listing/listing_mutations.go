@@ -182,28 +182,8 @@ func (h *ListingHandler) autoPopulateLocation(ctx context.Context, l *domain.Lis
 		return
 	}
 
-	// 1. Try Google Geocoding if available
-	if h.App.GeocodingSvc != nil && l.City == "" {
-		city, err := h.App.GeocodingSvc.GetCity(ctx, l.Address)
-		if err == nil && city != "" {
-			l.City = city
-		}
-	}
-
-	// 2. Fetch coordinates via GeocodingSvc if available
-	if h.App.GeocodingSvc != nil && (l.Latitude == 0.0 || l.Longitude == 0.0) {
-		lat, lng, err := h.App.GeocodingSvc.Geocode(ctx, l.Address)
-		if err == nil && lat != 0.0 && lng != 0.0 {
-			l.Latitude = lat
-			l.Longitude = lng
-		} else if l.City != "" {
-			lat, lng, err = h.App.GeocodingSvc.Geocode(ctx, l.City)
-			if err == nil && lat != 0.0 && lng != 0.0 {
-				l.Latitude = lat
-				l.Longitude = lng
-			}
-		}
-	}
+	h.resolveCityFromGeocoding(ctx, l)
+	h.resolveCoordinatesFromGeocoding(ctx, l)
 
 	// 3. Fallbacks using local extraction
 	if l.City == "" {
@@ -214,6 +194,40 @@ func (h *ListingHandler) autoPopulateLocation(ctx context.Context, l *domain.Lis
 	}
 	if l.Country == "" {
 		l.Country = domain.ExtractCountryFromAddress(l.Address)
+	}
+}
+
+func (h *ListingHandler) resolveCityFromGeocoding(ctx context.Context, l *domain.Listing) {
+	if h.App.GeocodingSvc == nil || l.City != "" {
+		return
+	}
+	city, err := h.App.GeocodingSvc.GetCity(ctx, l.Address)
+	if err == nil && city != "" {
+		l.City = city
+	}
+}
+
+func (h *ListingHandler) resolveCoordinatesFromGeocoding(ctx context.Context, l *domain.Listing) {
+	if h.App.GeocodingSvc == nil {
+		return
+	}
+	if l.Latitude != 0.0 && l.Longitude != 0.0 {
+		return
+	}
+
+	lat, lng, err := h.App.GeocodingSvc.Geocode(ctx, l.Address)
+	if err == nil && lat != 0.0 && lng != 0.0 {
+		l.Latitude = lat
+		l.Longitude = lng
+		return
+	}
+
+	if l.City != "" {
+		lat, lng, err = h.App.GeocodingSvc.Geocode(ctx, l.City)
+		if err == nil && lat != 0.0 && lng != 0.0 {
+			l.Latitude = lat
+			l.Longitude = lng
+		}
 	}
 }
 
