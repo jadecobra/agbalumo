@@ -9,7 +9,6 @@ import (
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/module/admin"
-	"github.com/jadecobra/agbalumo/internal/service"
 	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -24,7 +23,6 @@ func TestAdminHandler_HandleBulkUpload(t *testing.T) {
 
 	env := testutil.SetupTestModuleEnv(t)
 	defer env.Cleanup()
-	env.App.CSVService = service.NewCSVService()
 	h := admin.NewAdminHandler(env.App)
 	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/upload", body)
 	c.Request().Header.Set(echo.HeaderContentType, contentType)
@@ -46,7 +44,6 @@ func TestAdminHandler_HandleBulkUpload_InvalidCSV(t *testing.T) {
 
 	env := testutil.SetupTestModuleEnv(t)
 	defer env.Cleanup()
-	env.App.CSVService = service.NewCSVService()
 	h := admin.NewAdminHandler(env.App)
 	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/upload", body)
 	c.Request().Header.Set(echo.HeaderContentType, contentType)
@@ -74,7 +71,6 @@ func TestAdminHandler_HandleBulkUpload_ParseError(t *testing.T) {
 
 	env := testutil.SetupTestModuleEnv(t)
 	defer env.Cleanup()
-	env.App.CSVService = service.NewCSVService()
 	h := admin.NewAdminHandler(env.App)
 	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/upload", body)
 	c.Request().Header.Set(echo.HeaderContentType, contentType)
@@ -237,7 +233,6 @@ func TestAdminHandler_HandleBulkUpload_ManyErrors(t *testing.T) {
 
 	env := testutil.SetupTestModuleEnv(t)
 	defer env.Cleanup()
-	env.App.CSVService = service.NewCSVService()
 	h := admin.NewAdminHandler(env.App)
 	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/upload", body)
 	c.Request().Header.Set(echo.HeaderContentType, contentType)

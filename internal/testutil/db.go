@@ -19,6 +19,12 @@ import (
 )
 
 var (
+	ListingServiceConstructor        func(repo domain.ListingRepository) domain.ListingService
+	CategorizationServiceConstructor func(repo domain.ListingRepository) domain.CategorizationService
+	CSVServiceConstructor            func(geo domain.GeocodingService) domain.CSVService
+)
+
+var (
 	dbCounter int64
 	counterMu sync.Mutex
 )
@@ -75,15 +81,32 @@ func SetupTestAppEnv(t *testing.T) (*env.AppEnv, func()) {
 	cfg.Env = domain.EnvTest
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 
+	mockGeo := &MockGeocodingService{}
+
+	var csvSvc domain.CSVService = &MockCSVService{}
+	if CSVServiceConstructor != nil {
+		csvSvc = CSVServiceConstructor(mockGeo)
+	}
+
+	var listingSvc domain.ListingService = &MockListingService{}
+	if ListingServiceConstructor != nil {
+		listingSvc = ListingServiceConstructor(repo)
+	}
+
+	var catSvc domain.CategorizationService = &MockCategorizationService{}
+	if CategorizationServiceConstructor != nil {
+		catSvc = CategorizationServiceConstructor(repo)
+	}
+
 	app := env.NewAppEnv(
 		repo,
 		cfg,
 		logger,
-		&MockCSVService{},
-		&MockGeocodingService{},
+		csvSvc,
+		mockGeo,
 		&StubImageService{},
-		&MockListingService{},
-		&MockCategorizationService{},
+		listingSvc,
+		catSvc,
 		&MockMetricsService{},
 	)
 
