@@ -199,6 +199,7 @@ var testIsolationCmd = makeSimpleCmd("test-isolation", "Verify that test files p
 	return maintenance.VerifyTestIsolation(".")
 })
 
+// Replaces Strict Lesson: Visual Snapshot Platform Parity
 var snapshotParityCmd = makeSimpleCmd("snapshot-parity", "Verify that every -darwin.png snapshot has a corresponding -linux.png snapshot", func() error {
 	fmt.Println("🔍 Checking Visual Snapshot Parity (Darwin vs Linux)...")
 	violations, err := maintenance.CheckSnapshotParity(".")
