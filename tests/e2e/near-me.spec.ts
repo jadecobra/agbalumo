@@ -66,6 +66,29 @@ test.describe('Near Me Geolocation UX', () => {
 
     expect(sessionStorageCoords.lat).toBe('6.5244');
     expect(sessionStorageCoords.lng).toBe('3.3792');
+
+    // Confirm that the listings container opacity was reset and is not stuck at 0.3
+    const container = page.locator('#listings-container');
+    await expect(container).toHaveJSProperty('style.opacity', '');
+
+    // Click near me button again to toggle it off (de-select)
+    await nearMeBtn.click();
+
+    // Check button resets back to "Near Me"
+    await expect(nearMeBtn).toContainText('Near Me');
+
+    // Confirm sessionStorage has cleared the coordinates
+    const clearedCoords = await page.evaluate(() => {
+      return {
+        lat: sessionStorage.getItem('agbalumo_lat'),
+        lng: sessionStorage.getItem('agbalumo_lng')
+      };
+    });
+    expect(clearedCoords.lat).toBeNull();
+    expect(clearedCoords.lng).toBeNull();
+
+    // Confirm that the container opacity style remains clean
+    await expect(container).toHaveJSProperty('style.opacity', '');
   });
 
   test('Test 3: Subsequent category filter actions automatically include lat and lng in their HTMX queries', async ({ page }) => {
@@ -141,4 +164,35 @@ test.describe('Near Me Geolocation UX', () => {
     // Verify Near Me button reset back to 'Near Me'
     await expect(nearMeBtn).toContainText('Near Me');
   });
+
+  test('Test 5: Loading the page with lat/lng query parameters renders active state and clicking it toggles off', async ({ page }) => {
+    // Navigate with lat/lng in URL
+    await page.goto('/?lat=6.5244&lng=3.3792');
+
+    const nearMeBtn = page.getByTestId('ag-home-near-me-btn');
+    await expect(nearMeBtn).toBeVisible();
+    await expect(nearMeBtn).toContainText('Nearby');
+
+    // Click to toggle off (deselect)
+    await nearMeBtn.click();
+
+    // Check button resets back to "Near Me"
+    await expect(nearMeBtn).toContainText('Near Me');
+
+    // Verify sessionStorage coordinates are cleared/null
+    const clearedCoords = await page.evaluate(() => {
+      return {
+        lat: sessionStorage.getItem('agbalumo_lat'),
+        lng: sessionStorage.getItem('agbalumo_lng')
+      };
+    });
+    expect(clearedCoords.lat).toBeNull();
+    expect(clearedCoords.lng).toBeNull();
+
+    // Verify browser URL has no lat or lng
+    const currentUrl = new URL(page.url());
+    expect(currentUrl.searchParams.get('lat')).toBeNull();
+    expect(currentUrl.searchParams.get('lng')).toBeNull();
+  });
 });
+
