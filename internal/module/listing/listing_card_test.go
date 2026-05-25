@@ -29,43 +29,7 @@ func TestListingCardRendering(t *testing.T) {
 	})
 
 	t.Run("CardOverlayAndUsability", func(t *testing.T) {
-		var buf bytes.Buffer
-		now := time.Now()
-		data := map[string]interface{}{
-			"Listing": domain.Listing{
-				ID:        "123",
-				Title:     "Test Biz",
-				Type:      domain.Food,
-				CreatedAt: now,
-			},
-			"User":      &domain.User{ID: "usr_123"},
-			"SavedIDs":  map[string]bool{},
-			"IDPrefix":  "",
-			"GridClass": "",
-		}
-		if err := tmpl.ExecuteTemplate(&buf, "listing_card", data); err != nil {
-			t.Fatalf("Failed to render template: %v", err)
-		}
-		html := buf.String()
-
-		// 1. Content Section must not have select-none
-		parts := strings.Split(html, "flex-grow min-h-0")
-		if len(parts) >= 2 {
-			bottomHalf := parts[1]
-			if strings.Contains(bottomHalf, "select-none") {
-				t.Error("Content Section contains select-none, making text non-selectable")
-			}
-		}
-
-		// 2. NEW badge must have pointer-events-none to prevent interaction dead-zone
-		if !strings.Contains(html, "pointer-events-none") {
-			t.Error("NEW badge is missing pointer-events-none class, creating an interaction dead-zone")
-		}
-
-		// 3. Fallback image section must not use bg-blend-overlay
-		if strings.Contains(html, "bg-blend-overlay") {
-			t.Error("Fallback image section uses bg-blend-overlay, rendering the category-gradient transparent")
-		}
+		verifyCardOverlayAndUsability(t, tmpl)
 	})
 }
 
@@ -416,5 +380,45 @@ func verifyOriginOverride(t *testing.T, tmpl *template.Template) {
 	html = buf.String()
 	if !strings.Contains(html, "🇳🇬") {
 		t.Error("Should show Nigeria flag (🇳🇬) for Yoruba specialty")
+	}
+}
+
+func verifyCardOverlayAndUsability(t *testing.T, tmpl *template.Template) {
+	var buf bytes.Buffer
+	now := time.Now()
+	data := map[string]interface{}{
+		"Listing": domain.Listing{
+			ID:        "123",
+			Title:     "Test Biz",
+			Type:      domain.Food,
+			CreatedAt: now,
+		},
+		"User":      &domain.User{ID: "usr_123"},
+		"SavedIDs":  map[string]bool{},
+		"IDPrefix":  "",
+		"GridClass": "",
+	}
+	if err := tmpl.ExecuteTemplate(&buf, "listing_card", data); err != nil {
+		t.Fatalf("Failed to render template: %v", err)
+	}
+	html := buf.String()
+
+	// 1. Content Section must not have select-none
+	parts := strings.Split(html, "flex-grow min-h-0")
+	if len(parts) >= 2 {
+		bottomHalf := parts[1]
+		if strings.Contains(bottomHalf, "select-none") {
+			t.Error("Content Section contains select-none, making text non-selectable")
+		}
+	}
+
+	// 2. NEW badge must have pointer-events-none to prevent interaction dead-zone
+	if !strings.Contains(html, "pointer-events-none") {
+		t.Error("NEW badge is missing pointer-events-none class, creating an interaction dead-zone")
+	}
+
+	// 3. Fallback image section must not use bg-blend-overlay
+	if strings.Contains(html, "bg-blend-overlay") {
+		t.Error("Fallback image section uses bg-blend-overlay, rendering the category-gradient transparent")
 	}
 }
