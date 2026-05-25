@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"golang.org/x/net/html"
 )
 
 // DesignViolation represents a deviation from the design system.
@@ -15,6 +17,36 @@ type DesignViolation struct {
 	Reason  string
 	File    string
 	Line    int
+}
+
+// LineFinder locates sequential tokens in the original content to report accurate line numbers.
+type LineFinder struct {
+	content string
+	offset  int
+}
+
+// NewLineFinder creates a new LineFinder.
+func NewLineFinder(content string) *LineFinder {
+	return &LineFinder{content: content, offset: 0}
+}
+
+// FindLine returns the line number of a raw string inside the file.
+func (lf *LineFinder) FindLine(tokenRaw string) int {
+	idx := strings.Index(lf.content[lf.offset:], tokenRaw)
+	if idx == -1 {
+		return 1
+	}
+
+	absIdx := lf.offset + idx
+	lf.offset = absIdx + len(tokenRaw)
+
+	line := 1
+	for i := 0; i < absIdx; i++ {
+		if lf.content[i] == '\n' {
+			line++
+		}
+	}
+	return line
 }
 
 // CheckDesignStandards scans templates for violations of the UI Dialect protocol.
@@ -51,37 +83,87 @@ func checkFileStandards(path string) ([]DesignViolation, error) {
 	var violations []DesignViolation
 
 	// #nosec G304 -- verification utility scans local templates only
-	content, _ := os.ReadFile(path)
-	hasLabel := strings.Contains(string(content), "<label")
-
-	// #nosec G304 -- verification utility scans local templates only
-	file, err := os.Open(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
-	defer func() { _ = file.Close() }()
+	content := string(data)
+	hasLabel := strings.Contains(content, "<label")
 
-	scanner := bufio.NewScanner(file)
-	lineNumber := 0
-	// All rounding (except -full for pills) is now forbidden project-wide.
+	lf := NewLineFinder(content)
+	reader := strings.NewReader(content)
+	z := html.NewTokenizer(reader)
+
 	roundedRegex := regexp.MustCompile(`\brounded-(sm|md|lg|xl|2xl|3xl)\b`)
 	hexRegex := regexp.MustCompile(`(?i)#([0-9a-f]{3}|[0-9a-f]{6})\b`)
 
-	for scanner.Scan() {
-		lineNumber++
-		line := scanner.Text()
+	for {
+		tt := z.Next()
+		if tt == html.ErrorToken {
+			break
+		}
 
-		violations = append(violations, checkRounding(path, lineNumber, line, roundedRegex)...)
-		violations = append(violations, checkHexCodes(path, lineNumber, line, hexRegex)...)
-		violations = append(violations, checkMinFontSize(path, lineNumber, line)...)
-		violations = append(violations, checkLowContrastOpacity(path, lineNumber, line)...)
-		violations = append(violations, checkHardcodedModalBg(path, lineNumber, line)...)
-		violations = append(violations, checkInlineHandlers(path, lineNumber, line)...)
-		violations = append(violations, checkInlineStyles(path, lineNumber, line)...)
-		violations = append(violations, checkMissingTestIDs(path, lineNumber, line)...)
-		violations = append(violations, checkDeadSpacers(path, lineNumber, line)...)
-		violations = append(violations, checkAdHocColors(path, lineNumber, line)...)
-		violations = append(violations, checkA11ySemantics(path, lineNumber, line, hasLabel)...)
+		// Only inspect start elements and self-closing tags
+		if tt != html.StartTagToken && tt != html.SelfClosingTagToken {
+			continue
+		}
+
+		token := z.Token()
+		rawToken := z.Raw()
+		lineNum := lf.FindLine(string(rawToken))
+		tagStr := token.String()
+
+		// Extract attributes map
+		attrs := make(map[string]string)
+		for _, attr := range token.Attr {
+			attrs[attr.Key] = attr.Val
+		}
+
+		// 1. checkRounding (only on elements with classes)
+		if _, ok := attrs["class"]; ok {
+			violations = append(violations, checkRounding(path, lineNum, tagStr, roundedRegex)...)
+		}
+
+		// 2. checkHexCodes (only inside tag attribute values)
+		violations = append(violations, checkHexCodes(path, lineNum, tagStr, hexRegex)...)
+
+		// 3. checkMinFontSize (only on elements with classes)
+		if _, ok := attrs["class"]; ok {
+			violations = append(violations, checkMinFontSize(path, lineNum, tagStr)...)
+		}
+
+		// 4. checkLowContrastOpacity (only on elements with classes)
+		if _, ok := attrs["class"]; ok {
+			violations = append(violations, checkLowContrastOpacity(path, lineNum, tagStr)...)
+		}
+
+		// 5. checkHardcodedModalBg (only on elements with classes)
+		if _, ok := attrs["class"]; ok {
+			violations = append(violations, checkHardcodedModalBg(path, lineNum, tagStr)...)
+		}
+
+		// 6. checkInlineHandlers
+		violations = append(violations, checkInlineHandlers(path, lineNum, tagStr)...)
+
+		// 7. checkInlineStyles
+		violations = append(violations, checkInlineStyles(path, lineNum, tagStr)...)
+
+		// 8. checkMissingTestIDs
+		violations = append(violations, checkMissingTestIDs(path, lineNum, tagStr)...)
+
+		// 10. checkAdHocColors (only on elements with classes)
+		if _, ok := attrs["class"]; ok {
+			violations = append(violations, checkAdHocColors(path, lineNum, tagStr)...)
+		}
+
+		// 11. checkA11ySemantics
+		violations = append(violations, checkA11ySemantics(path, lineNum, tagStr, hasLabel)...)
+	}
+
+	// Line-by-line checks for layout spacers
+	lines := strings.Split(content, "\n")
+	for idx, line := range lines {
+		violations = append(violations, checkDeadSpacers(path, idx+1, line)...)
 	}
 
 	// File-level checks
@@ -90,7 +172,7 @@ func checkFileStandards(path string) ([]DesignViolation, error) {
 		violations = append(violations, fv...)
 	}
 
-	return violations, scanner.Err()
+	return violations, nil
 }
 
 func checkRounding(path string, lineNum int, line string, re *regexp.Regexp) []DesignViolation {

@@ -46,6 +46,63 @@ func TestCheckTemplateKeyGaps(t *testing.T) {
 			},
 			shouldFail: true,
 		},
+		// YAML Schema checks
+		{
+			name: "YAML schema missing required prop",
+			files: map[string]string{
+				"button.html": `{{ define "btn" }}
+<!-- props:
+  Label: required
+  Type: optional
+-->
+<button>{{ .Label }}</button>
+{{ end }}`,
+				"home.html": `<div>{{ template "btn" dict "Type" "submit" }}</div>`,
+			},
+			shouldFail: true,
+		},
+		{
+			name: "YAML schema extraneous prop",
+			files: map[string]string{
+				"button.html": `{{ define "btn" }}
+<!-- props:
+  Label: required
+  Type: optional
+-->
+<button>{{ .Label }}</button>
+{{ end }}`,
+				"home.html": `<div>{{ template "btn" dict "Label" "Submit" "UnknownProp" "value" }}</div>`,
+			},
+			shouldFail: true,
+		},
+		{
+			name: "YAML schema correct props",
+			files: map[string]string{
+				"button.html": `{{ define "btn" }}
+<!-- props:
+  Label: required
+  Type: optional
+-->
+<button>{{ .Label }}</button>
+{{ end }}`,
+				"home.html": `<div>{{ template "btn" dict "Label" "Submit" "Type" "submit" }}</div>`,
+			},
+			shouldFail: false,
+		},
+		{
+			name: "YAML schema double quoted value is not treated as extraneous key",
+			files: map[string]string{
+				"badge.html": `{{ define "badge" }}
+<!-- props:
+  Label: required
+  ColorClasses: optional
+-->
+<span>{{ .Label }}</span>
+{{ end }}`,
+				"home.html": `<div>{{ template "badge" dict "Label" "custom" "ColorClasses" "bg-green-500" }}</div>`,
+			},
+			shouldFail: false,
+		},
 	}
 
 	for _, tt := range tests {
@@ -81,5 +138,47 @@ func runTemplateKeyGapTest(t *testing.T, tt templateTest) {
 	}
 	if !tt.shouldFail && len(violations) > 0 {
 		t.Errorf("expected no violations, got %d: %+v", len(violations), violations)
+	}
+}
+
+func TestParseDictKeys(t *testing.T) {
+	tests := []struct {
+		name     string
+		content  string
+		expected []string
+	}{
+		{
+			name:     "simple keys",
+			content:  `"Label" "Submit" "Classes" "bg-earth-dark"`,
+			expected: []string{"Label", "Classes"},
+		},
+		{
+			name:     "keys with parenthesized expressions",
+			content:  `"ID" (print "edit-listing-modal-" .Listing.ID) "Title" "Edit"`,
+			expected: []string{"ID", "Title"},
+		},
+		{
+			name:     "keys with mixed types",
+			content:  `"ID" 123 "IsForm" true "Data" .`,
+			expected: []string{"ID", "IsForm", "Data"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			runSingleParseDictKeysTest(t, tt.content, tt.expected)
+		})
+	}
+}
+
+func runSingleParseDictKeysTest(t *testing.T, content string, expected []string) {
+	keys := parseDictKeys(content)
+	if len(keys) != len(expected) {
+		t.Fatalf("expected %d keys, got %d: %v", len(expected), len(keys), keys)
+	}
+	for i, k := range keys {
+		if k != expected[i] {
+			t.Errorf("expected key at index %d to be %q, got %q", i, expected[i], k)
+		}
 	}
 }

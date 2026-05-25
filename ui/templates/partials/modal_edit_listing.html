@@ -6,7 +6,7 @@
 {{ $afterReq := "" }}
 {{ if eq .Source "admin" }}{{ $afterReq = "if(event.detail.successful) { this.closest('dialog').close(); }" }}{{ end }}
 
-{{ template "modal_base" dict "ID" (print "edit-listing-modal-" .Listing.ID) "Title" "Edit Listing" "AutoOpen" true "DialogDataListingId" .Listing.ID "ShowCloseIcon" true "IsForm" true "FormPut" $putUrl "FormSwap" $swap "FormAfterRequest" $afterReq "FormTarget" (print "#" .TargetID) "FormEnctype" "multipart/form-data" "FormID" (print "edit-form-" .Listing.ID) "InnerTemplate" "modal_edit_listing_fields" "Data" . "NoBottomClose" true }}
+{{ template "modal_base" dict "ID" (print "edit-listing-modal-" .Listing.ID) "Title" "Edit Listing" "AutoOpen" true "DialogDataListingId" .Listing.ID "IsForm" true "FormPut" $putUrl "FormSwap" $swap "FormAfterRequest" $afterReq "FormTarget" (print "#" .TargetID) "FormEnctype" "multipart/form-data" "FormID" (print "edit-form-" .Listing.ID) "InnerTemplate" "modal_edit_listing_fields" "Data" . "NoBottomClose" true }}
 {{ end }}
 
 {{ define "modal_edit_listing_fields" }}

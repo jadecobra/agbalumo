@@ -1,8 +1,23 @@
 {{ define "button_sharp" }}
+<!-- props:
+  Label: required
+  Type: optional
+  ID: optional
+  DataAction: optional
+  DataTarget: optional
+  HXPost: optional
+  HXTarget: optional
+  HXSwap: optional
+  HXConfirm: optional
+  Attr: optional
+  Classes: optional
+  TestID: optional
+-->
 <button type="{{ if index . "Type" }}{{ .Type }}{{ else }}button{{ end }}" {{ if index . "ID" }}id="{{ .ID }}" {{ end }} {{ if index . "DataAction"
     }}data-action="{{ .DataAction }}" {{ end }} {{ if index . "DataTarget" }}data-target="{{ .DataTarget }}" {{ end }} {{ if
     index . "HXPost" }}hx-post="{{ .HXPost }}" {{ end }} {{ if index . "HXTarget" }}hx-target="{{ .HXTarget }}" {{ end }} {{ if index . "HXSwap"
     }}hx-swap="{{ .HXSwap }}" {{ end }} {{ if index . "HXConfirm" }}hx-confirm="{{ .HXConfirm }}" {{ end }}
+    data-testid="{{ if index . "TestID" }}{{ .TestID }}{{ else }}sharp-btn{{ end }}"
     {{ if index . "Attr" }}{{ .Attr | safeHTMLAttr }}{{ end }}
     class="{{ if index . "Classes" }}{{ .Classes }}{{ else }}bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark px-8 py-3 font-bold capitalize text-xs tracking-widest transition-all active:scale-95 disabled:opacity-50{{ end }}">
     {{ .Label }}
@@ -10,6 +25,13 @@
 {{ end }}
 
 {{ define "admin_tool_link_sharp" }}
+<!-- props:
+  Link: required
+  IconBgClass: required
+  IconColorClass: required
+  Icon: required
+  Label: required
+-->
 <a href="{{ .Link }}"
     class="flex-1 flex flex-col items-center py-6 px-4 cursor-pointer hover:bg-earth-ochre/10 transition-colors group">
     <div class="flex items-center gap-4">
@@ -22,6 +44,14 @@
 {{ end }}
 
 {{ define "metric_stat_sharp" }}
+<!-- props:
+  Value: required
+  Label: required
+  Link: optional
+  HXGet: optional
+  HXTarget: optional
+  Modal: optional
+-->
 {{ if index . "Link" }}
 <a href="{{ .Link }}"
     class="text-center flex-1 flex flex-col items-center py-6 px-4 cursor-pointer hover:bg-earth-ochre/10 transition-colors group"
@@ -52,6 +82,10 @@
 {{ end }}
 
 {{ define "status_badge_sharp" }}
+<!-- props:
+  Label: required
+  ColorClasses: optional
+-->
 <span
     class="px-2 py-0.5 text-[10px] font-bold capitalize tracking-widest {{ if index . "ColorClasses" }}{{ .ColorClasses }}{{ else }}bg-earth-cream/10 text-earth-cream/70{{ end }}">
     {{ .Label }}
@@ -59,10 +93,22 @@
 {{ end }}
 
 {{ define "admin_tool_btn_sharp" }}
+<!-- props:
+  Target: optional
+  HXGet: optional
+  HXTarget: optional
+  HXSwap: optional
+  IconBgClass: required
+  IconColorClass: required
+  Icon: required
+  Label: required
+  TestID: optional
+-->
 <button {{ if index . "Target" }}data-action="open-modal" data-target="{{ .Target }}"{{ end }}
     {{ if index . "HXGet" }}hx-get="{{ .HXGet }}"{{ end }}
     {{ if index . "HXTarget" }}hx-target="{{ .HXTarget }}"{{ end }}
     {{ if index . "HXSwap" }}hx-swap="{{ .HXSwap }}"{{ else if index . "HXGet" }}hx-swap="innerHTML"{{ end }}
+    data-testid="{{ if index . "TestID" }}{{ .TestID }}{{ else }}admin-tool-btn{{ end }}"
     class="flex-1 flex flex-col items-center py-6 px-4 cursor-pointer hover:bg-earth-ochre/10 transition-colors group focus:outline-none">
     <div class="flex items-center gap-4">
         <div class="w-12 h-12 {{ .IconBgClass }} flex items-center justify-center {{ .IconColorClass }}">
@@ -74,6 +120,37 @@
 {{ end }}
 
 {{ define "modal_base" }}
+<!-- props:
+  ID: required
+  InnerTemplate: required
+  Title: optional
+  AutoOpen: optional
+  DialogDataTarget: optional
+  DialogDataListingId: optional
+  MaxWidthClass: optional
+  MarginClass: optional
+  InsetClass: optional
+  ContentID: optional
+  MaxHeightClass: optional
+  NoPadding: optional
+  CustomScroll: optional
+  NoDecorativeBg: optional
+  DecorativeBgClass: optional
+  NoHeader: optional
+  HeaderClass: optional
+  IsForm: optional
+  FormAction: optional
+  FormPut: optional
+  FormSwap: optional
+  FormTarget: optional
+  FormMethod: optional
+  FormEnctype: optional
+  FormID: optional
+  FormAfterRequest: optional
+  NoSubmitClose: optional
+  Data: optional
+  NoBottomClose: optional
+-->
 <dialog id="{{ .ID }}" {{ if index . "AutoOpen" }}data-auto-open="true"{{ end }} {{ if index . "DialogDataTarget" }}data-target="{{ .DialogDataTarget }}"{{ end }} {{ if index . "DialogDataListingId" }}data-listing-id="{{ .DialogDataListingId }}"{{ end }}
     class="backdrop:bg-surface-dark/50 bg-transparent p-0 w-full max-w-none {{ if index . "MaxWidthClass" }}{{ .MaxWidthClass }}{{ else }}md:max-w-sm{{ end }} {{ if index . "MarginClass" }}{{ .MarginClass }}{{ else }}m-auto{{ end }} shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed {{ if index . "InsetClass" }}{{ .InsetClass }}{{ else }}inset-0{{ end }} z-50 h-full md:h-auto">
     <div {{ if index . "ContentID" }}id="{{ .ContentID }}"{{ end }} class="bg-white dark:bg-surface-dark relative flex flex-col h-full md:h-auto {{ if index . "MaxHeightClass" }}{{ .MaxHeightClass }}{{ else }}md:max-h-[85vh]{{ end }} overflow-hidden border border-stone-200 dark:border-stone-800">
@@ -84,21 +161,21 @@
             {{ if not (index . "NoDecorativeBg") }}
             <div class="absolute top-0 right-0 w-32 h-32 {{ if index . "DecorativeBgClass" }}{{ .DecorativeBgClass }}{{ else }}bg-earth-accent/10{{ end }} blur-3xl -z-10 transform translate-x-10 -translate-y-10"></div>
             {{ end }}
- 
+            
             {{ if not (index . "NoHeader") }}
             <div class="flex justify-between items-start mb-8 {{ index . "HeaderClass" }}">
                 <h2 class="font-serif italic text-4xl leading-tight text-text-main dark:text-earth-cream drop-shadow-sm">{{ .Title }}</h2>
                 {{ template "btn_close" dict "Classes" "text-text-sub hover:text-text-main" }}
             </div>
             {{ end }}
- 
+            
             {{ if index . "IsForm" }}
             <form {{ if index . "FormAction" }}hx-post="{{ .FormAction }}"{{ end }} {{ if index . "FormPut" }}hx-put="{{ .FormPut }}"{{ end }} {{ if index . "FormSwap" }}hx-swap="{{ .FormSwap }}"{{ end }} {{ if index . "FormTarget" }}hx-target="{{ .FormTarget }}"{{ end }} method="{{ if index . "FormMethod" }}{{ .FormMethod }}{{ else }}POST{{ end }}" {{ if index . "FormEnctype" }}enctype="{{ .FormEnctype }}"{{ end }} {{ if index . "FormID" }}id="{{ .FormID }}"{{ end }} {{ if index . "FormAfterRequest" }}hx-on::after-request="{{ .FormAfterRequest }}"{{ end }}
                 class="flex flex-col gap-5 flex-1" autocomplete="off" {{ if not (index . "NoSubmitClose") }}data-modal-action-submit-close{{ end }}>
             {{ else }}
             <div class="flex flex-col flex-1 w-full">
             {{ end }}
- 
+            
                 {{ $inner := index . "InnerTemplate" }}
                 {{ if eq $inner "modal_create_listing_fields" }}
                     {{ template "modal_create_listing_fields" .Data }}
@@ -113,14 +190,14 @@
                 {{ else if eq $inner "modal_login_prompt_content" }}
                     {{ template "modal_login_prompt_content" .Data }}
                 {{ end }}
- 
+                
             {{ if index . "IsForm" }}
             </form>
             {{ else }}
             </div>
             {{ end }}
         </div> <!-- End Scrollable Area -->
- 
+        
         {{ if not (index . "NoBottomClose") }}
         <!-- Sticky Footer -->
         <div class="shrink-0 bg-surface-dark border-t border-white/5 z-20 {{ if index . "NoPadding" }}p-0{{ else }}px-6 py-4{{ end }}">
@@ -136,6 +213,11 @@
 {{ end }}
 
 {{ define "btn_close" }}
+<!-- props:
+  Action: optional
+  TestID: optional
+  Classes: optional
+-->
 <button type="button" 
         {{ $action := index . "Action" }}{{ if $action }}data-action="{{ $action }}"{{ else }}data-modal-action="close"{{ end }} 
         {{ if index . "TestID" }}data-testid="{{ index . "TestID" }}"{{ end }}
@@ -146,6 +228,8 @@
 {{ end }}
 
 {{ define "location_permission_prompt" }}
+<!-- props:
+-->
 <div id="location-permission-prompt" data-testid="location-permission-prompt" 
     class="hidden fixed bottom-24 left-4 right-4 md:bottom-8 md:right-8 md:left-auto md:max-w-sm z-[60] animate-in slide-in-from-bottom-10 duration-500">
     <div class="bg-earth-cream dark:bg-earth-dark/95 backdrop-blur-xl border-2 border-earth-ochre p-6 shadow-[8px_8px_0px_0px_rgba(212,163,115,0.2)]">

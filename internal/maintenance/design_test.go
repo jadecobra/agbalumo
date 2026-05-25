@@ -283,3 +283,44 @@ func TestA11ySemantics(t *testing.T) {
 		})
 	}
 }
+
+func TestCheckFileStandardsIgnoreComments(t *testing.T) {
+	content := `
+		<!-- props:
+		  Label: required
+		  rounded-md inside a comment shouldn't fail
+		  #D4A373 inside a comment shouldn't fail
+		-->
+		<div class="bg-earth-dark text-earth-cream text-sm">
+			<script>
+				console.log("rounded-md inside a script");
+				var color = "#D4A373";
+			</script>
+			<span>Hello</span>
+		</div>
+	`
+
+	tmpfile, err := os.CreateTemp("", "test_comment_ignore_*.html")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() {
+		_ = os.Remove(tmpfile.Name())
+	}()
+
+	if _, err = tmpfile.Write([]byte(content)); err != nil {
+		t.Fatal(err)
+	}
+	if err = tmpfile.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	violations, err := checkFileStandards(tmpfile.Name())
+	if err != nil {
+		t.Fatalf("checkFileStandards failed: %v", err)
+	}
+
+	if len(violations) > 0 {
+		t.Errorf("expected 0 violations (rounded-md/hex bypassed in comment/script), got %d: %+v", len(violations), violations)
+	}
+}
