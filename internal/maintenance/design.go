@@ -80,8 +80,6 @@ func CheckDesignStandards(dir string) ([]DesignViolation, error) {
 }
 
 func checkFileStandards(path string) ([]DesignViolation, error) {
-	var violations []DesignViolation
-
 	// #nosec G304 -- verification utility scans local templates only
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -90,12 +88,42 @@ func checkFileStandards(path string) ([]DesignViolation, error) {
 	content := string(data)
 	hasLabel := strings.Contains(content, "<label")
 
+	roundedRegex := regexp.MustCompile(`\brounded-(sm|md|lg|xl|2xl|3xl)\b`)
+	hexRegex := regexp.MustCompile(`(?i)#([0-9a-f]{3}|[0-9a-f]{6})\b`)
+	adHocRegex := regexp.MustCompile(`(bg|text)-(white|black|stone-\d+)/\d+`)
+	fontSizeRegex := regexp.MustCompile(`text-\[(\d+)`)
+	opacityRegex := regexp.MustCompile(`text-text-sub/(\d+)`)
+
+	var violations []DesignViolation
+	violations = append(violations, tokenizeAndAudit(content, path, hasLabel, roundedRegex, hexRegex, adHocRegex, fontSizeRegex, opacityRegex)...)
+	violations = append(violations, checkFileSpacers(content, path)...)
+	violations = append(violations, checkFileCloseButtons(path)...)
+
+	return violations, nil
+}
+
+func checkFileSpacers(content, path string) []DesignViolation {
+	var violations []DesignViolation
+	lines := strings.Split(content, "\n")
+	for idx, line := range lines {
+		violations = append(violations, checkDeadSpacers(path, idx+1, line)...)
+	}
+	return violations
+}
+
+func checkFileCloseButtons(path string) []DesignViolation {
+	fv, err := checkRedundantCloseButtons(path)
+	if err == nil {
+		return fv
+	}
+	return nil
+}
+
+func tokenizeAndAudit(content, path string, hasLabel bool, roundedRegex, hexRegex, adHocRegex, fontSizeRegex, opacityRegex *regexp.Regexp) []DesignViolation {
+	var violations []DesignViolation
 	lf := NewLineFinder(content)
 	reader := strings.NewReader(content)
 	z := html.NewTokenizer(reader)
-
-	roundedRegex := regexp.MustCompile(`\brounded-(sm|md|lg|xl|2xl|3xl)\b`)
-	hexRegex := regexp.MustCompile(`(?i)#([0-9a-f]{3}|[0-9a-f]{6})\b`)
 
 	for {
 		tt := z.Next()
@@ -103,76 +131,56 @@ func checkFileStandards(path string) ([]DesignViolation, error) {
 			break
 		}
 
-		// Only inspect start elements and self-closing tags
-		if tt != html.StartTagToken && tt != html.SelfClosingTagToken {
-			continue
+		if tt == html.StartTagToken || tt == html.SelfClosingTagToken {
+			token := z.Token()
+			rawToken := z.Raw()
+			lineNum := lf.FindLine(string(rawToken))
+			tagStr := token.String()
+
+			attrs := make(map[string]string)
+			for _, attr := range token.Attr {
+				attrs[attr.Key] = attr.Val
+			}
+
+			violations = append(violations, auditHTMLToken(token, tagStr, attrs, path, lineNum, hasLabel, roundedRegex, hexRegex, adHocRegex, fontSizeRegex, opacityRegex)...)
 		}
+	}
+	return violations
+}
 
-		token := z.Token()
-		rawToken := z.Raw()
-		lineNum := lf.FindLine(string(rawToken))
-		tagStr := token.String()
+func auditHTMLToken(token html.Token, tagStr string, attrs map[string]string, path string, lineNum int, hasLabel bool, roundedRegex, hexRegex, adHocRegex, fontSizeRegex, opacityRegex *regexp.Regexp) []DesignViolation {
+	var violations []DesignViolation
+	violations = append(violations, auditTailwindClasses(attrs, path, lineNum, tagStr, roundedRegex, fontSizeRegex, opacityRegex, adHocRegex)...)
+	violations = append(violations, auditAttributesAndA11y(token, attrs, path, lineNum, tagStr, hasLabel, hexRegex)...)
+	return violations
+}
 
-		// Extract attributes map
-		attrs := make(map[string]string)
-		for _, attr := range token.Attr {
-			attrs[attr.Key] = attr.Val
-		}
-
-		// 1. checkRounding (only on elements with classes)
-		if _, ok := attrs["class"]; ok {
-			violations = append(violations, checkRounding(path, lineNum, tagStr, roundedRegex)...)
-		}
-
-		// 2. checkHexCodes (only inside tag attribute values)
-		violations = append(violations, checkHexCodes(path, lineNum, tagStr, hexRegex)...)
-
-		// 3. checkMinFontSize (only on elements with classes)
-		if _, ok := attrs["class"]; ok {
-			violations = append(violations, checkMinFontSize(path, lineNum, tagStr)...)
-		}
-
-		// 4. checkLowContrastOpacity (only on elements with classes)
-		if _, ok := attrs["class"]; ok {
-			violations = append(violations, checkLowContrastOpacity(path, lineNum, tagStr)...)
-		}
-
-		// 5. checkHardcodedModalBg (only on elements with classes)
-		if _, ok := attrs["class"]; ok {
-			violations = append(violations, checkHardcodedModalBg(path, lineNum, tagStr)...)
-		}
-
-		// 6. checkInlineHandlers
-		violations = append(violations, checkInlineHandlers(path, lineNum, tagStr)...)
-
-		// 7. checkInlineStyles
-		violations = append(violations, checkInlineStyles(path, lineNum, tagStr)...)
-
-		// 8. checkMissingTestIDs
-		violations = append(violations, checkMissingTestIDs(path, lineNum, tagStr)...)
-
-		// 10. checkAdHocColors (only on elements with classes)
-		if _, ok := attrs["class"]; ok {
-			violations = append(violations, checkAdHocColors(path, lineNum, tagStr)...)
-		}
-
-		// 11. checkA11ySemantics
-		violations = append(violations, checkA11ySemantics(path, lineNum, tagStr, hasLabel)...)
+func auditTailwindClasses(attrs map[string]string, path string, lineNum int, tagStr string, roundedRegex, fontSizeRegex, opacityRegex, adHocRegex *regexp.Regexp) []DesignViolation {
+	var violations []DesignViolation
+	_, hasClass := attrs["class"]
+	if !hasClass {
+		return nil
 	}
 
-	// Line-by-line checks for layout spacers
-	lines := strings.Split(content, "\n")
-	for idx, line := range lines {
-		violations = append(violations, checkDeadSpacers(path, idx+1, line)...)
-	}
+	violations = append(violations, checkRounding(path, lineNum, tagStr, roundedRegex)...)
+	violations = append(violations, checkMinFontSize(path, lineNum, tagStr)...)
+	violations = append(violations, checkLowContrastOpacity(path, lineNum, tagStr)...)
+	violations = append(violations, checkHardcodedModalBg(path, lineNum, tagStr)...)
+	violations = append(violations, checkAdHocColors(path, lineNum, tagStr)...)
 
-	// File-level checks
-	fv, err := checkRedundantCloseButtons(path)
-	if err == nil {
-		violations = append(violations, fv...)
-	}
+	return violations
+}
 
-	return violations, nil
+func auditAttributesAndA11y(token html.Token, attrs map[string]string, path string, lineNum int, tagStr string, hasLabel bool, hexRegex *regexp.Regexp) []DesignViolation {
+	var violations []DesignViolation
+
+	violations = append(violations, checkHexCodes(path, lineNum, tagStr, hexRegex)...)
+	violations = append(violations, checkInlineHandlers(path, lineNum, tagStr)...)
+	violations = append(violations, checkInlineStyles(path, lineNum, tagStr)...)
+	violations = append(violations, checkMissingTestIDs(path, lineNum, tagStr)...)
+	violations = append(violations, checkA11ySemantics(path, lineNum, tagStr, hasLabel)...)
+
+	return violations
 }
 
 func checkRounding(path string, lineNum int, line string, re *regexp.Regexp) []DesignViolation {

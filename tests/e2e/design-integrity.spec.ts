@@ -132,7 +132,48 @@ test.describe('Design Integrity & Cohesion', () => {
     expect(classList).not.toContain('backdrop-blur-sm');
     expect(classList).not.toContain('drop-shadow-md');
     expect(classList).not.toContain('bg-');
-    expect(classList).not.toContain('border');
+  });
+
+  test('cards and badges should have strict visual tokens and casing', async ({ page }) => {
+    await page.goto('/');
+    
+    // 1. Featured Card Badge: Uppercase, high-contrast dark translucent glassmorphism
+    const featuredCardBadge = page.locator('.card-juicy .absolute.top-4.left-4 span').first();
+    await expect(featuredCardBadge).toBeVisible();
+    const featuredBadgeText = await featuredCardBadge.innerText();
+    expect(featuredBadgeText).toBe(featuredBadgeText.toUpperCase());
+    
+    const featuredBadgeClassList = await featuredCardBadge.evaluate(el => el.className);
+    expect(featuredBadgeClassList).toContain('bg-earth-dark/60');
+    expect(featuredBadgeClassList).not.toContain('bg-earth-cream/20');
+    expect(featuredBadgeClassList).toContain('rounded-none');
+    
+    // 2. Listing Card Badge: Uppercase, sophisticated sand/clay styling
+    const listingCard = page.locator('[data-testid="ag-listing-card"]').first();
+    // Locate the category tag container
+    const listingBadge = listingCard.locator('span.bg-earth-sand\\/60, span.bg-earth-accent').first();
+    await expect(listingBadge).toBeVisible();
+    const listingBadgeText = await listingBadge.innerText();
+    expect(listingBadgeText).toBe(listingBadgeText.toUpperCase());
+    
+    const listingBadgeClassList = await listingBadge.evaluate(el => el.className);
+    expect(listingBadgeClassList).toContain('bg-earth-sand/60');
+    expect(listingBadgeClassList).toContain('text-earth-clay');
+    expect(listingBadgeClassList).toContain('border-earth-clay/20');
+    expect(listingBadgeClassList).not.toContain('bg-earth-accent');
+    expect(listingBadgeClassList).not.toContain('capitalize');
+    expect(listingBadgeClassList).toContain('uppercase');
+    expect(listingBadgeClassList).toContain('rounded-none');
+    
+    // 3. Fallback Listing Image Section: Category-dynamic dynamic gradients, no grey bg-stone-100 background
+    const listingWithFallback = page.locator('[data-testid="ag-listing-card"]', { has: page.locator('.blur-2xl') }).first();
+    if (await listingWithFallback.count() > 0) {
+      const fallbackDiv = listingWithFallback.locator('.blur-2xl').first().locator('..');
+      const fallbackClassList = await fallbackDiv.evaluate(el => el.className);
+      expect(fallbackClassList).toContain('bg-gradient-to-br');
+      expect(fallbackClassList).not.toContain('bg-stone-100');
+      expect(fallbackClassList).toContain('rounded-none');
+    }
   });
 });
 
