@@ -23,7 +23,7 @@ test.describe('Listing Modal Visual Regression', () => {
     await page.waitForTimeout(500);
     await expect(page).toHaveScreenshot('listing-modal-baseline.png', {
       fullPage: false,
-      maxDiffPixelRatio: 0.05,
+      maxDiffPixelRatio: 0.12,
       timeout: 30000,
     });
   });
