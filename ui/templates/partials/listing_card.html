@@ -16,7 +16,7 @@
             {{ else if eq .Listing.Type "Business" }}bg-gradient-to-br from-earth-accent to-earth-dark
             {{ else if eq .Listing.Type "Service" }}bg-gradient-to-br from-earth-ochre to-earth-accent
             {{ else }}bg-gradient-to-br from-earth-sand to-earth-cream{{ end }} select-none">
-            <div class="absolute w-full h-full bg-center bg-cover bg-no-repeat blur-2xl opacity-40 scale-150 transform transition-transform duration-700 group-hover:scale-110" style="background-image: url('{{ fallbackImageURL "" .Listing.WebsiteURL }}');"></div>
+            <div class="hidden absolute w-full h-full bg-center bg-cover bg-no-repeat blur-2xl opacity-40 scale-150 transform transition-transform duration-700 group-hover:scale-110" style="background-image: url('{{ fallbackImageURL "" .Listing.WebsiteURL }}');"></div>
             <img src="{{ fallbackImageURL "" .Listing.WebsiteURL }}" alt=""
                 class="w-16 h-16 object-contain relative z-10 drop-shadow-lg opacity-90 transition-transform duration-700 group-hover:scale-110 rounded-none">
         </div>

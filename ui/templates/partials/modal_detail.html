@@ -9,11 +9,12 @@
             <div class="w-full h-full bg-center bg-cover bg-white dark:bg-surface-dark" style="background-image: url('{{.Listing.ImageURL}}');"></div>
             {{ else }}
             <div class="w-full h-full flex items-center justify-center bg-stone-100 dark:bg-surface-dark relative overflow-hidden">
-                <div class="absolute inset-0 bg-center bg-cover bg-no-repeat blur-2xl opacity-50 scale-150" style="background-image: url('{{ fallbackImageURL "" .Listing.WebsiteURL }}');"></div>
+                <div class="hidden absolute inset-0 bg-center bg-cover bg-no-repeat blur-2xl opacity-50 scale-150" style="background-image: url('{{ fallbackImageURL "" .Listing.WebsiteURL }}');"></div>
                 <img src="{{ fallbackImageURL "" .Listing.WebsiteURL }}" alt="" class="w-24 h-24 object-contain relative z-10 drop-shadow-lg opacity-90">
             </div>
             {{ end }}
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+            <div class="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/60 to-transparent z-20"></div>
 
             <!-- Top Right Action Buttons (Save & Close) -->
             <div class="absolute top-4 right-4 flex items-center gap-2 z-[60]">
@@ -34,7 +35,7 @@
         <!-- Pinned Metadata Row (Static during scrolling) -->
         <div class="px-6 py-4 border-b border-stone-200 dark:border-stone-800 bg-white dark:bg-surface-dark shrink-0 flex items-center justify-between gap-3">
             <div class="flex items-center gap-3">
-                <span class="bg-earth-accent text-white text-xs capitalize font-bold px-2.5 py-1 tracking-wider shadow-sm">
+                <span class="bg-earth-sand/60 text-earth-clay border border-earth-clay/20 text-xs uppercase font-bold px-2.5 py-1 tracking-wider shadow-sm rounded-none">
                     {{ .Listing.Type }}
                 </span>
                 {{ template "rating_stars" dict "Listing" .Listing "TextColorClass" "text-earth-clay dark:text-yellow-600" }}
