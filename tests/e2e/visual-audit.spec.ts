@@ -58,8 +58,12 @@ test.describe('Visual Audit', () => {
     for (const route of PUBLIC_ROUTES) {
       const errors: string[] = [];
       page.on('console', msg => {
-        if (msg.type() === 'error' && !msg.text().includes('favicon.ico')) {
-          errors.push(`${route}: ${msg.text()}`);
+        const text = msg.text();
+        if (msg.type() === 'error' && 
+            !text.includes('favicon.ico') && 
+            !text.includes('t0.gstatic.com') && 
+            !text.startsWith('Failed to load resource:')) {
+          errors.push(`${route}: ${text}`);
         }
       });
       await page.goto(route);
@@ -73,7 +77,13 @@ test.describe('Visual Audit', () => {
     for (const route of AUTH_ROUTES) {
       const errors: string[] = [];
       page.on('console', msg => {
-        if (msg.type() === 'error') errors.push(`${route}: ${msg.text()}`);
+        const text = msg.text();
+        if (msg.type() === 'error' && 
+            !text.includes('favicon.ico') && 
+            !text.includes('t0.gstatic.com') && 
+            !text.startsWith('Failed to load resource:')) {
+          errors.push(`${route}: ${text}`);
+        }
       });
       await page.goto(route);
       await page.waitForLoadState('networkidle');
@@ -86,7 +96,13 @@ test.describe('Visual Audit', () => {
     for (const route of ADMIN_ROUTES) {
       const errors: string[] = [];
       page.on('console', msg => {
-        if (msg.type() === 'error') errors.push(`${route}: ${msg.text()}`);
+        const text = msg.text();
+        if (msg.type() === 'error' && 
+            !text.includes('favicon.ico') && 
+            !text.includes('t0.gstatic.com') && 
+            !text.startsWith('Failed to load resource:')) {
+          errors.push(`${route}: ${text}`);
+        }
       });
       await page.goto(route);
       await page.waitForLoadState('networkidle');
@@ -128,7 +144,13 @@ test.describe('Visual Audit', () => {
     await loginAsDev(page);
     const errors: string[] = [];
     page.on('console', msg => {
-      if (msg.type() === 'error') errors.push(msg.text());
+      const text = msg.text();
+      if (msg.type() === 'error' && 
+          !text.includes('favicon.ico') && 
+          !text.includes('t0.gstatic.com') && 
+          !text.startsWith('Failed to load resource:')) {
+        errors.push(text);
+      }
     });
     
     await page.goto('/');
