@@ -42,11 +42,14 @@ linters:
 
   exclusions:
     rules:
-      - path: "_test\\.go"
+      - path: '.*_test\.go'
         linters:
-          - nolintlint
           - dupl
-      - path: "internal/seeder/seeder\\.go"
+          - nolintlint
+      - path: 'internal/testutil/.*'
+        linters:
+          - dupl
+      - path: 'internal/seeder/seeder\.go'
         linters:
           - dupl
 
