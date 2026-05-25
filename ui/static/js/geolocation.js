@@ -82,12 +82,6 @@
                                 }
                             }
                             
-                            // Visual feedback transition
-                            const container = document.getElementById('listings-container');
-                            if (container) {
-                                container.style.opacity = '0.3';
-                            }
-
                             htmx.ajax('GET', '/listings/fragment', {
                                 values: values,
                                 target: '#listings-container',

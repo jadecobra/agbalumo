@@ -45,6 +45,15 @@
         const { btn } = getElements();
         if (!btn) return;
 
+        // Seed sessionStorage if URL has coordinates (e.g. server-side geo active)
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlLat = urlParams.get('lat');
+        const urlLng = urlParams.get('lng');
+        if (urlLat && urlLng) {
+            sessionStorage.setItem('agbalumo_lat', urlLat);
+            sessionStorage.setItem('agbalumo_lng', urlLng);
+        }
+
         // Persist active state on load
         const lat = sessionStorage.getItem('agbalumo_lat');
         const lng = sessionStorage.getItem('agbalumo_lng');
@@ -55,6 +64,40 @@
         btn.addEventListener('click', function() {
             const { btn: clickBtn, icon, spinner, text } = getElements();
             if (!clickBtn) return;
+
+            // Check if already active -> Toggle Off
+            const lat = sessionStorage.getItem('agbalumo_lat');
+            const lng = sessionStorage.getItem('agbalumo_lng');
+            if (lat && lng) {
+                sessionStorage.removeItem('agbalumo_lat');
+                sessionStorage.removeItem('agbalumo_lng');
+                applyDefaultState();
+
+                // Clean up URL query parameters in address bar
+                if (history.replaceState) {
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete('lat');
+                    url.searchParams.delete('lng');
+                    url.searchParams.delete('radius');
+                    history.replaceState(null, '', url.pathname + url.search);
+                }
+
+                if (window.htmx) {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const values = {};
+                    for (const [key, val] of urlParams.entries()) {
+                        if (key !== 'lat' && key !== 'lng' && key !== 'radius') {
+                            values[key] = val;
+                        }
+                    }
+                    htmx.ajax('GET', '/listings/fragment', {
+                        values: values,
+                        target: '#listings-container',
+                        swap: 'innerHTML'
+                    });
+                }
+                return;
+            }
 
             // Show loading state
             clickBtn.disabled = true;
@@ -72,12 +115,6 @@
                         sessionStorage.setItem('agbalumo_lng', lng);
 
                         applyActiveState();
-
-                        // Visual feedback transition
-                        const container = document.getElementById('listings-container');
-                        if (container) {
-                            container.style.opacity = '0.3';
-                        }
 
                         if (window.htmx) {
                             const urlParams = new URLSearchParams(window.location.search);

@@ -36,6 +36,12 @@ function setupHtmxIntegration() {
         if (elt.id === 'create-listing-modal' || (elt.querySelectorAll && elt.querySelector('#create-listing-modal'))) {
             if (window.initCreateImagePreview) window.initCreateImagePreview();
         }
+
+        // Clear listings container opacity after swap
+        const target = evt.detail.target;
+        if (target && target.id === 'listings-container') {
+            target.style.opacity = '';
+        }
     });
 
     // Auto-close edit modal after successful save
