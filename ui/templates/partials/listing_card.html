@@ -8,7 +8,7 @@
         {{ if .Listing.ImageURL }}
         <div class="w-full h-full bg-center bg-cover bg-white dark:bg-surface-dark transition-transform duration-700 group-hover:scale-110 rounded-none" style="background-image: url('{{.Listing.ImageURL}}');"></div>
         {{ else }}
-        <div class="w-full h-full flex items-center justify-center relative overflow-hidden rounded-none bg-blend-overlay
+        <div class="w-full h-full flex items-center justify-center relative overflow-hidden rounded-none
             {{ if eq .Listing.Type "Job" }}bg-gradient-to-br from-earth-ochre to-earth-accent
             {{ else if eq .Listing.Type "Food" }}bg-gradient-to-br from-earth-clay to-earth-accent
             {{ else if eq .Listing.Type "Event" }}bg-gradient-to-br from-stone-400 to-earth-accent
@@ -31,7 +31,7 @@
         <!-- New Badge -->
         {{ if isNew .Listing.CreatedAt }}
         {{ $rightClass := "right-2" }}{{ if $.User }}{{ $rightClass = "right-12" }}{{ end }}
-        {{ template "status_badge_sharp" dict "Label" "NEW" "ColorClasses" (printf "absolute top-2 %s bg-earth-accent !text-earth-dark text-xs px-1.5 py-0.5 font-bold shadow-md z-20 animate-juice-bounce rounded-none" $rightClass) }}
+        {{ template "status_badge_sharp" dict "Label" "NEW" "ColorClasses" (printf "absolute top-2 %s bg-earth-accent !text-earth-dark text-xs px-1.5 py-0.5 font-bold shadow-md z-20 animate-juice-bounce rounded-none pointer-events-none" $rightClass) }}
         {{ end }}
 
         <!-- Edit/Delete Buttons (Hover Only) -->
@@ -54,7 +54,7 @@
     </div>
 
     <!-- Content Section (Bottom Half/Right Side) -->
-    <div class="w-[55%] md:w-full md:basis-[55%] flex-grow min-h-0 p-4 md:p-5 flex flex-col justify-between relative bg-earth-cream dark:bg-surface-dark select-none rounded-none"> <!-- verify:allow-arbitrary -->
+    <div class="w-[55%] md:w-full md:basis-[55%] flex-grow min-h-0 p-4 md:p-5 flex flex-col justify-between relative bg-earth-cream dark:bg-surface-dark rounded-none"> <!-- verify:allow-arbitrary -->
         <!-- Metadata Row (Type & Ratings left) -->
         <div class="flex items-center justify-between gap-1.5 shrink-0 rounded-none">
             <div class="flex items-center gap-1.5 flex-wrap rounded-none">
