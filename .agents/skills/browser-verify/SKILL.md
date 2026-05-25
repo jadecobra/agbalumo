@@ -11,11 +11,10 @@ mutating: true
 ---
 # Browser Verification Skill
 
-## Execution Strategy: Automated vs. Manual
-- `go run ./cmd/verify browser` runs the COMPLETE Omni-Surface Matrix (visual-audit.spec.ts).
-- Do NOT use browser_subagent to duplicate viewport checks already in the spec.
-- Use browser_subagent ONLY for: new features not yet in the spec, and taste/aesthetic judgment calls.
-- **Continuous Automation**: If you find yourself repeating a manual subagent check, you MUST trigger the `/learn` workflow to extract that check into a Playwright test.
+## Execution Strategy: Scoped vs. Full
+- **Local Scoped Execution**: You are encouraged to run targeted, scoped Playwright commands (e.g., `go run ./cmd/verify browser -- --grep "YourTestName"` or `npx playwright test visual.spec.ts`) during local UI iteration to maintain near-instant feedback cycles.
+- **Automated Verification**: Use `browser_subagent` for targeted manual review or aesthetic checks, and **always save a screenshot** of any mutated UI component to prove compliance.
+- **Full-Suite Gate**: The complete Omni-Surface Matrix (`go run ./cmd/verify browser`) remains mandatory at the git pre-commit/CI boundary.
 
 ## Step 1.0: Static A11y Gate (NEW — run FIRST)
 Run `go run ./cmd/verify a11y-check` — catches:
@@ -94,11 +93,10 @@ For ANY layout change, you MUST verify at:
 
 
 ## Critical Failure Protocol (MANDATORY)
-If `go run ./cmd/verify browser` fails at any point:
-1. **HALT immediately.** Do NOT run a scoped/filtered subset (e.g., `npx playwright test a11y.spec.ts -g "..."`) to "verify the fix."
-2. Report the **full failure output** to the user with the exact error.
-3. **Await explicit user direction** before attempting any further push or test run.
-4. Rationale: scoped runs produce false-green signals — the Linux CI container runs the full unfiltered suite and will catch violations the scoped run masked.
+If the E2E verification fails during local development:
+1. **Isolate and Debug Locally**: You are encouraged to run targeted, scoped Playwright assertions (`--grep`) to iteratively implement and verify the fix.
+2. **Mandatory Post-Fix Sweep**: Before pushing or committing, you must execute the full, unfiltered pre-commit and local browser validation to ensure zero integration regressions.
+3. **Report Failures**: If the full E2E suite fails and cannot be resolved locally, output the clinical failure log to the user and await direction.
 
 ## AXE Accessibility Parity Warning
 Local Darwin rendering + warm browser cache can produce false-green AXE results that fail in the clean-room Linux CI container.

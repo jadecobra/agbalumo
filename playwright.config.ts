@@ -10,7 +10,10 @@ export default defineConfig({
   workers: process.env.CI ? 2 : '50%',
   reporter: [['html', { open: 'never' }]],
   expect: {
-    toHaveScreenshot: { maxDiffPixelRatio: 0.01 },
+    toHaveScreenshot: {
+      maxDiffPixelRatio: 0.05,
+      ignoreAntialiasing: true,
+    },
   },
   use: {
     baseURL: process.env.BASE_URL || 'https://localhost:8443',

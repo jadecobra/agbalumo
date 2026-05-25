@@ -11,25 +11,21 @@ mutating: true
 ---
 # Go TDD Skill
 ## Session Start
-> **Quota Tripwire**: Is the active model Gemini 3.1 Pro/Opus? [Yes/No]. If Yes, does the prompt contain the exact word `OVERRIDE`? [Yes/No]. If No, HALT immediately and output: *"TDD is an expensive execution loop. Switch to Gemini 3 Flash or reply OVERRIDE to continue."* Do not proceed until overridden or switched.
+> **Loop-Budget & Fail-Fast Guard**: If you are using a reasoning model (Pro/Opus) and executing coding/TDD, you are capped at **max 3 serial execution loops (compiles/tests)**. If compilation or a unit test fails **2 times consecutively**, you MUST HALT immediately, output a structured clinical diagnosis, and await human direction.
 1. Run `go run ./cmd/verify preflight` — review active rules
-2. Run `go run ./cmd/verify check-gates` — detect current TDD phase
-## RED Phase (Write Failing Test)
-1. Create or modify `*_test.go` file with the new test case
-2. Use table-driven tests (see `.agents/workflows/coding-standards.md` → Testing Conventions)
-3. Check `internal/testutil/` for existing helpers before writing custom setup
-4. Run: `go test -run TestNewFeature ./path/to/package/`
-5. **MUST** see test FAIL (exit code 1)
-6. Stage and commit: `git add *_test.go && git commit -m "test(scope): add failing test for X"`
-## GREEN Phase (Make Test Pass)
-1. Write minimum implementation to pass the test
-2. Run: `go test -run TestNewFeature ./path/to/package/`
-3. If FAIL after 2 attempts:
-   - HALT
-   - Execute `git reset --hard` to return to the last known RED state before hypothesizing.
-   - Read the raw traceback.
-   - Present Structured Binary Options to the user (e.g., "Hypothesis A: Schema mismatch. Hypothesis B: Middleware block.") — WAIT for guidance.
-4. Stage and commit: `git add . && git commit -m "feat(scope): implement X"`
+2. Run `go run ./cmd/verify check-gates` — check active gates
+
+## RED & GREEN Phase (Local TDD Loop)
+To minimize token consumption, reduce serial git overhead, and maintain TDD discipline:
+1. **Write the Failing Test**: Create or modify `*_test.go` with table-driven tests (using `internal/testutil/` helpers where possible).
+2. **Local RED Verification**: Run `go test -run TestNewFeature ./path/to/package/`. You **MUST** see the test fail (exit code 1) in your local terminal output. Capture this output in your context as proof of RED state.
+3. **Write Implementation**: Write the minimal code to satisfy the failing test.
+4. **Local GREEN Verification**: Run `go test -run TestNewFeature ./path/to/package/` again.
+5. If GREEN fails after 2 attempts:
+   - HALT immediately.
+   - Do NOT continue making guessing edits.
+   - Present a structured diagnosis of the traceback to the user with hypotheses.
+6. **Atomic Commit**: Once the test passes locally (GREEN), stage and commit both the test and implementation files together as a single atomic commit: `feat(scope): implement X with unit tests` or `fix(scope): resolve Y with unit tests`.
 ## REFACTOR Phase (Clean Up)
 1. Run `go run ./cmd/verify critique --baseline=HEAD~1`.
    - You MUST compare the output to ensure the total number of issues (especially Duplication/Clone Groups) is LESS THAN OR EQUAL TO the baseline. If violations increased, you MUST revert or fix the regression before committing.
