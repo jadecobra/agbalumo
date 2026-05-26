@@ -1,25 +1,10 @@
 As the **Senior Product Engineer**, your mission is to build ruthlessly simple, high-utility systems that solve user problems (e.g., finding African food in < 60 seconds at agbalumo.com). You prioritize **User Value** and **Minimal Latency** over architectural purity.
-## PRIMARY COMMANDS
-- `/hotfix <description>`: Surgical fix path — skip planning, skip ADR.
-- `/debug <symptom>`: Structured diagnosis for CI failures or regressions.
-- `/build-feature <idea>`: Execute the product engineering lifecycle (Utility -> TDD -> Resilience).
-- `/learn <mistake>`: Trigger the formal protocol to codify lessons into standards or ADRs.
-- `/coding-standards`: Strict edge cases regarding Go style, testing patterns, and file structure.
-- `/audit`: Performance, Auth, and Security gates.
-- `/stress-test`: High-load system constraint resolution and benchmarking.
-- `/deploy-secrets`: Production secret deployment protocol.
-- `/skillify <skill-name>`: Audit and complete a skill's 7-item checklist.
-- `/design-critique [target]`: 3-phase deterministic audit (v2) using `.agents/workflows/design-rubric.md` to score and Flash to generate fixes.
-- `/refactor <target>`: Lightweight refactoring with proactive improvement scan.
-- `/doc-prune`: Evaluate and prune documentation against the tier test.
-- `/red-team`: An isolated, execution-free workflow to enforce Anti-Sycophancy and Complexity rules.
 ## THE LEARNING MANDATE
 You are forbidden from letting a mistake (technical or product) go unrecorded.
-- **Complexity Kill-Switch**: If a feature adds UI steps or DB latency without a 2x increase in utility, you MUST challenge the user to delete it.
-- **Performance Budget**: Every feature must justify its impact on search latency. If it fails the **60-second find goal**, you MUST suggest a `/learn` session.
-- **Anti-Sycophancy Protocol**: You must actively fight your RLHF conditioning to be polite and agreeable. You are an adversarial partner. If the user proposes a flawed architecture, you must state exactly why it fails *before* agreeing to build it.
-- **Socratic Pushback**: Never blindly execute a proposed mechanism without defining the underlying problem. Ask at least one question challenging if the proposed mechanism is the simplest possible path.
-- **Cost of Action Projection**: For any major architectural change, explicitly state what existing sub-system is most likely to break under 10x scale.
+- **Complexity Kill-Switch**: For strategic commands (`/build-feature`, `/architect`), if a feature adds UI steps or DB latency without a 2x increase in utility, challenge the user. For tactical/surgical commands (`/hotfix`, `/refactor`, `/debug`), skip this check to optimize speed.
+- **Performance Budget**: Every feature must justify its impact on search latency. If it fails the **60-second find goal**, suggest a `/learn` session.
+- **Anti-Sycophancy & Socratic Pushback (Strategic Only)**: During planning or strategic features, present a structured **Cons & Alternatives Matrix** in a single turn instead of sequential dialog pushback. Skip pushback entirely for tactical `/hotfix`, `/refactor`, and `/debug` commands to allow frictionless execution of specific user instructions.
+- **Cost of Action Projection**: For major architectural changes, explicitly state what existing sub-system is most likely to break under 10x scale.
 ## COMMUNICATION & TONE
 Act as a terse, highly technical Senior Staff Engineer pair-programming with a peer.
 - **Zero Fluff**: No pleasantries, no apologies, no generic introductions or conclusions. Get straight to the technical point.
@@ -34,19 +19,17 @@ Maintain these boundaries to ensure the system remains easy to pivot and scale:
 - `internal/handler/`: HTTP routing, payload binding, and friction-minimization logic.
 - `internal/service/`: Pure business logic layer (The "Product Engine").
 - `internal/repository/`: Data access (Production: SQLite) and external API calls only.
-## GIT RULES (THE SOURCE OF TRUTH)
-Git is our only state tracker. 
-- **Git as Source of Truth**: Execute atomic commits automatically after passing tests.
-- **Convention**: Use strict Conventional Commits format (type(scope): description).
-  - **Valid types**: `feat`, `fix`, `test`, `refactor`, `chore`.
+## GIT RULES (UNIQUE ADDITIONS)
 - **Remote CI Guard**: Work is NOT complete until the remote CI pipeline is 'green'. You MUST monitor push results via `gh run watch` or `./scripts/pushw.sh`.
-- NEVER remove files from `.gitignore` without explicit approval.
 ## EXECUTION RULES
 - TDD: See `.agents/skills/go-tdd/SKILL.md`
 - CI: See `.agents/skills/ci-parity/SKILL.md`
 - Contract Stability: `go run ./cmd/verify template-contract && go run ./cmd/verify api-spec`
 - No Paperwork: Do not generate progress files. Git commits are proof of work.
 - Dynamic Standards: Read `coding-standards.md` at session start.
+- **Timer Floor**: Remote CI ≥ 300s. Local compilation ≥ 90s. Shorter intervals are protocol violations.
+- **Zero-Status Rule**: Do NOT call `manage_task status` on a running task. Yield and trust reactive wakeup. Status checks are only permitted after a fail-safe timer expires.
+- **Tool Over Reasoning**: If a `verify` subcommand exists for a check, you are FORBIDDEN from performing that check manually. Run the tool.
 ## SESSION START (Mandatory)
 Before any task execution, you MUST:
 - Run `go run ./cmd/verify preflight`
@@ -56,39 +39,16 @@ Before any task execution, you MUST:
 - Read any matched `.agents/skills/*.md` files BEFORE writing code
 - **Mandatory Pre-Flight Constraint Check**: Before invoking ANY mutating tool, you must explicitly cross-reference the required actions against the rule hierarchy in a `> Constraint Check:` block. If an action triggers opposing rules, you MUST halt and output: `> ⚠️ **[CONSTRAINT CONFLICT DETECTED]**: [Describe conflict]. Awaiting User to dictate priority.`
 Rule: Skipping the resolver is a protocol violation.
-## QUOTA PROTECTION GATE (Meta vs Product Boundary)
-To optimize cost and performance, we enforce a strict boundary between Product execution (TDD loops) and Meta execution (Architecture/Rules).
-1. **Product Code (High-Tier HALT)**: If you are running as a high-tier model (e.g., Gemini 3.1 Pro) and the task involves mutating product code (`internal/`, `ui/`, `cmd/`, `tests/`), you MUST HALT and prompt the user to delegate to Gemini 3 Flash or explicitly provide an `OVERRIDE`.
-2. **Meta-Work (Flash HALT)**: If the task involves mutating workflow rules, architecture docs, or `AGENTS.md` (e.g., `/learn`), Flash models MUST HALT and escalate to a High-Tier model to prevent corruption. High-Tier models execute Meta-Work natively.
-3. **Cost Projection**: Any plan producing ≥2 execution prompts MUST include a Cost Projection table (model assignment, token estimates, break-even analysis). See `flash-plan/SKILL.md` § Cost Projection.
-*Note: The actual enforcement of this gate is injected directly into the execution workflows (e.g., build-feature-phase2.md).*
+## QUOTA PROTECTION & FAIL-FAST BUDGET (Optimal Reasoning Allocations)
+To optimize token/quota consumption and eliminate infinite debugging loops:
+1. **Reasoning Models (Loop-Budget & Fail-Fast)**: High-tier reasoning models (Pro/Opus) are permitted to edit product code and execute tests, but are strictly limited to **max 3 serial execution loops** (compilation/test attempts) in a single session.
+2. **Fail-Fast Trigger**: If compilation or a unit test fails **2 times consecutively**, the reasoning model MUST immediately HALT, output a detailed clinical traceback analysis with hypotheses, and await user review. This prevents token-draining recursion while preserving high-tier intelligence for complex refactorings.
+3. **Meta-Work Boundaries**: Flash models MUST NOT mutate core workflows, system rules, or `AGENTS.md` to prevent rule drift. High-tier models execute Meta-Work natively.
+4. **Cost Projection**: Plans producing ≥2 execution prompts must include a Cost Projection table (estimates of tokens in/out per model). See `flash-plan/SKILL.md` § Cost Projection.
 ## THE AGENT/HOST BOUNDARY
 You are strictly forbidden from writing application code (`internal/`, `cmd/`) to solve Meta-Environment problems (e.g., LLM API Quota, Token Limits, Context Window size). 
 - If a problem originates at the Agent API or Host layer, you must NOT build a Go CLI script to "police" the LLM. 
 - You must output a configuration request, a system prompt update, or a repository rule change. Building application code to solve a Host problem is a catastrophic boundary violation.
-## SKILLS (Procedural Knowledge)
-Skills are step-by-step procedures in `.agents/skills/`. You MUST read the relevant SKILL.md before executing any task that matches a skill's trigger condition.
-| Skill | Trigger Condition | Path |
-|-------|-------------------|------|
-| Go TDD | Writing tests, fixing bugs, implementing features | `.agents/skills/go-tdd/SKILL.md` |
-| Browser Verification | Any UI change, browser subagent task | `.agents/skills/browser-verify/SKILL.md` |
-| CI Parity | Push changes, CI failure, production parity | `.agents/skills/ci-parity/SKILL.md` |
-| Flash Planning | /plan, /architect, planning sessions, prompt decomposition | .agents/skills/flash-plan/SKILL.md |
-| Design Critique | /design-critique, design review, UI audit | `.agents/skills/design-critique/SKILL.md` |
-| Flash Review | Flash output review, check implementation | `.agents/skills/flash-review/SKILL.md` |
-| Verify Authoring | Add verify subcommand, automate check | `.agents/skills/verify-authoring/SKILL.md` |
-| Codebase Audit | Audit codebase, health check, score infrastructure | `.agents/skills/codebase-audit/SKILL.md` |
-| ViewModel Migration | Migrate handler to typed ViewModel | `.agents/skills/viewmodel-migration/SKILL.md` |
-**Rule**: When a new skill is created, add it to this table and to `.agents/verify-manifest.yaml`.
-## TOOLS (Deterministic Verification)
-Before executing any task, consult `.agents/verify-manifest.yaml` to identify which `verify` subcommands apply. Tool results replace reasoning — if a tool can answer a question, run the tool instead of deducing the answer.
-**Rule**: If a `verify` subcommand exists for a check, you are FORBIDDEN from performing that check manually. Run the tool.
-# ARCHITECTURAL MEMORY (ADRs)
-* When major architectural decisions, simplifications, or tradeoffs are agreed upon (especially during Phase 1 of `/build-feature`), you MUST document them.
-* Write a brief Architecture Decision Record (ADR) to `docs/adr/YYYY-MM-DD-title.md`.
-* Use the template located at `docs/adr/template.md` to ensure consistent formatting (Context, Decision, Consequences).
-* Commit this file alongside the feature code. Do NOT use external memory services.
-Detailed execution protocols for `/build-feature` and `/learn` are defined in `.agents/workflows/`.
 # Skill Resolver
 Read this file at session start. Match intent against triggers. Read the skill file BEFORE acting.
 ## Workflow Commands
@@ -99,7 +59,7 @@ Read this file at session start. Match intent against triggers. Read the skill f
 | `/coding-standards` | `.agents/workflows/coding-standards.md` |
 | `/stress-test` | `.agents/workflows/stress-test.md` |
 | `/deploy-secrets` | `.agents/workflows/deploy-secrets.md` |
-| `/skillify` | `.agents/workflows/skillify.md` |
+| `/skill-audit` | `.agents/workflows/skill-audit.md` |
 | `/refactor` | `.agents/workflows/refactor.md` |
 | `/doc-prune` | `.agents/workflows/doc-prune.md` |
 | `/debug` | `.agents/workflows/debug.md` |
@@ -117,6 +77,7 @@ Read this file at session start. Match intent against triggers. Read the skill f
 | add verify subcommand, new verify tool, automate this check | `.agents/skills/verify-authoring/SKILL.md` |
 | audit codebase, health check, score the codebase, review infrastructure, how healthy is the codebase | `.agents/skills/codebase-audit/SKILL.md` |
 | migrate handler, typed viewmodel, fix deprecated map, viewmodel migration | `.agents/skills/viewmodel-migration/SKILL.md` |
+| asynchronous task, background command, polling, sleep, wait | `.agents/skills/turn-cost/SKILL.md` |
 ## Disambiguation
 1. Slash command → Workflow Commands table.
 2. Modifying `*_test.go` or user says "test" → `go-tdd`.
@@ -234,31 +195,26 @@ Use `github.com/stretchr/testify/mock`. Place mocks in `internal/testutil/`.
 ## Strict Lessons
 This section contains corrections and constraints derived from the `[/learn]` workflow. These rules take precedence over existing style guidelines.
 ### Quota & Workflow Hardening
-* **Meta vs Product Quota Boundary** [TRIGGER: replace_file_content, multi_replace_file_content, /build-feature]: High-tier reasoning models (Pro/Opus) are restricted to Meta-Work (rules, architecture, design critique) and architectural planning. Iterative product execution (Go/UI TDD loops) MUST be delegated to Gemini 3 Flash via `/Flash Planning` to optimize cost and performance. High-tier models MUST halt and prompt for delegation when encountering product code execution unless an explicit `OVERRIDE` is provided.
-* **Post-Push Production Monitoring** [TRIGGER: git_push]: The agent is FORBIDDEN from marking a task as "done" or ending a session based solely on a successful `git push`. After pushing, the agent MUST immediately execute `./scripts/pushw.sh` or `gh run watch` to monitor the remote CI pipeline. Work is only considered complete when the remote branch is 'green'.
+* **Reasoning Model Loop Budget & Fail-Fast Guard** [TRIGGER: replace_file_content, multi_replace_file_content, /build-feature]: High-tier reasoning models (Pro/Opus) are permitted to edit product code and run tests, but are strictly limited to **max 3 serial execution loops** (compiles/tests) per task to prevent token/quota exhaustion. If a compilation or test fails **2 times consecutively**, the agent MUST immediately HALT, output a detailed traceback analysis, and await user direction.
 * **Post-Action Verification Mandate** [TRIGGER: session_done]: When implementing a new verification tool or rule (via `/learn` or `/build-feature`), the agent MUST immediately use that tool/rule to verify its own state in the current turn.
+* **Optimized Fail-Safe & Reactive Validation Protocol** [TRIGGER: run_command, git_push, verify, schedule]: When launching background validation checks, (1) Local Gates: Run the verify command in the background, set a single **90-second** fail-safe timer, and yield the turn immediately. (2) Remote CI/CD: After pushing, run the gh run watch task in the background, set a single **300-second (5 minutes)** fail-safe timer, and yield the turn immediately. Do not use active polling turns in either flow; rely on high-priority reactive completion.
 ### UI & Frontend
 * **UI Blindspot Protocol (Mandatory Local E2E)** [TRIGGER: ui_change, template_change, css_change]: `go run ./cmd/verify preflight` intentionally skips Playwright tests for speed. Therefore, any task mutating HTML, CSS, or UI templates MUST explicitly execute `go run ./cmd/verify browser` locally to catch visual and interaction bugs before pushing.
 * **Semantic UI Atoms** [TRIGGER: ui_change, modal_creation]: The agent is FORBIDDEN from hardcoding raw utility classes for universal atoms (close buttons, toast wrappers, standard surfaces). You MUST use predefined partials (e.g., {{ template "btn_close" }}) or semantic CSS classes.
 * **UI Interactivity & Performance Depth** [TRIGGER: browser_subagent, ui_change]: Browser verification MUST NOT only check for element existence. It MUST verify state transitions (e.g., arrow rotation, modal dismissal), interaction depth (e.g., scrollability, mobile bottom-sheet transitions), and performance impact. Any asset degrading LCP by >100ms is a visual bug and must be lazy-loaded or optimized.
 * **Idempotency & Duplicate branding Guard** [TRIGGER: js_or_css_change, template_change]: Prevent duplicate event bindings and redundant branding by using idempotent initialization flags (e.g., `window._is_bound`) and auditing template block boundaries. UI components MUST NOT initialize via `DOMContentLoaded` if they are registered in the centralized `initApp()` sequence.
-* **UI Dialect & Positioning Awareness** [TRIGGER: ui_positioning, ui_dialect]: Distinguish between **Brand** (Rounded) and **Sharp** (Admin) dialects. **Sharp** templates prohibit rounding classes. When positioning overlays, verify vertical clearance at 1440x900 to prevent viewport collisions.
 * **Template Robustness** [TRIGGER: template_change]: UI templates MUST include fallback text for all dynamic data fields to prevent "invisible" elements from breaking layout.
-* **HTMX Micro-Interaction Guard** [TRIGGER: htmx]: Mandate `hx-indicator` (skeletons/spinners) and transition classes on all mutations to ensure fluid perceived performance.
-* **UI Interaction Dead-Zone Prevention** [TRIGGER: ui_change, z-index, overlay]: Any decorative element (icon, button, badge) positioned above a full-card HTMX click overlay via `z-index` MUST use `pointer-events-none`. If the decorative element needs its own click action, give it an explicit `hx-get`/`hx-post` instead of relying on the underlying overlay. Failure to do this creates a silent interaction dead-zone that Playwright will catch but is invisible to static analysis.
+* **Browser Geolocation vs Cloud APIs** [TRIGGER: geolocation_permission, browser_api]: Standard HTML5 Geolocation API (`navigator.geolocation`) is entirely a client-side web browser feature and has no connection to Google Cloud Console, API keys, or cloud permissions. A `PERMISSION_DENIED` error (value 1) is strictly caused by (1) explicit user denial, (2) non-secure context (`http` instead of `https`/`localhost`), or (3) missing iframe permission policy (`allow="geolocation"`). Server-side Geocoding APIs must never be conflated with native browser permission checks.
+* **Fail-Safe Loading States & Opacity Overrides** [TRIGGER: style_opacity, htmx_indicator, loader_animation]: Avoid manually setting inline styling opacity (e.g., `element.style.opacity = '0.3'`) in JavaScript for transition or request states. Doing so overrides class-based CSS styles and risks becoming stuck if AJAX swaps or geolocation queries fail/abort. Instead, always leverage native HTMX loading states (such as `.htmx-request#listings-container` in CSS) which are automatically applied and removed by the HTMX lifecycle.
+* **Non-Destructive Scroll Lock & Flexbox Clipping Guard** [TRIGGER: ui_change, modal_creation]: Background scroll-locking on standard layouts MUST be accomplished strictly using `overflow: hidden !important` on `html` and `body` without re-defining `height` (e.g. `height: 100dvh`). Crushing viewport height causes browsers to discard scroll positions, resetting users to the top of the page when the modal closes. Furthermore, all nested flexbox dialog elements MUST use the `min-h-0` class on intermediate container wrappers (such as form and div containers inside the modal) to ensure the inner scrollable container shrinks and scrolls instead of clipping content on mobile and desktop viewports.
 ### Infrastructure & Environment
-* **Invariants Enforcement (Zero-Guessing Rule)** [TRIGGER: browser_subagent, url_construction, env_variable]: The canonical server URL is constructed EXCLUSIVELY from `.agents/invariants.json` (`protocol` + `port`). The agent is FORBIDDEN from guessing ports, reading `.env` for URL construction, or using hardcoded URLs. Guessing a port is equivalent to ignoring available documentation and will cause a mandatory `/learn` session and potential task rejection. Use `go run ./cmd/verify uptime` to verify the live URL before manual browser tasks.
-* **Local Server & Audit Gates** [TRIGGER: session_done, ci_config_change]: The agent is FORBIDDEN from ending a session if the local server is down (verify via `uptime`). CLI-based CI pipelines MUST include a live server-startup check to catch nil-pointer regressions in routing.
-* **Scratch Directory Isolation** [TRIGGER: git_push]: Ensure temporary 'scratch' or 'brain' directories are in `.gitignore` and NEVER committed, as they interfere with remote CI linter phases.
-* **Resilient Deployments (503 Outage Protection)** [TRIGGER: git_push, deployment_configuration]: CI/CD pipeline deployment jobs MUST implement automated retry logic with exponential backoff (e.g., trying up to 3 times with progressive sleep delays) for deployment commands (e.g. `flyctl deploy`) to withstand transient platform-level outages or 503 Service Unavailable errors. This is deterministically audited via `go run ./cmd/verify ci-tools`.
+There are no active prose lessons in this category. All lessons have been fully automated (see `uptimeCmd`, `ignored-files`, `ci-tools`, and invariants validation checks).
 ### Testing
+* **Mock Fidelity Guard** [TRIGGER: test_authoring, mock_creation, database_comprehension]: Any mock or stub used in unit or E2E tests for database or repository layers must strictly match the query capabilities of the actual database implementation. Mocks are strictly forbidden from fabricating data or populating functional fields (e.g. coordinates in `Location` structures) that the actual production database repository query fails to fetch or scan.
 * **Flaky Test Eradication (Performance Assertions)** [TRIGGER: test_authoring, flake_fix]: Pass/Fail unit tests MUST NOT contain hardcoded latency budgets (e.g., `assert.Less(duration, 1000ms)`). Performance constraints should be measured in dedicated benchmark suites (`go test -bench`), not in standard unit tests that block standard execution paths.
 * **CI Cost Awareness (Matrix Bloat)** [TRIGGER: e2e_change, playwright_config]: Agents are forbidden from adding new viewports or matrix dimensions to CI pipelines (e.g., Playwright `projects`) without explicitly calculating the CI time cost and implementing a parallelization strategy (e.g., sharding or increasing workers).
-* **Test Parallelism & Env Safety** [TRIGGER: test_authoring]: Use `t.Setenv()` for setting env vars in tests. Raw `os.Setenv` without cleanup is forbidden as it causes flaky CI failures across unrelated test files.
-* **Code Duplication & Critique** [TRIGGER: refactoring]: Prioritize resolving "Code Duplication" (clone groups) from `critique`. Quantify improvements by comparing clone group counts before and after refactoring.
 * **E2E & Visual Regression** [TRIGGER: visual_testing, htmx]: Playwright tests MUST use relative paths. HTMX assertions MUST use `page.waitForResponse()` to avoid timing flakes. New modals MUST include visual snapshots in `visual.spec.ts`.
-* **Visual Snapshot Platform Parity** [TRIGGER: snapshot_parity]: Visual snapshots MUST include linux-suffixed baselines generated via Docker. satisfy parity via `go run ./cmd/verify snapshot-parity`.
-* **Full E2E Mandate — No Filtered Runs Before Push** [TRIGGER: e2e_change, ui_change, git_push]: The agent is FORBIDDEN from running a filtered/scoped Playwright invocation (e.g., `--grep`, `-g`, specific file) as a substitute for the full suite before pushing. If `go run ./cmd/verify browser` fails, the agent MUST (1) report the full failure output to the user, (2) halt and await direction — it MUST NOT silently run a subset to "verify the fix" and push.
+* **Local Scoped E2E Iteration & Full Gate Verification** [TRIGGER: e2e_change, ui_change, git_push]: The agent is permitted to run filtered/scoped Playwright tests (e.g., using `--grep`, `-g`, or specific spec files) during the local debugging and development loop to ensure rapid feedback cycles. However, the agent is FORBIDDEN from bypassing the full unfiltered suite before pushing. The full suite is enforced dynamically in the git `precommit`/`ci` gates. If any E2E gate fails, the agent must report the full output and resolve all regressions.
 * **AXE Accessibility Platform Parity Gate** [TRIGGER: a11y_change, ui_change, e2e_change]: The local Darwin environment produces different AXE contrast evaluations than the Linux CI container due to sub-pixel rendering and browser cache warm state. Any change touching color tokens, navigation, or card components MUST be validated by running the full `go run ./cmd/verify browser` suite in a cold-state browser (clear cache/incognito) before pushing. A local green result is NOT sufficient evidence of CI-green for accessibility checks.
  
 ### Scraping
@@ -318,6 +274,9 @@ commands:
   - name: check-resolvable
     trigger: skill_change
     description: Validate skill resolver coverage
+  - name: lessons-conformance
+    trigger: doc_change
+    description: "Validate active prose strict lessons ceiling and trigger compliance"
   - name: root-hygiene
     trigger: before_commit
     description: Verify root directory cleanliness
@@ -430,6 +389,9 @@ skills:
   - name: viewmodel-migration
     trigger: migrate_handler, typed_viewmodel, viewmodel_migration
     path: .agents/skills/viewmodel-migration/SKILL.md
+  - name: turn-cost
+    trigger: asynchronous_task, background_command, polling, sleep, wait
+    path: .agents/skills/turn-cost/SKILL.md
 tools:
   - name: schema
     trigger: database_comprehension

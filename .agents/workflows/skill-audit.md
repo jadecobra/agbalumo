@@ -1,7 +1,7 @@
 ---
 description: Audit and complete a skill's infrastructure using the 7-item checklist.
 ---
-# /skillify <skill-name>
+# /skill-audit <skill-name>
 Audit a skill against the 7-item completeness checklist and fill gaps.
 ## Phase 1: Audit
 Run both verify commands and note failures:
@@ -29,4 +29,4 @@ go run ./cmd/verify skill-conformance
 go run ./cmd/verify check-resolvable
 go test ./internal/maintenance/ -run TestSkill
 ```
-Commit: chore(agents): skillify <name> to N/7
+Commit: chore(agents): skill-audit <name> to N/7

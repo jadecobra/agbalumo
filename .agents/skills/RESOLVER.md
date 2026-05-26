@@ -10,7 +10,7 @@ Read this file at session start. Match intent against triggers. Read the skill f
 | `/coding-standards` | `.agents/workflows/coding-standards.md` |
 | `/stress-test` | `.agents/workflows/stress-test.md` |
 | `/deploy-secrets` | `.agents/workflows/deploy-secrets.md` |
-| `/skillify` | `.agents/workflows/skillify.md` |
+| `/skill-audit` | `.agents/workflows/skill-audit.md` |
 | `/refactor` | `.agents/workflows/refactor.md` |
 | `/doc-prune` | `.agents/workflows/doc-prune.md` |
 | `/debug` | `.agents/workflows/debug.md` |
