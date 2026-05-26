@@ -237,6 +237,10 @@ var precommitCmd = &cobra.Command{
 			if err := docDriftCmd.RunE(cmd, args); err != nil {
 				return err
 			}
+			fmt.Println("📜 Verifying strict lessons trigger and ceiling conformance...")
+			if err := lessonsConformanceCmd.RunE(cmd, args); err != nil {
+				return err
+			}
 		}
 
 		// 9. Final Cleanliness Check

@@ -115,6 +115,7 @@ func init() {
 		visualAuditCmd,
 		skillConformanceCmd,
 		checkResolvableCmd,
+		lessonsConformanceCmd,
 		mapCmd,
 		schemaCmd,
 		traceCmd,

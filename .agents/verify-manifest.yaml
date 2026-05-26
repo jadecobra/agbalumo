@@ -60,6 +60,10 @@ commands:
     trigger: skill_change
     description: Validate skill resolver coverage
 
+  - name: lessons-conformance
+    trigger: doc_change
+    description: "Validate active prose strict lessons ceiling and trigger compliance"
+
   - name: root-hygiene
     trigger: before_commit
     description: Verify root directory cleanliness
