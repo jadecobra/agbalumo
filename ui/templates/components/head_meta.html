@@ -52,24 +52,41 @@
         min-height: 100dvh;
     }
 
-    /* Lock body scroll and force viewport height containment when modal is open on mobile */
+    /* Lock body scroll when modal is open without losing scroll position */
+    html:has(dialog[open]), body:has(dialog[open]) {
+        overflow: hidden !important;
+    }
+
+    /* Constrain open dialogs and force internal flex columns */
+    dialog[open] {
+        display: flex !important;
+        flex-direction: column;
+        overflow: hidden !important;
+    }
+
     @media (max-width: 767px) {
-        html:has(dialog[open]), body:has(dialog[open]) {
-            overflow: hidden !important;
-            height: 100dvh !important;
-            height: 100svh !important;
-        }
         dialog[open] {
             max-height: 100dvh !important;
             max-height: 100svh !important;
-            display: flex !important;
-            flex-direction: column;
+            width: 100% !important;
+            height: 100% !important;
         }
         dialog[open] > div {
             height: 100% !important;
             max-height: 100% !important;
         }
     }
+
+    @media (min-width: 768px) {
+        dialog[open] {
+            max-height: 90vh !important;
+        }
+        dialog[open] > div {
+            height: 100% !important;
+            max-height: 90vh !important;
+        }
+    }
+
 
     /* Safe area padding for notched devices */
     @supports (padding-bottom: env(safe-area-inset-bottom)) {

@@ -171,10 +171,11 @@
             
             {{ if index . "IsForm" }}
             <form {{ if index . "FormAction" }}hx-post="{{ .FormAction }}"{{ end }} {{ if index . "FormPut" }}hx-put="{{ .FormPut }}"{{ end }} {{ if index . "FormSwap" }}hx-swap="{{ .FormSwap }}"{{ end }} {{ if index . "FormTarget" }}hx-target="{{ .FormTarget }}"{{ end }} method="{{ if index . "FormMethod" }}{{ .FormMethod }}{{ else }}POST{{ end }}" {{ if index . "FormEnctype" }}enctype="{{ .FormEnctype }}"{{ end }} {{ if index . "FormID" }}id="{{ .FormID }}"{{ end }} {{ if index . "FormAfterRequest" }}hx-on::after-request="{{ .FormAfterRequest }}"{{ end }}
-                class="flex flex-col gap-5 flex-1" autocomplete="off" {{ if not (index . "NoSubmitClose") }}data-modal-action-submit-close{{ end }}>
+                class="flex flex-col gap-5 flex-1 min-h-0" autocomplete="off" {{ if not (index . "NoSubmitClose") }}data-modal-action-submit-close{{ end }}>
             {{ else }}
-            <div class="flex flex-col flex-1 w-full">
+            <div class="flex flex-col flex-1 w-full min-h-0">
             {{ end }}
+
             
                 {{ $inner := index . "InnerTemplate" }}
                 {{ if eq $inner "modal_create_listing_fields" }}
