@@ -7,19 +7,19 @@
         <h1 class="sr-only">agbalumo: find what you want</h1>
 
         <div class="mb-8 flex flex-wrap gap-2">
-            <span class="text-[10px] font-bold capitalize tracking-wide text-text-sub self-center mr-2">Try:</span>
+            <span class="text-[11px] font-bold capitalize tracking-wide text-text-sub self-center mr-2">Try:</span>
             {{ if .UserLat }}
                 <button type="button" id="near-me-btn" data-testid="ag-home-near-me-btn"
-                    class="bg-earth-ochre/20 text-earth-ochre hover:bg-earth-ochre/30 px-4 h-12 shrink-0 text-[10px] font-bold uppercase tracking-widest transition-colors border border-earth-ochre/50 flex items-center gap-2">
+                    class="bg-earth-ochre/20 text-earth-ochre hover:bg-earth-ochre/30 px-4 h-12 shrink-0 text-[11px] font-bold uppercase tracking-widest transition-colors border border-earth-ochre/50 flex items-center gap-2">
                     <span id="near-me-icon" class="material-symbols-outlined text-[14px]">location_on</span>
-                    <span id="near-me-spinner" class="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-earth-ochre hidden"></span>
+                    <span id="near-me-spinner" class="animate-spin rounded-none h-3.5 w-3.5 border-b-2 border-earth-ochre hidden"></span>
                     <span id="near-me-text">📍 Nearby{{ if .City }} · {{ .City }}{{ end }}</span>
                 </button>
             {{ else }}
                 <button type="button" id="near-me-btn" data-testid="ag-home-near-me-btn"
-                    class="bg-earth-sand/30 text-text-main hover:bg-earth-sand/50 px-4 h-12 shrink-0 text-[10px] font-bold uppercase tracking-widest transition-colors border border-earth-clay/10 flex items-center gap-2">
+                    class="bg-earth-sand/30 text-text-main hover:bg-earth-sand/50 px-4 h-12 shrink-0 text-[11px] font-bold uppercase tracking-widest transition-colors border border-earth-clay/10 flex items-center gap-2">
                     <span id="near-me-icon" class="material-symbols-outlined text-[14px]">location_on</span>
-                    <span id="near-me-spinner" class="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-earth-ochre hidden"></span>
+                    <span id="near-me-spinner" class="animate-spin rounded-none h-3.5 w-3.5 border-b-2 border-earth-ochre hidden"></span>
                     <span id="near-me-text">Near Me</span>
                 </button>
             {{ end }}
@@ -84,7 +84,7 @@
                 hx-trigger="infinite-scroll"
                 hx-target="this"
                 hx-swap="outerHTML">
-                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-earth-ochre"></div>
+                <div class="animate-spin rounded-none h-6 w-6 border-b-2 border-earth-ochre"></div>
             </div>
             {{ end }}
         </div>
