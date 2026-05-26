@@ -38,14 +38,16 @@
         {{ if and .User (eq .User.ID .Listing.OwnerID) }}
         <div class="absolute top-2 left-2 flex gap-1.5 z-30 opacity-0 group-hover:opacity-100 transition-opacity rounded-none">
             <button
-                class="bg-earth-cream/90 backdrop-blur-md text-text-main w-8 h-8 flex items-center justify-center shadow-md hover:bg-white transition-all active:scale-95 rounded-none"
+                class="bg-earth-cream/90 backdrop-blur-md text-text-main w-11 h-11 flex items-center justify-center shadow-md hover:bg-white transition-all active:scale-95 rounded-none"
                 hx-get="/listings/{{ .Listing.ID }}/edit?target={{ .IDPrefix }}listing-{{ .Listing.ID }}" hx-target="#modal-container" hx-swap="innerHTML"
+                aria-label="Edit listing"
                 data-testid="ag-listing-edit-btn">
                 <span class="material-symbols-outlined text-[16px]">edit</span>
             </button>
             <button
-                class="bg-red-500/90 backdrop-blur-md text-white w-8 h-8 flex items-center justify-center shadow-md hover:bg-red-500 transition-all active:scale-95 rounded-none"
+                class="bg-red-500/90 backdrop-blur-md text-white w-11 h-11 flex items-center justify-center shadow-md hover:bg-red-500 transition-all active:scale-95 rounded-none"
                 hx-delete="/listings/{{ .Listing.ID }}" hx-confirm="Are you sure?" hx-indicator="this"
+                aria-label="Delete listing"
                 data-testid="ag-listing-delete-btn">
                 <span class="material-symbols-outlined text-[16px]">delete</span>
             </button>

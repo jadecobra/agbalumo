@@ -29,6 +29,7 @@ Read this file at session start. Match intent against triggers. Read the skill f
 | add verify subcommand, new verify tool, automate this check | `.agents/skills/verify-authoring/SKILL.md` |
 | audit codebase, health check, score the codebase, review infrastructure, how healthy is the codebase | `.agents/skills/codebase-audit/SKILL.md` |
 | migrate handler, typed viewmodel, fix deprecated map, viewmodel migration | `.agents/skills/viewmodel-migration/SKILL.md` |
+| asynchronous task, background command, polling, sleep, wait | `.agents/skills/turn-cost/SKILL.md` |
 
 
 

@@ -213,6 +213,10 @@ skills:
     trigger: migrate_handler, typed_viewmodel, viewmodel_migration
     path: .agents/skills/viewmodel-migration/SKILL.md
 
+  - name: turn-cost
+    trigger: asynchronous_task, background_command, polling, sleep, wait
+    path: .agents/skills/turn-cost/SKILL.md
+
 tools:
   - name: schema
     trigger: database_comprehension
