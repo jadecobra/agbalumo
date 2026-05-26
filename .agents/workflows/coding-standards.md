@@ -145,6 +145,7 @@ This section contains corrections and constraints derived from the `[/learn]` wo
 ### Quota & Workflow Hardening
 * **Reasoning Model Loop Budget & Fail-Fast Guard** [TRIGGER: replace_file_content, multi_replace_file_content, /build-feature]: High-tier reasoning models (Pro/Opus) are permitted to edit product code and run tests, but are strictly limited to **max 3 serial execution loops** (compiles/tests) per task to prevent token/quota exhaustion. If a compilation or test fails **2 times consecutively**, the agent MUST immediately HALT, output a detailed traceback analysis, and await user direction.
 * **Post-Action Verification Mandate** [TRIGGER: session_done]: When implementing a new verification tool or rule (via `/learn` or `/build-feature`), the agent MUST immediately use that tool/rule to verify its own state in the current turn.
+* **Optimized Fail-Safe & Reactive Validation Protocol** [TRIGGER: run_command, git_push, verify, schedule]: When launching background validation checks, (1) Local Gates: Run the verify command in the background, set a single **90-second** fail-safe timer, and yield the turn immediately. (2) Remote CI/CD: After pushing, run the gh run watch task in the background, set a single **300-second (5 minutes)** fail-safe timer, and yield the turn immediately. Do not use active polling turns in either flow; rely on high-priority reactive completion.
 
 
 ### UI & Frontend

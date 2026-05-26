@@ -57,13 +57,13 @@ go run ./cmd/verify snapshot-parity
    `./scripts/pushw.sh`
    _Insight: This atomically executes the push and polls the GitHub API for the specific commit's CI run ID to resolve race conditions._
 
-2. **Block on completion (MANDATORY):** After the push, you MUST poll until ALL jobs reach a terminal state:
+2. **Reactive Monitoring with Fail-Safe (MANDATORY):** After the push, do NOT poll using short-interval timers. Instead, launch the monitoring command in the background:
    ```bash
    gh run watch <run-id> --exit-status
    ```
+   Set a single **300-second (5 minutes)** fail-safe timer via the `schedule` tool to capture hangs, then immediately yield the turn. The system's high-priority reactive completion will automatically wake you up with the final status when the pipeline concludes.
    - Exit code `0` = all jobs passed. You may proceed.
-   - Any non-zero exit = pipeline failed. Do NOT declare the task complete.
-   - **Rule:** `pushw.sh` may exit while jobs are still `in_progress`. You are FORBIDDEN from declaring task completion based solely on `pushw.sh` exit code. You MUST independently confirm via `gh run watch --exit-status`.
+   - Any non-zero exit = pipeline failed. Do NOT declare the task complete; analyze failure logs via `gh run view <run-id> --log-failed` and resolve.
 
 3. If the run fails:
    - Identify the failed job and step.
