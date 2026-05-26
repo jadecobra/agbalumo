@@ -52,6 +52,25 @@
         min-height: 100dvh;
     }
 
+    /* Lock body scroll and force viewport height containment when modal is open on mobile */
+    @media (max-width: 767px) {
+        html:has(dialog[open]), body:has(dialog[open]) {
+            overflow: hidden !important;
+            height: 100dvh !important;
+            height: 100svh !important;
+        }
+        dialog[open] {
+            max-height: 100dvh !important;
+            max-height: 100svh !important;
+            display: flex !important;
+            flex-direction: column;
+        }
+        dialog[open] > div {
+            height: 100% !important;
+            max-height: 100% !important;
+        }
+    }
+
     /* Safe area padding for notched devices */
     @supports (padding-bottom: env(safe-area-inset-bottom)) {
         .pb-safe {
