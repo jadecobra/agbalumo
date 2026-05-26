@@ -103,13 +103,18 @@ test.describe('Near Me Geolocation UX', () => {
     const nearMeBtn = page.getByTestId('ag-home-near-me-btn');
     await expect(nearMeBtn).toContainText('Nearby');
 
-    const suyaPill = page.getByTestId('ag-home-filter-pill-suya');
-    await expect(suyaPill).toBeVisible();
+    // Toggle filters panel to access category
+    const filtersToggle = page.getByTestId('ag-home-filters-toggle-desktop');
+    await expect(filtersToggle).toBeVisible();
+    await filtersToggle.click();
+
+    const foodBtn = page.getByTestId('ag-filter-category-food');
+    await expect(foodBtn).toBeVisible();
 
     // Intercept HTMX category filter request
     const [request] = await Promise.all([
       page.waitForRequest(req => req.url().includes('/listings/fragment')),
-      suyaPill.click()
+      foodBtn.click()
     ]);
 
     const url = new URL(request.url());

@@ -119,15 +119,15 @@
                             <span class="material-symbols-outlined text-[20px] text-earth-ochre transition-transform duration-300 group-open/accordion:rotate-180" data-toggle-icon>expand_more</span>
                         </summary>
                         <div class="flex flex-col w-full bg-earth-sand/50">
-                            <button type="button" data-radius-value="5"
+                            <button type="button" data-radius-value="5" data-testid="ag-nav-radius-5"
                                 class="text-left px-5 h-12 flex items-center text-[11px] font-bold capitalize tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq .Radius 5.0 }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
                                 Within 5 Miles
                             </button>
-                            <button type="button" data-radius-value="10"
+                            <button type="button" data-radius-value="10" data-testid="ag-nav-radius-10"
                                 class="text-left px-5 h-12 flex items-center text-[11px] font-bold capitalize tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq .Radius 10.0 }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
                                 Within 10 Miles
                             </button>
-                            <button type="button" data-radius-value="25"
+                            <button type="button" data-radius-value="25" data-testid="ag-nav-radius-25"
                                 class="text-left px-5 h-12 flex items-center text-[11px] font-bold capitalize tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if or (eq .Radius 25.0) (eq .Radius 0.0) }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
                                 Within 25 Miles
                             </button>

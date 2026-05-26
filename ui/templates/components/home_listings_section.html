@@ -1,6 +1,6 @@
 {{ define "home_listings_section" }}
 <!-- Listings Container Section -->
-<section id="explore-section" class="min-h-screen pt-8 pb-24 px-4 md:px-8 relative z-30 bg-earth-cream">
+<section id="explore-section" class="pt-4 pb-24 px-4 md:px-8 relative z-30 bg-earth-cream">
 
     <div class="max-w-7xl mx-auto">
 
@@ -23,21 +23,6 @@
                     <span id="near-me-text">Near Me</span>
                 </button>
             {{ end }}
-            <button type="button" class="bg-earth-sand/30 text-text-main hover:bg-earth-sand/50 px-4 h-12 shrink-0 text-[10px] font-bold capitalize tracking-widest transition-colors border border-earth-clay/10"
-                hx-get="/listings/fragment?q=Jollof" hx-target="#listings-container" hx-indicator="#listings-loading"
-                data-search-value="Jollof" data-testid="ag-home-filter-pill-jollof">
-                Jollof
-            </button>
-            <button type="button" class="bg-earth-sand/30 text-text-main hover:bg-earth-sand/50 px-4 h-12 shrink-0 text-[10px] font-bold capitalize tracking-widest transition-colors border border-earth-clay/10"
-                hx-get="/listings/fragment?q=Suya" hx-target="#listings-container" hx-indicator="#listings-loading"
-                data-search-value="Suya" data-testid="ag-home-filter-pill-suya">
-                Suya
-            </button>
-            <button type="button" class="bg-earth-sand/30 text-text-main hover:bg-earth-sand/50 px-4 h-12 shrink-0 text-[10px] font-bold capitalize tracking-widest transition-colors border border-earth-clay/10"
-                hx-get="/listings/fragment?q=Egusi" hx-target="#listings-container" hx-indicator="#listings-loading"
-                data-search-value="Egusi" data-testid="ag-home-filter-pill-egusi">
-                Egusi
-            </button>
         </div>
 
         <div id="listings-loading"

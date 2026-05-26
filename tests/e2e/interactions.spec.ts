@@ -113,26 +113,4 @@ test.describe('HTMX Interactions and State Sync', () => {
     expect(classList).not.toContain('text-secondary');
   });
 
-  test('try pill buttons should scroll listings into view', async ({ page }) => {
-    // Desktop viewport
-    await page.setViewportSize({ width: 1440, height: 900 });
-    
-    const tryJollofBtn = page.locator('button', { hasText: 'Jollof' }).first();
-    await expect(tryJollofBtn).toBeVisible();
-
-    // Check initial scroll position
-    const initialScrollY = await page.evaluate(() => window.scrollY);
-    
-    // Click the try button
-    await tryJollofBtn.click();
-    
-    // Wait for smooth scroll
-    await page.waitForTimeout(1000);
-    
-    // Check new scroll position
-    const finalScrollY = await page.evaluate(() => window.scrollY);
-    
-    // Scroll position may not change if listings are already in view due to hero removal
-    expect(finalScrollY).toBeGreaterThanOrEqual(initialScrollY);
-  });
 });
