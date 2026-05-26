@@ -125,6 +125,37 @@ test.describe('Visual Audit', () => {
     expect(await modalTitle.innerText()).toContain(title.trim());
   });
 
+  test('listing detail modal preserves background scroll position after closing', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    
+    // Scroll down to ensure we are not at the top
+    await page.evaluate(() => window.scrollTo(0, 400));
+    await page.waitForTimeout(200);
+    const scrollBefore = await page.evaluate(() => window.scrollY);
+    expect(scrollBefore).toBeGreaterThan(200);
+
+    // Open first listing detail modal
+    const firstListing = page.locator('[data-testid="ag-listing-card"]').first();
+    const overlay = firstListing.locator('div[hx-get^="/listings/"]').first();
+    await overlay.click();
+
+    // Verify modal is open
+    const modal = page.locator('dialog[open]');
+    await expect(modal).toBeVisible();
+
+    // Close the modal
+    const closeBtn = modal.locator('[data-modal-action="close"]').first();
+    await closeBtn.click();
+    await expect(modal).not.toBeVisible();
+    await page.waitForTimeout(200);
+
+    // Assert that the scroll position was preserved
+    const scrollAfter = await page.evaluate(() => window.scrollY);
+    expect(scrollAfter).toBeCloseTo(scrollBefore, 10);
+  });
+
+
   test('single h1 per major page', async ({ page }) => {
     // Check Home
     await page.goto('/');
