@@ -98,7 +98,7 @@
                         {{ end }}
 
                         {{ if .CanClaim }}
-                        <form hx-post="/listings/{{.Listing.ID}}/claim" hx-target="closest dialog" hx-swap="outerHTML" class="inline">
+                        <form hx-post="/listings/{{.Listing.ID}}/claim" hx-target="closest dialog" hx-swap="outerHTML" hx-indicator="this" class="inline">
                             <button type="submit"
                                 class="bg-earth-accent hover:bg-earth-accent-light text-white text-xs font-bold px-4 py-2 border-2 border-stone-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none flex items-center gap-1.5">
                                 <span class="material-symbols-outlined text-base">verified</span>

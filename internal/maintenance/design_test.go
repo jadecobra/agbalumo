@@ -324,3 +324,75 @@ func TestCheckFileStandardsIgnoreComments(t *testing.T) {
 		t.Errorf("expected 0 violations (rounded-md/hex bypassed in comment/script), got %d: %+v", len(violations), violations)
 	}
 }
+
+func TestCheckHtmxIndicator(t *testing.T) {
+	tests := []struct {
+		attrs      map[string]string
+		name       string
+		shouldFail bool
+	}{
+		{name: "hx-post without indicator", attrs: map[string]string{"hx-post": "/submit"}, shouldFail: true},
+		{name: "hx-delete without indicator", attrs: map[string]string{"hx-delete": "/item"}, shouldFail: true},
+		{name: "hx-post with indicator", attrs: map[string]string{"hx-post": "/submit", "hx-indicator": "#spinner"}, shouldFail: false},
+		{name: "hx-get without indicator", attrs: map[string]string{"hx-get": "/items"}, shouldFail: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			v := checkHtmxIndicator("test.html", 1, "test-element", tt.attrs)
+			if tt.shouldFail && len(v) == 0 {
+				t.Errorf("expected violation for %v, got none", tt.attrs)
+			}
+			if !tt.shouldFail && len(v) > 0 {
+				t.Errorf("expected no violation for %v, got %d", tt.attrs, len(v))
+			}
+		})
+	}
+}
+
+func TestCheckTextSelectionUsability(t *testing.T) {
+	tests := []struct {
+		attrs      map[string]string
+		name       string
+		shouldFail bool
+	}{
+		{name: "select-none present", attrs: map[string]string{"class": "select-none flex p-4"}, shouldFail: true},
+		{name: "select-none absent", attrs: map[string]string{"class": "flex p-4 text-sm"}, shouldFail: false},
+		{name: "no class attribute", attrs: map[string]string{}, shouldFail: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			v := checkTextSelectionUsability("test.html", 1, "test-element", tt.attrs)
+			if tt.shouldFail && len(v) == 0 {
+				t.Errorf("expected violation, got none")
+			}
+			if !tt.shouldFail && len(v) > 0 {
+				t.Errorf("expected no violation, got %d", len(v))
+			}
+		})
+	}
+}
+
+func TestCheckBlendModeGradients(t *testing.T) {
+	tests := []struct {
+		attrs      map[string]string
+		name       string
+		shouldFail bool
+	}{
+		{name: "blend and gradient without solid color", attrs: map[string]string{"class": "bg-blend-overlay bg-gradient-to-r from-red-500"}, shouldFail: true},
+		{name: "blend and gradient with solid color bg-white", attrs: map[string]string{"class": "bg-blend-overlay bg-gradient-to-r from-red-500 bg-white"}, shouldFail: false},
+		{name: "blend and gradient with solid theme color", attrs: map[string]string{"class": "bg-blend-multiply bg-gradient-to-t bg-earth-light"}, shouldFail: false},
+		{name: "gradient only without solid color", attrs: map[string]string{"class": "bg-gradient-to-r from-red-500"}, shouldFail: false},
+		{name: "blend only without solid color", attrs: map[string]string{"class": "bg-blend-overlay"}, shouldFail: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			v := checkBlendModeGradients("test.html", 1, "test-element", tt.attrs)
+			if tt.shouldFail && len(v) == 0 {
+				t.Errorf("expected violation, got none")
+			}
+			if !tt.shouldFail && len(v) > 0 {
+				t.Errorf("expected no violation, got %d", len(v))
+			}
+		})
+	}
+}

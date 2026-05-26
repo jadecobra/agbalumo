@@ -281,6 +281,14 @@ Validate SKILL.md YAML frontmatter completeness.
 agbalumo verify skill-conformance
 ```
 
+##### lessons-conformance
+
+Audit active prose strict lessons for TRIGGERS and the 20-lesson ceiling.
+
+```bash
+agbalumo verify lessons-conformance
+```
+
 ##### visual-audit
 
 Run deterministic visual audit (static checks + Playwright E2E).

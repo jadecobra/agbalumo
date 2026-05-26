@@ -4,7 +4,7 @@
     data-testid="ag-listing-card">
 
     <!-- Image Section (Top Half/Left Side) -->
-    <div class="relative w-[45%] shrink-0 md:w-full md:basis-[45%] overflow-hidden bg-earth-cream dark:bg-earth-dark/50 select-none border-stone-200 dark:border-stone-800 border-b md:border-b group-even:border-l group-odd:border-r md:group-even:border-l-0 md:group-odd:border-r-0 rounded-none"> <!-- verify:allow-arbitrary -->
+    <div class="relative w-[45%] shrink-0 md:w-full md:basis-[45%] overflow-hidden bg-earth-cream dark:bg-earth-dark/50 border-stone-200 dark:border-stone-800 border-b md:border-b group-even:border-l group-odd:border-r md:group-even:border-l-0 md:group-odd:border-r-0 rounded-none"> <!-- verify:allow-arbitrary -->
         {{ if .Listing.ImageURL }}
         <div class="w-full h-full bg-center bg-cover bg-white dark:bg-surface-dark transition-transform duration-700 group-hover:scale-110 rounded-none" style="background-image: url('{{.Listing.ImageURL}}');"></div>
         {{ else }}
@@ -45,7 +45,7 @@
             </button>
             <button
                 class="bg-red-500/90 backdrop-blur-md text-white w-8 h-8 flex items-center justify-center shadow-md hover:bg-red-500 transition-all active:scale-95 rounded-none"
-                hx-delete="/listings/{{ .Listing.ID }}" hx-confirm="Are you sure?"
+                hx-delete="/listings/{{ .Listing.ID }}" hx-confirm="Are you sure?" hx-indicator="this"
                 data-testid="ag-listing-delete-btn">
                 <span class="material-symbols-outlined text-[16px]">delete</span>
             </button>

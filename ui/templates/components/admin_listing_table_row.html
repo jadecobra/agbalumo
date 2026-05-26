@@ -52,6 +52,7 @@
         <button hx-post="/admin/listings/{{ .ID }}/featured" data-testid="ag-listing-feature-btn-{{ .ID }}"
             hx-vals='{"featured": "{{ if not .Featured }}true{{ else }}false{{ end }}"}' hx-target="closest tr"
             hx-swap="outerHTML"
+            hx-indicator="this"
             class="px-3 py-1 text-[10px] font-bold capitalize tracking-widest transition-all {{ if .Featured }}bg-earth-ochre text-earth-dark{{ else }}bg-earth-cream/5 text-earth-cream/70 hover:bg-earth-cream/20{{ end }}"
             title="{{ if .Featured }}Unfeature{{ else }}Feature{{ end }}">
             {{ if .Featured }}Featured{{ else }}Feature{{ end }}

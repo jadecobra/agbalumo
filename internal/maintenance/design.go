@@ -50,6 +50,9 @@ func (lf *LineFinder) FindLine(tokenRaw string) int {
 }
 
 // CheckDesignStandards scans templates for violations of the UI Dialect protocol.
+// Replaces Strict Lesson: HTMX Micro-Interaction Guard
+// Replaces Strict Lesson: Text Selection and Usability
+// Replaces Strict Lesson: Background Gradient and Blend-Mode Utility
 func CheckDesignStandards(dir string) ([]DesignViolation, error) {
 	var violations []DesignViolation
 
@@ -167,6 +170,8 @@ func auditTailwindClasses(attrs map[string]string, path string, lineNum int, tag
 	violations = append(violations, checkLowContrastOpacity(path, lineNum, tagStr)...)
 	violations = append(violations, checkHardcodedModalBg(path, lineNum, tagStr)...)
 	violations = append(violations, checkAdHocColors(path, lineNum, tagStr)...)
+	violations = append(violations, checkTextSelectionUsability(path, lineNum, tagStr, attrs)...)
+	violations = append(violations, checkBlendModeGradients(path, lineNum, tagStr, attrs)...)
 
 	return violations
 }
@@ -179,6 +184,7 @@ func auditAttributesAndA11y(token html.Token, attrs map[string]string, path stri
 	violations = append(violations, checkInlineStyles(path, lineNum, tagStr)...)
 	violations = append(violations, checkMissingTestIDs(path, lineNum, tagStr)...)
 	violations = append(violations, checkA11ySemantics(path, lineNum, tagStr, hasLabel)...)
+	violations = append(violations, checkHtmxIndicator(path, lineNum, tagStr, attrs)...)
 
 	return violations
 }
@@ -486,4 +492,75 @@ func checkImgA11y(path string, lineNum int, line string) []DesignViolation {
 		}}
 	}
 	return nil
+}
+
+func checkHtmxIndicator(path string, lineNum int, line string, attrs map[string]string) []DesignViolation {
+	var violations []DesignViolation
+	hasMutation := false
+	for k := range attrs {
+		if k == "hx-post" || k == "hx-put" || k == "hx-delete" || k == "hx-patch" {
+			hasMutation = true
+			break
+		}
+	}
+	if hasMutation {
+		_, hasIndicator := attrs["hx-indicator"]
+		if !hasIndicator {
+			violations = append(violations, DesignViolation{
+				File:    path,
+				Line:    lineNum,
+				Content: line,
+				Reason:  "Mutating HTMX action (hx-post/put/delete/patch) missing hx-indicator (spinner/skeleton indicator required for perceived performance)",
+			})
+		}
+	}
+	return violations
+}
+
+func checkTextSelectionUsability(path string, lineNum int, line string, attrs map[string]string) []DesignViolation {
+	var violations []DesignViolation
+	classes, hasClass := attrs["class"]
+	if !hasClass {
+		return nil
+	}
+	if strings.Contains(classes, "select-none") {
+		violations = append(violations, DesignViolation{
+			File:    path,
+			Line:    lineNum,
+			Content: line,
+			Reason:  "Forbidden use of 'select-none' class on text-containing layout container (blocks copying and breaks user usability)",
+		})
+	}
+	return violations
+}
+
+func checkBlendModeGradients(path string, lineNum int, line string, attrs map[string]string) []DesignViolation {
+	classes, hasClass := attrs["class"]
+	if !hasClass {
+		return nil
+	}
+	hasBlend := strings.Contains(classes, "bg-blend-")
+	hasGradient := strings.Contains(classes, "bg-gradient-")
+	if hasBlend && hasGradient && !hasSolidBackgroundColor(classes) {
+		return []DesignViolation{{
+			File:    path,
+			Line:    lineNum,
+			Content: line,
+			Reason:  "Blend-mode utility (bg-blend-*) combined with background gradient (bg-gradient-*) requires a solid background color (e.g. bg-white) on the same element to prevent dynamic transparency rendering as invisible",
+		}}
+	}
+	return nil
+}
+
+func hasSolidBackgroundColor(classes string) bool {
+	words := strings.Fields(classes)
+	for _, w := range words {
+		if strings.HasPrefix(w, "bg-") &&
+			!strings.HasPrefix(w, "bg-gradient-") &&
+			!strings.HasPrefix(w, "bg-blend-") &&
+			w != "bg-none" {
+			return true
+		}
+	}
+	return false
 }

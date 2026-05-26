@@ -3,6 +3,7 @@ package maintenance
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -31,12 +32,23 @@ func TestInvalid(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// Invalid file using raw os.Setenv
+	invalidEnvContent := `package foo_test
+import "os"
+func TestInvalidEnv(t *testing.T) {
+	os.Setenv("FOO", "BAR")
+}
+`
+	if err := os.WriteFile(filepath.Join(tempDir, "invalid_env_test.go"), []byte(invalidEnvContent), 0600); err != nil {
+		t.Fatal(err)
+	}
+
 	err := VerifyTestIsolation(tempDir)
 	if err == nil {
 		t.Fatalf("expected error for invalid test isolation, got nil")
 	}
 
-	if err.Error() == "" {
-		t.Fatalf("expected error message")
+	if !strings.Contains(err.Error(), "os.Setenv") {
+		t.Fatalf("expected error message to contain 'os.Setenv', got: %v", err.Error())
 	}
 }
