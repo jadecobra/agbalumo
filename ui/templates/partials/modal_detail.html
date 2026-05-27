@@ -166,8 +166,7 @@
                     {{ end }}
 
                     <!-- About / Description -->
-                    <div class="space-y-2">
-                        <h3 class="font-bold text-text-main dark:text-earth-cream text-xs capitalize tracking-wider">About</h3>
+                    <div>
                         <p class="text-text-main dark:text-earth-cream text-sm leading-relaxed whitespace-pre-line">
                             {{ .Listing.Description }}
                         </p>
@@ -175,12 +174,9 @@
 
                     <!-- Hours of Operation -->
                     {{ if .Listing.HoursOfOperation }}
-                    <div class="flex items-start gap-3 p-4 bg-stone-50 dark:bg-earth-cream/5 border border-stone-200 dark:border-white/10 text-sm mt-6">
-                        <span class="material-symbols-outlined text-xl text-earth-clay dark:text-earth-accent mt-0.5">schedule</span>
-                        <div class="flex flex-col">
-                            <span class="text-xs font-bold text-text-sub dark:text-stone-400 capitalize tracking-wider leading-none mb-1">Hours</span>
-                            <span class="font-bold text-text-main dark:text-earth-cream">{{ .Listing.HoursOfOperation }}</span>
-                        </div>
+                    <div class="flex items-center gap-3 p-4 bg-stone-50 dark:bg-earth-cream/5 border border-stone-200 dark:border-white/10 text-sm mt-6">
+                        <span class="material-symbols-outlined text-xl text-earth-clay dark:text-earth-accent">schedule</span>
+                        <span class="font-bold text-text-main dark:text-earth-cream">{{ .Listing.HoursOfOperation }}</span>
                     </div>
                     {{ end }}
                 </div>
@@ -237,43 +233,40 @@
                     {{ end }}
 
                     <!-- Contact Actions Stack (Vertical Layout) -->
-                    <div class="space-y-3">
-                        <h3 class="font-bold text-text-main dark:text-earth-cream text-xs capitalize tracking-wider">Contact</h3>
-                        <div class="flex flex-col gap-3">
-                            {{ if .Listing.ContactWhatsApp }}
-                            <a href="https://wa.me/{{ .Listing.ContactWhatsApp }}" target="_blank" data-ada-discovery="whatsapp"
-                                class="w-full flex items-center justify-center gap-2 py-4 bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
-                                <span class="material-symbols-outlined text-[18px]">chat</span>
-                                <span class="font-bold text-xs capitalize tracking-wider">WhatsApp</span>
-                            </a>
-                            {{ end }}
+                    <div class="flex flex-col gap-3">
+                        {{ if .Listing.ContactWhatsApp }}
+                        <a href="https://wa.me/{{ .Listing.ContactWhatsApp }}" target="_blank" data-ada-discovery="whatsapp"
+                            class="w-full flex items-center justify-center gap-2 py-4 bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
+                            <span class="material-symbols-outlined text-[18px]">chat</span>
+                            <span class="font-bold text-xs capitalize tracking-wider">WhatsApp</span>
+                        </a>
+                        {{ end }}
 
-                            {{ if .Listing.ContactPhone }}
-                            <a href="tel:{{ .Listing.ContactPhone }}" data-ada-discovery="phone"
-                                class="w-full flex items-center justify-center gap-2 py-4 bg-stone-50 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
-                                <span class="material-symbols-outlined text-[18px]">call</span>
-                                <span class="font-bold text-xs capitalize tracking-wider">Call</span>
-                            </a>
-                            {{ end }}
+                        {{ if .Listing.ContactPhone }}
+                        <a href="tel:{{ .Listing.ContactPhone }}" data-ada-discovery="phone"
+                            class="w-full flex items-center justify-center gap-2 py-4 bg-stone-50 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
+                            <span class="material-symbols-outlined text-[18px]">call</span>
+                            <span class="font-bold text-xs capitalize tracking-wider">Call</span>
+                        </a>
+                        {{ end }}
 
-                            {{ if not (eq .Listing.Type "Food") }}
-                            {{ if .Listing.ContactEmail }}
-                            <a href="mailto:{{ .Listing.ContactEmail }}" data-ada-discovery="email"
-                                class="w-full flex items-center justify-center gap-2 py-4 bg-stone-50 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
-                                <span class="material-symbols-outlined text-[18px]">mail</span>
-                                <span class="font-bold text-xs capitalize tracking-wider">Email</span>
-                            </a>
-                            {{ end }}
-                            {{ end }}
+                        {{ if not (eq .Listing.Type "Food") }}
+                        {{ if .Listing.ContactEmail }}
+                        <a href="mailto:{{ .Listing.ContactEmail }}" data-ada-discovery="email"
+                            class="w-full flex items-center justify-center gap-2 py-4 bg-stone-50 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
+                            <span class="material-symbols-outlined text-[18px]">mail</span>
+                            <span class="font-bold text-xs capitalize tracking-wider">Email</span>
+                        </a>
+                        {{ end }}
+                        {{ end }}
 
-                            {{ if .Listing.WebsiteURL }}
-                            <a href="{{ .Listing.WebsiteURL }}" target="_blank" data-ada-discovery="website"
-                                class="w-full flex items-center justify-center gap-2 py-4 bg-stone-50 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
-                                <span class="material-symbols-outlined text-[18px]">language</span>
-                                <span class="font-bold text-xs capitalize tracking-wider">Website</span>
-                            </a>
-                            {{ end }}
-                        </div>
+                        {{ if .Listing.WebsiteURL }}
+                        <a href="{{ .Listing.WebsiteURL }}" target="_blank" data-ada-discovery="website"
+                            class="w-full flex items-center justify-center gap-2 py-4 bg-stone-50 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
+                            <span class="material-symbols-outlined text-[18px]">language</span>
+                            <span class="font-bold text-xs capitalize tracking-wider">Website</span>
+                        </a>
+                        {{ end }}
                     </div>
                 </div>
 
