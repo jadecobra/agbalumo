@@ -175,6 +175,42 @@ function setupFilterButtons() {
         }
     });
 
+    // Listen for "VIEW ALL LISTINGS" click to reset filters & categories
+    document.addEventListener('click', (e) => {
+        const resetBtn = e.target.closest('[data-testid="view-all-listings-link"]');
+        if (!resetBtn) return;
+
+        // Reset global filter state
+        window.filterState = {
+            type: 'All',
+            city: '',
+            radius: '25'
+        };
+
+        // Clear UI inputs
+        const searchInput = document.getElementById('search-nav') || document.getElementById('search');
+        if (searchInput) searchInput.value = '';
+        
+        const cityInput = document.getElementById('filter-city');
+        if (cityInput) cityInput.value = '';
+
+        // Reset category button UI classes
+        document.querySelectorAll('[data-category-name]').forEach(b => {
+            b.classList.remove('bg-earth-ochre/10', 'text-earth-ochre');
+            if (b.getAttribute('data-category-name') === 'All') {
+                b.classList.add('bg-earth-ochre/10', 'text-earth-ochre');
+            }
+        });
+
+        // Reset radius button UI classes
+        document.querySelectorAll('[data-radius-value]').forEach(b => {
+            b.classList.remove('bg-earth-ochre/10', 'text-earth-ochre');
+            if (b.getAttribute('data-radius-value') === '25') {
+                b.classList.add('bg-earth-ochre/10', 'text-earth-ochre');
+            }
+        });
+    });
+
     // Inject filter state into all HTMX requests to /listings/fragment
     document.body.addEventListener('htmx:configRequest', (evt) => {
         if (evt.detail.path === '/listings/fragment') {
@@ -185,3 +221,4 @@ function setupFilterButtons() {
         }
     });
 }
+
