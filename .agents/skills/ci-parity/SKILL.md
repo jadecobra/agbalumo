@@ -65,7 +65,16 @@ go run ./cmd/verify snapshot-parity
    - Exit code `0` = all jobs passed. You may proceed.
    - Any non-zero exit = pipeline failed. Do NOT declare the task complete; analyze failure logs via `gh run view <run-id> --log-failed` and resolve.
 
-3. If the run fails:
+3. **Flaky API Bad Gateway Mitigation**: If a `gh run` command fails with a transient `HTTP 502/503/504 Bad Gateway` server error from the GitHub API, do NOT abort the task. Wait 10 seconds and retry the query/command up to 3 times before raising a failure.
+
+4. **Autonomous Hang Detection & Recovery (MANDATORY)**: E2E Playwright shards typically complete in ~1.5 to 2.5 minutes. If a remote Playwright job has been running or stuck in `Install Playwright Browsers & Deps` for **>10 minutes**, it is hung due to external download or runner stalling. Autonomously recover:
+   - Cancel the hung run: `gh run cancel <run-id>`
+   - Wait for cancellation status to stabilize: `gh run view <run-id>`
+   - Rerun only the failed/cancelled shards: `gh run rerun <run-id> --failed`
+   - Re-launch the background monitor: `gh run watch <run-id>`
+   - Schedule a new 300s fail-safe timer, then yield.
+
+5. If the run fails:
    - Identify the failed job and step.
    - Run `gh run view <run-id> --log-failed` to extract the traceback.
    - Fix and re-push. Repeat from Step 1.
@@ -74,7 +83,10 @@ go run ./cmd/verify snapshot-parity
 ## CI/CD Resiliency Standards
 
 1. **Native Host Execution for E2E Tests**: To avoid transient container initialization overhead ("Initialize containers failed") and fragile nested dependency configurations (e.g., `setup-go` failing within a Docker container), configure Playwright E2E jobs to run natively on the runner host (`runs-on: ubuntu-latest`) rather than within a container block.
-2. **Dynamic Browser Provisioning**: Install browsers and system-level library dependencies natively on the host using `npx playwright install --with-deps`. This is faster and immune to Docker daemon startup or pulling delays.
+2. **Playwright Browser Caching**: To eliminate heavy downloads, always cache Playwright browser binaries in `~/.cache/ms-playwright` mapped to `package-lock.json` hashes. 
+   - On cache hit: Invoke only `npx playwright install-deps` (installs OS system packages fast on the runner, ~15s).
+   - On cache miss: Invoke `npx playwright install --with-deps`.
+3. **Hard Step-Level Timeouts**: Always configure a strict `timeout-minutes: 5` on Playwright browser/dep setup steps to ensure immediate fail-fast behavior rather than 6-hour runner stalls.
 
 ## Post-Execution Health Check
 
