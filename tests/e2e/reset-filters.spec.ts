@@ -1,0 +1,53 @@
+import { test, expect } from '@playwright/test';
+
+test.describe('Reset Filters UX', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await page.waitForFunction(() => typeof (window as any).filterState !== 'undefined', { timeout: 10000 });
+  });
+
+  test('should reset all filters when clicking "VIEW ALL LISTINGS"', async ({ page }) => {
+    // 1. Open filters panel and click a category (e.g. Food)
+    const toggle = page.getByTestId('ag-home-filters-toggle-desktop');
+    await expect(toggle).toBeVisible();
+    await toggle.click();
+
+    const foodCategoryBtn = page.getByTestId('ag-filter-category-food');
+    await expect(foodCategoryBtn).toBeVisible();
+    await foodCategoryBtn.click();
+
+    // Verify state type is Food
+    let filterState = await page.evaluate(() => (window as any).filterState);
+    expect(filterState.type).toBe('Food');
+
+    // 2. Type a query that yields no results to show the "View All Listings" button
+    const searchInput = page.getByTestId('ag-home-search-input');
+    await expect(searchInput).toBeVisible();
+    await searchInput.focus();
+    
+    // We'll type something completely random that has 0 results
+    await searchInput.fill('xyzabc123nonexistent');
+    await searchInput.press('Enter');
+
+    // Wait for the View All Listings button to be visible
+    const viewAllLink = page.getByTestId('view-all-listings-link');
+    await expect(viewAllLink).toBeVisible({ timeout: 10000 });
+
+    // 3. Click "View All Listings"
+    await viewAllLink.click();
+
+    // 4. Assert filterState has been reset
+    filterState = await page.evaluate(() => (window as any).filterState);
+    expect(filterState.type).toBe('All');
+    expect(filterState.city).toBe('');
+    expect(filterState.radius).toBe('25');
+
+    // 5. Assert UI inputs are cleared
+    const searchInputValue = await searchInput.inputValue();
+    expect(searchInputValue).toBe('');
+
+    const cityInput = page.locator('#filter-city');
+    const cityInputValue = await cityInput.inputValue();
+    expect(cityInputValue).toBe('');
+  });
+});
