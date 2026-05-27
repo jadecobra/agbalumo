@@ -124,7 +124,7 @@ test.describe('Saved/Favorites Feature', () => {
     const firstListing = listings.first();
     
     // Parse listing ID from hx-get in overlay
-    const overlay = firstListing.locator('div[hx-get^="/listings/"]').first();
+    const overlay = firstListing.locator('button[hx-get^="/listings/"]').first();
     const hxGet = await overlay.getAttribute('hx-get');
     const listingId = hxGet?.split('/').pop();
     

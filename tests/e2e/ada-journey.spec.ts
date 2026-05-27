@@ -56,7 +56,7 @@ test.describe('UX Constraint: Ada Journey', () => {
     await expect(listingCard).toBeVisible({ timeout: 10000 });
     
     // Target the click overlay specifically for reliable interaction
-    const overlay = listingCard.locator('div.absolute.inset-0').first();
+    const overlay = listingCard.locator('button.absolute.inset-0').first();
     await overlay.scrollIntoViewIfNeeded();
     await overlay.click({ force: true });
 

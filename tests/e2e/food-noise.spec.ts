@@ -29,7 +29,7 @@ test.describe('Noise Removal Verification for Food Listings', () => {
     await expect(foodCard).toBeVisible();
 
     // 3. Open detail modal
-    const overlay = foodCard.locator('div.absolute.inset-0').first();
+    const overlay = foodCard.locator('button.absolute.inset-0').first();
     await overlay.click({ force: true });
 
     const modal = page.locator('dialog[open]');
@@ -57,7 +57,7 @@ test.describe('Noise Removal Verification for Food Listings', () => {
     await expect(businessCard).toBeVisible();
 
     // 3. Open detail modal
-    const overlay = businessCard.locator('div.absolute.inset-0').first();
+    const overlay = businessCard.locator('button.absolute.inset-0').first();
     await overlay.click({ force: true });
 
     const modal = page.locator('dialog[open]');
