@@ -175,11 +175,7 @@ function setupFilterButtons() {
         }
     });
 
-    // Listen for "VIEW ALL LISTINGS" click to reset filters & categories
-    document.addEventListener('click', (e) => {
-        const resetBtn = e.target.closest('[data-testid="view-all-listings-link"]');
-        if (!resetBtn) return;
-
+    function resetAllFilters() {
         // Reset global filter state
         window.filterState = {
             type: 'All',
@@ -209,11 +205,22 @@ function setupFilterButtons() {
                 b.classList.add('bg-earth-ochre/10', 'text-earth-ochre');
             }
         });
+    }
+
+    // Listen for "VIEW ALL LISTINGS" click to reset filters & categories
+    document.addEventListener('click', (e) => {
+        const resetBtn = e.target.closest('[data-testid="view-all-listings-link"]');
+        if (!resetBtn) return;
+        resetAllFilters();
     });
 
     // Inject filter state into all HTMX requests to /listings/fragment
     document.body.addEventListener('htmx:configRequest', (evt) => {
         if (evt.detail.path === '/listings/fragment') {
+            const isReset = evt.detail.elt && (evt.detail.elt.getAttribute('data-testid') === 'view-all-listings-link' || evt.detail.elt.closest('[data-testid="view-all-listings-link"]'));
+            if (isReset) {
+                resetAllFilters();
+            }
             const state = window.filterState || {};
             if (state.type) evt.detail.parameters['type'] = state.type;
             if (state.city) evt.detail.parameters['city'] = state.city;
