@@ -33,8 +33,14 @@ test.describe('Reset Filters UX', () => {
     const viewAllLink = page.getByTestId('view-all-listings-link');
     await expect(viewAllLink).toBeVisible({ timeout: 10000 });
 
-    // 3. Click "View All Listings"
-    await viewAllLink.click();
+    // 3. Click "View All Listings" and intercept request
+    const [request] = await Promise.all([
+      page.waitForRequest(req => req.url().includes('/listings/fragment')),
+      viewAllLink.click()
+    ]);
+
+    const url = new URL(request.url());
+    expect(url.searchParams.get('type')).toBe('All');
 
     // 4. Assert filterState has been reset
     filterState = await page.evaluate(() => (window as any).filterState);
