@@ -4,15 +4,16 @@
     border-earth-clay/20 transition-all duration-300{{ end }} relative" 
     data-agent-template="navigation.html">
     <!-- Mobile Full Width Logo -->
-    <div class="md:hidden flex flex-col justify-center items-center w-full py-2 border-b border-earth-clay/5 pointer-events-none">
+    <a href="/" class="md:hidden flex flex-col justify-center items-center w-full py-2 border-b border-earth-clay/5 group">
         <div class="flex flex-col items-center">
             <picture>
                 <source srcset="/static/images/logo.webp" type="image/webp">
-                <img src="/static/images/logo.png" alt="agbalumo Logo" class="h-12 w-auto object-contain">
+                <img src="/static/images/logo.png" alt="agbalumo Logo" class="h-12 w-auto object-contain group-hover:scale-105 transition-transform">
             </picture>
             <span class="text-[10px] text-earth-clay font-medium tracking-wide -mt-1 font-display">find what you want</span>
         </div>
-    </div>
+    </a>
+
 
     <div class="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between gap-4 md:gap-8">
 
