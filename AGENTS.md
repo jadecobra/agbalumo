@@ -33,7 +33,7 @@ Maintain these boundaries to ensure the system remains easy to pivot and scale:
 - Contract Stability: `go run ./cmd/verify template-contract && go run ./cmd/verify api-spec`
 - No Paperwork: Do not generate progress files. Git commits are proof of work.
 - Dynamic Standards: Read `coding-standards.md` at session start.
-- **Timer Floor**: Remote CI ≥ 300s. Local compilation ≥ 90s. Shorter intervals are protocol violations.
+- **Timer Floor & Reactive Yield**: For `run_command` background tasks, the runtime **guarantees** a reactive wakeup on task completion. Therefore: (1) **Reactive-sufficient** (any `run_command` background task): Do NOT schedule a timer. Yield the turn immediately and trust the reactive wakeup. (2) **Timer-required** (network-dependent monitors like `gh run watch` that may silently hang): Set a single fail-safe timer at the **floor minimum** — Remote CI ≥ 300s, Local compilation ≥ 90s. Any timer below these floors is a protocol violation. (3) **Guessing durations is forbidden**: If you do not know the exact expected duration, use the floor minimum. Never estimate.
 - **Zero-Status Rule**: Do NOT call `manage_task status` on a running task. Yield and trust reactive wakeup. Status checks are only permitted after a fail-safe timer expires.
 - **Tool Over Reasoning**: If a `verify` subcommand exists for a check, you are FORBIDDEN from performing that check manually. Run the tool.
 
@@ -45,7 +45,8 @@ Before any task execution, you MUST:
 - Read `.agents/skills/RESOLVER.md` — match task against triggers
 - Read `.agents/verify-manifest.yaml` — identify applicable verify commands
 - Read any matched `.agents/skills/*.md` files BEFORE writing code
-- **Mandatory Pre-Flight Constraint Check**: Before invoking ANY mutating tool, you must explicitly cross-reference the required actions against the rule hierarchy in a `> Constraint Check:` block. If an action triggers opposing rules, you MUST halt and output: `> ⚠️ **[CONSTRAINT CONFLICT DETECTED]**: [Describe conflict]. Awaiting User to dictate priority.`
+- **Mandatory Pre-Flight Constraint Check**: Before invoking ANY mutating tool **or the `schedule` tool**, you must explicitly cross-reference the required actions (including all parameter values such as timer durations) against the rule hierarchy in a `> Constraint Check:` block. If an action triggers opposing rules, you MUST halt and output: `> ⚠️ **[CONSTRAINT CONFLICT DETECTED]**: [Describe conflict]. Awaiting User to dictate priority.`
+- **Silent Deviation Prohibition**: If any parameter value you are about to use (e.g., `DurationSeconds=30`) differs from a value explicitly stated in any rule (e.g., `≥ 90s`), you MUST surface this as a `CONSTRAINT CONFLICT DETECTED` and halt. You are FORBIDDEN from silently choosing a value that contradicts an explicit rule. Rubber-stamping a `> Constraint Check:` block with "No opposing rules triggered" when a rule conflict objectively exists is a protocol violation equivalent to skipping the check entirely.
 
 Rule: Skipping the resolver is a protocol violation.
 

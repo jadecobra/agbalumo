@@ -19,10 +19,10 @@ Every intermediate turn (waiting, sleeping, status polling) degrades agentic att
 Before waiting or scheduling status checks, evaluate the process against the **Determinism Axiom**:
 * **Deterministic Processes (CI compilation, unit tests, remote deploys):**
   - **Do NOT Poll:** Active polling is considered Quota Bloat and is STRICTLY FORBIDDEN.
-  - **Action:** Launch the task in the background using `run_command` (e.g. `go run ./cmd/verify precommit &`), set a single conservative fail-safe timer via `schedule`, and immediately yield the turn.
-  - **Failsafe Metrics:**
-    - Local verification/compilation: **90 seconds**
-    - Remote CI/CD builds & deploys: **300 seconds (5 minutes)**
+  - **Classify the process BEFORE choosing a wait strategy:**
+    - **(a) Reactive-sufficient** (any `run_command` background task — e.g., `go run ./cmd/verify precommit`, `go test ./...`, `./scripts/pushw.sh`): The Antigravity runtime **guarantees** a high-priority reactive wakeup on task exit. Do NOT schedule a timer. Yield the turn immediately.
+    - **(b) Timer-required** (network-dependent monitors that may silently hang — e.g., `gh run watch`): Schedule a single fail-safe timer at the **floor minimum**: Local verification/compilation = **90 seconds**, Remote CI/CD = **300 seconds**. Then yield.
+  - **Guessing durations is FORBIDDEN:** If you cannot classify a process, default to reactive yield (no timer). If a timer is required, use the floor minimum — never estimate.
 * **Non-Deterministic / Interactive Processes (UI review, third-party manual tasks):**
   - **Action:** Ask the user directly or delegate to specific subagents, then yield. Do not poll.
 
