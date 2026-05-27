@@ -26,8 +26,6 @@ var forbiddenStyles = []struct {
 
 // CheckSurfaceParity ensures that key UI tokens are consistent between listing cards and modal details.
 func CheckSurfaceParity(rootDir string) ([]string, error) {
-	var violations []string
-
 	cardPath := filepath.Join(rootDir, "ui/templates/partials/listing_card.html")
 	modalPath := filepath.Join(rootDir, "ui/templates/partials/modal_detail.html")
 
@@ -45,10 +43,19 @@ func CheckSurfaceParity(rootDir string) ([]string, error) {
 	sCard := string(cardContent)
 	sModal := string(modalContent)
 
-	// Assert required token parity
+	var violations []string
+	violations = append(violations, checkTokenParity(sCard, sModal)...)
+	violations = append(violations, checkForbiddenStyles(sCard, sModal)...)
+
+	return violations, nil
+}
+
+// checkTokenParity checks required visual token consistency.
+func checkTokenParity(card, modal string) []string {
+	var violations []string
 	for _, token := range requiredTokens {
-		hasCard := strings.Contains(sCard, token)
-		hasModal := strings.Contains(sModal, token)
+		hasCard := strings.Contains(card, token)
+		hasModal := strings.Contains(modal, token)
 
 		if hasCard && !hasModal {
 			violations = append(violations, fmt.Sprintf("Token '%s' present in listing_card.html but missing in modal_detail.html", token))
@@ -57,16 +64,19 @@ func CheckSurfaceParity(rootDir string) ([]string, error) {
 			violations = append(violations, fmt.Sprintf("Token '%s' present in modal_detail.html but missing in listing_card.html", token))
 		}
 	}
+	return violations
+}
 
-	// Forbid neobrutalist styles in both card and modal to enforce the Editorial Brutalist standard
+// checkForbiddenStyles checks for disallowed neobrutalist styling.
+func checkForbiddenStyles(card, modal string) []string {
+	var violations []string
 	for _, fs := range forbiddenStyles {
-		if strings.Contains(sCard, fs.pattern) {
+		if strings.Contains(card, fs.pattern) {
 			violations = append(violations, fmt.Sprintf("Forbidden style '%s' detected in listing_card.html: %s", fs.pattern, fs.description))
 		}
-		if strings.Contains(sModal, fs.pattern) {
+		if strings.Contains(modal, fs.pattern) {
 			violations = append(violations, fmt.Sprintf("Forbidden style '%s' detected in modal_detail.html: %s", fs.pattern, fs.description))
 		}
 	}
-
-	return violations, nil
+	return violations
 }
