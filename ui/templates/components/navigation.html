@@ -44,12 +44,15 @@
                     data-testid="ag-home-search-input"
                     placeholder="Search... (e.g. 'Jollof', 'Tailor')" type="search" hx-get="/listings/fragment"
                     hx-target="#listings-container" hx-indicator="#listings-loading"
-                    hx-trigger="keyup changed delay:500ms, search" />
+                    hx-trigger="keyup changed delay:500ms, search"
+                    autocomplete="off" />
 
                 <!-- Filters Toggle (Relocated from Hero) -->
                 <button type="button" data-testid="ag-home-filters-toggle-desktop"
                     class="flex h-12 items-center justify-center px-4 text-stone-600 hover:text-text-main transition-colors border-l border-earth-clay/10"
-                    aria-label="Toggle Filters">
+                    aria-label="Toggle Filters"
+                    aria-expanded="false"
+                    aria-controls="filter-dropdown-panel">
                     <span class="material-symbols-outlined text-[20px]">tune</span>
                 </button>
             </div>
@@ -78,7 +81,7 @@
                     
                     <!-- Close Button (High-contrast, Large touch target) -->
                     <div class="relative z-10">
-                        {{ template "btn_close" dict "Action" "close" "Classes" "text-earth-clay hover:text-earth-dark p-3" "TestID" "ag-home-filters-close" }}
+                        {{ template "btn_close" dict "Action" "close" "Classes" "text-earth-clay hover:text-earth-dark p-3" "TestID" "ag-home-filters-close" "Attr" "aria-expanded=\"false\" aria-controls=\"filter-dropdown-panel\"" }}
                     </div>
                 </div>
 
@@ -149,7 +152,9 @@
                                         placeholder="ENTER CITY OR ZIP..."
                                         class="w-full bg-transparent border border-earth-dark/10 px-4 py-3 text-[11px] font-bold capitalize tracking-widest text-earth-dark outline-none focus:border-earth-ochre/50 transition-colors"
                                         hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
-                                        hx-trigger="keyup changed delay:800ms">
+                                        hx-trigger="keyup changed delay:800ms"
+                                        autocomplete="address-level2"
+                                        inputmode="text">
                                     <span class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-earth-clay/30 text-[18px]">location_on</span>
                                 </div>
                             </div>

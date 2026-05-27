@@ -14,53 +14,75 @@ if (!window.filterState) {
     };
 }
 
+// Global function to toggle the filter panel and handle all accessibility properties
+function toggleFilterPanel(show) {
+    const panel = document.getElementById('filter-dropdown-panel');
+    if (!panel) return;
+
+    if (show === undefined) {
+        show = panel.classList.contains('hidden');
+    }
+    
+    const triggers = document.querySelectorAll('[data-testid^="ag-home-filters-toggle"], [data-testid="ag-home-filters-close"]');
+    
+    if (show) {
+        panel.classList.remove('hidden');
+        
+        // Update aria states on trigger elements
+        triggers.forEach(trigger => trigger.setAttribute('aria-expanded', 'true'));
+
+        // Viewport-aware inert focus trap on mobile
+        if (window.innerWidth < 768) {
+            const mainContent = document.getElementById('main-content');
+            if (mainContent) mainContent.setAttribute('inert', '');
+            const mobileNav = document.getElementById('mobile-bottom-nav');
+            if (mobileNav) mobileNav.setAttribute('inert', '');
+        }
+
+        // Focus search input on open
+        const searchInput = document.getElementById('search-nav') || document.getElementById('search');
+        if (searchInput) setTimeout(() => searchInput.focus(), 100);
+    } else {
+        panel.classList.add('hidden');
+
+        // Update aria states on trigger elements
+        triggers.forEach(trigger => trigger.setAttribute('aria-expanded', 'false'));
+
+        // Clean up inert attributes on close
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) mainContent.removeAttribute('inert');
+        const mobileNav = document.getElementById('mobile-bottom-nav');
+        if (mobileNav) mobileNav.removeAttribute('inert');
+    }
+}
+
 function setupFilterToggle() {
     if (window._filterToggleInitialized) return;
     window._filterToggleInitialized = true;
-
-    const togglePanel = (show) => {
-        const panel = document.getElementById('filter-dropdown-panel');
-        if (!panel) return;
-
-        if (show === undefined) {
-            show = panel.classList.contains('hidden');
-        }
-        
-        if (show) {
-            panel.classList.remove('hidden');
-            panel.setAttribute('aria-expanded', 'true');
-            // Focus search input on open
-            const searchInput = document.getElementById('search-nav') || document.getElementById('search');
-            if (searchInput) setTimeout(() => searchInput.focus(), 100);
-        } else {
-            panel.classList.add('hidden');
-            panel.setAttribute('aria-expanded', 'false');
-        }
-    };
 
     document.addEventListener('click', (e) => {
         const toggle = e.target.closest('[data-testid^="ag-home-filters-toggle"]');
         if (toggle) {
             e.stopPropagation();
-            togglePanel();
+            toggleFilterPanel();
             return;
         }
 
         const closeBtn = e.target.closest('[data-testid="ag-home-filters-close"]');
         if (closeBtn) {
             e.stopPropagation();
-            togglePanel(false);
+            toggleFilterPanel(false);
             return;
         }
 
         const panel = document.getElementById('filter-dropdown-panel');
         if (panel && !panel.contains(e.target) && !panel.classList.contains('hidden')) {
-            togglePanel(false);
+            toggleFilterPanel(false);
         }
     });
 
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') togglePanel(false);
+        if (e.key === 'Escape') toggleFilterPanel(false);
     });
 }
 
@@ -73,13 +95,12 @@ function setupFilterButtons() {
         if (!btn) return;
 
         const category = btn.getAttribute('data-category-name') || '';
-        const panel = document.getElementById('filter-dropdown-panel');
         
         // Update global state
         window.filterState.type = category;
 
-        // Close panel
-        if (panel) panel.classList.add('hidden');
+        // Close panel via the global accessible toggle function
+        toggleFilterPanel(false);
         
         // Update active state in UI
         document.querySelectorAll('[data-category-name]').forEach(b => {
@@ -114,13 +135,12 @@ function setupFilterButtons() {
         if (!btn) return;
 
         const radius = btn.getAttribute('data-radius-value') || '25';
-        const panel = document.getElementById('filter-dropdown-panel');
         
         // Update global state
         window.filterState.radius = radius;
 
-        // Close panel
-        if (panel) panel.classList.add('hidden');
+        // Close panel via the global accessible toggle function
+        toggleFilterPanel(false);
         
         // Update active state in UI
         document.querySelectorAll('[data-radius-value]').forEach(b => {
@@ -148,6 +168,7 @@ function setupFilterButtons() {
             }
         }
     });
+
     document.addEventListener('input', (e) => {
         if (e.target.id === 'filter-city') {
             window.filterState.city = e.target.value;

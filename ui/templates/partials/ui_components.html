@@ -218,10 +218,12 @@
   Action: optional
   TestID: optional
   Classes: optional
+  Attr: optional
 -->
 <button type="button" 
         {{ $action := index . "Action" }}{{ if $action }}data-action="{{ $action }}"{{ else }}data-modal-action="close"{{ end }} 
         {{ if index . "TestID" }}data-testid="{{ index . "TestID" }}"{{ end }}
+        {{ if index . "Attr" }}{{ .Attr | safeHTMLAttr }}{{ end }}
         class="btn-close {{ if index . "Classes" }}{{ index . "Classes" }}{{ end }}" 
         aria-label="Close">
     <span class="material-symbols-outlined text-[20px]">close</span>
