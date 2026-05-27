@@ -31,6 +31,8 @@
 - -2 per CSP violation (inline handler)
 - -1 per touch target < 44px on mobile
 - -1 per console error
+- -2 if a split details layout mixes data nodes (e.g., Hours, Location) into the primary actions column
+- -1 if interactive buttons do not share uniform height, padding, and alignment states
 
 ## AI Slop (0-10)
 - Start at 10
@@ -38,6 +40,8 @@
 - -1 per forbidden rounding class
 - -1 per hardcoded modal background
 - -2 if generic placeholder images detected
+- -1 per redundant section label (e.g., "About" for card descriptions, "Contact" for button clusters)
+- -2 if action buttons/CTAs and informational details are mixed/interlaced in a vertical stack
 
 ## Accessibility & Semantic Integrity (0-10)
 - Start at 10

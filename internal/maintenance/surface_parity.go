@@ -13,6 +13,17 @@ var requiredTokens = []string{
 	"text-text-main dark:text-earth-cream",
 }
 
+var forbiddenStyles = []struct {
+	pattern     string
+	description string
+}{
+	{"border-2 border-stone-", "neobrutalist thick outline (border-2 border-stone-*)"},
+	{"shadow-[2px_2px_", "neobrutalist hard offset shadow"},
+	{"shadow-[3px_3px_", "neobrutalist hard offset shadow"},
+	{"shadow-[4px_4px_", "neobrutalist hard offset shadow"},
+	{"shadow-[5px_5px_", "neobrutalist hard offset shadow"},
+}
+
 // CheckSurfaceParity ensures that key UI tokens are consistent between listing cards and modal details.
 func CheckSurfaceParity(rootDir string) ([]string, error) {
 	var violations []string
@@ -34,6 +45,7 @@ func CheckSurfaceParity(rootDir string) ([]string, error) {
 	sCard := string(cardContent)
 	sModal := string(modalContent)
 
+	// Assert required token parity
 	for _, token := range requiredTokens {
 		hasCard := strings.Contains(sCard, token)
 		hasModal := strings.Contains(sModal, token)
@@ -43,6 +55,16 @@ func CheckSurfaceParity(rootDir string) ([]string, error) {
 		}
 		if !hasCard && hasModal {
 			violations = append(violations, fmt.Sprintf("Token '%s' present in modal_detail.html but missing in listing_card.html", token))
+		}
+	}
+
+	// Forbid neobrutalist styles in both card and modal to enforce the Editorial Brutalist standard
+	for _, fs := range forbiddenStyles {
+		if strings.Contains(sCard, fs.pattern) {
+			violations = append(violations, fmt.Sprintf("Forbidden style '%s' detected in listing_card.html: %s", fs.pattern, fs.description))
+		}
+		if strings.Contains(sModal, fs.pattern) {
+			violations = append(violations, fmt.Sprintf("Forbidden style '%s' detected in modal_detail.html: %s", fs.pattern, fs.description))
 		}
 	}
 

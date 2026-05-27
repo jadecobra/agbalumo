@@ -31,6 +31,24 @@ func TestSurfaceParity(t *testing.T) {
 			modalContent:   "bg-white dark:bg-surface-dark",
 			wantViolations: 1,
 		},
+		{
+			name:           "Card has forbidden neobrutalist border",
+			cardContent:    "bg-white dark:bg-surface-dark border-stone-200 dark:border-stone-800 text-text-main dark:text-earth-cream border-2 border-stone-900",
+			modalContent:   "bg-white dark:bg-surface-dark border-stone-200 dark:border-stone-800 text-text-main dark:text-earth-cream",
+			wantViolations: 1,
+		},
+		{
+			name:           "Modal has forbidden neobrutalist shadow",
+			cardContent:    "bg-white dark:bg-surface-dark border-stone-200 dark:border-stone-800 text-text-main dark:text-earth-cream",
+			modalContent:   "bg-white dark:bg-surface-dark border-stone-200 dark:border-stone-800 text-text-main dark:text-earth-cream shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]",
+			wantViolations: 1,
+		},
+		{
+			name:           "Both have forbidden neobrutalist styles",
+			cardContent:    "bg-white dark:bg-surface-dark border-stone-200 dark:border-stone-800 text-text-main dark:text-earth-cream border-2 border-stone-900",
+			modalContent:   "bg-white dark:bg-surface-dark border-stone-200 dark:border-stone-800 text-text-main dark:text-earth-cream shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]",
+			wantViolations: 2,
+		},
 	}
 
 	for _, tt := range tests {
