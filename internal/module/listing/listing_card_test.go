@@ -31,6 +31,27 @@ func TestListingCardRendering(t *testing.T) {
 	t.Run("CardOverlayAndUsability", func(t *testing.T) {
 		verifyCardOverlayAndUsability(t, tmpl)
 	})
+
+	t.Run("NoRatingWhenZero", func(t *testing.T) {
+		var buf bytes.Buffer
+		data := map[string]interface{}{
+			"Listing": domain.Listing{
+				ID:     "123",
+				Title:  "Test Biz",
+				Rating: 0.0,
+			},
+			"User":      nil,
+			"IDPrefix":  "",
+			"GridClass": "",
+		}
+		if err := tmpl.ExecuteTemplate(&buf, "listing_card", data); err != nil {
+			t.Fatalf("Failed to render template: %v", err)
+		}
+		html := buf.String()
+		if strings.Contains(html, `data-testid="listing-rating-value"`) {
+			t.Error("Expected no rating value to be rendered when rating is 0")
+		}
+	})
 }
 
 func verifyBasicRendering(t *testing.T, tmpl *template.Template) {
