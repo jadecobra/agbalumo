@@ -15,10 +15,13 @@ open https://localhost:8443
 
 ## Documentation
 
-- **[Development Guide](docs/DEVELOPMENT.md)** - Build, test, quality control, and agentic workflows
+- **[Agent Onboarding (LLMs)](.agents/AGENT-BOOTSTRAP.md)** — Primary first-read artifact for all agents (Grok Build, gemini cli, antigravity, opencode, Cursor, etc.). ~2200-2600 tokens. Run `go run ./cmd/verify preflight` first.
+- **[Full Agent Protocol](AGENTS.md)** — Complete rules, tone, boundaries, SESSION START, AGENT/HOST BOUNDARY.
 - **[CLI Commands](docs/cli.md)** - Command-line interface for managing listings and admin operations
 - **[HTTP API Reference](docs/api.md)** - REST API endpoints and authentication
 - **[OpenAPI Specification](docs/openapi.yaml)** - Full API schema (OpenAPI 3.0.3)
+
+> **Note**: The previous "Development Guide" link pointed to a non-existent file and has been removed. All agentic workflow guidance now lives in the two entries above.
 
 ## Environment & Setup
 

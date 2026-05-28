@@ -41,6 +41,7 @@ Maintain these boundaries to ensure the system remains easy to pivot and scale:
 Before any task execution, you MUST:
 
 - Run `go run ./cmd/verify preflight`
+- Read `.agents/AGENT-BOOTSTRAP.md` (primary first prose artifact, ~2200-2600 tokens). This is the single curated on-ramp for all agents. All other prose is secondary.
 - Read `.agents/invariants.json` — construct environment URLs exclusively from these values.
 - Read `.agents/skills/RESOLVER.md` — match task against triggers
 - Read `.agents/verify-manifest.yaml` — identify applicable verify commands

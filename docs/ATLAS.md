@@ -39,3 +39,14 @@ User Request → `cmd/serve.go` → `cmd/server.go::SetupServer()` → `internal
 - Run `go run ./cmd/verify map --templates` for template dependency graph.
 - Run `go run ./cmd/verify schema` for SQLite schema.
 - Run `go run ./cmd/verify trace` for request lifecycle observability.
+
+## Agent Cold-Start Path (for .agents/AGENT-BOOTSTRAP.md consumers)
+
+1. Read `.agents/AGENT-BOOTSTRAP.md` (the canonical 2200-2600 token first prose).
+2. Read this ATLAS + run (or request operator paste of) `go run ./cmd/verify map --depth 2 --symbols --templates`.
+3. Run (or request paste of) one domain-specific verify (e.g. `context-cost`, `trace`, `template-contract`).
+4. You now have enough to sketch a medium feature change (new filter + cached invalidation) with exact files + the 2 verifies that would catch violations — without opening source.
+
+**Non-local / cloud agents** (gemini cli, antigravity, opencode, grok build, etc.): Never guess paths. Always request the operator to run the exact `verify` command(s) and paste the full output. Treat pasted output as the only source of truth.
+
+This section exists so the bootstrap + one verify paste satisfies the high autonomy bar.
