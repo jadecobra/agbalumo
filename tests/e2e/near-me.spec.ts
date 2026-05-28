@@ -251,28 +251,15 @@ test.describe('Near Me Geolocation UX', () => {
     expect(url.searchParams.get('radius')).toBe('5');
   });
 
-  test('Test 8: Falling back to low accuracy when high accuracy is denied', async ({ page }) => {
-    // Mock geolocation to fail with PERMISSION_DENIED on high accuracy, but succeed on low accuracy
+  test('Test 8: denied geolocation shows ERROR: DENIED then resets button (Safari post-grant regression coverage)', async ({ page }) => {
+    // Mock geolocation to fail with PERMISSION_DENIED (covers the exact symptom: accept native prompt but error path fires)
     await page.addInitScript(() => {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition = (success: any, error: any, options: any) => {
-          window.console.log("=== MOCK GET POSITION CALLED WITH OPTIONS ===", JSON.stringify(options));
-          if (options && options.enableHighAccuracy) {
-            // Simulate PERMISSION_DENIED
-            error({
-              code: 1, // PERMISSION_DENIED
-              PERMISSION_DENIED: 1,
-              message: "High accuracy denied by OS or browser"
-            });
-          } else {
-            // Success on low accuracy fallback
-            success({
-              coords: {
-                latitude: 6.5244,
-                longitude: 3.3792,
-              },
-            });
-          }
+        navigator.geolocation.getCurrentPosition = (_success: any, error: any, _options: any) => {
+          error({
+            code: 1,
+            message: "Permission denied"
+          });
         };
       }
     });
@@ -282,22 +269,14 @@ test.describe('Near Me Geolocation UX', () => {
     const nearMeBtn = page.getByTestId('ag-home-near-me-btn');
     await expect(nearMeBtn).toBeVisible();
 
-    // Click near me button
     await nearMeBtn.click();
 
-    // Check button updates to active state text, indicating low-accuracy fallback succeeded!
-    await expect(nearMeBtn).toContainText('Nearby');
+    // Error state rendered (CSS uppercases the text content)
+    await expect(nearMeBtn).toContainText('Denied');
 
-    // Confirm sessionStorage has the correct coords
-    const sessionStorageCoords = await page.evaluate(() => {
-      return {
-        lat: sessionStorage.getItem('agbalumo_lat'),
-        lng: sessionStorage.getItem('agbalumo_lng')
-      };
-    });
-
-    expect(sessionStorageCoords.lat).toBe('6.5244');
-    expect(sessionStorageCoords.lng).toBe('3.3792');
+    // 2s timeout in near-me.js reverts to default
+    await page.waitForTimeout(2500);
+    await expect(nearMeBtn).toContainText('Near Me');
   });
 });
 

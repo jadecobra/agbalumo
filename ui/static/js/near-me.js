@@ -106,60 +106,50 @@
             if (text) text.textContent = 'Locating...';
 
             if ("geolocation" in navigator) {
-                function tryGetPosition(options, isFallback) {
-                    navigator.geolocation.getCurrentPosition(
-                        function(position) {
-                            const lat = position.coords.latitude;
-                            const lng = position.coords.longitude;
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
 
-                            sessionStorage.setItem('agbalumo_lat', lat);
-                            sessionStorage.setItem('agbalumo_lng', lng);
+                        sessionStorage.setItem('agbalumo_lat', lat);
+                        sessionStorage.setItem('agbalumo_lng', lng);
 
-                            applyActiveState();
+                        applyActiveState();
 
-                            if (window.htmx) {
-                                const urlParams = new URLSearchParams(window.location.search);
-                                const values = {
-                                    lat: lat,
-                                    lng: lng,
-                                    radius: window.filterState?.radius || '10'
-                                };
-                                for (const [key, val] of urlParams.entries()) {
-                                    if (!(key in values)) {
-                                        values[key] = val;
-                                    }
+                        if (window.htmx) {
+                            const urlParams = new URLSearchParams(window.location.search);
+                            const values = {
+                                lat: lat,
+                                lng: lng,
+                                radius: window.filterState?.radius || '10'
+                            };
+                            for (const [key, val] of urlParams.entries()) {
+                                if (!(key in values)) {
+                                    values[key] = val;
                                 }
-                                htmx.ajax('GET', '/listings/fragment', {
-                                    values: values,
-                                    target: '#listings-container',
-                                    swap: 'innerHTML'
-                                });
                             }
-                        },
-                        function(error) {
-                            const isDenied = error.code === 1 || error.code === error.PERMISSION_DENIED;
-                            if (!isFallback && isDenied) {
-                                console.warn("High accuracy geolocation denied. Retrying with low accuracy fallback...");
-                                tryGetPosition({ enableHighAccuracy: false, timeout: 10000, maximumAge: 0 }, true);
-                                return;
-                            }
+                            htmx.ajax('GET', '/listings/fragment', {
+                                values: values,
+                                target: '#listings-container',
+                                swap: 'innerHTML'
+                            });
+                        }
+                    },
+                    function(error) {
+                        const isDenied = error.code === 1 || error.code === error.PERMISSION_DENIED;
+                        let errMsg = 'Error: Unavailable';
+                        if (isDenied) {
+                            errMsg = 'Error: Denied';
+                        }
+                        if (text) text.textContent = errMsg;
+                        if (spinner) spinner.classList.add('hidden');
 
-                            let errMsg = 'Error: Unavailable';
-                            if (isDenied) {
-                                errMsg = 'Error: Denied';
-                            }
-                            if (text) text.textContent = errMsg;
-                            if (spinner) spinner.classList.add('hidden');
-
-                            setTimeout(function() {
-                                applyDefaultState();
-                            }, 2000);
-                        },
-                        options
-                    );
-                }
-
-                tryGetPosition({ enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }, false);
+                        setTimeout(function() {
+                            applyDefaultState();
+                        }, 2000);
+                    },
+                    { enableHighAccuracy: false, timeout: 15000, maximumAge: 30000 }
+                );
             } else {
                 if (text) text.textContent = 'Error: Unsupported';
                 if (spinner) spinner.classList.add('hidden');
