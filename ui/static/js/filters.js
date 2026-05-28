@@ -205,6 +205,29 @@ function setupFilterButtons() {
                 b.classList.add('bg-earth-ochre/10', 'text-earth-ochre');
             }
         });
+
+        // Clear geolocation sessionStorage keys
+        sessionStorage.removeItem('agbalumo_lat');
+        sessionStorage.removeItem('agbalumo_lng');
+
+        // Reset "Near Me" button UI if it exists
+        const nearMeBtn = document.getElementById('near-me-btn');
+        if (nearMeBtn) {
+            const activeClasses = ['bg-earth-ochre/20', 'text-earth-ochre', 'hover:bg-earth-ochre/30', 'border-earth-ochre/50'];
+            const defaultClasses = ['bg-earth-sand/30', 'text-text-main', 'hover:bg-earth-sand/50', 'border-earth-clay/10'];
+            activeClasses.forEach(c => nearMeBtn.classList.remove(c));
+            defaultClasses.forEach(c => nearMeBtn.classList.add(c));
+            
+            const nearMeText = document.getElementById('near-me-text');
+            if (nearMeText) {
+                nearMeText.textContent = 'Near Me';
+            }
+            const nearMeIcon = document.getElementById('near-me-icon');
+            if (nearMeIcon) nearMeIcon.classList.remove('hidden');
+            const nearMeSpinner = document.getElementById('near-me-spinner');
+            if (nearMeSpinner) nearMeSpinner.classList.add('hidden');
+            nearMeBtn.disabled = false;
+        }
     }
 
     // Listen for "VIEW ALL LISTINGS" click to reset filters & categories
@@ -220,6 +243,8 @@ function setupFilterButtons() {
             const isReset = evt.detail.elt && (evt.detail.elt.getAttribute('data-testid') === 'view-all-listings-link' || evt.detail.elt.closest('[data-testid="view-all-listings-link"]'));
             if (isReset) {
                 resetAllFilters();
+                delete evt.detail.parameters['lat'];
+                delete evt.detail.parameters['lng'];
             }
             const state = window.filterState || {};
             if (state.type) evt.detail.parameters['type'] = state.type;
