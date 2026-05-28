@@ -100,4 +100,52 @@ test.describe('Reset Filters UX', () => {
     const cityInputValue = await cityInput.inputValue();
     expect(cityInputValue).toBe('');
   });
+
+  test('should clear geolocation coordinates and reset "Near Me" button when clicking "RESET ALL FILTERS"', async ({ page }) => {
+    // 1. Start with already located state in sessionStorage before page navigation
+    await page.addInitScript(() => {
+      sessionStorage.setItem('agbalumo_lat', '6.5244');
+      sessionStorage.setItem('agbalumo_lng', '3.3792');
+    });
+
+    await page.goto('/');
+
+    const nearMeBtn = page.getByTestId('ag-home-near-me-btn');
+    await expect(nearMeBtn).toContainText('Nearby');
+
+    // 2. Type a query that yields no results to show the reset button
+    const searchInput = page.getByTestId('ag-home-search-input');
+    await expect(searchInput).toBeVisible();
+    await searchInput.focus();
+    await searchInput.fill('xyzabc123nonexistent');
+    await searchInput.press('Enter');
+
+    // Wait for the Reset All Filters button to be visible
+    const viewAllLink = page.getByTestId('view-all-listings-link');
+    await expect(viewAllLink).toBeVisible({ timeout: 10000 });
+
+    // 3. Click "Reset All Filters" and intercept request
+    const [request] = await Promise.all([
+      page.waitForRequest(req => req.url().includes('/listings/fragment')),
+      viewAllLink.click()
+    ]);
+
+    const url = new URL(request.url());
+    expect(url.searchParams.get('type')).toBe('All');
+    expect(url.searchParams.get('lat')).toBeNull();
+    expect(url.searchParams.get('lng')).toBeNull();
+
+    // 4. Assert sessionStorage coordinates are cleared
+    const sessionStorageCoords = await page.evaluate(() => {
+      return {
+        lat: sessionStorage.getItem('agbalumo_lat'),
+        lng: sessionStorage.getItem('agbalumo_lng')
+      };
+    });
+    expect(sessionStorageCoords.lat).toBeNull();
+    expect(sessionStorageCoords.lng).toBeNull();
+
+    // 5. Assert Near Me button is reset back to 'Near Me'
+    await expect(nearMeBtn).toContainText('Near Me');
+  });
 });
