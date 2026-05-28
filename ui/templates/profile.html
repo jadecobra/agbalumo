@@ -16,7 +16,7 @@
                 {{ if .Listings }}
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {{ range .Listings }}
-                    {{ template "listing_card" dict "Listing" . "User" $.User "SavedIDs" $.SavedIDs "IDPrefix" "" "GridClass" "" }}
+                    {{ template "listing_card" dict "Listing" . "User" $.User "SavedIDs" $.SavedIDs "IDPrefix" "" "GridClass" "" "UserLat" 0.0 "UserLng" 0.0 }}
                     {{ end }}
                 </div>
                 {{ else }}
@@ -32,7 +32,7 @@
                 {{ if .SavedListings }}
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {{ range .SavedListings }}
-                    {{ template "listing_card" dict "Listing" . "User" $.User "SavedIDs" $.SavedIDs "IDPrefix" "" "GridClass" "" }}
+                    {{ template "listing_card" dict "Listing" . "User" $.User "SavedIDs" $.SavedIDs "IDPrefix" "" "GridClass" "" "UserLat" 0.0 "UserLng" 0.0 }}
                     {{ end }}
                 </div>
                 {{ else }}

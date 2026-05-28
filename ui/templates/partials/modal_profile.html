@@ -41,6 +41,11 @@
 
             <!-- Action Buttons Row — stacked on mobile, side-by-side on sm+ -->
             <div class="flex flex-col sm:flex-row gap-2 w-full">
+                <button hx-on:click="openModal('create-listing-modal'); closeModal('profile-modal')"
+                    class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-stone-100 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream font-bold text-sm hover:bg-stone-200 dark:hover:bg-earth-cream/10 transition-all border border-stone-200 dark:border-white/10">
+                    <span
+                        class="uppercase tracking-[0.3em] text-[10px] md:text-xs font-bold text-earth-accent dark:text-earth-ochre drop-shadow-sm">Post</span>
+                </button>
                 <button hx-get="/feedback/modal" hx-target="body" hx-swap="beforeend" data-testid="profile-feedback-btn"
                     hx-on:click="closeModal('profile-modal')"
                     class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-stone-100 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream font-bold text-sm hover:bg-stone-200 dark:hover:bg-earth-cream/10 transition-all border border-stone-200 dark:border-white/10">
@@ -57,43 +62,70 @@
             </div>
         </div>
 
-        <!-- My Listings -->
-        <div class="flex-1 overflow-y-auto p-4 md:p-6 bg-transparent min-h-0">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold font-serif flex items-center gap-2 text-text-main">
-                    <span class="material-symbols-outlined text-earth-accent">list_alt</span>
-                    My Listings &amp; Requests
-                </h3>
-                <span class="text-xs font-bold text-text-main dark:text-earth-cream bg-stone-100 dark:bg-earth-cream/10 px-2 py-1">{{
-                    len .Listings }} Items</span>
-            </div>
-
-            {{ if .Listings }}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {{ range .Listings }}
-                {{ template "listing_card" dict "Listing" . "User" $.User "GridClass" "border border-white/10" "IDPrefix" "modal-" "SavedIDs" $.SavedIDs }}
-                {{ end }}
-            </div>
-            {{ else }}
-            <div class="text-center py-12 px-4 bg-stone-50 border border-dashed border-stone-200">
-                <div
-                    class="w-16 h-16 bg-earth-accent/10 flex items-center justify-center mx-auto mb-4 text-earth-accent">
-                    <span class="material-symbols-outlined text-3xl">post_add</span>
+        <!-- Listings Content Container -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-6 bg-transparent min-h-0 flex flex-col gap-8">
+            <!-- Section 1: My Listings & Requests -->
+            <div>
+                <div class="flex items-center justify-between mb-4 border-b border-stone-100 dark:border-stone-850 pb-2">
+                    <h3 class="text-lg font-bold font-serif flex items-center gap-2 text-text-main">
+                        <span class="material-symbols-outlined text-earth-accent">list_alt</span>
+                        My Listings &amp; Requests
+                    </h3>
+                    <span class="text-xs font-bold text-text-main dark:text-earth-cream bg-stone-100 dark:bg-earth-cream/10 px-2 py-1">{{
+                        len .Listings }} Items</span>
                 </div>
-                <h3 class="text-lg font-bold font-serif text-text-main mb-1">No Listings Yet</h3>
-                <p class="text-text-sub text-sm mb-6 max-w-xs mx-auto">You haven't posted any businesses,
-                    services, or
-                    requests yet. Start connecting with the community!</p>
-                <div class="flex gap-3 justify-center">
+
+                {{ if .Listings }}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {{ range .Listings }}
+                    {{ template "listing_card" dict "Listing" . "User" $.User "GridClass" "border border-white/10" "IDPrefix" "modal-" "SavedIDs" $.SavedIDs "UserLat" 0.0 "UserLng" 0.0 }}
+                    {{ end }}
+                </div>
+                {{ else }}
+                <div class="text-center py-8 px-4 bg-stone-50 border border-dashed border-stone-200">
+                    <div
+                        class="w-12 h-12 bg-earth-accent/10 flex items-center justify-center mx-auto mb-3 text-earth-accent">
+                        <span class="material-symbols-outlined text-2xl">post_add</span>
+                    </div>
+                    <h3 class="text-base font-bold font-serif text-text-main mb-1">No Listings Yet</h3>
+                    <p class="text-text-sub text-xs max-w-xs mx-auto mb-4">You haven't posted any listings or requests yet.</p>
                     <button hx-on:click="openModal('create-listing-modal'); closeModal('profile-modal')"
-                        class="px-5 py-2.5 bg-earth-accent text-earth-dark font-bold hover:bg-earth-accent/90 transition-all text-sm flex items-center gap-2">
-                        <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                        class="px-4 py-2 bg-earth-accent text-earth-dark font-bold hover:bg-earth-accent/90 transition-all text-xs flex items-center gap-1.5 mx-auto">
+                        <span class="material-symbols-outlined text-[16px]">add_circle</span>
                         Post
                     </button>
-                    <!-- Removed Ask shortcut for Ada focus -->
                 </div>
+                {{ end }}
             </div>
-            {{ end }}
+
+            <!-- Section 2: Saved Listings -->
+            <div>
+                <div class="flex items-center justify-between mb-4 border-b border-stone-100 dark:border-stone-850 pb-2">
+                    <h3 class="text-lg font-bold font-serif flex items-center gap-2 text-text-main">
+                        <span class="material-symbols-outlined text-red-500">favorite</span>
+                        Saved Listings
+                    </h3>
+                    <span class="text-xs font-bold text-text-main dark:text-earth-cream bg-stone-100 dark:bg-earth-cream/10 px-2 py-1">{{
+                        len .SavedListings }} Items</span>
+                </div>
+
+                {{ if .SavedListings }}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {{ range .SavedListings }}
+                    {{ template "listing_card" dict "Listing" . "User" $.User "GridClass" "border border-white/10" "IDPrefix" "modal-saved-" "SavedIDs" $.SavedIDs "UserLat" 0.0 "UserLng" 0.0 }}
+                    {{ end }}
+                </div>
+                {{ else }}
+                <div class="text-center py-8 px-4 bg-stone-50 border border-dashed border-stone-200">
+                    <div
+                        class="w-12 h-12 bg-earth-accent/10 flex items-center justify-center mx-auto mb-3 text-stone-400">
+                        <span class="material-symbols-outlined text-2xl">favorite_border</span>
+                    </div>
+                    <h3 class="text-base font-bold font-serif text-text-main mb-1">No Saved Listings</h3>
+                    <p class="text-text-sub text-xs max-w-xs mx-auto">Heart a spot to save it for later.</p>
+                </div>
+                {{ end }}
+            </div>
         </div>
 
 
