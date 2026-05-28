@@ -278,5 +278,67 @@ test.describe('Near Me Geolocation UX', () => {
     // No auto-revert for denial (user can tap again to request the native prompt).
     // (Transient errors still flash + revert; this test only exercises the denied path.)
   });
+
+  test('Test 9: clicking NEAR ME after dismissing HTML permission prompt shows prompt again', async ({ page }) => {
+    await page.goto('/');
+
+    const prompt = page.getByTestId('location-permission-prompt');
+    await expect(prompt).toBeVisible({ timeout: 10000 });
+
+    const dismissBtn = page.locator('#location-dismiss-btn');
+    await expect(dismissBtn).toBeVisible();
+    await dismissBtn.click();
+
+    await expect(prompt).not.toBeVisible();
+
+    const nearMeBtn = page.getByTestId('ag-home-near-me-btn');
+    await expect(nearMeBtn).toBeVisible();
+    await nearMeBtn.click();
+
+    // The location permission prompt should be shown again!
+    await expect(prompt).toBeVisible();
+  });
+
+  test('Test 10: clicking NEAR ME after native permission denial shows HTML prompt again', async ({ page }) => {
+    // Mock geolocation to fail with PERMISSION_DENIED
+    await page.addInitScript(() => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition = (_success: any, error: any, _options: any) => {
+          error({
+            code: 1,
+            message: "Permission denied"
+          });
+        };
+      }
+    });
+
+    await page.goto('/');
+
+    // Dismiss custom prompt first so we can click near-me
+    const dismissBtn = page.locator('#location-dismiss-btn');
+    await expect(dismissBtn).toBeVisible();
+    await dismissBtn.click();
+
+    // Clear the dismissed state before first click so it directly queries native geolocation
+    await page.evaluate(() => {
+      sessionStorage.removeItem('agbalumo_geo_dismissed');
+    });
+
+    const nearMeBtn = page.getByTestId('ag-home-near-me-btn');
+    await expect(nearMeBtn).toBeVisible();
+    await nearMeBtn.click();
+
+
+    // Near me button should enter denied state
+    await expect(nearMeBtn).toContainText('Denied');
+
+    // Click near-me button again after denial
+    await nearMeBtn.click();
+
+    // It should show the HTML permission prompt again
+    const prompt = page.getByTestId('location-permission-prompt');
+    await expect(prompt).toBeVisible();
+  });
 });
+
 
