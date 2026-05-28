@@ -190,3 +190,31 @@ func TestHandleFragment_FeaturedSectionOnlyOnPageOne(t *testing.T) {
 	assert.NotContains(t, rec2.Body.String(), `id="featured-section" hx-swap-oob="true"`)
 	assert.NotContains(t, rec2.Body.String(), "Featured Spot")
 }
+
+// TestHandleFragment_RadiusWithoutGeoContext verifies that
+// when radius is sent without coordinates or city, the
+// "Showing within X miles" banner is NOT rendered.
+func TestHandleFragment_RadiusWithoutGeoContext(t *testing.T) {
+	t.Parallel()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
+
+	testutil.SaveTestListing(t, env.App.DB, "1", "Dallas Suya", func(l *domain.Listing) {
+		l.Type = domain.Food
+		l.Status = domain.ListingStatusApproved
+		l.IsActive = true
+	})
+
+	// Request with radius=25 but NO lat, lng, or city
+	c, rec := testutil.SetupModuleContext(http.MethodGet, "/listings/fragment?radius=25&type=Food", nil)
+	c.Echo().Renderer = &testutil.TemplateRenderer{Templates: testutil.NewRealTemplate(t)}
+	c.Request().Header.Set("HX-Request", "true")
+	if err := h.HandleFragment(c); err != nil {
+		t.Fatal(err)
+	}
+
+	// The response should NOT contain the radius banner text
+	assert.NotContains(t, rec.Body.String(), "Showing within")
+	assert.NotContains(t, rec.Body.String(), "25 miles")
+}

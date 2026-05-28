@@ -199,5 +199,56 @@ test.describe('Near Me Geolocation UX', () => {
     expect(currentUrl.searchParams.get('lat')).toBeNull();
     expect(currentUrl.searchParams.get('lng')).toBeNull();
   });
+
+  test('Test 6: Deselecting NEARBY does not show radius banner', async ({ page }) => {
+    await page.goto('/');
+
+    const nearMeBtn = page.getByTestId('ag-home-near-me-btn');
+    await expect(nearMeBtn).toBeVisible();
+
+    // Click to activate
+    await nearMeBtn.click();
+    await expect(nearMeBtn).toContainText('Nearby');
+
+    // Wait for HTMX response to complete
+    await page.waitForResponse(resp => resp.url().includes('/listings/fragment'));
+
+    // Click to deactivate
+    await nearMeBtn.click();
+    await expect(nearMeBtn).toContainText('Near Me');
+
+    // Wait for HTMX response after deactivation
+    await page.waitForResponse(resp => resp.url().includes('/listings/fragment'));
+
+    // The location-status banner should NOT contain "miles" text
+    const locationStatus = page.locator('#location-status');
+    await expect(locationStatus).not.toContainText('miles');
+  });
+
+  test('Test 7: Near Me respects user-selected radius from filter', async ({ page }) => {
+    await page.goto('/');
+
+    // Open filter panel and select 5-mile radius
+    const filtersToggle = page.getByTestId('ag-home-filters-toggle-desktop');
+    await expect(filtersToggle).toBeVisible();
+    await filtersToggle.click();
+
+    const radius5Btn = page.locator('[data-radius-value="5"]');
+    await expect(radius5Btn).toBeVisible();
+    await radius5Btn.click();
+
+    // Now click Near Me
+    const nearMeBtn = page.getByTestId('ag-home-near-me-btn');
+
+    // Intercept the HTMX request triggered by Near Me click
+    const [request] = await Promise.all([
+      page.waitForRequest(req => req.url().includes('/listings/fragment') && req.url().includes('lat=')),
+      nearMeBtn.click()
+    ]);
+
+    // Verify the request uses the user-selected radius (5), not hardcoded 10
+    const url = new URL(request.url());
+    expect(url.searchParams.get('radius')).toBe('5');
+  });
 });
 
