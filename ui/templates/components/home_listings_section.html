@@ -53,7 +53,7 @@
                     <h2 class="text-xs font-bold uppercase tracking-[0.4em] text-earth-clay-dark">Featured Selection</h2>
                     <div class="h-px flex-1 bg-earth-clay/10 mx-6"></div>
                 </div>
-                <div class="flex gap-4 overflow-x-auto pb-8 snap-x no-scrollbar" tabindex="0" aria-label="Featured Selection">
+                <div class="flex gap-4 lg:gap-6 overflow-x-auto lg:overflow-visible pb-8 snap-x lg:snap-none lg:grid lg:grid-cols-3 no-scrollbar" tabindex="0" aria-label="Featured Selection">
                     {{ range .Featured }}
                         {{ template "featured_card" dict "Listing" . "User" $.User }}
                     {{ end }}

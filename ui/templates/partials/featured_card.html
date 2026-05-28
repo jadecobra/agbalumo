@@ -1,5 +1,5 @@
 {{ define "featured_card" }}
-<div class="card-juicy snap-center shrink-0 w-[240px] h-[280px] relative  overflow-hidden group cursor-pointer shadow-lg hover:shadow-lifted transition-all duration-300"
+<div class="card-juicy snap-center shrink-0 w-[240px] h-[280px] lg:w-full lg:h-full relative overflow-hidden group cursor-pointer shadow-lg hover:shadow-lifted transition-all duration-300"
     hx-get="/listings/{{.Listing.ID}}" hx-target="body" hx-swap="beforeend">
 
     <!-- Background Image -->
