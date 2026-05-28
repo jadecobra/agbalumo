@@ -25,7 +25,7 @@
         <!-- Safe / Save Button -->
         {{ if $.User }}
         {{ $isSaved := index $.SavedIDs .Listing.ID }}
-        {{ template "save_button" dict "ListingID" .Listing.ID "IsSaved" $isSaved "Classes" "absolute top-2 right-2 z-30 transition-all duration-200 rounded-none" }}
+        {{ template "save_button" dict "ListingID" .Listing.ID "IsSaved" $isSaved "Classes" "absolute top-2 right-2 z-30 transition-all duration-200 rounded-none" "TextColorClass" "" }}
         {{ end }}
 
         <!-- New Badge -->

@@ -8,7 +8,14 @@
             {{ if .Listing.ImageURL }}
             <div class="w-full h-full bg-center bg-cover bg-white dark:bg-surface-dark" style="background-image: url('{{.Listing.ImageURL}}');"></div>
             {{ else }}
-            <div class="w-full h-full flex items-center justify-center bg-stone-100 dark:bg-surface-dark relative overflow-hidden">
+            <div class="w-full h-full flex items-center justify-center relative overflow-hidden
+                {{ if eq .Listing.Type "Job" }}bg-gradient-to-br from-earth-ochre to-earth-accent
+                {{ else if eq .Listing.Type "Food" }}bg-gradient-to-br from-earth-clay to-earth-accent
+                {{ else if eq .Listing.Type "Event" }}bg-gradient-to-br from-stone-400 to-earth-accent
+                {{ else if eq .Listing.Type "Request" }}bg-gradient-to-br from-earth-clay to-earth-ochre
+                {{ else if eq .Listing.Type "Business" }}bg-gradient-to-br from-earth-accent to-earth-dark
+                {{ else if eq .Listing.Type "Service" }}bg-gradient-to-br from-earth-ochre to-earth-accent
+                {{ else }}bg-gradient-to-br from-earth-sand to-earth-cream{{ end }} select-none">
                 <div class="hidden absolute inset-0 bg-center bg-cover bg-no-repeat blur-2xl opacity-50 scale-150" style="background-image: url('{{ fallbackImageURL "" .Listing.WebsiteURL }}');"></div>
                 <img src="{{ fallbackImageURL "" .Listing.WebsiteURL }}" alt="" class="w-24 h-24 object-contain relative z-10 drop-shadow-lg opacity-90">
             </div>
@@ -20,7 +27,7 @@
             <div class="absolute top-4 right-4 flex items-center gap-2 z-[60]">
                 {{ if $.User }}
                 {{ $isSaved := index $.SavedIDs .Listing.ID }}
-                {{ template "save_button" dict "ListingID" .Listing.ID "IsSaved" $isSaved "Classes" "relative transition-all duration-200" }}
+                {{ template "save_button" dict "ListingID" .Listing.ID "IsSaved" $isSaved "Classes" "relative text-white hover:text-red-400 transition-all duration-200" "TextColorClass" "text-white hover:text-red-400" }}
                 {{ end }}
 
                 {{ template "btn_close" dict "Classes" "relative w-11 h-11 text-white hover:scale-110 transition-transform" }}

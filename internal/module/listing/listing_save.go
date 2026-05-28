@@ -30,8 +30,10 @@ func (h *ListingHandler) HandleSaveToggle(c echo.Context) error {
 	}
 
 	vm := SaveButtonViewModel{
-		ListingID: id,
-		IsSaved:   !saved,
+		ListingID:      id,
+		IsSaved:        !saved,
+		Classes:        c.QueryParam("classes"),
+		TextColorClass: c.QueryParam("text_color_class"),
 	}
 
 	return h.RenderTyped(c, "save_button", vm)
