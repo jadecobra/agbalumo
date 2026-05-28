@@ -81,6 +81,7 @@ type ProfileViewModel struct {
 	SavedIDs         map[string]bool
 	GoogleMapsApiKey string
 	Listings         []domain.Listing
+	SavedListings    []domain.Listing
 	module.BaseViewData
 }
 

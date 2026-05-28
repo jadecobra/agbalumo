@@ -108,5 +108,6 @@ func TestHandleProfile_NoUser(t *testing.T) {
 	h := listing.NewListingHandler(env.App)
 	c, rec := testutil.SetupModuleContext(http.MethodGet, "/profile", nil)
 	_ = h.HandleProfile(c)
-	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
+	// Now uses RequireUserAPI (htmx-safe). No-user path returns 401 instead of redirect.
+	assert.Equal(t, http.StatusUnauthorized, rec.Code)
 }

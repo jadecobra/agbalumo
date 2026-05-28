@@ -24,6 +24,26 @@
                 {{ end }}
             </div>
         </div>
+
+        <!-- Saved Listings section (populated via ProfileViewModel.SavedListings) -->
+        <div class="bg-surface-dark/40 backdrop-blur-md border border-white/10 overflow-hidden mt-6">
+            <div class="p-6 md:p-10">
+                <h2 class="text-2xl md:text-3xl font-serif text-earth-cream mb-8">Your Saved Listings</h2>
+                {{ if .SavedListings }}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {{ range .SavedListings }}
+                    {{ template "listing_card" dict "Listing" . "User" $.User "SavedIDs" $.SavedIDs "IDPrefix" "" "GridClass" "" }}
+                    {{ end }}
+                </div>
+                {{ else }}
+                <div class="text-center py-12 px-4 bg-earth-sand/10 border border-dashed border-white/10">
+                    <span class="material-symbols-outlined text-4xl text-stone-400 mb-4">favorite_border</span>
+                    <h3 class="text-lg font-bold text-earth-cream mb-2 font-display">No saved listings yet</h3>
+                    <p class="text-earth-cream/60 text-sm mb-6 max-w-xs mx-auto">Heart a spot to save it for later.</p>
+                </div>
+                {{ end }}
+            </div>
+        </div>
     </div>
 </div>
 {{ end }}

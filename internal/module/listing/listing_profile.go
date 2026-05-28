@@ -1,6 +1,7 @@
 package listing
 
 import (
+	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/module/user"
 	"github.com/jadecobra/agbalumo/internal/ui"
 
@@ -8,7 +9,7 @@ import (
 )
 
 func (h *ListingHandler) HandleProfile(c echo.Context) error {
-	uRaw, err := user.RequireUser(c)
+	uRaw, err := user.RequireUserAPI(c)
 	if err != nil || uRaw == nil {
 		return err
 	}
@@ -17,6 +18,20 @@ func (h *ListingHandler) HandleProfile(c echo.Context) error {
 	listings, _, err := h.App.DB.FindAllByOwner(c.Request().Context(), uRaw.ID, p.Limit, p.Offset)
 	if err != nil {
 		return ui.RespondError(c, err)
+	}
+
+	// Load favorited/saved listings for profile "Saved" section (best-effort; do not break profile if saved load has issues)
+	savedRecords, err := h.App.DB.GetSavedListings(c.Request().Context(), uRaw.ID)
+	if err != nil {
+		savedRecords = nil // profile still renders posted
+	}
+	var savedListings []domain.Listing
+	for _, sl := range savedRecords {
+		l, err := h.App.DB.FindByID(c.Request().Context(), sl.ListingID)
+		if err != nil {
+			continue // skip deleted
+		}
+		savedListings = append(savedListings, l)
 	}
 
 	savedIDs := h.getSavedIDs(c)
@@ -28,6 +43,7 @@ func (h *ListingHandler) HandleProfile(c echo.Context) error {
 	vm := ProfileViewModel{
 		BaseViewData:     h.PopulateBase(c),
 		Listings:         listings,
+		SavedListings:    savedListings,
 		SavedIDs:         savedMap,
 		GoogleMapsApiKey: h.App.Cfg.GoogleMapsAPIKey,
 	}
