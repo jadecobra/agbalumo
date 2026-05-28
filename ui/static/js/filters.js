@@ -239,17 +239,59 @@ function setupFilterButtons() {
 
     // Inject filter state into all HTMX requests to /listings/fragment
     document.body.addEventListener('htmx:configRequest', (evt) => {
-        if (evt.detail.path === '/listings/fragment') {
-            const isReset = evt.detail.elt && (evt.detail.elt.getAttribute('data-testid') === 'view-all-listings-link' || evt.detail.elt.closest('[data-testid="view-all-listings-link"]'));
-            if (isReset) {
+        if (evt.detail.path && evt.detail.path.includes('/listings/fragment')) {
+            const elt = evt.detail.elt;
+            const isReset = elt && (
+                elt.getAttribute('data-testid') === 'view-all-listings-link' ||
+                (elt.closest && elt.closest('[data-testid="view-all-listings-link"]'))
+            );
+
+            // Secondary detection: if hx-vals already injected type=All, this is a reset
+            // even when elt identity is lost after HTMX swap.
+            const params = evt.detail.parameters;
+            const hxValsReset = params['type'] === 'All' && !isReset;
+            
+            if (isReset || hxValsReset) {
                 resetAllFilters();
-                delete evt.detail.parameters['lat'];
-                delete evt.detail.parameters['lng'];
+                // Force category button visual reset (handles swapped reset link after 0-result category)
+                document.querySelectorAll('[data-category-name]').forEach(b => {
+                    b.classList.remove('bg-earth-ochre/10', 'text-earth-ochre');
+                    if (b.getAttribute('data-category-name') === 'All') {
+                        b.classList.add('bg-earth-ochre/10', 'text-earth-ochre');
+                    }
+                });
+                delete params['lat'];
+                delete params['lng'];
+                // Force clean params for this request (guarantees type=All even if state was stale)
+                params['type'] = 'All';
+                params['city'] = '';
+                params['radius'] = '25';
+                return;
             }
+            // Only inject filterState when params are not already set by hx-vals.
+            // This prevents stale state from overwriting explicit reset values.
             const state = window.filterState || {};
-            if (state.type) evt.detail.parameters['type'] = state.type;
-            if (state.city) evt.detail.parameters['city'] = state.city;
-            if (state.radius) evt.detail.parameters['radius'] = state.radius;
+            if (state.type && !params['type']) params['type'] = state.type;
+            if (state.city && !params['city']) params['city'] = state.city;
+            if (state.radius && !params['radius']) params['radius'] = state.radius;
+        }
+    });
+
+    // Post-swap visual reset: when #listings-container receives a swap
+    // after a reset, force category buttons to "All" active state.
+    // Insight: This decouples visual correctness from request-time detection,
+    // ensuring the UI is always consistent even if configRequest detection was fragile.
+    document.body.addEventListener('htmx:afterSwap', (evt) => {
+        if (evt.detail.target && evt.detail.target.id === 'listings-container') {
+            const state = window.filterState || {};
+            if (state.type === 'All') {
+                document.querySelectorAll('[data-category-name]').forEach(b => {
+                    b.classList.remove('bg-earth-ochre/10', 'text-earth-ochre');
+                    if (b.getAttribute('data-category-name') === 'All') {
+                        b.classList.add('bg-earth-ochre/10', 'text-earth-ochre');
+                    }
+                });
+            }
         }
     });
 }

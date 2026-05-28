@@ -96,10 +96,12 @@
     </div>
     {{ end }}
 
-    <a href="/" hx-get="/listings/fragment" hx-target="#listings-container" data-testid="view-all-listings-link"
+    <button type="button" hx-get="/listings/fragment" hx-target="#listings-container"
+       hx-vals='{"type":"All","city":"","radius":"25"}'
+       data-testid="view-all-listings-link"
         class="px-5 h-11 flex items-center justify-center bg-earth-accent text-white font-bold font-display tracking-widest text-xs uppercase hover:bg-earth-accent/90 transition-all border border-earth-accent-light">
         Reset All Filters
-    </a>
+    </button>
 </div>
 {{ end }}
 {{ end }}

@@ -99,6 +99,30 @@ test.describe('Reset Filters UX', () => {
     const cityInput = page.locator('#filter-city');
     const cityInputValue = await cityInput.inputValue();
     expect(cityInputValue).toBe('');
+
+    // 7. Stronger post-swap assertions capturing the exact reported symptom:
+    // After reset from a 0-result category (Event/Job), results must be populated
+    // AND the category UI must visually reset (All active, Event not active).
+    // Wait for the HTMX fragment response + swap to settle.
+    await page.waitForResponse(
+      (resp) => resp.url().includes('/listings/fragment') && resp.status() === 200,
+      { timeout: 15000 }
+    );
+
+    // No empty state (the core "still shows 0 listings" failure).
+    const noResultsMsg = page.getByText(/No listings found|No saved listings yet/i);
+    await expect(noResultsMsg).not.toBeVisible({ timeout: 10000 });
+
+    // Container has real content after the swap.
+    const listingsContainer = page.locator('#listings-container');
+    await expect(listingsContainer).not.toBeEmpty();
+
+    // Category buttons visually reset (covers "does not reset all filters/categories").
+    const allCat = page.getByTestId('ag-filter-category-all');
+    await expect(allCat).toHaveClass(/(^|\s)bg-earth-ochre\/10/);
+
+    const eventCat = page.getByTestId('ag-filter-category-Event');
+    await expect(eventCat).not.toHaveClass(/(^|\s)bg-earth-ochre\/10/);
   });
 
   test('should clear geolocation coordinates and reset "Near Me" button when clicking "RESET ALL FILTERS"', async ({ page }) => {
