@@ -2,6 +2,7 @@
 {{ $listing := index . "Listing" }}
 {{ $textColor := index . "TextColorClass" }}
 {{ if not $textColor }}{{ $textColor = "text-earth-ochre dark:text-yellow-600" }}{{ end }}
+{{ if gt $listing.Rating 0.0 }}
 <div class="flex items-center gap-1" title="{{ printf "%.1f" $listing.Rating }} stars from {{ $listing.ReviewCount }} reviews">
     <div class="flex items-center -space-x-0.5">
         {{ $rating := $listing.Rating }}
@@ -20,4 +21,5 @@
         {{ printf "%.1f" $listing.Rating }} <span class="text-text-sub dark:text-stone-400 font-medium">({{ $listing.ReviewCount }} Reviews)</span>
     </span>
 </div>
+{{ end }}
 {{ end }}
