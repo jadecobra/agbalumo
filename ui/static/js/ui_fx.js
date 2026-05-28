@@ -1,3 +1,12 @@
+function shouldRemoveModal(id) {
+    if (!id) return false;
+    return id.startsWith('detail-modal-') || 
+           id.startsWith('edit-listing-modal-') || 
+           id.startsWith('edit-modal-') || 
+           id === 'feedback-modal' || 
+           id === 'profile-modal';
+}
+
 function setupModalClosing() {
     document.addEventListener('click', (event) => {
         if (event.target.tagName === 'DIALOG') {
@@ -7,7 +16,7 @@ function setupModalClosing() {
                 rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
             if (!isInDialog) {
                 dialog.close();
-                if (dialog.id.startsWith('detail-modal-') || dialog.id.startsWith('edit-modal-')) {
+                if (shouldRemoveModal(dialog.id)) {
                     dialog.remove();
                 }
             }
@@ -24,7 +33,7 @@ function setupModalActions() {
                 modal.close();
                 const form = modal.querySelector('form');
                 if (form) form.reset();
-                if (modal.id.startsWith('detail-modal-') || modal.id.startsWith('edit-modal-')) {
+                if (shouldRemoveModal(modal.id)) {
                     modal.remove();
                 }
             }

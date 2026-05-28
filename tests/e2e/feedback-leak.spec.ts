@@ -40,6 +40,13 @@ test.describe('Feedback Modal Closing and Leak Prevention', () => {
     await expect(feedbackModal).not.toBeVisible();
 
     // 4. Click on the first listing card to open details modal
+    // Dismiss the location prompt if it is visible to avoid blocking/intercepting clicks on mobile viewports
+    const dismissBtn = page.getByTestId('location-permission-dismiss');
+    if (await dismissBtn.isVisible()) {
+      await dismissBtn.click();
+      await page.waitForTimeout(500); // Wait for the prompt dismiss animation
+    }
+
     const listingCard = page.getByTestId('ag-listing-card').first();
     await expect(listingCard).toBeVisible();
 
