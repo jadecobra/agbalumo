@@ -250,5 +250,56 @@ test.describe('Near Me Geolocation UX', () => {
     const url = new URL(request.url());
     expect(url.searchParams.get('radius')).toBe('5');
   });
+
+  test('Test 8: Falling back to low accuracy when high accuracy is denied', async ({ page }) => {
+    // Mock geolocation to fail with PERMISSION_DENIED on high accuracy, but succeed on low accuracy
+    await page.addInitScript(() => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition = (success: any, error: any, options: any) => {
+          window.console.log("=== MOCK GET POSITION CALLED WITH OPTIONS ===", JSON.stringify(options));
+          if (options && options.enableHighAccuracy) {
+            // Simulate PERMISSION_DENIED
+            error({
+              code: 1, // PERMISSION_DENIED
+              message: "High accuracy denied by OS or browser"
+            });
+          } else {
+            // Success on low accuracy fallback
+            success({
+              coords: {
+                latitude: 6.5244,
+                longitude: 3.3792,
+              },
+            });
+          }
+        };
+      }
+    });
+
+    await page.goto('/');
+
+    const nearMeBtn = page.getByTestId('ag-home-near-me-btn');
+    await expect(nearMeBtn).toBeVisible();
+
+    // Click near me button
+    await nearMeBtn.click();
+
+    const textAfterClick = await nearMeBtn.textContent();
+    console.log("=== BUTTON TEXT AFTER CLICK ===", textAfterClick);
+
+    // Check button updates to active state text, indicating low-accuracy fallback succeeded!
+    await expect(nearMeBtn).toContainText('Nearby');
+
+    // Confirm sessionStorage has the correct coords
+    const sessionStorageCoords = await page.evaluate(() => {
+      return {
+        lat: sessionStorage.getItem('agbalumo_lat'),
+        lng: sessionStorage.getItem('agbalumo_lng')
+      };
+    });
+
+    expect(sessionStorageCoords.lat).toBe('6.5244');
+    expect(sessionStorageCoords.lng).toBe('3.3792');
+  });
 });
 
