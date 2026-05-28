@@ -261,6 +261,7 @@ test.describe('Near Me Geolocation UX', () => {
             // Simulate PERMISSION_DENIED
             error({
               code: 1, // PERMISSION_DENIED
+              PERMISSION_DENIED: 1,
               message: "High accuracy denied by OS or browser"
             });
           } else {
@@ -283,9 +284,6 @@ test.describe('Near Me Geolocation UX', () => {
 
     // Click near me button
     await nearMeBtn.click();
-
-    const textAfterClick = await nearMeBtn.textContent();
-    console.log("=== BUTTON TEXT AFTER CLICK ===", textAfterClick);
 
     // Check button updates to active state text, indicating low-accuracy fallback succeeded!
     await expect(nearMeBtn).toContainText('Nearby');
