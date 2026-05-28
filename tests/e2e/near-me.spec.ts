@@ -251,8 +251,8 @@ test.describe('Near Me Geolocation UX', () => {
     expect(url.searchParams.get('radius')).toBe('5');
   });
 
-  test('Test 8: denied geolocation shows ERROR: DENIED then resets button (Safari post-grant regression coverage)', async ({ page }) => {
-    // Mock geolocation to fail with PERMISSION_DENIED (covers the exact symptom: accept native prompt but error path fires)
+  test('Test 8: denied geolocation is sticky/retryable (button re-enabled so user can click again for prompt)', async ({ page }) => {
+    // Mock geolocation to fail with PERMISSION_DENIED (covers decline-then-reclick symptom)
     await page.addInitScript(() => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition = (_success: any, error: any, _options: any) => {
@@ -271,12 +271,12 @@ test.describe('Near Me Geolocation UX', () => {
 
     await nearMeBtn.click();
 
-    // Error state rendered (CSS uppercases the text content)
+    // Denied state is shown and button is re-enabled for immediate re-click (new gesture)
     await expect(nearMeBtn).toContainText('Denied');
+    await expect(nearMeBtn).toBeEnabled();
 
-    // 2s timeout in near-me.js reverts to default
-    await page.waitForTimeout(2500);
-    await expect(nearMeBtn).toContainText('Near Me');
+    // No auto-revert for denial (user can tap again to request the native prompt).
+    // (Transient errors still flash + revert; this test only exercises the denied path.)
   });
 });
 

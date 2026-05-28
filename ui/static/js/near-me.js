@@ -99,6 +99,10 @@
                 return;
             }
 
+            // Clear any legacy dismissed state before a fresh gesture attempt.
+            // This gives the browser the cleanest chance to show the native prompt on re-click after denial.
+            sessionStorage.removeItem('agbalumo_geo_dismissed');
+
             // Show loading state
             clickBtn.disabled = true;
             if (icon) icon.classList.add('hidden');
@@ -139,14 +143,23 @@
                         const isDenied = error.code === 1 || error.code === error.PERMISSION_DENIED;
                         let errMsg = 'Error: Unavailable';
                         if (isDenied) {
-                            errMsg = 'Error: Denied';
+                            errMsg = 'Denied - tap to retry';
                         }
                         if (text) text.textContent = errMsg;
                         if (spinner) spinner.classList.add('hidden');
 
-                        setTimeout(function() {
-                            applyDefaultState();
-                        }, 2000);
+                        // Re-enable immediately so a follow-up click is a clean user gesture
+                        // (gives the browser the best chance to re-show the native prompt).
+                        clickBtn.disabled = false;
+
+                        if (!isDenied) {
+                            // Transient errors (timeout/unavailable) can flash and reset.
+                            setTimeout(function() {
+                                applyDefaultState();
+                            }, 2000);
+                        }
+                        // For denial: leave the button enabled in a retryable state.
+                        // Next click will attempt getCurrentPosition again (fresh gesture).
                     },
                     { enableHighAccuracy: false, timeout: 15000, maximumAge: 30000 }
                 );
