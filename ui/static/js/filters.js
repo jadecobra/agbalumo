@@ -273,7 +273,13 @@ function setupFilterButtons() {
             const state = window.filterState || {};
             if (state.type && !params['type']) params['type'] = state.type;
             if (state.city && !params['city']) params['city'] = state.city;
-            if (state.radius && !params['radius']) params['radius'] = state.radius;
+            if (state.radius && !params['radius']) {
+                const hasCoords = params['lat'] || params['lng'] || sessionStorage.getItem('agbalumo_lat');
+                const hasCity = params['city'] || state.city;
+                if (hasCoords || hasCity) {
+                    params['radius'] = state.radius;
+                }
+            }
         }
     });
 

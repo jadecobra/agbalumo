@@ -206,19 +206,19 @@ test.describe('Near Me Geolocation UX', () => {
     const nearMeBtn = page.getByTestId('ag-home-near-me-btn');
     await expect(nearMeBtn).toBeVisible();
 
-    // Click to activate
-    await nearMeBtn.click();
+    // Click to activate and wait for HTMX response
+    await Promise.all([
+      page.waitForResponse(resp => resp.url().includes('/listings/fragment') && resp.status() === 200),
+      nearMeBtn.click()
+    ]);
     await expect(nearMeBtn).toContainText('Nearby');
 
-    // Wait for HTMX response to complete
-    await page.waitForResponse(resp => resp.url().includes('/listings/fragment'));
-
-    // Click to deactivate
-    await nearMeBtn.click();
+    // Click to deactivate and wait for HTMX response
+    await Promise.all([
+      page.waitForResponse(resp => resp.url().includes('/listings/fragment') && resp.status() === 200),
+      nearMeBtn.click()
+    ]);
     await expect(nearMeBtn).toContainText('Near Me');
-
-    // Wait for HTMX response after deactivation
-    await page.waitForResponse(resp => resp.url().includes('/listings/fragment'));
 
     // The location-status banner should NOT contain "miles" text
     const locationStatus = page.locator('#location-status');

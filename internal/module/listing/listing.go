@@ -142,8 +142,13 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 			HasNextPage: p.Offset+len(listings) < totalCount,
 			TotalCount:  totalCount,
 		},
-		Locations:        locations,
-		Radius:           params.Radius,
+		Locations: locations,
+		Radius: func() float64 {
+			if (lat != 0 && lng != 0) || params.City != "" {
+				return params.Radius
+			}
+			return 0
+		}(),
 		UserLat:          lat,
 		UserLng:          lng,
 		GoogleMapsApiKey: h.App.Cfg.GoogleMapsAPIKey,
@@ -198,9 +203,14 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 		Query:      params.Query,
 		City:       params.City,
 		FilterType: params.Type,
-		Radius:     params.Radius,
-		UserLat:    lat,
-		UserLng:    lng,
+		Radius: func() float64 {
+			if (lat != 0 && lng != 0) || params.City != "" {
+				return params.Radius
+			}
+			return 0
+		}(),
+		UserLat: lat,
+		UserLng: lng,
 		Pagination: Pagination{
 			Page:        p.Page,
 			Limit:       p.Limit,

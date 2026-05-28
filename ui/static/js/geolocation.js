@@ -72,7 +72,7 @@
                             const values = { 
                                 lat: lat, 
                                 lng: lng, 
-                                radius: 10,
+                                radius: window.filterState?.radius || '10',
                                 start_ts: startTime 
                             };
                             // Preserve existing query params like limit, type, and search queries

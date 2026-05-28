@@ -121,7 +121,7 @@
                             const values = {
                                 lat: lat,
                                 lng: lng,
-                                radius: 10
+                                radius: window.filterState?.radius || '10'
                             };
                             for (const [key, val] of urlParams.entries()) {
                                 if (!(key in values)) {
@@ -178,7 +178,7 @@
                     evt.detail.parameters['lat'] = lat;
                     evt.detail.parameters['lng'] = lng;
                     if (!evt.detail.parameters['radius']) {
-                        evt.detail.parameters['radius'] = '10';
+                        evt.detail.parameters['radius'] = window.filterState?.radius || '10';
                     }
                 }
             }
