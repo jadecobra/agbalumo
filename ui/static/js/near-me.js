@@ -99,6 +99,17 @@
                 return;
             }
 
+            // If the HTML permission prompt was dismissed or native permission was previously denied,
+            // show the custom HTML permission prompt again.
+            const prompt = document.getElementById('location-permission-prompt');
+            const isCurrentlyDenied = text && text.textContent && text.textContent.includes('Denied');
+            if (prompt && (sessionStorage.getItem('agbalumo_geo_dismissed') === 'true' || isCurrentlyDenied)) {
+                sessionStorage.removeItem('agbalumo_geo_dismissed');
+                prompt.classList.remove('hidden', 'animate-out', 'fade-out');
+                applyDefaultState();
+                return;
+            }
+
             // Clear any legacy dismissed state before a fresh gesture attempt.
             // This gives the browser the cleanest chance to show the native prompt on re-click after denial.
             sessionStorage.removeItem('agbalumo_geo_dismissed');
