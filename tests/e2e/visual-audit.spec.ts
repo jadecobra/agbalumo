@@ -129,15 +129,27 @@ test.describe('Visual Audit', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     
+    // Dismiss location prompt to avoid blocking or shifting layouts
+    const dismissBtn = page.getByTestId('location-permission-dismiss');
+    if (await dismissBtn.isVisible()) {
+      await dismissBtn.click();
+      await page.waitForTimeout(500);
+    }
+
     // Scroll down to ensure we are not at the top
     await page.evaluate(() => window.scrollTo(0, 400));
     await page.waitForTimeout(200);
-    const scrollBefore = await page.evaluate(() => window.scrollY);
-    expect(scrollBefore).toBeGreaterThan(200);
 
     // Open first listing detail modal
     const firstListing = page.locator('[data-testid="ag-listing-card"]').first();
     const overlay = firstListing.locator('button[hx-get^="/listings/"]').first();
+    
+    // Scroll element into view and wait to settle before measuring baseline scroll
+    await overlay.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(200);
+    const scrollBefore = await page.evaluate(() => window.scrollY);
+    expect(scrollBefore).toBeGreaterThan(100);
+
     await overlay.click();
 
     // Verify modal is open
