@@ -153,6 +153,11 @@
   border-radius: inherit !important;
 }
 
+/* Suppress redundant inner outline on search inputs since the parent container handles focus-within glow */
+.search-glow input:focus-visible {
+  outline: none !important;
+}
+
 /* ── Typographic Contrast Fixes ── */
 .text-description {
   color: #4E342E !important;
