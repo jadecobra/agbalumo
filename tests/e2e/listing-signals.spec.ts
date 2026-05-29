@@ -24,27 +24,13 @@ test.describe('Create Listing Sensory Signals Toggling', () => {
     const modal = page.locator('dialog[id="create-listing-modal"]');
     await expect(modal).toBeVisible();
 
-    // Verify initial state: dropdown shows Business (the default)
+    // Verify initial state: dropdown shows Food (the default)
     const dropdownBtn = modal.locator('#listing-type-btn');
     await expect(dropdownBtn).toBeVisible();
-    await expect(dropdownBtn).toHaveText(/Business/);
-
-    // Verify that the sensory signals container (the gray bar) is HIDDEN initially
-    const adaSignalsContainer = modal.locator('[data-agent-template="listing_form_ada_signals"]');
-    await expect(adaSignalsContainer).toBeHidden();
-
-    // Click the category dropdown to open it
-    await dropdownBtn.click();
-
-    // Select Food category
-    const foodOption = modal.locator('[data-dropdown-value="Food"]');
-    await expect(foodOption).toBeVisible();
-    await foodOption.click();
-
-    // Dropdown text should update to Food
     await expect(dropdownBtn).toHaveText(/Food/);
 
-    // Verify that the sensory signals container (the gray bar) is now VISIBLE
+    // Verify that the sensory signals container (the gray bar) is VISIBLE initially
+    const adaSignalsContainer = modal.locator('[data-agent-template="listing_form_ada_signals"]');
     await expect(adaSignalsContainer).toBeVisible();
 
     // Verify that both fields (Heat Level and Regional Specialty) are visible and enabled
@@ -55,13 +41,27 @@ test.describe('Create Listing Sensory Signals Toggling', () => {
     await expect(regionalInput).toBeVisible();
     await expect(regionalInput).not.toBeDisabled();
 
-    // Change back to Business
+    // Click the category dropdown to open it
     await dropdownBtn.click();
+
+    // Select Business category
     const businessOption = modal.locator('[data-dropdown-value="Business"]');
     await expect(businessOption).toBeVisible();
     await businessOption.click();
 
-    // Verify container is hidden again
+    // Dropdown text should update to Business
+    await expect(dropdownBtn).toHaveText(/Business/);
+
+    // Verify container is hidden
     await expect(adaSignalsContainer).toBeHidden();
+
+    // Change back to Food
+    await dropdownBtn.click();
+    const foodOption = modal.locator('[data-dropdown-value="Food"]');
+    await expect(foodOption).toBeVisible();
+    await foodOption.click();
+
+    // Verify container is visible again
+    await expect(adaSignalsContainer).toBeVisible();
   });
 });
