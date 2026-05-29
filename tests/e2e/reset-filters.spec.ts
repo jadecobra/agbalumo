@@ -40,6 +40,7 @@ test.describe('Reset Filters UX', () => {
     await expect(viewAllLink).toBeVisible({ timeout: 10000 });
 
     // 3. Click "View All Listings" and intercept request
+    await page.waitForTimeout(500);
     const [request] = await Promise.all([
       page.waitForRequest(req => req.url().includes('/listings/fragment')),
       viewAllLink.click()
@@ -88,6 +89,7 @@ test.describe('Reset Filters UX', () => {
     await expect(viewAllLink).toBeVisible({ timeout: 10000 });
 
     // 4. Click "View All Listings" and intercept request
+    await page.waitForTimeout(500);
     const [request] = await Promise.all([
       page.waitForRequest(req => req.url().includes('/listings/fragment')),
       viewAllLink.click()
@@ -163,6 +165,7 @@ test.describe('Reset Filters UX', () => {
     await expect(viewAllLink).toBeVisible({ timeout: 10000 });
 
     // 3. Click "Reset All Filters" and intercept request
+    await page.waitForTimeout(500);
     const [request] = await Promise.all([
       page.waitForRequest(req => req.url().includes('/listings/fragment')),
       viewAllLink.click()
