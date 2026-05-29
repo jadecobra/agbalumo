@@ -12,6 +12,9 @@ test.describe('Reset Filters UX', () => {
     await expect(toggle).toBeVisible();
     await toggle.click();
 
+    const panel = page.locator('#filter-dropdown-panel');
+    await expect(panel).toBeVisible();
+
     const foodCategoryBtn = page.getByTestId('ag-filter-category-food');
     await expect(foodCategoryBtn).toBeVisible();
     await foodCategoryBtn.click();
@@ -64,6 +67,9 @@ test.describe('Reset Filters UX', () => {
     const toggle = page.getByTestId('ag-home-filters-toggle-desktop');
     await expect(toggle).toBeVisible();
     await toggle.click();
+
+    const panel = page.locator('#filter-dropdown-panel');
+    await expect(panel).toBeVisible();
 
     // 2. Click the Event category (which should have 0 listings by default)
     const eventCategoryBtn = page.getByTestId('ag-filter-category-Event');
