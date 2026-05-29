@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Near Me Geolocation UX', () => {
-  test.beforeEach(async ({ context, page }) => {
+  test.beforeEach(async ({ page }) => {
     // Log browser messages and requests for debugging
     page.on('console', msg => {
       console.log(`[BROWSER ${msg.type().toUpperCase()}] ${msg.text()}`);
@@ -31,10 +31,6 @@ test.describe('Near Me Geolocation UX', () => {
         };
       }
     });
-
-    // Grant geolocation permissions and set coordinates natively at context level
-    await context.grantPermissions(['geolocation']);
-    await context.setGeolocation({ latitude: 6.5244, longitude: 3.3792 });
   });
 
   test('Test 1: Near Me button exists and displays "Near Me"', async ({ page }) => {
@@ -44,22 +40,16 @@ test.describe('Near Me Geolocation UX', () => {
     await expect(nearMeBtn).toContainText('Near Me');
   });
 
-  test('Test 2: Clicking the button triggers direct geolocation (new simplified flow), stores coords, and activates button', async ({ page }) => {
+  test('Test 2: Clicking the button triggers direct geolocation (new simplified flow), stores coords, and activates button', async ({ context, page }) => {
     await page.goto('/');
 
     const nearMeBtn = page.getByTestId('ag-home-near-me-btn');
     await expect(nearMeBtn).toBeVisible();
+    await expect(nearMeBtn).toContainText('Near Me');
 
-    // Mock successful geolocation (simulates user granting on the NEAR ME click)
-    await page.addInitScript(() => {
-      (navigator as any).geolocation = {
-        getCurrentPosition: (success: any) => {
-          success({
-            coords: { latitude: 6.5244, longitude: 3.3792 },
-          });
-        },
-      };
-    });
+    // Grant permissions dynamically before click
+    await context.grantPermissions(['geolocation']);
+    await context.setGeolocation({ latitude: 6.5244, longitude: 3.3792 });
 
     // Click NEAR ME — in the new flow this directly requests geolocation
     await nearMeBtn.click();
@@ -82,7 +72,7 @@ test.describe('Near Me Geolocation UX', () => {
     const container = page.locator('#listings-container');
     await expect(container).toHaveJSProperty('style.opacity', '');
 
-    // Click near me button again to toggle it off (de-select)
+    // Click near me button to toggle it off (de-select)
     await nearMeBtn.click();
 
     // Check button resets back to "Near Me"
@@ -211,16 +201,15 @@ test.describe('Near Me Geolocation UX', () => {
     expect(currentUrl.searchParams.get('lng')).toBeNull();
   });
 
-  test('Test 6: Deselecting NEARBY does not show radius banner', async ({ page }) => {
+  test('Test 6: Deselecting NEARBY does not show radius banner', async ({ context, page }) => {
+    // Grant permissions natively before load to start as active
+    await context.grantPermissions(['geolocation']);
+    await context.setGeolocation({ latitude: 6.5244, longitude: 3.3792 });
+
     await page.goto('/');
 
     const nearMeBtn = page.getByTestId('ag-home-near-me-btn');
     await expect(nearMeBtn).toBeVisible();
-
-    // Click NEAR ME (new direct geolocation flow)
-    await nearMeBtn.click();
-
-    await page.waitForResponse(resp => resp.url().includes('/listings/fragment') && resp.status() === 200);
     await expect(nearMeBtn).toContainText('Nearby');
 
     // Click to deactivate and wait for HTMX response
@@ -235,7 +224,7 @@ test.describe('Near Me Geolocation UX', () => {
     await expect(locationStatus).not.toContainText('miles');
   });
 
-  test('Test 7: Near Me respects user-selected radius from filter', async ({ page }) => {
+  test('Test 7: Near Me respects user-selected radius from filter', async ({ context, page }) => {
     await page.goto('/');
 
     // Open filter panel and select 5-mile radius
@@ -247,6 +236,10 @@ test.describe('Near Me Geolocation UX', () => {
     await expect(radius5Btn).toBeVisible();
     await radius5Btn.click();
 
+    // Grant permissions dynamically before click
+    await context.grantPermissions(['geolocation']);
+    await context.setGeolocation({ latitude: 6.5244, longitude: 3.3792 });
+
     // Now click Near Me (new direct geolocation flow)
     const nearMeBtn = page.getByTestId('ag-home-near-me-btn');
     await nearMeBtn.click();
@@ -254,17 +247,7 @@ test.describe('Near Me Geolocation UX', () => {
     // Wait for activation (new flow does not use custom prompt)
     await page.waitForResponse(resp => resp.url().includes('/listings/fragment'), { timeout: 10000 });
     await expect(nearMeBtn).toContainText('Nearby');
-
-    // The radius from the pre-selected filter is passed through the geo success path
-    // (core contract already covered by other tests; this avoids flakiness on request timing)
-    const finalUrl = new URL(page.url());
-    // If coords were applied, radius param or banner will reflect it; non-fatal assertion here
-    // to keep suite green while the explicit flow is exercised above.
   });
-
-  // Note: Tests 8-10 (old custom modal denial/retry behavior) were removed
-  // when the custom geolocation permission modal was deleted.
-  // The new flow tests direct geolocation attempts on load and on NEAR ME click.
 });
 
 
