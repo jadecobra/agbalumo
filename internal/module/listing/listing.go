@@ -111,6 +111,14 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		return ui.RespondError(c, listingsErr)
 	}
 
+	if totalCount == 0 && params.Type != "" {
+		listings, totalCount, listingsErr = h.App.DB.FindAll(ctx, "", params.Query, params.City, lat, lng, params.Radius, "", "", false, limit, p.Offset)
+		if listingsErr != nil {
+			return ui.RespondError(c, listingsErr)
+		}
+		params.Type = ""
+	}
+
 	h.LogError(c, "failed to get featured listings", featuredErr)
 	h.LogError(c, "failed to get locations", locationsErr)
 
@@ -174,6 +182,14 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	listings, totalCount, err := h.App.DB.FindAll(c.Request().Context(), params.Type, params.Query, params.City, lat, lng, params.Radius, "", "", false, p.Limit, p.Offset)
 	if err != nil {
 		return ui.RespondErrorMsg(c, http.StatusInternalServerError, err.Error())
+	}
+
+	if totalCount == 0 && params.Type != "" {
+		listings, totalCount, err = h.App.DB.FindAll(c.Request().Context(), "", params.Query, params.City, lat, lng, params.Radius, "", "", false, p.Limit, p.Offset)
+		if err != nil {
+			return ui.RespondErrorMsg(c, http.StatusInternalServerError, err.Error())
+		}
+		params.Type = ""
 	}
 
 	var featured []domain.Listing

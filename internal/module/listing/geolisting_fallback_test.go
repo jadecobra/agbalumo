@@ -137,13 +137,17 @@ func TestGeolocatedListing_Fallback(t *testing.T) {
 		mockStore.On("FindAll", mock.Anything, "Food", "", "", lat, lng, radius, "", "", false, 30, 0).
 			Return([]domain.Listing{}, 0, nil).Once()
 
+		// Fallback query (Seattle radius search with all types) returns 0 results
+		mockStore.On("FindAll", mock.Anything, "", "", "", lat, lng, radius, "", "", false, 30, 0).
+			Return([]domain.Listing{}, 0, nil).Once()
+
 		// Mock concurrent calls in HandleHome:
 		// Reuses locations fetched here without extra trip
 		mockStore.On("GetLocations", mock.Anything).Return(locations, nil).Once()
 		mockStore.On("GetFeaturedListings", mock.Anything, "Food", "").Return([]domain.Listing{}, nil)
 
-		// Re-query FindAll for Dallas, limit 6
-		mockStore.On("FindAll", mock.Anything, "Food", "", "Dallas", 0.0, 0.0, 0.0, "", "", false, 6, 0).
+		// Re-query FindAll for Dallas, limit 6 (using fallback type "")
+		mockStore.On("FindAll", mock.Anything, "", "", "Dallas", 0.0, 0.0, 0.0, "", "", false, 6, 0).
 			Return(dallasListings, 1, nil).Once()
 
 		req := httptest.NewRequest(http.MethodGet, "/?lat=47.6062&lng=-122.3321&radius=10", nil)
@@ -186,14 +190,18 @@ func TestGeolocatedListing_Fallback(t *testing.T) {
 		mockStore.On("FindAll", mock.Anything, "Food", "", "", lat, lng, radius, "", "", false, 30, 0).
 			Return([]domain.Listing{}, 0, nil).Once()
 
-		// GetFeaturedListings is called in HandleFragment on page 1
-		mockStore.On("GetFeaturedListings", mock.Anything, "Food", "").Return([]domain.Listing{}, nil)
+		// Fallback query (Seattle radius search with all types) returns 0 results
+		mockStore.On("FindAll", mock.Anything, "", "", "", lat, lng, radius, "", "", false, 30, 0).
+			Return([]domain.Listing{}, 0, nil).Once()
+
+		// GetFeaturedListings is called in HandleFragment on page 1 (with fallback type "")
+		mockStore.On("GetFeaturedListings", mock.Anything, "", "").Return([]domain.Listing{}, nil)
 
 		// GetLocations gets called in fragment empty state check since it's not pre-fetched
 		mockStore.On("GetLocations", mock.Anything).Return(locations, nil).Once()
 
-		// Re-query FindAll for Dallas, limit 6
-		mockStore.On("FindAll", mock.Anything, "Food", "", "Dallas", 0.0, 0.0, 0.0, "", "", false, 6, 0).
+		// Re-query FindAll for Dallas, limit 6 (using fallback type "")
+		mockStore.On("FindAll", mock.Anything, "", "", "Dallas", 0.0, 0.0, 0.0, "", "", false, 6, 0).
 			Return(dallasListings, 1, nil).Once()
 
 		req := httptest.NewRequest(http.MethodGet, "/listings/fragment?lat=47.6062&lng=-122.3321&radius=10", nil)
