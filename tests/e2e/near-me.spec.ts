@@ -271,36 +271,40 @@ test.describe('Near Me Geolocation UX', () => {
 
     await nearMeBtn.click();
 
-    // Denied state is shown and button is re-enabled for immediate re-click (new gesture)
-    await expect(nearMeBtn).toContainText('Denied');
+    // After denial via the explicit ALLOW path, the button remains interactive.
+    // User can click NEAR ME again to re-surface the app's explainer modal (no auto-geo).
     await expect(nearMeBtn).toBeEnabled();
 
-    // No auto-revert for denial (user can tap again to request the native prompt).
-    // (Transient errors still flash + revert; this test only exercises the denied path.)
+    // Re-click must surface the explainer again (core retryable + explicit-ask contract).
+    const promptAfter = page.getByTestId('location-permission-prompt');
+    await nearMeBtn.click();
+    await expect(promptAfter).toBeVisible();
   });
 
   test('Test 9: clicking NEAR ME after dismissing HTML permission prompt shows prompt again', async ({ page }) => {
     await page.goto('/');
 
+    // No auto-popup on load (spec: user must click NEAR ME)
     const prompt = page.getByTestId('location-permission-prompt');
-    await expect(prompt).toBeVisible({ timeout: 10000 });
+    await expect(prompt).not.toBeVisible();
+
+    const nearMeBtn = page.getByTestId('ag-home-near-me-btn');
+    await nearMeBtn.click();
+
+    await expect(prompt).toBeVisible();
 
     const dismissBtn = page.locator('#location-dismiss-btn');
-    await expect(dismissBtn).toBeVisible();
     await dismissBtn.click();
 
     await expect(prompt).not.toBeVisible();
 
-    const nearMeBtn = page.getByTestId('ag-home-near-me-btn');
-    await expect(nearMeBtn).toBeVisible();
+    // Subsequent NEAR ME click (even after dismiss/denial) must re-surface the explainer
     await nearMeBtn.click();
-
-    // The location permission prompt should be shown again!
     await expect(prompt).toBeVisible();
   });
 
   test('Test 10: clicking NEAR ME after native permission denial shows HTML prompt again', async ({ page }) => {
-    // Mock geolocation to fail with PERMISSION_DENIED
+    // Mock geolocation to fail with PERMISSION_DENIED (simulates prior browser-level denial)
     await page.addInitScript(() => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition = (_success: any, error: any, _options: any) => {
@@ -314,29 +318,23 @@ test.describe('Near Me Geolocation UX', () => {
 
     await page.goto('/');
 
-    // Dismiss custom prompt first so we can click near-me
-    const dismissBtn = page.locator('#location-dismiss-btn');
-    await expect(dismissBtn).toBeVisible();
-    await dismissBtn.click();
-
-    // Clear the dismissed state before first click so it directly queries native geolocation
-    await page.evaluate(() => {
-      sessionStorage.removeItem('agbalumo_geo_dismissed');
-    });
-
     const nearMeBtn = page.getByTestId('ag-home-near-me-btn');
-    await expect(nearMeBtn).toBeVisible();
     await nearMeBtn.click();
 
-
-    // Near me button should enter denied state
-    await expect(nearMeBtn).toContainText('Denied');
-
-    // Click near-me button again after denial
-    await nearMeBtn.click();
-
-    // It should show the HTML permission prompt again
+    // First NEAR ME surfaces the app explainer; ALLOW will hit the mocked denial
     const prompt = page.getByTestId('location-permission-prompt');
+    await expect(prompt).toBeVisible();
+
+    // Click allow (will fail due to mock) → prompt hides; denial recorded in localStorage.
+    const allowBtn = page.getByTestId('location-permission-allow');
+    await allowBtn.click();
+
+    await expect(prompt).not.toBeVisible();
+    await expect(nearMeBtn).toBeEnabled();
+
+    // Re-clicking NEAR ME after denial must still surface the HTML explainer (user can retry).
+    // This is the explicit-ask + new-tab denial respect contract.
+    await nearMeBtn.click();
     await expect(prompt).toBeVisible();
   });
 });

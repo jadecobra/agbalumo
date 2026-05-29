@@ -2,11 +2,6 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Create Listing Sensory Signals Toggling', () => {
   test.beforeEach(async ({ page }) => {
-    // Dismiss location permission prompt automatically
-    await page.addInitScript(() => {
-      window.sessionStorage.setItem('agbalumo_geo_dismissed', 'true');
-    });
-
     // Login as developer to allow opening the post modal
     await page.goto('/auth/dev');
     await page.waitForURL('/');

@@ -1,5 +1,5 @@
 (function() {
-    const STORAGE_KEY = 'agbalumo_geo_dismissed';
+    const DENIED_KEY = 'agbalumo_geo_denied';
     const PROMPT_ID = 'location-permission-prompt';
     const ALLOW_BTN_ID = 'location-allow-btn';
     const DISMISS_BTN_ID = 'location-dismiss-btn';
@@ -11,47 +11,29 @@
 
         if (!prompt || !allowBtn || !dismissBtn) return;
 
-        // Check for existing permission
-        if (navigator.permissions && navigator.permissions.query) {
-            navigator.permissions.query({ name: 'geolocation' }).then(result => {
-                if (result.state === 'granted') {
-                    // Auto-trigger if already granted
-                    triggerGeolocation(true);
-                } else if (result.state === 'prompt') {
-                    if (!sessionStorage.getItem(STORAGE_KEY)) {
-                        setTimeout(() => {
-                            prompt.classList.remove('hidden');
-                        }, 500);
-                    }
-                }
-            });
-        } else if (!sessionStorage.getItem(STORAGE_KEY)) {
-            // Fallback for browsers that don't support permissions.query
-            setTimeout(() => {
-                prompt.classList.remove('hidden');
-            }, 500);
-        }
+        // No auto-show or auto-trigger on load. Per spec:
+        // - User must click NEAR ME (no spam).
+        // - App must explicitly surface its own modal before any geolocation request.
+        // - Only explicit ALLOW click ever calls getCurrentPosition.
+        // - Denial persists in localStorage so new tabs respect it (no silent geo).
 
-        function triggerGeolocation(silent = false) {
+        function triggerGeolocation() {
             if ("geolocation" in navigator) {
                 const startTime = Date.now();
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        if (!silent) hidePrompt();
-                        sessionStorage.setItem(STORAGE_KEY, 'true');
-                        
+                        hidePrompt();
+                        localStorage.removeItem(DENIED_KEY);
+
                         const lat = position.coords.latitude;
                         const lng = position.coords.longitude;
 
-                        // Save coordinates in sessionStorage for coordination
                         sessionStorage.setItem('agbalumo_lat', lat);
                         sessionStorage.setItem('agbalumo_lng', lng);
-                        
-                        // Try to sync/update Near Me button if active on page
+
                         if (typeof applyActiveState === 'function') {
                             applyActiveState();
                         } else {
-                            // Find and update the Near Me button styling/text directly as a fallback/sync
                             const nearMeBtn = document.getElementById('near-me-btn');
                             if (nearMeBtn) {
                                 const ACTIVE_CLASSES = ['bg-earth-ochre/20', 'text-earth-ochre', 'hover:bg-earth-ochre/30', 'border-earth-ochre/50'];
@@ -66,22 +48,21 @@
                                 if (icon) icon.classList.remove('hidden');
                             }
                         }
-                        
+
                         if (window.htmx) {
                             const urlParams = new URLSearchParams(window.location.search);
-                            const values = { 
-                                lat: lat, 
-                                lng: lng, 
+                            const values = {
+                                lat: lat,
+                                lng: lng,
                                 radius: window.filterState?.radius || '10',
-                                start_ts: startTime 
+                                start_ts: startTime
                             };
-                            // Preserve existing query params like limit, type, and search queries
                             for (const [key, val] of urlParams.entries()) {
                                 if (!(key in values)) {
                                     values[key] = val;
                                 }
                             }
-                            
+
                             htmx.ajax('GET', '/listings/fragment', {
                                 values: values,
                                 target: '#listings-container',
@@ -90,21 +71,19 @@
                         }
                     },
                     (error) => {
-                        if (!silent) {
-                            console.warn("Location access denied or failed:", error);
-                            hidePrompt();
-                        }
-                        sessionStorage.setItem(STORAGE_KEY, 'true');
+                        console.warn("Location access denied or failed:", error);
+                        hidePrompt();
+                        localStorage.setItem(DENIED_KEY, 'true');
                     }
                 );
             }
         }
 
-        allowBtn.addEventListener('click', () => triggerGeolocation(false));
+        allowBtn.addEventListener('click', () => triggerGeolocation());
 
         dismissBtn.addEventListener('click', () => {
             hidePrompt();
-            sessionStorage.setItem(STORAGE_KEY, 'true');
+            localStorage.setItem(DENIED_KEY, 'true');
         });
     }
 
@@ -112,14 +91,12 @@
         const prompt = document.getElementById(PROMPT_ID);
         if (prompt) {
             prompt.classList.add('animate-out', 'fade-out');
-            // Wait for animation to finish before adding hidden
             setTimeout(() => {
                 prompt.classList.add('hidden');
             }, 500);
         }
     }
 
-    // Initialize on DOM load
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {

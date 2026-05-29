@@ -12,11 +12,6 @@ test.describe('UX Constraint: Ada Journey', () => {
   test('Ada should find and view a listing in under 60 seconds', async ({ page }) => {
     const startTime = Date.now();
 
-    // Prevent location prompt from overlaying and blocking cards on mobile
-    await page.addInitScript(() => {
-      window.sessionStorage.setItem('agbalumo_geo_dismissed', 'true');
-    });
-
     // 1. Landing on the site
     // We wait for networkidle to ensure initial assets are loaded
     await page.goto('/');
@@ -81,10 +76,6 @@ test.describe('UX Constraint: Ada Journey', () => {
 
   test('Ada should open profile modal (after dev login) showing posted and saved listings', async ({ page }) => {
     // Repro for: clicking profile avatar does nothing (no modal, no posted/saved content)
-    // Uses same geo-dismiss + timing patterns as the main Ada journey.
-    await page.addInitScript(() => {
-      window.sessionStorage.setItem('agbalumo_geo_dismissed', 'true');
-    });
 
     // Dev login (simulates Ada authenticated; sets session cookie + redirects)
     await page.goto('/auth/dev');

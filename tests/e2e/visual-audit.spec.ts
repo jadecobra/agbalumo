@@ -205,7 +205,7 @@ test.describe('Visual Audit', () => {
     // Wait for modal
     const modal = page.locator('dialog[open]');
     await expect(modal).toBeVisible();
-    await expect(modal.locator('h2').first()).toContainText('Post');
+    await expect(modal.locator('h2').first()).toContainText('Add');
     
     // Verify some key fields exist
     await expect(page.locator('input[name="title"]')).toBeVisible();

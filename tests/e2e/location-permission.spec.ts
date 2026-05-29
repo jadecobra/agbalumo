@@ -25,7 +25,7 @@ test.describe('Location Permission Prompt', () => {
     await page.goto('/');
   });
 
-  test('should display the location permission prompt on home load', async ({ page }) => {
+  test('should not display the location permission prompt on home load (user must click NEAR ME first)', async ({ page }) => {
     const state = await page.evaluate(async () => {
       try {
         const res = await navigator.permissions.query({ name: 'geolocation' });
@@ -37,36 +37,49 @@ test.describe('Location Permission Prompt', () => {
     console.log('=== GEOLOCATION PERMISSION STATE ===:', state);
 
     const prompt = page.getByTestId('location-permission-prompt');
-    await expect(prompt).toBeVisible({ timeout: 10000 });
+    await expect(prompt).not.toBeVisible();
+
+    // Per spec: explicit user action (NEAR ME) is required to surface the app's permission explainer
+    const nearMeBtn = page.getByTestId('ag-home-near-me-btn');
+    await nearMeBtn.click();
+
+    await expect(prompt).toBeVisible({ timeout: 5000 });
     await expect(prompt).toContainText('Allow location to instantly show African owned spots');
   });
 
-  test('should dismiss the prompt when clicking dismiss', async ({ page }) => {
+  test('should dismiss the prompt when clicking dismiss (and denial persists for new tab / reload)', async ({ page }) => {
+    const nearMeBtn = page.getByTestId('ag-home-near-me-btn');
+    await nearMeBtn.click();
+
     const prompt = page.getByTestId('location-permission-prompt');
-    await expect(prompt).toBeVisible({ timeout: 15000 });
-    
-    // Wait for JS delay (1500ms) + animation (500ms) + buffer
-    await page.waitForTimeout(3000);
+    await expect(prompt).toBeVisible({ timeout: 5000 });
 
     await page.evaluate(() => {
         const btn = document.getElementById('location-dismiss-btn');
         if (btn) btn.click();
     });
-    
+
     await expect(prompt).not.toBeVisible();
-    
-    // Verify persistence
+
+    // Denial is now in localStorage; reload (simulates new tab in some scenarios) must not auto-show
     await page.reload();
     await expect(prompt).not.toBeVisible();
+
+    // But explicit NEAR ME click still surfaces the explainer (user can change mind)
+    await nearMeBtn.click();
+    await expect(prompt).toBeVisible();
   });
 
   test('should trigger geolocation when clicking allow', async ({ page }) => {
+    const nearMeBtn = page.getByTestId('ag-home-near-me-btn');
+    await nearMeBtn.click();
+
     const prompt = page.getByTestId('location-permission-prompt');
-    await expect(prompt).toBeVisible({ timeout: 15000 });
+    await expect(prompt).toBeVisible({ timeout: 5000 });
 
     const allowBtn = page.getByTestId('location-permission-allow');
-    
-    // Mock geolocation
+
+    // Mock geolocation success
     await page.addInitScript(() => {
       const mockGeolocation = {
         getCurrentPosition: (success: any) => {
@@ -81,15 +94,11 @@ test.describe('Location Permission Prompt', () => {
       (navigator as any).geolocation = mockGeolocation;
     });
 
-    // Wait for JS delay (1500ms) + animation (500ms) + buffer
-    await page.waitForTimeout(3000);
-    
     await page.evaluate(() => {
         const btn = document.getElementById('location-allow-btn');
         if (btn) btn.click();
     });
-    
-    // The prompt should hide after allowing
+
     await expect(prompt).not.toBeVisible();
   });
 });

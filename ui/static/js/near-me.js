@@ -73,7 +73,6 @@
                 sessionStorage.removeItem('agbalumo_lng');
                 applyDefaultState();
 
-                // Clean up URL query parameters in address bar
                 if (history.replaceState) {
                     const url = new URL(window.location.href);
                     url.searchParams.delete('lat');
@@ -99,88 +98,28 @@
                 return;
             }
 
-            // If the HTML permission prompt was dismissed or native permission was previously denied,
-            // show the custom HTML permission prompt again.
+            // Per clarified spec:
+            // - User must click NEAR ME to initiate any location request (no load-time spam).
+            // - App must explicitly ask via its own modal before any geolocation call.
+            // - Only explicit click on ALLOW LOCATION (in the modal) ever triggers the native permission prompt + getCurrentPosition.
+            // - Denial (dismiss or native error) lives in localStorage so new tabs / reloads respect it.
+            //
+            // Therefore: when inactive, NEAR ME click *always* surfaces the custom permission explainer modal.
+            // The modal's ALLOW handler (geolocation.js) owns the actual geo call and success side-effects.
             const prompt = document.getElementById('location-permission-prompt');
-            const isCurrentlyDenied = text && text.textContent && text.textContent.includes('Denied');
-            if (prompt && (sessionStorage.getItem('agbalumo_geo_dismissed') === 'true' || isCurrentlyDenied)) {
-                sessionStorage.removeItem('agbalumo_geo_dismissed');
+            if (prompt) {
+                // If button is in transient "Denied - tap to retry" state from a prior failed attempt in this session,
+                // clear it so the user sees the clean explainer again.
+                if (text && text.textContent && text.textContent.includes('Denied')) {
+                    applyDefaultState();
+                }
                 prompt.classList.remove('hidden', 'animate-out', 'fade-out');
-                applyDefaultState();
                 return;
             }
 
-            // Clear any legacy dismissed state before a fresh gesture attempt.
-            // This gives the browser the cleanest chance to show the native prompt on re-click after denial.
-            sessionStorage.removeItem('agbalumo_geo_dismissed');
-
-            // Show loading state
-            clickBtn.disabled = true;
-            if (icon) icon.classList.add('hidden');
-            if (spinner) spinner.classList.remove('hidden');
-            if (text) text.textContent = 'Locating...';
-
-            if ("geolocation" in navigator) {
-                navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-
-                        sessionStorage.setItem('agbalumo_lat', lat);
-                        sessionStorage.setItem('agbalumo_lng', lng);
-
-                        applyActiveState();
-
-                        if (window.htmx) {
-                            const urlParams = new URLSearchParams(window.location.search);
-                            const values = {
-                                lat: lat,
-                                lng: lng,
-                                radius: window.filterState?.radius || '10'
-                            };
-                            for (const [key, val] of urlParams.entries()) {
-                                if (!(key in values)) {
-                                    values[key] = val;
-                                }
-                            }
-                            htmx.ajax('GET', '/listings/fragment', {
-                                values: values,
-                                target: '#listings-container',
-                                swap: 'innerHTML'
-                            });
-                        }
-                    },
-                    function(error) {
-                        const isDenied = error.code === 1 || error.code === error.PERMISSION_DENIED;
-                        let errMsg = 'Error: Unavailable';
-                        if (isDenied) {
-                            errMsg = 'Denied - tap to retry';
-                        }
-                        if (text) text.textContent = errMsg;
-                        if (spinner) spinner.classList.add('hidden');
-
-                        // Re-enable immediately so a follow-up click is a clean user gesture
-                        // (gives the browser the best chance to re-show the native prompt).
-                        clickBtn.disabled = false;
-
-                        if (!isDenied) {
-                            // Transient errors (timeout/unavailable) can flash and reset.
-                            setTimeout(function() {
-                                applyDefaultState();
-                            }, 2000);
-                        }
-                        // For denial: leave the button enabled in a retryable state.
-                        // Next click will attempt getCurrentPosition again (fresh gesture).
-                    },
-                    { enableHighAccuracy: false, timeout: 15000, maximumAge: 30000 }
-                );
-            } else {
-                if (text) text.textContent = 'Error: Unsupported';
-                if (spinner) spinner.classList.add('hidden');
-                setTimeout(function() {
-                    applyDefaultState();
-                }, 2000);
-            }
+            // Fallback (modal element missing — should never happen as it is rendered server-side).
+            // Do nothing rather than silently geolocate.
+            return;
         });
     }
 
