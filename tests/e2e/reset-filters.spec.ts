@@ -14,6 +14,7 @@ test.describe('Reset Filters UX', () => {
 
     const panel = page.locator('#filter-dropdown-panel');
     await expect(panel).toBeVisible();
+    await page.waitForTimeout(500);
 
     const foodCategoryBtn = page.getByTestId('ag-filter-category-food');
     await expect(foodCategoryBtn).toBeVisible();
@@ -71,6 +72,7 @@ test.describe('Reset Filters UX', () => {
 
     const panel = page.locator('#filter-dropdown-panel');
     await expect(panel).toBeVisible();
+    await page.waitForTimeout(500);
 
     // 2. Click the Event category (which should have 0 listings by default)
     const eventCategoryBtn = page.getByTestId('ag-filter-category-Event');
