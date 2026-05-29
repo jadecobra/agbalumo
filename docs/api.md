@@ -133,6 +133,7 @@ Requires admin role and session authentication.
 | POST | `/admin/claims/:id/approve` | Approve claim request |
 | POST | `/admin/claims/:id/reject` | Reject claim request |
 | POST | `/admin/listings/:id/featured` | Toggle featured (`featured=true/false`) |
+| POST | `/admin/listings/:id/unassign` | Unassign owner from listing |
 | POST | `/admin/listings/bulk` | Bulk action (approve|reject|delete) |
 | GET | `/admin/listings/delete-confirm` | Delete confirmation (query param `id`) |
 | POST | `/admin/listings/delete` | Delete listings (`admin_code` required) |

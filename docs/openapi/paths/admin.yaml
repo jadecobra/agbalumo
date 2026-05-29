@@ -182,6 +182,28 @@ listings_featured:
       '400':
         description: Bad request
 
+listings_unassign:
+  post:
+    summary: Unassign owner
+    description: Clears ownership from a listing (admin action)
+    tags:
+      - Admin
+    security:
+      - CookieAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Success
+      '400':
+        description: Bad request
+      '302':
+        description: Redirect to login
+
 listings_bulk:
   post:
     summary: Bulk action

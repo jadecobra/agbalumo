@@ -152,6 +152,9 @@ paths:
   /admin/listings/{id}/featured:
     $ref: './openapi/paths/admin.yaml#/listings_featured'
 
+  /admin/listings/{id}/unassign:
+    $ref: './openapi/paths/admin.yaml#/listings_unassign'
+
   /admin/listings/bulk:
     $ref: './openapi/paths/admin.yaml#/listings_bulk'
 
