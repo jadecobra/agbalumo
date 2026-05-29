@@ -24,6 +24,10 @@ test.describe('Owner Claim Flow', () => {
     return `claimer-${projectName.toLowerCase()}@agbalumo.com`;
   }
 
+  function projectListingTitle(projectName: string): string {
+    return projectName === 'Mobile' ? 'Lagos Import Export' : 'Accra Market Square';
+  }
+
   test('anonymous user clicking claim redirects to login', async ({ page }) => {
     await page.goto('/');
     
@@ -123,7 +127,10 @@ test.describe('Owner Claim Flow', () => {
     await expect(pendingText).toBeVisible({ timeout: 10000 });
   });
   
-  test('admin can see claim request and unassign ownership from dashboard', async ({ page }) => {
+  test('admin can see claim request and unassign ownership from dashboard', async ({ page }, testInfo) => {
+    const email = projectClaimerEmail(testInfo.project.name);
+    const title = projectListingTitle(testInfo.project.name);
+
     // 1. Authenticate as admin via dev login + access code promoter
     await page.goto('/auth/dev?email=admin@agbalumo.com');
     await page.waitForURL('/');
@@ -152,10 +159,16 @@ test.describe('Owner Claim Flow', () => {
     const moderationModal = page.locator('#moderationModal');
     await expect(moderationModal).toBeVisible({ timeout: 10000 });
     
-    // Click approve button inside moderation queue modal
-    const approveBtn = page.locator('[data-testid^="approve-claim-"]').first();
+    // Locate the specific row for our project's claimer email
+    const row = page.locator('tr', { hasText: email });
+    await expect(row).toBeVisible({ timeout: 10000 });
+    
+    const approveBtn = row.locator('[data-testid^="approve-claim-"]');
     await expect(approveBtn).toBeVisible({ timeout: 10000 });
     await approveBtn.click();
+    
+    // Wait for our project's claim row to disappear from the DOM (HTMX finished)
+    await expect(row).toBeHidden({ timeout: 10000 });
     
     // Close moderation modal
     const closeBtn = page.locator('#admin-modal-container button[aria-label="Close"]').first();
@@ -168,8 +181,11 @@ test.describe('Owner Claim Flow', () => {
     const table = page.locator('table');
     await expect(table).toBeVisible();
     
-    // Locate the first unassign button (rendered now that the claim is approved!)
-    const unassignBtn = page.locator('[data-testid^="ag-listing-unassign-btn-"]').first();
+    // Locate the unassign button specifically in the row for our listing title
+    const listingRow = page.locator('tr', { hasText: title });
+    await expect(listingRow).toBeVisible({ timeout: 10000 });
+    
+    const unassignBtn = listingRow.locator('[data-testid^="ag-listing-unassign-btn-"]');
     await expect(unassignBtn).toBeVisible({ timeout: 15000 });
     
     // Setup handling for the confirm dialog
@@ -182,7 +198,7 @@ test.describe('Owner Claim Flow', () => {
     await unassignBtn.click();
     
     // Verify HTMX swaps the row and it now says "UNOWNED"
-    const unownedLabel = page.locator('span:has-text("UNOWNED")').first();
+    const unownedLabel = listingRow.locator('span:has-text("UNOWNED")').first();
     await expect(unownedLabel).toBeVisible({ timeout: 10000 });
   });
 });
