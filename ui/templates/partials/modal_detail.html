@@ -51,10 +51,10 @@
 
         <!-- Scrollable Content -->
         <div class="p-6 overflow-y-auto bg-white dark:bg-surface-dark flex-1">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                 
                 <!-- Left Column: Core Info & Details -->
-                <div class="space-y-6">
+                <div class="space-y-3">
                     <!-- Location & Origin Row -->
                     <div class="flex flex-wrap items-start justify-between gap-4 pb-4 border-b border-stone-100 dark:border-stone-800">
                         <!-- Address / Map Link -->
@@ -182,7 +182,7 @@
 
                     <!-- Hours of Operation -->
                     {{ if .Listing.HoursOfOperation }}
-                    <div class="flex items-center gap-3 p-4 bg-stone-50 dark:bg-earth-cream/5 border border-stone-200 dark:border-white/10 text-sm mt-6">
+                    <div class="flex items-center gap-3 p-2 bg-stone-50 dark:bg-earth-cream/5 border border-stone-200 dark:border-white/10 text-sm">
                         <span class="material-symbols-outlined text-xl text-earth-clay dark:text-earth-accent">schedule</span>
                         <span class="font-bold text-text-main dark:text-earth-cream">{{ .Listing.HoursOfOperation }}</span>
                     </div>
@@ -190,12 +190,12 @@
                 </div>
 
                 <!-- Right Column: Interactive CTAs & Contacts -->
-                <div class="space-y-6">
+                <div class="space-y-3">
                     <!-- Primary CTA (View Menu) -->
                     {{ if .Listing.MenuURL }}
                     <div id="cta-block">
                         <a href="{{ .Listing.MenuURL }}" target="_blank" data-ada-discovery="menu"
-                            class="w-full flex items-center justify-center gap-2 py-4 bg-earth-clay hover:bg-earth-clay-dark active:bg-earth-clay text-white font-bold text-xs capitalize tracking-wide transition-all shadow-sm rounded-none">
+                            class="w-full flex items-center justify-center gap-2 py-3 bg-earth-clay hover:bg-earth-clay-dark active:bg-earth-clay text-white font-bold text-xs capitalize tracking-wide transition-all shadow-sm rounded-none">
                             <span class="material-symbols-outlined">restaurant_menu</span>
                             Menu
                         </a>
@@ -206,7 +206,7 @@
                     {{ if .Listing.JobApplyURL }}
                     <div id="apply-block">
                         <a href="{{ .Listing.JobApplyURL }}" target="_blank" data-ada-discovery="apply"
-                            class="w-full flex items-center justify-center gap-2 py-4 bg-earth-clay hover:bg-earth-clay-dark active:bg-earth-clay text-white font-bold text-xs capitalize tracking-wide transition-all shadow-sm rounded-none">
+                            class="w-full flex items-center justify-center gap-2 py-3 bg-earth-clay hover:bg-earth-clay-dark active:bg-earth-clay text-white font-bold text-xs capitalize tracking-wide transition-all shadow-sm rounded-none">
                             <span class="material-symbols-outlined">rocket_launch</span>
                             Apply Now
                         </a>
@@ -215,7 +215,7 @@
 
                     <!-- Order Delivery Block -->
                     {{ if or (hasDelivery .Listing.DeliveryPlatforms "UberEats") (hasDelivery .Listing.DeliveryPlatforms "DoorDash") (hasDelivery .Listing.DeliveryPlatforms "Grubhub") }}
-                    <div id="delivery-block" class="p-4 bg-stone-50 dark:bg-earth-cream/5 border border-stone-200 dark:border-white/10">
+                    <div id="delivery-block" class="p-2 bg-stone-50 dark:bg-earth-cream/5 border border-stone-200 dark:border-white/10">
                         <h3 class="font-bold text-text-main dark:text-earth-cream mb-3 text-xs capitalize tracking-wider">Order Delivery</h3>
                         <div class="flex flex-wrap gap-2.5">
                             {{ if hasDelivery .Listing.DeliveryPlatforms "UberEats" }}
@@ -244,7 +244,7 @@
                     <div class="flex flex-col gap-3">
                         {{ if .Listing.ContactWhatsApp }}
                         <a href="https://wa.me/{{ .Listing.ContactWhatsApp }}" target="_blank" data-ada-discovery="whatsapp"
-                            class="w-full flex items-center justify-center gap-2 py-4 bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
+                            class="w-full flex items-center justify-center gap-2 py-2 bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
                             <span class="material-symbols-outlined text-[18px]">chat</span>
                             <span class="font-bold text-xs capitalize tracking-wider">WhatsApp</span>
                         </a>
@@ -252,7 +252,7 @@
 
                         {{ if .Listing.ContactPhone }}
                         <a href="tel:{{ .Listing.ContactPhone }}" data-ada-discovery="phone"
-                            class="w-full flex items-center justify-center gap-2 py-4 bg-stone-50 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
+                            class="w-full flex items-center justify-center gap-2 py-2 bg-stone-50 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
                             <span class="material-symbols-outlined text-[18px]">call</span>
                             <span class="font-bold text-xs capitalize tracking-wider">Call</span>
                         </a>
@@ -261,7 +261,7 @@
                         {{ if not (eq .Listing.Type "Food") }}
                         {{ if .Listing.ContactEmail }}
                         <a href="mailto:{{ .Listing.ContactEmail }}" data-ada-discovery="email"
-                            class="w-full flex items-center justify-center gap-2 py-4 bg-stone-50 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
+                            class="w-full flex items-center justify-center gap-2 py-2 bg-stone-50 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
                             <span class="material-symbols-outlined text-[18px]">mail</span>
                             <span class="font-bold text-xs capitalize tracking-wider">Email</span>
                         </a>
@@ -270,7 +270,7 @@
 
                         {{ if .Listing.WebsiteURL }}
                         <a href="{{ .Listing.WebsiteURL }}" target="_blank" data-ada-discovery="website"
-                            class="w-full flex items-center justify-center gap-2 py-4 bg-stone-50 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
+                            class="w-full flex items-center justify-center gap-2 py-2 bg-stone-50 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
                             <span class="material-symbols-outlined text-[18px]">language</span>
                             <span class="font-bold text-xs capitalize tracking-wider">Website</span>
                         </a>
