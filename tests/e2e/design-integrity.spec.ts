@@ -74,6 +74,7 @@ test.describe('Design Integrity & Cohesion', () => {
 
   test('icon containers should not have borders', async ({ page }) => {
     // 1. Verified / Poster Origin Flag Badge in Detail Modal (old location permission prompt check removed)
+    await page.goto('/');
     const firstCard = page.locator('[data-testid="ag-listing-card"]').first();
     await firstCard.locator('button[hx-get^="/listings/"]').click();
     const modal = page.locator('dialog[open]');
