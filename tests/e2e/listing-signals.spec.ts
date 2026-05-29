@@ -24,10 +24,10 @@ test.describe('Create Listing Sensory Signals Toggling', () => {
     const modal = page.locator('dialog[id="create-listing-modal"]');
     await expect(modal).toBeVisible();
 
-    // Verify initial state: dropdown shows Food (the default)
+    // Verify initial state: dropdown shows Food/Restaurant (the default)
     const dropdownBtn = modal.locator('#listing-type-btn');
     await expect(dropdownBtn).toBeVisible();
-    await expect(dropdownBtn).toHaveText(/Food/);
+    await expect(dropdownBtn).toHaveText(/Food\/Restaurant/i);
 
     // Verify that the sensory signals container (the gray bar) is VISIBLE initially
     const adaSignalsContainer = modal.locator('[data-agent-template="listing_form_ada_signals"]');
@@ -50,12 +50,12 @@ test.describe('Create Listing Sensory Signals Toggling', () => {
     await businessOption.click();
 
     // Dropdown text should update to Business
-    await expect(dropdownBtn).toHaveText(/Business/);
+    await expect(dropdownBtn).toHaveText(/Business/i);
 
     // Verify container is hidden
     await expect(adaSignalsContainer).toBeHidden();
 
-    // Change back to Food
+    // Change back to Food/Restaurant
     await dropdownBtn.click();
     const foodOption = modal.locator('[data-dropdown-value="Food"]');
     await expect(foodOption).toBeVisible();

@@ -86,7 +86,8 @@ func TestListingFormDefaultType(t *testing.T) {
 	assert.NoError(t, err)
 
 	html := buf.String()
-	// Should default to "Food" instead of "Business"
+	// Should default to "Food" value but show "Food/Restaurant" label
 	assert.Contains(t, html, `value="Food"`)
-	assert.Contains(t, html, `<span class="dropdown-display pointer-events-none">Food</span>`)
+	assert.Contains(t, html, `<span class="dropdown-display pointer-events-none">Food/Restaurant</span>`)
+	assert.Contains(t, html, `Food/Restaurant`)
 }
