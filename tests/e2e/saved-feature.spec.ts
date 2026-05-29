@@ -157,4 +157,80 @@ test.describe('Saved/Favorites Feature', () => {
     // The ID in the DOM is listing-{uuid}
     await expect(page.locator(`#listing-${listingId}`)).toBeVisible();
   });
+
+  test('listing cards show heart button in saved listing view and clicking it removes it', async ({ page }, testInfo) => {
+    const isMobile = testInfo.project.name === 'Mobile';
+    
+    // Auth
+    const response = await page.goto('/auth/dev');
+    expect(response?.status()).toBe(200);
+
+    // Ensure listings exist
+    const listings = page.getByTestId('ag-listing-card');
+    await page.locator('#listings-container').waitFor({ state: 'attached', timeout: 10000 });
+    const count = await listings.count();
+    test.skip(count === 0, 'No listings in dev DB');
+
+    // Save a listing
+    const firstListing = listings.first();
+    
+    // Parse listing ID from hx-get in overlay
+    const overlay = firstListing.locator('button[hx-get^="/listings/"]').first();
+    const hxGet = await overlay.getAttribute('hx-get');
+    const listingId = hxGet?.split('/').pop();
+    
+    test.skip(!listingId, 'Could not determine listing ID');
+    test.skip(isMobile, 'Saving from card not supported on mobile in this test');
+
+    const heart = firstListing.locator('[data-testid="ag-save-btn"]:visible').first();
+    const isSaved = await heart.evaluate(el => el.classList.contains('text-red-500'));
+    if (!isSaved) {
+        const savePromise = page.waitForResponse(res => 
+            res.url().includes('/save') && res.request().method() === 'POST' && res.status() === 200
+        );
+        await heart.click();
+        await savePromise;
+        await expect(firstListing.locator('[data-testid="ag-save-btn"]:visible').first()).toHaveClass(/text-red-500/);
+    }
+
+    // Click nav heart
+    const navBtn = page.getByTestId(isMobile ? 'ag-nav-saved-btn-mobile' : 'ag-nav-saved-btn');
+    await expect(navBtn).toBeVisible();
+    
+    const savedListPromise = page.waitForResponse(res => 
+      res.url().includes('/saved') && res.status() === 200
+    );
+    await navBtn.click();
+    await savedListPromise;
+
+    // Verify card is visible in saved view
+    const savedCard = page.locator(`#listing-${listingId}`);
+    await expect(savedCard).toBeVisible();
+
+    // Verify heart button is visible on card in saved listing view and is red (saved)
+    const savedCardHeart = savedCard.locator('[data-testid="ag-save-btn"]:visible').first();
+    await expect(savedCardHeart).toBeVisible();
+    await expect(savedCardHeart).toHaveClass(/text-red-500/);
+
+    // Click heart to remove from saved list
+    const removePromise = page.waitForResponse(res => 
+        res.url().includes('/save') && res.request().method() === 'POST' && res.status() === 200
+    );
+    await savedCardHeart.click();
+    await removePromise;
+
+    // Verify it toggles to unsaved state (text-stone-400)
+    await expect(savedCardHeart).toHaveClass(/text-stone-400/);
+
+    // Refresh saved view and verify the listing is no longer listed
+    const refreshPromise = page.waitForResponse(res => 
+      res.url().includes('/saved') && res.status() === 200
+    );
+    await navBtn.click();
+    await refreshPromise;
+
+    // The card should no longer be visible in the saved listings container
+    await expect(savedCard).not.toBeVisible();
+  });
 });
+
