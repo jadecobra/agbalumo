@@ -44,9 +44,22 @@
         {{ if .EnrichmentAttemptedAt }}{{ .EnrichmentAttemptedAt.Format "Jan 02, 2006" }}{{ else }}-{{ end }}
     </td>
     <td class="px-6 py-4 text-[10px] font-bold text-earth-cream/50 truncate max-w-[150px] capitalize tracking-[0.1em]">
-        {{ if .OwnerID }}{{ .OwnerID }}{{ else }}<span class="italic text-earth-cream/30 tracking-[0.2em]">UNOWNED</span>{{
-        end
-        }}
+        {{ if .OwnerID }}
+        <div class="flex items-center justify-between gap-1">
+            <span class="truncate max-w-20" title="{{ .OwnerID }}">{{ .OwnerID }}</span>
+            <button hx-post="/admin/listings/{{ .ID }}/unassign" 
+                data-testid="ag-listing-unassign-btn-{{ .ID }}"
+                hx-target="closest tr" 
+                hx-swap="outerHTML" 
+                hx-confirm="Are you sure you want to unassign this listing's ownership?"
+                hx-indicator="this"
+                class="text-red-500 hover:text-red-400 font-bold tracking-widest hover:underline ml-2 uppercase text-xs bg-red-500/10 hover:bg-red-500/20 px-1.5 py-0.5 inline-flex items-center transition-all">
+                Unassign
+            </button>
+        </div>
+        {{ else }}
+        <span class="italic text-earth-cream/30 tracking-[0.2em]">UNOWNED</span>
+        {{ end }}
     </td>
     <td class="px-6 py-4 whitespace-nowrap text-center">
         <button hx-post="/admin/listings/{{ .ID }}/featured" data-testid="ag-listing-feature-btn-{{ .ID }}"

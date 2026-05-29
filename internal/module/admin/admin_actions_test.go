@@ -135,3 +135,33 @@ func TestAdminHandler_HandleListingRow(t *testing.T) {
 	_ = h.HandleListingRow(c)
 	assert.Equal(t, http.StatusOK, rec.Code)
 }
+
+func TestAdminHandler_HandleUnassignOwner(t *testing.T) {
+	t.Parallel()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
+
+	c, rec := testutil.SetupAdminContext(http.MethodPost, "/admin/listings/1/unassign", nil)
+	c.SetParamNames("id")
+	c.SetParamValues("1")
+
+	// Seed listing with owner
+	_ = env.App.DB.Save(context.Background(), domain.Listing{
+		ID:      "1",
+		Title:   "Owned Listing",
+		OwnerID: "user_owner",
+	})
+
+	err := h.HandleUnassignOwner(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
+
+	// Verify database state
+	l, err := env.App.DB.FindByID(context.Background(), "1")
+	assert.NoError(t, err)
+	assert.Equal(t, "", l.OwnerID)
+
+	// Verify it rendered the table row HTML snippet
+	assert.Contains(t, rec.Body.String(), "listing-row-1")
+}

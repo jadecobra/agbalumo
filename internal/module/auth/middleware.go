@@ -48,6 +48,10 @@ func (m *AuthMiddleware) RequireAuth(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		if !authSuccess {
+			if c.Request().Header.Get("HX-Request") == "true" {
+				c.Response().Header().Set("HX-Redirect", "/auth/google/login")
+				return c.NoContent(http.StatusOK)
+			}
 			// Redirect to Google Login
 			return c.Redirect(http.StatusTemporaryRedirect, "/auth/google/login")
 		}

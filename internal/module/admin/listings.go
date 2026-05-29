@@ -122,3 +122,26 @@ func (h *AdminHandler) validateFeaturedLimit(ctx context.Context, listing domain
 	}
 	return nil
 }
+
+// HandleUnassignOwner clears a listing's ownership (sets OwnerID to empty).
+func (h *AdminHandler) HandleUnassignOwner(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return ui.RespondJSONError(c, http.StatusBadRequest, "Listing ID is required")
+	}
+
+	ctx := c.Request().Context()
+
+	listing, err := h.App.DB.FindByID(ctx, id)
+	if err != nil {
+		return ui.RespondError(c, err)
+	}
+
+	listing.OwnerID = ""
+
+	if err := h.App.DB.Save(ctx, listing); err != nil {
+		return ui.RespondError(c, err)
+	}
+
+	return h.renderListingRow(c, listing)
+}

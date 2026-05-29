@@ -56,6 +56,7 @@ func (h *AdminHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddleware
 	adminGroup.GET("/listings/delete-confirm", h.HandleAdminDeleteView)
 	adminGroup.POST("/listings/delete", h.HandleAdminDeleteAction)
 	adminGroup.POST("/listings/:id/featured", h.HandleToggleFeatured)
+	adminGroup.POST("/listings/:id/unassign", h.HandleUnassignOwner)
 	adminGroup.POST("/upload", h.HandleBulkUpload)
 	adminGroup.GET("/listings/export", h.HandleExportListings)
 	adminGroup.POST("/categories", h.HandleAddCategory)

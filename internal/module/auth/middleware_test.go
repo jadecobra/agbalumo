@@ -40,6 +40,32 @@ func TestAuthMiddleware_RequireAuth_Redirect(t *testing.T) {
 	assert.Equal(t, "/auth/google/login", rec.Header().Get("Location"))
 }
 
+func TestAuthMiddleware_RequireAuth_HTMX_Redirect(t *testing.T) {
+	t.Parallel()
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/protected", nil)
+	req.Header.Set("HX-Request", "true")
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	store := sessions.NewCookieStore([]byte("secret"))
+	sess, _ := store.Get(req, "session-name")
+	c.Set("session", sess)
+
+	repo := testutil.SetupTestRepository(t)
+	authMw := auth.NewAuthMiddleware(repo)
+
+	handlerFunc := authMw.RequireAuth(func(c echo.Context) error {
+		return c.String(http.StatusOK, "Success")
+	})
+
+	err := handlerFunc(c)
+
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "/auth/google/login", rec.Header().Get("HX-Redirect"))
+}
+
 func TestAuthMiddleware_RequireAuth_Success(t *testing.T) {
 	t.Parallel()
 	e := echo.New()
