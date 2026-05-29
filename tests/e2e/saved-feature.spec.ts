@@ -82,7 +82,7 @@ test.describe('Saved/Favorites Feature', () => {
         );
         await heart.click();
         await responsePromise;
-        await expect(firstListing.locator('[data-testid="ag-save-btn"]:visible').first()).toHaveClass(/text-stone-400/);
+        await expect(firstListing.locator('[data-testid="ag-save-btn"]:visible').first()).toHaveClass(/text-white/);
     }
     
     // Click heart to save
@@ -103,8 +103,8 @@ test.describe('Saved/Favorites Feature', () => {
     await firstListing.locator('[data-testid="ag-save-btn"]:visible').first().click();
     await unsavePromise;
     
-    // Assert toggled back (text-stone-400 for unsaved)
-    await expect(firstListing.locator('[data-testid="ag-save-btn"]:visible').first()).toHaveClass(/text-stone-400/);
+    // Assert toggled back (text-white for unsaved)
+    await expect(firstListing.locator('[data-testid="ag-save-btn"]:visible').first()).toHaveClass(/text-white/);
   });
 
   test('saved nav button filters to saved listings', async ({ page }, testInfo) => {
@@ -219,8 +219,8 @@ test.describe('Saved/Favorites Feature', () => {
     await savedCardHeart.click();
     await removePromise;
 
-    // Verify it toggles to unsaved state (text-stone-400)
-    await expect(savedCardHeart).toHaveClass(/text-stone-400/);
+    // Verify it toggles to unsaved state (text-white)
+    await expect(savedCardHeart).toHaveClass(/text-white/);
 
     // Refresh saved view and verify the listing is no longer listed
     const refreshPromise = page.waitForResponse(res => 
@@ -295,8 +295,8 @@ test.describe('Saved/Favorites Feature', () => {
     await modalSavedCardHeart.click();
     await removePromise;
 
-    // 5. Verify the heart button updates to unsaved state (text-stone-400)
-    await expect(modalSavedCardHeart).toHaveClass(/text-stone-400/);
+    // 5. Verify the heart button updates to unsaved state (text-white)
+    await expect(modalSavedCardHeart).toHaveClass(/text-white/);
 
     // 6. Close the profile modal and reopen to verify the listing card is gone
     const closeBtn = modal.locator('button[aria-label="Close"]').first();
