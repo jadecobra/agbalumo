@@ -3,7 +3,7 @@ function initEditTypeToggle(listingId) {
     var form = document.querySelector('#edit-listing-modal-' + listingId + ' form');
     if (!form) return;
 
-    var typeSelect = form.querySelector('select[name="type"]');
+    var typeSelect = form.querySelector('select[name="type"], input[name="type"]');
     var eventSection = document.getElementById('edit-event-dates-section-' + listingId);
     var requestSection = document.getElementById('edit-request-section-' + listingId);
     var jobSection = document.getElementById('edit-job-section-' + listingId);
@@ -80,6 +80,28 @@ function initEditTypeToggle(listingId) {
                     regionalInput.value = '';
                     regionalInput.disabled = true;
                 }
+            }
+        }
+
+        // Description Placeholder Logic
+        var descriptionInput = form.querySelector('#listing-description');
+        if (descriptionInput) {
+            if (val === 'Food') {
+                descriptionInput.placeholder = 'Tell us about your restaurant...';
+            } else if (val === 'Business') {
+                descriptionInput.placeholder = 'Tell us about your business...';
+            } else if (val === 'Event') {
+                descriptionInput.placeholder = 'Tell us about your event...';
+            } else if (val === 'Service') {
+                descriptionInput.placeholder = 'Tell us about your service...';
+            } else if (val === 'Product') {
+                descriptionInput.placeholder = 'Tell us about your product...';
+            } else if (val === 'Job') {
+                descriptionInput.placeholder = 'Tell us about your job...';
+            } else if (val === 'Request') {
+                descriptionInput.placeholder = 'Tell us about your request...';
+            } else {
+                descriptionInput.placeholder = 'Tell us about your listing...';
             }
         }
     }

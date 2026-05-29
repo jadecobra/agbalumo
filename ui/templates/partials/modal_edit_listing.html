@@ -25,7 +25,7 @@
             {{ template "listing_form_ada_signals" dict "HeatLevel" .Listing.HeatLevel "RegionalSpecialty" .Listing.RegionalSpecialty "Type" .Listing.Type }}
 
             <!-- Description -->
-            {{ template "listing_form_description" dict "Value" .Listing.Description }}
+            {{ template "listing_form_description" dict "Value" .Listing.Description "Type" .Listing.Type }}
 
             <!-- Request Deadline (Hidden by default unless Request) -->
             <div id="edit-request-section-{{.Listing.ID}}" class="flex flex-col gap-1.5 hidden">

@@ -48,6 +48,7 @@ function toggleListingFields(typeSelect) {
     const hoursSection = modal.querySelector('#hours-section');
     const locationLabel = modal.querySelector('#location-label');
     const descriptionLabel = modal.querySelector('#description-label');
+    const descriptionInput = modal.querySelector('#listing-description');
     const addressInput = modal.querySelector('#create-address-input');
     const adaSignalsContainer = modal.querySelector('#ada-signals-container');
 
@@ -151,6 +152,27 @@ function toggleListingFields(typeSelect) {
                 regionalInput.value = '';
                 regionalInput.disabled = true;
             }
+        }
+    }
+
+    // Description Placeholder Logic
+    if (descriptionInput) {
+        if (val === 'Food') {
+            descriptionInput.placeholder = 'Tell us about your restaurant...';
+        } else if (val === 'Business') {
+            descriptionInput.placeholder = 'Tell us about your business...';
+        } else if (val === 'Event') {
+            descriptionInput.placeholder = 'Tell us about your event...';
+        } else if (val === 'Service') {
+            descriptionInput.placeholder = 'Tell us about your service...';
+        } else if (val === 'Product') {
+            descriptionInput.placeholder = 'Tell us about your product...';
+        } else if (val === 'Job') {
+            descriptionInput.placeholder = 'Tell us about your job...';
+        } else if (val === 'Request') {
+            descriptionInput.placeholder = 'Tell us about your request...';
+        } else {
+            descriptionInput.placeholder = 'Tell us about your listing...';
         }
     }
 }

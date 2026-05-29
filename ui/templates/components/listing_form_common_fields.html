@@ -13,10 +13,20 @@
 {{ end }}
 
 {{ define "listing_form_description" }}
+{{ $type := "" }}{{ if . }}{{ if index . "Type" }}{{ $type = index . "Type" }}{{ end }}{{ end }}
+{{ $placeholder := "Tell us about your listing..." }}
+{{ if eq $type "Food" }}{{ $placeholder = "Tell us about your restaurant..." }}
+{{ else if eq $type "Business" }}{{ $placeholder = "Tell us about your business..." }}
+{{ else if eq $type "Event" }}{{ $placeholder = "Tell us about your event..." }}
+{{ else if eq $type "Service" }}{{ $placeholder = "Tell us about your service..." }}
+{{ else if eq $type "Product" }}{{ $placeholder = "Tell us about your product..." }}
+{{ else if eq $type "Job" }}{{ $placeholder = "Tell us about your job..." }}
+{{ else if eq $type "Request" }}{{ $placeholder = "Tell us about your request..." }}
+{{ end }}
 <div class="flex flex-col gap-1.5">
-    <label for="listing-description" class="text-[10px] font-bold capitalize tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Description</label>
+    <label for="listing-description" id="description-label" class="text-[10px] font-bold capitalize tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Description</label>
     <div class="bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 p-1 flex items-center" data-agent-template="listing_form_description">
-        <textarea id="listing-description" required name="description" rows="3" placeholder="Tell us about your listing..."
+        <textarea id="listing-description" required name="description" rows="3" placeholder="{{ $placeholder }}"
             data-testid="ag-listing-form-description"
             aria-required="true"
             aria-describedby="listing-description-error"

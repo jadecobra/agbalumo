@@ -160,7 +160,7 @@ var TemplateMockRegistry = map[string]interface{}{
 		"Hours":            "9-5",
 	},
 	"listing_form_title":       map[string]interface{}{"Value": "Test"},
-	"listing_form_description": map[string]interface{}{"Value": "Test"},
+	"listing_form_description": map[string]interface{}{"Value": "Test", "Type": ""},
 	"listing_form_ada_signals": mockListing,
 	"listing_form_location": map[string]interface{}{
 		"IDPrefix":         "test-",
