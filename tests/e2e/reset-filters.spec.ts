@@ -27,7 +27,10 @@ test.describe('Reset Filters UX', () => {
     
     // We'll type something completely random that has 0 results
     await searchInput.fill('xyzabc123nonexistent');
-    await searchInput.press('Enter');
+    await Promise.all([
+      page.waitForResponse(resp => resp.url().includes('/listings/fragment') && resp.status() === 200),
+      searchInput.press('Enter')
+    ]);
 
     // Wait for the View All Listings button to be visible
     const viewAllLink = page.getByTestId('view-all-listings-link');
@@ -38,7 +41,6 @@ test.describe('Reset Filters UX', () => {
       page.waitForRequest(req => req.url().includes('/listings/fragment')),
       viewAllLink.click()
     ]);
-
     const url = new URL(request.url());
     expect(url.searchParams.get('type')).toBe('All');
 
@@ -66,7 +68,10 @@ test.describe('Reset Filters UX', () => {
     // 2. Click the Event category (which should have 0 listings by default)
     const eventCategoryBtn = page.getByTestId('ag-filter-category-Event');
     await expect(eventCategoryBtn).toBeVisible();
-    await eventCategoryBtn.click();
+    await Promise.all([
+      page.waitForResponse(resp => resp.url().includes('/listings/fragment') && resp.status() === 200),
+      eventCategoryBtn.click()
+    ]);
 
     // Verify filterState type is Event
     let filterState = await page.evaluate(() => (window as any).filterState);
@@ -142,7 +147,10 @@ test.describe('Reset Filters UX', () => {
     await expect(searchInput).toBeVisible();
     await searchInput.focus();
     await searchInput.fill('xyzabc123nonexistent');
-    await searchInput.press('Enter');
+    await Promise.all([
+      page.waitForResponse(resp => resp.url().includes('/listings/fragment') && resp.status() === 200),
+      searchInput.press('Enter')
+    ]);
 
     // Wait for the Reset All Filters button to be visible
     const viewAllLink = page.getByTestId('view-all-listings-link');
