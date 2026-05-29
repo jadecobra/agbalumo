@@ -42,11 +42,12 @@
         </div>
         <span id="listing-heat-level-desc" class="text-[10px] text-text-sub dark:text-earth-cream/70 ml-1">0 = No heat, 5 = Extra spicy</span>
     </div>
-    <div class="flex flex-col gap-1.5">
+    <div class="flex flex-col gap-1.5{{ if not $isFood }} hidden{{ end }}" id="regional-specialty-container">
         <label for="listing-regional-specialty" class="text-[10px] font-bold capitalize tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Regional Specialty</label>
         <div class="bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 p-1 flex items-center">
             <input id="listing-regional-specialty" name="regional_specialty" type="text" value="{{ $regionalSpecialty }}" placeholder="e.g. Yoruba"
                 data-testid="ag-listing-form-regional-specialty"
+                {{ if not $isFood }}disabled{{ end }}
                 class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-text-main dark:text-white font-light text-base outline-none transition-all placeholder:text-text-sub/70 dark:placeholder:text-earth-cream/70">
         </div>
     </div>

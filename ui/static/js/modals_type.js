@@ -76,6 +76,22 @@ function initEditTypeToggle(listingId) {
                 }
             }
         }
+
+        // Regional Specialty Logic (Food only)
+        var regionalSpecialtyContainer = form.querySelector('#regional-specialty-container');
+        if (regionalSpecialtyContainer) {
+            var regionalInput = regionalSpecialtyContainer.querySelector('input[name="regional_specialty"]');
+            if (val === 'Food') {
+                regionalSpecialtyContainer.classList.remove('hidden');
+                if (regionalInput) regionalInput.disabled = false;
+            } else {
+                regionalSpecialtyContainer.classList.add('hidden');
+                if (regionalInput) {
+                    regionalInput.value = '';
+                    regionalInput.disabled = true;
+                }
+            }
+        }
     }
 
     if (typeSelect) {

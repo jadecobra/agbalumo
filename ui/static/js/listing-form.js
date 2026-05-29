@@ -50,6 +50,7 @@ function toggleListingFields(typeSelect) {
     const descriptionLabel = modal.querySelector('#description-label');
     const addressInput = modal.querySelector('#create-address-input');
     const heatLevelContainer = modal.querySelector('#heat-level-container');
+    const regionalSpecialtyContainer = modal.querySelector('#regional-specialty-container');
 
     const val = typeSelect.value;
 
@@ -144,6 +145,21 @@ function toggleListingFields(typeSelect) {
             if (heatInput) {
                 heatInput.value = '0';
                 heatInput.disabled = true;
+            }
+        }
+    }
+
+    // Regional Specialty Logic
+    if (regionalSpecialtyContainer) {
+        const regionalInput = regionalSpecialtyContainer.querySelector('input[name="regional_specialty"]');
+        if (val === 'Food') {
+            regionalSpecialtyContainer.classList.remove('hidden');
+            if (regionalInput) regionalInput.disabled = false;
+        } else {
+            regionalSpecialtyContainer.classList.add('hidden');
+            if (regionalInput) {
+                regionalInput.value = '';
+                regionalInput.disabled = true;
             }
         }
     }
