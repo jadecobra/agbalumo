@@ -64,4 +64,34 @@ test.describe('Create Listing Sensory Signals Toggling', () => {
     // Verify container is visible again
     await expect(adaSignalsContainer).toBeVisible();
   });
+
+  test('should change description placeholder depending on category selection', async ({ page }) => {
+    // Open the post modal
+    const postBtn = page.locator('[data-testid="ag-nav-post-btn-desktop"], [data-testid="ag-nav-post-btn-mobile"]').filter({ visible: true }).first();
+    await expect(postBtn).toBeVisible();
+    await postBtn.click();
+
+    const modal = page.locator('dialog[id="create-listing-modal"]');
+    await expect(modal).toBeVisible();
+
+    const descriptionInput = modal.locator('textarea[name="description"]');
+    await expect(descriptionInput).toBeVisible();
+
+    // Default selection: Food -> "Tell us about your restaurant..."
+    await expect(descriptionInput).toHaveAttribute('placeholder', 'Tell us about your restaurant...');
+
+    const dropdownBtn = modal.locator('#listing-type-btn');
+
+    // Change to Business -> "Tell us about your business..."
+    await dropdownBtn.click();
+    const businessOption = modal.locator('[data-dropdown-value="Business"]');
+    await businessOption.click();
+    await expect(descriptionInput).toHaveAttribute('placeholder', 'Tell us about your business...');
+
+    // Change to Event -> "Tell us about your event..."
+    await dropdownBtn.click();
+    const eventOption = modal.locator('[data-dropdown-value="Event"]');
+    await eventOption.click();
+    await expect(descriptionInput).toHaveAttribute('placeholder', 'Tell us about your event...');
+  });
 });
