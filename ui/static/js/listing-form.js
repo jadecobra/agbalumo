@@ -27,7 +27,7 @@ function setupCreateImagePreviewInit() {
 // We attach this to document because the modal is inserted dynamically or exists statically but hidden.
 function setupListingModalDelegation() {
     document.addEventListener('change', (event) => {
-        if (event.target.matches('#create-listing-modal select[name="type"], #create-listing-modal input[name="type"]')) {
+        if (event.target.name === 'type') {
             toggleListingFields(event.target);
         }
     });
