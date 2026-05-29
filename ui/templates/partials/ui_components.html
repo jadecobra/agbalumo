@@ -230,37 +230,3 @@
 </button>
 {{ end }}
 
-{{ define "location_permission_prompt" }}
-<!-- props:
--->
-<div id="location-permission-prompt" data-testid="location-permission-prompt" 
-    class="hidden fixed bottom-24 left-4 right-4 md:bottom-8 md:right-8 md:left-auto md:max-w-sm z-[60] animate-in slide-in-from-bottom-10 duration-500">
-    <div class="bg-earth-cream dark:bg-earth-dark/95 backdrop-blur-xl border-2 border-earth-ochre p-6 shadow-[8px_8px_0px_0px_rgba(212,163,115,0.2)]">
-        <div class="flex flex-col gap-4">
-            <div class="flex items-start justify-between gap-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-earth-accent/20 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-earth-accent text-[24px]">location_on</span>
-                    </div>
-                    <h3 class="font-serif italic text-xl text-text-main dark:text-earth-cream">Near you?</h3>
-                </div>
-                <button type="button" data-testid="location-permission-dismiss" id="location-dismiss-btn"
-                    class="text-text-sub dark:text-earth-cream/50 hover:text-text-main dark:hover:text-white transition-colors w-11 h-11 flex items-center justify-center -mr-3 -mt-3">
-                    <span class="material-symbols-outlined text-[20px]">close</span>
-                </button>
-            </div>
-            
-            <p class="text-sm text-text-main dark:text-earth-cream/90 leading-relaxed font-display">
-                Allow location to instantly show African owned spots within 10 miles of you — no typing needed.
-            </p>
-            
-            <div class="flex flex-col sm:flex-row gap-3 mt-2">
-                <button type="button" data-testid="location-permission-allow" id="location-allow-btn"
-                    class="flex-1 bg-earth-accent hover:bg-earth-accent/90 text-earth-dark font-bold uppercase text-[10px] tracking-[0.2em] py-4 transition-all active:scale-95 border border-white/10">
-                    ALLOW LOCATION
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-{{ end }}

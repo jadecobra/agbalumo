@@ -73,13 +73,7 @@ test.describe('Design Integrity & Cohesion', () => {
   });
 
   test('icon containers should not have borders', async ({ page }) => {
-    // 1. Location Permission Prompt Icon Container
-    await page.goto('/');
-    const promptIcon = page.locator('[data-testid="location-permission-prompt"] .bg-earth-accent\\/20');
-    const promptClassList = await promptIcon.evaluate(el => el.className);
-    expect(promptClassList).not.toContain('border');
-
-    // 2. Verified / Poster Origin Flag Badge in Detail Modal
+    // 1. Verified / Poster Origin Flag Badge in Detail Modal (old location permission prompt check removed)
     const firstCard = page.locator('[data-testid="ag-listing-card"]').first();
     await firstCard.locator('button[hx-get^="/listings/"]').click();
     const modal = page.locator('dialog[open]');

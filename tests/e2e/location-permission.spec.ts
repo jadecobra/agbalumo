@@ -1,6 +1,10 @@
+// Deprecated: The custom location permission modal has been removed from the product.
+// Geolocation is now requested directly on load and on NEAR ME clicks.
+// This entire test file is obsolete and kept only as a stub.
+
 import { test, expect } from '@playwright/test';
 
-test.describe('Location Permission Prompt', () => {
+test.describe.skip('Location Permission Prompt (DEPRECATED - custom modal removed)', () => {
   test.beforeEach(async ({ page }) => {
     // Log browser messages for debugging
     page.on('console', msg => {

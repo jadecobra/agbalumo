@@ -3,8 +3,7 @@
 {{ define "title" }}agbalumo: find what you want{{ end }}
 
 {{ define "extra_scripts" }}
-<script src="/static/js/geolocation.js?v=5" defer></script>
-<script src="/static/js/near-me.js?v=6" defer></script>
+<script src="/static/js/near-me.js?v=9" defer></script>
 {{ end }}
 {{ define "content" }}
 
@@ -14,6 +13,4 @@
     {{ template "home_listings_section" . }}
 
 </div>
-
-{{ template "location_permission_prompt" . }}
 {{ end }}
