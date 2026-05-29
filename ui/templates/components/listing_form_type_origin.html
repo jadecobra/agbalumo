@@ -3,13 +3,13 @@
 <div class="flex flex-col gap-1.5 z-20">
     <label id="listing-type-label" for="listing-type-btn" class="text-[10px] font-bold uppercase tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Type</label>
     <div class="custom-dropdown relative w-full z-10">
-        <input id="listing-type" type="hidden" name="type" value="{{ if .SelectedType }}{{ .SelectedType }}{{ else }}Business{{ end }}" required>
+        <input id="listing-type" type="hidden" name="type" value="{{ if .SelectedType }}{{ .SelectedType }}{{ else }}Food{{ end }}" required>
         <button id="listing-type-btn" type="button" data-dropdown-toggle
             aria-haspopup="listbox"
             aria-expanded="false"
             aria-labelledby="listing-type-label"
             class="w-full bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 px-4 py-3 h-12 flex justify-between items-center text-text-main dark:text-white font-light text-base outline-none transition-all placeholder:text-text-sub/70 dark:placeholder:text-earth-cream/70 cursor-pointer">
-            <span class="dropdown-display pointer-events-none">{{ if .SelectedType }}{{ .SelectedType }}{{ else }}Business{{ end }}</span>
+            <span class="dropdown-display pointer-events-none">{{ if .SelectedType }}{{ .SelectedType }}{{ else }}Food{{ end }}</span>
             <span class="material-symbols-outlined text-[20px] text-text-sub/70 dark:text-earth-cream/70 pointer-events-none">expand_more</span>
         </button>
         <div class="dropdown-menu hidden absolute top-full left-0 w-full mt-1 bg-earth-sand border-[3px] border-earth-ochre text-earth-dark shadow-2xl z-50 max-h-60 overflow-y-auto"

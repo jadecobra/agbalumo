@@ -1,9 +1,12 @@
 package listing
 
 import (
+	"bytes"
+	"html/template"
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -57,4 +60,33 @@ func TestParseJobStartDate(t *testing.T) {
 	req.JobStartDate = testInvalid
 	err = parseJobStartDate(req, l)
 	assert.Error(t, err)
+}
+
+func TestListingFormDefaultType(t *testing.T) {
+	t.Parallel()
+	renderer, err := ui.NewTemplateRenderer("../../../ui/templates/*.html")
+	assert.NoError(t, err)
+
+	tmpl := template.New("listing_form_type_origin.html").Funcs(renderer.GetFuncMap())
+	_, err = tmpl.ParseFiles(
+		"../../../ui/templates/components/listing_form_type_origin.html",
+		"../../../ui/templates/components/custom_country_options.html",
+	)
+	assert.NoError(t, err)
+
+	var buf bytes.Buffer
+	data := map[string]interface{}{
+		"Categories": []domain.CategoryData{
+			{Name: "Food"},
+			{Name: "Business"},
+		},
+		"SelectedType": "",
+	}
+	err = tmpl.ExecuteTemplate(&buf, "listing_form_type_origin", data)
+	assert.NoError(t, err)
+
+	html := buf.String()
+	// Should default to "Food" instead of "Business"
+	assert.Contains(t, html, `value="Food"`)
+	assert.Contains(t, html, `<span class="dropdown-display pointer-events-none">Food</span>`)
 }
