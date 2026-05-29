@@ -86,12 +86,24 @@ test.describe('Reset Filters UX', () => {
     let filterState = await page.evaluate(() => (window as any).filterState);
     expect(filterState.type).toBe('Event');
 
-    // 3. Wait for the View All Listings button to be visible in the empty state
+    // 3. Force guaranteed 0 results via nonsense query (survives the category fallback at listing.go:195).
+    // Pure category empty state is intentionally bypassed when global results exist (see geolisting_filter_fallback_test.go:68).
+    // Query forces the empty partial (listing_list.html:63-106) + reset link on any seed/geoloc/CI state.
+    // Uses waitForResponse (no fixed timeout) per coding-standards + checkpoint Solution A.
+    const searchInput = page.getByTestId('ag-home-search-input');
+    await expect(searchInput).toBeVisible();
+    await searchInput.focus();
+    await searchInput.fill('xyzabc123nonexistent');
+    await Promise.all([
+      page.waitForResponse(resp => resp.url().includes('/listings/fragment') && resp.status() === 200),
+      searchInput.press('Enter')
+    ]);
+
+    // 4. Wait for the View All Listings button (now reliable — empty state is forced)
     const viewAllLink = page.getByTestId('view-all-listings-link');
     await expect(viewAllLink).toBeVisible({ timeout: 10000 });
 
-    // 4. Click "View All Listings" and intercept request
-    await page.waitForTimeout(500);
+    // 5. Click "View All Listings" and intercept request (no timeout; prior response + Playwright auto-wait)
     const [request] = await Promise.all([
       page.waitForRequest(req => req.url().includes('/listings/fragment')),
       viewAllLink.click()
@@ -100,14 +112,13 @@ test.describe('Reset Filters UX', () => {
     const url = new URL(request.url());
     expect(url.searchParams.get('type')).toBe('All');
 
-    // 5. Assert filterState has been reset
+    // 6. Assert filterState has been reset
     filterState = await page.evaluate(() => (window as any).filterState);
     expect(filterState.type).toBe('All');
     expect(filterState.city).toBe('');
     expect(filterState.radius).toBe('25');
 
-    // 6. Assert UI inputs are cleared
-    const searchInput = page.getByTestId('ag-home-search-input');
+    // 7. Assert UI inputs are cleared (searchInput already declared above)
     const searchInputValue = await searchInput.inputValue();
     expect(searchInputValue).toBe('');
 
