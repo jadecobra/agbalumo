@@ -62,6 +62,62 @@ func (h *ListingHandler) resolveCoordinates(ctx context.Context, params *queryPa
 	return 0, 0
 }
 
+type homeData struct {
+	listings   []domain.Listing
+	featured   []domain.Listing
+	locations  []domain.Location
+	savedIDs   []string
+	totalCount int
+}
+
+func (h *ListingHandler) fetchHomeData(ctx context.Context, c echo.Context, params *queryParams, lat, lng float64, limit, offset int) (homeData, error, error, error) {
+	var (
+		data         homeData
+		listingsErr  error
+		featuredErr  error
+		locationsErr error
+		wg           sync.WaitGroup
+	)
+
+	wg.Add(3)
+	go func() {
+		defer wg.Done()
+		data.listings, data.totalCount, listingsErr = h.App.DB.FindAll(ctx, params.Type, params.Query, params.City, lat, lng, params.Radius, "", "", false, limit, offset)
+	}()
+	go func() {
+		defer wg.Done()
+		data.featured, featuredErr = h.App.DB.GetFeaturedListings(ctx, string(domain.Food), "")
+	}()
+	go func() {
+		defer wg.Done()
+		data.locations, locationsErr = h.App.DB.GetLocations(ctx)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		data.savedIDs = h.getSavedIDs(c)
+	}()
+
+	wg.Wait()
+	return data, listingsErr, featuredErr, locationsErr
+}
+
+func resolveRadius(lat, lng float64, city string, requestedRadius float64) float64 {
+	if (lat != 0 && lng != 0) || city != "" {
+		return requestedRadius
+	}
+	return 0
+}
+
+func (h *ListingHandler) resolveHomeListings(ctx context.Context, category string, query string, city string, lat, lng float64, radius float64, limit, offset int, initialListings []domain.Listing, initialCount int) ([]domain.Listing, int, string, error) {
+	if initialCount == 0 && category != "" {
+		listings, totalCount, err := h.App.DB.FindAll(ctx, "", query, city, lat, lng, radius, "", "", false, limit, offset)
+		return listings, totalCount, "", err
+	}
+	return initialListings, initialCount, category, nil
+}
+
 // Home Handler
 func (h *ListingHandler) HandleHome(c echo.Context) error {
 	ctx := c.Request().Context()
@@ -71,74 +127,37 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	params := h.parseQueryParams(c)
 	lat, lng := h.resolveCoordinates(ctx, &params)
 
-	var (
-		listings  []domain.Listing
-		featured  []domain.Listing
-		locations []domain.Location
-		savedIDs  []string
-
-		listingsErr  error
-		featuredErr  error
-		locationsErr error
-
-		wg sync.WaitGroup
-	)
-
-	var totalCount int
-	wg.Add(3)
-	go func() {
-		defer wg.Done()
-		listings, totalCount, listingsErr = h.App.DB.FindAll(ctx, params.Type, params.Query, params.City, lat, lng, params.Radius, "", "", false, limit, p.Offset)
-	}()
-	go func() {
-		defer wg.Done()
-		featured, featuredErr = h.App.DB.GetFeaturedListings(ctx, string(domain.Food), "")
-	}()
-	go func() {
-		defer wg.Done()
-		locations, locationsErr = h.App.DB.GetLocations(ctx)
-	}()
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		savedIDs = h.getSavedIDs(c)
-	}()
-
-	wg.Wait()
-
+	data, listingsErr, featuredErr, locationsErr := h.fetchHomeData(ctx, c, &params, lat, lng, limit, p.Offset)
 	if listingsErr != nil {
 		return ui.RespondError(c, listingsErr)
 	}
 
-	if totalCount == 0 && params.Type != "" {
-		listings, totalCount, listingsErr = h.App.DB.FindAll(ctx, "", params.Query, params.City, lat, lng, params.Radius, "", "", false, limit, p.Offset)
-		if listingsErr != nil {
-			return ui.RespondError(c, listingsErr)
-		}
-		params.Type = ""
+	listings, totalCount, newType, fallbackErr := h.resolveHomeListings(ctx, params.Type, params.Query, params.City, lat, lng, params.Radius, limit, p.Offset, data.listings, data.totalCount)
+	if fallbackErr != nil {
+		return ui.RespondError(c, fallbackErr)
 	}
+	params.Type = newType
 
 	h.LogError(c, "failed to get featured listings", featuredErr)
 	h.LogError(c, "failed to get locations", locationsErr)
 
 	h.processListings(listings)
-	h.processListings(featured)
+	h.processListings(data.featured)
 
 	var fallbackCity string
 	if locationsErr == nil {
-		listings, totalCount, fallbackCity = h.resolveFallback(ctx, totalCount, lat, lng, locations, listings, &params)
+		listings, totalCount, fallbackCity = h.resolveFallback(ctx, totalCount, lat, lng, data.locations, listings, &params)
 	}
 
 	savedMap := make(map[string]bool)
-	for _, id := range savedIDs {
+	for _, id := range data.savedIDs {
 		savedMap[id] = true
 	}
 
 	vm := HomeViewModel{
 		BaseViewData: h.PopulateBase(c),
 		Listings:     listings,
-		Featured:     featured,
+		Featured:     data.featured,
 		SavedIDs:     savedMap,
 		City:         params.City,
 		FilterType:   params.Type,
@@ -150,13 +169,8 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 			HasNextPage: p.Offset+len(listings) < totalCount,
 			TotalCount:  totalCount,
 		},
-		Locations: locations,
-		Radius: func() float64 {
-			if (lat != 0 && lng != 0) || params.City != "" {
-				return params.Radius
-			}
-			return 0
-		}(),
+		Locations:        data.locations,
+		Radius:           resolveRadius(lat, lng, params.City, params.Radius),
 		UserLat:          lat,
 		UserLng:          lng,
 		GoogleMapsApiKey: h.App.Cfg.GoogleMapsAPIKey,
@@ -172,24 +186,34 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 	return h.RenderTyped(c, domain.TemplateIndex, vm)
 }
 
+func (h *ListingHandler) fetchFragmentListings(ctx context.Context, params *queryParams, limit, offset int) ([]domain.Listing, int, error) {
+	listings, totalCount, err := h.App.DB.FindAll(ctx, params.Type, params.Query, params.City, params.Lat, params.Lng, params.Radius, "", "", false, limit, offset)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	if totalCount == 0 && params.Type != "" {
+		listings, totalCount, err = h.App.DB.FindAll(ctx, "", params.Query, params.City, params.Lat, params.Lng, params.Radius, "", "", false, limit, offset)
+		if err != nil {
+			return nil, 0, err
+		}
+		params.Type = ""
+	}
+	return listings, totalCount, nil
+}
+
 // Fragment Handler (HTMX)
 func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	params := h.parseQueryParams(c)
 	p := GetPagination(c, 30)
 
 	lat, lng := h.resolveCoordinates(c.Request().Context(), &params)
+	params.Lat = lat
+	params.Lng = lng
 
-	listings, totalCount, err := h.App.DB.FindAll(c.Request().Context(), params.Type, params.Query, params.City, lat, lng, params.Radius, "", "", false, p.Limit, p.Offset)
+	listings, totalCount, err := h.fetchFragmentListings(c.Request().Context(), &params, p.Limit, p.Offset)
 	if err != nil {
 		return ui.RespondErrorMsg(c, http.StatusInternalServerError, err.Error())
-	}
-
-	if totalCount == 0 && params.Type != "" {
-		listings, totalCount, err = h.App.DB.FindAll(c.Request().Context(), "", params.Query, params.City, lat, lng, params.Radius, "", "", false, p.Limit, p.Offset)
-		if err != nil {
-			return ui.RespondErrorMsg(c, http.StatusInternalServerError, err.Error())
-		}
-		params.Type = ""
 	}
 
 	var featured []domain.Listing
@@ -212,6 +236,11 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 		savedMap[id] = true
 	}
 
+	radius := 0.0
+	if (lat != 0 && lng != 0) || params.City != "" {
+		radius = params.Radius
+	}
+
 	vm := ListingFragmentViewModel{
 		Listings:   listings,
 		Featured:   featured,
@@ -219,14 +248,9 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 		Query:      params.Query,
 		City:       params.City,
 		FilterType: params.Type,
-		Radius: func() float64 {
-			if (lat != 0 && lng != 0) || params.City != "" {
-				return params.Radius
-			}
-			return 0
-		}(),
-		UserLat: lat,
-		UserLng: lng,
+		Radius:     radius,
+		UserLat:    lat,
+		UserLng:    lng,
 		Pagination: Pagination{
 			Page:        p.Page,
 			Limit:       p.Limit,
