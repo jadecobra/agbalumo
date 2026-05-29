@@ -175,5 +175,36 @@ test.describe('Design Integrity & Cohesion', () => {
       expect(fallbackClassList).toContain('rounded-none');
     }
   });
+
+  test('post buttons should match listing card action button styling', async ({ page }) => {
+    await page.goto('/auth/dev');
+    await page.goto('/');
+
+    // 1. Desktop Nav Post Button (if visible)
+    const navPostBtn = page.locator('[data-testid="ag-nav-post-btn-desktop"]');
+    if (await navPostBtn.isVisible()) {
+      const navPostBtnClasses = await navPostBtn.evaluate(el => el.className);
+      expect(navPostBtnClasses).toContain('bg-earth-clay');
+      expect(navPostBtnClasses).toContain('text-white');
+      expect(navPostBtnClasses).toContain('capitalize');
+      await navPostBtn.click();
+    } else {
+      // On mobile, trigger the modal via mobile post button
+      const mobilePostBtn = page.locator('[data-testid="ag-nav-post-btn-mobile"]');
+      await expect(mobilePostBtn).toBeVisible();
+      await mobilePostBtn.click();
+    }
+
+    // 2. Submit Button inside Create Listing Modal
+    const modal = page.locator('dialog[open]');
+    await expect(modal).toBeVisible();
+    const submitBtn = modal.locator('#create-listing-submit');
+    await expect(submitBtn).toBeVisible();
+    const submitBtnClasses = await submitBtn.evaluate(el => el.className);
+    expect(submitBtnClasses).toContain('bg-earth-clay');
+    expect(submitBtnClasses).toContain('text-white');
+    expect(submitBtnClasses).toContain('capitalize');
+  });
 });
+
 
