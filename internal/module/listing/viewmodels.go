@@ -10,8 +10,8 @@ type SaveButtonViewModel struct {
 	ListingID      string
 	Classes        string
 	TextColorClass string
-	IsSaved        bool
 	IDPrefix       string
+	IsSaved        bool
 	OOB            bool
 }
 

@@ -9,6 +9,21 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+func (h *ListingHandler) toggleSaveState(c echo.Context, userID, listingID string, saved bool) error {
+	ctx := c.Request().Context()
+	if saved {
+		return h.App.DB.UnsaveListing(ctx, userID, listingID)
+	}
+	return h.App.DB.SaveListing(ctx, userID, listingID)
+}
+
+func getSaveButtonStyles(prefix string) (string, string) {
+	if prefix == "detail-" {
+		return "relative transition-all duration-200", "text-white hover:text-red-400"
+	}
+	return "absolute top-2 right-2 z-30 transition-all duration-200 rounded-none", "text-white hover:text-red-400"
+}
+
 func (h *ListingHandler) HandleSaveToggle(c echo.Context) error {
 	u, err := user.RequireUserAPI(c)
 	if err != nil {
@@ -22,12 +37,7 @@ func (h *ListingHandler) HandleSaveToggle(c echo.Context) error {
 		return ui.RespondError(c, err)
 	}
 
-	if saved {
-		err = h.App.DB.UnsaveListing(ctx, u.ID, id)
-	} else {
-		err = h.App.DB.SaveListing(ctx, u.ID, id)
-	}
-	if err != nil {
+	if err = h.toggleSaveState(c, u.ID, id, saved); err != nil {
 		return ui.RespondError(c, err)
 	}
 
@@ -38,23 +48,14 @@ func (h *ListingHandler) HandleSaveToggle(c echo.Context) error {
 
 	prefixes := []string{"", "fallback-", "modal-", "modal-saved-", "detail-"}
 	for _, prefix := range prefixes {
-		var classes, textColorClass string
-		if prefix == "detail-" {
-			classes = "relative transition-all duration-200"
-			textColorClass = "text-white hover:text-red-400"
-		} else {
-			classes = "absolute top-2 right-2 z-30 transition-all duration-200 rounded-none"
-			textColorClass = "text-white hover:text-red-400"
-		}
-
-		isClicked := prefix == clickedPrefix
+		classes, textColorClass := getSaveButtonStyles(prefix)
 		vm := SaveButtonViewModel{
 			ListingID:      id,
-			IsSaved:        !saved,
 			Classes:        classes,
 			TextColorClass: textColorClass,
 			IDPrefix:       prefix,
-			OOB:            !isClicked,
+			IsSaved:        !saved,
+			OOB:            prefix != clickedPrefix,
 		}
 
 		if err := c.Echo().Renderer.Render(c.Response().Writer, "save_button", vm, c); err != nil {
