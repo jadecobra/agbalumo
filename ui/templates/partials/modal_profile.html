@@ -42,8 +42,10 @@
             <!-- Action Buttons Row — stacked on mobile, side-by-side on sm+ -->
             <div class="flex flex-col sm:flex-row gap-2 w-full">
                 <button hx-on:click="openModal('create-listing-modal'); closeModal('profile-modal')"
-                    class="flex-1 flex items-center justify-center gap-2 px-4 h-11 md:h-10 bg-earth-clay hover:bg-earth-clay-dark active:bg-earth-clay text-white font-bold transition-all shadow-sm text-xs capitalize tracking-wide">
-                    Post
+                    class="flex-1 flex items-center justify-center gap-2 px-4 h-11 md:h-10 bg-earth-clay hover:bg-earth-clay-dark active:bg-earth-clay text-white font-bold transition-all shadow-sm text-xs capitalize tracking-wide"
+                    aria-label="Add">
+                    <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                    Add
                 </button>
                 <button hx-get="/feedback/modal" hx-target="body" hx-swap="beforeend" data-testid="profile-feedback-btn"
                     hx-on:click="closeModal('profile-modal')"
@@ -87,11 +89,11 @@
                         <span class="material-symbols-outlined text-2xl">post_add</span>
                     </div>
                     <h3 class="text-base font-bold font-serif text-text-main mb-1">No Listings Yet</h3>
-                    <p class="text-text-sub text-xs max-w-xs mx-auto mb-4">You haven't posted any listings or requests yet.</p>
+                    <p class="text-text-sub text-xs max-w-xs mx-auto mb-4">You haven't added any listings or requests yet.</p>
                     <button hx-on:click="openModal('create-listing-modal'); closeModal('profile-modal')"
                         class="px-4 h-11 md:h-10 bg-earth-clay hover:bg-earth-clay-dark active:bg-earth-clay text-white font-bold transition-all shadow-sm text-xs capitalize tracking-wide flex items-center justify-center gap-1.5 mx-auto">
                         <span class="material-symbols-outlined text-[16px]">add_circle</span>
-                        Post
+                        Add
                     </button>
                 </div>
                 {{ end }}
