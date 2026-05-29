@@ -41,6 +41,21 @@
         btn.disabled = false;
     }
 
+    function applyDeniedState() {
+        const { btn, text, icon, spinner } = getElements();
+        if (!btn) return;
+
+        ACTIVE_CLASSES.forEach(c => btn.classList.remove(c));
+        DEFAULT_CLASSES.forEach(c => btn.classList.add(c));
+
+        if (text) {
+            text.textContent = 'Denied - tap to retry';
+        }
+        if (icon) icon.classList.remove('hidden');
+        if (spinner) spinner.classList.add('hidden');
+        btn.disabled = false;
+    }
+
     function initNearMe() {
         const { btn } = getElements();
         if (!btn) return;

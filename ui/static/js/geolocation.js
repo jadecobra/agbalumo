@@ -73,7 +73,28 @@
                     (error) => {
                         console.warn("Location access denied or failed:", error);
                         hidePrompt();
-                        localStorage.setItem(DENIED_KEY, 'true');
+                        // Explicit ALLOW click is user acceptance.
+                        // Do not treat browser failure after ALLOW as our denial.
+                        // Surface retryable state on the button instead.
+                        if (typeof applyDeniedState === 'function') {
+                            applyDeniedState();
+                        } else {
+                            // Fallback manual DOM update
+                            const nearMeBtn = document.getElementById('near-me-btn');
+                            if (nearMeBtn) {
+                                const DEFAULT_CLASSES = ['bg-earth-sand/30', 'text-text-main', 'hover:bg-earth-sand/50', 'border-earth-clay/10'];
+                                const ACTIVE_CLASSES = ['bg-earth-ochre/20', 'text-earth-ochre', 'hover:bg-earth-ochre/30', 'border-earth-ochre/50'];
+                                ACTIVE_CLASSES.forEach(c => nearMeBtn.classList.remove(c));
+                                DEFAULT_CLASSES.forEach(c => nearMeBtn.classList.add(c));
+                                const textSpan = document.getElementById('near-me-text');
+                                if (textSpan) textSpan.textContent = 'Denied - tap to retry';
+                                const spinner = document.getElementById('near-me-spinner');
+                                if (spinner) spinner.classList.add('hidden');
+                                const icon = document.getElementById('near-me-icon');
+                                if (icon) icon.classList.remove('hidden');
+                                nearMeBtn.disabled = false;
+                            }
+                        }
                     }
                 );
             }
