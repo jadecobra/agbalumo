@@ -232,5 +232,83 @@ test.describe('Saved/Favorites Feature', () => {
     // The card should no longer be visible in the saved listings container
     await expect(savedCard).not.toBeVisible();
   });
+
+  test('profile modal shows saved listings and clicking heart button removes listing', async ({ page }, testInfo) => {
+    const isMobile = testInfo.project.name === 'Mobile';
+
+    // Auth
+    const response = await page.goto('/auth/dev');
+    expect(response?.status()).toBe(200);
+
+    // Ensure listings exist
+    const listings = page.getByTestId('ag-listing-card');
+    await page.locator('#listings-container').waitFor({ state: 'attached', timeout: 10000 });
+    const count = await listings.count();
+    test.skip(count === 0, 'No listings in dev DB');
+
+    // Save a listing from the homepage first to ensure we have a saved listing
+    const firstListing = listings.first();
+    const overlay = firstListing.locator('button[hx-get^="/listings/"]').first();
+    const hxGet = await overlay.getAttribute('hx-get');
+    const listingId = hxGet?.split('/').pop();
+    
+    test.skip(!listingId, 'Could not determine listing ID');
+    test.skip(isMobile, 'Saving from card not supported on mobile in this test');
+
+    const heart = firstListing.locator('[data-testid="ag-save-btn"]:visible').first();
+    const isSaved = await heart.evaluate(el => el.classList.contains('text-red-500'));
+    if (!isSaved) {
+        const savePromise = page.waitForResponse(res => 
+            res.url().includes('/save') && res.request().method() === 'POST' && res.status() === 200
+        );
+        await heart.click();
+        await savePromise;
+        await expect(firstListing.locator('[data-testid="ag-save-btn"]:visible').first()).toHaveClass(/text-red-500/);
+    }
+
+    // 1. Click on profile button to show profile modal
+    const profileTrigger = page.locator('[data-testid="ag-nav-profile-btn"], [data-testid="mobile-account-btn"]')
+      .filter({ visible: true })
+      .first();
+    await expect(profileTrigger).toBeVisible({ timeout: 10000 });
+    await profileTrigger.click();
+
+    // Verify profile modal appears
+    const modal = page.locator('dialog[open]');
+    await expect(modal).toBeVisible({ timeout: 10000 });
+    await expect(modal.getByText('My Profile')).toBeVisible();
+
+    // 2. Locate the listing card in Section 2: "Saved Listings" inside profile modal
+    // It should have id `modal-saved-listing-{listingId}`
+    const modalSavedCard = modal.locator(`#modal-saved-listing-${listingId}`);
+    await expect(modalSavedCard).toBeVisible();
+
+    // 3. Verify heart button is visible on that listing card in profile modal and is red (saved)
+    const modalSavedCardHeart = modalSavedCard.locator('[data-testid="ag-save-btn"]:visible').first();
+    await expect(modalSavedCardHeart).toBeVisible();
+    await expect(modalSavedCardHeart).toHaveClass(/text-red-500/);
+
+    // 4. Click heart button to remove the listing from the saved list
+    const removePromise = page.waitForResponse(res => 
+        res.url().includes('/save') && res.request().method() === 'POST' && res.status() === 200
+    );
+    await modalSavedCardHeart.click();
+    await removePromise;
+
+    // 5. Verify the heart button updates to unsaved state (text-stone-400)
+    await expect(modalSavedCardHeart).toHaveClass(/text-stone-400/);
+
+    // 6. Close the profile modal and reopen to verify the listing card is gone
+    const closeBtn = modal.locator('button[aria-label="Close"]').first();
+    await closeBtn.click();
+    await expect(modal).not.toBeVisible();
+
+    // Reopen profile modal
+    await profileTrigger.click();
+    await expect(modal).toBeVisible();
+
+    // The card should no longer exist under "Saved Listings" section in profile modal
+    await expect(modalSavedCard).not.toBeVisible();
+  });
 });
 
