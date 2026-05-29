@@ -49,8 +49,7 @@ function toggleListingFields(typeSelect) {
     const locationLabel = modal.querySelector('#location-label');
     const descriptionLabel = modal.querySelector('#description-label');
     const addressInput = modal.querySelector('#create-address-input');
-    const heatLevelContainer = modal.querySelector('#heat-level-container');
-    const regionalSpecialtyContainer = modal.querySelector('#regional-specialty-container');
+    const adaSignalsContainer = modal.querySelector('#ada-signals-container');
 
     const val = typeSelect.value;
 
@@ -134,29 +133,20 @@ function toggleListingFields(typeSelect) {
         }
     }
 
-    // Heat Level Logic
-    if (heatLevelContainer) {
-        const heatInput = heatLevelContainer.querySelector('input[name="heat_level"]');
+    // Ada Sensory/Specialty Signals Logic
+    if (adaSignalsContainer) {
+        const heatInput = adaSignalsContainer.querySelector('input[name="heat_level"]');
+        const regionalInput = adaSignalsContainer.querySelector('input[name="regional_specialty"]');
         if (val === 'Food') {
-            heatLevelContainer.classList.remove('hidden');
+            adaSignalsContainer.classList.remove('hidden');
             if (heatInput) heatInput.disabled = false;
+            if (regionalInput) regionalInput.disabled = false;
         } else {
-            heatLevelContainer.classList.add('hidden');
+            adaSignalsContainer.classList.add('hidden');
             if (heatInput) {
                 heatInput.value = '0';
                 heatInput.disabled = true;
             }
-        }
-    }
-
-    // Regional Specialty Logic
-    if (regionalSpecialtyContainer) {
-        const regionalInput = regionalSpecialtyContainer.querySelector('input[name="regional_specialty"]');
-        if (val === 'Food') {
-            regionalSpecialtyContainer.classList.remove('hidden');
-            if (regionalInput) regionalInput.disabled = false;
-        } else {
-            regionalSpecialtyContainer.classList.add('hidden');
             if (regionalInput) {
                 regionalInput.value = '';
                 regionalInput.disabled = true;

@@ -61,31 +61,21 @@ function initEditTypeToggle(listingId) {
             }
         }
 
-        // Heat Level Logic (Food only)
-        var heatLevelContainer = form.querySelector('#heat-level-container');
-        if (heatLevelContainer) {
-            var heatInput = heatLevelContainer.querySelector('input[name="heat_level"]');
+        // Ada Sensory/Specialty Signals Logic (Food only)
+        var adaSignalsContainer = form.querySelector('#ada-signals-container');
+        if (adaSignalsContainer) {
+            var heatInput = adaSignalsContainer.querySelector('input[name="heat_level"]');
+            var regionalInput = adaSignalsContainer.querySelector('input[name="regional_specialty"]');
             if (val === 'Food') {
-                heatLevelContainer.classList.remove('hidden');
+                adaSignalsContainer.classList.remove('hidden');
                 if (heatInput) heatInput.disabled = false;
+                if (regionalInput) regionalInput.disabled = false;
             } else {
-                heatLevelContainer.classList.add('hidden');
+                adaSignalsContainer.classList.add('hidden');
                 if (heatInput) {
                     heatInput.value = '0';
                     heatInput.disabled = true;
                 }
-            }
-        }
-
-        // Regional Specialty Logic (Food only)
-        var regionalSpecialtyContainer = form.querySelector('#regional-specialty-container');
-        if (regionalSpecialtyContainer) {
-            var regionalInput = regionalSpecialtyContainer.querySelector('input[name="regional_specialty"]');
-            if (val === 'Food') {
-                regionalSpecialtyContainer.classList.remove('hidden');
-                if (regionalInput) regionalInput.disabled = false;
-            } else {
-                regionalSpecialtyContainer.classList.add('hidden');
                 if (regionalInput) {
                     regionalInput.value = '';
                     regionalInput.disabled = true;
