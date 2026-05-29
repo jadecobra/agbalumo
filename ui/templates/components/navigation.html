@@ -176,7 +176,7 @@
                     title="Feedback" aria-label="Feedback">
                     <span class="material-symbols-outlined">feedback</span>
                 </button>
-                <button hx-get="/saved" hx-target="#listings-container" hx-indicator="#listings-loading" data-testid="ag-nav-saved-btn"
+                <button id="ag-nav-saved-btn" hx-get="/saved" hx-target="#listings-container" hx-indicator="#listings-loading" data-testid="ag-nav-saved-btn"
                     class="w-12 h-12 flex items-center justify-center text-stone-600 hover:text-red-400 hover:bg-surface-dark/40 transition-colors"
                     title="Saved Listings" aria-label="Saved Listings">
                     <span class="material-symbols-outlined">favorite</span>
@@ -242,7 +242,7 @@
         <div class="flex md:hidden items-center gap-2">
             <!-- Redundant 'Post' and 'Account' buttons removed to favor mobile-bottom-nav -->
             {{ if .User }}
-            <button hx-get="/saved" hx-target="#listings-container" hx-indicator="#listings-loading" data-testid="ag-nav-saved-btn-mobile"
+            <button id="ag-nav-saved-btn-mobile" hx-get="/saved" hx-target="#listings-container" hx-indicator="#listings-loading" data-testid="ag-nav-saved-btn-mobile"
                 class="w-11 h-11 flex items-center justify-center text-stone-600 hover:text-red-400">
                 <span class="material-symbols-outlined text-[20px]">favorite</span>
             </button>

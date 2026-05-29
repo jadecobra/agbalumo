@@ -11,6 +11,8 @@ type SaveButtonViewModel struct {
 	Classes        string
 	TextColorClass string
 	IsSaved        bool
+	IDPrefix       string
+	OOB            bool
 }
 
 // MetricRequest represents the payload for frontend metric ingestion.

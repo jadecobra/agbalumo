@@ -1,7 +1,8 @@
 {{ define "save_button" }}
 <button
-    id="save-btn-{{ .ListingID }}"
-    hx-post="/listings/{{ .ListingID }}/save?classes={{ .Classes }}&text_color_class={{ .TextColorClass }}"
+    id="save-btn-{{ .IDPrefix }}{{ .ListingID }}"
+    {{ if .OOB }}hx-swap-oob="true"{{ end }}
+    hx-post="/listings/{{ .ListingID }}/save?classes={{ .Classes }}&text_color_class={{ .TextColorClass }}&id_prefix={{ .IDPrefix }}"
     hx-swap="outerHTML"
     hx-indicator="this"
     class="{{ if .Classes }}{{ .Classes }}{{ else }}absolute top-4 right-4 z-30{{ end }} w-11 h-11 flex items-center justify-center transition-all active:scale-90 htmx-request:opacity-50 {{ if .IsSaved }}text-red-500{{ else }}{{ if .TextColorClass }}{{ .TextColorClass }}{{ else }}text-stone-400 hover:text-red-400{{ end }}{{ end }}"
