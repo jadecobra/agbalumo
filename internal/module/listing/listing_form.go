@@ -53,6 +53,9 @@ func (req *ListingFormRequest) ToListing(l *domain.Listing) error {
 	l.Company = req.Company
 	l.PayRange = req.PayRange
 	l.HeatLevel = req.HeatLevel
+	if l.Type != domain.Food {
+		l.HeatLevel = 0
+	}
 	l.RegionalSpecialty = req.RegionalSpecialty
 
 	if err := parseDeadline(req, l); err != nil {

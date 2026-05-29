@@ -60,6 +60,22 @@ function initEditTypeToggle(listingId) {
                 hoursInput.disabled = true;
             }
         }
+
+        // Heat Level Logic (Food only)
+        var heatLevelContainer = form.querySelector('#heat-level-container');
+        if (heatLevelContainer) {
+            var heatInput = heatLevelContainer.querySelector('input[name="heat_level"]');
+            if (val === 'Food') {
+                heatLevelContainer.classList.remove('hidden');
+                if (heatInput) heatInput.disabled = false;
+            } else {
+                heatLevelContainer.classList.add('hidden');
+                if (heatInput) {
+                    heatInput.value = '0';
+                    heatInput.disabled = true;
+                }
+            }
+        }
     }
 
     if (typeSelect) {

@@ -22,7 +22,7 @@
             .Listing.ImageURL }}
 
             <!-- Ada Sensory Signals -->
-            {{ template "listing_form_ada_signals" .Listing }}
+            {{ template "listing_form_ada_signals" dict "HeatLevel" .Listing.HeatLevel "RegionalSpecialty" .Listing.RegionalSpecialty "Type" .Listing.Type }}
 
             <!-- Description -->
             {{ template "listing_form_description" dict "Value" .Listing.Description }}

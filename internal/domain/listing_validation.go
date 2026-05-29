@@ -84,6 +84,9 @@ func (l *Listing) validateTypeRequirements() error {
 	if l.HoursOfOperation != "" && !(l.Type == Business || l.Type == Service || l.Type == Food) {
 		return errors.New("hours of operation not applicable for this listing type")
 	}
+	if l.HeatLevel != 0 && l.Type != Food {
+		return errors.New("heat level not applicable for this listing type")
+	}
 	return nil
 }
 

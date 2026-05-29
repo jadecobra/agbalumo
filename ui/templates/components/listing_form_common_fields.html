@@ -29,13 +29,15 @@
 {{ define "listing_form_ada_signals" }}
 {{ $heatLevel := 0 }}{{ if . }}{{ $heatLevel = .HeatLevel }}{{ end }}
 {{ $regionalSpecialty := "" }}{{ if . }}{{ $regionalSpecialty = .RegionalSpecialty }}{{ end }}
+{{ $isFood := false }}{{ if . }}{{ if eq .Type "Food" }}{{ $isFood = true }}{{ end }}{{ end }}
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 border-l-4 border-secondary bg-secondary/5 p-4 mb-6" data-agent-template="listing_form_ada_signals">
-    <div class="flex flex-col gap-1.5">
+    <div class="flex flex-col gap-1.5{{ if not $isFood }} hidden{{ end }}" id="heat-level-container">
         <label for="listing-heat-level" class="text-[10px] font-bold capitalize tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Heat Level (0-5)</label>
         <div class="bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 p-1 flex items-center">
             <input id="listing-heat-level" name="heat_level" type="number" min="0" max="5" value="{{ $heatLevel }}" placeholder="0"
                 data-testid="ag-listing-form-heat-level"
                 aria-describedby="listing-heat-level-desc"
+                {{ if not $isFood }}disabled{{ end }}
                 class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-text-main dark:text-white font-light text-base outline-none transition-all placeholder:text-text-sub/70 dark:placeholder:text-earth-cream/70">
         </div>
         <span id="listing-heat-level-desc" class="text-[10px] text-text-sub dark:text-earth-cream/70 ml-1">0 = No heat, 5 = Extra spicy</span>

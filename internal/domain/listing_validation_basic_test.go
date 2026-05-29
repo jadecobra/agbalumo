@@ -238,3 +238,68 @@ func TestCityRequirement(t *testing.T) {
 		})
 	}
 }
+
+func TestHeatLevelValidation(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name      string
+		lType     Category
+		heatLevel int
+		wantErr   bool
+	}{
+		{
+			name:      "Food category with heat level 0 is valid",
+			lType:     Food,
+			heatLevel: 0,
+			wantErr:   false,
+		},
+		{
+			name:      "Food category with heat level 3 is valid",
+			lType:     Food,
+			heatLevel: 3,
+			wantErr:   false,
+		},
+		{
+			name:      "Business category with heat level 0 is valid",
+			lType:     Business,
+			heatLevel: 0,
+			wantErr:   false,
+		},
+		{
+			name:      "Business category with heat level 3 is INVALID",
+			lType:     Business,
+			heatLevel: 3,
+			wantErr:   true,
+		},
+		{
+			name:      "Product category with heat level 5 is INVALID",
+			lType:     Product,
+			heatLevel: 5,
+			wantErr:   true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			l := Listing{
+				ID:           "test-heat",
+				OwnerOrigin:  "Nigeria",
+				Type:         tt.lType,
+				Title:        "Test Item",
+				ContactEmail: "test@example.com",
+				Address:      "123 Street Rd",
+				City:         "Lagos",
+				CreatedAt:    time.Now(),
+				IsActive:     true,
+				HeatLevel:    tt.heatLevel,
+			}
+			err := l.Validate()
+			if tt.wantErr {
+				assert.Error(t, err, "Expected error for type %s with heat level %d", tt.lType, tt.heatLevel)
+			} else {
+				assert.NoError(t, err, "Expected no error for type %s with heat level %d", tt.lType, tt.heatLevel)
+			}
+		})
+	}
+}

@@ -49,6 +49,7 @@ function toggleListingFields(typeSelect) {
     const locationLabel = modal.querySelector('#location-label');
     const descriptionLabel = modal.querySelector('#description-label');
     const addressInput = modal.querySelector('#create-address-input');
+    const heatLevelContainer = modal.querySelector('#heat-level-container');
 
     const val = typeSelect.value;
 
@@ -128,6 +129,21 @@ function toggleListingFields(typeSelect) {
             if (hoursInput) {
                 hoursInput.value = '';
                 hoursInput.disabled = true;
+            }
+        }
+    }
+
+    // Heat Level Logic
+    if (heatLevelContainer) {
+        const heatInput = heatLevelContainer.querySelector('input[name="heat_level"]');
+        if (val === 'Food') {
+            heatLevelContainer.classList.remove('hidden');
+            if (heatInput) heatInput.disabled = false;
+        } else {
+            heatLevelContainer.classList.add('hidden');
+            if (heatInput) {
+                heatInput.value = '0';
+                heatInput.disabled = true;
             }
         }
     }
