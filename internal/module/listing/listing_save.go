@@ -21,7 +21,7 @@ func getSaveButtonStyles(prefix string) (string, string) {
 	if prefix == "detail-" {
 		return "relative transition-all duration-200", "text-white/80 hover:text-white"
 	}
-	return "absolute top-2 right-2 z-30 transition-all duration-200 rounded-none", "text-earth-accent hover:text-white"
+	return "absolute top-2 right-2 z-30 transition-all duration-200 rounded-none", "text-white/80 hover:text-white"
 }
 
 func (h *ListingHandler) HandleSaveToggle(c echo.Context) error {

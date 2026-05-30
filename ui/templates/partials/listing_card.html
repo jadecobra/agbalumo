@@ -26,7 +26,7 @@
         {{ if $.User }}
         <div class="absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-black/40 to-transparent z-20 pointer-events-none rounded-none"></div>
         {{ $isSaved := index $.SavedIDs .Listing.ID }}
-        {{ template "save_button" dict "ListingID" .Listing.ID "IsSaved" $isSaved "Classes" "absolute top-2 right-2 z-30 transition-all duration-200 rounded-none" "TextColorClass" "text-earth-accent hover:text-white" "IDPrefix" .IDPrefix "OOB" false }}
+        {{ template "save_button" dict "ListingID" .Listing.ID "IsSaved" $isSaved "Classes" "absolute top-2 right-2 z-30 transition-all duration-200 rounded-none" "TextColorClass" "text-white/80 hover:text-white" "IDPrefix" .IDPrefix "OOB" false }}
         {{ end }}
 
         <!-- New Badge -->
