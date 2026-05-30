@@ -1,10 +1,10 @@
 {{ define "listing_card" }}
 <div id="{{ .IDPrefix }}listing-{{.Listing.ID}}"
-    class="listing-card card-juicy group relative flex flex-row even:flex-row-reverse md:flex-col h-auto md:h-full overflow-hidden bg-white dark:bg-surface-dark border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-juicy transition-all duration-500 hover:-translate-y-1 {{ .GridClass }}"
+    class="listing-card card-juicy group relative flex flex-row even:flex-row-reverse md:flex-col h-auto md:h-full overflow-hidden bg-white dark:bg-surface-dark border border-earth-clay/10 dark:border-white/10 shadow-sm hover:shadow-juicy transition-all duration-500 hover:-translate-y-1 {{ .GridClass }}"
     data-testid="ag-listing-card">
 
     <!-- Image Section (Top Half/Left Side) -->
-    <div class="relative w-[45%] shrink-0 md:w-full md:basis-[45%] overflow-hidden bg-earth-cream dark:bg-earth-dark/50 border-stone-200 dark:border-stone-800 border-b md:border-b group-even:border-l group-odd:border-r md:group-even:border-l-0 md:group-odd:border-r-0 rounded-none"> <!-- verify:allow-arbitrary -->
+    <div class="relative w-[45%] shrink-0 md:w-full md:basis-[45%] overflow-hidden bg-earth-cream dark:bg-earth-dark/50 border-earth-clay/10 dark:border-white/10 border-b md:border-b group-even:border-l group-odd:border-r md:group-even:border-l-0 md:group-odd:border-r-0 rounded-none"> <!-- verify:allow-arbitrary -->
         {{ if .Listing.ImageURL }}
         <div class="w-full h-full bg-center bg-cover bg-white dark:bg-surface-dark transition-transform duration-700 group-hover:scale-110 rounded-none" style="background-image: url('{{.Listing.ImageURL}}');"></div>
         {{ else }}
@@ -26,7 +26,7 @@
         {{ if $.User }}
         <div class="absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-black/40 to-transparent z-20 pointer-events-none rounded-none"></div>
         {{ $isSaved := index $.SavedIDs .Listing.ID }}
-        {{ template "save_button" dict "ListingID" .Listing.ID "IsSaved" $isSaved "Classes" "absolute top-2 right-2 z-30 transition-all duration-200 rounded-none" "TextColorClass" "text-white hover:text-red-400" "IDPrefix" .IDPrefix "OOB" false }}
+        {{ template "save_button" dict "ListingID" .Listing.ID "IsSaved" $isSaved "Classes" "absolute top-2 right-2 z-30 transition-all duration-200 rounded-none" "TextColorClass" "text-white hover:text-earth-accent" "IDPrefix" .IDPrefix "OOB" false }}
         {{ end }}
 
         <!-- New Badge -->
@@ -46,7 +46,7 @@
                 <span class="material-symbols-outlined text-[16px]">edit</span>
             </button>
             <button
-                class="bg-red-500/90 backdrop-blur-md text-white w-11 h-11 flex items-center justify-center shadow-md hover:bg-red-500 transition-all active:scale-95 rounded-none"
+                class="bg-earth-clay/90 backdrop-blur-md text-white w-11 h-11 flex items-center justify-center shadow-md hover:bg-earth-clay-dark transition-all active:scale-95 rounded-none"
                 hx-delete="/listings/{{ .Listing.ID }}" hx-confirm="Are you sure?" hx-indicator="this"
                 aria-label="Delete listing"
                 data-testid="ag-listing-delete-btn">

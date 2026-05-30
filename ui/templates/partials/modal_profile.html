@@ -4,7 +4,7 @@
 
 {{ define "modal_profile_content" }}
         <!-- Header -->
-        <div class="flex items-center justify-between p-4 border-b border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-surface-dark/50 shrink-0">
+        <div class="flex items-center justify-between p-4 border-b border-earth-clay/10 dark:border-white/10 bg-earth-sand/10 dark:bg-surface-dark/50 shrink-0">
             <h2 class="text-xl font-bold font-serif text-text-main dark:text-earth-cream flex items-center gap-2">
                 <span class="material-symbols-outlined text-earth-accent">account_circle</span>
                 My Profile
@@ -13,7 +13,7 @@
         </div>
 
         <!-- Profile Info -->
-        <div class="p-4 md:p-6 bg-white flex flex-col gap-4 border-b border-stone-200 shrink-0">
+        <div class="p-4 md:p-6 bg-white flex flex-col gap-4 border-b border-earth-clay/10 shrink-0">
             <!-- Avatar + Name Row -->
             <div class="flex items-center gap-4">
                 <div class="relative group shrink-0">
@@ -49,12 +49,12 @@
                 </button>
                 <button hx-get="/feedback/modal" hx-target="body" hx-swap="beforeend" data-testid="profile-feedback-btn"
                     hx-on:click="closeModal('profile-modal')"
-                    class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-stone-100 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream font-bold text-sm hover:bg-stone-200 dark:hover:bg-earth-cream/10 transition-all border border-stone-200 dark:border-white/10">
+                    class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-earth-sand/15 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream font-bold text-sm hover:bg-earth-sand/30 dark:hover:bg-earth-cream/10 transition-all border border-earth-clay/10 dark:border-white/10">
                     <span
                         class="uppercase tracking-[0.3em] text-[10px] md:text-xs font-bold text-earth-accent dark:text-earth-ochre drop-shadow-sm">Feedback</span>
                 </button>
                 <a href="/auth/logout"
-                    class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-stone-100 dark:bg-earth-cream/5 text-red-600 dark:text-red-400 font-bold text-sm hover:bg-red-50 dark:hover:bg-red-900/20 transition-all border border-stone-200 dark:border-white/10">
+                    class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-earth-sand/15 dark:bg-earth-cream/5 text-earth-clay dark:text-earth-cream font-bold text-sm hover:bg-earth-clay/10 dark:hover:bg-earth-cream/10 transition-all border border-earth-clay/10 dark:border-white/10">
                     <span
                         class="uppercase tracking-[0.3em] text-[10px] md:text-xs font-bold text-earth-accent dark:text-earth-ochre drop-shadow-sm">
                         Sign Out
@@ -67,12 +67,12 @@
         <div class="flex-1 overflow-y-auto p-4 md:p-6 bg-transparent min-h-0 flex flex-col gap-8">
             <!-- Section 1: My Listings & Requests -->
             <div>
-                <div class="flex items-center justify-between mb-4 border-b border-stone-100 dark:border-stone-850 pb-2">
+                <div class="flex items-center justify-between mb-4 border-b border-earth-clay/10 dark:border-white/10 pb-2">
                     <h3 class="text-lg font-bold font-serif flex items-center gap-2 text-text-main">
-                        <span class="material-symbols-outlined text-earth-accent">list_alt</span>
+                         <span class="material-symbols-outlined text-earth-accent">list_alt</span>
                         My Listings &amp; Requests
                     </h3>
-                    <span class="text-xs font-bold text-text-main dark:text-earth-cream bg-stone-100 dark:bg-earth-cream/10 px-2 py-1">{{
+                    <span class="text-xs font-bold text-text-main dark:text-earth-cream bg-earth-sand/20 dark:bg-earth-cream/10 px-2 py-1">{{
                         len .Listings }} Items</span>
                 </div>
 
@@ -83,7 +83,7 @@
                     {{ end }}
                 </div>
                 {{ else }}
-                <div class="text-center py-8 px-4 bg-stone-50 border border-dashed border-stone-200">
+                <div class="text-center py-8 px-4 bg-earth-sand/5 border border-dashed border-earth-clay/20">
                     <div
                         class="w-12 h-12 bg-earth-accent/10 flex items-center justify-center mx-auto mb-3 text-earth-accent">
                         <span class="material-symbols-outlined text-2xl">post_add</span>
@@ -101,12 +101,12 @@
 
             <!-- Section 2: Saved Listings -->
             <div>
-                <div class="flex items-center justify-between mb-4 border-b border-stone-100 dark:border-stone-850 pb-2">
+                <div class="flex items-center justify-between mb-4 border-b border-earth-clay/10 dark:border-white/10 pb-2">
                     <h3 class="text-lg font-bold font-serif flex items-center gap-2 text-text-main">
-                        <span class="material-symbols-outlined text-red-500">favorite</span>
+                        <span class="material-symbols-outlined text-earth-accent">favorite</span>
                         Saved Listings
                     </h3>
-                    <span class="text-xs font-bold text-text-main dark:text-earth-cream bg-stone-100 dark:bg-earth-cream/10 px-2 py-1">{{
+                    <span class="text-xs font-bold text-text-main dark:text-earth-cream bg-earth-sand/20 dark:bg-earth-cream/10 px-2 py-1">{{
                         len .SavedListings }} Items</span>
                 </div>
 
@@ -117,9 +117,9 @@
                     {{ end }}
                 </div>
                 {{ else }}
-                <div class="text-center py-8 px-4 bg-stone-50 border border-dashed border-stone-200">
+                <div class="text-center py-8 px-4 bg-earth-sand/5 border border-dashed border-earth-clay/20">
                     <div
-                        class="w-12 h-12 bg-earth-accent/10 flex items-center justify-center mx-auto mb-3 text-stone-400">
+                        class="w-12 h-12 bg-earth-accent/10 flex items-center justify-center mx-auto mb-3 text-earth-clay/40">
                         <span class="material-symbols-outlined text-2xl">favorite_border</span>
                     </div>
                     <h3 class="text-base font-bold font-serif text-text-main mb-1">No Saved Listings</h3>

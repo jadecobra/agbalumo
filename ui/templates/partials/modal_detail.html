@@ -27,7 +27,7 @@
             <div class="absolute top-4 right-4 flex items-center gap-2 z-[60]">
                 {{ if $.User }}
                 {{ $isSaved := index $.SavedIDs .Listing.ID }}
-                {{ template "save_button" dict "ListingID" .Listing.ID "IsSaved" $isSaved "Classes" "relative transition-all duration-200" "TextColorClass" "text-white hover:text-red-400" "IDPrefix" "detail-" "OOB" false }}
+                {{ template "save_button" dict "ListingID" .Listing.ID "IsSaved" $isSaved "Classes" "relative transition-all duration-200" "TextColorClass" "text-white hover:text-earth-accent" "IDPrefix" "detail-" "OOB" false }}
                 {{ end }}
 
                 {{ template "btn_close" dict "Classes" "relative w-11 h-11 text-white hover:scale-110 transition-transform" }}
@@ -40,7 +40,7 @@
         </div>
 
         <!-- Pinned Metadata Row (Static during scrolling) -->
-        <div class="px-6 py-4 border-b border-stone-200 dark:border-stone-800 bg-white dark:bg-surface-dark shrink-0 flex items-center justify-between gap-3">
+        <div class="px-6 py-4 border-b border-earth-clay/10 dark:border-white/10 bg-white dark:bg-surface-dark shrink-0 flex items-center justify-between gap-3">
             <div class="flex items-center gap-3">
                 <span class="bg-earth-sand/60 text-earth-clay border border-earth-clay/20 text-xs uppercase font-bold px-2.5 py-1 tracking-wider shadow-sm rounded-none">
                     {{ .Listing.Type }}
@@ -56,7 +56,7 @@
                 <!-- Left Column: Core Info & Details -->
                 <div class="space-y-3">
                     <!-- Location & Origin Row -->
-                    <div class="flex flex-wrap items-start justify-between gap-4 pb-4 border-b border-stone-100 dark:border-stone-800">
+                    <div class="flex flex-wrap items-start justify-between gap-4 pb-4 border-b border-earth-clay/10 dark:border-white/10">
                         <!-- Address / Map Link -->
                         <a href="https://www.google.com/maps/search/?api=1&query={{ urlquery .Listing.Address }},{{ urlquery .Listing.City }}" target="_blank" data-ada-discovery="maps" class="flex items-start gap-2.5 text-text-main/70 dark:text-earth-cream/70 hover:text-earth-accent transition-colors text-sm">
                             <span class="material-symbols-outlined text-xl text-earth-clay dark:text-earth-accent mt-0.5">location_on</span>
@@ -95,11 +95,11 @@
 
                     <!-- Owner / Claim Actions -->
                     {{ if or (and .User (eq .User.ID .Listing.OwnerID)) .CanClaim }}
-                    <div class="p-4 bg-stone-50 dark:bg-earth-cream/5 border border-stone-200 dark:border-white/10 flex items-center justify-between gap-4">
+                    <div class="p-4 bg-earth-sand/10 dark:bg-earth-cream/5 border border-earth-clay/10 dark:border-white/10 flex items-center justify-between gap-4">
                         <span class="text-xs font-bold text-text-sub dark:text-stone-400">Controls:</span>
                         {{ if and .User (eq .User.ID .Listing.OwnerID) }}
                         <button hx-get="/listings/{{.Listing.ID}}/edit" hx-target="body" hx-swap="beforeend" data-testid="edit-listing-btn"
-                            class="bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 text-xs font-bold px-4 py-2 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
+                            class="bg-white dark:bg-stone-900 text-text-main dark:text-earth-cream text-xs font-bold px-4 py-2 border border-earth-clay/10 dark:border-white/10 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
                             Edit
                         </button>
                         {{ end }}
@@ -108,7 +108,7 @@
                         <form hx-post="/listings/{{.Listing.ID}}/claim" hx-target="closest dialog" hx-swap="outerHTML" hx-indicator="this" class="inline">
                             <button type="submit"
                                 data-testid="ag-claim-listing-btn"
-                                class="bg-earth-accent hover:bg-earth-accent-light text-white text-xs font-bold px-4 py-2 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98] flex items-center gap-1.5 rounded-none">
+                                class="bg-earth-accent hover:bg-earth-accent-light text-white text-xs font-bold px-4 py-2 border border-earth-clay/10 dark:border-white/10 shadow-sm hover:shadow-md transition-all active:scale-[0.98] flex items-center gap-1.5 rounded-none">
                                 <span class="material-symbols-outlined text-base">verified</span>
                                 Claim
                             </button>
@@ -119,22 +119,22 @@
 
                     <!-- Job Specific Card -->
                     {{ if eq .Listing.Type "Job" }}
-                    <div class="flex flex-col gap-3 bg-stone-50 dark:bg-earth-cream/5 p-5 border border-stone-200 dark:border-stone-800 shadow-sm rounded-none">
-                        <div class="flex items-center gap-2.5 text-text-main dark:text-earth-cream border-b border-stone-200 dark:border-white/10 pb-2">
+                    <div class="flex flex-col gap-3 bg-earth-sand/10 dark:bg-earth-cream/5 p-5 border border-earth-clay/10 dark:border-white/10 shadow-sm rounded-none">
+                        <div class="flex items-center gap-2.5 text-text-main dark:text-earth-cream border-b border-earth-clay/10 dark:border-white/10 pb-2">
                             <span class="material-symbols-outlined text-xl text-earth-accent">business</span>
                             <span class="font-black capitalize tracking-wider text-sm">{{ .Listing.Company }}</span>
                         </div>
                         
                         {{ if .Listing.PayRange }}
-                        <div class="flex items-center gap-2.5 text-green-600 dark:text-green-400 border-b border-stone-200 dark:border-white/10 pb-2">
+                        <div class="flex items-center gap-2.5 text-secondary dark:text-secondary border-b border-earth-clay/10 dark:border-white/10 pb-2">
                             <span class="material-symbols-outlined text-xl">payments</span>
                             <span class="font-bold text-sm">{{ .Listing.PayRange }}</span>
                         </div>
                         {{ end }}
 
                         <!-- Job Start Date -->
-                        <div class="flex items-center gap-2.5 text-text-main dark:text-earth-cream border-b border-stone-200 dark:border-white/10 pb-2">
-                            <span class="material-symbols-outlined text-xl text-blue-500">calendar_month</span>
+                        <div class="flex items-center gap-2.5 text-text-main dark:text-earth-cream border-b border-earth-clay/10 dark:border-white/10 pb-2">
+                            <span class="material-symbols-outlined text-xl text-earth-clay dark:text-earth-accent">calendar_month</span>
                             <div class="flex flex-col">
                                 <span class="text-xs font-bold text-text-sub dark:text-stone-400 capitalize tracking-wider leading-none">Start Date</span>
                                 <span class="text-xs font-bold mt-1">
@@ -148,7 +148,7 @@
                             <span class="text-xs font-bold text-text-sub dark:text-stone-400 capitalize tracking-wider">Skills:</span>
                             <div class="flex flex-wrap gap-2">
                                 {{ range (split .Listing.Skills ",") }}
-                                <span class="bg-earth-cream/10 text-text-main dark:text-earth-cream px-2.5 py-1 text-xs font-bold border border-stone-200 dark:border-white/10">
+                                <span class="bg-earth-cream/10 text-text-main dark:text-earth-cream px-2.5 py-1 text-xs font-bold border border-earth-clay/10 dark:border-white/10">
                                     {{ . }}
                                 </span>
                                 {{ end }}
@@ -159,7 +159,7 @@
 
                     <!-- Event Specific Card -->
                     {{ if and (eq .Listing.Type "Event") (not .Listing.EventStart.IsZero) }}
-                    <div class="flex items-start gap-3 bg-stone-50 dark:bg-earth-cream/5 p-4 border border-stone-200 dark:border-stone-800 shadow-sm rounded-none">
+                    <div class="flex items-start gap-3 bg-earth-sand/10 dark:bg-earth-cream/5 p-4 border border-earth-clay/10 dark:border-white/10 shadow-sm rounded-none">
                         <span class="material-symbols-outlined text-2xl text-earth-accent mt-0.5">event</span>
                         <div class="flex flex-col">
                             <span class="text-xs font-bold text-text-sub dark:text-stone-400 capitalize tracking-wider leading-none">Event Schedule</span>
@@ -182,7 +182,7 @@
 
                     <!-- Hours of Operation -->
                     {{ if .Listing.HoursOfOperation }}
-                    <div class="flex items-center gap-3 p-4 bg-stone-50 dark:bg-earth-cream/5 border border-stone-200 dark:border-white/10 text-sm">
+                    <div class="flex items-center gap-3 p-4 bg-earth-sand/10 dark:bg-earth-cream/5 border border-earth-clay/10 dark:border-white/10 text-sm">
                         <span class="material-symbols-outlined text-xl text-earth-clay dark:text-earth-accent">schedule</span>
                         <span class="font-bold text-text-main dark:text-earth-cream">{{ .Listing.HoursOfOperation }}</span>
                     </div>
@@ -215,17 +215,17 @@
 
                     <!-- Order Delivery Block -->
                     {{ if or (hasDelivery .Listing.DeliveryPlatforms "UberEats") (hasDelivery .Listing.DeliveryPlatforms "DoorDash") (hasDelivery .Listing.DeliveryPlatforms "Grubhub") }}
-                    <div id="delivery-block" class="p-2 bg-stone-50 dark:bg-earth-cream/5 border border-stone-200 dark:border-white/10">
+                    <div id="delivery-block" class="p-2 bg-earth-sand/10 dark:bg-earth-cream/5 border border-earth-clay/10 dark:border-white/10">
                         <h3 class="font-bold text-text-main dark:text-earth-cream mb-3 text-xs capitalize tracking-wider">Order Delivery</h3>
                         <div class="flex flex-wrap gap-2.5">
                             {{ if hasDelivery .Listing.DeliveryPlatforms "UberEats" }}
-                            <span class="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 text-white text-xs font-bold capitalize tracking-wider shadow-sm border border-emerald-700">
+                            <span class="flex items-center gap-1.5 px-3 py-2 bg-secondary text-white text-xs font-bold capitalize tracking-wider shadow-sm border border-secondary/50">
                                 <span class="material-symbols-outlined text-base">delivery_dining</span>
                                 UberEats
                             </span>
                             {{ end }}
                             {{ if hasDelivery .Listing.DeliveryPlatforms "DoorDash" }}
-                            <span class="flex items-center gap-1.5 px-3 py-2 bg-rose-600 text-white text-xs font-bold capitalize tracking-wider shadow-sm border border-rose-700">
+                            <span class="flex items-center gap-1.5 px-3 py-2 bg-earth-clay text-white text-xs font-bold capitalize tracking-wider shadow-sm border border-earth-clay/50">
                                 <span class="material-symbols-outlined text-base">delivery_dining</span>
                                 DoorDash
                             </span>
@@ -244,7 +244,7 @@
                     <div class="flex flex-col gap-3">
                         {{ if .Listing.ContactWhatsApp }}
                         <a href="https://wa.me/{{ .Listing.ContactWhatsApp }}" target="_blank" data-ada-discovery="whatsapp"
-                            class="w-full flex items-center justify-center gap-2 py-2 bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
+                            class="w-full flex items-center justify-center gap-2 py-2 bg-secondary/10 dark:bg-secondary/20 text-secondary dark:text-white hover:bg-secondary/20 border border-earth-clay/10 dark:border-white/10 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
                             <span class="material-symbols-outlined text-[18px]">chat</span>
                             <span class="font-bold text-xs capitalize tracking-wider">WhatsApp</span>
                         </a>
@@ -252,7 +252,7 @@
 
                         {{ if .Listing.ContactPhone }}
                         <a href="tel:{{ .Listing.ContactPhone }}" data-ada-discovery="phone"
-                            class="w-full flex items-center justify-center gap-2 py-2 bg-stone-50 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
+                            class="w-full flex items-center justify-center gap-2 py-2 bg-earth-sand/10 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 border border-earth-clay/10 dark:border-white/10 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
                             <span class="material-symbols-outlined text-[18px]">call</span>
                             <span class="font-bold text-xs capitalize tracking-wider">Call</span>
                         </a>
@@ -261,7 +261,7 @@
                         {{ if not (eq .Listing.Type "Food") }}
                         {{ if .Listing.ContactEmail }}
                         <a href="mailto:{{ .Listing.ContactEmail }}" data-ada-discovery="email"
-                            class="w-full flex items-center justify-center gap-2 py-2 bg-stone-50 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
+                            class="w-full flex items-center justify-center gap-2 py-2 bg-earth-sand/10 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 border border-earth-clay/10 dark:border-white/10 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
                             <span class="material-symbols-outlined text-[18px]">mail</span>
                             <span class="font-bold text-xs capitalize tracking-wider">Email</span>
                         </a>
@@ -270,7 +270,7 @@
 
                         {{ if .Listing.WebsiteURL }}
                         <a href="{{ .Listing.WebsiteURL }}" target="_blank" data-ada-discovery="website"
-                            class="w-full flex items-center justify-center gap-2 py-2 bg-stone-50 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
+                            class="w-full flex items-center justify-center gap-2 py-2 bg-earth-sand/10 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream hover:bg-earth-cream/10 border border-earth-clay/10 dark:border-white/10 shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-none">
                             <span class="material-symbols-outlined text-[18px]">language</span>
                             <span class="font-bold text-xs capitalize tracking-wider">Website</span>
                         </a>
