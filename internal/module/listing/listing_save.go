@@ -19,9 +19,9 @@ func (h *ListingHandler) toggleSaveState(c echo.Context, userID, listingID strin
 
 func getSaveButtonStyles(prefix string) (string, string) {
 	if prefix == "detail-" {
-		return "relative transition-all duration-200", "text-white hover:text-red-400"
+		return "relative transition-all duration-200", "text-white/80 hover:text-white"
 	}
-	return "absolute top-2 right-2 z-30 transition-all duration-200 rounded-none", "text-white hover:text-red-400"
+	return "absolute top-2 right-2 z-30 transition-all duration-200 rounded-none", "text-white/80 hover:text-white"
 }
 
 func (h *ListingHandler) HandleSaveToggle(c echo.Context) error {
