@@ -109,7 +109,7 @@
 <button id="ag-nav-saved-btn" hx-swap-oob="true" 
     hx-get="{{ if eq .Source "saved" }}/listings/fragment{{ else }}/saved{{ end }}" 
     hx-target="#listings-container" hx-indicator="#listings-loading" data-testid="ag-nav-saved-btn"
-    class="w-12 h-12 flex items-center justify-center transition-all duration-200 text-earth-dark"
+    class="w-12 h-12 flex items-center justify-center transition-all duration-200 {{ if eq .Source "saved" }}text-earth-accent{{ else }}text-earth-dark hover:text-earth-accent{{ end }}"
     title="Saved Listings" aria-label="Saved Listings">
     <span class="material-symbols-outlined {{ if eq .Source "saved" }}filled [font-variation-settings:'FILL'_1]{{ end }}">{{ if eq .Source "saved" }}favorite{{ else }}favorite_border{{ end }}</span>
 </button>
@@ -117,7 +117,7 @@
 <button id="ag-nav-saved-btn-mobile" hx-swap-oob="true" 
     hx-get="{{ if eq .Source "saved" }}/listings/fragment{{ else }}/saved{{ end }}" 
     hx-target="#listings-container" hx-indicator="#listings-loading" data-testid="ag-nav-saved-btn-mobile"
-    class="w-11 h-11 flex items-center justify-center transition-all text-earth-dark"
+    class="w-11 h-11 flex items-center justify-center transition-all {{ if eq .Source "saved" }}text-earth-accent{{ else }}text-earth-dark hover:text-earth-accent active:text-earth-accent{{ end }}"
     title="Saved Listings" aria-label="Saved Listings">
     <span class="material-symbols-outlined text-[20px] {{ if eq .Source "saved" }}filled [font-variation-settings:'FILL'_1]{{ end }}">{{ if eq .Source "saved" }}favorite{{ else }}favorite_border{{ end }}</span>
 </button>
