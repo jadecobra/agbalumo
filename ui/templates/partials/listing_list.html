@@ -107,13 +107,13 @@
 {{ template "pagination" . }}
 
 <button id="ag-nav-saved-btn" hx-swap-oob="true" hx-get="/saved" hx-target="#listings-container" hx-indicator="#listings-loading" data-testid="ag-nav-saved-btn"
-    class="w-12 h-12 flex items-center justify-center transition-all duration-200 {{ if eq .Source "saved" }}text-red-500 bg-red-50/80 dark:bg-red-950/20 border border-red-200/50 dark:border-red-800/30 shadow-inner rounded-none{{ else }}text-stone-600 hover:text-red-400 hover:bg-surface-dark/40 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors{{ end }}"
+    class="w-12 h-12 flex items-center justify-center transition-all duration-200 {{ if eq .Source "saved" }}text-primary-dark{{ else }}text-stone-600 hover:text-red-400 hover:bg-surface-dark/40 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors{{ end }}"
     title="Saved Listings" aria-label="Saved Listings">
     <span class="material-symbols-outlined {{ if eq .Source "saved" }}filled [font-variation-settings:'FILL'_1]{{ end }}">favorite</span>
 </button>
 
 <button id="ag-nav-saved-btn-mobile" hx-swap-oob="true" hx-get="/saved" hx-target="#listings-container" hx-indicator="#listings-loading" data-testid="ag-nav-saved-btn-mobile"
-    class="w-11 h-11 flex items-center justify-center transition-all {{ if eq .Source "saved" }}text-red-500 bg-red-50/80 dark:bg-red-950/20 border border-red-200/50 dark:border-red-800/30 shadow-inner rounded-none{{ else }}text-stone-600 hover:text-red-400{{ end }}"
+    class="w-11 h-11 flex items-center justify-center transition-all {{ if eq .Source "saved" }}text-primary-dark{{ else }}text-stone-600 hover:text-red-400{{ end }}"
     title="Saved Listings" aria-label="Saved Listings">
     <span class="material-symbols-outlined text-[20px] {{ if eq .Source "saved" }}filled [font-variation-settings:'FILL'_1]{{ end }}">favorite</span>
 </button>

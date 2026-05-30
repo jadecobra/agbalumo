@@ -21,7 +21,7 @@ func TestRender_SaveButton_Saved(t *testing.T) {
 	})
 	assert.Contains(t, out, `id="save-btn-abc-123"`)
 	assert.Contains(t, out, "favorite")           // filled heart icon
-	assert.Contains(t, out, "text-red-500")       // saved state color
+	assert.Contains(t, out, "text-earth-cream")   // saved state color
 	assert.NotContains(t, out, "favorite_border") // NOT outline
 }
 
