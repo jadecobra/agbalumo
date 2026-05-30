@@ -50,11 +50,11 @@
 
                 <!-- Filters Toggle (Relocated from Hero) -->
                 <button type="button" data-testid="ag-home-filters-toggle-desktop"
-                    class="flex h-12 items-center justify-center px-4 text-earth-clay/80 hover:text-text-main transition-colors border-l border-earth-clay/10"
+                    class="flex h-12 items-center justify-center px-4 text-earth-accent hover:text-earth-accent active:text-earth-accent transition-all duration-200 border-l border-earth-clay/10"
                     aria-label="Toggle Filters"
                     aria-expanded="false"
                     aria-controls="filter-dropdown-panel">
-                    <span class="material-symbols-outlined text-[20px]">tune</span>
+                    <span class="material-symbols-outlined text-[20px] hover:[font-variation-settings:'FILL'_1] active:[font-variation-settings:'FILL'_1] transition-all duration-300">tune</span>
                 </button>
             </div>
 
@@ -172,9 +172,9 @@
             <nav class="flex items-center gap-1">
                 {{ if .User }}
                 <button hx-get="/feedback/modal" hx-target="body" hx-swap="beforeend" data-testid="ag-nav-feedback-btn"
-                    class="w-12 h-12 flex items-center justify-center text-earth-clay/70 hover:text-earth-accent hover:bg-earth-sand/15 dark:text-earth-cream/70 dark:hover:bg-earth-cream/15 transition-colors"
+                    class="w-12 h-12 flex items-center justify-center text-earth-accent hover:text-earth-accent active:text-earth-accent transition-all duration-200"
                     title="Feedback" aria-label="Feedback">
-                    <span class="material-symbols-outlined">feedback</span>
+                    <span class="material-symbols-outlined hover:[font-variation-settings:'FILL'_1] active:[font-variation-settings:'FILL'_1] transition-all duration-300">feedback</span>
                 </button>
                 <button id="ag-nav-saved-btn" hx-get="/saved" hx-target="#listings-container" hx-indicator="#listings-loading" data-testid="ag-nav-saved-btn"
                     class="w-12 h-12 flex items-center justify-center text-earth-accent transition-all duration-200"
