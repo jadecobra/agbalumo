@@ -75,7 +75,7 @@ test.describe('Saved/Favorites Feature', () => {
     await expect(heart).toBeVisible();
 
     // Check if already saved and unsave first if so, to have a clean start
-    const isSaved = await heart.evaluate(el => el.classList.contains('text-earth-cream'));
+    const isSaved = await heart.evaluate(el => el.classList.contains('text-earth-accent'));
     if (isSaved) {
         const responsePromise = page.waitForResponse(res => 
             res.url().includes('/save') && res.request().method() === 'POST' && res.status() === 200
@@ -93,8 +93,8 @@ test.describe('Saved/Favorites Feature', () => {
     await heartToSave.click();
     await savePromise;
     
-    // Wait for HTMX swap and assert class changes (text-earth-cream for saved)
-    await expect(firstListing.locator('[data-testid="ag-save-btn"]:visible').first()).toHaveClass(/text-earth-cream/);
+    // Wait for HTMX swap and assert class changes (text-earth-accent for saved)
+    await expect(firstListing.locator('[data-testid="ag-save-btn"]:visible').first()).toHaveClass(/text-earth-accent/);
 
     // Click again to unsave
     const unsavePromise = page.waitForResponse(res => 
@@ -133,14 +133,14 @@ test.describe('Saved/Favorites Feature', () => {
     test.skip(isMobile, 'Saving from card not supported on mobile in this test');
 
     const heart = firstListing.locator('[data-testid="ag-save-btn"]:visible').first();
-    const isSaved = await heart.evaluate(el => el.classList.contains('text-earth-cream'));
+    const isSaved = await heart.evaluate(el => el.classList.contains('text-earth-accent'));
     if (!isSaved) {
         const savePromise = page.waitForResponse(res => 
             res.url().includes('/save') && res.request().method() === 'POST' && res.status() === 200
         );
         await heart.click();
         await savePromise;
-        await expect(firstListing.locator('[data-testid="ag-save-btn"]:visible').first()).toHaveClass(/text-earth-cream/);
+        await expect(firstListing.locator('[data-testid="ag-save-btn"]:visible').first()).toHaveClass(/text-earth-accent/);
     }
 
     // Click nav heart
@@ -183,14 +183,14 @@ test.describe('Saved/Favorites Feature', () => {
     test.skip(isMobile, 'Saving from card not supported on mobile in this test');
 
     const heart = firstListing.locator('[data-testid="ag-save-btn"]:visible').first();
-    const isSaved = await heart.evaluate(el => el.classList.contains('text-earth-cream'));
+    const isSaved = await heart.evaluate(el => el.classList.contains('text-earth-accent'));
     if (!isSaved) {
         const savePromise = page.waitForResponse(res => 
             res.url().includes('/save') && res.request().method() === 'POST' && res.status() === 200
         );
         await heart.click();
         await savePromise;
-        await expect(firstListing.locator('[data-testid="ag-save-btn"]:visible').first()).toHaveClass(/text-earth-cream/);
+        await expect(firstListing.locator('[data-testid="ag-save-btn"]:visible').first()).toHaveClass(/text-earth-accent/);
     }
 
     // Click nav heart
@@ -210,7 +210,7 @@ test.describe('Saved/Favorites Feature', () => {
     // Verify heart button is visible on card in saved listing view and has the homepage background color when active
     const savedCardHeart = savedCard.locator('[data-testid="ag-save-btn"]:visible').first();
     await expect(savedCardHeart).toBeVisible();
-    await expect(savedCardHeart).toHaveClass(/text-earth-cream/);
+    await expect(savedCardHeart).toHaveClass(/text-earth-accent/);
 
     // Click heart to remove from saved list
     const removePromise = page.waitForResponse(res => 
@@ -256,14 +256,14 @@ test.describe('Saved/Favorites Feature', () => {
     test.skip(isMobile, 'Saving from card not supported on mobile in this test');
 
     const heart = firstListing.locator('[data-testid="ag-save-btn"]:visible').first();
-    const isSaved = await heart.evaluate(el => el.classList.contains('text-earth-cream'));
+    const isSaved = await heart.evaluate(el => el.classList.contains('text-earth-accent'));
     if (!isSaved) {
         const savePromise = page.waitForResponse(res => 
             res.url().includes('/save') && res.request().method() === 'POST' && res.status() === 200
         );
         await heart.click();
         await savePromise;
-        await expect(firstListing.locator('[data-testid="ag-save-btn"]:visible').first()).toHaveClass(/text-earth-cream/);
+        await expect(firstListing.locator('[data-testid="ag-save-btn"]:visible').first()).toHaveClass(/text-earth-accent/);
     }
 
     // 1. Click on profile button to show profile modal
@@ -286,7 +286,7 @@ test.describe('Saved/Favorites Feature', () => {
     // 3. Verify heart button is visible on that listing card in profile modal and matches the homepage background color when active
     const modalSavedCardHeart = modalSavedCard.locator('[data-testid="ag-save-btn"]:visible').first();
     await expect(modalSavedCardHeart).toBeVisible();
-    await expect(modalSavedCardHeart).toHaveClass(/text-earth-cream/);
+    await expect(modalSavedCardHeart).toHaveClass(/text-earth-accent/);
 
     // 4. Click heart button to remove the listing from the saved list
     const removePromise = page.waitForResponse(res => 
