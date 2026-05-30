@@ -172,7 +172,7 @@
             <nav class="flex items-center gap-1">
                 {{ if .User }}
                 <button hx-get="/feedback/modal" hx-target="body" hx-swap="beforeend" data-testid="ag-nav-feedback-btn"
-                    class="w-12 h-12 flex items-center justify-center text-earth-clay/80 hover:text-earth-accent hover:bg-surface-dark/40 dark:text-earth-cream/60 dark:hover:bg-earth-cream/10 transition-colors"
+                    class="w-12 h-12 flex items-center justify-center text-earth-clay/70 hover:text-earth-accent hover:bg-earth-sand/15 dark:text-earth-cream/70 dark:hover:bg-earth-cream/15 transition-colors"
                     title="Feedback" aria-label="Feedback">
                     <span class="material-symbols-outlined">feedback</span>
                 </button>
@@ -186,7 +186,7 @@
             </nav>
 
             <!-- Action Buttons -->
-            <div class="flex items-center gap-3 border-l border-earth-clay/15 dark:border-white/10 pl-4">
+            <div class="flex items-center gap-3 border-l border-earth-clay/10 dark:border-white/10 pl-4">
                 <!-- Removed Ask button for Ada focus -->
                 <button data-auth-action="modal" data-modal-id="create-listing-modal"
                     data-testid="ag-nav-post-btn-desktop"
@@ -206,7 +206,7 @@
                 <div class="group relative">
                     <button class="flex items-center gap-2" hx-get="/profile" hx-target="body" hx-swap="beforeend" data-testid="ag-nav-profile-btn">
                         <img src="{{ .User.AvatarURL }}" alt="Profile"
-                            class="w-9 h-9  border-2 border-white dark:border-white/10 shadow-sm object-cover">
+                            class="w-9 h-9  border-2 border-white dark:border-earth-clay/30 shadow-sm object-cover">
                     </button>
                 </div>
                 {{ else }}

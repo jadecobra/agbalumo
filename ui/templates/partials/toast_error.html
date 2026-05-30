@@ -1,14 +1,13 @@
-<div id="toast-container" hx-swap-oob="true"
-    class="fixed top-4 right-4 z-50 max-w-sm w-full bg-earth-clay/5 dark:bg-earth-clay/15 border border-earth-clay/20 dark:border-earth-clay/40 shadow-lg p-4 flex items-start gap-3 animate-in slide-in-from-top-2 fade-in"
-    role="alert"
-    data-testid="ag-toast-error">
+<div id="toast-{{ .ID }}" data-toast-auto-dismiss="5000"
+    class="fixed top-4 right-4 z-50 max-w-sm w-full bg-earth-clay/5 dark:bg-earth-clay/20 border border-earth-clay/20 dark:border-earth-clay/35  shadow-lg p-4 flex items-start gap-3 animate-in slide-in-from-top-2 fade-in"
+    role="alert">
     <span class="material-symbols-outlined text-earth-clay text-[20px] mt-0.5">error</span>
-    <div class="flex-grow min-w-0">
-        <p class="text-sm font-bold text-earth-clay dark:text-earth-cream">{{ .Title }}</p>
-        <p class="text-xs font-medium text-earth-clay/80 dark:text-earth-cream/80 mt-1">{{ .Message }}</p>
+    <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium text-earth-clay dark:text-earth-clay-dark">{{ .Title }}</p>
+        <p class="text-sm text-text-sub dark:text-earth-cream/70 mt-1">{{ .Message }}</p>
     </div>
-    <button hx-on:click="this.closest('#toast-container').remove()"
-        class="text-earth-clay/60 hover:text-earth-clay dark:text-earth-cream/60 dark:hover:text-white transition-colors">
-        <span class="material-symbols-outlined text-[16px]">close</span>
+    <button hx-on:click="closeToast('toast-{{ .ID }}')"
+        class="text-earth-clay/50 hover:text-earth-clay dark:hover:text-earth-accent transition-colors">
+        <span class="material-symbols-outlined text-[18px]">close</span>
     </button>
 </div>
