@@ -75,7 +75,7 @@ test.describe('Saved/Favorites Feature', () => {
     await expect(heart).toBeVisible();
 
     // Check if already saved and unsave first if so, to have a clean start
-    const isSaved = await heart.evaluate(el => el.classList.contains('text-earth-accent'));
+    const isSaved = await heart.evaluate(el => el.getAttribute('aria-label') === 'Unsave listing');
     if (isSaved) {
         const responsePromise = page.waitForResponse(res => 
             res.url().includes('/save') && res.request().method() === 'POST' && res.status() === 200
@@ -133,7 +133,7 @@ test.describe('Saved/Favorites Feature', () => {
     test.skip(isMobile, 'Saving from card not supported on mobile in this test');
 
     const heart = firstListing.locator('[data-testid="ag-save-btn"]:visible').first();
-    const isSaved = await heart.evaluate(el => el.classList.contains('text-earth-accent'));
+    const isSaved = await heart.evaluate(el => el.getAttribute('aria-label') === 'Unsave listing');
     if (!isSaved) {
         const savePromise = page.waitForResponse(res => 
             res.url().includes('/save') && res.request().method() === 'POST' && res.status() === 200
@@ -183,7 +183,7 @@ test.describe('Saved/Favorites Feature', () => {
     test.skip(isMobile, 'Saving from card not supported on mobile in this test');
 
     const heart = firstListing.locator('[data-testid="ag-save-btn"]:visible').first();
-    const isSaved = await heart.evaluate(el => el.classList.contains('text-earth-accent'));
+    const isSaved = await heart.evaluate(el => el.getAttribute('aria-label') === 'Unsave listing');
     if (!isSaved) {
         const savePromise = page.waitForResponse(res => 
             res.url().includes('/save') && res.request().method() === 'POST' && res.status() === 200
@@ -256,7 +256,7 @@ test.describe('Saved/Favorites Feature', () => {
     test.skip(isMobile, 'Saving from card not supported on mobile in this test');
 
     const heart = firstListing.locator('[data-testid="ag-save-btn"]:visible').first();
-    const isSaved = await heart.evaluate(el => el.classList.contains('text-earth-accent'));
+    const isSaved = await heart.evaluate(el => el.getAttribute('aria-label') === 'Unsave listing');
     if (!isSaved) {
         const savePromise = page.waitForResponse(res => 
             res.url().includes('/save') && res.request().method() === 'POST' && res.status() === 200
