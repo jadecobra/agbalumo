@@ -20,9 +20,10 @@ func TestRender_SaveButton_Saved(t *testing.T) {
 		"OOB":            false,
 	})
 	assert.Contains(t, out, `id="save-btn-abc-123"`)
-	assert.Contains(t, out, "favorite")           // filled heart icon
-	assert.Contains(t, out, "text-earth-accent")  // saved state color
-	assert.NotContains(t, out, "favorite_border") // NOT outline
+	assert.Contains(t, out, "favorite")          // filled heart icon
+	assert.Contains(t, out, "text-earth-accent") // saved state color
+	assert.Contains(t, out, "[font-variation-settings:'FILL'_1]")
+	assert.NotContains(t, out, "hover:[font-variation-settings:'FILL'_1]")
 }
 
 func TestRender_SaveButton_Unsaved(t *testing.T) {
@@ -34,8 +35,9 @@ func TestRender_SaveButton_Unsaved(t *testing.T) {
 		"IDPrefix":       "",
 		"OOB":            false,
 	})
-	assert.Contains(t, out, "favorite_border")    // outline heart
-	assert.Contains(t, out, "text-earth-clay/40") // unsaved state color
+	assert.Contains(t, out, "favorite")
+	assert.Contains(t, out, "hover:[font-variation-settings:'FILL'_1]")
+	assert.Contains(t, out, "text-earth-clay/50") // unsaved state color
 }
 
 func TestRender_ListingCard_WithSavedIDs(t *testing.T) {
