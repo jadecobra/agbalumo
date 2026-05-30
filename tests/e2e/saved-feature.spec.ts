@@ -222,11 +222,11 @@ test.describe('Saved/Favorites Feature', () => {
     // Verify it toggles to unsaved state (text-white)
     await expect(savedCardHeart).toHaveClass(/text-white/);
 
-    // Refresh saved view and verify the listing is no longer listed
+    // Navigate back to saved view and verify the listing is no longer listed
     const refreshPromise = page.waitForResponse(res => 
       res.url().includes('/saved') && res.status() === 200
     );
-    await navBtn.click();
+    await page.goto('/saved');
     await refreshPromise;
 
     // The card should no longer be visible in the saved listings container
