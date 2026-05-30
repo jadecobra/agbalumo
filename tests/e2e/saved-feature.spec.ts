@@ -82,7 +82,9 @@ test.describe('Saved/Favorites Feature', () => {
         );
         await heart.click();
         await responsePromise;
-        await expect(firstListing.locator('[data-testid="ag-save-btn"]:visible').first()).toHaveClass(/text-white/);
+        const unsavedHeart = firstListing.locator('[data-testid="ag-save-btn"]:visible').first();
+        await expect(unsavedHeart).toHaveClass(/text-white/);
+        await expect(unsavedHeart).not.toHaveClass(/text-earth-accent/);
     }
     
     // Click heart to save
@@ -104,7 +106,9 @@ test.describe('Saved/Favorites Feature', () => {
     await unsavePromise;
     
     // Assert toggled back (text-white for unsaved)
-    await expect(firstListing.locator('[data-testid="ag-save-btn"]:visible').first()).toHaveClass(/text-white/);
+    const toggledHeart = firstListing.locator('[data-testid="ag-save-btn"]:visible').first();
+    await expect(toggledHeart).toHaveClass(/text-white/);
+    await expect(toggledHeart).not.toHaveClass(/text-earth-accent/);
   });
 
   test('saved nav button filters to saved listings', async ({ page }, testInfo) => {
@@ -221,6 +225,7 @@ test.describe('Saved/Favorites Feature', () => {
 
     // Verify it toggles to unsaved state (text-white)
     await expect(savedCardHeart).toHaveClass(/text-white/);
+    await expect(savedCardHeart).not.toHaveClass(/text-earth-accent/);
 
     // Navigate back to saved view and verify the listing is no longer listed
     const refreshPromise = page.waitForResponse(res => 
@@ -297,6 +302,7 @@ test.describe('Saved/Favorites Feature', () => {
 
     // 5. Verify the heart button updates to unsaved state (text-white)
     await expect(modalSavedCardHeart).toHaveClass(/text-white/);
+    await expect(modalSavedCardHeart).not.toHaveClass(/text-earth-accent/);
 
     // 6. Close the profile modal and reopen to verify the listing card is gone
     const closeBtn = modal.locator('button[aria-label="Close"]').first();
