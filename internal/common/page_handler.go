@@ -214,6 +214,7 @@ func (h *PageHandler) HandleSandbox(c echo.Context) error {
 	}
 
 	baseViewData := h.PopulateBase(c)
+	baseViewData.User = mockUser
 
 	mockDetailData := struct {
 		GoogleMapsApiKey string
@@ -296,10 +297,20 @@ func (h *PageHandler) HandleSandbox(c echo.Context) error {
 	mockAdminMetrics := struct {
 		ListingGrowth []domain.DailyMetric
 		UserGrowth    []domain.DailyMetric
+		ClaimRequests []domain.ClaimRequest
+		Categories    []domain.CategoryData
+		Counts        map[string]int
+		Category      string
+		QueryText     string
+		SortField     string
+		SortOrder     string
 		module.BaseViewData
+		Pagination      domain.Pagination
 		AdaDiscoveryAvg float64
 		UserCount       int
 		ListingCount    int
+		SelectedCount   int
+		TotalCount      int
 	}{
 		UserCount:       128,
 		ListingCount:    49,
@@ -322,7 +333,28 @@ func (h *PageHandler) HandleSandbox(c echo.Context) error {
 			{Date: "05-30", Count: 108},
 			{Date: "05-31", Count: 128},
 		},
-		BaseViewData: baseViewData,
+		ClaimRequests: []domain.ClaimRequest{
+			{
+				ID:           "claim-1",
+				ListingID:    "mock-listing-featured",
+				ListingTitle: "Premium Suya & Grill",
+				UserID:       "mock-user-123",
+				UserName:     "Chidi Egwu",
+				UserEmail:    "owner@agbalumo.com",
+				CreatedAt:    time.Now().Add(-2 * time.Hour),
+				Status:       domain.ClaimStatusPending,
+			},
+		},
+		Categories:    mockCategories,
+		Counts:        mockCounts,
+		Category:      "",
+		QueryText:     "",
+		SortField:     "date",
+		SortOrder:     "DESC",
+		Pagination:    mockPagination1,
+		BaseViewData:  baseViewData,
+		SelectedCount: 0,
+		TotalCount:    49,
 	}
 
 	mockAdminUsers := []domain.User{
