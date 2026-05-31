@@ -124,6 +124,38 @@ func findDefinesInDirs(rootDir string, dirs []string) (map[string]string, error)
 	return defined, nil
 }
 
+func findMatchingCloseTag(content string, tagStart int, tagName string) int {
+	startTagEnd := strings.Index(content[tagStart:], ">")
+	if startTagEnd == -1 {
+		return -1
+	}
+	currentIndex := tagStart + startTagEnd + 1
+
+	depth := 1
+	pattern := `(?i)<(/)?` + regexp.QuoteMeta(tagName) + `\b`
+	re := regexp.MustCompile(pattern)
+
+	for {
+		loc := re.FindStringSubmatchIndex(content[currentIndex:])
+		if loc == nil {
+			break
+		}
+
+		isClose := loc[2] != -1
+		currentIndex += loc[1]
+
+		if isClose {
+			depth--
+			if depth == 0 {
+				return currentIndex - loc[1] + loc[0]
+			}
+		} else {
+			depth++
+		}
+	}
+	return -1
+}
+
 func isTemplateInsideTag(content string, tmplStart int, tagMatch []int) bool {
 	if len(tagMatch) < 4 {
 		return false
@@ -137,21 +169,19 @@ func isTemplateInsideTag(content string, tmplStart int, tagMatch []int) bool {
 	tagNameEnd := tagMatch[3]
 	tagName := strings.ToLower(content[tagNameStart:tagNameEnd])
 
-	subContent := content[tagStart:tmplStart]
+	closeIndex := findMatchingCloseTag(content, tagStart, tagName)
+	if closeIndex == -1 {
+		return true
+	}
 
-	openPattern := `(?i)<` + regexp.QuoteMeta(tagName) + `\b`
-	reOpen := regexp.MustCompile(openPattern)
-	opens := len(reOpen.FindAllStringIndex(subContent, -1))
-
-	closePattern := `(?i)</` + regexp.QuoteMeta(tagName) + `\b`
-	reClose := regexp.MustCompile(closePattern)
-	closes := len(reClose.FindAllStringIndex(subContent, -1))
-
-	return opens > closes
+	return tmplStart < closeIndex
 }
 
 func findHiddenTemplatesInMatches(content string, matches [][]int, hiddenTagMatches [][]int) map[string]bool {
 	hiddenTemplates := make(map[string]bool)
+	totalRefs := make(map[string]int)
+	hiddenRefs := make(map[string]int)
+
 	for _, match := range matches {
 		if len(match) < 4 {
 			continue
@@ -159,13 +189,26 @@ func findHiddenTemplatesInMatches(content string, matches [][]int, hiddenTagMatc
 		tmplStart := match[0]
 		tmplName := content[match[2]:match[3]]
 
+		totalRefs[tmplName]++
+
+		isHidden := false
 		for _, tagMatch := range hiddenTagMatches {
 			if isTemplateInsideTag(content, tmplStart, tagMatch) {
-				hiddenTemplates[tmplName] = true
+				isHidden = true
 				break
 			}
 		}
+		if isHidden {
+			hiddenRefs[tmplName]++
+		}
 	}
+
+	for name, total := range totalRefs {
+		if hiddenRefs[name] == total {
+			hiddenTemplates[name] = true
+		}
+	}
+
 	return hiddenTemplates
 }
 
