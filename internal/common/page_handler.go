@@ -41,35 +41,35 @@ func (h *PageHandler) HandleAbout(c echo.Context) error {
 
 // SandboxViewModel represents the strongly-typed data passed to the sandbox page template.
 type SandboxViewModel struct {
-	Config       *config.Config
-	MockUser     *domain.User
-	MockSavedIDs map[string]bool
+	MockFeedbackData    interface{}
+	MockCreateData      interface{}
+	MockProfileData     interface{}
+	MockDetailData      interface{}
+	MockAdminMetrics    interface{}
+	MockEditData        interface{}
+	MockLoginPromptData interface{}
+	MockUser            *domain.User
+	MockSavedIDs        map[string]bool
+	MockNilUser         *domain.User
+	Config              *config.Config
+	MockCounts          map[string]int
+	MockAdminFeedback   domain.Feedback
+	MockToastID         string
+	MockToastTitle      string
+	MockToastMessage    string
+	MockAdminListings   []domain.Listing
+	MockCategories      []domain.CategoryData
+	MockAdminUsers      []domain.User
 	module.BaseViewData
-	MockListingNormal     domain.Listing
-	MockListingFeatured   domain.Listing
-	MockListingJob        domain.Listing
-	MockListingEvent      domain.Listing
-	MockListingBusiness   domain.Listing
-	MockListingZeroRating domain.Listing
 	MockListingNotOwned   domain.Listing
-	MockPagination1       domain.Pagination
+	MockListingZeroRating domain.Listing
+	MockListingBusiness   domain.Listing
+	MockListingEvent      domain.Listing
+	MockListingJob        domain.Listing
+	MockListingFeatured   domain.Listing
+	MockListingNormal     domain.Listing
 	MockPagination2       domain.Pagination
-	MockDetailData        interface{}
-	MockProfileData       interface{}
-	MockCreateData        interface{}
-	MockEditData          interface{}
-	MockFeedbackData      interface{}
-	MockLoginPromptData   interface{}
-	MockCategories        []domain.CategoryData
-	MockCounts            map[string]int
-	MockAdminListings     []domain.Listing
-	MockAdminFeedback     domain.Feedback
-	MockAdminMetrics      interface{}
-	MockAdminUsers        []domain.User
-	MockNilUser           *domain.User
-	MockToastID           string
-	MockToastTitle        string
-	MockToastMessage      string
+	MockPagination1       domain.Pagination
 }
 
 // HandleSandbox renders the component sandbox page for non-production environments.

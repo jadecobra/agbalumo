@@ -191,14 +191,7 @@ func findHiddenTemplatesInMatches(content string, matches [][]int, hiddenTagMatc
 
 		totalRefs[tmplName]++
 
-		isHidden := false
-		for _, tagMatch := range hiddenTagMatches {
-			if isTemplateInsideTag(content, tmplStart, tagMatch) {
-				isHidden = true
-				break
-			}
-		}
-		if isHidden {
+		if isPositionHidden(content, tmplStart, hiddenTagMatches) {
 			hiddenRefs[tmplName]++
 		}
 	}
@@ -210,6 +203,15 @@ func findHiddenTemplatesInMatches(content string, matches [][]int, hiddenTagMatc
 	}
 
 	return hiddenTemplates
+}
+
+func isPositionHidden(content string, tmplStart int, hiddenTagMatches [][]int) bool {
+	for _, tagMatch := range hiddenTagMatches {
+		if isTemplateInsideTag(content, tmplStart, tagMatch) {
+			return true
+		}
+	}
+	return false
 }
 
 func checkHiddenDivReferences(sandboxFile string, rootDir string) (map[string]bool, error) {
