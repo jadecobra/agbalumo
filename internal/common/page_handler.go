@@ -39,40 +39,6 @@ func (h *PageHandler) HandleAbout(c echo.Context) error {
 	return h.RenderTyped(c, "about.html", vm)
 }
 
-// SandboxPagination replicates the pagination structure locally to avoid import cycles.
-type SandboxPagination struct {
-	Page        int
-	Limit       int
-	Offset      int
-	TotalCount  int
-	TotalPages  int
-	HasNextPage bool
-}
-
-// GetPageRange returns a slice of page numbers for template display.
-func (p SandboxPagination) GetPageRange() []int {
-	if p.TotalPages <= 1 {
-		return nil
-	}
-	start := p.Page - 2
-	if start < 1 {
-		start = 1
-	}
-	end := start + 4
-	if end > p.TotalPages {
-		end = p.TotalPages
-		start = end - 4
-		if start < 1 {
-			start = 1
-		}
-	}
-	var pages []int
-	for i := start; i <= end; i++ {
-		pages = append(pages, i)
-	}
-	return pages
-}
-
 // SandboxViewModel represents the strongly-typed data passed to the sandbox page template.
 type SandboxViewModel struct {
 	Config       *config.Config
@@ -81,8 +47,8 @@ type SandboxViewModel struct {
 	module.BaseViewData
 	MockListingNormal   domain.Listing
 	MockListingFeatured domain.Listing
-	MockPagination1     SandboxPagination
-	MockPagination2     SandboxPagination
+	MockPagination1     domain.Pagination
+	MockPagination2     domain.Pagination
 }
 
 // HandleSandbox renders the component sandbox page for non-production environments.
@@ -137,7 +103,7 @@ func (h *PageHandler) HandleSandbox(c echo.Context) error {
 		"mock-listing-normal":   false,
 	}
 
-	mockPagination1 := SandboxPagination{
+	mockPagination1 := domain.Pagination{
 		Page:        1,
 		Limit:       10,
 		Offset:      0,
@@ -146,7 +112,7 @@ func (h *PageHandler) HandleSandbox(c echo.Context) error {
 		HasNextPage: true,
 	}
 
-	mockPagination2 := SandboxPagination{
+	mockPagination2 := domain.Pagination{
 		Page:        2,
 		Limit:       10,
 		Offset:      10,

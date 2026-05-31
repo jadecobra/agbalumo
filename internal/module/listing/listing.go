@@ -162,7 +162,7 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		City:         params.City,
 		FilterType:   params.Type,
 		TotalCount:   totalCount,
-		Pagination: Pagination{
+		Pagination: domain.Pagination{
 			Page:        p.Page,
 			Limit:       limit,
 			TotalPages:  (totalCount + limit - 1) / limit,
@@ -251,7 +251,7 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 		Radius:     radius,
 		UserLat:    lat,
 		UserLng:    lng,
-		Pagination: Pagination{
+		Pagination: domain.Pagination{
 			Page:        p.Page,
 			Limit:       p.Limit,
 			TotalPages:  (totalCount + p.Limit - 1) / p.Limit,

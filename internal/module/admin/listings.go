@@ -20,7 +20,7 @@ type AdminListingsViewModel struct {
 	QueryText string
 	Listings  []domain.Listing
 	module.BaseViewData
-	Pagination listing.Pagination
+	Pagination domain.Pagination
 	TotalCount int
 }
 
@@ -48,7 +48,7 @@ func (h *AdminHandler) HandleAllListings(c echo.Context) error {
 	vm := AdminListingsViewModel{
 		BaseViewData: h.PopulateBase(c),
 		Listings:     listings,
-		Pagination: listing.Pagination{
+		Pagination: domain.Pagination{
 			Page:        pagination.Page,
 			TotalPages:  (totalCountRows + pagination.Limit - 1) / pagination.Limit,
 			HasNextPage: hasNextPage,

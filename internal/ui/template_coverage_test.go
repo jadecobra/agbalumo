@@ -44,7 +44,7 @@ var TemplateMockRegistry = map[string]interface{}{
 	"index.html": listing.HomeViewModel{
 		BaseViewData: baseData,
 		Listings:     []domain.Listing{mockListing},
-		Pagination:   listing.Pagination{Page: 1, TotalPages: 1},
+		Pagination:   domain.Pagination{Page: 1, TotalPages: 1},
 	},
 	"profile.html": listing.ProfileViewModel{
 		BaseViewData: baseData,
@@ -63,12 +63,12 @@ var TemplateMockRegistry = map[string]interface{}{
 	"admin_listings.html": admin.AdminListingsViewModel{
 		BaseViewData: baseData,
 		Listings:     []domain.Listing{mockListing},
-		Pagination:   listing.Pagination{Page: 1, TotalPages: 1},
+		Pagination:   domain.Pagination{Page: 1, TotalPages: 1},
 	},
 	"admin_users.html": admin.AdminUsersViewModel{
 		BaseViewData: baseData,
 		Users:        []domain.User{mockUser},
-		Pagination:   listing.Pagination{Page: 1, TotalPages: 1},
+		Pagination:   domain.Pagination{Page: 1, TotalPages: 1},
 	},
 	"admin_login.html": map[string]interface{}{"Error": "", "CSRF": "test-csrf"},
 	"about.html":       baseData,
@@ -113,7 +113,7 @@ var TemplateMockRegistry = map[string]interface{}{
 	},
 	"admin_listing_table_header": admin.AdminListingsViewModel{
 		BaseViewData: baseData,
-		Pagination:   listing.Pagination{Page: 1},
+		Pagination:   domain.Pagination{Page: 1},
 		SortField:    "title",
 		SortOrder:    "ASC",
 		Category:     "Food",
@@ -176,13 +176,13 @@ var TemplateMockRegistry = map[string]interface{}{
 	"navigation":           baseData,
 	"admin_header_content": admin.AdminDashboardViewModel{},
 	"pagination": map[string]interface{}{
-		"Pagination": listing.Pagination{Page: 1, TotalPages: 5},
+		"Pagination": domain.Pagination{Page: 1, TotalPages: 5},
 		"FilterType": "Food",
 		"City":       "Lagos",
 		"Query":      "Suya",
 	},
 	"admin_pagination.html": map[string]interface{}{
-		"Pagination": listing.Pagination{Page: 1, TotalPages: 5},
+		"Pagination": domain.Pagination{Page: 1, TotalPages: 5},
 		"Category":   "",
 		"QueryText":  "",
 		"SortField":  "",
@@ -227,7 +227,7 @@ var TemplateMockRegistry = map[string]interface{}{
 	},
 	"listing_list": listing.ListingFragmentViewModel{
 		Listings:   []domain.Listing{mockListing},
-		Pagination: listing.Pagination{Page: 1, TotalPages: 1},
+		Pagination: domain.Pagination{Page: 1, TotalPages: 1},
 	},
 	"listing_card": map[string]interface{}{
 		"Listing":   mockListing,

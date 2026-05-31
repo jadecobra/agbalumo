@@ -35,7 +35,7 @@ type HomeViewModel struct {
 	Locations        []domain.Location
 	Featured         []domain.Listing
 	module.BaseViewData
-	Pagination Pagination
+	Pagination domain.Pagination
 	Radius     float64
 	UserLat    float64
 	UserLng    float64
@@ -53,7 +53,7 @@ type ListingFragmentViewModel struct {
 	Source       string
 	Listings     []domain.Listing
 	Featured     []domain.Listing
-	Pagination   Pagination
+	Pagination   domain.Pagination
 	Radius       float64
 	UserLat      float64
 	UserLng      float64
@@ -98,7 +98,7 @@ type SavedListingsViewModel struct {
 	Featured     []domain.Listing
 	Listings     []domain.Listing
 	module.BaseViewData
-	Pagination Pagination
+	Pagination domain.Pagination
 	Radius     float64
 	UserLat    float64
 	UserLng    float64

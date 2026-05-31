@@ -97,7 +97,7 @@ func (h *ListingHandler) HandleSavedListings(c echo.Context) error {
 		Listings:     listings,
 		SavedIDs:     savedIDs,
 		Source:       "saved",
-		Pagination: Pagination{
+		Pagination: domain.Pagination{
 			TotalCount: len(listings),
 		},
 		UserLat: lat,

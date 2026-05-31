@@ -11,7 +11,7 @@ import (
 type AdminUsersViewModel struct {
 	Users []domain.User
 	module.BaseViewData
-	Pagination listing.Pagination
+	Pagination domain.Pagination
 }
 
 // HandleUsers renders the list of users for admins.

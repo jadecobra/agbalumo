@@ -1,9 +1,8 @@
-package listing
+package domain
 
 import (
 	"testing"
 
-	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -12,11 +11,11 @@ func TestPagination_GetPageRange(t *testing.T) {
 	tests := []struct {
 		name       string
 		expected   []int
-		pagination domain.Pagination
+		pagination Pagination
 	}{
 		{
 			name: "SinglePage",
-			pagination: domain.Pagination{
+			pagination: Pagination{
 				Page:       1,
 				TotalPages: 1,
 			},
@@ -24,7 +23,7 @@ func TestPagination_GetPageRange(t *testing.T) {
 		},
 		{
 			name: "TwoPages",
-			pagination: domain.Pagination{
+			pagination: Pagination{
 				Page:       1,
 				TotalPages: 2,
 			},
@@ -32,7 +31,7 @@ func TestPagination_GetPageRange(t *testing.T) {
 		},
 		{
 			name: "FirstPage_ManyPages",
-			pagination: domain.Pagination{
+			pagination: Pagination{
 				Page:       1,
 				TotalPages: 10,
 			},
@@ -40,7 +39,7 @@ func TestPagination_GetPageRange(t *testing.T) {
 		},
 		{
 			name: "MiddlePage_ManyPages",
-			pagination: domain.Pagination{
+			pagination: Pagination{
 				Page:       5,
 				TotalPages: 10,
 			},
@@ -48,7 +47,7 @@ func TestPagination_GetPageRange(t *testing.T) {
 		},
 		{
 			name: "LastPage_ManyPages",
-			pagination: domain.Pagination{
+			pagination: Pagination{
 				Page:       10,
 				TotalPages: 10,
 			},
@@ -56,7 +55,7 @@ func TestPagination_GetPageRange(t *testing.T) {
 		},
 		{
 			name: "NearEnd_ManyPages",
-			pagination: domain.Pagination{
+			pagination: Pagination{
 				Page:       9,
 				TotalPages: 10,
 			},
@@ -64,7 +63,7 @@ func TestPagination_GetPageRange(t *testing.T) {
 		},
 		{
 			name: "SecondPage_SmallCount",
-			pagination: domain.Pagination{
+			pagination: Pagination{
 				Page:       2,
 				TotalPages: 3,
 			},
@@ -78,18 +77,4 @@ func TestPagination_GetPageRange(t *testing.T) {
 			assert.Equal(t, tt.expected, tt.pagination.GetPageRange())
 		})
 	}
-}
-
-func TestConvertCounts(t *testing.T) {
-	t.Parallel()
-	counts := map[domain.Category]int{
-		domain.Business: 10,
-		domain.Job:      5,
-	}
-
-	strCounts, total := ConvertCounts(counts)
-
-	assert.Equal(t, 15, total)
-	assert.Equal(t, 10, strCounts[string(domain.Business)])
-	assert.Equal(t, 5, strCounts[string(domain.Job)])
 }
