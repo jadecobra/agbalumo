@@ -75,12 +75,12 @@ func (p SandboxPagination) GetPageRange() []int {
 
 // SandboxViewModel represents the strongly-typed data passed to the sandbox page template.
 type SandboxViewModel struct {
-	Config *config.Config
+	Config       *config.Config
+	MockUser     *domain.User
+	MockSavedIDs map[string]bool
 	module.BaseViewData
 	MockListingNormal   domain.Listing
 	MockListingFeatured domain.Listing
-	MockUser            *domain.User
-	MockSavedIDs        map[string]bool
 	MockPagination1     SandboxPagination
 	MockPagination2     SandboxPagination
 }
