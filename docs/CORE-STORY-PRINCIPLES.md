@@ -20,10 +20,13 @@ This rule applies to the About page, any introductory microcopy on the home, sup
 ## Core Principles
 
 ### 1. Emotional Belonging First
+
 The story leads with the feeling of landing somewhere new and wanting to find places owned by people like us. Speed, trust signals, and features exist to serve this deeper need — they are not the headline in the narrative we tell externally.
 
 ### 2. Radical Transparency on Current Scope
+
 We always state clearly what exists right now. As of this writing:
+
 - The strongest, most verified part of the network is Nigerian and West African food.
 - Dallas currently has the best coverage.
 - We have real approved listings with contact information in a few Northeast cities as well.
@@ -32,22 +35,28 @@ We always state clearly what exists right now. As of this writing:
 Transparency builds trust with the exact people we want to attract (testers, early participants, and eventually business owners).
 
 ### 3. Food as the Honest Current Wedge
+
 We are deliberately starting with food because it is the category where we can deliver real, contact-ready, trustworthy options today. The long-term vision is a full network of African-owned businesses. We do not hide the vision, but we do not pretend the full network already exists.
 
 ### 4. Network Effect as the Long-Term Belief
+
 We believe that when African-owned businesses get real visibility to the diaspora, two things happen:
+
 - Owners get meaningful exposure to the people who will value them most.
 - Volume creates pressure for rising standards (or those businesses fade).
 
 Users benefit by being able to plug into community quickly with better experiences wherever they go.
 
 ### 5. Chicken-and-Egg Honesty
+
 We acknowledge openly that there is limited value for businesses until we have users, and limited richness for users until we have more verified businesses. The story invites participation ("add the next African-owned place") as the way we grow together.
 
 ### 6. Keep the Functional Experience Pure
+
 The site must deliver on the promise immediately:
+
 - Fast geo-aware search ("Near Me")
-- Curated Featured selections
+- Curated Featureds
 - Real contact information (phone, website, address)
 - Clear signals of what is currently trustworthy
 
@@ -61,15 +70,19 @@ Narrative changes must never degrade the speed or cleanliness of the core discov
 - The story people see on the site after arriving from WhatsApp or social must match the version they were sent.
 
 ## Measurement
+
 Early success is measured by time to first contact click (menu, call, website, or address) plus direct feedback. These signals help us prove the model to the next wave of businesses.
 
 ## References
+
 - ADR 2026-04-09: Pivot to Ada persona and food-first wedge.
 - docs/PERSONA.md: Detailed Ada profile and success criteria.
 - Current data reality: Nigerian/West African food dominant; Dallas strongest; admin + friend recommendations + scraper as the current sourcing path.
 
 ## For Future Sessions
+
 Before writing or editing any story-related copy:
+
 1. Read this document in full.
 2. Use only the approved "we" voice.
 3. State current scope transparently.

@@ -6,26 +6,7 @@
 
         <h1 class="sr-only">agbalumo: find what you want</h1>
 
-        <p class="text-[11px] text-text-sub font-light tracking-tight mb-3 px-1">Right now the strongest part of our network is Nigerian and West African food in Dallas and a few cities in the Northeast.</p>
-
-        <div class="mb-8 flex flex-wrap gap-2">
-            <span class="text-[11px] font-bold capitalize tracking-wide text-text-sub self-center mr-2">Try:</span>
-            {{ if .UserLat }}
-                <button type="button" id="near-me-btn" data-testid="ag-home-near-me-btn"
-                    class="bg-earth-ochre/20 text-earth-ochre hover:bg-earth-ochre/30 px-4 h-12 shrink-0 text-[11px] font-bold uppercase tracking-widest transition-colors border border-earth-ochre/50 flex items-center gap-2">
-                    <span id="near-me-icon" class="material-symbols-outlined text-[14px]">location_on</span>
-                    <span id="near-me-spinner" class="animate-spin rounded-none h-3.5 w-3.5 border-b-2 border-earth-ochre hidden"></span>
-                    <span id="near-me-text">📍 Nearby{{ if .City }} · {{ .City }}{{ end }}</span>
-                </button>
-            {{ else }}
-                <button type="button" id="near-me-btn" data-testid="ag-home-near-me-btn"
-                    class="bg-earth-sand/30 text-text-main hover:bg-earth-sand/50 px-4 h-12 shrink-0 text-[11px] font-bold uppercase tracking-widest transition-colors border border-earth-clay/10 flex items-center gap-2">
-                    <span id="near-me-icon" class="material-symbols-outlined text-[14px]">location_on</span>
-                    <span id="near-me-spinner" class="animate-spin rounded-none h-3.5 w-3.5 border-b-2 border-earth-ochre hidden"></span>
-                    <span id="near-me-text">Near Me</span>
-                </button>
-            {{ end }}
-        </div>
+        <p class="text-[12px] text-text-sub font-light tracking-tight mb-3 px-1">Right now the strongest part of our network is Nigerian and West African food in Dallas and a few cities in the Northeast.</p>
 
         <div id="listings-loading"
             class="htmx-indicator hidden [&.htmx-request]:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 auto-rows-[400px] md:auto-rows-[400px] mb-12 duration-300">
@@ -50,29 +31,47 @@
             {{ if .Featured }}
             <div class="mb-12">
                 <div class="flex items-center justify-between mb-8 px-1">
-                    <h2 class="text-xs font-bold uppercase tracking-[0.4em] text-earth-clay-dark">Featured Selection</h2>
-                    <div class="h-px flex-1 bg-earth-clay/10 mx-6"></div>
+                    <h2 class="text-xs font-bold uppercase tracking-[0.4em] text-earth-clay">Featured</h2>
+                    <div class="h-px flex-1 bg-earth-ochre/10 mx-6"></div>
                 </div>
-                <div class="flex gap-4 lg:gap-6 overflow-x-auto lg:overflow-visible pb-8 snap-x lg:snap-none lg:grid lg:grid-cols-3 no-scrollbar" tabindex="0" aria-label="Featured Selection">
+                <div class="flex gap-4 lg:gap-6 overflow-x-auto lg:overflow-visible pb-8 snap-x lg:snap-none lg:grid lg:grid-cols-3 no-scrollbar" tabindex="0" aria-label="Featured">
                     {{ range .Featured }}
-                        {{ template "featured_card" dict "Listing" . "User" $.User }}
+                    {{ template "featured_card" dict "Listing" . "User" $.User }}
                     {{ end }}
                 </div>
             </div>
             {{ end }}
         </div>
-
+        
         <h2 class="sr-only">All Listings</h2>
         
+        <!-- class="bg-earth-ochre/10 text-earth-ochre hover:bg-earth-ochre/50 px-4 h-12 shrink-0 text-[11px] font-bold uppercase tracking-widest transition-colors border border-earth-ochre/50 flex items-center gap-2"> -->
+        <div id="nearby-listings-section" class="mb-8 flex flex-wrap gap-2">
+            {{ if .UserLat }}
+                <button type="button" id="near-me-btn" data-testid="ag-home-near-me-btn"
+                    class="bg-earth-cream/10 text-earth-ochre hover:bg-earth-ochre/50 px-4 h-12 shrink-0 text-[11px] font-bold uppercase tracking-widest transition-colors border border-earth-cream/50 flex items-center gap-2">
+                    <span id="near-me-icon" class="material-symbols-outlined text-[14px]">location_on</span>
+                    <span id="near-me-spinner" class="animate-spin rounded-none h-3.5 w-3.5 border-b-2 border-earth-ochre hidden"></span>
+                    <span id="near-me-text">Nearby{{ if .City }} · {{ .City }}{{ end }}</span>
+                </button>
+            {{ else }}
+                <button type="button" id="near-me-btn" data-testid="ag-home-near-me-btn"
+                    class="bg-earth-sand/30 text-text-main hover:bg-earth-sand/50 px-4 h-12 shrink-0 text-[11px] font-bold uppercase tracking-widest transition-colors border border-earth-clay/10 flex items-center gap-2">
+                    <span id="near-me-icon" class="material-symbols-outlined text-[14px]">location_on</span>
+                    <span id="near-me-spinner" class="animate-spin rounded-none h-3.5 w-3.5 border-b-2 border-earth-ochre hidden"></span>
+                        <span id="near-me-text">Near Me</span>
+                </button>
+            {{ end }}
+        </div>
+
         <div id="location-status" hx-swap-oob="true">
             {{ if .Radius }}
             <div class="mb-6 px-1 flex items-center gap-2 text-[10px] font-bold capitalize tracking-wide text-earth-clay animate-in fade-in slide-in-from-left-2 duration-500">
-                <span class="material-symbols-outlined text-[14px]">location_on</span>
                 <span>Showing within {{ .Radius }} miles {{ if .City }} of {{ .City }}{{ else }}of your location{{ end }}</span>
             </div>
             {{ end }}
         </div>
-
+        
         <div id="listings-container"
             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 auto-rows-[400px] md:auto-rows-[400px] grid-flow-dense transition-opacity duration-300">
             {{ range $i, $e := .Listings }}

@@ -19,7 +19,7 @@
         ACTIVE_CLASSES.forEach(c => btn.classList.add(c));
         
         if (text) {
-            text.textContent = '📍 Nearby';
+            text.textContent = 'Nearby';
         }
         if (icon) icon.classList.remove('hidden');
         if (spinner) spinner.classList.add('hidden');

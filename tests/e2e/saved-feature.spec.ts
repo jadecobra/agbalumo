@@ -89,6 +89,7 @@ test.describe('Saved/Favorites Feature', () => {
     
     // Click heart to save
     const heartToSave = firstListing.locator('[data-testid="ag-save-btn"]:visible').first();
+    await page.waitForTimeout(500);
     const savePromise = page.waitForResponse(res => 
         res.url().includes('/save') && res.request().method() === 'POST' && res.status() === 200
     );
@@ -99,6 +100,7 @@ test.describe('Saved/Favorites Feature', () => {
     await expect(firstListing.locator('[data-testid="ag-save-btn"]:visible').first()).toHaveClass(/text-earth-accent/);
 
     // Click again to unsave
+    await page.waitForTimeout(500);
     const unsavePromise = page.waitForResponse(res => 
         res.url().includes('/save') && res.request().method() === 'POST' && res.status() === 200
     );

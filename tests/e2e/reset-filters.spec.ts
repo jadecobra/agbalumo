@@ -104,6 +104,7 @@ test.describe('Reset Filters UX', () => {
     await expect(viewAllLink).toBeVisible({ timeout: 10000 });
 
     // 5. Click "View All Listings" and intercept request (no timeout; prior response + Playwright auto-wait)
+    await page.waitForTimeout(500);
     const [request] = await Promise.all([
       page.waitForRequest(req => req.url().includes('/listings/fragment')),
       viewAllLink.click()

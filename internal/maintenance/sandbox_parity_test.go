@@ -57,6 +57,31 @@ func TestCheckSandboxParity(t *testing.T) {
 			`,
 			wantViolations: 0,
 		},
+		{
+			name:       "Raw button without sandbox launch testid - violation",
+			components: "",
+			sandbox: `
+				<button class="px-6 py-3 bg-earth-dark text-white">Click me</button>
+			`,
+			wantViolations: 1,
+		},
+		{
+			name:       "Raw listing-card class - violation",
+			components: "",
+			sandbox: `
+				<div class="listing-card card-juicy">Some Listing</div>
+			`,
+			wantViolations: 1,
+		},
+		{
+			name:       "Allowed sandbox launch button - no violations",
+			components: "",
+			sandbox: `
+				<button data-testid="sandbox-launch-feedback">Feedback</button>
+				<button data-testid="sandbox-launch-login-prompt">Login</button>
+			`,
+			wantViolations: 0,
+		},
 	}
 
 	for _, tt := range tests {
@@ -68,7 +93,7 @@ func TestCheckSandboxParity(t *testing.T) {
 
 			violations, _ := CheckSandboxParity(tmpDir)
 			if len(violations) != tt.wantViolations {
-				t.Errorf("CheckSandboxParity() got %d violations, want %d", len(violations), tt.wantViolations)
+				t.Errorf("CheckSandboxParity() got %d violations, want %d (violations: %+v)", len(violations), tt.wantViolations, violations)
 			}
 		})
 	}

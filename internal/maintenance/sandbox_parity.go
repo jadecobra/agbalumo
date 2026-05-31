@@ -33,7 +33,41 @@ func CheckSandboxParity(rootDir string) ([]SandboxParityViolation, error) {
 		return nil, err
 	}
 
-	return findMissingComponents(defined, referenced), nil
+	violations := findMissingComponents(defined, referenced)
+
+	// Additional raw HTML drift check on sandbox.html
+	if !os.IsNotExist(err) {
+		contentBytes, err := os.ReadFile(filepath.Clean(sandboxFile))
+		if err == nil {
+			content := string(contentBytes)
+
+			// 1. Raw button check (must use template or be an allowed sandbox launcher)
+			reButton := regexp.MustCompile(`(?i)<button\b[^>]*>`)
+			reAllowed := regexp.MustCompile(`(?i)data-testid="sandbox-launch-`)
+			matches := reButton.FindAllString(content, -1)
+			for _, btnTag := range matches {
+				if !reAllowed.MatchString(btnTag) {
+					violations = append(violations, SandboxParityViolation{
+						Component: "Raw Button",
+						File:      "ui/templates/sandbox.html",
+						Message:   fmt.Sprintf("Raw <button> element detected: %q in sandbox.html. Use button_sharp template instead.", btnTag),
+					})
+				}
+			}
+
+			// 2. Raw listing card check
+			reCard := regexp.MustCompile(`\blisting-card\b`)
+			if reCard.MatchString(content) {
+				violations = append(violations, SandboxParityViolation{
+					Component: "Raw Listing Card",
+					File:      "ui/templates/sandbox.html",
+					Message:   "Raw listing-card class detected in sandbox.html. Use listing_card template instead.",
+				})
+			}
+		}
+	}
+
+	return violations, nil
 }
 
 func findMissingComponents(defined, referenced []string) []SandboxParityViolation {
