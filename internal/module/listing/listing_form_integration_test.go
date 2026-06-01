@@ -54,7 +54,7 @@ func TestListingHandler_FormParsing(t *testing.T) {
 		},
 		{
 			name:           "Success_RequestWithDeadline",
-			body:           "title=Request+Test&type=Request&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St&city=Lagos&deadline_date=2026-05-31",
+			body:           "title=Request+Test&type=Request&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St&city=Lagos&deadline_date=2026-06-15",
 			setup:          func(t *testing.T, repo domain.ListingRepository) {},
 			expectedStatus: http.StatusOK,
 			verify: func(t *testing.T, repo domain.ListingRepository) {
@@ -62,7 +62,7 @@ func TestListingHandler_FormParsing(t *testing.T) {
 				assert.NoError(t, err)
 				if assert.Len(t, listings, 1) {
 					assert.Equal(t, 2026, listings[0].Deadline.Year())
-					assert.Equal(t, 5, int(listings[0].Deadline.Month()))
+					assert.Equal(t, 6, int(listings[0].Deadline.Month()))
 				}
 			},
 		},
