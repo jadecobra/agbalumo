@@ -447,15 +447,82 @@
                 </div>
             </div>
 
-            <!-- Admin Modal Parity Blocks (No-op references to satisfy scans) -->
-            <div>
-                {{ template "admin_modal_bulk.html" .MockCreateData }}
-                {{ template "admin_modal_category.html" (dict "Categories" .MockCategories "CSRF" .BaseViewData.CSRF) }}
-                {{ template "admin_modal_charts.html" .MockAdminMetrics }}
-                {{ template "admin_modal_moderation.html" (dict "ClaimRequests" .MockAdminMetrics.ClaimRequests "BaseViewData" .BaseViewData) }}
-                {{ template "admin_modal_users.html" (dict "Users" .MockAdminUsers "BaseViewData" .BaseViewData) }}
+        <!-- Admin Modals Section -->
+        <section class="space-y-6 col-span-full">
+            <div class="flex items-center gap-3 border-l-8 border-red-600 pl-4">
+                <span class="material-symbols-outlined text-red-600" aria-hidden="true">visibility</span>
+                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Admin Modals (Isolated Static Renders)</h2>
+            </div>
+            <div id="sandbox-admin-modals" class="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)]">
+                <div class="border-2 border-stone-200 p-4">
+                    <span class="text-[10px] font-black capitalize text-text-sub block mb-4">admin_modal_bulk</span>
+                    <div class="bg-earth-dark/5 p-4 border border-stone-200 overflow-clip relative">
+                        {{ template "admin_modal_bulk.html" .MockCreateData }}
+                    </div>
+                </div>
+                <div class="border-2 border-stone-200 p-4">
+                    <span class="text-[10px] font-black capitalize text-text-sub block mb-4">admin_modal_category</span>
+                    <div class="bg-earth-dark/5 p-4 border border-stone-200 overflow-clip relative">
+                        {{ template "admin_modal_category.html" (dict "Categories" .MockCategories "CSRF" .BaseViewData.CSRF) }}
+                    </div>
+                </div>
+                <div class="border-2 border-stone-200 p-4">
+                    <span class="text-[10px] font-black capitalize text-text-sub block mb-4">admin_modal_charts</span>
+                    <div class="bg-earth-dark/5 p-4 border border-stone-200 overflow-clip relative">
+                        {{ template "admin_modal_charts.html" .MockAdminMetrics }}
+                    </div>
+                </div>
+                <div class="border-2 border-stone-200 p-4">
+                    <span class="text-[10px] font-black capitalize text-text-sub block mb-4">admin_modal_moderation</span>
+                    <div class="bg-earth-dark/5 p-4 border border-stone-200 overflow-clip relative">
+                        {{ template "admin_modal_moderation.html" (dict "ClaimRequests" .MockAdminMetrics.ClaimRequests "BaseViewData" .BaseViewData) }}
+                    </div>
+                </div>
+                <div class="border-2 border-stone-200 p-4 col-span-full">
+                    <span class="text-[10px] font-black capitalize text-text-sub block mb-4">admin_modal_users</span>
+                    <div class="bg-earth-dark/5 p-4 border border-stone-200 overflow-clip relative">
+                        {{ template "admin_modal_users.html" (dict "Users" .MockAdminUsers "BaseViewData" .BaseViewData) }}
+                    </div>
+                </div>
             </div>
         </section>
+
+<style>
+/* Reset and isolate fixed modal layers for static rendering in sandbox.html */
+#sandbox-admin-modals .fixed {
+    position: relative !important;
+    z-index: 0 !important;
+    inset: auto !important;
+    overflow: visible !important;
+    background: transparent !important;
+}
+
+#sandbox-admin-modals .backdrop-blur-sm,
+#sandbox-admin-modals .bg-earth-dark\/90 {
+    display: none !important; /* Hide overlay backdrops in the gallery */
+}
+
+#sandbox-admin-modals .min-h-screen {
+    min-height: auto !important;
+    padding: 0 !important;
+}
+
+#sandbox-admin-modals .inline-block {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    transform: none !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
+
+/* Hide floating Close buttons in the sandbox gallery to keep it clean */
+#sandbox-admin-modals button[aria-label="Close"],
+#sandbox-admin-modals button[hx-on\:click] {
+    display: none !important;
+}
+</style>
 
         <!-- Category-Diverse Cards Matrix -->
         <section class="space-y-6 col-span-full">
