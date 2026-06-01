@@ -2,6 +2,10 @@
 
 {{ define "title" }}Component Sandbox - agbalumo{{ end }}
 
+{{ define "extra_scripts" }}
+<script src="/static/js/sandbox_override.js?v=2" defer></script>
+{{ end }}
+
 {{ define "content" }}
 <div class="max-w-7xl mx-auto px-4 py-12">
     <header class="mb-12 border-b-4 border-earth-dark pb-6">
@@ -574,6 +578,11 @@
 /* Ensure the inner scroll areas show fully or have clean bounds */
 #sandbox-user-modals .overflow-y-auto {
     max-height: 32rem !important; /* 512px height for neat scrolling check */
+}
+
+/* Prevent sandbox templates from locking the page scroll */
+html:has(dialog[open]), body:has(dialog[open]) {
+    overflow: auto !important;
 }
 </style>
 
