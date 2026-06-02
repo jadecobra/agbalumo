@@ -304,9 +304,9 @@
                             <div class="bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 p-1 flex items-center">
                                 <input id="demo-form-title" class="w-full h-9 bg-transparent border-none px-3 focus:ring-0 text-text-main font-light text-sm outline-none transition-all placeholder:text-text-sub/70" placeholder="e.g., Mama's Kitchen" type="text" />
                             </div>
-                            <span class="text-[10px] text-red-600 dark:text-red-400 font-medium ml-1" role="alert">This field is required</span>
+                            <span class="form-error" role="alert">This field is required</span>
                         </div>
-                        <div class="text-[10px] text-text-sub font-mono mt-1">From listing_form_title (listing_form_common_fields.html:4): bg-stone-50 dark:bg-earth-dark/30 border-stone-200 p-1; input focus:ring-0 ... ; error span text-red-600 (visible for .error demo; source uses stone/red for surface/alert)</div>
+                        <div class="text-[10px] text-text-sub font-mono mt-1">From listing_form_title (listing_form_common_fields.html:4): bg-stone-50 dark:bg-earth-dark/30 border-stone-200 p-1; input focus:ring-0 ... ; error uses .form-error (text-earth-clay via input.css; WCAG on sand, centralized prod forms per matrix)</div>
                     </div>
                 </div>
                 <div>
@@ -317,7 +317,7 @@
                     <div class="text-[10px] text-text-sub font-mono mt-1">Standard disabled + reduced opacity; matches patterns in create/edit + conditional fields (job/event).</div>
                 </div>
             </div>
-            <p class="text-[10px] text-text-sub px-1">Reference format: <span class="font-mono">search-input.focus-within</span>, <span class="font-mono">form-input.error</span>, <span class="font-mono">form-input.disabled</span>. Copy exact wrapper/input classes or css rule for zero-ambiguity changes.</p>
+            <p class="text-[10px] text-text-sub px-1">Reference format: <span class="font-mono">search-input.focus-within</span>, <span class="font-mono">form-input.error</span> (now .form-error in input.css), <span class="font-mono">form-input.disabled</span>. Copy exact wrapper/input classes or css rule for zero-ambiguity changes.</p>
         </section>
 
         <!-- Minimal hidden references to satisfy sandbox-parity for modal content inners
