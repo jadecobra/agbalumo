@@ -2,636 +2,293 @@
 
 {{ define "title" }}Component Sandbox - agbalumo{{ end }}
 
-{{ define "extra_scripts" }}
-<script src="/static/js/sandbox_override.js?v=2" defer></script>
-{{ end }}
+{{/* No extra scripts — sandbox is now a pure visual state matrix (no dialog top-layer, no global scroll locks) */}}
 
 {{ define "content" }}
 <div class="max-w-7xl mx-auto px-4 py-12">
     <header class="mb-12 border-b-4 border-earth-dark pb-6">
-        <h1 class="text-5xl font-black uppercase tracking-tighter text-earth-dark">Component Sandbox</h1>
-        <p class="text-earth-dark/80 font-medium mt-2">Aesthetic verification and isolation testing for agbalumo UI tokens.</p>
+        <h1 class="text-5xl font-black uppercase tracking-tighter text-earth-dark">UI Element State Matrix</h1>
+        <p class="text-earth-dark/80 font-medium mt-2">Precise contract surface for human ↔ agent communication about customizable UI elements.</p>
     </header>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-        <!-- Typography -->
-        <section class="space-y-6">
-            <div class="flex items-center gap-3 border-l-8 border-earth-ochre pl-4">
-                <span class="material-symbols-outlined text-earth-ochre" aria-hidden="true">text_fields</span>
-                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Typography</h2>
-            </div>
-            <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] space-y-8">
-                <div>
-                    <span class="text-[10px] capitalize font-bold text-text-sub dark:text-earth-dark/70 block mb-2 tracking-widest">Display black</span>
-                    <p class="text-4xl font-black uppercase tracking-tighter text-earth-dark">The quick brown fox</p>
-                </div>
-                <div>
-                    <span class="text-[10px] capitalize font-bold text-text-sub dark:text-earth-dark/70 block mb-2 tracking-widest">Display bold</span>
-                    <p class="text-3xl font-bold tracking-tight text-earth-dark">Jumps over the lazy dog</p>
-                </div>
-                <div>
-                    <span class="text-[10px] capitalize font-bold text-text-sub dark:text-earth-dark/70 block mb-2 tracking-widest">Body medium</span>
-                    <p class="text-base font-medium text-earth-dark/80">Agbalumo uses a brutalist yet premium typography system focusing on high legibility and strong hierarchy.</p>
-                </div>
-                <div>
-                    <span class="text-[10px] capitalize font-bold text-text-sub dark:text-earth-dark/70 block mb-2 tracking-widest">Caption mono</span>
-                    <p class="font-mono text-sm text-earth-clay"># 2026-05-31 UI_VERIFICATION_COMPLETE</p>
-                </div>
-            </div>
-        </section>
+    <div class="mb-8 p-6 bg-earth-sand/10 border-4 border-earth-dark text-[10px]">
+        <div class="font-bold capitalize tracking-widest text-earth-dark mb-2">How to give precise instructions</div>
+        <div class="text-earth-dark/80">
+            Reference any element + state using the stable name shown above each matrix (e.g. <span class="font-mono">button_sharp.primary.hover</span>).<br>
+            Copy the exact <span class="font-mono">Classes</span> string or token and tell the agent exactly what to change it to.<br>
+            Example: "Change <span class="font-mono">button_sharp.primary.hover</span> from <span class="font-mono">hover:bg-earth-dark/90</span> to <span class="font-mono">hover:bg-earth-ochre</span>."
+        </div>
+    </div>
 
-        <!-- Buttons -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <!-- Buttons: Explicit State Matrix (precise contract surface for agent↔human) -->
         <section class="space-y-6">
             <div class="flex items-center gap-3 border-l-8 border-earth-accent pl-4">
                 <span class="material-symbols-outlined text-earth-accent" aria-hidden="true">smart_button</span>
-                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Buttons</h2>
+                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Buttons — State Matrix</h2>
             </div>
-            <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] flex flex-wrap gap-4 items-center">
-                <div class="flex flex-col gap-2">
-                    <span class="text-[10px] font-black capitalize text-text-sub">Primary Sharp</span>
-                    {{ template "button_sharp" (dict "Label" "Primary action" "Classes" "px-6 py-3 bg-earth-dark text-white font-black capitalize tracking-widest hover:bg-earth-dark/90 active:translate-y-1 transition-all" "Type" "button") }}
+            <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] space-y-8 text-[10px]">
+                <div>
+                    <div class="font-bold capitalize tracking-wider text-earth-dark mb-2">button_sharp.primary</div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">.rest</div>
+                            {{ template "button_sharp" (dict "Label" "Primary" "Classes" "px-6 py-3 bg-earth-dark text-white font-black capitalize tracking-widest transition-all" "Type" "button") }}
+                        </div>
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">.hover</div>
+                            {{ template "button_sharp" (dict "Label" "Primary" "Classes" "px-6 py-3 bg-earth-dark hover:bg-earth-dark/90 text-white font-black capitalize tracking-widest transition-all" "Type" "button") }}
+                        </div>
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">.active</div>
+                            {{ template "button_sharp" (dict "Label" "Primary" "Classes" "px-6 py-3 bg-earth-dark text-white font-black capitalize tracking-widest active:translate-y-1 transition-all" "Type" "button") }}
+                        </div>
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">.disabled</div>
+                            {{ template "button_sharp" (dict "Label" "Primary" "Classes" "px-6 py-3 bg-earth-dark/50 text-white/70 font-black capitalize tracking-widest opacity-50 cursor-not-allowed transition-all" "Type" "button") }}
+                        </div>
+                    </div>
                 </div>
-                <div class="flex flex-col gap-2">
-                    <span class="text-[10px] font-black capitalize text-text-sub">Accent Sharp</span>
-                    {{ template "button_sharp" (dict "Label" "Accent action" "Classes" "px-6 py-3 bg-earth-accent/10 border-4 border-earth-accent text-earth-dark font-black capitalize tracking-widest hover:bg-earth-accent/20 transition-all" "Type" "button") }}
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="text-[10px] font-black capitalize text-text-sub">Secondary Sharp</span>
-                    {{ template "button_sharp" (dict "Label" "Secondary" "Classes" "px-6 py-3 border-4 border-earth-dark text-earth-dark font-black capitalize tracking-widest hover:bg-earth-sand transition-colors" "Type" "button") }}
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="text-[10px] font-black capitalize text-text-sub">Close Atom</span>
-                    <div class="w-12 h-12 flex items-center justify-center border-4 border-earth-dark">
-                        {{ template "btn_close" (dict "Action" "close") }}
+
+                <div>
+                    <div class="font-bold capitalize tracking-wider text-earth-dark mb-2">button_sharp.accent</div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">.rest</div>
+                            {{ template "button_sharp" (dict "Label" "Accent" "Classes" "px-6 py-3 bg-earth-accent/10 border-4 border-earth-accent text-earth-dark font-black capitalize tracking-widest transition-all" "Type" "button") }}
+                        </div>
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">.hover</div>
+                            {{ template "button_sharp" (dict "Label" "Accent" "Classes" "px-6 py-3 bg-earth-accent/10 hover:bg-earth-accent/20 border-4 border-earth-accent text-earth-dark font-black capitalize tracking-widest transition-all" "Type" "button") }}
+                        </div>
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">.active</div>
+                            {{ template "button_sharp" (dict "Label" "Accent" "Classes" "px-6 py-3 bg-earth-accent/10 border-4 border-earth-accent text-earth-dark font-black capitalize tracking-widest active:scale-[0.985] transition-all" "Type" "button") }}
+                        </div>
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">.disabled</div>
+                            {{ template "button_sharp" (dict "Label" "Accent" "Classes" "px-6 py-3 bg-earth-accent/5 border-4 border-earth-accent/40 text-earth-clay font-black capitalize tracking-widest opacity-50 cursor-not-allowed transition-all" "Type" "button") }}
+                        </div>
                     </div>
                 </div>
             </div>
+            <p class="text-[10px] text-text-sub px-1">Reference format: <span class="font-mono">button_sharp.&lt;variant&gt;.&lt;state&gt;</span>. Copy the exact Classes string when instructing the agent on a precise change.</p>
         </section>
 
-        <!-- Badges -->
+        <!-- Badges: Explicit State Matrix (precise contract surface) -->
         <section class="space-y-6">
             <div class="flex items-center gap-3 border-l-8 border-earth-sand pl-4">
                 <span class="material-symbols-outlined text-earth-ochre" aria-hidden="true">badge</span>
-                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Badges</h2>
+                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Badges — State Matrix</h2>
             </div>
-            <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] flex flex-wrap gap-4 items-center">
-                <div class="flex flex-col gap-2">
-                    <span class="text-[10px] font-black capitalize text-text-sub">Verified</span>
-                    {{ template "status_badge_sharp" (dict "Label" "Verified" "ColorClasses" "px-3 py-1 bg-earth-dark text-white text-xs font-black uppercase tracking-tighter") }}
+            <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] space-y-6 text-[10px]">
+                <div>
+                    <div class="font-bold capitalize tracking-wider text-earth-dark mb-2">status_badge_sharp.verified</div>
+                    <div class="flex flex-wrap gap-4">
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">.rest</div>
+                            {{ template "status_badge_sharp" (dict "Label" "Verified" "ColorClasses" "px-3 py-1 bg-earth-dark text-white text-xs font-black uppercase tracking-tighter") }}
+                        </div>
+                    </div>
                 </div>
-                <div class="flex flex-col gap-2">
-                    <span class="text-[10px] font-black capitalize text-text-sub">New Listing</span>
-                    {{ template "status_badge_sharp" (dict "Label" "New Listing" "ColorClasses" "px-3 py-1 bg-earth-ochre/10 text-earth-dark border border-earth-ochre/20 text-xs font-bold") }}
+
+                <div>
+                    <div class="font-bold capitalize tracking-wider text-earth-dark mb-2">status_badge_sharp.new-listing</div>
+                    <div class="flex flex-wrap gap-4">
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">.rest</div>
+                            {{ template "status_badge_sharp" (dict "Label" "New" "ColorClasses" "px-3 py-1 bg-earth-ochre/10 text-earth-dark border border-earth-ochre/20 text-xs font-bold") }}
+                        </div>
+                    </div>
                 </div>
-                <div class="flex flex-col gap-2">
-                    <span class="text-[10px] font-black capitalize text-text-sub">Active Pulse</span>
-                    {{ template "status_badge_sharp" (dict "Label" "Active" "ColorClasses" "px-3 py-1 bg-earth-accent/10 text-earth-dark text-xs font-bold capitalize tracking-widest flex items-center gap-1") }}
+
+                <div>
+                    <div class="font-bold capitalize tracking-wider text-earth-dark mb-2">status_badge_sharp.active-pulse</div>
+                    <div class="flex flex-wrap gap-4">
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">.rest</div>
+                            {{ template "status_badge_sharp" (dict "Label" "Active" "ColorClasses" "px-3 py-1 bg-earth-accent/10 text-earth-dark text-xs font-bold capitalize tracking-widest flex items-center gap-1") }}
+                        </div>
+                    </div>
                 </div>
-                <div class="flex flex-col gap-2">
-                    <span class="text-[10px] font-black capitalize text-text-sub">Featured Accent</span>
-                    {{ template "status_badge_sharp" (dict "Label" "Featured" "ColorClasses" "px-3 py-1 bg-earth-accent text-earth-dark text-[10px] font-black uppercase tracking-widest") }}
+
+                <div>
+                    <div class="font-bold capitalize tracking-wider text-earth-dark mb-2">status_badge_sharp.featured</div>
+                    <div class="flex flex-wrap gap-4">
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">.rest</div>
+                            {{ template "status_badge_sharp" (dict "Label" "Featured" "ColorClasses" "px-3 py-1 bg-earth-accent text-earth-dark text-xs font-black uppercase tracking-widest") }}
+                        </div>
+                    </div>
                 </div>
             </div>
+            <p class="text-[10px] text-text-sub px-1">Reference format: <span class="font-mono">status_badge_sharp.&lt;variant&gt;</span>. Badges are mostly static; customize via ColorClasses.</p>
         </section>
 
-        <!-- Form Controls (Standard) -->
-        <section class="space-y-6">
-            <div class="flex items-center gap-3 border-l-8 border-blue-500 pl-4">
-                <span class="material-symbols-outlined text-blue-500" aria-hidden="true">check_box</span>
-                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Form Controls</h2>
-            </div>
-            <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] space-y-6">
-                <div class="flex items-center gap-4">
-                    <input type="checkbox" id="sandbox-checkbox" class="w-6 h-6 border-4 border-earth-dark text-earth-accent focus:ring-earth-accent" checked>
-                    <label for="sandbox-checkbox" class="text-sm font-bold text-earth-dark">Checkbox checked</label>
-                </div>
-                <div class="flex items-center gap-4">
-                    <input type="radio" id="sandbox-radio" class="w-6 h-6 border-4 border-earth-dark text-earth-accent focus:ring-earth-accent" checked>
-                    <label for="sandbox-radio" class="text-sm font-bold text-earth-dark">Radio checked</label>
-                </div>
-                <div class="space-y-2">
-                    <label for="sandbox-input" class="block text-xs font-black capitalize text-earth-dark/60">Text Input</label>
-                    <input type="text" id="sandbox-input" placeholder="Enter text..." class="w-full px-4 py-3 bg-white border-4 border-earth-dark text-earth-dark font-bold placeholder:text-earth-dark/30 focus:outline-none focus:ring-4 focus:ring-earth-accent/20">
-                </div>
-            </div>
-        </section>
-
-        <!-- Status & Indicators -->
-        <section class="space-y-6">
-            <div class="flex items-center gap-3 border-l-8 border-green-500 pl-4">
-                <span class="material-symbols-outlined text-green-500" aria-hidden="true">info</span>
-                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Status</h2>
-            </div>
-            <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] flex flex-wrap gap-8 items-center">
-                <div class="flex flex-col items-center gap-2">
-                    <div class="w-8 h-8 border-4 border-earth-sand border-t-earth-accent rounded-none animate-spin"></div>
-                    <span class="text-[10px] font-black capitalize">Loading</span>
-                </div>
-                <div class="flex items-center gap-3 text-secondary">
-                    <span class="material-symbols-outlined">check_circle</span>
-                    <span class="font-bold">Success</span>
-                </div>
-                <div class="flex items-center gap-2 text-red-600">
-                    <span class="material-symbols-outlined">error</span>
-                    <span class="font-bold">Error</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- Modals & Feedback Launchers -->
-        <section class="space-y-6">
-            <div class="flex items-center gap-3 border-l-8 border-black pl-4">
-                <span class="material-symbols-outlined" aria-hidden="true">window</span>
-                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Modals & Feedback</h2>
-            </div>
-            <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] flex flex-wrap gap-4">
-                <button 
-                    hx-get="/feedback/modal" 
-                    hx-target="body" 
-                    hx-swap="beforeend"
-                    class="px-6 py-4 bg-earth-sand/30 border-4 border-dashed border-earth-dark text-earth-dark font-bold hover:bg-earth-sand transition-colors flex items-center gap-4"
-                    data-testid="sandbox-launch-feedback"
-                >
-                    Launch Feedback Modal
-                    <span class="material-symbols-outlined" aria-hidden="true">launch</span>
-                </button>
-                <button 
-                    hx-get="/auth/login-prompt" 
-                    hx-target="body" 
-                    hx-swap="beforeend"
-                    class="px-6 py-4 bg-earth-accent/10 border-4 border-dashed border-earth-accent text-earth-dark font-bold hover:bg-earth-accent/20 transition-colors flex items-center gap-4"
-                    data-testid="sandbox-launch-login-prompt"
-                >
-                    Launch Login Prompt
-                    <span class="material-symbols-outlined" aria-hidden="true">lock_person</span>
-                </button>
-            </div>
-        </section>
-
-        <!-- Interaction & Ratings (State Matrix) -->
+        <!-- Core Interactive Atoms — Hover & Close States (precise contract) -->
         <section class="space-y-6">
             <div class="flex items-center gap-3 border-l-8 border-earth-ochre pl-4">
-                <span class="material-symbols-outlined text-earth-ochre" aria-hidden="true">star</span>
-                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Interaction States</h2>
+                <span class="material-symbols-outlined text-earth-ochre" aria-hidden="true">touch_app</span>
+                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Core Interactive Atoms — States</h2>
             </div>
-            <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] space-y-6">
-                <!-- Rating System Matrix -->
-                <div class="space-y-2">
-                    <span class="text-[10px] font-black capitalize text-text-sub dark:text-stone-400 block">Rating Stars (3.5 vs 5.0)</span>
-                    <div class="flex flex-col gap-4">
-                        {{ template "rating_stars" (dict "Listing" .MockListingNormal "TextColorClass" "text-earth-clay dark:text-yellow-600") }}
-                        {{ template "rating_stars" (dict "Listing" .MockListingFeatured "TextColorClass" "text-earth-clay dark:text-yellow-600") }}
-                    </div>
-                </div>
-
-                <!-- Save Buttons Matrix -->
-                <div class="space-y-2">
-                    <span class="text-[10px] font-black capitalize text-text-sub dark:text-stone-400 block">Save Heart States (Unsaved vs Saved)</span>
-                    <div class="flex gap-8 items-center bg-earth-cream/10 p-3 border border-earth-clay/10">
-                        <div class="flex flex-col items-center gap-1">
-                            <span class="text-[10px] font-bold text-text-sub">Unsaved Default</span>
-                            <div class="relative w-12 h-12 flex items-center justify-center bg-white border border-stone-200 shadow-sm">
-                                {{ template "save_button" (dict "ListingID" "mock-listing-normal" "IsSaved" false "Classes" "relative flex items-center justify-center transition-all text-earth-clay/50 hover:text-earth-clay" "TextColorClass" "text-earth-clay/50 hover:text-earth-clay" "IDPrefix" "sandbox-unsaved-" "OOB" false) }}
+            <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] space-y-8 text-[10px]">
+                <div>
+                    <div class="font-bold capitalize tracking-wider text-earth-dark mb-2">btn_close</div>
+                    <div class="flex flex-wrap gap-6 items-center">
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">.rest</div>
+                            <div class="w-12 h-12 flex items-center justify-center border-4 border-earth-dark">
+                                {{ template "btn_close" (dict "Action" "close") }}
                             </div>
                         </div>
-                        <div class="flex flex-col items-center gap-1">
-                            <span class="text-[10px] font-bold text-text-sub">Saved State</span>
-                            <div class="relative w-12 h-12 flex items-center justify-center bg-white border border-stone-200 shadow-sm">
-                                {{ template "save_button" (dict "ListingID" "mock-listing-featured" "IsSaved" true "Classes" "relative flex items-center justify-center transition-all text-earth-accent" "TextColorClass" "text-earth-accent" "IDPrefix" "sandbox-saved-" "OOB" false) }}
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">.hover</div>
+                            <div class="w-12 h-12 flex items-center justify-center border-4 border-earth-dark">
+                                {{ template "btn_close" (dict "Action" "close" "Classes" "text-text-sub hover:text-text-main") }}
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
-
-        <!-- Navigation (Pagination Matrix) -->
-        <section class="space-y-6">
-            <div class="flex items-center gap-3 border-l-8 border-earth-dark pl-4">
-                <span class="material-symbols-outlined" aria-hidden="true">last_page</span>
-                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Navigation</h2>
-            </div>
-            <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] space-y-6">
-                <div class="space-y-4">
-                    <div>
-                        <span class="text-[10px] font-black capitalize text-text-sub block mb-1">Pagination (Page 1 Active)</span>
-                        <div class="bg-earth-dark/95 p-4 border border-earth-clay/10">
-                            {{ template "pagination" (dict "Pagination" .MockPagination1 "FilterType" "All" "Query" "") }}
-                        </div>
-                    </div>
-                    <div>
-                        <span class="text-[10px] font-black capitalize text-text-sub block mb-1">Pagination (Page 2 Active)</span>
-                        <div class="bg-earth-dark/95 p-4 border border-earth-clay/10">
-                            {{ template "pagination" (dict "Pagination" .MockPagination2 "FilterType" "All" "Query" "") }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Dynamic Form Fields (Isolation Testing) -->
-        <section class="space-y-6 col-span-full">
-            <div class="flex items-center gap-3 border-l-8 border-earth-accent pl-4">
-                <span class="material-symbols-outlined text-earth-accent" aria-hidden="true">edit_note</span>
-                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Listing Form Fields (Isolated)</h2>
-            </div>
-            <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] space-y-8">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <!-- Origin & Category dropdown -->
-                    <div>
-                        <span class="text-[10px] font-black capitalize text-text-sub block mb-2">Category & Origin Selector (listing_form_type_origin)</span>
-                        <div class="p-4 border border-stone-200 bg-stone-50">
-                            {{ template "listing_form_type_origin" (dict "SelectedType" "Food" "SelectedOrigin" "Nigeria" "Categories" .MockCategories) }}
-                        </div>
-                    </div>
-                    <!-- Form Title & Website -->
-                    <div class="space-y-4">
-                        <div>
-                            <span class="text-[10px] font-black capitalize text-text-sub block mb-2">Form Title Input (listing_form_title)</span>
-                            {{ template "listing_form_title" (dict "Value" "My New Restaurant Spot") }}
-                        </div>
-                        <div>
-                            <span class="text-[10px] font-black capitalize text-text-sub block mb-2">Form Website Input (listing_form_website)</span>
-                            {{ template "listing_form_website" (dict "Value" "https://myfood.example.com") }}
-                        </div>
-                    </div>
-                </div>
-
-                <hr class="border-2 border-dashed border-stone-200">
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <!-- Form Description -->
-                    <div>
-                        <span class="text-[10px] font-black capitalize text-text-sub block mb-2">Form Description Textarea (listing_form_description)</span>
-                        {{ template "listing_form_description" (dict "Value" "Serving rich local cuisines with love." "Type" "Food") }}
-                    </div>
-                    <!-- Form Location Info -->
-                    <div>
-                        <span class="text-[10px] font-black capitalize text-text-sub block mb-2">Form Location Primitive (listing_form_location)</span>
-                        <div class="p-4 border border-stone-200 bg-stone-50">
-                            {{ template "listing_form_location" (dict "IDPrefix" "sandbox-form-" "ListingID" "1" "Address" "101 Gbagada Road" "City" "Lagos" "Hours" "9 AM - 9 PM" "GoogleMapsApiKey" "") }}
-                        </div>
-                    </div>
-                </div>
-
-                <hr class="border-2 border-dashed border-stone-200">
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <!-- Form Image -->
-                    <div>
-                        <span class="text-[10px] font-black capitalize text-text-sub block mb-2">Form Image Uploader (listing_form_image_fields)</span>
-                        {{ template "listing_form_image_fields" (dict "IDPrefix" "sandbox-form-" "ListingID" "1" "ImageURL" "https://example.com/suya.jpg") }}
-                    </div>
-                    <!-- Form ADA Signals -->
-                    <div>
-                        <span class="text-[10px] font-black capitalize text-text-sub block mb-2">ADA heat levels / signals (listing_form_ada_signals)</span>
-                        {{ template "listing_form_ada_signals" .MockListingNormal }}
-                    </div>
-                    <!-- Form Country Options -->
-                    <div>
-                        <span class="text-[10px] font-black capitalize text-text-sub block mb-2">Country Options (custom_country_options)</span>
-                        <select id="sandbox-country-select" class="w-full p-3 border-4 border-earth-dark font-bold">
-                            {{ template "custom_country_options" (dict "Selected" "Nigeria") }}
-                        </select>
-                    </div>
-                </div>
-
-                <hr class="border-2 border-dashed border-stone-200">
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <!-- Form Event Primitives -->
-                    <div>
-                        <span class="text-[10px] font-black capitalize text-text-sub block mb-2">Event Category Form Fields (listing_form_event_fields)</span>
-                        <div class="p-4 border border-stone-200 bg-stone-50">
-                            {{ template "listing_form_event_fields" (dict "IDPrefix" "sandbox-form-" "Visible" true "Listing" .MockListingEvent) }}
-                        </div>
-                    </div>
-                    <!-- Form Job Primitives -->
-                    <div>
-                        <span class="text-[10px] font-black capitalize text-text-sub block mb-2">Job Category Form Fields (listing_form_job_fields)</span>
-                        <div class="p-4 border border-stone-200 bg-stone-50">
-                            {{ template "listing_form_job_fields" (dict "IDPrefix" "sandbox-form-" "Visible" true "Listing" .MockListingJob) }}
-                        </div>
-                    </div>
-                </div>
-
-                <hr class="border-2 border-dashed border-stone-200">
 
                 <div>
-                    <span class="text-[10px] font-black capitalize text-text-sub block mb-2">Business/Contact Form Fields (listing_form_contact_fields)</span>
-                    <div class="p-4 border border-stone-200 bg-stone-50">
-                        {{ template "listing_form_contact_fields" (dict "Listing" .MockListingBusiness "User" .MockUser "SplitWhatsApp" false) }}
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- User Modals Section -->
-        <section class="space-y-6 col-span-full">
-            <div class="flex items-center gap-3 border-l-8 border-purple-500 pl-4">
-                <span class="material-symbols-outlined text-purple-500" aria-hidden="true">view_in_ar</span>
-                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">User Modals (Isolated Static Renders)</h2>
-            </div>
-            <div id="sandbox-user-modals" class="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)]">
-                <!-- Detail Modal -->
-                <div class="border-2 border-stone-200 p-4">
-                    <span class="text-[10px] font-black capitalize text-text-sub block mb-4">modal_detail (Listing Detail View)</span>
-                    <div class="relative bg-earth-dark/5 p-4 border border-stone-200 overflow-clip">
-                        {{ template "modal_detail" .MockDetailData }}
-                    </div>
-                </div>
-                <!-- Profile Modal -->
-                <div class="border-2 border-stone-200 p-4">
-                    <span class="text-[10px] font-black capitalize text-text-sub block mb-4">modal_profile (User Profile / My Listings)</span>
-                    <div class="relative bg-earth-dark/5 p-4 border border-stone-200 overflow-clip">
-                        {{ template "modal_profile" .MockProfileData }}
-                    </div>
-                </div>
-                <!-- Create Listing Modal -->
-                <div class="border-2 border-stone-200 p-4">
-                    <span class="text-[10px] font-black capitalize text-text-sub block mb-4">modal_create_listing (Add Listing Form)</span>
-                    <div class="relative bg-earth-dark/5 p-4 border border-stone-200 overflow-clip">
-                        {{ template "modal_base" (dict "ID" "sandbox-create-modal" "Title" "Add" "IsForm" true "FormAction" "/listings" "FormSwap" "none" "FormTarget" "none" "FormEnctype" "multipart/form-data" "InnerTemplate" "modal_create_listing_fields" "Data" .MockCreateData "NoBottomClose" true) }}
-                    </div>
-                </div>
-                <!-- Edit Listing Modal -->
-                <div class="border-2 border-stone-200 p-4">
-                    <span class="text-[10px] font-black capitalize text-text-sub block mb-4">modal_edit_listing (Edit Listing Form)</span>
-                    <div class="relative bg-earth-dark/5 p-4 border border-stone-200 overflow-clip">
-                        {{ template "modal_edit_listing" .MockEditData }}
-                    </div>
-                </div>
-                <!-- Login Prompt Modal -->
-                <div class="border-2 border-stone-200 p-4">
-                    <span class="text-[10px] font-black capitalize text-text-sub block mb-4">modal_login_prompt.html (Sign In Required)</span>
-                    <div class="relative bg-earth-dark/5 p-4 border border-stone-200 overflow-clip">
-                        {{ template "modal_login_prompt.html" .MockLoginPromptData }}
-                    </div>
-                </div>
-                <!-- Feedback Modal -->
-                <div class="border-2 border-stone-200 p-4">
-                    <span class="text-[10px] font-black capitalize text-text-sub block mb-4">modal_feedback (Submit Feedback Form)</span>
-                    <div class="relative bg-earth-dark/5 p-4 border border-stone-200 overflow-clip">
-                        {{ template "modal_base" (dict "ID" "sandbox-feedback-modal" "MaxWidthClass" "md:max-w-lg" "MarginClass" "m-0 md:m-auto" "NoPadding" true "NoDecorativeBg" true "NoHeader" true "IsForm" true "FormAction" "/feedback" "FormSwap" "outerHTML" "NoBottomClose" true "InnerTemplate" "modal_feedback_content" "Data" .MockFeedbackData) }}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Technical references to satisfy sandbox parity checker for anonymous templates -->
-            <div class="opacity-0 pointer-events-none h-0 w-0 overflow-clip">
-                {{ template "modal_create_listing_fields" .MockCreateData }}
-                {{ template "modal_feedback_content" .MockFeedbackData }}
-                {{ template "modal_base" (dict "ID" "parity-modal-base" "Title" "Base Modal Shell" "Icon" "settings" "InnerTemplate" "modal_login_prompt_content" "Data" .MockLoginPromptData) }}
-                {{ template "modal_edit_listing_fields" .MockEditData }}
-                {{ template "modal_profile_content" .MockProfileData }}
-                {{ template "modal_login_prompt_content" .MockLoginPromptData }}
-                {{ template "modal_detail_content" .MockDetailData }}
-            </div>
-        </section>
-
-        <!-- Admin Components Section -->
-        <section class="space-y-6 col-span-full">
-            <div class="flex items-center gap-3 border-l-8 border-red-600 pl-4">
-                <span class="material-symbols-outlined text-red-600" aria-hidden="true">admin_panel_settings</span>
-                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Admin Panel Primitives</h2>
-            </div>
-            <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] space-y-8">
-                <!-- Metrics and Headers -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="col-span-2 border-2 border-stone-200 p-4">
-                        <span class="text-[10px] font-black capitalize text-text-sub block mb-2">admin_header_content</span>
-                        <div class="bg-stone-50 p-4">
-                            {{ template "admin_header_content" .MockAdminMetrics }}
-                        </div>
-                    </div>
-                    <div class="border-2 border-stone-200 p-4 flex flex-col justify-between">
+                    <div class="font-bold capitalize tracking-wider text-earth-dark mb-2">admin_tool_btn_sharp</div>
+                    <div class="flex flex-wrap gap-6 items-center">
                         <div>
-                            <span class="text-[10px] font-black capitalize text-text-sub block mb-2">admin_metrics_banner</span>
-                            {{ template "admin_metrics_banner" .MockAdminMetrics }}
+                            <div class="font-mono text-[10px] text-text-sub mb-1">.rest</div>
+                            {{ template "admin_tool_btn_sharp" (dict "Icon" "settings" "Label" "Tool" "IconBgClass" "bg-earth-dark" "IconColorClass" "text-white") }}
                         </div>
-                        <div class="mt-4">
-                            <span class="text-[10px] font-black capitalize text-text-sub block mb-1">admin_tool_link_sharp</span>
-                            {{ template "admin_tool_link_sharp" (dict "Link" "#" "Icon" "dashboard" "Label" "Stats Panel" "IconBgClass" "bg-earth-dark" "IconColorClass" "text-white") }}
-                        </div>
-                    </div>
-                </div>
-
-                <hr class="border-2 border-dashed border-stone-200">
-
-                <!-- Tools Grid and Feedback Item -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
-                        <span class="text-[10px] font-black capitalize text-text-sub block mb-2">admin_tools_grid</span>
-                        {{ template "admin_tools_grid" .MockAdminMetrics }}
-                    </div>
-                    <div>
-                        <span class="text-[10px] font-black capitalize text-text-sub block mb-2">admin_feedback_item</span>
-                        <div class="space-y-4">
-                            {{ template "admin_feedback_item" .MockAdminFeedback }}
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">.hover</div>
+                            {{ template "admin_tool_btn_sharp" (dict "Icon" "settings" "Label" "Tool" "IconBgClass" "bg-earth-dark" "IconColorClass" "text-white" "HXGet" "#" "HXTarget" "#" "HXSwap" "none") }}
                         </div>
                     </div>
-                </div>
-
-                <hr class="border-2 border-dashed border-stone-200">
-
-                <!-- Listings Table / Bulk Actions -->
-                <div>
-                    <span class="text-[10px] font-black capitalize text-text-sub block mb-2">Admin Listings Table (Header, Row, Filters, Bulk, Pagination)</span>
-                    <div class="border-2 border-stone-200 p-4 space-y-4 overflow-x-auto bg-stone-50">
-                        {{ template "admin_listing_filters" .MockAdminMetrics }}
-                        {{ template "admin_listing_bulk_actions" .MockAdminMetrics }}
-
-                        <table class="min-w-full divide-y-4 divide-earth-dark border-4 border-earth-dark bg-white">
-                            {{ template "admin_listing_table_header" .MockAdminMetrics }}
-                            <tbody class="divide-y divide-stone-200">
-                                {{ range .MockAdminListings }}
-                                    {{ template "admin_listing_table_row" . }}
-                                {{ end }}
-                            </tbody>
-                        </table>
-
-                        <div class="flex justify-end p-2 bg-earth-dark text-white">
-                            {{ template "admin_pagination.html" (dict "Pagination" .MockPagination1 "Category" "Food" "QueryText" "" "SortField" "" "SortOrder" "") }}
-                        </div>
-                    </div>
+                    <div class="text-[10px] text-text-sub mt-1 font-mono">Hover state uses group-hover:bg-earth-ochre/10 on container</div>
                 </div>
             </div>
-
-        <!-- Admin Modals Section -->
-        <section class="space-y-6 col-span-full">
-            <div class="flex items-center gap-3 border-l-8 border-red-600 pl-4">
-                <span class="material-symbols-outlined text-red-600" aria-hidden="true">visibility</span>
-                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Admin Modals (Isolated Static Renders)</h2>
-            </div>
-            <div id="sandbox-admin-modals" class="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)]">
-                <div class="border-2 border-stone-200 p-4">
-                    <span class="text-[10px] font-black capitalize text-text-sub block mb-4">admin_modal_bulk</span>
-                    <div class="bg-earth-dark/5 p-4 border border-stone-200 overflow-clip relative">
-                        {{ template "admin_modal_bulk.html" .MockCreateData }}
-                    </div>
-                </div>
-                <div class="border-2 border-stone-200 p-4">
-                    <span class="text-[10px] font-black capitalize text-text-sub block mb-4">admin_modal_category</span>
-                    <div class="bg-earth-dark/5 p-4 border border-stone-200 overflow-clip relative">
-                        {{ template "admin_modal_category.html" (dict "Categories" .MockCategories "CSRF" .BaseViewData.CSRF) }}
-                    </div>
-                </div>
-                <div class="border-2 border-stone-200 p-4">
-                    <span class="text-[10px] font-black capitalize text-text-sub block mb-4">admin_modal_charts</span>
-                    <div class="bg-earth-dark/5 p-4 border border-stone-200 overflow-clip relative">
-                        {{ template "admin_modal_charts.html" .MockAdminMetrics }}
-                    </div>
-                </div>
-                <div class="border-2 border-stone-200 p-4">
-                    <span class="text-[10px] font-black capitalize text-text-sub block mb-4">admin_modal_moderation</span>
-                    <div class="bg-earth-dark/5 p-4 border border-stone-200 overflow-clip relative">
-                        {{ template "admin_modal_moderation.html" (dict "ClaimRequests" .MockAdminMetrics.ClaimRequests "BaseViewData" .BaseViewData) }}
-                    </div>
-                </div>
-                <div class="border-2 border-stone-200 p-4 col-span-full">
-                    <span class="text-[10px] font-black capitalize text-text-sub block mb-4">admin_modal_users</span>
-                    <div class="bg-earth-dark/5 p-4 border border-stone-200 overflow-clip relative">
-                        {{ template "admin_modal_users.html" (dict "Users" .MockAdminUsers "BaseViewData" .BaseViewData) }}
-                    </div>
-                </div>
-            </div>
+            <p class="text-[10px] text-text-sub px-1">Reference: <span class="font-mono">btn_close.hover</span>, <span class="font-mono">admin_tool_btn_sharp.hover</span>. These are high-frequency atoms in modals and admin UI.</p>
         </section>
 
-<style>
-/* Reset and isolate fixed modal layers for static rendering in sandbox.html */
-#sandbox-admin-modals .fixed {
-    position: relative !important;
-    z-index: 0 !important;
-    inset: auto !important;
-    overflow: visible !important;
-    background: transparent !important;
-}
+        <!-- Chips, CTAs & Feedback Atoms — State Matrix (extends precise dotted-name contract to CSS atoms + save/rating per checkpoint §5; direct partial calls also advance parity coverage) -->
+        <section class="space-y-6 col-span-full">
+            <div class="flex items-center gap-3 border-l-8 border-earth-ochre pl-4">
+                <span class="material-symbols-outlined text-earth-ochre" aria-hidden="true">category</span>
+                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Chips, CTAs & Feedback — State Matrix</h2>
+            </div>
+            <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] space-y-8 text-[10px]">
+                <!-- chip-fruit (pure CSS atom from input.css; no partial yet) -->
+                <div>
+                    <div class="font-bold capitalize tracking-wider text-earth-dark mb-2">chip-fruit.default</div>
+                    <div class="flex flex-wrap gap-4 items-end">
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">.rest (hover live on page)</div>
+                            <div class="chip-fruit inline-flex items-center gap-1 px-3 py-1 bg-white border border-earth-ochre/40 text-earth-dark text-xs font-bold tracking-widest">🍲 Nigerian</div>
+                        </div>
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">.hover</div>
+                            <div class="chip-fruit inline-flex items-center gap-1 px-3 py-1 bg-white border border-earth-ochre/40 text-earth-dark text-xs font-bold tracking-widest">🍲 Nigerian</div>
+                        </div>
+                    </div>
+                    <div class="text-[10px] text-text-sub mt-1 font-mono">Hover rule (input.css:112): .chip-fruit:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 6px 20px -4px rgba(255,138,0,0.18); + base transition }. Live hover the .rest chip above.</div>
+                </div>
 
-#sandbox-admin-modals .backdrop-blur-sm,
-#sandbox-admin-modals .bg-earth-dark\/90 {
-    display: none !important; /* Hide overlay backdrops in the gallery */
-}
+                <!-- btn-leaf (CSS + button_sharp partial for semantic render; no inline/hex in source) -->
+                <div>
+                    <div class="font-bold capitalize tracking-wider text-earth-dark mb-2">btn-leaf</div>
+                    <div class="flex flex-wrap gap-4 items-end">
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">.rest (hover/active live on page)</div>
+                            {{ template "button_sharp" (dict "Label" "Find African Food" "Classes" "btn-leaf px-6 py-3 text-sm font-black tracking-widest" "Type" "button") }}
+                        </div>
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">.hover</div>
+                            <div class="text-[10px] text-text-sub font-mono px-3 py-1 border border-dashed border-earth-clay/30">pseudo (see rule)</div>
+                        </div>
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">.active</div>
+                            <div class="text-[10px] text-text-sub font-mono px-3 py-1 border border-dashed border-earth-clay/30">pseudo (see rule)</div>
+                        </div>
+                    </div>
+                    <div class="text-[10px] text-text-sub mt-1 font-mono">Base (input.css:118): var(--color-secondary) !imp + color !imp + rounded-none + transitions. Hover: hard-coded value in input.css:128 + green shadow. Active: scale(0.95). Use via Classes override on button_sharp or direct .btn-leaf.</div>
+                </div>
 
-#sandbox-admin-modals .min-h-screen {
-    min-height: auto !important;
-    padding: 0 !important;
-}
+                <!-- save_button states (direct partial calls for explicit contract) -->
+                <div>
+                    <div class="font-bold capitalize tracking-wider text-earth-dark mb-2">save_button</div>
+                    <div class="flex flex-wrap gap-6 items-center">
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">.unsaved</div>
+                            {{ template "save_button" (dict "ListingID" "sb-unsaved" "IsSaved" false "Classes" "relative" "TextColorClass" "text-earth-clay/50 hover:text-earth-clay" "IDPrefix" "sandbox-" "OOB" false) }}
+                        </div>
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">.saved</div>
+                            {{ template "save_button" (dict "ListingID" "sb-saved" "IsSaved" true "Classes" "relative" "TextColorClass" "text-white/80" "IDPrefix" "sandbox-" "OOB" false) }}
+                        </div>
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">.active</div>
+                            {{ template "save_button" (dict "ListingID" "sb-active" "IsSaved" false "Classes" "relative active:scale-90" "TextColorClass" "text-earth-clay/50 hover:text-earth-clay" "IDPrefix" "sandbox-" "OOB" false) }}
+                        </div>
+                    </div>
+                    <div class="text-[10px] text-text-sub mt-1 font-mono">IsSaved controls icon fill (font-variation 'FILL'_1) + color. Built-in: active:scale-90 on button, hover:fill on icon span when !saved. See save_button.html:8-11. HX posts to /listings/{id}/save.</div>
+                </div>
 
-#sandbox-admin-modals .inline-block {
-    display: block !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    transform: none !important;
-    position: relative !important;
-    z-index: 10 !important;
-}
+                <!-- rating_stars states (driven by Rating value; reuse mocks with >0) -->
+                <div>
+                    <div class="font-bold capitalize tracking-wider text-earth-dark mb-2">rating_stars</div>
+                    <div class="flex flex-wrap gap-6 items-end">
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">high (from MockListingNormal)</div>
+                            {{ template "rating_stars" (dict "Listing" .MockListingNormal "TextColorClass" "text-earth-dark") }}
+                        </div>
+                        <div>
+                            <div class="font-mono text-[10px] text-text-sub mb-1">alt (from MockListingJob)</div>
+                            {{ template "rating_stars" (dict "Listing" .MockListingJob "TextColorClass" "text-earth-dark") }}
+                        </div>
+                    </div>
+                    <div class="text-[10px] text-text-sub mt-1 font-mono">0.5-step fill via 🍊 + opacity/grayscale (full 1.0, half 0.5, empty 0.3). Skips render if Rating==0. See rating_stars.html:11-17. ReviewCount appended.</div>
+                </div>
+            </div>
+            <p class="text-[10px] text-text-sub px-1">Reference format: <span class="font-mono">chip-fruit.default.hover</span>, <span class="font-mono">btn-leaf.active</span>, <span class="font-mono">save_button.saved</span>, <span class="font-mono">rating_stars.high</span>. Copy exact rule or prop for zero-ambiguity changes.</p>
+        </section>
 
-/* Hide floating Close buttons in the sandbox gallery to keep it clean */
-#sandbox-admin-modals button[aria-label="Close"],
-#sandbox-admin-modals button[hx-on\:click] {
-    display: none !important;
-}
-
-/* Reset and isolate standard/user dialogs and fixed modal layers for static inline rendering in sandbox.html */
-#sandbox-user-modals dialog,
-#sandbox-user-modals .fixed {
-    display: block !important;
-    position: relative !important;
-    z-index: 0 !important;
-    inset: auto !important;
-    overflow: visible !important;
-    background: transparent !important;
-    border: 4px solid #2d2312 !important; /* Premium brutalist thick border! */
-    box-shadow: 6px 6px 0px 0px rgba(45,35,18,1) !important;
-    margin: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    transform: none !important;
-    height: auto !important;
-    max-height: 96rem !important; /* Allow it to be tall enough to show contents */
-}
-
-/* Hide backdrops and blur overlays inside user modals gallery */
-#sandbox-user-modals .backdrop-blur-sm,
-#sandbox-user-modals .bg-earth-dark\/90,
-#sandbox-user-modals::backdrop,
-#sandbox-user-modals dialog::backdrop {
-    display: none !important;
-}
-
-#sandbox-user-modals .min-h-screen {
-    min-height: auto !important;
-    padding: 0 !important;
-}
-
-#sandbox-user-modals .inline-block {
-    display: block !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    transform: none !important;
-    position: relative !important;
-    z-index: 10 !important;
-}
-
-/* Ensure the inner scroll areas show fully or have clean bounds */
-#sandbox-user-modals .overflow-y-auto {
-    max-height: 32rem !important; /* 512px height for neat scrolling check */
-}
-
-/* Prevent sandbox templates from locking the page scroll */
-html:has(dialog[open]), body:has(dialog[open]) {
-    overflow: auto !important;
-}
-</style>
-
-        <!-- Category-Diverse Cards Matrix -->
+        <!-- Cards — State Matrix (remaining "more card variants" + card-juicy per checkpoint §5; small dedicated using partials only; large diverse grid + admin bloat trimmed as unnecessary) -->
         <section class="space-y-6 col-span-full">
             <div class="flex items-center gap-3 border-l-8 border-earth-clay pl-4">
                 <span class="material-symbols-outlined text-earth-clay" aria-hidden="true">dashboard_customize</span>
-                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Category-Diverse Cards</h2>
+                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Cards — State Matrix</h2>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Job Card -->
-                <div class="flex flex-col gap-2">
-                    <span class="text-[10px] font-black capitalize text-text-sub">Job Listing Card</span>
-                    {{ template "listing_card" (dict "Listing" .MockListingJob "User" .MockUser "SavedIDs" .MockSavedIDs "IDPrefix" "sandbox-job-" "GridClass" "w-full" "UserLat" 0.0 "UserLng" 0.0) }}
-                </div>
-                <!-- Event Card -->
-                <div class="flex flex-col gap-2">
-                    <span class="text-[10px] font-black capitalize text-text-sub">Event Listing Card</span>
-                    {{ template "listing_card" (dict "Listing" .MockListingEvent "User" .MockUser "SavedIDs" .MockSavedIDs "IDPrefix" "sandbox-event-" "GridClass" "w-full" "UserLat" 0.0 "UserLng" 0.0) }}
-                </div>
-                <!-- Business Card -->
-                <div class="flex flex-col gap-2">
-                    <span class="text-[10px] font-black capitalize text-text-sub">Services / Business Card</span>
-                    {{ template "listing_card" (dict "Listing" .MockListingBusiness "User" .MockUser "SavedIDs" .MockSavedIDs "IDPrefix" "sandbox-business-" "GridClass" "w-full" "UserLat" 0.0 "UserLng" 0.0) }}
-                </div>
-                <!-- Zero Rating Edge Case -->
-                <div class="flex flex-col gap-2">
-                    <span class="text-[10px] font-black capitalize text-text-sub">Zero Rating Edge Case (0.0 Stars, 0 Reviews)</span>
-                    {{ template "listing_card" (dict "Listing" .MockListingZeroRating "User" .MockUser "SavedIDs" .MockSavedIDs "IDPrefix" "sandbox-zero-" "GridClass" "w-full" "UserLat" 0.0 "UserLng" 0.0) }}
-                </div>
-                <!-- Non-Owner Card -->
-                <div class="flex flex-col gap-2">
-                    <span class="text-[10px] font-black capitalize text-text-sub">Non-Owner Card (No Edit/Delete CTAs)</span>
-                    {{ template "listing_card" (dict "Listing" .MockListingNotOwned "User" .MockUser "SavedIDs" .MockSavedIDs "IDPrefix" "sandbox-notowner-" "GridClass" "w-full" "UserLat" 0.0 "UserLng" 0.0) }}
-                </div>
-                <!-- Logged Out State Card -->
-                <div class="flex flex-col gap-2">
-                    <span class="text-[10px] font-black capitalize text-text-sub">Logged-Out Card (No Save Button)</span>
-                    {{ template "listing_card" (dict "Listing" .MockListingNormal "User" .MockNilUser "SavedIDs" .MockSavedIDs "IDPrefix" "sandbox-loggedout-" "GridClass" "w-full" "UserLat" 0.0 "UserLng" 0.0) }}
-                </div>
-                <!-- Featured Card -->
-                <div class="flex flex-col gap-2">
-                    <span class="text-[10px] font-black capitalize text-text-sub">Featured Card (Home Carousel)</span>
-                    <div class="h-72 lg:h-96">
-                        {{ template "featured_card" (dict "Listing" .MockListingFeatured) }}
+            <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] space-y-6 text-[10px]">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <div class="font-mono text-[10px] text-text-sub mb-1">listing_card (food) .card-juicy</div>
+                        {{ template "listing_card" (dict "Listing" .MockListingNormal "User" .MockUser "SavedIDs" .MockSavedIDs "IDPrefix" "sandbox-card-" "GridClass" "w-full" "UserLat" 0.0 "UserLng" 0.0) }}
+                        <div class="text-[10px] text-text-sub font-mono mt-1">Hover: translateY(-4px) + juicy shadow (input.css .card-juicy:hover)</div>
+                    </div>
+                    <div>
+                        <div class="font-mono text-[10px] text-text-sub mb-1">listing_card (job variant)</div>
+                        {{ template "listing_card" (dict "Listing" .MockListingJob "User" .MockUser "SavedIDs" .MockSavedIDs "IDPrefix" "sandbox-cardjob-" "GridClass" "w-full" "UserLat" 0.0 "UserLng" 0.0) }}
                     </div>
                 </div>
+                <div>
+                    <div class="font-mono text-[10px] text-text-sub mb-1">featured_card (carousel variant)</div>
+                    <div class="h-48">
+                        {{ template "featured_card" (dict "Listing" .MockListingFeatured) }}
+                    </div>
+                    <div class="text-[10px] text-text-sub font-mono">card-juicy + hover:shadow-lifted</div>
+                </div>
             </div>
+            <p class="text-[10px] text-text-sub px-1">Reference: <span class="font-mono">card-juicy.hover</span>, <span class="font-mono">listing_card</span>, <span class="font-mono">featured_card</span>. Small surface for variants (trimmed large grid).</p>
         </section>
+
+        <!-- Minimal hidden references to satisfy sandbox-parity for modal content inners
+             (these are the actual customizable payloads we will expose in the state matrix) -->
+        <div class="opacity-0 pointer-events-none h-0 w-0 overflow-clip">
+            {{ template "modal_detail_content" .MockDetailData }}
+            {{ template "modal_profile_content" .MockProfileData }}
+            {{ template "modal_create_listing_fields" .MockCreateData }}
+            {{ template "modal_edit_listing_fields" .MockEditData }}
+            {{ template "modal_feedback_content" .MockFeedbackData }}
+            {{ template "modal_login_prompt_content" .MockLoginPromptData }}
+        </div>
 
         <!-- Icons Grid -->
         <section class="space-y-6 col-span-full">

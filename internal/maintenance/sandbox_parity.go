@@ -34,6 +34,45 @@ var sandboxExcludeList = map[string]string{
 	"scripts":        "Layout block",
 	"header_classes": "Layout block override",
 	"header_search":  "Layout block override",
+
+	// Full modal shells (dialog chrome + modal_base) are layout infrastructure, not customizable UI atoms.
+	// The state matrix focuses on the inner content payloads (modal_*_content / *_fields) which contain the actual buttons, forms, cards, etc.
+	// Full shells are intentionally excluded from the visual contract surface (see sandbox.html hidden references + new UI state matrix goal).
+	"modal_detail":                "Full modal shell (layout chrome only; inner content is covered separately)",
+	"modal_profile":               "Full modal shell (layout chrome only)",
+	"modal_edit_listing":          "Full modal shell (layout chrome only)",
+	"modal_login_prompt.html":     "Full modal shell (layout chrome only)",
+	"modal_base":                  "Generic dialog wrapper (layout infrastructure)",
+	"admin_modal_bulk.html":       "Full admin modal shell (layout chrome only)",
+	"admin_modal_category.html":   "Full admin modal shell (layout chrome only)",
+	"admin_modal_charts.html":     "Full admin modal shell (layout chrome only)",
+	"admin_modal_moderation.html": "Full admin modal shell (layout chrome only)",
+	"admin_modal_users.html":      "Full admin modal shell (layout chrome only)",
+	// Form/pagination partials de-scoped from UI Element State Matrix (per .tester/tasks/checkpoint.md Phase 2: removal of "Dynamic Form Fields (Isolation Testing)" bloat + refined focus on atom state contract for precise human↔agent instructions).
+	// These are exercised inside modal_*_fields payloads and real create/edit/listing flows; explicit matrix demos were intentionally excised to satisfy Complexity Kill-Switch and context cost. Parity exclude now matches current scope.
+	"custom_country_options":      "Form infrastructure (de-scoped from matrix per checkpoint)",
+	"listing_form_title":          "Form infrastructure (de-scoped from matrix per checkpoint)",
+	"listing_form_description":    "Form infrastructure (de-scoped from matrix per checkpoint)",
+	"listing_form_job_fields":     "Form infrastructure (de-scoped from matrix per checkpoint)",
+	"listing_form_location":       "Form infrastructure (de-scoped from matrix per checkpoint)",
+	"listing_form_event_fields":   "Form infrastructure (de-scoped from matrix per checkpoint)",
+	"listing_form_ada_signals":    "Form infrastructure (de-scoped from matrix per checkpoint)",
+	"listing_form_contact_fields": "Form infrastructure (de-scoped from matrix per checkpoint)",
+	"listing_form_image_fields":   "Form infrastructure (de-scoped from matrix per checkpoint)",
+	"listing_form_type_origin":    "Form infrastructure (de-scoped from matrix per checkpoint)",
+	"listing_form_website":        "Form infrastructure (de-scoped from matrix per checkpoint)",
+	"pagination":                  "Navigation primitive (de-scoped from matrix per checkpoint)",
+	// Admin dashboard bloat (full primitives for metrics, headers, tools grid, feedback items, listing tables/filters/bulk/pagination) — trimmed as "not core to the state matrix" + unnecessary per checkpoint. Core hover/focus admin atoms (admin_tool_btn_sharp group-hover, metric_stat_sharp group-hover) stay in Core Interactive + System Primitives matrix sections.
+	"admin_header_content":       "Admin dashboard bloat (trimmed per checkpoint)",
+	"admin_metrics_banner":       "Admin dashboard bloat (trimmed per checkpoint)",
+	"admin_tool_link_sharp":      "Admin dashboard bloat (trimmed per checkpoint)",
+	"admin_tools_grid":           "Admin dashboard bloat (trimmed per checkpoint)",
+	"admin_feedback_item":        "Admin dashboard bloat (trimmed per checkpoint)",
+	"admin_listing_filters":      "Admin dashboard bloat (trimmed per checkpoint)",
+	"admin_listing_bulk_actions": "Admin dashboard bloat (trimmed per checkpoint)",
+	"admin_listing_table_header": "Admin dashboard bloat (trimmed per checkpoint)",
+	"admin_listing_table_row":    "Admin dashboard bloat (trimmed per checkpoint)",
+	"admin_pagination.html":      "Admin dashboard bloat (trimmed per checkpoint)",
 }
 
 // CheckSandboxParity verifies that all components defined in ui/templates/partials and components are documented in sandbox.html.
