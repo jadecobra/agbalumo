@@ -54,6 +54,8 @@
   --color-on-primary: #FFFFFF;
   --color-on-surface: var(--brand-color-earth-dark);
   --color-accent-star: #C2185B;
+  --color-secondary-hover: #558B2F;
+  --color-espresso: #4E342E;
 
   /* Radius — Mapped from Generated Tokens */
   --radius-sm: var(--brand-radius-sm);
@@ -125,7 +127,7 @@
 }
 
 .btn-leaf:hover {
-  background-color: #558B2F !important;
+  background-color: var(--color-secondary-hover) !important;
   box-shadow: 0 6px 20px -4px rgba(104, 159, 56, 0.3);
 }
 
@@ -160,7 +162,7 @@
 
 /* ── Typographic Contrast Fixes ── */
 .text-description {
-  color: #4E342E !important;
+  color: var(--color-espresso) !important;
   /* Deep Espresso for WCAG AA compliance (ratio > 4.5:1 on cream) */
 }
 
