@@ -64,3 +64,4 @@ test-results/
 
 # CLI environment
 .antigravitycli/
+.tester/last_verified_hash

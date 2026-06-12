@@ -23,6 +23,10 @@ commands:
     trigger: template_change
     description: Verify brand compliance and design tokens
 
+  - name: design-evidence
+    trigger: design_critique
+    description: Output raw design and accessibility violations as pattern IDs (no rubric coupling)
+
   - name: map
     trigger: architectural_discovery
     description: Map system symbols, routes, and templates

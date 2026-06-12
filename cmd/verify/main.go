@@ -112,6 +112,8 @@ func init() {
 		janitorCmd,
 		dumpInvariantsCmd,
 		designCmd,
+		designEvidenceCmd,
+		baselineSkipCmd,
 		visualAuditCmd,
 		skillConformanceCmd,
 		checkResolvableCmd,

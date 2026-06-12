@@ -17,7 +17,7 @@ mutating: true
 - **Full-Suite Gate**: The complete Omni-Surface Matrix (`go run ./cmd/verify browser`) remains mandatory at the git pre-commit/CI boundary.
 
 ## Step 1.0: Static A11y Gate (NEW — run FIRST)
-Run `go run ./cmd/verify a11y-check` — catches:
+Run `go run ./cmd/verify design` — catches:
 - Missing aria-label on icon-only buttons
 - Missing for/id associations on form controls
 - Contrast-suspect token combinations (token on surface pairs below 4.5:1)
