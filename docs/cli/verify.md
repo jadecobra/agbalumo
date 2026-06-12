@@ -56,12 +56,29 @@ agbalumo verify api-spec
 ```
 
 ##### design
-
+ 
 Scan templates for violations of the UI Dialect protocol (Brutalist standard).
-
+ 
 ```bash
 agbalumo verify design
 ```
+
+##### design-evidence
+
+Output raw design and accessibility violations as pattern IDs (no rubric coupling).
+
+```bash
+agbalumo verify design-evidence [--json]
+```
+
+##### baseline-skip
+
+Manage and verify UI baseline artifact-hash skips.
+
+```bash
+agbalumo verify baseline-skip [--write]
+```
+
 
 ##### template-drift
 
