@@ -5,8 +5,8 @@
 {{ define "modal_profile_content" }}
         <!-- Header -->
         <div class="flex items-center justify-between p-4 border-b border-earth-clay/10 dark:border-white/10 bg-earth-sand/10 dark:bg-surface-dark/50 shrink-0">
-            <h2 class="text-xl font-bold font-serif text-text-main dark:text-earth-cream flex items-center gap-2">
-                <span class="material-symbols-outlined text-earth-accent">account_circle</span>
+            <h2 id="modal-title-profile-modal" class="text-xl font-bold font-serif text-text-main dark:text-earth-cream flex items-center gap-2">
+                <span class="material-symbols-outlined text-earth-accent" aria-hidden="true">account_circle</span>
                 My Profile
             </h2>
             {{ template "btn_close" dict "Classes" "text-text-sub hover:text-text-main dark:hover:bg-earth-cream/5" }}

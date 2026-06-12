@@ -3,8 +3,8 @@
 {{ define "modal_feedback_content" }}
         <!-- Header -->
         <div class="flex items-center justify-between p-4 border-b border-stone-200 bg-stone-50">
-            <h2 class="text-xl font-bold font-serif text-text-main flex items-center gap-2">
-                <span class="material-symbols-outlined text-earth-accent">feedback</span>
+            <h2 id="modal-title-feedback-modal" class="text-xl font-bold font-serif text-text-main flex items-center gap-2">
+                <span class="material-symbols-outlined text-earth-accent" aria-hidden="true">feedback</span>
                 Submit Feedback
             </h2>
             {{ template "btn_close" dict "Classes" "text-stone-400 hover:text-text-main hover:bg-surface-dark/5" }}
@@ -45,7 +45,7 @@
 
                 <button type="submit"
                     class="px-5 py-2.5 bg-earth-accent text-white font-bold shadow-soft hover:shadow-lg hover:bg-earth-accent/90 transition-all text-sm flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[18px]">send</span>
+                    <span class="material-symbols-outlined text-[18px]" aria-hidden="true">send</span>
                     Submit
                 </button>
             </div>

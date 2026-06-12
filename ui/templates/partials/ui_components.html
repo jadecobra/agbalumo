@@ -226,7 +226,7 @@
         {{ if index . "Attr" }}{{ .Attr | safeHTMLAttr }}{{ end }}
         class="btn-close {{ if index . "Classes" }}{{ index . "Classes" }}{{ end }}" 
         aria-label="Close">
-    <span class="material-symbols-outlined text-[20px]">close</span>
+    <span class="material-symbols-outlined text-[20px]" aria-hidden="true">close</span>
 </button>
 {{ end }}
 
