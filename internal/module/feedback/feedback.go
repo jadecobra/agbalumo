@@ -30,7 +30,10 @@ type FeedbackViewModel struct {
 
 // RegisterRoutes registers the feedback routes
 func (h *FeedbackHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddleware) {
-	feedbackGroup := e.Group("/feedback", authMw.RequireAuth)
+	// Public group: feedback is intentionally low-friction to support acquisition
+	// (e.g. anonymous triers from seeded links in Option 1 closed-network blasts).
+	// Global OptionalAuth middleware still populates User context when present.
+	feedbackGroup := e.Group("/feedback")
 	feedbackGroup.GET("/modal", h.HandleFeedbackForm)
 	feedbackGroup.POST("", h.HandleSubmit)
 }
@@ -44,11 +47,13 @@ func (h *FeedbackHandler) HandleFeedbackForm(c echo.Context) error {
 	return h.RenderTyped(c, "modal_feedback.html", vm)
 }
 
-// HandleSubmit processes the feedback form submission
+// HandleSubmit processes the feedback form submission.
+// Auth is optional: anonymous submissions (e.g. from seeded acquisition links) are allowed
+// with UserID left empty. Global OptionalAuth populates context when a user is signed in.
 func (h *FeedbackHandler) HandleSubmit(c echo.Context) error {
-	u, err := user.RequireUserAPI(c)
-	if err != nil {
-		return err
+	userID := ""
+	if u, ok := user.GetUser(c); ok && u != nil {
+		userID = u.ID
 	}
 
 	contentType := c.QueryParam(domain.FieldType)
@@ -68,7 +73,7 @@ func (h *FeedbackHandler) HandleSubmit(c echo.Context) error {
 
 	fb := domain.Feedback{
 		ID:        uuid.New().String(),
-		UserID:    u.ID,
+		UserID:    userID,
 		Type:      domain.FeedbackType(contentType),
 		Content:   content,
 		CreatedAt: time.Now(),

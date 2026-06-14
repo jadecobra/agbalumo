@@ -65,11 +65,14 @@ func TestFeedbackHandler_HandleSubmit_Success(t *testing.T) {
 	assert.Equal(t, "This is a bug.", feedbacks[0].Content)
 }
 
-func TestFeedbackHandler_HandleSubmit_NoAuth(t *testing.T) {
+func TestFeedbackHandler_HandleSubmit_AnonymousAllowed(t *testing.T) {
 	t.Parallel()
 	e := echo.New()
-	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
-	req := httptest.NewRequest(http.MethodPost, "/feedback", nil)
+	formData := url.Values{}
+	formData.Set("type", "Issue")
+	formData.Set("content", "Anonymous feedback from seeded user.")
+	req := httptest.NewRequest(http.MethodPost, "/feedback", strings.NewReader(formData.Encode()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
@@ -77,8 +80,18 @@ func TestFeedbackHandler_HandleSubmit_NoAuth(t *testing.T) {
 	defer cleanup()
 	h := NewFeedbackHandler(app)
 
-	_ = h.HandleSubmit(c)
-	assert.Equal(t, http.StatusUnauthorized, rec.Code)
+	err := h.HandleSubmit(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Contains(t, rec.Body.String(), "check_circle")
+
+	// Verify feedback saved with empty UserID (anonymous)
+	feedbacks, err := app.DB.GetAllFeedback(c.Request().Context())
+	require.NoError(t, err)
+	assert.Equal(t, 1, len(feedbacks))
+	assert.Equal(t, "", feedbacks[0].UserID)
+	assert.Equal(t, domain.FeedbackTypeIssue, feedbacks[0].Type)
+	assert.Equal(t, "Anonymous feedback from seeded user.", feedbacks[0].Content)
 }
 
 func TestFeedbackHandler_HandleSubmit_EmptyContent(t *testing.T) {
