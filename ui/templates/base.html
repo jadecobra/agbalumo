@@ -50,7 +50,6 @@
             <span class="text-[10px] font-bold uppercase tracking-wider font-display text-white">Add</span>
         </button>
 
-        {{ if .User }}
         <!-- Feedback -->
         <button hx-get="/feedback/modal" hx-target="body" hx-swap="beforeend" data-testid="mobile-feedback-btn"
             class="flex flex-col items-center justify-center gap-1 text-earth-cream/80 hover:text-white transition-all active:scale-95 w-16 h-full">
@@ -58,6 +57,7 @@
             <span class="text-[10px] font-bold uppercase tracking-wider font-display text-white">Feedback</span>
         </button>
 
+        {{ if .User }}
         <!-- Profile -->
         <button hx-get="/profile" hx-target="body" hx-swap="beforeend" data-testid="mobile-account-btn"
             class="flex flex-col items-center justify-center gap-1 text-earth-cream/80 hover:text-white transition-all active:scale-95 w-16 h-full">

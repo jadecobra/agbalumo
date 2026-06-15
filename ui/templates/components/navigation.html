@@ -170,12 +170,12 @@
         <div class="hidden md:flex items-center gap-4 shrink-0">
             <!-- Navigation Links -->
             <nav class="flex items-center gap-1">
-                {{ if .User }}
                 <button hx-get="/feedback/modal" hx-target="body" hx-swap="beforeend" data-testid="ag-nav-feedback-btn"
                     class="w-12 h-12 flex items-center justify-center text-earth-accent hover:text-earth-accent active:text-earth-accent transition-all duration-200"
                     title="Feedback" aria-label="Feedback">
                     <span class="material-symbols-outlined hover:[font-variation-settings:'FILL'_1] active:[font-variation-settings:'FILL'_1] transition-all duration-300">feedback</span>
                 </button>
+                {{ if .User }}
                 <button id="ag-nav-saved-btn" hx-get="/saved" hx-target="#listings-container" hx-indicator="#listings-loading" data-testid="ag-nav-saved-btn"
                     class="w-12 h-12 flex items-center justify-center text-earth-accent transition-all duration-200"
                     title="Saved Listings" aria-label="Saved Listings">
