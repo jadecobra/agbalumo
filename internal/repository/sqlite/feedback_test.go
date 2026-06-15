@@ -131,3 +131,51 @@ func TestGetFeedbackCounts(t *testing.T) {
 		t.Errorf("Expected 0 other, got %d", counts[domain.FeedbackTypeOther])
 	}
 }
+
+func TestResolveFeedback(t *testing.T) {
+	t.Parallel()
+	repo, _ := testutil.SetupTestRepositoryUnique(t)
+	ctx := context.Background()
+
+	id := uuid.New().String()
+	f := domain.Feedback{
+		ID:          id,
+		UserID:      "user1",
+		Type:        domain.FeedbackTypeIssue,
+		Content:     "Needs resolution",
+		CreatedAt:   time.Now(),
+		Fingerprint: "fingerprint-xyz",
+		Resolved:    false,
+	}
+
+	if err := repo.SaveFeedback(ctx, f); err != nil {
+		t.Fatalf("Failed to save: %v", err)
+	}
+
+	// Verify resolved is false initially
+	list, err := repo.GetAllFeedback(ctx)
+	if err != nil || len(list) != 1 {
+		t.Fatalf("Failed to get: %v", err)
+	}
+	if list[0].Resolved {
+		t.Error("Expected resolved to be false initially")
+	}
+	if list[0].Fingerprint != "fingerprint-xyz" {
+		t.Errorf("Expected fingerprint to be fingerprint-xyz, got %s", list[0].Fingerprint)
+	}
+
+	// Resolve
+	err = repo.ResolveFeedback(ctx, id)
+	if err != nil {
+		t.Fatalf("ResolveFeedback failed: %v", err)
+	}
+
+	// Verify resolved is true
+	list, err = repo.GetAllFeedback(ctx)
+	if err != nil || len(list) != 1 {
+		t.Fatalf("Failed to get after resolve: %v", err)
+	}
+	if !list[0].Resolved {
+		t.Error("Expected resolved to be true after resolving")
+	}
+}

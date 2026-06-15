@@ -11,9 +11,11 @@ const (
 )
 
 type Feedback struct {
-	CreatedAt time.Time    `json:"created_at"`
-	ID        string       `json:"id"`
-	UserID    string       `json:"user_id"`
-	Type      FeedbackType `json:"type"`
-	Content   string       `json:"content"`
+	CreatedAt   time.Time    `json:"created_at"`
+	ID          string       `json:"id"`
+	UserID      string       `json:"user_id"`
+	Type        FeedbackType `json:"type"`
+	Content     string       `json:"content"`
+	Fingerprint string       `json:"fingerprint"`
+	Resolved    bool         `json:"resolved"`
 }

@@ -57,6 +57,7 @@ type FeedbackStore interface {
 	SaveFeedback(ctx context.Context, feedback Feedback) error
 	GetAllFeedback(ctx context.Context) ([]Feedback, error)
 	GetFeedbackCounts(ctx context.Context) (map[FeedbackType]int, error)
+	ResolveFeedback(ctx context.Context, id string) error
 }
 
 // AdminStore handles admin-specific queries.

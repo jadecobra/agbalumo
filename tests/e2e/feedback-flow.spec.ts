@@ -126,5 +126,24 @@ test.describe('User Feedback Flow', () => {
     const body = page.locator('body');
     await expect(body).toContainText(anonymousMessage);
     await expect(body).toContainText(signedInMessage);
+
+    // 5. Test resolution workflow on the anonymous feedback
+    const resolveBtn = page.locator(`article:has-text("${anonymousMessage}") button[title="Mark as Resolved"]`);
+    await expect(resolveBtn).toBeVisible();
+
+    const responsePromise = page.waitForResponse(response => 
+      response.url().includes('/admin/feedback/') && 
+      response.url().includes('/resolve') && 
+      response.status() === 200
+    );
+    await resolveBtn.click();
+    await responsePromise;
+
+    // Verify resolve button is gone, resolved badge is present, and line-through class is applied
+    await expect(resolveBtn).not.toBeVisible();
+    const resolvedBadge = page.locator(`article:has-text("${anonymousMessage}"):has-text("resolved")`);
+    await expect(resolvedBadge).toBeVisible();
+    const heading = page.locator(`article:has-text("${anonymousMessage}") h3`);
+    await expect(heading).toHaveClass(/line-through/);
   });
 });

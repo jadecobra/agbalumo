@@ -1,6 +1,8 @@
 package feedback
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"net/http"
 	"time"
 
@@ -71,12 +73,20 @@ func (h *FeedbackHandler) HandleSubmit(c echo.Context) error {
 		contentType = string(domain.FeedbackTypeOther)
 	}
 
+	ip := c.RealIP()
+	ua := c.Request().UserAgent()
+	hasher := sha256.New()
+	hasher.Write([]byte(ip + "|" + ua))
+	fingerprint := hex.EncodeToString(hasher.Sum(nil))
+
 	fb := domain.Feedback{
-		ID:        uuid.New().String(),
-		UserID:    userID,
-		Type:      domain.FeedbackType(contentType),
-		Content:   content,
-		CreatedAt: time.Now(),
+		ID:          uuid.New().String(),
+		UserID:      userID,
+		Type:        domain.FeedbackType(contentType),
+		Content:     content,
+		CreatedAt:   time.Now(),
+		Fingerprint: fingerprint,
+		Resolved:    false,
 	}
 
 	if err := h.App.DB.SaveFeedback(c.Request().Context(), fb); err != nil {

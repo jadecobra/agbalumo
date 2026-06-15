@@ -137,6 +137,7 @@ func init() {
 		sweepCmd,
 		surfaceParityCmd,
 		cachebusterCmd,
+		feedbackListCmd,
 	)
 }
 

@@ -11,7 +11,7 @@
         </div>
         <div class="flex-1 min-w-0 py-1">
             <div class="flex items-center gap-4 mb-2">
-                <h3 class="text-white font-bold text-sm tracking-wide truncate max-w-[200px] sm:max-w-xs uppercase">
+                <h3 class="text-white font-bold text-sm tracking-wide truncate max-w-[200px] sm:max-w-xs uppercase {{ if .Resolved }}line-through opacity-50{{ end }}">
                     {{ .Content | html }}</h3>
                 {{ if eq .Type "Issue" }}
                 {{ template "status_badge_sharp" dict "Label" "issue" "ColorClasses" `bg-red-600 text-white`
@@ -23,14 +23,30 @@
                 {{ template "status_badge_sharp" dict "Label" .Type "ColorClasses" `bg-earth-cream/10
                 text-earth-cream/70` }}
                 {{ end }}
+                {{ if .Resolved }}
+                {{ template "status_badge_sharp" dict "Label" "resolved" "ColorClasses" `bg-green-600 text-white` }}
+                {{ end }}
             </div>
             <p class="font-bold text-[10px] uppercase tracking-[0.2em] text-earth-cream/50">
                 {{ .CreatedAt.Format "Jan 02, 2006 15:04" }} &bull; {{ if .UserID }}{{ .UserID }}{{ else
-                }}Anonymous{{ end }}
+                }}Anonymous{{ end }} &bull; Fingerprint: {{ if .Fingerprint }}{{ printf "%.8s..." .Fingerprint }}{{ else }}None{{ end }}
             </p>
         </div>
     </div>
     <div class="flex gap-2">
+        {{ if not .Resolved }}
+        <button
+            hx-post="/admin/feedback/{{ .ID }}/resolve"
+            hx-target="closest article"
+            hx-swap="outerHTML"
+            hx-indicator="this"
+            data-testid="resolve-feedback-btn-{{ .ID }}"
+            class="w-10 h-10 flex items-center justify-center text-earth-cream/30 hover:text-green-500 transition-colors htmx-request:opacity-50"
+            title="Mark as Resolved"
+            aria-label="Mark as Resolved">
+            <span class="material-symbols-outlined text-[20px]">check_circle</span>
+        </button>
+        {{ end }}
         <button
             class="w-10 h-10 flex items-center justify-center text-earth-cream/30 hover:text-earth-ochre transition-colors"
             title="View Details">

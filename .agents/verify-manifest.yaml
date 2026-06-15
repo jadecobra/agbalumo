@@ -180,6 +180,10 @@ commands:
     trigger: ui_change, template_change
     description: "Verify visual token parity between listing cards and modal details"
 
+  - name: feedback-list
+    trigger: session_start
+    description: "List all feedback submissions locally"
+
 skills:
   - name: go-tdd
     trigger: test_authoring, feature_implementation, bug_fix
