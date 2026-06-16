@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/testutil"
@@ -16,6 +17,9 @@ import (
 
 func TestListingHandler_FormParsing(t *testing.T) {
 	t.Parallel()
+	futureDeadline := time.Now().Add(30 * 24 * time.Hour)
+	deadlineStr := futureDeadline.Format("2006-01-02")
+
 	tests := []struct {
 		setup          func(t *testing.T, repo domain.ListingRepository)
 		verify         func(t *testing.T, repo domain.ListingRepository)
@@ -54,15 +58,15 @@ func TestListingHandler_FormParsing(t *testing.T) {
 		},
 		{
 			name:           "Success_RequestWithDeadline",
-			body:           "title=Request+Test&type=Request&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St&city=Lagos&deadline_date=2026-06-15",
+			body:           "title=Request+Test&type=Request&owner_origin=Nigeria&description=Cool&contact_email=t@e.com&address=123+St&city=Lagos&deadline_date={DEADLINE_DATE}",
 			setup:          func(t *testing.T, repo domain.ListingRepository) {},
 			expectedStatus: http.StatusOK,
 			verify: func(t *testing.T, repo domain.ListingRepository) {
 				listings, _, err := repo.FindAll(context.Background(), "", "Request Test", "", 0.0, 0.0, 0.0, "", "", false, 1, 0)
 				assert.NoError(t, err)
 				if assert.Len(t, listings, 1) {
-					assert.Equal(t, 2026, listings[0].Deadline.Year())
-					assert.Equal(t, 6, int(listings[0].Deadline.Month()))
+					assert.Equal(t, futureDeadline.Year(), listings[0].Deadline.Year())
+					assert.Equal(t, int(futureDeadline.Month()), int(listings[0].Deadline.Month()))
 				}
 			},
 		},
@@ -80,7 +84,8 @@ func TestListingHandler_FormParsing(t *testing.T) {
 			env := testutil.SetupTestModuleEnv(t)
 			defer env.Cleanup()
 
-			c, rec := testutil.SetupModuleContext(http.MethodPost, "/listings", strings.NewReader(tt.body))
+			bodyStr := strings.ReplaceAll(tt.body, "{DEADLINE_DATE}", deadlineStr)
+			c, rec := testutil.SetupModuleContext(http.MethodPost, "/listings", strings.NewReader(bodyStr))
 			c.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 			c.Set("User", domain.User{ID: "user-1"})
 
