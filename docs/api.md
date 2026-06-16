@@ -145,6 +145,7 @@ Requires admin role and session authentication.
 | GET | `/admin/modal/bulk` | Admin bulk upload modal fragment |
 | GET | `/admin/modal/category` | Admin category management modal fragment |
 | GET | `/admin/modal/moderation` | Admin moderation queue modal fragment |
+| POST | `/admin/feedback/:id/resolve` | Resolve feedback item |
 
 ### Admin Listing Filters (GET `/admin/listings`)
 

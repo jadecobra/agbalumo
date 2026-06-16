@@ -404,3 +404,23 @@ modal_moderation:
     responses:
       '200':
         description: Modal fragment HTML
+
+feedback_resolve:
+  post:
+    summary: Resolve feedback item
+    description: Mark a feedback submission as resolved
+    tags:
+      - Admin
+    security:
+      - CookieAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Updated feedback item HTML fragment
+      '404':
+        description: Feedback item not found

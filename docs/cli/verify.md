@@ -361,6 +361,14 @@ Scan for deprecated patterns (map[string]interface{}, RenderWithBaseContext).
 agbalumo verify deprecated
 ```
 
+##### feedback-list
+
+List all feedback submissions locally.
+
+```bash
+agbalumo verify feedback-list
+```
+
 ##### resolve
 
 Resolve intent to skills/workflows.

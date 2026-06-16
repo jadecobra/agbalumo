@@ -188,6 +188,9 @@ paths:
   /admin/modal/moderation:
     $ref: './openapi/paths/admin.yaml#/modal_moderation'
 
+  /admin/feedback/{id}/resolve:
+    $ref: './openapi/paths/admin.yaml#/feedback_resolve'
+
 components:
   securitySchemes:
     CookieAuth:
