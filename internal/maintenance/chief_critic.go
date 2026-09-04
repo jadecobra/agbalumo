@@ -2,7 +2,6 @@ package maintenance
 
 import (
 	"fmt"
-	"os/exec"
 	"strings"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
@@ -27,15 +26,8 @@ type linterIssue struct {
 func RunChiefCriticAudit(rootDir string, opts ChiefCriticOptions) error {
 	fmt.Println("🚀 Starting ChiefCritic Robustness Audit...")
 
-	var output string
-	var err error
-
-	if binPath, lookupErr := exec.LookPath("golangci-lint"); lookupErr == nil && binPath != "" {
-		output, err = runTool(rootDir, binPath, buildLinterArgs(opts)...)
-	} else {
-		command := buildLinterCommand(opts)
-		output, err = runTool(rootDir, "go", command...)
-	}
+	command := buildLinterCommand(opts)
+	output, err := runTool(rootDir, "go", command...)
 
 	if err != nil {
 		fmt.Println("❌ ChiefCritic Audit Failed")
@@ -54,7 +46,7 @@ func RunChiefCriticAudit(rootDir string, opts ChiefCriticOptions) error {
 	return nil
 }
 
-func buildLinterArgs(opts ChiefCriticOptions) []string {
+func buildLinterCommand(opts ChiefCriticOptions) []string {
 	args := []string{"run"}
 	if !opts.Full {
 		rev := opts.NewFromRev
@@ -68,11 +60,7 @@ func buildLinterArgs(opts ChiefCriticOptions) []string {
 		args = append(args, "-v")
 	}
 
-	return args
-}
-
-func buildLinterCommand(opts ChiefCriticOptions) []string {
-	return append([]string{"run", "github.com/golangci/golangci-lint/v2/cmd/golangci-lint"}, buildLinterArgs(opts)...)
+	return append([]string{"run", "github.com/golangci/golangci-lint/v2/cmd/golangci-lint"}, args...)
 }
 
 func reportSummarizedIssues(output string) {
