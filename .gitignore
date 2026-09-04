@@ -24,6 +24,7 @@ certs/
 *.out
 .idea/
 .vscode/
+.cursor/
 .npm/
 # Node
 node_modules/
