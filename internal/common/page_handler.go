@@ -35,6 +35,9 @@ func (h *PageHandler) HandleAbout(c echo.Context) error {
 		BaseViewData: h.PopulateBase(c),
 		Config:       h.App.Cfg,
 	}
+	vm.MetaTitle = "About | agbalumo"
+	vm.MetaDescription = "We built Agbalumo for the times we land in a new city and want food that feels like home. Verified West African and Nigerian food in Dallas and beyond."
+	vm.MetaURL = "https://agbalumo.com/about"
 
 	return h.RenderTyped(c, "about.html", vm)
 }

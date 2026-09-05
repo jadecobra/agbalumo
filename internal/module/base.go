@@ -20,6 +20,11 @@ type BaseViewData struct {
 	Radius           float64
 	DevMode          bool
 	HasGoogleAuth    bool
+	MetaTitle        string
+	MetaDescription  string
+	MetaImage        string
+	MetaURL          string
+	MetaType         string
 }
 
 // BaseHandler provides shared dependencies and utilities for all module handlers.
@@ -42,6 +47,11 @@ func (h *BaseHandler) PopulateBase(c echo.Context) BaseViewData {
 		DevMode:          h.App.Cfg.Env == "development",
 		HasGoogleAuth:    h.App.Cfg.HasGoogleAuth,
 		GoogleMapsApiKey: h.App.Cfg.GoogleMapsAPIKey,
+		MetaTitle:        "agbalumo - Find African Food in <60s",
+		MetaDescription:  "Verified Nigerian and West African food in Dallas and beyond. Authentic dishes, real contact details, and directions in under 60 seconds.",
+		MetaImage:        "https://agbalumo.com/static/icons/favicon.png",
+		MetaURL:          "https://agbalumo.com",
+		MetaType:         "website",
 	}
 
 	h.populateCategories(c, &data)

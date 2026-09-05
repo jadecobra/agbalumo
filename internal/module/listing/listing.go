@@ -2,21 +2,22 @@ package listing
 
 import (
 	"context"
+	"fmt"
 	"math"
-
-	"github.com/jadecobra/agbalumo/internal/infra/env"
-	"github.com/jadecobra/agbalumo/internal/module/user"
-	"github.com/jadecobra/agbalumo/internal/ui"
-
 	"mime/multipart"
 	"net/http"
+	"net/url"
+	"strconv"
+	"strings"
 	"sync"
+	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/infra/env"
 	"github.com/jadecobra/agbalumo/internal/module"
+	"github.com/jadecobra/agbalumo/internal/module/user"
+	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
-	"strconv"
-	"time"
 )
 
 type ListingHandler struct {
@@ -179,6 +180,20 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		FallbackCity:     fallbackCity,
 	}
 
+	if params.Query != "" && params.City != "" {
+		vm.MetaTitle = fmt.Sprintf("%s in %s | agbalumo", capitalize(params.Query), capitalize(params.City))
+		vm.MetaDescription = fmt.Sprintf("Find verified %s in %s. Real menus, contact information, and directions in under 60 seconds on agbalumo.", params.Query, params.City)
+		vm.MetaURL = fmt.Sprintf("https://agbalumo.com/?q=%s&city=%s", url.QueryEscape(params.Query), url.QueryEscape(params.City))
+	} else if params.City != "" {
+		vm.MetaTitle = fmt.Sprintf("African Food in %s | agbalumo", capitalize(params.City))
+		vm.MetaDescription = fmt.Sprintf("Find top-rated Nigerian and West African restaurants in %s. Authentic dining in under 60 seconds.", params.City)
+		vm.MetaURL = fmt.Sprintf("https://agbalumo.com/?city=%s", url.QueryEscape(params.City))
+	} else if params.Query != "" {
+		vm.MetaTitle = fmt.Sprintf("%s - African Food Search | agbalumo", capitalize(params.Query))
+		vm.MetaDescription = fmt.Sprintf("Discover authentic %s spots across the diaspora on agbalumo.", params.Query)
+		vm.MetaURL = fmt.Sprintf("https://agbalumo.com/?q=%s", url.QueryEscape(params.Query))
+	}
+
 	if startTS := c.QueryParam("start_ts"); startTS != "" {
 		h.App.Logger.Info("Search latency metric", "start_ts", startTS, "now", time.Now().UnixMilli())
 	}
@@ -309,6 +324,17 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 		CanClaim:         canClaim,
 		SavedIDs:         savedMap,
 	}
+	vm.MetaTitle = fmt.Sprintf("%s | agbalumo", listing.Title)
+	if listing.Description != "" {
+		vm.MetaDescription = listing.Description
+	} else {
+		vm.MetaDescription = fmt.Sprintf("View authentic details, location, and contact information for %s on agbalumo.", listing.Title)
+	}
+	if listing.ImageURL != "" {
+		vm.MetaImage = listing.ImageURL
+	}
+	vm.MetaURL = fmt.Sprintf("https://agbalumo.com/listings/%s", listing.ID)
+	vm.MetaType = "restaurant"
 
 	return h.RenderTyped(c, "modal_detail", vm)
 }
@@ -473,4 +499,11 @@ func findClosestLocation(lat, lng float64, locations []domain.Location) (domain.
 		}
 	}
 	return closest, minDist >= 0
+}
+
+func capitalize(s string) string {
+	if s == "" {
+		return ""
+	}
+	return strings.ToUpper(s[:1]) + s[1:]
 }
