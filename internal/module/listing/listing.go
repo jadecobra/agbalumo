@@ -183,17 +183,21 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		h.App.Logger.Info("Search latency metric", "start_ts", startTS, "now", time.Now().UnixMilli())
 	}
 
-	if totalCount == 0 && (params.Query != "" || params.City != "") {
-		h.App.Logger.InfoContext(ctx, "search_zero_results",
-			"query", params.Query,
-			"city", params.City,
-			"lat", lat,
-			"lng", lng,
-			"source", "home",
-		)
-	}
+	h.logZeroResults(ctx, "home", totalCount, params.Query, params.City, lat, lng)
 
 	return h.RenderTyped(c, domain.TemplateIndex, vm)
+}
+
+func (h *ListingHandler) logZeroResults(ctx context.Context, source string, totalCount int, query, city string, lat, lng float64) {
+	if totalCount == 0 && (query != "" || city != "") {
+		h.App.Logger.InfoContext(ctx, "search_zero_results",
+			"query", query,
+			"city", city,
+			"lat", lat,
+			"lng", lng,
+			"source", source,
+		)
+	}
 }
 
 func (h *ListingHandler) fetchFragmentListings(ctx context.Context, params *queryParams, limit, offset int) ([]domain.Listing, int, error) {
@@ -246,11 +250,6 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 		savedMap[id] = true
 	}
 
-	radius := 0.0
-	if (lat != 0 && lng != 0) || params.City != "" {
-		radius = params.Radius
-	}
-
 	vm := ListingFragmentViewModel{
 		Listings:   listings,
 		Featured:   featured,
@@ -258,7 +257,7 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 		Query:      params.Query,
 		City:       params.City,
 		FilterType: params.Type,
-		Radius:     radius,
+		Radius:     resolveRadius(lat, lng, params.City, params.Radius),
 		UserLat:    lat,
 		UserLng:    lng,
 		Pagination: domain.Pagination{
@@ -277,15 +276,7 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 		h.App.Logger.Info("Search latency metric (fragment)", "start_ts", startTS, "now", time.Now().UnixMilli())
 	}
 
-	if totalCount == 0 && (params.Query != "" || params.City != "") {
-		h.App.Logger.InfoContext(c.Request().Context(), "search_zero_results",
-			"query", params.Query,
-			"city", params.City,
-			"lat", lat,
-			"lng", lng,
-			"source", "fragment",
-		)
-	}
+	h.logZeroResults(c.Request().Context(), "fragment", totalCount, params.Query, params.City, lat, lng)
 
 	return h.RenderTyped(c, "listing_list", vm)
 }
