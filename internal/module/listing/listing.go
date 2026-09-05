@@ -183,6 +183,16 @@ func (h *ListingHandler) HandleHome(c echo.Context) error {
 		h.App.Logger.Info("Search latency metric", "start_ts", startTS, "now", time.Now().UnixMilli())
 	}
 
+	if totalCount == 0 && (params.Query != "" || params.City != "") {
+		h.App.Logger.InfoContext(ctx, "search_zero_results",
+			"query", params.Query,
+			"city", params.City,
+			"lat", lat,
+			"lng", lng,
+			"source", "home",
+		)
+	}
+
 	return h.RenderTyped(c, domain.TemplateIndex, vm)
 }
 
@@ -265,6 +275,16 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 
 	if startTS := c.QueryParam("start_ts"); startTS != "" {
 		h.App.Logger.Info("Search latency metric (fragment)", "start_ts", startTS, "now", time.Now().UnixMilli())
+	}
+
+	if totalCount == 0 && (params.Query != "" || params.City != "") {
+		h.App.Logger.InfoContext(c.Request().Context(), "search_zero_results",
+			"query", params.Query,
+			"city", params.City,
+			"lat", lat,
+			"lng", lng,
+			"source", "fragment",
+		)
 	}
 
 	return h.RenderTyped(c, "listing_list", vm)

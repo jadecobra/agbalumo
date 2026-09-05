@@ -1,7 +1,9 @@
 package listing_test
 
 import (
+	"bytes"
 	"context"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"testing"
@@ -217,4 +219,41 @@ func TestHandleFragment_RadiusWithoutGeoContext(t *testing.T) {
 	// The response should NOT contain the radius banner text
 	assert.NotContains(t, rec.Body.String(), "Showing within")
 	assert.NotContains(t, rec.Body.String(), "25 miles")
+}
+
+func TestHandleHome_ZeroResultsTelemetry(t *testing.T) {
+	t.Parallel()
+	c, _ := testutil.SetupModuleContext(http.MethodGet, "/?q=NonExistentEgusiDish", nil)
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+
+	logBuf := new(bytes.Buffer)
+	env.App.Logger = slog.New(slog.NewJSONHandler(logBuf, nil))
+	h := listing.NewListingHandler(env.App)
+
+	if err := h.HandleHome(c); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Contains(t, logBuf.String(), "search_zero_results")
+	assert.Contains(t, logBuf.String(), "NonExistentEgusiDish")
+}
+
+func TestHandleFragment_ZeroResultsTelemetry(t *testing.T) {
+	t.Parallel()
+	c, _ := testutil.SetupModuleContext(http.MethodGet, "/listings/fragment?q=NonExistentEgusiDish", nil)
+	c.Request().Header.Set("HX-Request", "true")
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+
+	logBuf := new(bytes.Buffer)
+	env.App.Logger = slog.New(slog.NewJSONHandler(logBuf, nil))
+	h := listing.NewListingHandler(env.App)
+
+	if err := h.HandleFragment(c); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Contains(t, logBuf.String(), "search_zero_results")
+	assert.Contains(t, logBuf.String(), "NonExistentEgusiDish")
 }
