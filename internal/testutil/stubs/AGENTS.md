@@ -8,5 +8,7 @@ Shared mock implementations and test doubles.
 *   **Consistency**: Ensure stubs implement the interfaces defined in `internal/domain/`.
 
 ## Common Stubs
-* `StubRepository`: In-memory map-based store.
-* `StubGeocoder`: Returns fixed coordinates for testing.
+* `ErrDefault`: Standard test stub error sentinel.
+* `NoopLogger`: Discards all log statements.
+* `FailingLogger`: Panics on log invocation for assertion paths.
+* `StubResolver`: Generic resolver double accepting a custom `ResolveFunc`.

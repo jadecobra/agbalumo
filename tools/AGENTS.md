@@ -7,4 +7,4 @@ Handles build-time dependencies and code generation.
 *   **Version Pinning**: All tools listed here are pinned in `go.mod` to ensure reproducible builds.
 
 ## Purpose
-* Includes dependencies like `stringer`, `mockgen`, or custom CLI generators used during the development cycle.
+* Pins development CLI tools: `golangci-lint`, `goconst`, `dupl`, `gocognit`, `gitleaks`, `fieldalignment`, and `govulncheck`.

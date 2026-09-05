@@ -5,7 +5,7 @@ This module manages the core domain of the application: African food listings. I
 ## Domain Constraints
 *   **Open Status**: DO NOT implement "Open Now" badges. Per ADR 2026-05-04, real-time status is decommissioned until time-zone metadata is reliable.
 *   **Signature Dishes**: This field is DECOMMISSIONED (ADR 2026-05-05). Use the general description for highlighting specific food items.
-*   **Origin Resolution**: Listings must have a verified origin (Country/Region). Use `internal/repository/origins.go` for lookups.
+*   **Origin Resolution**: Listings must have a verified origin (Country/Region). Use `internal/domain/origins.go` for lookups.
 
 ## Handler & UI Constraints
 *   **Geocoding**: All listing updates that change address must trigger a geocoding refresh via the `ListingService`.
