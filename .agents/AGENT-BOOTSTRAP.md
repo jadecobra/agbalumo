@@ -15,7 +15,7 @@
 
 ## Hexagonal Architecture Boundaries
 - `internal/domain/`: pure types, structs, interfaces. Zero external deps.
-- `internal/handler/`: thin. Bind, call service, respond error, render ViewModel. No raw maps.
+- `internal/module/`: thin vertical-slice handlers. Bind, call service, respond error, render ViewModel. No raw maps.
 - `internal/service/`: business logic spanning repositories.
 - `internal/repository/`: SQLite cached reads, WAL mode, FTS5 search, transactions.
 

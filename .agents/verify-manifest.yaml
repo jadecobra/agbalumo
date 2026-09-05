@@ -246,3 +246,11 @@ tools:
     trigger: after_implementation
     description: "Scan for deprecated patterns (map[string]interface{}, RenderWithBaseContext)"
 
+  - name: api-spec
+    trigger: api_change
+    description: "Detect drift between Code, OpenAPI, and Markdown docs"
+
+  - name: template-drift
+    trigger: template_change
+    description: "Detect undefined template functions in HTML templates"
+

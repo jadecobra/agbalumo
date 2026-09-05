@@ -30,4 +30,6 @@ func TestRenderImageErrorToast(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 	assert.Contains(t, rec.Body.String(), "some error")
+	assert.Contains(t, rec.Body.String(), "rounded-none")
+	assert.NotContains(t, rec.Body.String(), "rounded-xl")
 }

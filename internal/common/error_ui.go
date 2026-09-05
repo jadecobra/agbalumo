@@ -36,7 +36,7 @@ func RenderImageErrorToast(c echo.Context, err error) error {
 	// #nosec - toastID and msg are manually escaped below
 	return c.HTML(http.StatusBadRequest, fmt.Sprintf(`
 	<div id="toast-%s" 
-	     class="fixed top-4 right-4 z-50 max-w-sm w-full bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl shadow-lg p-4 flex items-start gap-3 animate-in slide-in-from-top-2 fade-in"
+	     class="fixed top-4 right-4 z-50 max-w-sm w-full bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-none shadow-lg p-4 flex items-start gap-3 animate-in slide-in-from-top-2 fade-in"
 	     role="alert"
 	     hx-on::after-transaction="if(event.detail.failed) setTimeout(() => { const t = document.getElementById('toast-%s'); if(t) { t.style.animation = 'fade-out 0.3s ease-out forwards'; setTimeout(() => t.remove(), 300); } }, 5000)">
 	    <span class="material-symbols-outlined text-red-500 text-[20px] mt-0.5">error</span>

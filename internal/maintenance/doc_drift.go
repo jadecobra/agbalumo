@@ -127,7 +127,7 @@ func findMarkdownDocs(rootDir string) ([]string, error) {
 		return nil, err
 	}
 
-	docs = append(docs, findExtraDocs(rootDir)...)
+	docs = append(docs, findAgentsAndDocFiles(rootDir)...)
 	return docs, nil
 }
 
@@ -167,13 +167,59 @@ func shouldSkipMarkdown(rootDir, path string, info os.FileInfo) (string, bool) {
 	return rel, true
 }
 
-func findExtraDocs(rootDir string) []string {
-	var extra []string
-	stdPath := filepath.Join(rootDir, ".agents/workflows/coding-standards.md")
-	if _, err := os.Stat(stdPath); err == nil {
-		extra = append(extra, ".agents/workflows/coding-standards.md")
+func findAgentsAndDocFiles(rootDir string) []string {
+	var docs []string
+	_ = filepath.Walk(rootDir, agentsWalkFn(rootDir, &docs))
+	return docs
+}
+
+func agentsWalkFn(rootDir string, docs *[]string) filepath.WalkFunc {
+	return func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return nil
+		}
+		if info.IsDir() {
+			return handleAgentsDir(info.Name())
+		}
+		collectAgentDoc(rootDir, path, info, docs)
+		return nil
 	}
-	return extra
+}
+
+func handleAgentsDir(name string) error {
+	if shouldSkipAgentsWalkDir(name) {
+		return filepath.SkipDir
+	}
+	return nil
+}
+
+func collectAgentDoc(rootDir, path string, info os.FileInfo, docs *[]string) {
+	if isTargetAgentDoc(rootDir, path, info) {
+		if rel, err := filepath.Rel(rootDir, path); err == nil {
+			*docs = append(*docs, rel)
+		}
+	}
+}
+
+func shouldSkipAgentsWalkDir(name string) bool {
+	if name == "." || name == "" {
+		return false
+	}
+	if strings.HasPrefix(name, ".") && name != ".agents" {
+		return true
+	}
+	return name == vVendor || name == "node_modules" || name == "testdata" || name == ".tester"
+}
+
+func isTargetAgentDoc(rootDir, path string, info os.FileInfo) bool {
+	if info.Name() == "AGENTS.md" {
+		return true
+	}
+	rel, err := filepath.Rel(rootDir, path)
+	if err != nil {
+		return false
+	}
+	return strings.HasPrefix(rel, ".agents"+string(filepath.Separator)) && strings.HasSuffix(rel, ".md")
 }
 
 func checkDocCommands(rootDir, docRelPath string, validSubcmds map[string]bool) ([]DriftViolation, error) {
@@ -224,7 +270,7 @@ func extractConfigPathsFromLine(line string) []string {
 	for _, m := range backtickRegex.FindAllStringSubmatch(line, -1) {
 		if len(m) > 1 {
 			ref := strings.TrimSpace(m[1])
-			if strings.HasPrefix(ref, ".agents/") {
+			if strings.HasPrefix(ref, ".agents/") && !strings.ContainsAny(ref, "*<>[]") {
 				refs = append(refs, ref)
 			}
 		}
@@ -297,7 +343,7 @@ func checkLine(rootDir, docRelPath string, lineNum int, line string) []DriftViol
 		if cleanRef == "" || !isLikelyPath(cleanRef) {
 			continue
 		}
-		fullPath := filepath.Join(rootDir, cleanRef)
+		fullPath := filepath.Join(rootDir, resolvePathToStat(cleanRef))
 		if _, err := os.Stat(fullPath); os.IsNotExist(err) {
 			violations = append(violations, DriftViolation{
 				DocFile:        docRelPath,
@@ -308,6 +354,13 @@ func checkLine(rootDir, docRelPath string, lineNum int, line string) []DriftViol
 		}
 	}
 	return violations
+}
+
+func resolvePathToStat(ref string) string {
+	if ext := filepath.Ext(ref); len(ext) > 1 && ext[1] >= 'A' && ext[1] <= 'Z' {
+		return strings.TrimSuffix(ref, ext)
+	}
+	return ref
 }
 
 func extractPotentialPaths(line string) []string {
@@ -344,12 +397,12 @@ func cleanRefPath(p string) string {
 }
 
 func isLikelyPath(s string) bool {
-	// Skip if contains function call syntax
-	if strings.Contains(s, "(") || strings.Contains(s, ")") {
+	// Skip if contains function call syntax or wildcards/placeholders
+	if strings.Contains(s, "(") || strings.Contains(s, ")") || strings.ContainsAny(s, "*<>[]") {
 		return false
 	}
 	// Common top-level dirs/files in this project
-	roots := []string{"internal", "cmd", "docs", "pkg", "api", "web", "assets", "tools", "scripts", "Dockerfile", "Makefile", "go.mod", "ui"}
+	roots := []string{"internal", "cmd", "docs", "pkg", "api", "web", "assets", "tools", "scripts", "Dockerfile", "Makefile", "go.mod", "ui", ".agents"}
 	for _, r := range roots {
 		if s == r || strings.HasPrefix(s, r+"/") {
 			return true

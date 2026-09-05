@@ -28,6 +28,40 @@ func TestCheckDocDrift(t *testing.T) {
 	})
 }
 
+func TestCheckDocDrift_AgentsAndAgentDocs(t *testing.T) {
+	tmpDir := t.TempDir()
+	setupMockFilesystem(t, tmpDir)
+	createMockDriftDocs(tmpDir)
+
+	violations, err := CheckDocDrift(tmpDir)
+	if err != nil {
+		t.Fatalf("CheckDocDrift failed: %v", err)
+	}
+
+	assertContainsDocViolation(t, violations, "internal/module/listing/AGENTS.md")
+	assertContainsDocViolation(t, violations, ".agents/AGENT-BOOTSTRAP.md")
+}
+
+func createMockDriftDocs(tmpDir string) {
+	agentsDoc := filepath.Join(tmpDir, "internal/module/listing/AGENTS.md")
+	_ = os.MkdirAll(filepath.Dir(agentsDoc), 0700)
+	_ = os.WriteFile(agentsDoc, []byte("Use `internal/repository/nonexistent_origins.go` for lookups."), 0600)
+
+	bootstrapDoc := filepath.Join(tmpDir, ".agents/AGENT-BOOTSTRAP.md")
+	_ = os.MkdirAll(filepath.Dir(bootstrapDoc), 0700)
+	_ = os.WriteFile(bootstrapDoc, []byte("Reference `internal/infra/nonexistent_env.go`."), 0600)
+}
+
+func assertContainsDocViolation(t *testing.T, violations []DriftViolation, docFile string) {
+	t.Helper()
+	for _, v := range violations {
+		if v.DocFile == docFile {
+			return
+		}
+	}
+	t.Errorf("failure mode verified: CheckDocDrift failed to detect violation in %s", docFile)
+}
+
 func TestCheckCommandDrift(t *testing.T) {
 	tmpDir := t.TempDir()
 	docPath := filepath.Join(tmpDir, "docs/commands.md")
