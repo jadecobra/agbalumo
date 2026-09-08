@@ -168,7 +168,8 @@ func renderPillar1QualityIndex(listings []domain.Listing, platform, city string,
 
 	b.WriteString("Find verified spots, directions, and direct contact in under 60 seconds:\n")
 	b.WriteString(fmt.Sprintf("https://agbalumo.com/?city=%s\n\n", city))
-	b.WriteString("If we missed your trusted spot in DFW, let us know so we can verify and add it.\n")
+	b.WriteString("If we missed your trusted spot in DFW, add it directly to the network in under 60 seconds:\n")
+	b.WriteString("https://agbalumo.com/?action=post\n")
 	b.WriteString("================================================================================\n")
 
 	_, err := io.WriteString(w, b.String())
@@ -215,7 +216,9 @@ func renderPillar2AirportArrival(listings []domain.Listing, platform, city strin
 	}
 
 	b.WriteString("Explore all airport-area African food spots in under 60 seconds:\n")
-	b.WriteString("https://agbalumo.com/?city=Arlington\n")
+	b.WriteString("https://agbalumo.com/?city=Arlington\n\n")
+	b.WriteString("Know a late-night kitchen near DFW airport we missed? Add it directly to the network:\n")
+	b.WriteString("https://agbalumo.com/?action=post\n")
 	b.WriteString("================================================================================\n")
 
 	_, err := io.WriteString(w, b.String())
@@ -292,7 +295,9 @@ func renderPillar4SubMetroCorridor(listings []domain.Listing, platform, city str
 	}
 
 	b.WriteString("\nExplore all North DFW and Collin County spots in under 60 seconds:\n")
-	b.WriteString("https://agbalumo.com/?city=Plano\n")
+	b.WriteString("https://agbalumo.com/?city=Plano\n\n")
+	b.WriteString("Know another African-owned kitchen in Collin County? Add it directly to the network:\n")
+	b.WriteString("https://agbalumo.com/?action=post\n")
 	b.WriteString("================================================================================\n")
 
 	_, err := io.WriteString(w, b.String())
@@ -318,8 +323,8 @@ func renderPillar5CoverageGaps(listings []domain.Listing, platform, city string,
 	}
 
 	b.WriteString("\nWe know there are blind spots in Frisco, Garland, Denton, and Fort Worth.\n\n")
-	b.WriteString("Who are we missing? Tell us your favorite auntie's spot or suya joint below so we can verify and add them to the network:\n")
-	b.WriteString("https://agbalumo.com\n")
+	b.WriteString("Who are we missing? Add your favorite auntie's spot or suya joint directly to the network in under 60 seconds:\n")
+	b.WriteString("https://agbalumo.com/?action=post\n")
 	b.WriteString("================================================================================\n")
 
 	_, err := io.WriteString(w, b.String())

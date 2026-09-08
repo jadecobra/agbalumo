@@ -113,4 +113,16 @@ test.describe('HTMX Interactions and State Sync', () => {
     expect(classList).not.toContain('text-secondary');
   });
 
+  test('should auto-open post/login modal when action=post query param is present', async ({ page }) => {
+    await page.goto('/?action=post');
+    const loginModal = page.locator('#login-prompt-modal');
+    await expect(loginModal).toBeVisible();
+  });
+
+  test('should auto-open post/login modal when hash is #post', async ({ page }) => {
+    await page.goto('/#post');
+    const loginModal = page.locator('#login-prompt-modal');
+    await expect(loginModal).toBeVisible();
+  });
+
 });

@@ -23,6 +23,25 @@ function initApp() {
     setupTryButtons();
     setupSearchPills();
     initInfiniteScroll();
+    setupActionParams();
+}
+
+function setupActionParams() {
+    function checkAction() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('action') === 'post' || window.location.hash === '#post') {
+            const postBtn = document.querySelector('[data-modal-id="create-listing-modal"]');
+            if (postBtn) {
+                postBtn.click();
+            } else {
+                const modal = document.getElementById('create-listing-modal');
+                if (modal) modal.showModal();
+            }
+        }
+    }
+
+    checkAction();
+    window.addEventListener('hashchange', checkAction);
 }
 
 function setupSearchPills() {

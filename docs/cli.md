@@ -12,6 +12,8 @@ The `agbalumo` CLI is a comprehensive tool for managing the directory platform, 
   - Documentation drift, template checking, and coverage gates.
 - **[Category Management](cli/category.md)**
   - Add and list custom categories.
+- **[Social Content Engine](cli/social.md)**
+  - Generate publication-ready social media copy and distribution drafts.
 - **[System Maintenance](cli/maintenance.md)**
   - Serve, Seed, Benchmark, Stress, and logs.
 
