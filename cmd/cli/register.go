@@ -12,4 +12,5 @@ func RegisterCommands(rootCmd *cobra.Command) {
 	rootCmd.AddCommand(BenchmarkCmd)
 	rootCmd.AddCommand(StressCmd)
 	rootCmd.AddCommand(SeedCmd)
+	rootCmd.AddCommand(SocialCmd)
 }
