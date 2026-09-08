@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"path/filepath"
 	"sort"
@@ -139,8 +140,32 @@ func getTopSpots(listings []domain.Listing) []domain.Listing {
 	return top
 }
 
+func buildTrackedURL(path, platform, campaign string, extraParams ...[2]string) string {
+	baseURL := "https://agbalumo.com"
+	u, err := url.Parse(baseURL + path)
+	if err != nil {
+		return baseURL + path
+	}
+	q := u.Query()
+	for _, p := range extraParams {
+		if p[0] != "" && p[1] != "" {
+			q.Set(p[0], p[1])
+		}
+	}
+	if platform != "" {
+		q.Set("utm_source", strings.ToLower(platform))
+	}
+	q.Set("utm_medium", "social")
+	if campaign != "" {
+		q.Set("utm_campaign", strings.ToLower(campaign))
+	}
+	u.RawQuery = q.Encode()
+	return u.String()
+}
+
 func renderPillar1QualityIndex(listings []domain.Listing, platform, city string, w io.Writer) error {
 	topSpots := getTopSpots(listings)
+	campaign := "quality_index"
 
 	var b strings.Builder
 	b.WriteString("================================================================================\n")
@@ -157,6 +182,7 @@ func renderPillar1QualityIndex(listings []domain.Listing, platform, city string,
 		}
 		b.WriteString(fmt.Sprintf("%d. %s (%s)\n", idx+1, s.Title, s.City))
 		b.WriteString(fmt.Sprintf("   ★ %.1f (%d reviews) · %s\n", s.Rating, s.ReviewCount, specialty))
+		b.WriteString(fmt.Sprintf("   Reviews & Details: %s\n", buildTrackedURL("/listings/"+s.ID, platform, campaign)))
 		if s.ContactPhone != "" {
 			b.WriteString(fmt.Sprintf("   Phone: %s\n", s.ContactPhone))
 		}
@@ -167,9 +193,9 @@ func renderPillar1QualityIndex(listings []domain.Listing, platform, city string,
 	}
 
 	b.WriteString("Find verified spots, directions, and direct contact in under 60 seconds:\n")
-	b.WriteString(fmt.Sprintf("https://agbalumo.com/?city=%s\n\n", city))
+	b.WriteString(fmt.Sprintf("%s\n\n", buildTrackedURL("/", platform, campaign, [2]string{"city", city})))
 	b.WriteString("If we missed your trusted spot in DFW, add it directly to the network in under 60 seconds:\n")
-	b.WriteString("https://agbalumo.com/?action=post\n")
+	b.WriteString(fmt.Sprintf("%s\n", buildTrackedURL("/", platform, campaign, [2]string{"action", "post"})))
 	b.WriteString("================================================================================\n")
 
 	_, err := io.WriteString(w, b.String())
@@ -195,6 +221,7 @@ func getAirportSpots(listings []domain.Listing) []domain.Listing {
 
 func renderPillar2AirportArrival(listings []domain.Listing, platform, city string, w io.Writer) error {
 	airportSpots := getAirportSpots(listings)
+	campaign := "airport_arrival"
 
 	var b strings.Builder
 	b.WriteString("================================================================================\n")
@@ -206,6 +233,10 @@ func renderPillar2AirportArrival(listings []domain.Listing, platform, city strin
 
 	for idx, s := range airportSpots {
 		b.WriteString(fmt.Sprintf("%d. %s (%s)\n", idx+1, s.Title, s.City))
+		if s.Rating > 0 {
+			b.WriteString(fmt.Sprintf("   ★ %.1f (%d reviews)\n", s.Rating, s.ReviewCount))
+		}
+		b.WriteString(fmt.Sprintf("   Reviews & Directions: %s\n", buildTrackedURL("/listings/"+s.ID, platform, campaign)))
 		if s.ContactPhone != "" {
 			b.WriteString(fmt.Sprintf("   Direct Phone: %s\n", s.ContactPhone))
 		}
@@ -216,9 +247,9 @@ func renderPillar2AirportArrival(listings []domain.Listing, platform, city strin
 	}
 
 	b.WriteString("Explore all airport-area African food spots in under 60 seconds:\n")
-	b.WriteString("https://agbalumo.com/?city=Arlington\n\n")
+	b.WriteString(fmt.Sprintf("%s\n\n", buildTrackedURL("/", platform, campaign, [2]string{"city", "Arlington"})))
 	b.WriteString("Know a late-night kitchen near DFW airport we missed? Add it directly to the network:\n")
-	b.WriteString("https://agbalumo.com/?action=post\n")
+	b.WriteString(fmt.Sprintf("%s\n", buildTrackedURL("/", platform, campaign, [2]string{"action", "post"})))
 	b.WriteString("================================================================================\n")
 
 	_, err := io.WriteString(w, b.String())
@@ -235,6 +266,7 @@ func renderPillar3MerchantSpotlight(listings []domain.Listing, platform, city st
 			spotlight = l
 		}
 	}
+	campaign := "merchant_spotlight"
 
 	var b strings.Builder
 	b.WriteString("================================================================================\n")
@@ -255,8 +287,8 @@ func renderPillar3MerchantSpotlight(listings []domain.Listing, platform, city st
 	if spotlight.WebsiteURL != "" {
 		b.WriteString(fmt.Sprintf("• Menu/Ordering: %s\n", spotlight.WebsiteURL))
 	}
-	b.WriteString("\nView details, hours, and directions on agbalumo:\n")
-	b.WriteString(fmt.Sprintf("https://agbalumo.com/listings/%s\n\n", spotlight.ID))
+	b.WriteString("\nView reviews, hours, and directions on agbalumo:\n")
+	b.WriteString(fmt.Sprintf("%s\n\n", buildTrackedURL("/listings/"+spotlight.ID, platform, campaign)))
 	b.WriteString(fmt.Sprintf("Tagging %s — thank you for serving the diaspora.\n", spotlight.Title))
 	b.WriteString("================================================================================\n")
 
@@ -278,6 +310,7 @@ func renderPillar4SubMetroCorridor(listings []domain.Listing, platform, city str
 	if len(collinSpots) > 4 {
 		collinSpots = collinSpots[:4]
 	}
+	campaign := "sub_metro_corridor"
 
 	var b strings.Builder
 	b.WriteString("================================================================================\n")
@@ -288,16 +321,21 @@ func renderPillar4SubMetroCorridor(listings []domain.Listing, platform, city str
 	b.WriteString("Collin County has a trusted cluster of verified West African kitchens right in Plano, Allen, and McKinney:\n\n")
 
 	for idx, s := range collinSpots {
-		b.WriteString(fmt.Sprintf("%d. %s (%s) · ★ %.1f\n", idx+1, s.Title, s.City, s.Rating))
+		b.WriteString(fmt.Sprintf("%d. %s (%s)\n", idx+1, s.Title, s.City))
+		if s.Rating > 0 {
+			b.WriteString(fmt.Sprintf("   ★ %.1f (%d reviews)\n", s.Rating, s.ReviewCount))
+		}
+		b.WriteString(fmt.Sprintf("   Reviews & Menu: %s\n", buildTrackedURL("/listings/"+s.ID, platform, campaign)))
 		if s.ContactPhone != "" {
 			b.WriteString(fmt.Sprintf("   Phone: %s\n", s.ContactPhone))
 		}
+		b.WriteString("\n")
 	}
 
-	b.WriteString("\nExplore all North DFW and Collin County spots in under 60 seconds:\n")
-	b.WriteString("https://agbalumo.com/?city=Plano\n\n")
+	b.WriteString("Explore all North DFW and Collin County spots in under 60 seconds:\n")
+	b.WriteString(fmt.Sprintf("%s\n\n", buildTrackedURL("/", platform, campaign, [2]string{"city", "Plano"})))
 	b.WriteString("Know another African-owned kitchen in Collin County? Add it directly to the network:\n")
-	b.WriteString("https://agbalumo.com/?action=post\n")
+	b.WriteString(fmt.Sprintf("%s\n", buildTrackedURL("/", platform, campaign, [2]string{"action", "post"})))
 	b.WriteString("================================================================================\n")
 
 	_, err := io.WriteString(w, b.String())
@@ -305,26 +343,50 @@ func renderPillar4SubMetroCorridor(listings []domain.Listing, platform, city str
 }
 
 func renderPillar5CoverageGaps(listings []domain.Listing, platform, city string, w io.Writer) error {
+	campaign := "coverage_gaps"
 	var b strings.Builder
 	b.WriteString("================================================================================\n")
 	b.WriteString(fmt.Sprintf("[DRAFT: %s - Pillar 5: Radical Transparency & Coverage Gaps]\n", strings.ToUpper(platform)))
 	b.WriteString("Recommended Destination: DFW Diaspora Groups / Facebook Feed (High Comment Volume)\n")
 	b.WriteString("================================================================================\n")
 	b.WriteString("We started Agbalumo to map African-owned businesses where we don't have to explain ourselves, starting with food. Right now, Dallas-Fort Worth is our strongest network with verified spots across Dallas, Plano, Arlington, Grand Prairie, and McKinney.\n\n")
-	b.WriteString("Here are spots we have verified so far:\n")
+	b.WriteString("Here are verified spots mapped so far with community reviews:\n\n")
 
-	cityMap := make(map[string][]string)
+	cityMap := make(map[string][]domain.Listing)
 	for _, l := range listings {
-		cityMap[l.City] = append(cityMap[l.City], l.Title)
+		cityMap[l.City] = append(cityMap[l.City], l)
 	}
 
-	for c, titles := range cityMap {
-		b.WriteString(fmt.Sprintf("• %s: %s\n", c, strings.Join(titles, ", ")))
+	var cities []string
+	for c := range cityMap {
+		cities = append(cities, c)
+	}
+	sort.Strings(cities)
+
+	for _, c := range cities {
+		spots := cityMap[c]
+		sort.Slice(spots, func(i, j int) bool {
+			if spots[i].Rating != spots[j].Rating {
+				return spots[i].Rating > spots[j].Rating
+			}
+			return spots[i].ReviewCount > spots[j].ReviewCount
+		})
+
+		b.WriteString(fmt.Sprintf("• %s:\n", c))
+		for _, s := range spots {
+			ratingStr := ""
+			if s.Rating > 0 {
+				ratingStr = fmt.Sprintf("★ %.1f (%d reviews) · ", s.Rating, s.ReviewCount)
+			}
+			link := buildTrackedURL("/listings/"+s.ID, platform, campaign)
+			b.WriteString(fmt.Sprintf("  - %s: %s%s\n", s.Title, ratingStr, link))
+		}
+		b.WriteString("\n")
 	}
 
-	b.WriteString("\nWe know there are blind spots in Frisco, Garland, Denton, and Fort Worth.\n\n")
+	b.WriteString("We know there are blind spots in Frisco, Garland, Denton, and Fort Worth.\n\n")
 	b.WriteString("Who are we missing? Add your favorite auntie's spot or suya joint directly to the network in under 60 seconds:\n")
-	b.WriteString("https://agbalumo.com/?action=post\n")
+	b.WriteString(fmt.Sprintf("%s\n", buildTrackedURL("/", platform, campaign, [2]string{"action", "post"})))
 	b.WriteString("================================================================================\n")
 
 	_, err := io.WriteString(w, b.String())

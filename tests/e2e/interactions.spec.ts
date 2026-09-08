@@ -125,4 +125,21 @@ test.describe('HTMX Interactions and State Sync', () => {
     await expect(loginModal).toBeVisible();
   });
 
+  test('should track inbound UTM campaign parameters and log campaign_visit', async ({ page }) => {
+    let capturedPayload: any = null;
+    await page.route('**/api/metrics', async route => {
+      const postData = route.request().postDataJSON();
+      if (postData && postData.event === 'campaign_visit') {
+        capturedPayload = postData;
+      }
+      await route.continue();
+    });
+
+    await page.goto('/?utm_source=facebook&utm_medium=social&utm_campaign=coverage_gaps');
+    await expect.poll(() => capturedPayload).not.toBeNull();
+    expect(capturedPayload.metadata.utm_source).toBe('facebook');
+    expect(capturedPayload.metadata.utm_medium).toBe('social');
+    expect(capturedPayload.metadata.utm_campaign).toBe('coverage_gaps');
+  });
+
 });
