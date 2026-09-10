@@ -20,8 +20,8 @@ func TestHeadMeta_OpenGraphTags(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		data     module.BaseViewData
 		contains []string
+		data     module.BaseViewData
 	}{
 		{
 			name: "default_fallback_tags",

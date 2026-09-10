@@ -16,15 +16,15 @@ type BaseViewData struct {
 	FilterType       string
 	City             string
 	GoogleMapsApiKey string
-	Categories       []domain.CategoryData
-	Radius           float64
-	DevMode          bool
-	HasGoogleAuth    bool
 	MetaTitle        string
 	MetaDescription  string
 	MetaImage        string
 	MetaURL          string
 	MetaType         string
+	Categories       []domain.CategoryData
+	Radius           float64
+	DevMode          bool
+	HasGoogleAuth    bool
 }
 
 // BaseHandler provides shared dependencies and utilities for all module handlers.

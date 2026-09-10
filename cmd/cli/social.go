@@ -296,20 +296,33 @@ func renderPillar3MerchantSpotlight(listings []domain.Listing, platform, city st
 	return err
 }
 
-func renderPillar4SubMetroCorridor(listings []domain.Listing, platform, city string, w io.Writer) error {
-	var collinSpots []domain.Listing
+func isCollinCounty(city string) bool {
+	switch strings.ToLower(city) {
+	case "plano", "allen", "mckinney", "frisco":
+		return true
+	default:
+		return false
+	}
+}
+
+func filterCollinSpots(listings []domain.Listing) []domain.Listing {
+	var spots []domain.Listing
 	for _, l := range listings {
-		c := strings.ToLower(l.City)
-		if c == "plano" || c == "allen" || c == "mckinney" || c == "frisco" {
-			collinSpots = append(collinSpots, l)
+		if isCollinCounty(l.City) {
+			spots = append(spots, l)
 		}
 	}
-	if len(collinSpots) == 0 && len(listings) > 0 {
-		collinSpots = listings
+	if len(spots) == 0 && len(listings) > 0 {
+		spots = listings
 	}
-	if len(collinSpots) > 4 {
-		collinSpots = collinSpots[:4]
+	if len(spots) > 4 {
+		spots = spots[:4]
 	}
+	return spots
+}
+
+func renderPillar4SubMetroCorridor(listings []domain.Listing, platform, city string, w io.Writer) error {
+	collinSpots := filterCollinSpots(listings)
 	campaign := "sub_metro_corridor"
 
 	var b strings.Builder
@@ -342,6 +355,15 @@ func renderPillar4SubMetroCorridor(listings []domain.Listing, platform, city str
 	return err
 }
 
+func sortSpotsByRating(spots []domain.Listing) {
+	sort.Slice(spots, func(i, j int) bool {
+		if spots[i].Rating != spots[j].Rating {
+			return spots[i].Rating > spots[j].Rating
+		}
+		return spots[i].ReviewCount > spots[j].ReviewCount
+	})
+}
+
 func renderPillar5CoverageGaps(listings []domain.Listing, platform, city string, w io.Writer) error {
 	campaign := "coverage_gaps"
 	var b strings.Builder
@@ -365,12 +387,7 @@ func renderPillar5CoverageGaps(listings []domain.Listing, platform, city string,
 
 	for _, c := range cities {
 		spots := cityMap[c]
-		sort.Slice(spots, func(i, j int) bool {
-			if spots[i].Rating != spots[j].Rating {
-				return spots[i].Rating > spots[j].Rating
-			}
-			return spots[i].ReviewCount > spots[j].ReviewCount
-		})
+		sortSpotsByRating(spots)
 
 		b.WriteString(fmt.Sprintf("• %s:\n", c))
 		for _, s := range spots {
