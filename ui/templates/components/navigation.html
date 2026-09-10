@@ -4,6 +4,7 @@
     border-earth-clay/20 transition-all duration-300{{ end }} relative" 
     data-agent-template="navigation.html">
     <!-- Mobile Full Width Logo -->
+    {{ block "header_mobile_logo" . }}
     <a href="/" class="md:hidden flex flex-col justify-center items-center w-full py-2 border-b border-earth-clay/5 group">
         <div class="flex flex-col items-center">
             <picture>
@@ -13,12 +14,13 @@
             <span class="text-[10px] text-earth-clay font-medium tracking-wide -mt-1 font-display">find what you want</span>
         </div>
     </a>
+    {{ end }}
 
 
     <div class="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between gap-4 md:gap-8">
 
         <!-- Desktop Logo -->
-
+        {{ block "header_desktop_logo" . }}
         <a href="/" class="hidden md:flex flex-col shrink-0 items-center justify-center gap-0 group">
             <div class="flex flex-col items-center">
                 <picture>
@@ -31,6 +33,7 @@
                     you want</span>
             </div>
         </a>
+        {{ end }}
 
         <!-- Centered Search Bar (Max Width) -->
         {{ block "header_search" . }}

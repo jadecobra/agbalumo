@@ -328,6 +328,9 @@ var TemplateMockRegistry = map[string]interface{}{
 	},
 	"modal_login_prompt_content": baseData,
 	"location_permission_prompt": map[string]interface{}{},
+	"header_mobile_logo":         baseData,
+	"header_desktop_logo":        baseData,
+	"top_content":                baseData,
 }
 
 func TestGlobalTemplateCoverage(t *testing.T) {
@@ -343,7 +346,8 @@ func TestGlobalTemplateCoverage(t *testing.T) {
 		// Skip common block names that are redefined across pages.
 		// These are tested when the page templates themselves are rendered.
 		if name == "content" || name == "title" || name == "header_content" ||
-			name == "header_classes" || name == "extra_scripts" || name == "filters" ||
+			name == "header_classes" || name == "header_mobile_logo" || name == "header_desktop_logo" ||
+			name == "top_content" || name == "extra_scripts" || name == "filters" ||
 			name == "inner_content" || name == "base.html" || name == "base" || name == "" {
 			continue
 		}
