@@ -3,12 +3,14 @@
 {{ define "title" }}agbalumo: find what you want{{ end }}
 
 {{ define "extra_scripts" }}
+<link rel="preload" as="image" href="/static/images/agbalumo_cover_photo.webp" type="image/webp" fetchpriority="high">
 <script src="/static/js/near-me.js?v=9" defer></script>
 {{ end }}
 {{ define "content" }}
 
 <div class="w-full bg-earth-cream text-text-main pb-24 md:pb-8" data-template-file="ui/templates/index.html">
 
+    {{ template "home_hero_search" . }}
 
     {{ template "home_listings_section" . }}
 
