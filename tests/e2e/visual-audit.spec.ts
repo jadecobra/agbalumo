@@ -225,6 +225,20 @@ test.describe('Visual Audit', () => {
     if (box) expect(box.y).toBeLessThan(900);
   });
 
+  test('hero image resizes to fit full width of desktop device', async ({ page }, testInfo) => {
+    if (testInfo.project.name !== 'Desktop') test.skip();
+
+    await page.goto('/');
+    await page.waitForLoadState('load');
+    const heroImg = page.locator('#home-hero img');
+    await expect(heroImg).toBeVisible();
+    const box = await heroImg.boundingBox();
+    expect(box).not.toBeNull();
+    if (box) {
+      expect(box.width).toBe(1440);
+    }
+  });
+
   test('touch targets >= 44px on all major surfaces', async ({ page }, testInfo) => {
     if (testInfo.project.name !== 'Mobile') test.skip();
 
