@@ -31,6 +31,7 @@ Before running any browser-based tests, you MUST ensure the local server is runn
 ## UI TDD Workflow (Aesthetic/Layout Tweaks)
 When modifying templates, CSS, or client-side assets where standard Go unit tests do not apply:
 1. **Identify Visual Issue**: Use `browser_subagent` to capture a baseline "Before" screenshot and isolate the layout flaw.
+   - **Design Asset Provenance**: When handling new or unreferenced design images, query available design MCP tools (`StitchMCP:list_projects` and `list_screens`) to inspect native dimensions, screen context, and artwork source instead of guessing or waiting for user guidance.
 2. **Apply Changes**: Modify HTML templates or `input.css`.
 3. **Compile & Reload**: Run `npm run build:css` (if applicable) and **RESTART** the server to clear the Go template cache.
 4. **Visual Verification**: Check responsiveness, margins, and aesthetic quality across target viewports via `browser_subagent`.
@@ -79,6 +80,7 @@ For ANY layout change, you MUST verify at:
 | Overlap on Mobile | Lack of dynamic padding | Use `calc(var(--nav-height) + padding)` |
 | Layout breaks on real-world long text | No clamping | Apply `line-clamp-2` or `truncate` |
 | Misclicks on mobile UI | Touch target < 44px | Add padding (e.g., `p-3`) to hit 44x44px minimum |
+| Artificial letterboxing on desktop / wide viewports | Capping element width (`max-w-*`) solely to pass vertical fold assertions (`firstCard.boundingBox().y < 900`) | Prohibit hardcoding `max-w` to force spatial assertions; use geometric aspect-ratios or responsive fluid constraints and verify edge-to-edge scaling |
 
 
 ## Agent Targeting Rules
