@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/url"
@@ -15,27 +16,30 @@ import (
 )
 
 var (
-	flagSocialPillar   int
-	flagSocialPlatform string
-	flagSocialCity     string
-	flagSocialOutput   string
+	flagSocialPillar    int
+	flagSocialListingID string
+	flagSocialCity      string
+	flagSocialOutput    string
 )
 
 var SocialCmd = &cobra.Command{
 	Use:   "social",
 	Short: "Deterministic social media content engine",
 	Long: `Generate pre-formatted, verified social media post drafts directly from 
-the database for Facebook, X, and WhatsApp following agbalumo core story principles.`,
+the database following agbalumo core story principles.`,
 }
 
 var socialDraftCmd = &cobra.Command{
 	Use:   "draft",
 	Short: "Generate a publication-ready social draft for a specific pillar",
-	Example: `  # Generate a Facebook post for Pillar 1 (Quality Index) in Dallas
-  agbalumo social draft --pillar 1 --platform facebook
+	Example: `  # Generate a post for Pillar 1 (Quality Index) in Dallas
+  agbalumo social draft --pillar 1
 
-  # Generate an Airport arrival dispatch (Pillar 2)
-  agbalumo social draft --pillar 2 --platform facebook
+  # Generate an Airport corridor dispatch (Pillar 2)
+  agbalumo social draft --pillar 2
+
+  # Spotlight a specific merchant (Pillar 3)
+  agbalumo social draft --pillar 3 --listing-id cli-12345
 
   # Save the draft directly to a text file for quick editing
   agbalumo social draft --pillar 5 --output post_draft.txt`,
@@ -51,7 +55,7 @@ var socialDraftCmd = &cobra.Command{
 			out = io.MultiWriter(cmd.OutOrStdout(), f)
 		}
 
-		err := GenerateSocialDraft(repo, flagSocialPillar, flagSocialPlatform, flagSocialCity, out)
+		err := GenerateSocialDraft(repo, flagSocialPillar, flagSocialListingID, flagSocialCity, out)
 		ExitOnErr(err, "Failed to generate social draft")
 
 		if flagSocialOutput != "" {
@@ -63,10 +67,83 @@ var socialDraftCmd = &cobra.Command{
 func init() {
 	SocialCmd.AddCommand(socialDraftCmd)
 
-	socialDraftCmd.Flags().IntVar(&flagSocialPillar, "pillar", 1, "Content pillar: 1-5")
-	socialDraftCmd.Flags().StringVar(&flagSocialPlatform, "platform", "facebook", "Target platform: facebook, x, whatsapp")
+	socialDraftCmd.Flags().IntVarP(&flagSocialPillar, "pillar", "p", 1, "Content pillar: 1-5")
+	socialDraftCmd.Flags().StringVarP(&flagSocialListingID, "listing-id", "l", "", "Target listing ID (for pillar 3 spotlight; rotates if omitted)")
 	socialDraftCmd.Flags().StringVar(&flagSocialCity, "city", "Dallas", "Target city or metro anchor")
-	socialDraftCmd.Flags().StringVar(&flagSocialOutput, "output", "", "Optional output file path to save the draft")
+	socialDraftCmd.Flags().StringVarP(&flagSocialOutput, "output", "o", "", "Optional output file path to save the draft")
+}
+
+// SocialState tracks rotation offsets and recently spotlighted listings.
+type SocialState struct {
+	Offsets          map[string]int `json:"offsets,omitempty"`
+	RecentlyFeatured []string       `json:"recently_featured,omitempty"`
+}
+
+func getStateFilePath() string {
+	if p := os.Getenv("AGBALUMO_SOCIAL_STATE"); p != "" {
+		return p
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return filepath.Join(os.TempDir(), ".agbalumo_social_state.json")
+	}
+	return filepath.Join(home, ".agbalumo", "social_state.json")
+}
+
+func loadSocialState() SocialState {
+	path := filepath.Clean(getStateFilePath())
+	data, err := os.ReadFile(path) // #nosec G304 -- local CLI state path
+	if err != nil {
+		return SocialState{Offsets: make(map[string]int)}
+	}
+	var s SocialState
+	if err := json.Unmarshal(data, &s); err != nil {
+		return SocialState{Offsets: make(map[string]int)}
+	}
+	if s.Offsets == nil {
+		s.Offsets = make(map[string]int)
+	}
+	return s
+}
+
+func saveSocialState(s SocialState) {
+	path := filepath.Clean(getStateFilePath())
+	dir := filepath.Dir(path)
+	_ = os.MkdirAll(dir, 0750)
+	data, err := json.MarshalIndent(s, "", "  ")
+	if err == nil {
+		_ = os.WriteFile(path, data, 0600) // #nosec G304 -- local CLI state path
+	}
+}
+
+func rotateListings(candidates []domain.Listing, key string, limit int, state *SocialState) []domain.Listing {
+	if len(candidates) == 0 {
+		return nil
+	}
+	if len(candidates) <= limit {
+		return candidates
+	}
+	offset := state.Offsets[key] % len(candidates)
+	result := make([]domain.Listing, limit)
+	for i := 0; i < limit; i++ {
+		result[i] = candidates[(offset+i)%len(candidates)]
+	}
+	state.Offsets[key] = (offset + limit) % len(candidates)
+	return result
+}
+
+func rotateCitySpots(spots []domain.Listing, city string, state *SocialState) []domain.Listing {
+	if len(spots) <= 1 {
+		return spots
+	}
+	key := "pillar_5_" + strings.ToLower(city)
+	offset := state.Offsets[key] % len(spots)
+	rotated := make([]domain.Listing, len(spots))
+	for i := 0; i < len(spots); i++ {
+		rotated[i] = spots[(offset+i)%len(spots)]
+	}
+	state.Offsets[key] = (offset + 1) % len(spots)
+	return rotated
 }
 
 func isDFW(city string) bool {
@@ -92,7 +169,7 @@ func filterListingsByCity(raw []domain.Listing, city string) []domain.Listing {
 }
 
 // GenerateSocialDraft queries verified listings and renders a publication-ready post draft.
-func GenerateSocialDraft(repo domain.ListingRepository, pillar int, platform, city string, w io.Writer) error {
+func GenerateSocialDraft(repo domain.ListingRepository, pillar int, listingID, city string, w io.Writer) error {
 	ctx := context.Background()
 
 	rawListings, _, err := repo.FindAll(ctx, string(domain.Food), "", "", 0, 0, 0, "", "", false, 100, 0)
@@ -101,46 +178,28 @@ func GenerateSocialDraft(repo domain.ListingRepository, pillar int, platform, ci
 	}
 
 	listings := filterListingsByCity(rawListings, city)
+	state := loadSocialState()
+	defer func() {
+		saveSocialState(state)
+	}()
 
 	switch pillar {
 	case 1:
-		return renderPillar1QualityIndex(listings, platform, city, w)
+		return renderPillar1QualityIndex(listings, city, &state, w)
 	case 2:
-		return renderPillar2AirportArrival(listings, platform, city, w)
+		return renderPillar2AirportArrival(listings, city, &state, w)
 	case 3:
-		return renderPillar3MerchantSpotlight(listings, platform, city, w)
+		return renderPillar3MerchantSpotlight(listings, listingID, &state, w)
 	case 4:
-		return renderPillar4SubMetroCorridor(listings, platform, city, w)
+		return renderPillar4SubMetroCorridor(listings, city, &state, w)
 	case 5:
-		return renderPillar5CoverageGaps(listings, platform, city, w)
+		return renderPillar5CoverageGaps(listings, city, &state, w)
 	default:
 		return fmt.Errorf("unknown pillar: %d (supported: 1-5)", pillar)
 	}
 }
 
-func getTopSpots(listings []domain.Listing) []domain.Listing {
-	var top []domain.Listing
-	for _, l := range listings {
-		if l.Rating >= 4.0 {
-			top = append(top, l)
-		}
-	}
-	if len(top) == 0 && len(listings) > 0 {
-		top = listings
-	}
-	sort.Slice(top, func(i, j int) bool {
-		if top[i].Rating != top[j].Rating {
-			return top[i].Rating > top[j].Rating
-		}
-		return top[i].ReviewCount > top[j].ReviewCount
-	})
-	if len(top) > 4 {
-		top = top[:4]
-	}
-	return top
-}
-
-func buildTrackedURL(path, platform, campaign string, extraParams ...[2]string) string {
+func buildTrackedURL(path, campaign string, extraParams ...[2]string) string {
 	baseURL := "https://agbalumo.com"
 	u, err := url.Parse(baseURL + path)
 	if err != nil {
@@ -152,9 +211,7 @@ func buildTrackedURL(path, platform, campaign string, extraParams ...[2]string) 
 			q.Set(p[0], p[1])
 		}
 	}
-	if platform != "" {
-		q.Set("utm_source", strings.ToLower(platform))
-	}
+	q.Set("utm_source", "cli")
 	q.Set("utm_medium", "social")
 	if campaign != "" {
 		q.Set("utm_campaign", strings.ToLower(campaign))
@@ -163,114 +220,213 @@ func buildTrackedURL(path, platform, campaign string, extraParams ...[2]string) 
 	return u.String()
 }
 
-func renderPillar1QualityIndex(listings []domain.Listing, platform, city string, w io.Writer) error {
-	topSpots := getTopSpots(listings)
+func filterCandidatesByRating(listings []domain.Listing, minRating float64) []domain.Listing {
+	var candidates []domain.Listing
+	for _, l := range listings {
+		if l.Rating >= minRating {
+			candidates = append(candidates, l)
+		}
+	}
+	if len(candidates) == 0 {
+		return listings
+	}
+	return candidates
+}
+
+func writeSpotItem(b *strings.Builder, idx int, s domain.Listing, campaign string) {
+	specialty := s.RegionalSpecialty
+	if specialty == "" {
+		specialty = "West African"
+	}
+	b.WriteString(fmt.Sprintf("%d. %s (%s)\n", idx+1, s.Title, s.City))
+	b.WriteString(fmt.Sprintf("   ★ %.1f (%d reviews) · %s\n", s.Rating, s.ReviewCount, specialty))
+	b.WriteString(fmt.Sprintf("   Reviews & Details: %s\n", buildTrackedURL("/listings/"+s.ID, campaign)))
+	if s.ContactPhone != "" {
+		b.WriteString(fmt.Sprintf("   Phone: %s\n", s.ContactPhone))
+	}
+	if s.WebsiteURL != "" {
+		b.WriteString(fmt.Sprintf("   Menu/Order: %s\n", s.WebsiteURL))
+	}
+	b.WriteString("\n")
+}
+
+func renderPillar1QualityIndex(listings []domain.Listing, city string, state *SocialState, w io.Writer) error {
+	candidates := filterCandidatesByRating(listings, 4.0)
+	spots := rotateListings(candidates, "pillar_1_"+strings.ToLower(city), 4, state)
 	campaign := "quality_index"
 
 	var b strings.Builder
 	b.WriteString("================================================================================\n")
-	b.WriteString(fmt.Sprintf("[DRAFT: %s - Pillar 1: The DFW African Food Quality Index]\n", strings.ToUpper(platform)))
+	b.WriteString("[DRAFT - Pillar 1: The DFW African Food Quality Index]\n")
 	b.WriteString("Recommended Destination: DFW Diaspora Facebook Groups / Page Feed\n")
 	b.WriteString("================================================================================\n")
 	b.WriteString("We built agbalumo because landing in a new city or moving across town shouldn't mean gambling on food quality. Right now our strongest network is in Dallas and Fort Worth.\n\n")
 	b.WriteString("Here are verified West African spots in DFW where quality is backed by real community reviews:\n\n")
 
-	for idx, s := range topSpots {
-		specialty := s.RegionalSpecialty
-		if specialty == "" {
-			specialty = "West African"
-		}
-		b.WriteString(fmt.Sprintf("%d. %s (%s)\n", idx+1, s.Title, s.City))
-		b.WriteString(fmt.Sprintf("   ★ %.1f (%d reviews) · %s\n", s.Rating, s.ReviewCount, specialty))
-		b.WriteString(fmt.Sprintf("   Reviews & Details: %s\n", buildTrackedURL("/listings/"+s.ID, platform, campaign)))
-		if s.ContactPhone != "" {
-			b.WriteString(fmt.Sprintf("   Phone: %s\n", s.ContactPhone))
-		}
-		if s.WebsiteURL != "" {
-			b.WriteString(fmt.Sprintf("   Menu/Order: %s\n", s.WebsiteURL))
-		}
-		b.WriteString("\n")
+	for idx, s := range spots {
+		writeSpotItem(&b, idx, s, campaign)
 	}
 
 	b.WriteString("Find verified spots, directions, and direct contact in under 60 seconds:\n")
-	b.WriteString(fmt.Sprintf("%s\n\n", buildTrackedURL("/", platform, campaign, [2]string{"city", city})))
+	b.WriteString(fmt.Sprintf("%s\n\n", buildTrackedURL("/", campaign, [2]string{"city", city})))
 	b.WriteString("If we missed your trusted spot in DFW, add it directly to the network in under 60 seconds:\n")
-	b.WriteString(fmt.Sprintf("%s\n", buildTrackedURL("/", platform, campaign, [2]string{"action", "post"})))
+	b.WriteString(fmt.Sprintf("%s\n", buildTrackedURL("/", campaign, [2]string{"action", "post"})))
 	b.WriteString("================================================================================\n")
 
 	_, err := io.WriteString(w, b.String())
 	return err
 }
 
-func getAirportSpots(listings []domain.Listing) []domain.Listing {
-	var spots []domain.Listing
+type corridorConfig struct {
+	campaign     string
+	headerTitle  string
+	destination  string
+	introLead    string
+	introList    string
+	exploreCity  string
+	exploreLabel string
+	addPrompt    string
+}
+
+func writeCorridorSpotItem(b *strings.Builder, idx int, s domain.Listing, campaign string) {
+	b.WriteString(fmt.Sprintf("%d. %s (%s)\n", idx+1, s.Title, s.City))
+	if s.Rating > 0 {
+		b.WriteString(fmt.Sprintf("   ★ %.1f (%d reviews)\n", s.Rating, s.ReviewCount))
+	}
+	detailLabel := "Reviews & Details"
+	if campaign == "sub_metro_corridor" {
+		detailLabel = "Reviews & Menu"
+	}
+	b.WriteString(fmt.Sprintf("   %s: %s\n", detailLabel, buildTrackedURL("/listings/"+s.ID, campaign)))
+	if s.ContactPhone != "" {
+		phoneLabel := "Phone"
+		if campaign == "airport_corridor" {
+			phoneLabel = "Direct Phone"
+		}
+		b.WriteString(fmt.Sprintf("   %s: %s\n", phoneLabel, s.ContactPhone))
+	}
+	if s.WebsiteURL != "" {
+		b.WriteString(fmt.Sprintf("   Online Order: %s\n", s.WebsiteURL))
+	}
+	b.WriteString("\n")
+}
+
+func renderCorridorDraft(spots []domain.Listing, cfg corridorConfig, w io.Writer) error {
+	var b strings.Builder
+	b.WriteString("================================================================================\n")
+	b.WriteString(cfg.headerTitle + "\n")
+	b.WriteString("Recommended Destination: " + cfg.destination + "\n")
+	b.WriteString("================================================================================\n")
+	b.WriteString(cfg.introLead + "\n\n")
+	b.WriteString(cfg.introList + "\n\n")
+
+	for idx, s := range spots {
+		writeCorridorSpotItem(&b, idx, s, cfg.campaign)
+	}
+
+	b.WriteString(cfg.exploreLabel + "\n")
+	b.WriteString(fmt.Sprintf("%s\n\n", buildTrackedURL("/", cfg.campaign, [2]string{"city", cfg.exploreCity})))
+	b.WriteString(cfg.addPrompt + "\n")
+	b.WriteString(fmt.Sprintf("%s\n", buildTrackedURL("/", cfg.campaign, [2]string{"action", "post"})))
+	b.WriteString("================================================================================\n")
+
+	_, err := io.WriteString(w, b.String())
+	return err
+}
+
+func filterAirportCandidates(listings []domain.Listing) []domain.Listing {
+	var candidates []domain.Listing
 	for _, l := range listings {
 		c := strings.ToLower(l.City)
 		if c == "arlington" || c == "grand prairie" || c == "irving" {
-			spots = append(spots, l)
+			candidates = append(candidates, l)
 		}
 	}
-	if len(spots) == 0 && len(listings) > 0 {
-		spots = listings
+	if len(candidates) == 0 {
+		return listings
 	}
-	if len(spots) > 3 {
-		spots = spots[:3]
-	}
-	return spots
+	return candidates
 }
 
-func renderPillar2AirportArrival(listings []domain.Listing, platform, city string, w io.Writer) error {
-	airportSpots := getAirportSpots(listings)
-	campaign := "airport_arrival"
-
-	var b strings.Builder
-	b.WriteString("================================================================================\n")
-	b.WriteString(fmt.Sprintf("[DRAFT: %s - Pillar 2: Airport & Late-Night Arrival Dispatch]\n", strings.ToUpper(platform)))
-	b.WriteString("Recommended Destination: DFW Diaspora Groups / LinkedIn / X\n")
-	b.WriteString("================================================================================\n")
-	b.WriteString("We know the feeling of landing at DFW or Love Field after 8 PM on a weekday and just wanting food that tastes like home—without waiting 45 minutes or guessing if the kitchen is still open.\n\n")
-	b.WriteString("Here are verified spots within 20 minutes of DFW airport terminals with active kitchens and direct phone ordering:\n\n")
-
-	for idx, s := range airportSpots {
-		b.WriteString(fmt.Sprintf("%d. %s (%s)\n", idx+1, s.Title, s.City))
-		if s.Rating > 0 {
-			b.WriteString(fmt.Sprintf("   ★ %.1f (%d reviews)\n", s.Rating, s.ReviewCount))
-		}
-		b.WriteString(fmt.Sprintf("   Reviews & Directions: %s\n", buildTrackedURL("/listings/"+s.ID, platform, campaign)))
-		if s.ContactPhone != "" {
-			b.WriteString(fmt.Sprintf("   Direct Phone: %s\n", s.ContactPhone))
-		}
-		if s.WebsiteURL != "" {
-			b.WriteString(fmt.Sprintf("   Online Order: %s\n", s.WebsiteURL))
-		}
-		b.WriteString("\n")
-	}
-
-	b.WriteString("Explore all airport-area African food spots in under 60 seconds:\n")
-	b.WriteString(fmt.Sprintf("%s\n\n", buildTrackedURL("/", platform, campaign, [2]string{"city", "Arlington"})))
-	b.WriteString("Know a late-night kitchen near DFW airport we missed? Add it directly to the network:\n")
-	b.WriteString(fmt.Sprintf("%s\n", buildTrackedURL("/", platform, campaign, [2]string{"action", "post"})))
-	b.WriteString("================================================================================\n")
-
-	_, err := io.WriteString(w, b.String())
-	return err
+func renderPillar2AirportArrival(listings []domain.Listing, city string, state *SocialState, w io.Writer) error {
+	candidates := filterAirportCandidates(listings)
+	airportSpots := rotateListings(candidates, "pillar_2", 3, state)
+	return renderCorridorDraft(airportSpots, corridorConfig{
+		campaign:     "airport_corridor",
+		headerTitle:  "[DRAFT - Pillar 2: Airport Corridor Cities (Arlington, Grand Prairie, Irving)]",
+		destination:  "DFW Diaspora Groups / Community Feed",
+		introLead:    "When landing at DFW or navigating the mid-cities corridor, finding African food shouldn't mean driving across the entire metroplex.",
+		introList:    "Here are verified spots in the airport corridor cities (Arlington, Grand Prairie, Irving) with direct contact information:",
+		exploreLabel: "Explore all airport corridor African food spots in under 60 seconds:",
+		exploreCity:  "Arlington",
+		addPrompt:    "Know another African-owned spot near the airport corridor we missed? Add it directly to the network:",
+	}, w)
 }
 
-func renderPillar3MerchantSpotlight(listings []domain.Listing, platform, city string, w io.Writer) error {
-	if len(listings) == 0 {
-		return fmt.Errorf("no listings available for spotlight")
-	}
-	spotlight := listings[0]
+func findListingByID(listings []domain.Listing, id string) (*domain.Listing, error) {
 	for _, l := range listings {
-		if l.Rating > spotlight.Rating {
-			spotlight = l
+		if l.ID == id {
+			chosen := l
+			return &chosen, nil
 		}
 	}
+	return nil, fmt.Errorf("listing with ID %q not found", id)
+}
+
+func rotateSpotlight(listings []domain.Listing, state *SocialState) *domain.Listing {
+	recentMap := make(map[string]bool)
+	for _, id := range state.RecentlyFeatured {
+		recentMap[id] = true
+	}
+
+	var unfeatured []domain.Listing
+	for _, l := range listings {
+		if !recentMap[l.ID] {
+			unfeatured = append(unfeatured, l)
+		}
+	}
+
+	pool := unfeatured
+	if len(pool) == 0 {
+		state.RecentlyFeatured = nil
+		pool = listings
+	}
+
+	offset := state.Offsets["pillar_3"] % len(pool)
+	chosen := pool[offset]
+	state.Offsets["pillar_3"] = (offset + 1) % len(pool)
+	return &chosen
+}
+
+func selectSpotlight(listings []domain.Listing, listingID string, state *SocialState) (*domain.Listing, error) {
+	if len(listings) == 0 {
+		return nil, fmt.Errorf("no listings available for spotlight")
+	}
+	if listingID != "" {
+		return findListingByID(listings, listingID)
+	}
+	return rotateSpotlight(listings, state), nil
+}
+
+func recordSpotlightFeatured(state *SocialState, id string) {
+	state.RecentlyFeatured = append(state.RecentlyFeatured, id)
+	if len(state.RecentlyFeatured) > 50 {
+		state.RecentlyFeatured = state.RecentlyFeatured[len(state.RecentlyFeatured)-50:]
+	}
+}
+
+func renderPillar3MerchantSpotlight(listings []domain.Listing, listingID string, state *SocialState, w io.Writer) error {
+	spotlight, err := selectSpotlight(listings, listingID, state)
+	if err != nil {
+		return err
+	}
+	recordSpotlightFeatured(state, spotlight.ID)
+
 	campaign := "merchant_spotlight"
 
 	var b strings.Builder
 	b.WriteString("================================================================================\n")
-	b.WriteString(fmt.Sprintf("[DRAFT: %s - Pillar 3: Merchant Reciprocity Spotlight]\n", strings.ToUpper(platform)))
+	b.WriteString("[DRAFT - Pillar 3: Merchant Spotlight]\n")
 	b.WriteString("Recommended Destination: Facebook Page / Tag Venue on Instagram / X\n")
 	b.WriteString("================================================================================\n")
 	b.WriteString(fmt.Sprintf("Spotlight: %s (%s, TX)\n", spotlight.Title, spotlight.City))
@@ -288,11 +444,11 @@ func renderPillar3MerchantSpotlight(listings []domain.Listing, platform, city st
 		b.WriteString(fmt.Sprintf("• Menu/Ordering: %s\n", spotlight.WebsiteURL))
 	}
 	b.WriteString("\nView reviews, hours, and directions on agbalumo:\n")
-	b.WriteString(fmt.Sprintf("%s\n\n", buildTrackedURL("/listings/"+spotlight.ID, platform, campaign)))
+	b.WriteString(fmt.Sprintf("%s\n\n", buildTrackedURL("/listings/"+spotlight.ID, campaign)))
 	b.WriteString(fmt.Sprintf("Tagging %s — thank you for serving the diaspora.\n", spotlight.Title))
 	b.WriteString("================================================================================\n")
 
-	_, err := io.WriteString(w, b.String())
+	_, err = io.WriteString(w, b.String())
 	return err
 }
 
@@ -305,70 +461,39 @@ func isCollinCounty(city string) bool {
 	}
 }
 
-func filterCollinSpots(listings []domain.Listing) []domain.Listing {
-	var spots []domain.Listing
+func filterCollinCandidates(listings []domain.Listing) []domain.Listing {
+	var candidates []domain.Listing
 	for _, l := range listings {
 		if isCollinCounty(l.City) {
-			spots = append(spots, l)
+			candidates = append(candidates, l)
 		}
 	}
-	if len(spots) == 0 && len(listings) > 0 {
-		spots = listings
+	if len(candidates) == 0 {
+		return listings
 	}
-	if len(spots) > 4 {
-		spots = spots[:4]
-	}
-	return spots
+	return candidates
 }
 
-func renderPillar4SubMetroCorridor(listings []domain.Listing, platform, city string, w io.Writer) error {
-	collinSpots := filterCollinSpots(listings)
-	campaign := "sub_metro_corridor"
-
-	var b strings.Builder
-	b.WriteString("================================================================================\n")
-	b.WriteString(fmt.Sprintf("[DRAFT: %s - Pillar 4: Sub-Metro Corridor Guide (Collin County)]\n", strings.ToUpper(platform)))
-	b.WriteString("Recommended Destination: DFW Diaspora Groups (Plano / Frisco / North Dallas)\n")
-	b.WriteString("================================================================================\n")
-	b.WriteString("We don't need to drive 45 minutes down to Central Dallas on a Thursday night just for good food.\n\n")
-	b.WriteString("Collin County has a trusted cluster of verified West African kitchens right in Plano, Allen, and McKinney:\n\n")
-
-	for idx, s := range collinSpots {
-		b.WriteString(fmt.Sprintf("%d. %s (%s)\n", idx+1, s.Title, s.City))
-		if s.Rating > 0 {
-			b.WriteString(fmt.Sprintf("   ★ %.1f (%d reviews)\n", s.Rating, s.ReviewCount))
-		}
-		b.WriteString(fmt.Sprintf("   Reviews & Menu: %s\n", buildTrackedURL("/listings/"+s.ID, platform, campaign)))
-		if s.ContactPhone != "" {
-			b.WriteString(fmt.Sprintf("   Phone: %s\n", s.ContactPhone))
-		}
-		b.WriteString("\n")
-	}
-
-	b.WriteString("Explore all North DFW and Collin County spots in under 60 seconds:\n")
-	b.WriteString(fmt.Sprintf("%s\n\n", buildTrackedURL("/", platform, campaign, [2]string{"city", "Plano"})))
-	b.WriteString("Know another African-owned kitchen in Collin County? Add it directly to the network:\n")
-	b.WriteString(fmt.Sprintf("%s\n", buildTrackedURL("/", platform, campaign, [2]string{"action", "post"})))
-	b.WriteString("================================================================================\n")
-
-	_, err := io.WriteString(w, b.String())
-	return err
+func renderPillar4SubMetroCorridor(listings []domain.Listing, city string, state *SocialState, w io.Writer) error {
+	candidates := filterCollinCandidates(listings)
+	collinSpots := rotateListings(candidates, "pillar_4", 4, state)
+	return renderCorridorDraft(collinSpots, corridorConfig{
+		campaign:     "sub_metro_corridor",
+		headerTitle:  "[DRAFT - Pillar 4: Sub-Metro Corridor Guide (Collin County)]",
+		destination:  "DFW Diaspora Groups (Plano / Frisco / North Dallas)",
+		introLead:    "We don't need to head all the way into Central Dallas when craving authentic West African food.",
+		introList:    "Collin County has a trusted cluster of verified African kitchens across Plano, Allen, McKinney, and Frisco:",
+		exploreLabel: "Explore all North DFW and Collin County spots in under 60 seconds:",
+		exploreCity:  "Plano",
+		addPrompt:    "Know another African-owned kitchen in Collin County? Add it directly to the network:",
+	}, w)
 }
 
-func sortSpotsByRating(spots []domain.Listing) {
-	sort.Slice(spots, func(i, j int) bool {
-		if spots[i].Rating != spots[j].Rating {
-			return spots[i].Rating > spots[j].Rating
-		}
-		return spots[i].ReviewCount > spots[j].ReviewCount
-	})
-}
-
-func renderPillar5CoverageGaps(listings []domain.Listing, platform, city string, w io.Writer) error {
+func renderPillar5CoverageGaps(listings []domain.Listing, city string, state *SocialState, w io.Writer) error {
 	campaign := "coverage_gaps"
 	var b strings.Builder
 	b.WriteString("================================================================================\n")
-	b.WriteString(fmt.Sprintf("[DRAFT: %s - Pillar 5: Radical Transparency & Coverage Gaps]\n", strings.ToUpper(platform)))
+	b.WriteString("[DRAFT - Pillar 5: Radical Transparency & Coverage Gaps]\n")
 	b.WriteString("Recommended Destination: DFW Diaspora Groups / Facebook Feed (High Comment Volume)\n")
 	b.WriteString("================================================================================\n")
 	b.WriteString("We started Agbalumo to map African-owned businesses where we don't have to explain ourselves, starting with food. Right now, Dallas-Fort Worth is our strongest network with verified spots across Dallas, Plano, Arlington, Grand Prairie, and McKinney.\n\n")
@@ -386,8 +511,7 @@ func renderPillar5CoverageGaps(listings []domain.Listing, platform, city string,
 	sort.Strings(cities)
 
 	for _, c := range cities {
-		spots := cityMap[c]
-		sortSpotsByRating(spots)
+		spots := rotateCitySpots(cityMap[c], c, state)
 
 		b.WriteString(fmt.Sprintf("• %s:\n", c))
 		for _, s := range spots {
@@ -395,7 +519,7 @@ func renderPillar5CoverageGaps(listings []domain.Listing, platform, city string,
 			if s.Rating > 0 {
 				ratingStr = fmt.Sprintf("★ %.1f (%d reviews) · ", s.Rating, s.ReviewCount)
 			}
-			link := buildTrackedURL("/listings/"+s.ID, platform, campaign)
+			link := buildTrackedURL("/listings/"+s.ID, campaign)
 			b.WriteString(fmt.Sprintf("  - %s: %s%s\n", s.Title, ratingStr, link))
 		}
 		b.WriteString("\n")
@@ -403,7 +527,7 @@ func renderPillar5CoverageGaps(listings []domain.Listing, platform, city string,
 
 	b.WriteString("We know there are blind spots in Frisco, Garland, Denton, and Fort Worth.\n\n")
 	b.WriteString("Who are we missing? Add your favorite auntie's spot or suya joint directly to the network in under 60 seconds:\n")
-	b.WriteString(fmt.Sprintf("%s\n", buildTrackedURL("/", platform, campaign, [2]string{"action", "post"})))
+	b.WriteString(fmt.Sprintf("%s\n", buildTrackedURL("/", campaign, [2]string{"action", "post"})))
 	b.WriteString("================================================================================\n")
 
 	_, err := io.WriteString(w, b.String())
