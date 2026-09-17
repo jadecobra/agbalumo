@@ -179,24 +179,28 @@ func GenerateSocialDraft(repo domain.ListingRepository, pillar int, listingID, c
 
 	listings := filterListingsByCity(rawListings, city)
 	state := loadSocialState()
-	defer func() {
-		saveSocialState(state)
-	}()
 
 	switch pillar {
 	case 1:
-		return renderPillar1QualityIndex(listings, city, &state, w)
+		err = renderPillar1QualityIndex(listings, city, &state, w)
 	case 2:
-		return renderPillar2AirportArrival(listings, city, &state, w)
+		err = renderPillar2AirportArrival(listings, city, &state, w)
 	case 3:
-		return renderPillar3MerchantSpotlight(listings, listingID, &state, w)
+		err = renderPillar3MerchantSpotlight(listings, listingID, &state, w)
 	case 4:
-		return renderPillar4SubMetroCorridor(listings, city, &state, w)
+		err = renderPillar4SubMetroCorridor(listings, city, &state, w)
 	case 5:
-		return renderPillar5CoverageGaps(listings, city, &state, w)
+		err = renderPillar5CoverageGaps(listings, city, &state, w)
 	default:
 		return fmt.Errorf("unknown pillar: %d (supported: 1-5)", pillar)
 	}
+
+	if err != nil {
+		return err
+	}
+
+	saveSocialState(state)
+	return nil
 }
 
 func buildTrackedURL(path, campaign string, extraParams ...[2]string) string {

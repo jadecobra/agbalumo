@@ -3,6 +3,7 @@ package cli_test
 import (
 	"bytes"
 	"context"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -12,12 +13,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func setupTestRepo(t *testing.T) domain.ListingRepository {
+func setupTestRepoWithState(t *testing.T) (domain.ListingRepository, string) {
 	t.Helper()
 	tempDir := t.TempDir()
 	tempDB := filepath.Join(tempDir, "test_social_cli.db")
 	t.Setenv("DATABASE_URL", tempDB)
-	t.Setenv("AGBALUMO_SOCIAL_STATE", filepath.Join(tempDir, "social_state.json"))
+	statePath := filepath.Join(tempDir, "social_state.json")
+	t.Setenv("AGBALUMO_SOCIAL_STATE", statePath)
 
 	repo := cli.InitRepo()
 	ctx := context.Background()
@@ -62,6 +64,12 @@ func setupTestRepo(t *testing.T) domain.ListingRepository {
 		IsActive:          true,
 	})
 
+	return repo, statePath
+}
+
+func setupTestRepo(t *testing.T) domain.ListingRepository {
+	t.Helper()
+	repo, _ := setupTestRepoWithState(t)
 	return repo
 }
 
@@ -184,6 +192,40 @@ func TestSocialDraft_Pillar3NotFound(t *testing.T) {
 	err := cli.GenerateSocialDraft(repo, 3, "non-existent-id", "Dallas", buf)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "non-existent-id")
+}
+
+func TestSocialDraft_Pillar3UnknownListingLeavesStateUnchanged(t *testing.T) {
+	repo, statePath := setupTestRepoWithState(t)
+
+	// 1. Initial state: state file must not exist yet.
+	_, err := os.Stat(statePath)
+	require.True(t, os.IsNotExist(err))
+
+	buf := new(bytes.Buffer)
+	err = cli.GenerateSocialDraft(repo, 3, "unknown-listing-id", "Dallas", buf)
+	require.Error(t, err)
+
+	// When generation fails, no state file should be created.
+	_, err = os.Stat(statePath)
+	assert.True(t, os.IsNotExist(err), "state file should not be created when draft generation fails")
+
+	// 2. Pre-existing state: state file has existing offsets and recently_featured.
+	initialJSON := "{\n  \"offsets\": {\n    \"pillar_1_dallas\": 3,\n    \"pillar_3\": 1\n  },\n  \"recently_featured\": [\n    \"test-dallas-1\"\n  ]\n}"
+	require.NoError(t, os.WriteFile(statePath, []byte(initialJSON), 0600))
+	infoBefore, err := os.Stat(statePath)
+	require.NoError(t, err)
+
+	buf.Reset()
+	err = cli.GenerateSocialDraft(repo, 3, "unknown-listing-id", "Dallas", buf)
+	require.Error(t, err)
+
+	infoAfter, err := os.Stat(statePath)
+	require.NoError(t, err)
+	assert.Equal(t, infoBefore.ModTime(), infoAfter.ModTime(), "state file should not be touched on failed draft")
+
+	contentAfter, err := os.ReadFile(filepath.Clean(statePath)) // #nosec G304 -- test reading local state path
+	require.NoError(t, err)
+	assert.Equal(t, initialJSON, string(contentAfter), "offsets and recently_featured should be unchanged")
 }
 
 func TestSocialDraft_Pillar3RotationWithoutID(t *testing.T) {

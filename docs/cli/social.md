@@ -34,7 +34,7 @@ agbalumo social draft [flags]
 **Content Pillars:**
 
 1. **Pillar 1: Quality Index** — The DFW African Food Quality Index with community-reviewed spots.
-2. **Pillar 2: Airport Corridor Cities** — Verified spots in Arlington, Grand Prairie, and Irving near DFW airport terminals.
+2. **Pillar 2: Airport Corridor Cities** — Verified spots in corridor cities (Arlington, Grand Prairie, Irving).
 3. **Pillar 3: Merchant Spotlight** — Dedicated spotlight on an individual merchant. Specify `--listing-id` to target a venue, or omit to rotate through unfeatured listings.
 4. **Pillar 4: Sub-Metro Corridor Guide** — Highlights North DFW and Collin County spots (Plano, Allen, McKinney, Frisco).
 5. **Pillar 5: Radical Transparency & Coverage Gaps** — City-by-city breakdown of mapped spots and open call for missing community gems.
