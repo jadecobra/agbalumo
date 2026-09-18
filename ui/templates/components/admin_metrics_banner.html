@@ -1,6 +1,6 @@
 {{ define "admin_metrics_banner" }}
-<div class="bg-earth-sand py-2 mb-12 shadow-2xl border-l-[6px] border-earth-ochre" data-purpose="summary-card">
-    <div class="grid grid-cols-4 divide-x divide-earth-dark/10">
+<div class="bg-gradient-to-b from-earth-espresso to-earth-dark py-2 mb-12 shadow-md border border-earth-accent/30 rounded-none" data-purpose="summary-card">
+    <div class="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-earth-accent/20">
         {{ template "metric_stat_sharp" dict "Label" "Total Listings" "Value" .ListingCount "Link"
         "/admin/listings" }}
         {{ template "metric_stat_sharp" dict "Label" "Ada Recovery (Avg)" "Value" (printf "%.1fs" .AdaDiscoveryAvg) }}

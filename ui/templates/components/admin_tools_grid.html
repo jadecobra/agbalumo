@@ -1,25 +1,24 @@
 {{ define "admin_tools_grid" }}
 <div class="mb-12">
-    <h2 class="text-[10px] font-bold text-earth-ochre mb-6 uppercase tracking-[0.3em] opacity-90">Admin Tools
-    </h2>
-    <div class="bg-earth-sand py-2 shadow-2xl border-l-[6px] border-earth-ochre" data-purpose="admin-tools-banner">
-        <div class="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-earth-dark/10">
+    <h2 class="text-xs font-bold text-earth-accent mb-6 uppercase tracking-[0.2em]">Admin Tools</h2>
+    <div class="bg-gradient-to-b from-earth-espresso to-earth-dark py-2 shadow-md border border-earth-accent/30 rounded-none" data-purpose="admin-tools-banner">
+        <div class="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-earth-accent/20">
 
             {{ template "admin_tool_btn_sharp" dict "HXGet" "/admin/modal/charts" "HXTarget" "#admin-modal-container" "Label" "View Charts" "IconBgClass"
-            "bg-earth-ochre/10" "IconColorClass" "text-earth-ochre" "Icon" `<span
+            "bg-earth-accent/20" "IconColorClass" "text-earth-accent" "Icon" `<span
                 class="material-symbols-outlined">bar_chart</span>` }}
 
             {{ template "admin_tool_btn_sharp" dict "HXGet" "/admin/modal/bulk" "HXTarget" "#admin-modal-container" "Label" "Upload CSV" "IconBgClass"
-            "bg-blue-500/10" "IconColorClass" "text-blue-500" "Icon" `<span
+            "bg-blue-500/20" "IconColorClass" "text-blue-400" "Icon" `<span
                 class="material-symbols-outlined">csv</span>` }}
 
             {{ template "admin_tool_link_sharp" dict "Link" "/admin/listings/export" "Label" "Download CSV"
             "IconBgClass"
-            "bg-earth-dark/10" "IconColorClass" "text-earth-dark" "Icon" `<span
+            "bg-earth-sand/10" "IconColorClass" "text-earth-cream" "Icon" `<span
                 class="material-symbols-outlined">download</span>` }}
 
             {{ template "admin_tool_btn_sharp" dict "HXGet" "/admin/modal/category" "HXTarget" "#admin-modal-container" "Label" "Categories"
-            "IconBgClass" "bg-green-500/10" "IconColorClass" "text-green-500" "Icon" `<span
+            "IconBgClass" "bg-emerald-500/20" "IconColorClass" "text-emerald-400" "Icon" `<span
                 class="material-symbols-outlined">category</span>` }}
 
         </div>

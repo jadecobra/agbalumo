@@ -1,11 +1,11 @@
 {{ define "admin_feedback_item" }}
 <article
-    class="flex items-center justify-between p-6 border-b border-earth-cream/5 hover:bg-earth-cream/5 transition-colors cursor-pointer group">
+    class="flex items-center justify-between p-6 border border-earth-accent/20 bg-earth-espresso/40 hover:bg-earth-espresso/70 transition-colors cursor-pointer group rounded-none">
     <div class="flex items-start space-x-6 min-w-0">
-        <div class="w-14 h-14 bg-earth-cream/5 flex items-center justify-center shrink-0 border border-earth-cream/10">
+        <div class="w-14 h-14 bg-earth-accent/10 flex items-center justify-center shrink-0 border border-earth-accent/20">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="text-earth-cream/40 group-hover:text-earth-ochre transition-colors">
+                class="text-earth-accent group-hover:text-white transition-colors">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>
         </div>
@@ -27,7 +27,7 @@
                 {{ template "status_badge_sharp" dict "Label" "resolved" "ColorClasses" `bg-green-700 text-white` }}
                 {{ end }}
             </div>
-            <p class="font-bold text-[10px] uppercase tracking-[0.2em] text-earth-cream/50">
+            <p class="text-xs font-medium text-earth-sand/80">
                 {{ .CreatedAt.Format "Jan 02, 2006 15:04" }} &bull; {{ if .UserID }}{{ .UserID }}{{ else
                 }}Anonymous{{ end }} &bull; Fingerprint: {{ if .Fingerprint }}{{ printf "%.8s..." .Fingerprint }}{{ else }}None{{ end }}
             </p>
