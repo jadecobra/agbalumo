@@ -31,6 +31,7 @@ module.exports = {
                     ochre: '#CC7722',
                     'ochre-light': '#E09540',
                     dark: '#1A120E',
+                    espresso: '#241611',
                     sand: '#F4EBD0',
                     cream: '#FAF8F1',
                     accent: '#F58608',

@@ -1,6 +1,6 @@
 {{ define "home_listings_section" }}
 <!-- Listings Container Section -->
-<section id="explore-section" class="pt-4 pb-24 px-4 md:px-8 relative z-30 bg-earth-cream">
+<section id="explore-section" class="pt-4 pb-24 px-4 md:px-8 relative z-30 bg-earth-dark text-earth-cream">
 
     <div class="max-w-7xl mx-auto">
 
@@ -29,7 +29,7 @@
             {{ if .Featured }}
             <div class="mb-12">
                 <div class="flex items-center justify-between mb-8 px-1">
-                    <h2 class="text-xs font-bold uppercase tracking-[0.4em] text-earth-clay">Featured</h2>
+                    <h2 class="text-xs font-bold uppercase tracking-[0.4em] text-earth-accent">Featured</h2>
                     <div class="h-px flex-1 bg-earth-ochre/10 mx-6"></div>
                 </div>
                 <div class="flex gap-4 lg:gap-6 overflow-x-auto lg:overflow-visible pb-8 snap-x lg:snap-none lg:grid lg:grid-cols-3 no-scrollbar" tabindex="0" aria-label="Featured">
@@ -47,15 +47,15 @@
         <div id="nearby-listings-section" class="mb-8 flex flex-wrap gap-2">
             {{ if .UserLat }}
                 <button type="button" id="near-me-btn" data-testid="ag-home-near-me-btn"
-                    class="bg-earth-cream/10 text-earth-ochre hover:bg-earth-ochre/50 px-4 h-12 shrink-0 text-[11px] font-bold uppercase tracking-widest transition-colors border border-earth-cream/50 flex items-center gap-2">
+                    class="bg-earth-dark text-earth-accent hover:bg-earth-ochre/20 px-4 h-12 shrink-0 text-[11px] font-bold uppercase tracking-widest transition-colors border border-earth-accent/50 flex items-center gap-2">
                     <span id="near-me-icon" class="material-symbols-outlined text-[14px]">location_on</span>
                     <span id="near-me-spinner" class="animate-spin rounded-none h-3.5 w-3.5 border-b-2 border-earth-ochre hidden"></span>
                     <span id="near-me-text">Nearby{{ if .City }} · {{ .City }}{{ end }}</span>
                 </button>
             {{ else }}
                 <button type="button" id="near-me-btn" data-testid="ag-home-near-me-btn"
-                    class="bg-earth-sand/30 text-text-main hover:bg-earth-sand/50 px-4 h-12 shrink-0 text-[11px] font-bold uppercase tracking-widest transition-colors border border-earth-clay/10 flex items-center gap-2">
-                    <span id="near-me-icon" class="material-symbols-outlined text-[14px]">location_on</span>
+                    class="bg-earth-dark text-earth-sand/90 hover:text-white px-4 h-12 shrink-0 text-[11px] font-bold uppercase tracking-widest transition-colors border border-earth-clay/30 hover:border-earth-accent flex items-center gap-2">
+                    <span id="near-me-icon" class="material-symbols-outlined text-[14px] text-earth-accent">location_on</span>
                     <span id="near-me-spinner" class="animate-spin rounded-none h-3.5 w-3.5 border-b-2 border-earth-ochre hidden"></span>
                         <span id="near-me-text">Near Me</span>
                 </button>
