@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/module/listing"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -63,4 +64,61 @@ func TestRender_ListingCard_NoUser_NoHeart(t *testing.T) {
 		"GridClass": "",
 	})
 	assert.NotContains(t, out, "save-btn") // no heart for anonymous
+}
+
+func TestRender_ListingList_RedesignTokens(t *testing.T) {
+	mockListing := domain.Listing{ID: "l-1", Title: "Jollof Rice Spot", Type: domain.Food}
+
+	// 1. Featured Section should have radiant amber header text
+	outFeatured := renderPartial(t, "listing_list", listing.ListingFragmentViewModel{
+		Featured: []domain.Listing{mockListing},
+	})
+	assert.Contains(t, outFeatured, `text-earth-accent">Featured</h2>`)
+	assert.Contains(t, outFeatured, "bg-earth-ochre/10")
+
+	// 2. Fallback City container should use dark espresso and amber button
+	outFallback := renderPartial(t, "listing_list", listing.ListingFragmentViewModel{
+		FallbackCity: "Dallas",
+		Listings:     []domain.Listing{mockListing},
+		SavedIDs:     map[string]bool{},
+	})
+	assert.Contains(t, outFallback, "bg-earth-espresso/60")
+	assert.Contains(t, outFallback, "text-white")
+	assert.Contains(t, outFallback, "from-earth-accent to-earth-ochre")
+
+	// 3. Location status indicator should have text-earth-accent
+	outLocation := renderPartial(t, "listing_list", listing.ListingFragmentViewModel{
+		Radius: 25.0,
+		City:   "Dallas",
+	})
+	assert.Contains(t, outLocation, "text-earth-accent")
+}
+
+func TestRender_ModalDetail_RedesignTokens(t *testing.T) {
+	mockListing := domain.Listing{
+		ID:      "l-2",
+		Title:   "Suya Spot",
+		Type:    domain.Food,
+		MenuURL: "https://example.com/menu",
+		Rating:  4.5,
+	}
+	out := renderPartial(t, "modal_detail", listing.DetailViewModel{
+		Listing:  mockListing,
+		SavedIDs: map[string]bool{},
+	})
+	// Rating star should use text-earth-accent (parity with listing_card)
+	assert.Contains(t, out, "text-earth-accent dark:text-yellow-600")
+	// Menu CTA button should use radiant amber gradient
+	assert.Contains(t, out, "from-earth-accent to-earth-ochre")
+	assert.Contains(t, out, "text-earth-dark font-extrabold")
+}
+
+func TestRender_HomeListingsSection_LoadingSkeleton(t *testing.T) {
+	out := renderPartial(t, "home_listings_section", listing.HomeViewModel{
+		Listings: []domain.Listing{},
+		SavedIDs: map[string]bool{},
+	})
+	// Skeleton loader should have espresso background and amber border
+	assert.Contains(t, out, "bg-earth-espresso/60")
+	assert.Contains(t, out, "border-earth-accent/20")
 }

@@ -45,7 +45,7 @@
                 <span class="bg-earth-sand/60 text-earth-clay border border-earth-clay/20 text-xs uppercase font-bold px-2.5 py-1 tracking-wider shadow-sm rounded-none">
                     {{ .Listing.Type }}
                 </span>
-                {{ template "rating_stars" dict "Listing" .Listing "TextColorClass" "text-earth-clay dark:text-yellow-600" }}
+                {{ template "rating_stars" dict "Listing" .Listing "TextColorClass" "text-earth-accent dark:text-yellow-600" }}
             </div>
         </div>
 
@@ -195,7 +195,7 @@
                     {{ if .Listing.MenuURL }}
                     <div id="cta-block">
                         <a href="{{ .Listing.MenuURL }}" target="_blank" data-ada-discovery="menu"
-                            class="w-full flex items-center justify-center gap-2 py-3 bg-earth-clay hover:bg-earth-clay-dark active:bg-earth-clay text-white font-bold text-xs capitalize tracking-wide transition-all shadow-sm rounded-none">
+                            class="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-earth-accent to-earth-ochre hover:brightness-110 active:scale-[0.98] text-earth-dark font-extrabold text-xs capitalize tracking-wider transition-all shadow-md rounded-none">
                             <span class="material-symbols-outlined">restaurant_menu</span>
                             Menu
                         </a>
@@ -206,7 +206,7 @@
                     {{ if .Listing.JobApplyURL }}
                     <div id="apply-block">
                         <a href="{{ .Listing.JobApplyURL }}" target="_blank" data-ada-discovery="apply"
-                            class="w-full flex items-center justify-center gap-2 py-3 bg-earth-clay hover:bg-earth-clay-dark active:bg-earth-clay text-white font-bold text-xs capitalize tracking-wide transition-all shadow-sm rounded-none">
+                            class="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-earth-accent to-earth-ochre hover:brightness-110 active:scale-[0.98] text-earth-dark font-extrabold text-xs capitalize tracking-wider transition-all shadow-md rounded-none">
                             <span class="material-symbols-outlined">rocket_launch</span>
                             Apply Now
                         </a>

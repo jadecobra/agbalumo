@@ -39,12 +39,12 @@
         {{ block "header_search" . }}
         <div class="flex-1 max-w-2xl relative">
             <div
-                class="search-glow relative flex items-center h-12 bg-earth-sand/30 shadow-sm border border-earth-clay/10 group focus-within:border-earth-accent transition-all">
+                class="search-glow relative flex items-center h-12 bg-earth-espresso/60 shadow-sm border border-earth-accent/30 group focus-within:border-earth-accent transition-all">
             <div class="grid place-items-center h-full w-10 md:w-12 text-earth-accent">
                 <span class="material-symbols-outlined text-[18px] md:text-[20px]">search</span>
             </div>
             <input id="search-nav" name="q"
-                    class="peer h-full w-full border-none outline-none text-sm text-text-main bg-transparent pr-4 placeholder:text-text-sub/70 font-medium focus:outline-none focus:ring-0 focus:border-0 focus:shadow-none focus:shadow-none focus:outline-none"
+                    class="peer h-full w-full border-none outline-none text-sm text-earth-cream bg-transparent pr-4 placeholder:text-stone-400 font-medium focus:outline-none focus:ring-0 focus:border-0 focus:shadow-none focus:shadow-none focus:outline-none"
                     data-testid="ag-home-search-input"
                     placeholder="Search... (e.g. 'Jollof', 'Tailor')" type="search" hx-get="/listings/fragment"
                     hx-target="#listings-container" hx-indicator="#listings-loading"
@@ -53,7 +53,7 @@
 
                 <!-- Filters Toggle (Relocated from Hero) -->
                 <button type="button" data-testid="ag-home-filters-toggle-desktop"
-                    class="flex h-12 items-center justify-center px-4 text-earth-accent hover:text-earth-accent active:text-earth-accent transition-all duration-200 border-l border-earth-clay/10"
+                    class="flex h-12 items-center justify-center px-4 text-earth-accent hover:text-earth-accent active:text-earth-accent transition-all duration-200 border-l border-earth-clay/20"
                     aria-label="Toggle Filters"
                     aria-expanded="false"
                     aria-controls="filter-dropdown-panel">
@@ -63,9 +63,9 @@
 
             <!-- Filter Dropdowns Panel (Relocated from Hero) -->
                 <div id="filter-dropdown-panel"
-                class="z-[120] bg-earth-sand shadow-2xl transition-all duration-300 hidden
+                class="z-[120] bg-earth-espresso text-earth-cream shadow-2xl transition-all duration-300 hidden
                        fixed bottom-0 left-0 right-0 top-auto rounded-none max-h-90vh flex flex-col
-                       md:absolute md:top-full md:bottom-auto md:left-auto md:right-0 md:mt-2 md:w-[400px] md:max-h-80 md:rounded-none md:border md:border-earth-dark/10">
+                       md:absolute md:top-full md:bottom-auto md:left-auto md:right-0 md:mt-2 md:w-[400px] md:max-h-80 md:rounded-none md:border md:border-earth-accent/30">
 
                 <style>
                     /* Ensure native arrow rotation without JS */
@@ -75,17 +75,17 @@
                 </style>
 
                 <!-- Mobile Filter Header (Handle + Close) -->
-                <div class="flex justify-between items-center px-4 pt-4 pb-2 md:hidden relative shrink-0 border-b border-earth-dark/5">
+                <div class="flex justify-between items-center px-4 pt-4 pb-2 md:hidden relative shrink-0 border-b border-earth-clay/20">
                     <!-- Visual Handle (Non-interactive) -->
                     <div class="absolute inset-x-0 top-3 flex justify-center pointer-events-none">
-                        <div class="w-12 h-1 bg-earth-dark/10 rounded-full"></div>
+                        <div class="w-12 h-1 bg-earth-sand/20 rounded-none"></div>
                     </div>
                     
                     <div class="flex-1"></div> <!-- Spacer to push close button to the right -->
                     
                     <!-- Close Button (High-contrast, Large touch target) -->
                     <div class="relative z-10">
-                        {{ template "btn_close" dict "Action" "close" "Classes" "text-earth-clay hover:text-earth-dark p-3" "TestID" "ag-home-filters-close" "Attr" "aria-expanded=\"false\" aria-controls=\"filter-dropdown-panel\"" }}
+                        {{ template "btn_close" dict "Action" "close" "Classes" "text-earth-sand hover:text-white p-3" "TestID" "ag-home-filters-close" "Attr" "aria-expanded=\"false\" aria-controls=\"filter-dropdown-panel\"" }}
                     </div>
                 </div>
 
@@ -93,25 +93,25 @@
 
                     <!-- Category Group Toggle (Native HTML5 Accordion) -->
                     <details class="w-full group/accordion" open>
-                        <summary class="px-5 py-4 bg-earth-dark/5 border-b border-earth-dark/10 flex items-center justify-between w-full hover:bg-earth-dark/10 transition-colors list-none cursor-pointer">
-                            <span class="text-[10px] font-black capitalize tracking-[0.2em] text-earth-clay/80">Categories</span>
-                            <span class="material-symbols-outlined text-[20px] text-earth-ochre transition-transform duration-300 group-open/accordion:rotate-180" data-toggle-icon>expand_more</span>
+                        <summary class="px-5 py-4 bg-earth-dark/40 border-b border-earth-clay/20 flex items-center justify-between w-full hover:bg-earth-dark/60 transition-colors list-none cursor-pointer">
+                            <span class="text-[10px] font-black capitalize tracking-[0.2em] text-earth-sand/90">Categories</span>
+                            <span class="material-symbols-outlined text-[20px] text-earth-accent transition-transform duration-300 group-open/accordion:rotate-180" data-toggle-icon>expand_more</span>
                         </summary>
 
-                        <div class="flex flex-col w-full bg-earth-sand/50">
+                        <div class="flex flex-col w-full bg-earth-dark/50">
                             <button type="button" data-category-name="All" data-testid="ag-filter-category-all"
-                                class="text-left px-5 h-12 flex items-center text-[11px] font-bold capitalize tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq .FilterType "" }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
+                                class="text-left px-5 h-12 flex items-center text-[11px] font-bold capitalize tracking-widest transition-colors w-full border-b border-earth-clay/10 {{ if eq .FilterType "" }}bg-earth-accent/20 text-earth-accent{{ else }}text-earth-sand hover:bg-earth-accent/10{{ end }}">
                                 All Categories
                             </button>
                             <!-- Prioritize Food Category for Ada -->
                             <button type="button" data-category-name="Food" data-testid="ag-filter-category-food"
-                                class="text-left px-5 h-12 flex items-center text-[11px] font-bold capitalize tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq .FilterType "Food" }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
+                                class="text-left px-5 h-12 flex items-center text-[11px] font-bold capitalize tracking-widest transition-colors w-full border-b border-earth-clay/10 {{ if eq .FilterType "Food" }}bg-earth-accent/20 text-earth-accent{{ else }}text-earth-sand hover:bg-earth-accent/10{{ end }}">
                                 Food ({{ if .Counts }}{{ if index .Counts "Food" }}{{ index .Counts "Food" }}{{ else }}0{{ end }}{{ else }}0{{ end }})
                             </button>
                             {{ range .Categories }}
                             {{ if and (ne .Name "Food") (ne .Name "Request") }}
                             <button type="button" data-category-name="{{ .Name }}" data-testid="ag-filter-category-{{ .Name }}"
-                                class="text-left px-5 h-12 flex items-center text-[11px] font-bold capitalize tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq $.FilterType .Name }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
+                                class="text-left px-5 h-12 flex items-center text-[11px] font-bold capitalize tracking-widest transition-colors w-full border-b border-earth-clay/10 {{ if eq $.FilterType .Name }}bg-earth-accent/20 text-earth-accent{{ else }}text-earth-sand hover:bg-earth-accent/10{{ end }}">
                                 {{ if .Name }}{{ .Name }}{{ else }}Category{{ end }} ({{ if $.Counts }}{{ if index $.Counts .Name }}{{ index $.Counts .Name }}{{ else }}0{{ end }}{{ else }}0{{ end }})
                             </button>
                             {{ end }}
@@ -121,21 +121,21 @@
 
                     <!-- Distance Dropdown Accordion -->
                     <details class="w-full group/accordion" open>
-                        <summary class="px-5 py-4 bg-earth-dark/5 border-b border-earth-dark/10 flex items-center justify-between w-full hover:bg-earth-dark/10 transition-colors list-none cursor-pointer border-t">
-                            <span class="text-[10px] font-black capitalize tracking-[0.2em] text-earth-clay/80">Distance (Miles)</span>
-                            <span class="material-symbols-outlined text-[20px] text-earth-ochre transition-transform duration-300 group-open/accordion:rotate-180" data-toggle-icon>expand_more</span>
+                        <summary class="px-5 py-4 bg-earth-dark/40 border-b border-earth-clay/20 flex items-center justify-between w-full hover:bg-earth-dark/60 transition-colors list-none cursor-pointer border-t border-t-earth-clay/20">
+                            <span class="text-[10px] font-black capitalize tracking-[0.2em] text-earth-sand/90">Distance (Miles)</span>
+                            <span class="material-symbols-outlined text-[20px] text-earth-accent transition-transform duration-300 group-open/accordion:rotate-180" data-toggle-icon>expand_more</span>
                         </summary>
-                        <div class="flex flex-col w-full bg-earth-sand/50">
+                        <div class="flex flex-col w-full bg-earth-dark/50">
                             <button type="button" data-radius-value="5" data-testid="ag-nav-radius-5"
-                                class="text-left px-5 h-12 flex items-center text-[11px] font-bold capitalize tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq .Radius 5.0 }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
+                                class="text-left px-5 h-12 flex items-center text-[11px] font-bold capitalize tracking-widest transition-colors w-full border-b border-earth-clay/10 {{ if eq .Radius 5.0 }}bg-earth-accent/20 text-earth-accent{{ else }}text-earth-sand hover:bg-earth-accent/10{{ end }}">
                                 Within 5 Miles
                             </button>
                             <button type="button" data-radius-value="10" data-testid="ag-nav-radius-10"
-                                class="text-left px-5 h-12 flex items-center text-[11px] font-bold capitalize tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if eq .Radius 10.0 }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
+                                class="text-left px-5 h-12 flex items-center text-[11px] font-bold capitalize tracking-widest transition-colors w-full border-b border-earth-clay/10 {{ if eq .Radius 10.0 }}bg-earth-accent/20 text-earth-accent{{ else }}text-earth-sand hover:bg-earth-accent/10{{ end }}">
                                 Within 10 Miles
                             </button>
                             <button type="button" data-radius-value="25" data-testid="ag-nav-radius-25"
-                                class="text-left px-5 h-12 flex items-center text-[11px] font-bold capitalize tracking-widest transition-colors w-full border-b border-earth-dark/5 {{ if or (eq .Radius 25.0) (eq .Radius 0.0) }}bg-earth-ochre/10 text-earth-ochre{{ else }}text-earth-dark hover:bg-earth-ochre/10{{ end }}">
+                                class="text-left px-5 h-12 flex items-center text-[11px] font-bold capitalize tracking-widest transition-colors w-full border-b border-earth-clay/10 {{ if or (eq .Radius 25.0) (eq .Radius 0.0) }}bg-earth-accent/20 text-earth-accent{{ else }}text-earth-sand hover:bg-earth-accent/10{{ end }}">
                                 Within 25 Miles
                             </button>
                         </div>
@@ -143,23 +143,23 @@
 
                     <!-- Location Group Toggle -->
                     <details class="w-full group/accordion" open>
-                        <summary class="px-5 py-4 bg-earth-dark/5 border-b border-earth-dark/10 flex items-center justify-between w-full hover:bg-earth-dark/10 transition-colors list-none cursor-pointer border-t">
-                            <span class="text-[10px] font-black capitalize tracking-[0.2em] text-earth-clay/80">Near Location</span>
-                            <span class="material-symbols-outlined text-[20px] text-earth-ochre transition-transform duration-300 group-open/accordion:rotate-180" data-toggle-icon>expand_more</span>
+                        <summary class="px-5 py-4 bg-earth-dark/40 border-b border-earth-clay/20 flex items-center justify-between w-full hover:bg-earth-dark/60 transition-colors list-none cursor-pointer border-t border-t-earth-clay/20">
+                            <span class="text-[10px] font-black capitalize tracking-[0.2em] text-earth-sand/90">Near Location</span>
+                            <span class="material-symbols-outlined text-[20px] text-earth-accent transition-transform duration-300 group-open/accordion:rotate-180" data-toggle-icon>expand_more</span>
                         </summary>
 
-                        <div class="p-5 flex flex-col gap-4 bg-earth-sand/50">
+                        <div class="p-5 flex flex-col gap-4 bg-earth-dark/50">
                             <div class="space-y-1.5">
-                                <label for="filter-city" class="text-[10px] font-bold capitalize tracking-widest text-earth-clay/60">City or Zip Code</label>
+                                <label for="filter-city" class="text-[10px] font-bold capitalize tracking-widest text-earth-sand/70">City or Zip Code</label>
                                 <div class="relative">
                                     <input type="text" id="filter-city" name="city" value="{{ .City }}"
                                         placeholder="ENTER CITY OR ZIP..."
-                                        class="w-full bg-transparent border border-earth-dark/10 px-4 py-3 text-[11px] font-bold capitalize tracking-widest text-earth-dark outline-none focus:border-earth-ochre/50 transition-colors"
+                                        class="w-full bg-transparent border border-earth-accent/30 px-4 py-3 text-[11px] font-bold capitalize tracking-widest text-earth-cream placeholder:text-stone-500 outline-none focus:border-earth-accent transition-colors"
                                         hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
                                         hx-trigger="keyup changed delay:800ms"
                                         autocomplete="address-level2"
                                         inputmode="text">
-                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-earth-clay/30 text-[18px]">location_on</span>
+                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-earth-accent/50 text-[18px]">location_on</span>
                                 </div>
                             </div>
                         </div>
@@ -232,7 +232,7 @@
                     {{ end }}
                     <a href="/auth/google/login" aria-label="Sign In"
                         data-testid="ag-nav-signin-btn"
-                        class="flex items-center gap-2 border border-earth-clay/20 hover:bg-earth-sand/20 text-text-main px-4 h-12 transition-all font-semibold font-display text-sm whitespace-nowrap {{ if not .HasGoogleAuth }}text-earth-clay{{ end }}"
+                        class="flex items-center gap-2 border border-earth-clay/30 hover:border-earth-accent hover:bg-earth-sand/10 text-earth-cream hover:text-white px-4 h-12 transition-all font-semibold font-display text-sm whitespace-nowrap {{ if not .HasGoogleAuth }}text-earth-cream/80{{ end }}"
                         {{ if not .HasGoogleAuth }}title="Google OAuth not configured in .env"{{ end }}>
                         <span class="material-symbols-outlined text-[18px]">login</span>
                         Sign In

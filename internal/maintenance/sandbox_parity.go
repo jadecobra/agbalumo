@@ -19,7 +19,6 @@ type SandboxParityViolation struct {
 var sandboxExcludeList = map[string]string{
 	// Layout infrastructure — rendered by base.html, not isolatable
 	"navigation": "Page-level composition requiring full base.html context",
-	"mobile_nav": "Page-level composition requiring JS bindings",
 	"footer":     "Layout infrastructure",
 	"head_meta":  "Layout infrastructure",
 	// Page-level containers

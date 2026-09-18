@@ -3,8 +3,8 @@
 <div id="featured-section" hx-swap-oob="true">
     <div class="mb-12">
         <div class="flex items-center justify-between mb-8 px-1">
-            <h3 class="text-xs font-bold uppercase tracking-[0.4em] text-earth-clay">Featured</h3>
-            <div class="h-px flex-1 bg-earth-cream/10 mx-6"></div>
+            <h2 class="text-xs font-bold uppercase tracking-[0.4em] text-earth-accent">Featured</h2>
+            <div class="h-px flex-1 bg-earth-ochre/10 mx-6"></div>
         </div>
         <div class="flex gap-4 lg:gap-6 overflow-x-auto lg:overflow-visible pb-8 snap-x lg:snap-none lg:grid lg:grid-cols-3 no-scrollbar">
             {{ range .Featured }}
@@ -18,7 +18,7 @@
 <!-- Location Status OOB Swap -->
 <div id="location-status" hx-swap-oob="true">
     {{ if .Radius }}
-    <div class="mb-6 px-1 flex items-center gap-2 text-[10px] font-bold capitalize tracking-wide text-earth-ochre/80 animate-in fade-in slide-in-from-left-2 duration-500">
+    <div class="mb-6 px-1 flex items-center gap-2 text-[10px] font-bold capitalize tracking-wide text-earth-accent animate-in fade-in slide-in-from-left-2 duration-500">
         <span class="material-symbols-outlined text-[14px]">location_on</span>
         <span>Showing within {{ .Radius }} miles {{ if .City }} of {{ .City }}{{ else }}of your location{{ end }}</span>
     </div>
@@ -27,20 +27,20 @@
 
 {{ if .Listings }}
 {{ if .FallbackCity }}
-<div class="col-span-full mb-8 text-center p-6 bg-earth-sand/10 border border-earth-clay/10 animate-in fade-in duration-500">
-    <span class="material-symbols-outlined text-4xl text-stone-400 mb-2">location_off</span>
-    <h3 class="text-lg font-bold text-text-main mb-2">Nothing nearby yet</h3>
-    <p class="text-sm text-text-sub mb-4">We couldn't find spots near you, but here's what's popular in <span class="text-earth-ochre font-bold">{{ .FallbackCity }}</span>:</p>
+<div class="col-span-full mb-8 text-center p-6 bg-earth-espresso/60 border border-earth-accent/30 text-earth-cream animate-in fade-in duration-500">
+    <span class="material-symbols-outlined text-4xl text-earth-sand/60 mb-2">location_off</span>
+    <h3 class="text-lg font-bold text-white mb-2">Nothing nearby yet</h3>
+    <p class="text-sm text-stone-300 mb-4">We couldn't find spots near you, but here's what's popular in <span class="text-earth-accent font-bold">{{ .FallbackCity }}</span>:</p>
 </div>
 {{ range $i, $e := .Listings }}
     {{ template "listing_card" dict "Listing" . "User" $.User "GridClass" "" "Index" $i "SavedIDs" $.SavedIDs "IDPrefix" "fallback-" "UserLat" 0.0 "UserLng" 0.0 }}
 {{ end }}
-<div class="col-span-full mt-12 text-center p-8 bg-earth-sand/20 border border-earth-clay/10">
-    <p class="text-sm text-text-sub mb-4">Know an African spot in your area?</p>
+<div class="col-span-full mt-12 text-center p-8 bg-earth-espresso/60 border border-earth-accent/30 text-earth-cream">
+    <p class="text-sm text-stone-300 mb-4">Know an African spot in your area?</p>
     <button type="button" data-auth-action="modal" data-modal-id="create-listing-modal"
         data-testid="fallback-post-spot-btn"
         data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
-        class="inline-flex items-center justify-center gap-2 bg-earth-clay hover:bg-earth-clay-dark active:bg-earth-clay text-white px-6 h-11 md:h-10 transition-all active:scale-95 font-bold text-xs capitalize tracking-wide shadow-sm">
+        class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-earth-accent to-earth-ochre hover:brightness-110 active:scale-[0.98] text-earth-dark font-extrabold px-6 h-11 md:h-10 transition-all text-xs capitalize tracking-wider shadow-md rounded-none">
         <span class="material-symbols-outlined text-[18px]">add_circle</span>
         Add it on agbalumo
     </button>
@@ -84,7 +84,7 @@
         {{ end }}
         
         <button type="button" data-testid="expand-radius-btn"
-            class="px-6 h-12 flex items-center justify-center bg-earth-ochre text-earth-dark font-bold font-display tracking-widest text-xs uppercase hover:bg-earth-ochre-light transition-all shadow-lg shadow-earth-ochre/20 active:scale-95 mx-auto"
+            class="px-6 h-12 flex items-center justify-center bg-gradient-to-r from-earth-accent to-earth-ochre hover:brightness-110 active:scale-[0.98] text-earth-dark font-extrabold font-display tracking-widest text-xs uppercase transition-all shadow-md rounded-none mx-auto"
             hx-get="/listings/fragment?radius={{ $nextRadius }}{{ if .City }}&city={{ .City }}{{ end }}{{ if .FilterType }}&type={{ .FilterType }}{{ end }}{{ if .Query }}&q={{ .Query }}{{ end }}" 
             hx-target="#listings-container" 
             hx-indicator="#listings-loading"
@@ -98,7 +98,7 @@
     <button type="button" hx-get="/listings/fragment" hx-target="#listings-container"
        hx-vals='{"type":"All","city":"","radius":"25"}'
        data-testid="view-all-listings-link"
-        class="px-5 h-11 flex items-center justify-center bg-earth-accent text-white font-bold font-display tracking-widest text-xs uppercase hover:bg-earth-accent/90 transition-all border border-earth-accent-light">
+        class="px-5 h-11 flex items-center justify-center bg-gradient-to-r from-earth-accent to-earth-ochre hover:brightness-110 active:scale-[0.98] text-earth-dark font-extrabold font-display tracking-widest text-xs uppercase transition-all shadow-md rounded-none">
         Reset All Filters
     </button>
 </div>

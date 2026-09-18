@@ -187,8 +187,7 @@ var TemplateMockRegistry = map[string]interface{}{
 		"ListingID": "1",
 		"ImageURL":  "http://example.com/img.png",
 	},
-	"footer":     baseData,
-	"mobile_nav": baseData,
+	"footer": baseData,
 	"listing_form_contact_fields": map[string]interface{}{
 		"Listing":       mockListing,
 		"User":          mockUser,
