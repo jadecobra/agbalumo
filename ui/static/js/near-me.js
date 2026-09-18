@@ -1,6 +1,6 @@
 (function() {
-    const ACTIVE_CLASSES = ['bg-earth-ochre/20', 'text-earth-ochre', 'hover:bg-earth-ochre/30', 'border-earth-ochre/50'];
-    const DEFAULT_CLASSES = ['bg-earth-sand/30', 'text-text-main', 'hover:bg-earth-sand/50', 'border-earth-clay/10'];
+    const ACTIVE_CLASSES = ['bg-earth-ochre/20', 'text-earth-accent', 'hover:bg-earth-ochre/30', 'border-earth-accent/50'];
+    const DEFAULT_CLASSES = ['bg-earth-dark', 'text-earth-sand', 'hover:text-white', 'border-earth-clay/30'];
 
     function getElements() {
         return {
@@ -71,7 +71,7 @@
         if (!guidance) {
             guidance = document.createElement('div');
             guidance.id = 'near-me-denied-guidance';
-            guidance.className = 'text-[10px] text-text-sub mt-1 w-full max-w-[220px] leading-tight';
+            guidance.className = 'text-[10px] text-earth-sand mt-1 w-full max-w-[220px] leading-tight';
             container.appendChild(guidance);
         }
 

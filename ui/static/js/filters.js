@@ -213,8 +213,8 @@ function setupFilterButtons() {
         // Reset "Near Me" button UI if it exists
         const nearMeBtn = document.getElementById('near-me-btn');
         if (nearMeBtn) {
-            const activeClasses = ['bg-earth-ochre/20', 'text-earth-ochre', 'hover:bg-earth-ochre/30', 'border-earth-ochre/50'];
-            const defaultClasses = ['bg-earth-sand/30', 'text-text-main', 'hover:bg-earth-sand/50', 'border-earth-clay/10'];
+            const activeClasses = ['bg-earth-ochre/20', 'text-earth-accent', 'hover:bg-earth-ochre/30', 'border-earth-accent/50'];
+            const defaultClasses = ['bg-earth-dark', 'text-earth-sand', 'hover:text-white', 'border-earth-clay/30'];
             activeClasses.forEach(c => nearMeBtn.classList.remove(c));
             defaultClasses.forEach(c => nearMeBtn.classList.add(c));
             

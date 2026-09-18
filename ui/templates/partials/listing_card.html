@@ -62,7 +62,7 @@
         <!-- Metadata Row (Type & Ratings left) -->
         <div class="flex items-center justify-between gap-1.5 shrink-0 rounded-none">
             <div class="flex items-center gap-1.5 flex-wrap rounded-none">
-                <span class="bg-earth-accent/20 text-earth-accent border border-earth-accent/40 text-xs uppercase font-bold px-1.5 py-0.5 tracking-wider shadow-sm rounded-none">
+                <span class="bg-earth-sand/60 text-earth-clay border border-earth-clay/20 text-xs uppercase font-bold px-1.5 py-0.5 tracking-wider shadow-sm rounded-none">
                     {{ .Listing.Type }}
                 </span>
                 {{ template "rating_stars" dict "Listing" .Listing "TextColorClass" "text-earth-accent dark:text-yellow-600" }}
@@ -163,19 +163,19 @@
         {{ if $showButton }}
         <div class="mt-2 z-20 relative flex gap-1.5 shrink-0">
             {{ if eq $buttonType "details" }}
-            <button class="flex-1 w-full h-11 md:h-10 flex items-center justify-center bg-gradient-to-r from-earth-accent to-primary-dark hover:brightness-110 active:scale-[0.98] text-earth-dark font-extrabold text-xs capitalize tracking-wider transition-all shadow-md rounded-none"
+            <button class="flex-1 w-full h-11 md:h-10 flex items-center justify-center bg-gradient-to-r from-earth-accent to-earth-ochre hover:brightness-110 active:scale-[0.98] text-earth-dark font-extrabold text-xs capitalize tracking-wider transition-all shadow-md rounded-none"
                 data-testid="ag-mobile-view-details">
                 View Details
             </button>
             {{ else if eq $buttonType "menu" }}
             <a href="{{ .Listing.MenuURL }}" target="_blank" rel="noopener noreferrer"
-                class="flex-1 w-full h-11 md:h-10 flex items-center justify-center bg-gradient-to-r from-earth-accent to-primary-dark hover:brightness-110 active:scale-[0.98] text-earth-dark font-extrabold text-xs capitalize tracking-wider transition-all shadow-md rounded-none"
+                class="flex-1 w-full h-11 md:h-10 flex items-center justify-center bg-gradient-to-r from-earth-accent to-earth-ochre hover:brightness-110 active:scale-[0.98] text-earth-dark font-extrabold text-xs capitalize tracking-wider transition-all shadow-md rounded-none"
                 data-testid="ag-mobile-view-menu">
                 Menu
             </a>
             {{ else if eq $buttonType "website" }}
             <a href="{{ .Listing.WebsiteURL }}" target="_blank" rel="noopener noreferrer"
-                class="flex-1 w-full h-11 md:h-10 flex items-center justify-center bg-gradient-to-r from-earth-accent to-primary-dark hover:brightness-110 active:scale-[0.98] text-earth-dark font-extrabold text-xs capitalize tracking-wider transition-all shadow-md rounded-none"
+                class="flex-1 w-full h-11 md:h-10 flex items-center justify-center bg-gradient-to-r from-earth-accent to-earth-ochre hover:brightness-110 active:scale-[0.98] text-earth-dark font-extrabold text-xs capitalize tracking-wider transition-all shadow-md rounded-none"
                 data-testid="ag-mobile-website">
                 Website
             </a>
@@ -192,7 +192,7 @@
                     {{ $phoneText = .Listing.ContactWhatsApp }}
                 {{ end }}
             <a href="{{ $phoneLink }}"
-                class="flex-1 w-full h-11 md:h-10 flex items-center justify-center gap-2 bg-gradient-to-r from-earth-accent to-primary-dark hover:brightness-110 active:scale-[0.98] text-earth-dark font-extrabold text-xs capitalize tracking-wider transition-all shadow-md rounded-none"
+                class="flex-1 w-full h-11 md:h-10 flex items-center justify-center gap-2 bg-gradient-to-r from-earth-accent to-earth-ochre hover:brightness-110 active:scale-[0.98] text-earth-dark font-extrabold text-xs capitalize tracking-wider transition-all shadow-md rounded-none"
                 aria-label="Call or WhatsApp"
                 data-testid="ag-mobile-phone">
                 <span class="material-symbols-outlined text-[16px] md:text-[18px]">{{ $phoneIcon }}</span>
