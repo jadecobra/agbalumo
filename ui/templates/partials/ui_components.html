@@ -19,7 +19,7 @@
     }}hx-swap="{{ .HXSwap }}" {{ end }} {{ if index . "HXConfirm" }}hx-confirm="{{ .HXConfirm }}" {{ end }}
     data-testid="{{ if index . "TestID" }}{{ .TestID }}{{ else }}sharp-btn{{ end }}"
     {{ if index . "Attr" }}{{ .Attr | safeHTMLAttr }}{{ end }}
-    class="{{ if index . "Classes" }}{{ .Classes }}{{ else }}bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark px-8 py-3 font-bold capitalize text-xs tracking-widest transition-all active:scale-95 disabled:opacity-50{{ end }}">
+    class="{{ if index . "Classes" }}{{ .Classes }}{{ else }}bg-gradient-to-r from-earth-accent to-earth-ochre hover:brightness-110 active:scale-[0.98] text-earth-dark px-8 py-3 font-extrabold capitalize text-xs tracking-wider transition-all shadow-md rounded-none disabled:opacity-50{{ end }}">
     {{ .Label }}
 </button>
 {{ end }}
@@ -38,7 +38,7 @@
         <div class="w-12 h-12 {{ .IconBgClass }} flex items-center justify-center {{ .IconColorClass }}">
             {{ .Icon | safeHTML }}
         </div>
-        <span class="font-bold capitalize tracking-widest text-xs text-earth-dark">{{ .Label }}</span>
+        <span class="font-bold capitalize tracking-widest text-xs text-earth-cream group-hover:text-white">{{ .Label }}</span>
     </div>
 </a>
 {{ end }}
@@ -56,27 +56,27 @@
 <a href="{{ .Link }}"
     class="text-center flex-1 flex flex-col items-center py-6 px-4 cursor-pointer hover:bg-earth-ochre/10 transition-colors group"
     title="Click to see more">
-    <span class="text-3xl font-serif font-bold text-earth-dark group-hover:text-earth-ochre transition-colors">{{ .Value }}</span>
-    <span class="text-[10px] font-bold capitalize tracking-wider mt-1 text-earth-dark opacity-80 group-hover:opacity-100 transition-opacity">{{ .Label }}</span>
+    <span class="text-3xl font-serif font-bold text-white group-hover:text-earth-accent transition-colors">{{ .Value }}</span>
+    <span class="text-[10px] font-bold capitalize tracking-wider mt-1 text-earth-cream/70 group-hover:text-white transition-colors">{{ .Label }}</span>
 </a>
 {{ else if index . "HXGet" }}
 <button type="button" hx-get="{{ .HXGet }}" hx-target="{{ .HXTarget }}" hx-swap="innerHTML" data-testid="metric-stat-btn-{{ .Label }}"
     class="text-center flex-1 flex flex-col items-center py-6 px-4 cursor-pointer hover:bg-earth-ochre/10 transition-colors group focus:outline-none"
     title="Click to see more">
-    <span class="text-3xl font-serif font-bold text-earth-dark group-hover:text-earth-ochre transition-colors">{{ .Value }}</span>
-    <span class="text-[10px] font-bold capitalize tracking-wider mt-1 text-earth-dark opacity-80 group-hover:opacity-100 transition-opacity">{{ .Label }}</span>
+    <span class="text-3xl font-serif font-bold text-white group-hover:text-earth-accent transition-colors">{{ .Value }}</span>
+    <span class="text-[10px] font-bold capitalize tracking-wider mt-1 text-earth-cream/70 group-hover:text-white transition-colors">{{ .Label }}</span>
 </button>
 {{ else if index . "Modal" }}
 <button type="button" data-action="open-modal" data-target="{{ .Modal }}" data-modal-target="{{ .Modal }}"
     class="text-center flex-1 flex flex-col items-center py-6 px-4 cursor-pointer hover:bg-earth-ochre/10 transition-colors group focus:outline-none"
     title="Click to see more">
-    <span class="text-3xl font-serif font-bold text-earth-dark group-hover:text-earth-ochre transition-colors">{{ .Value }}</span>
-    <span class="text-[10px] font-bold capitalize tracking-wider mt-1 text-earth-dark opacity-80 group-hover:opacity-100 transition-opacity">{{ .Label }}</span>
+    <span class="text-3xl font-serif font-bold text-white group-hover:text-earth-accent transition-colors">{{ .Value }}</span>
+    <span class="text-[10px] font-bold capitalize tracking-wider mt-1 text-earth-cream/70 group-hover:text-white transition-colors">{{ .Label }}</span>
 </button>
 {{ else }}
 <div class="text-center flex-1 flex flex-col items-center py-6 px-4">
-    <span class="text-3xl font-serif font-bold text-earth-dark">{{ .Value }}</span>
-    <span class="text-[10px] font-bold capitalize tracking-wider mt-1 text-earth-dark opacity-80">{{ .Label }}</span>
+    <span class="text-3xl font-serif font-bold text-white">{{ .Value }}</span>
+    <span class="text-[10px] font-bold capitalize tracking-wider mt-1 text-earth-cream/70">{{ .Label }}</span>
 </div>
 {{ end }}
 {{ end }}
@@ -87,7 +87,7 @@
   ColorClasses: optional
 -->
 <span
-    class="px-2 py-0.5 text-[10px] font-bold capitalize tracking-widest {{ if index . "ColorClasses" }}{{ .ColorClasses }}{{ else }}bg-earth-cream/10 text-earth-cream/70{{ end }}">
+    class="px-2 py-0.5 text-[10px] font-bold capitalize tracking-widest rounded-none {{ if index . "ColorClasses" }}{{ .ColorClasses }}{{ else }}bg-earth-accent/20 text-earth-accent border border-earth-accent/40{{ end }}">
     {{ .Label }}
 </span>
 {{ end }}
@@ -114,7 +114,7 @@
         <div class="w-12 h-12 {{ .IconBgClass }} flex items-center justify-center {{ .IconColorClass }}">
             {{ .Icon | safeHTML }}
         </div>
-        <span class="font-bold capitalize tracking-widest text-xs text-earth-dark">{{ .Label }}</span>
+        <span class="font-bold capitalize tracking-widest text-xs text-earth-cream group-hover:text-white">{{ .Label }}</span>
     </div>
 </button>
 {{ end }}
@@ -152,8 +152,8 @@
   NoBottomClose: optional
 -->
 <dialog id="{{ .ID }}" aria-labelledby="modal-title-{{ .ID }}" {{ if index . "AutoOpen" }}data-auto-open="true"{{ end }} {{ if index . "DialogDataTarget" }}data-target="{{ .DialogDataTarget }}"{{ end }} {{ if index . "DialogDataListingId" }}data-listing-id="{{ .DialogDataListingId }}"{{ end }}
-    class="backdrop:bg-surface-dark/50 bg-transparent p-0 w-full max-w-none {{ if index . "MaxWidthClass" }}{{ .MaxWidthClass }}{{ else }}md:max-w-sm{{ end }} {{ if index . "MarginClass" }}{{ .MarginClass }}{{ else }}m-auto{{ end }} shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed {{ if index . "InsetClass" }}{{ .InsetClass }}{{ else }}inset-0{{ end }} z-50 h-full md:h-auto">
-    <div {{ if index . "ContentID" }}id="{{ .ContentID }}"{{ end }} class="bg-white dark:bg-surface-dark relative flex flex-col h-full md:h-auto {{ if index . "MaxHeightClass" }}{{ .MaxHeightClass }}{{ else }}md:max-h-[85vh]{{ end }} overflow-hidden border border-stone-200 dark:border-stone-800">
+    class="backdrop:bg-surface-dark/80 backdrop-blur-md bg-transparent p-0 w-full max-w-none {{ if index . "MaxWidthClass" }}{{ .MaxWidthClass }}{{ else }}md:max-w-sm{{ end }} {{ if index . "MarginClass" }}{{ .MarginClass }}{{ else }}m-auto{{ end }} shadow-2xl open:animate-in open:fade-in open:zoom-in-95 backdrop:animate-in backdrop:fade-in fixed {{ if index . "InsetClass" }}{{ .InsetClass }}{{ else }}inset-0{{ end }} z-50 h-full md:h-auto">
+    <div {{ if index . "ContentID" }}id="{{ .ContentID }}"{{ end }} class="bg-surface-dark text-earth-cream relative flex flex-col h-full md:h-auto {{ if index . "MaxHeightClass" }}{{ .MaxHeightClass }}{{ else }}md:max-h-[85vh]{{ end }} overflow-hidden border border-earth-accent/30 rounded-none shadow-2xl">
         
         <!-- Scrollable Inner Content -->
         <div class="{{ if index . "NoPadding" }}p-0{{ else }}p-6{{ end }} relative {{ if not (index . "CustomScroll") }}overflow-y-auto{{ end }} flex-1 flex flex-col min-h-0">
@@ -164,8 +164,8 @@
             
             {{ if not (index . "NoHeader") }}
             <div class="flex justify-between items-start mb-8 {{ index . "HeaderClass" }}">
-                <h2 id="modal-title-{{ .ID }}" class="font-serif italic text-4xl leading-tight text-text-main dark:text-earth-cream drop-shadow-sm">{{ .Title }}</h2>
-                {{ template "btn_close" dict "Classes" "text-text-sub hover:text-text-main" }}
+                <h2 id="modal-title-{{ .ID }}" class="font-serif italic text-3xl md:text-4xl leading-tight text-white drop-shadow-sm">{{ .Title }}</h2>
+                {{ template "btn_close" dict "Classes" "text-earth-sand/70 hover:text-white" }}
             </div>
             {{ end }}
             
@@ -201,10 +201,10 @@
         
         {{ if not (index . "NoBottomClose") }}
         <!-- Sticky Footer -->
-        <div class="shrink-0 bg-surface-dark border-t border-white/5 z-20 {{ if index . "NoPadding" }}p-0{{ else }}px-6 py-4{{ end }}">
+        <div class="shrink-0 bg-earth-espresso/90 border-t border-earth-accent/20 z-20 {{ if index . "NoPadding" }}p-0{{ else }}px-6 py-4{{ end }}">
             <!-- CLOSE button — large touch target for mobile -->
             <button type="button" data-modal-action="close"
-                class="w-full bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark font-bold capitalize text-xs tracking-widest py-4 transition-colors active:scale-95">
+                class="w-full bg-gradient-to-r from-earth-accent to-earth-ochre hover:brightness-110 active:scale-[0.98] text-earth-dark font-extrabold capitalize text-xs tracking-wider py-4 transition-all shadow-md rounded-none">
                 CLOSE
             </button>
         </div>

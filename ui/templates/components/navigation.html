@@ -1,17 +1,17 @@
 {{ define "navigation" }}
 <!-- Unified Top Header (Opaque Brutalist) -->
-<header class="{{ block "header_classes" . }}sticky top-0 z-[110] w-full bg-earth-cream border-b
-    border-earth-clay/20 transition-all duration-300{{ end }} relative" 
+<header class="{{ block "header_classes" . }}sticky top-0 z-[110] w-full bg-earth-dark/95 backdrop-blur-md border-b
+    border-earth-accent/20 transition-all duration-300{{ end }} relative" 
     data-agent-template="navigation.html">
     <!-- Mobile Full Width Logo -->
     {{ block "header_mobile_logo" . }}
-    <a href="/" class="md:hidden flex flex-col justify-center items-center w-full py-2 border-b border-earth-clay/5 group">
+    <a href="/" class="md:hidden flex flex-col justify-center items-center w-full py-2 border-b border-earth-accent/10 group">
         <div class="flex flex-col items-center">
             <picture>
                 <source srcset="/static/images/logo.webp" type="image/webp">
                 <img src="/static/images/logo.png" alt="agbalumo Logo" class="h-12 w-auto object-contain group-hover:scale-105 transition-transform">
             </picture>
-            <span class="text-[10px] text-earth-clay font-medium tracking-wide -mt-1 font-display">find what you want</span>
+            <span class="text-[10px] text-earth-sand/70 font-medium tracking-wide -mt-1 font-display">find what you want</span>
         </div>
     </a>
     {{ end }}
@@ -28,7 +28,7 @@
                     <img src="/static/images/logo.png" alt="agbalumo Logo"
                         class="h-8 md:h-10 object-contain group-hover:scale-105 transition-transform">
                 </picture>
-                <span class="text-[10px] text-earth-clay font-medium tracking-wide -mt-1 font-display">find
+                <span class="text-[10px] text-earth-sand/70 font-medium tracking-wide -mt-1 font-display">find
                     what
                     you want</span>
             </div>
@@ -189,7 +189,7 @@
             </nav>
 
             <!-- Action Buttons -->
-            <div class="flex items-center gap-3 border-l border-earth-clay/10 dark:border-white/10 pl-4">
+            <div class="flex items-center gap-3 border-l border-earth-accent/20 pl-4">
                 <!-- Removed Ask button for Ada focus -->
                 <button data-auth-action="modal" data-modal-id="create-listing-modal"
                     data-testid="ag-nav-post-btn-desktop"
@@ -197,7 +197,7 @@
                     aria-haspopup="dialog"
                     aria-expanded="false"
                     aria-label="Add"
-                    class="flex items-center justify-center gap-2 bg-earth-clay hover:bg-earth-clay-dark active:bg-earth-clay text-white px-5 h-11 md:h-10 transition-all active:scale-95 font-bold text-xs capitalize tracking-wide shadow-sm">
+                    class="flex items-center justify-center gap-2 bg-gradient-to-r from-earth-accent to-earth-ochre hover:brightness-110 active:scale-[0.98] text-earth-dark px-5 h-11 md:h-10 transition-all font-extrabold text-xs capitalize tracking-wider shadow-md rounded-none">
                     <span class="material-symbols-outlined text-[18px]">add_circle</span>
                     Add
                 </button>
@@ -209,7 +209,7 @@
                 <div class="group relative">
                     <button class="flex items-center gap-2" hx-get="/profile" hx-target="body" hx-swap="beforeend" data-testid="ag-nav-profile-btn">
                         <img src="{{ .User.AvatarURL }}" alt="Profile"
-                            class="w-9 h-9  border-2 border-white dark:border-earth-clay/30 shadow-sm object-cover">
+                            class="w-9 h-9 border-2 border-earth-accent shadow-sm object-cover rounded-none">
                     </button>
                 </div>
                 {{ else }}
@@ -217,14 +217,14 @@
                     {{ if ne .Env "production" }}
                     <a href="/sandbox" aria-label="Component Sandbox"
                         data-testid="ag-nav-sandbox-btn"
-                        class="flex items-center gap-2 bg-earth-dark/10 hover:bg-earth-dark/20 text-earth-dark px-4 h-10 transition-all font-semibold font-display text-[10px] capitalize tracking-widest border border-earth-dark/20"
+                        class="flex items-center gap-2 bg-earth-dark/40 hover:bg-earth-dark/60 text-earth-cream px-4 h-10 transition-all font-semibold font-display text-[10px] capitalize tracking-widest border border-earth-accent/30 rounded-none"
                         title="UI Component Sandbox">
                         <span class="material-symbols-outlined text-[18px]">grid_view</span>
                         Sandbox
                     </a>
                     <a href="/auth/dev" aria-label="Dev Login"
                         data-testid="ag-nav-dev-login-btn"
-                        class="flex items-center gap-2 bg-earth-clay/10 hover:bg-earth-clay/20 text-earth-clay px-4 h-10 transition-all font-semibold font-display text-[10px] capitalize tracking-widest border border-earth-clay/20"
+                        class="flex items-center gap-2 bg-earth-dark/40 hover:bg-earth-dark/60 text-earth-cream px-4 h-10 transition-all font-semibold font-display text-[10px] capitalize tracking-widest border border-earth-accent/30 rounded-none"
                         title="Quick Login for Development">
                         <span class="material-symbols-outlined text-[18px]">developer_mode</span>
                         Dev Login
@@ -232,7 +232,7 @@
                     {{ end }}
                     <a href="/auth/google/login" aria-label="Sign In"
                         data-testid="ag-nav-signin-btn"
-                        class="flex items-center gap-2 border border-earth-clay/30 hover:border-earth-accent hover:bg-earth-sand/10 text-earth-cream hover:text-white px-4 h-12 transition-all font-semibold font-display text-sm whitespace-nowrap {{ if not .HasGoogleAuth }}text-earth-cream/80{{ end }}"
+                        class="flex items-center gap-2 border border-earth-accent/30 hover:border-earth-accent hover:bg-earth-espresso text-earth-cream hover:text-white px-4 h-12 transition-all font-semibold font-display text-sm whitespace-nowrap {{ if not .HasGoogleAuth }}text-earth-cream/80{{ end }} rounded-none"
                         {{ if not .HasGoogleAuth }}title="Google OAuth not configured in .env"{{ end }}>
                         <span class="material-symbols-outlined text-[18px]">login</span>
                         Sign In

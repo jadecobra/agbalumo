@@ -6,17 +6,17 @@
             @click="$el.closest('#admin-modal-container').innerHTML = ''"></div>
         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
         <div
-            class="inline-block align-bottom bg-earth-dark border border-white/10 text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl w-full p-8 relative">
+            class="inline-block align-bottom bg-earth-dark border border-earth-accent/30 text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl w-full p-8 relative rounded-none">
 
             <button @click="$el.closest('#admin-modal-container').innerHTML = ''"
                 aria-label="Close"
-                class="absolute top-6 right-6 text-earth-cream/30 hover:text-white transition-colors">
+                class="absolute top-6 right-6 text-earth-sand/70 hover:text-white transition-colors">
                 <span class="material-symbols-outlined">close</span>
             </button>
 
             <div class="flex items-center gap-4 mb-8">
                 <div
-                    class="w-14 h-14 bg-earth-ochre/10 flex items-center justify-center text-earth-ochre border border-earth-ochre/20">
+                    class="w-14 h-14 bg-earth-accent/10 flex items-center justify-center text-earth-accent border border-earth-accent/30 rounded-none">
                     <span class="material-symbols-outlined text-[28px]">csv</span>
                 </div>
                 <h2 class="text-3xl font-serif text-white capitalize tracking-tight">Bulk Upload</h2>
@@ -28,33 +28,33 @@
                 <input type="hidden" name="_csrf" value="{{ .CSRF }}">
 
                 <div id="csvUploadDropzone"
-                    class="border-2 border-dashed border-white/10 p-12 text-center hover:border-earth-ochre/50 transition-colors bg-earth-cream/2 cursor-pointer group relative transition-all duration-300">
+                    class="border border-dashed border-earth-accent/30 p-12 text-center hover:border-earth-accent transition-colors bg-earth-espresso/30 cursor-pointer group relative transition-all duration-300 rounded-none">
                     <input type="file" id="csvFileInput" name="csv_file" accept=".csv" required
                         class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                     <div class="relative z-0">
                         <span id="csvUploadIcon"
-                            class="material-symbols-outlined text-earth-cream/20 text-4xl mb-4 group-hover:text-earth-ochre transition-colors">add</span>
+                            class="material-symbols-outlined text-earth-sand/40 text-4xl mb-4 group-hover:text-earth-accent transition-colors">add</span>
                         <p id="csvUploadText" class="text-[10px] font-bold capitalize tracking-[0.2em] text-earth-cream/60">
                             Choose CSV File
                         </p>
                     </div>
                 </div>
 
-                <div class="bg-earth-cream/5 p-6 shadow-inner border border-white/5">
+                <div class="bg-earth-espresso/40 p-6 shadow-inner border border-earth-accent/20 rounded-none">
                     <p class="text-[10px] font-bold text-white capitalize tracking-widest mb-3">Requirements</p>
-                    <p class="text-[10px] font-bold capitalize tracking-widest text-earth-cream/50 leading-relaxed">
-                        Required columns: <span class="text-earth-ochre">title, type, description</span><br>
-                        Optional: <span class="text-earth-cream/80 italic">email, phone, category, city</span>
+                    <p class="text-[10px] font-bold capitalize tracking-widest text-earth-sand/70 leading-relaxed">
+                        Required columns: <span class="text-earth-accent">title, type, description</span><br>
+                        Optional: <span class="text-earth-cream italic">email, phone, category, city</span>
                     </p>
                 </div>
 
                 <div class="flex justify-end gap-4">
                     <button type="button" @click="$el.closest('#admin-modal-container').innerHTML = ''"
-                        class="bg-earth-cream/10 hover:bg-earth-cream/20 text-white px-8 py-3 font-bold capitalize text-xs tracking-widest transition-all">
+                        class="bg-earth-dark/60 hover:bg-earth-dark/80 text-earth-cream border border-earth-accent/20 hover:border-earth-accent/40 px-8 py-3 font-bold capitalize text-xs tracking-widest transition-all rounded-none">
                         Close
                     </button>
                     <button type="submit" id="csvUploadBtn" disabled
-                        class="bg-earth-ochre hover:bg-earth-ochre-light text-earth-dark px-10 py-3 font-bold capitalize text-xs tracking-[0.2em] transition-all disabled:opacity-30 disabled:grayscale">
+                        class="bg-gradient-to-r from-earth-accent to-earth-ochre hover:brightness-110 active:scale-[0.98] text-earth-dark px-10 py-3 font-extrabold capitalize text-xs tracking-[0.2em] transition-all disabled:opacity-30 disabled:grayscale rounded-none">
                         Upload CSV
                     </button>
                 </div>

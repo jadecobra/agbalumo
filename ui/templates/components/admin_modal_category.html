@@ -6,17 +6,17 @@
             @click="$el.closest('#admin-modal-container').innerHTML = ''"></div>
         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
         <div
-            class="inline-block align-bottom bg-earth-dark border border-white/10 text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl w-full p-8 relative">
+            class="inline-block align-bottom bg-earth-dark border border-earth-accent/30 text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl w-full p-8 relative rounded-none">
 
             <button @click="$el.closest('#admin-modal-container').innerHTML = ''"
                 aria-label="Close"
-                class="absolute top-6 right-6 text-earth-cream/30 hover:text-white transition-colors">
+                class="absolute top-6 right-6 text-earth-sand/70 hover:text-white transition-colors">
                 <span class="material-symbols-outlined">close</span>
             </button>
 
             <div class="flex items-center gap-4 mb-8">
                 <div
-                    class="w-14 h-14 bg-green-500/10 flex items-center justify-center text-green-500 border border-green-500/20">
+                    class="w-14 h-14 bg-earth-accent/10 flex items-center justify-center text-earth-accent border border-earth-accent/30 rounded-none">
                     <span class="material-symbols-outlined text-[28px]">category</span>
                 </div>
                 <h2 class="text-3xl font-serif text-white capitalize tracking-tight">Categories</h2>
@@ -24,37 +24,37 @@
 
             <!-- Existing Categories List -->
             {{ if .Categories }}
-            <div class="mb-8 border border-white/10 bg-earth-cream/2 max-h-48 overflow-y-auto">
-                <table class="min-w-full divide-y divide-white/10">
-                    <thead class="bg-earth-cream/5 sticky top-0">
+            <div class="mb-8 border border-earth-accent/20 bg-earth-espresso/30 max-h-48 overflow-y-auto rounded-none">
+                <table class="min-w-full divide-y divide-earth-accent/10">
+                    <thead class="bg-earth-espresso sticky top-0">
                         <tr>
                             <th
-                                class="px-4 py-3 text-left text-[10px] font-bold text-earth-cream/50 capitalize tracking-[0.2em]">
+                                class="px-4 py-3 text-left text-[10px] font-bold text-earth-sand/70 capitalize tracking-[0.2em]">
                                 Name</th>
                             <th
-                                class="px-4 py-3 text-left text-[10px] font-bold text-earth-cream/50 capitalize tracking-[0.2em]">
+                                class="px-4 py-3 text-left text-[10px] font-bold text-earth-sand/70 capitalize tracking-[0.2em]">
                                 Type</th>
                             <th
-                                class="px-4 py-3 text-left text-[10px] font-bold text-earth-cream/50 capitalize tracking-[0.2em]">
+                                class="px-4 py-3 text-left text-[10px] font-bold text-earth-sand/70 capitalize tracking-[0.2em]">
                                 Claimable</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-white/5">
+                    <tbody class="divide-y divide-earth-accent/10">
                         {{ range .Categories }}
-                        <tr class="hover:bg-earth-cream/5 transition-colors">
+                        <tr class="hover:bg-earth-accent/5 transition-colors">
                             <td class="px-4 py-3 text-xs font-bold text-white capitalize tracking-wide">{{ .Name }}</td>
                             <td class="px-4 py-3">
                                 {{ if .IsSystem }}
-                                {{ template "status_badge_sharp" dict "Label" "system" "ColorClasses" "bg-purple-500/20 text-purple-400" }}
+                                {{ template "status_badge_sharp" dict "Label" "system" "ColorClasses" "bg-purple-500/20 text-purple-400 border border-purple-500/30" }}
                                 {{ else }}
-                                {{ template "status_badge_sharp" dict "Label" "custom" "ColorClasses" "bg-green-500/20 text-green-400" }}
+                                {{ template "status_badge_sharp" dict "Label" "custom" "ColorClasses" "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" }}
                                 {{ end }}
                             </td>
                             <td class="px-4 py-3 text-[10px] font-bold capitalize tracking-widest">
                                 {{ if .Claimable }}
-                                <span class="text-earth-ochre">Yes</span>
+                                <span class="text-earth-accent">Yes</span>
                                 {{ else }}
-                                <span class="text-earth-cream/30">No</span>
+                                <span class="text-earth-sand/40">No</span>
                                 {{ end }}
                             </td>
                         </tr>
@@ -63,41 +63,39 @@
                 </table>
             </div>
             {{ else }}
-            <div class="mb-8 p-8 text-center border border-white/5 bg-earth-cream/2">
-                <p class="text-[10px] font-bold text-earth-cream/30 capitalize tracking-[0.3em]">No categories yet</p>
+            <div class="mb-8 p-8 text-center border border-earth-accent/15 bg-earth-dark/40 rounded-none">
+                <p class="text-[10px] font-bold text-earth-sand/40 capitalize tracking-[0.3em]">No categories yet</p>
             </div>
             {{ end }}
 
             <!-- Add New Category Form -->
-            <div class="border-t border-white/10 pt-6">
-                <p class="text-[10px] font-bold text-earth-ochre capitalize tracking-[0.2em] mb-4">Add New Category</p>
+            <div class="border-t border-earth-accent/20 pt-6">
+                <p class="text-[10px] font-bold text-earth-accent capitalize tracking-[0.2em] mb-4">Add New Category</p>
                 <form action="/admin/categories" method="POST" class="space-y-4">
                     <input id="csrf-token-category" type="hidden" name="_csrf" value="{{ .CSRF }}">
 
                     <div>
                         <label for="categoryName"
-                            class="block text-[10px] font-bold capitalize tracking-widest text-earth-cream/50 mb-2">Category
+                            class="block text-[10px] font-bold capitalize tracking-widest text-earth-sand/90 mb-2">Category
                             Name</label>
                         <input type="text" id="categoryName" name="name" required placeholder="e.g. Crafts"
-                            class="w-full bg-earth-cream/5 border border-white/10 text-white text-xs font-bold capitalize tracking-wide px-4 py-3 placeholder-white/20 focus:outline-none focus:border-earth-ochre transition-colors">
+                            class="w-full bg-earth-dark/40 border border-earth-accent/30 text-white text-xs font-bold capitalize tracking-wide px-4 py-3 placeholder:text-stone-400 focus:outline-none focus:border-earth-accent transition-colors rounded-none">
                     </div>
 
                     <div class="flex items-center gap-3">
                         <input type="checkbox" id="categoryClaimable" name="claimable" value="true"
-                            class="w-4 h-4 accent-earth-ochre cursor-pointer">
+                            class="w-4 h-4 accent-earth-accent cursor-pointer">
                         <label for="categoryClaimable"
-                            class="text-[10px] font-bold capitalize tracking-widest text-earth-cream/70 cursor-pointer">Allow
+                            class="text-[10px] font-bold capitalize tracking-widest text-earth-sand/90 cursor-pointer">Allow
                             Listings to be Claimed</label>
                     </div>
 
                     <div class="flex justify-end gap-4 pt-2">
                         <button type="button" @click="$el.closest('#admin-modal-container').innerHTML = ''"
-                            class="bg-earth-cream/10 hover:bg-earth-cream/20 text-white px-8 py-3 font-bold capitalize text-xs tracking-widest transition-all">
+                            class="bg-earth-dark/60 hover:bg-earth-dark/80 text-earth-cream border border-earth-accent/20 hover:border-earth-accent/40 px-8 py-3 font-bold capitalize text-xs tracking-widest transition-all rounded-none">
                             Cancel
                         </button>
-                        {{ template "button_sharp" dict "Label" "Add Category" "Type" "submit" "Classes" `bg-earth-ochre
-                        hover:bg-earth-ochre-light text-earth-dark px-8 py-3 font-bold capitalize text-xs tracking-widest
-                        transition-all` }}
+                        {{ template "button_sharp" dict "Label" "Add Category" "Type" "submit" "Classes" `bg-gradient-to-r from-earth-accent to-earth-ochre hover:brightness-110 active:scale-[0.98] text-earth-dark px-8 py-3 font-extrabold capitalize text-xs tracking-wider transition-all rounded-none` }}
                     </div>
                 </form>
             </div>

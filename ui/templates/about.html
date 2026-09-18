@@ -2,7 +2,7 @@
 
 {{ define "title" }}About - agbalumo{{ end }}
 
-{{ define "header_classes" }}sticky top-0 w-full z-40 bg-transparent border-none text-text-main transition-all
+{{ define "header_classes" }}sticky top-0 w-full z-40 bg-earth-dark/95 backdrop-blur-md border-b border-earth-accent/20 text-earth-cream transition-all
 duration-300{{ end }}
 
 {{ define "header_content" }}
@@ -15,12 +15,12 @@ duration-300{{ end }}
 
     <!-- Navigation Search (Added for Ada focus) -->
     <div class="flex-1 max-w-2xl relative mx-4">
-        <div class="search-glow relative flex items-center h-10 bg-earth-sand/30 border border-earth-clay/10 group focus-within:border-earth-accent transition-all">
-            <div class="grid place-items-center h-full w-10 text-text-sub/70">
+        <div class="search-glow relative flex items-center h-10 bg-earth-espresso/60 border border-earth-accent/30 group focus-within:border-earth-accent transition-all">
+            <div class="grid place-items-center h-full w-10 text-earth-accent">
                 <span class="material-symbols-outlined text-[18px]">search</span>
             </div>
             <input
-                class="peer h-full w-full border-none outline-none text-sm text-text-main bg-transparent pr-4 placeholder:text-text-sub/70 font-medium"
+                class="peer h-full w-full border-none outline-none text-sm text-white bg-transparent pr-4 placeholder:text-stone-400 font-medium focus:ring-0"
                 id="search-about" name="q" placeholder="Search... (e.g. 'Jollof', 'Tailor')" type="search"
                 hx-get="/listings/fragment" hx-target="#listings-container" hx-indicator="#listings-loading"
                 hx-trigger="keyup changed delay:500ms, search" />
@@ -31,7 +31,7 @@ duration-300{{ end }}
     <div class="flex items-center gap-4">
         <button data-auth-action="modal" data-modal-id="create-listing-modal"
             data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
-            class="flex items-center justify-center gap-2 bg-earth-clay hover:bg-earth-clay-dark active:bg-earth-clay text-white px-5 h-11 md:h-10 transition-all active:scale-95 font-bold text-xs capitalize tracking-wide shadow-sm"
+            class="flex items-center justify-center gap-2 bg-gradient-to-r from-earth-accent to-earth-ochre hover:brightness-110 active:scale-[0.98] text-earth-dark px-5 h-11 md:h-10 transition-all font-extrabold text-xs capitalize tracking-wider shadow-md rounded-none"
             aria-label="Add">
             <span class="material-symbols-outlined text-[18px]">add_circle</span>
             Add
@@ -41,45 +41,45 @@ duration-300{{ end }}
 {{ end }}
 
 {{ define "content" }}
-<div class="bg-earth-cream text-text-main w-full pb-20 pt-32 md:pt-40">
+<div class="bg-earth-dark text-earth-cream w-full pb-20 pt-32 md:pt-40">
     <!-- Mission & Value Props -->
     <div class="max-w-6xl mx-auto px-6 mb-24">
         <div class="max-w-3xl mx-auto text-center mb-12 space-y-6">
-            <span class="capitalize tracking-[0.3em] text-[10px] md:text-xs font-bold text-earth-ochre drop-shadow-sm">
+            <span class="capitalize tracking-[0.3em] text-[10px] md:text-xs font-bold text-earth-accent drop-shadow-sm">
                 The Story
             </span>
             <h1 class="sr-only">Agbalumo — the network we are building</h1>
-            <p class="text-xl text-text-sub leading-relaxed font-light">
+            <p class="text-xl text-earth-sand/80 leading-relaxed font-light">
                 We built Agbalumo for the times we land in a new city and want food that feels like home, or the African-owned places where we don’t have to explain ourselves. We are creating the network where businesses owned by people like us are seen by people like us, who value them most, and where we can quickly find what we need and plug into the community no matter where we are. Right now the strongest part of this network is Nigerian and West African food in Dallas and a few cities in the Northeast. This is where we started.
             </p>
         </div>
 
         <!-- Where we are right now -->
         <div class="max-w-3xl mx-auto text-center mb-20 space-y-4">
-            <span class="capitalize tracking-[0.3em] text-[10px] md:text-xs font-bold text-earth-ochre drop-shadow-sm">
+            <span class="capitalize tracking-[0.3em] text-[10px] md:text-xs font-bold text-earth-accent drop-shadow-sm">
                 Where we are right now
             </span>
-            <p class="text-base text-text-sub leading-relaxed font-light">
+            <p class="text-base text-earth-sand/80 leading-relaxed font-light">
                 The strongest, most verified part of the network is Nigerian and West African food. Dallas has the best coverage today. We have approved listings with phone and website in a few Northeast cities. Food is the honest wedge — this is where we prove speed and trust first. This is the beginning of the network.
             </p>
-            <p class="text-xs text-text-sub/70 tracking-tight">The Add button is how we add the next place we need.</p>
+            <p class="text-xs text-earth-sand/60 tracking-tight">The Add button is how we add the next place we need.</p>
         </div>
     </div>
 
     <!-- The agbalumo Inspiration Section -->
     <div class="max-w-5xl mx-auto px-6 mb-32 relative">
-        <div class="bg-earth-sand/20 border border-earth-clay/10 p-1 relative text-center group shadow-xl">
+        <div class="bg-earth-espresso/40 border border-earth-accent/30 p-1 relative text-center group shadow-2xl rounded-none">
             <!-- Background metaphor decoration -->
-            <div class="relative z-10 py-20 px-6 bg-earth-cream/50 text-center">
+            <div class="relative z-10 py-20 px-6 bg-earth-espresso/60 text-center rounded-none">
                 <div
-                    class="absolute -bottom-20 -right-20 w-80 h-80 bg-earth-ochre/10  blur-[100px] pointer-events-none">
+                    class="absolute -bottom-20 -right-20 w-80 h-80 bg-earth-accent/10 blur-[100px] pointer-events-none">
                 </div>
 
-                <h2 class="text-3xl md:text-5xl font-serif font-black italic mb-8 text-text-main tracking-tight">
+                <h2 class="text-3xl md:text-5xl font-serif font-black italic mb-8 text-white tracking-tight">
                     agbalumo
                 </h2>
                 <div class="max-w-2xl mx-auto mb-16">
-                    <p class="text-2xl text-earth-ochre font-light italic leading-relaxed">
+                    <p class="text-2xl text-earth-accent font-light italic leading-relaxed">
                         The African Star Apple (agbalumo, udara, agwalumo, otien, olei); sweet, tangy, and deeply
                         nostalgic. Like the fruit, our community is a cluster of seeds held together by a shared
                         core.
@@ -88,25 +88,25 @@ duration-300{{ end }}
 
                 <div class="grid md:grid-cols-2 gap-16 text-left relative z-20">
                     <div class="space-y-4">
-                        <div class="flex items-center gap-3 text-earth-ochre mb-2">
+                        <div class="flex items-center gap-3 text-earth-accent mb-2">
                             <span class="material-symbols-outlined text-2xl">storefront</span>
                             <h4
-                                class="text-sm md:text-base text-earth-clay opacity-80 font-bold capitalize tracking-widest">
+                                class="text-sm md:text-base text-white font-bold capitalize tracking-widest">
                                 find what you want</h4>
                         </div>
-                        <p class="text-text-sub leading-relaxed font-light pl-9">
+                        <p class="text-earth-sand/80 leading-relaxed font-light pl-9">
                             Whether you are looking for Amala near you or a Yoruba speaking therapist, agbalumo
                             brings the community to your fingertips
                         </p>
                     </div>
                     <div class="space-y-4">
-                        <div class="flex items-center gap-3 text-earth-ochre mb-2">
+                        <div class="flex items-center gap-3 text-earth-accent mb-2">
                             <span class="material-symbols-outlined text-2xl">lan</span>
                             <h4
-                                class="text-sm md:text-base text-earth-clay opacity-80 font-bold capitalize tracking-widest">
+                                class="text-sm md:text-base text-white font-bold capitalize tracking-widest">
                                 Leaf Veins (Our Connections)</h4>
                         </div>
-                        <p class="text-text-sub leading-relaxed font-light pl-9">
+                        <p class="text-earth-sand/80 leading-relaxed font-light pl-9">
                             The intricate network of veins in an agbalumo leaf represents the pathways of our
                             diaspora, we grow in different directions, yet all pulling life from the same roots. Our
                             heritage is nuanced, from the languages to the traditions, agbalumo makes sure we stay
@@ -117,10 +117,10 @@ duration-300{{ end }}
                         <div class="flex items-center gap-3 text-earth-accent mb-2">
                             <span class="material-symbols-outlined text-2xl">water_drop</span>
                             <h4
-                                class="text-sm md:text-base text-earth-clay opacity-80 font-bold capitalize tracking-widest">
+                                class="text-sm md:text-base text-white font-bold capitalize tracking-widest">
                                 Juice Drops (The Vibrancy)</h4>
                         </div>
-                        <p class="text-text-sub leading-relaxed font-light pl-9">
+                        <p class="text-earth-sand/80 leading-relaxed font-light pl-9">
                             The sweetness of the juice reflects the joy, creativity, and success of our people wherever
                             they find themselves in the world.
                         </p>

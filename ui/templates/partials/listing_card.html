@@ -1,5 +1,4 @@
 {{ define "listing_card" }}
-<!-- surface-parity: text-text-main dark:text-earth-cream -->
 <div id="{{ .IDPrefix }}listing-{{.Listing.ID}}"
     class="listing-card card-juicy group relative flex flex-row even:flex-row-reverse md:flex-col h-auto md:h-full overflow-hidden bg-earth-espresso dark:bg-surface-dark border border-earth-accent/30 hover:border-earth-accent/70 shadow-sm hover:shadow-juicy transition-all duration-500 hover:-translate-y-1 rounded-none {{ .GridClass }}"
     data-testid="ag-listing-card">
@@ -40,14 +39,14 @@
         {{ if and .User (eq .User.ID .Listing.OwnerID) }}
         <div class="absolute top-2 left-2 flex gap-1.5 z-30 opacity-0 group-hover:opacity-100 transition-opacity rounded-none">
             <button
-                class="bg-earth-cream/90 backdrop-blur-md text-text-main w-11 h-11 flex items-center justify-center shadow-md hover:bg-white transition-all active:scale-95 rounded-none"
+                class="bg-earth-dark/90 backdrop-blur-md text-earth-cream w-11 h-11 flex items-center justify-center shadow-md hover:text-white hover:bg-earth-dark transition-all active:scale-[0.98] rounded-none"
                 hx-get="/listings/{{ .Listing.ID }}/edit?target={{ .IDPrefix }}listing-{{ .Listing.ID }}" hx-target="#modal-container" hx-swap="innerHTML"
                 aria-label="Edit listing"
                 data-testid="ag-listing-edit-btn">
                 <span class="material-symbols-outlined text-[16px]">edit</span>
             </button>
             <button
-                class="bg-earth-clay/90 backdrop-blur-md text-white w-11 h-11 flex items-center justify-center shadow-md hover:bg-earth-clay-dark transition-all active:scale-95 rounded-none"
+                class="bg-red-900/90 backdrop-blur-md text-white w-11 h-11 flex items-center justify-center shadow-md hover:bg-red-800 transition-all active:scale-[0.98] rounded-none"
                 hx-delete="/listings/{{ .Listing.ID }}" hx-confirm="Are you sure?" hx-indicator="this"
                 aria-label="Delete listing"
                 data-testid="ag-listing-delete-btn">
@@ -62,10 +61,10 @@
         <!-- Metadata Row (Type & Ratings left) -->
         <div class="flex items-center justify-between gap-1.5 shrink-0 rounded-none">
             <div class="flex items-center gap-1.5 flex-wrap rounded-none">
-                <span class="bg-earth-sand/60 text-earth-clay border border-earth-clay/20 text-xs uppercase font-bold px-1.5 py-0.5 tracking-wider shadow-sm rounded-none">
+                <span class="bg-earth-accent/20 text-earth-accent border border-earth-accent/40 text-xs uppercase font-bold px-1.5 py-0.5 tracking-wider shadow-sm rounded-none">
                     {{ .Listing.Type }}
                 </span>
-                {{ template "rating_stars" dict "Listing" .Listing "TextColorClass" "text-earth-accent dark:text-yellow-600" }}
+                {{ template "rating_stars" dict "Listing" .Listing "TextColorClass" "text-earth-accent" }}
 
                 {{ if eq .Listing.Type "Food" }}
                     {{ if or .Listing.RegionalSpecialty .Listing.OwnerOrigin }}

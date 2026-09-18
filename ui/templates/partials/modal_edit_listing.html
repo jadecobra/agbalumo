@@ -30,8 +30,8 @@
             <!-- Request Deadline (Hidden by default unless Request) -->
             <div id="edit-request-section-{{.Listing.ID}}" class="flex flex-col gap-1.5 hidden">
                 <label for="edit-deadline-{{.Listing.ID}}"
-                    class="text-[10px] font-bold uppercase tracking-widest text-earth-clay opacity-80 ml-1">Deadline</label>
-                <div class="bg-earth-sand/10 border border-white/20 p-1 flex items-center">
+                    class="text-[10px] font-bold uppercase tracking-widest text-earth-sand/90 ml-1">Deadline</label>
+                <div class="bg-surface-dark/40 border border-earth-accent/30 p-1 flex items-center">
                     <input id="edit-deadline-{{.Listing.ID}}" name="deadline_date" type="date"
                         value="{{ if not .Listing.Deadline.IsZero }}{{ .Listing.Deadline.Format "2006-01-02" }}{{ end }}"
                         class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-sm md:text-base outline-none transition-all placeholder:text-earth-cream/50 color-scheme-dark">
@@ -54,7 +54,7 @@
             {{ template "listing_form_website" dict "Value" .Listing.WebsiteURL }}
 
             <button type="submit"
-                class="w-full bg-earth-ochre hover:bg-earth-ochre-light text-white font-bold uppercase text-xs tracking-widest py-4 transition-colors active:scale-95">
+                class="w-full bg-gradient-to-r from-earth-accent to-earth-ochre hover:brightness-110 text-earth-dark font-extrabold uppercase text-xs tracking-widest py-4 transition-all active:scale-[0.98] rounded-none">
                 SAVE CHANGES
             </button>
 {{ end }}

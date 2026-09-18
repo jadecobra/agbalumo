@@ -1,12 +1,12 @@
 {{ define "listing_form_title" }}
 <div class="flex flex-col gap-1.5">
-    <label for="listing-title" class="text-[10px] font-bold capitalize tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Title</label>
-    <div class="bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 focus-within:border-earth-accent transition-all p-1 flex items-center" data-agent-template="listing_form_title">
+    <label for="listing-title" class="text-[10px] font-bold capitalize tracking-widest text-earth-sand/90 ml-1">Title</label>
+    <div class="bg-earth-dark/40 border border-earth-accent/30 focus-within:border-earth-accent transition-all p-1 flex items-center rounded-none" data-agent-template="listing_form_title">
         <input id="listing-title" required name="title" type="text" value="{{ .Value }}" placeholder="e.g., Mama's Kitchen"
             data-testid="ag-listing-form-title"
             aria-required="true"
             aria-describedby="listing-title-error"
-            class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-text-main dark:text-white font-light text-base outline-none transition-all placeholder:text-text-sub/70 dark:placeholder:text-earth-cream/70">
+            class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-stone-400">
     </div>
     <span id="listing-title-error" class="form-error hidden" role="alert"></span>
 </div>
@@ -24,13 +24,13 @@
 {{ else if eq $type "Request" }}{{ $placeholder = "Tell us about your request..." }}
 {{ end }}
 <div class="flex flex-col gap-1.5">
-    <label for="listing-description" id="description-label" class="text-[10px] font-bold capitalize tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Description</label>
-    <div class="bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 focus-within:border-earth-accent transition-all p-1 flex items-center" data-agent-template="listing_form_description">
+    <label for="listing-description" id="description-label" class="text-[10px] font-bold capitalize tracking-widest text-earth-sand/90 ml-1">Description</label>
+    <div class="bg-earth-dark/40 border border-earth-accent/30 focus-within:border-earth-accent transition-all p-1 flex items-center rounded-none" data-agent-template="listing_form_description">
         <textarea id="listing-description" required name="description" rows="3" placeholder="{{ $placeholder }}"
             data-testid="ag-listing-form-description"
             aria-required="true"
             aria-describedby="listing-description-error"
-            class="w-full bg-transparent border-none px-4 py-3 focus:ring-0 text-text-main dark:text-white font-light text-base outline-none transition-all placeholder:text-text-sub/70 dark:placeholder:text-earth-cream/70 resize-none">{{ .Value }}</textarea>
+            class="w-full bg-transparent border-none px-4 py-3 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-stone-400 resize-none">{{ .Value }}</textarea>
     </div>
     <span id="listing-description-error" class="form-error hidden" role="alert"></span>
 </div>
@@ -40,25 +40,25 @@
 {{ $heatLevel := 0 }}{{ if . }}{{ $heatLevel = .HeatLevel }}{{ end }}
 {{ $regionalSpecialty := "" }}{{ if . }}{{ $regionalSpecialty = .RegionalSpecialty }}{{ end }}
 {{ $isFood := false }}{{ if . }}{{ if eq .Type "Food" }}{{ $isFood = true }}{{ end }}{{ end }}
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 border-l-4 border-secondary bg-secondary/5 p-4 mb-6{{ if not $isFood }} hidden{{ end }}" id="ada-signals-container" data-agent-template="listing_form_ada_signals">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 border-l-2 border-earth-accent bg-earth-accent/5 p-4 mb-6{{ if not $isFood }} hidden{{ end }}" id="ada-signals-container" data-agent-template="listing_form_ada_signals">
     <div class="flex flex-col gap-1.5" id="heat-level-container">
-        <label for="listing-heat-level" class="text-[10px] font-bold capitalize tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Heat Level (0-5)</label>
-        <div class="bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 focus-within:border-earth-accent transition-all p-1 flex items-center">
+        <label for="listing-heat-level" class="text-[10px] font-bold capitalize tracking-widest text-earth-sand/90 ml-1">Heat Level (0-5)</label>
+        <div class="bg-earth-dark/40 border border-earth-accent/30 focus-within:border-earth-accent transition-all p-1 flex items-center rounded-none">
             <input id="listing-heat-level" name="heat_level" type="number" min="0" max="5" value="{{ $heatLevel }}" placeholder="0"
                 data-testid="ag-listing-form-heat-level"
                 aria-describedby="listing-heat-level-desc"
                 {{ if not $isFood }}disabled{{ end }}
-                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-text-main dark:text-white font-light text-base outline-none transition-all placeholder:text-text-sub/70 dark:placeholder:text-earth-cream/70">
+                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-stone-400">
         </div>
-        <span id="listing-heat-level-desc" class="text-[10px] text-text-sub dark:text-earth-cream/70 ml-1">0 = No heat, 5 = Extra spicy</span>
+        <span id="listing-heat-level-desc" class="text-[10px] text-earth-sand/70 ml-1">0 = No heat, 5 = Extra spicy</span>
     </div>
     <div class="flex flex-col gap-1.5" id="regional-specialty-container">
-        <label for="listing-regional-specialty" class="text-[10px] font-bold capitalize tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Regional Specialty</label>
-        <div class="bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 focus-within:border-earth-accent transition-all p-1 flex items-center">
+        <label for="listing-regional-specialty" class="text-[10px] font-bold capitalize tracking-widest text-earth-sand/90 ml-1">Regional Specialty</label>
+        <div class="bg-earth-dark/40 border border-earth-accent/30 focus-within:border-earth-accent transition-all p-1 flex items-center rounded-none">
             <input id="listing-regional-specialty" name="regional_specialty" type="text" value="{{ $regionalSpecialty }}" placeholder="e.g. Yoruba"
                 data-testid="ag-listing-form-regional-specialty"
                 {{ if not $isFood }}disabled{{ end }}
-                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-text-main dark:text-white font-light text-base outline-none transition-all placeholder:text-text-sub/70 dark:placeholder:text-earth-cream/70">
+                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-stone-400">
         </div>
     </div>
 </div>
@@ -67,14 +67,14 @@
 {{ define "listing_form_location" }}
 <div class="grid grid-cols-1 gap-4">
     <div class="flex flex-col gap-1.5">
-        <label for="{{ .IDPrefix }}address-input{{ if .ListingID }}-{{ .ListingID }}{{ end }}" class="text-[10px] font-bold capitalize tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Address
+        <label for="{{ .IDPrefix }}address-input{{ if .ListingID }}-{{ .ListingID }}{{ end }}" class="text-[10px] font-bold capitalize tracking-widest text-earth-sand/90 ml-1">Address
             (Validated)</label>
-        <div class="bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 focus-within:border-earth-accent transition-all p-1 flex flex-col relative w-full overflow-hidden" data-agent-template="listing_form_location">
+        <div class="bg-earth-dark/40 border border-earth-accent/30 focus-within:border-earth-accent transition-all p-1 flex flex-col relative w-full overflow-hidden rounded-none" data-agent-template="listing_form_location">
             <input id="{{ .IDPrefix }}address-input{{ if .ListingID }}-{{ .ListingID }}{{ end }}" name="address"
                 type="text" value="{{ .Address }}" placeholder="Start typing address..."
                 data-testid="ag-listing-form-address"
                 aria-describedby="{{ .IDPrefix }}address-error{{ if .ListingID }}-{{ .ListingID }}{{ end }}"
-                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-text-main dark:text-white font-light text-base outline-none transition-all placeholder:text-text-sub/70 dark:placeholder:text-earth-cream/70 truncate"
+                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-stone-400 truncate"
                 {{ if .GoogleMapsApiKey }}data-google-maps-key="{{ .GoogleMapsApiKey }}" {{ end }}>
         </div>
         <span id="{{ .IDPrefix }}address-error{{ if .ListingID }}-{{ .ListingID }}{{ end }}" class="form-error hidden" role="alert"></span>
@@ -83,11 +83,11 @@
     </div>
 
     <div class="flex flex-col gap-1.5">
-        <label for="listing-hours" class="text-[10px] font-bold capitalize tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Hours of
+        <label for="listing-hours" class="text-[10px] font-bold capitalize tracking-widest text-earth-sand/90 ml-1">Hours of
             Operation</label>
-        <div class="bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 focus-within:border-earth-accent transition-all p-1 flex items-center">
+        <div class="bg-earth-dark/40 border border-earth-accent/30 focus-within:border-earth-accent transition-all p-1 flex items-center rounded-none">
             <input id="listing-hours" name="hours_of_operation" type="text" value="{{ .Hours }}" placeholder="e.g. Mon-Fri 9am-6pm"
-                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-text-main dark:text-white font-light text-base outline-none transition-all placeholder:text-text-sub/70 dark:placeholder:text-earth-cream/70">
+                class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-stone-400">
         </div>
     </div>
 </div>
@@ -95,13 +95,13 @@
 
 {{ define "listing_form_website" }}
 <div class="flex flex-col gap-1.5">
-    <label for="listing-website" class="text-[10px] font-bold capitalize tracking-widest text-text-sub dark:text-earth-clay/80 ml-1">Website
+    <label for="listing-website" class="text-[10px] font-bold capitalize tracking-widest text-earth-sand/90 ml-1">Website
         (Required if no Phone/Email)</label>
-    <div class="bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 focus-within:border-earth-accent transition-all p-1 flex items-center" data-agent-template="listing_form_website">
+    <div class="bg-earth-dark/40 border border-earth-accent/30 focus-within:border-earth-accent transition-all p-1 flex items-center rounded-none" data-agent-template="listing_form_website">
         <input id="listing-website" name="website_url" type="text" inputmode="url" value="{{ .Value }}" placeholder="https://..."
             data-testid="ag-listing-form-website"
             aria-describedby="listing-website-error"
-            class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-text-main dark:text-white font-light text-base outline-none transition-all placeholder:text-text-sub/70 dark:placeholder:text-earth-cream/70">
+            class="w-full h-12 bg-transparent border-none px-4 focus:ring-0 text-white font-light text-base outline-none transition-all placeholder:text-stone-400">
     </div>
     <span id="listing-website-error" class="form-error hidden" role="alert"></span>
 </div>

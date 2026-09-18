@@ -3,26 +3,26 @@
 {{ define "content" }}
 <div class="container mx-auto px-4 py-8 max-w-lg bg-earth-dark min-h-screen">
     <div
-        class="bg-earth-dark/95 backdrop-blur-xl border border-white/10  shadow-soft p-8 border border-white/10 relative overflow-hidden">
+        class="bg-earth-dark/95 backdrop-blur-xl border border-red-500/30 shadow-2xl p-8 relative overflow-hidden rounded-none">
         <!-- Decoration -->
         <div
-            class="absolute top-0 right-0 w-32 h-32 bg-red-500/5  blur-3xl -z-10 transform translate-x-10 -translate-y-10">
+            class="absolute top-0 right-0 w-32 h-32 bg-red-500/5 blur-3xl -z-10 transform translate-x-10 -translate-y-10">
         </div>
 
-        <div class="flex items-center gap-3 mb-6 text-red-600">
+        <div class="flex items-center gap-3 mb-6 text-red-500">
             <span class="material-symbols-outlined text-[32px] animate-pulse">warning</span>
             <h1 class="text-2xl font-bold tracking-tight">Confirm Deletion</h1>
         </div>
 
         <p class="text-earth-cream/70 mb-8 leading-relaxed">
-            You are about to permanently delete <strong class="text-earth-cream font-bold">{{ len .IDs
+            You are about to permanently delete <strong class="text-white font-bold">{{ len .IDs
                 }}</strong> listing(s).<br>
-            <span class="font-bold text-red-600">This action cannot be undone.</span>
+            <span class="font-bold text-red-400">This action cannot be undone.</span>
         </p>
 
         {{ if .Error }}
         <div
-            class="bg-red-900/40 border border-red-800 text-red-300 px-4 py-3  mb-8 text-sm font-medium">
+            class="bg-red-900/40 border border-red-800 text-red-300 px-4 py-3 mb-8 text-sm font-medium rounded-none">
             {{ .Error }}
         </div>
         {{ end }}
@@ -36,20 +36,20 @@
 
             <div class="mb-8">
                 <label for="admin_code"
-                    class="text-xs font-bold uppercase tracking-wider text-earth-cream/70 ml-1 mb-2 block">
+                    class="text-xs font-bold uppercase tracking-wider text-earth-sand/90 ml-1 mb-2 block">
                     Admin Access Code
                 </label>
                 <input type="password" id="admin_code" name="admin_code" required placeholder="Enter code to confirm"
-                    class="w-full bg-transparent border border-white/20 text-earth-cream  px-4 py-3 text-sm focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-stone-400">
+                    class="w-full bg-earth-dark/60 border border-earth-accent/30 text-white px-4 py-3 text-sm focus:border-red-500 outline-none transition-all placeholder:text-stone-400 rounded-none">
             </div>
 
             <div class="flex justify-end gap-3">
                 <a href="/admin/listings"
-                    class="px-6 py-2.5 border border-stone-200 dark:border-stone-700  text-earth-cream/70 bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 font-bold transition-all active:scale-95 text-sm">
+                    class="px-6 py-2.5 border border-earth-accent/30 text-earth-cream hover:text-white bg-earth-dark/60 hover:bg-earth-dark/80 font-bold transition-all active:scale-[0.98] text-sm rounded-none">
                     Cancel
                 </a>
                 <button type="submit"
-                    class="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white  font-bold transition-all active:scale-95 shadow-md shadow-red-600/20 text-sm">
+                    class="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-extrabold transition-all active:scale-[0.98] shadow-md text-sm rounded-none">
                     Delete Permanently
                 </button>
             </div>

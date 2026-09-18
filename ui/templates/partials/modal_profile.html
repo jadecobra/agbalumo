@@ -4,35 +4,35 @@
 
 {{ define "modal_profile_content" }}
         <!-- Header -->
-        <div class="flex items-center justify-between p-4 border-b border-earth-clay/10 dark:border-white/10 bg-earth-sand/10 dark:bg-surface-dark/50 shrink-0">
-            <h2 id="modal-title-profile-modal" class="text-xl font-bold font-serif text-text-main dark:text-earth-cream flex items-center gap-2">
+        <div class="flex items-center justify-between p-4 border-b border-earth-accent/20 bg-earth-espresso shrink-0">
+            <h2 id="modal-title-profile-modal" class="text-xl font-bold font-serif text-white flex items-center gap-2">
                 <span class="material-symbols-outlined text-earth-accent" aria-hidden="true">account_circle</span>
                 My Profile
             </h2>
-            {{ template "btn_close" dict "Classes" "text-text-sub hover:text-text-main dark:hover:bg-earth-cream/5" }}
+            {{ template "btn_close" dict "Classes" "text-earth-sand/70 hover:text-white" }}
         </div>
 
         <!-- Profile Info -->
-        <div class="p-4 md:p-6 bg-white flex flex-col gap-4 border-b border-earth-clay/10 shrink-0">
+        <div class="p-4 md:p-6 bg-earth-espresso/60 flex flex-col gap-4 border-b border-earth-accent/20 shrink-0">
             <!-- Avatar + Name Row -->
             <div class="flex items-center gap-4">
                 <div class="relative group shrink-0">
                     <img src="{{ .User.AvatarURL }}" alt="{{ .User.Name }}"
-                        class="w-14 h-14 md:w-16 md:h-16 border-2 border-earth-accent shadow-md object-cover">
+                        class="w-14 h-14 md:w-16 md:h-16 border-2 border-earth-accent shadow-md object-cover rounded-none">
                     <div class="absolute inset-0 border-2 border-earth-accent/20"></div>
                 </div>
                 <div class="min-w-0">
                     <h3
-                        class="text-base md:text-lg font-bold font-serif text-text-main flex flex-wrap items-center gap-2">
+                        class="text-base md:text-lg font-bold font-serif text-white flex flex-wrap items-center gap-2">
                         <span class="truncate">{{ .User.Name }}</span>
                         <span
                             class="px-2 py-0.5 bg-earth-accent text-earth-dark text-[10px] uppercase font-bold tracking-wider shrink-0">AGBA</span>
                     </h3>
-                    <p class="text-sm text-text-main dark:text-earth-cream flex items-center gap-1 mt-0.5">
+                    <p class="text-sm text-earth-cream flex items-center gap-1 mt-0.5">
                         <span class="material-symbols-outlined text-[14px]">mail</span>
                         <span class="truncate">{{ .User.Email }}</span>
                     </p>
-                    <p class="text-xs text-text-main/80 dark:text-earth-cream/80 mt-1 flex items-center gap-1">
+                    <p class="text-xs text-earth-sand/80 mt-1 flex items-center gap-1">
                         <span class="material-symbols-outlined text-[12px]">calendar_today</span>
                         Joined {{ .User.CreatedAt.Format "January 2006" }}
                     </p>
@@ -42,21 +42,21 @@
             <!-- Action Buttons Row — stacked on mobile, side-by-side on sm+ -->
             <div class="flex flex-col sm:flex-row gap-2 w-full">
                 <button hx-on:click="openModal('create-listing-modal'); closeModal('profile-modal')"
-                    class="flex-1 flex items-center justify-center gap-2 px-4 h-11 md:h-10 bg-earth-clay hover:bg-earth-clay-dark active:bg-earth-clay text-white font-bold transition-all shadow-sm text-xs capitalize tracking-wide"
+                    class="flex-1 flex items-center justify-center gap-2 px-4 h-11 md:h-10 bg-gradient-to-r from-earth-accent to-earth-ochre hover:brightness-110 active:scale-[0.98] text-earth-dark font-extrabold transition-all shadow-md text-xs capitalize tracking-wider rounded-none"
                     aria-label="Add">
                     <span class="material-symbols-outlined text-[18px]">add_circle</span>
                     Add
                 </button>
                 <button hx-get="/feedback/modal" hx-target="body" hx-swap="beforeend" data-testid="profile-feedback-btn"
                     hx-on:click="closeModal('profile-modal')"
-                    class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-earth-sand/10 dark:bg-earth-cream/5 text-text-main dark:text-earth-cream font-bold text-sm hover:bg-earth-sand/20 dark:hover:bg-earth-cream/10 transition-all border border-earth-clay/10 dark:border-white/10">
+                    class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-surface-dark/60 text-earth-cream hover:text-white font-bold text-sm hover:bg-surface-dark/80 transition-all border border-earth-accent/30 rounded-none">
                     <span
-                        class="uppercase tracking-[0.3em] text-[10px] md:text-xs font-bold text-earth-accent dark:text-earth-ochre drop-shadow-sm">Feedback</span>
+                        class="uppercase tracking-[0.3em] text-[10px] md:text-xs font-bold text-earth-accent drop-shadow-sm">Feedback</span>
                 </button>
                 <a href="/auth/logout"
-                    class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-earth-clay/5 dark:bg-earth-cream/5 text-earth-clay dark:text-earth-clay-dark font-bold text-sm hover:bg-earth-clay/15 dark:hover:bg-earth-clay/20 transition-all border border-earth-clay/20 dark:border-white/10">
+                    class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-surface-dark/60 text-earth-cream hover:text-white font-bold text-sm hover:bg-surface-dark/80 transition-all border border-earth-accent/30 rounded-none">
                     <span
-                        class="uppercase tracking-[0.3em] text-[10px] md:text-xs font-bold text-earth-accent dark:text-earth-ochre drop-shadow-sm">
+                        class="uppercase tracking-[0.3em] text-[10px] md:text-xs font-bold text-earth-accent drop-shadow-sm">
                         Sign Out
                     </span>
                 </a>
@@ -64,15 +64,15 @@
         </div>
 
         <!-- Listings Content Container -->
-        <div class="flex-1 overflow-y-auto p-4 md:p-6 bg-transparent min-h-0 flex flex-col gap-8">
+        <div class="flex-1 overflow-y-auto p-4 md:p-6 bg-gradient-to-b from-earth-espresso to-earth-dark text-earth-cream min-h-0 flex flex-col gap-8">
             <!-- Section 1: My Listings & Requests -->
             <div>
-                <div class="flex items-center justify-between mb-4 border-b border-earth-clay/10 dark:border-white/10 pb-2">
-                    <h3 class="text-lg font-bold font-serif flex items-center gap-2 text-text-main">
+                <div class="flex items-center justify-between mb-4 border-b border-earth-accent/20 pb-2">
+                    <h3 class="text-lg font-bold font-serif flex items-center gap-2 text-white">
                         <span class="material-symbols-outlined text-earth-accent">list_alt</span>
                         My Listings &amp; Requests
                     </h3>
-                    <span class="text-xs font-bold text-text-main dark:text-earth-cream bg-earth-sand/20 dark:bg-earth-cream/10 px-2 py-1">{{
+                    <span class="text-xs font-bold text-earth-accent bg-earth-accent/20 border border-earth-accent/30 px-2 py-1">{{
                         len .Listings }} Items</span>
                 </div>
 
@@ -83,15 +83,15 @@
                     {{ end }}
                 </div>
                 {{ else }}
-                <div class="text-center py-8 px-4 bg-earth-sand/5 border border-dashed border-earth-clay/15">
+                <div class="text-center py-8 px-4 bg-surface-dark/30 border border-dashed border-earth-accent/20">
                     <div
                         class="w-12 h-12 bg-earth-accent/10 flex items-center justify-center mx-auto mb-3 text-earth-accent">
                         <span class="material-symbols-outlined text-2xl">post_add</span>
                     </div>
-                    <h3 class="text-base font-bold font-serif text-text-main mb-1">No Listings Yet</h3>
-                    <p class="text-text-sub text-xs max-w-xs mx-auto mb-4">You haven't added any listings or requests yet.</p>
+                    <h3 class="text-base font-bold font-serif text-white mb-1">No Listings Yet</h3>
+                    <p class="text-earth-sand/70 text-xs max-w-xs mx-auto mb-4">You haven't added any listings or requests yet.</p>
                     <button hx-on:click="openModal('create-listing-modal'); closeModal('profile-modal')"
-                        class="px-4 h-11 md:h-10 bg-earth-clay hover:bg-earth-clay-dark active:bg-earth-clay text-white font-bold transition-all shadow-sm text-xs capitalize tracking-wide flex items-center justify-center gap-1.5 mx-auto">
+                        class="px-4 h-11 md:h-10 bg-gradient-to-r from-earth-accent to-earth-ochre hover:brightness-110 active:scale-[0.98] text-earth-dark font-extrabold transition-all shadow-md text-xs capitalize tracking-wider flex items-center justify-center gap-1.5 mx-auto rounded-none">
                         <span class="material-symbols-outlined text-[16px]">add_circle</span>
                         Add
                     </button>
@@ -101,12 +101,12 @@
 
             <!-- Section 2: Saved Listings -->
             <div>
-                <div class="flex items-center justify-between mb-4 border-b border-earth-clay/10 dark:border-white/10 pb-2">
-                    <h3 class="text-lg font-bold font-serif flex items-center gap-2 text-text-main">
+                <div class="flex items-center justify-between mb-4 border-b border-earth-accent/20 pb-2">
+                    <h3 class="text-lg font-bold font-serif flex items-center gap-2 text-white">
                         <span class="material-symbols-outlined text-earth-accent">favorite</span>
                         Saved Listings
                     </h3>
-                    <span class="text-xs font-bold text-text-main dark:text-earth-cream bg-earth-sand/20 dark:bg-earth-cream/10 px-2 py-1">{{
+                    <span class="text-xs font-bold text-earth-accent bg-earth-accent/20 border border-earth-accent/30 px-2 py-1">{{
                         len .SavedListings }} Items</span>
                 </div>
 
@@ -117,13 +117,13 @@
                     {{ end }}
                 </div>
                 {{ else }}
-                <div class="text-center py-8 px-4 bg-earth-sand/5 border border-dashed border-earth-clay/15">
+                <div class="text-center py-8 px-4 bg-surface-dark/30 border border-dashed border-earth-accent/20">
                     <div
-                        class="w-12 h-12 bg-earth-accent/10 flex items-center justify-center mx-auto mb-3 text-earth-clay/40">
+                        class="w-12 h-12 bg-earth-accent/10 flex items-center justify-center mx-auto mb-3 text-earth-sand/40">
                         <span class="material-symbols-outlined text-2xl">favorite_border</span>
                     </div>
-                    <h3 class="text-base font-bold font-serif text-text-main mb-1">No Saved Listings</h3>
-                    <p class="text-text-sub text-xs max-w-xs mx-auto">Heart a spot to save it for later.</p>
+                    <h3 class="text-base font-bold font-serif text-white mb-1">No Saved Listings</h3>
+                    <p class="text-earth-sand/70 text-xs max-w-xs mx-auto">Heart a spot to save it for later.</p>
                 </div>
                 {{ end }}
             </div>

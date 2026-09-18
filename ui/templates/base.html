@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="light" lang="en" data-template-file="ui/templates/base.html" data-agent-template="agbalumo-brutalist">
+<html class="dark" lang="en" data-template-file="ui/templates/base.html" data-agent-template="agbalumo-brutalist">
 
 <head>
     {{ template "head_meta" . }}
@@ -31,8 +31,6 @@
 
             <!-- Fruit-Themed Footer -->
             {{ template "footer" . }}
-
-            </nav>
         </div>
     </div>
 
@@ -46,7 +44,7 @@
             data-user-authenticated="{{ if .User }}true{{ else }}false{{ end }}"
             aria-haspopup="dialog"
             aria-expanded="false"
-            class="flex flex-col items-center justify-center gap-1 text-earth-accent hover:text-earth-ochre transition-all active:scale-95 w-16 h-full"
+            class="flex flex-col items-center justify-center gap-1 text-earth-accent hover:text-earth-ochre transition-all active:scale-[0.98] w-16 h-full"
             aria-label="Add">
             <span class="material-symbols-outlined text-[24px]" aria-hidden="true">add_circle</span>
             <span class="text-[10px] font-bold uppercase tracking-wider font-display text-white">Add</span>
@@ -54,7 +52,7 @@
 
         <!-- Feedback -->
         <button hx-get="/feedback/modal" hx-target="body" hx-swap="beforeend" data-testid="mobile-feedback-btn"
-            class="flex flex-col items-center justify-center gap-1 text-earth-cream/80 hover:text-white transition-all active:scale-95 w-16 h-full">
+            class="flex flex-col items-center justify-center gap-1 text-earth-cream/80 hover:text-white transition-all active:scale-[0.98] w-16 h-full">
             <span class="material-symbols-outlined text-[24px]" aria-hidden="true">feedback</span>
             <span class="text-[10px] font-bold uppercase tracking-wider font-display text-white">Feedback</span>
         </button>
@@ -62,14 +60,14 @@
         {{ if .User }}
         <!-- Profile -->
         <button hx-get="/profile" hx-target="body" hx-swap="beforeend" data-testid="mobile-account-btn"
-            class="flex flex-col items-center justify-center gap-1 text-earth-cream/80 hover:text-white transition-all active:scale-95 w-16 h-full">
+            class="flex flex-col items-center justify-center gap-1 text-earth-cream/80 hover:text-white transition-all active:scale-[0.98] w-16 h-full">
             <img src="{{ .User.AvatarURL }}" alt="Profile" class="w-6 h-6 border border-white/20 object-cover">
             <span class="text-[10px] font-bold uppercase tracking-wider font-display text-white">Account</span>
         </button>
         {{ else }}
         <!-- Sign In -->
         <a href="/auth/google/login"
-            class="flex flex-col items-center justify-center gap-1 text-earth-cream/80 hover:text-white transition-all active:scale-95 w-16 h-full">
+            class="flex flex-col items-center justify-center gap-1 text-earth-cream/80 hover:text-white transition-all active:scale-[0.98] w-16 h-full">
             <span class="material-symbols-outlined text-[24px]" aria-hidden="true">account_circle</span>
             <span class="text-[10px] font-bold uppercase tracking-wider font-display text-white">Sign In</span>
         </a>

@@ -63,13 +63,13 @@
   --color-primary: var(--brand-color-primary);
   --color-primary-variant: var(--brand-color-earth-ochre);
   --color-secondary: var(--brand-color-secondary);
-  --color-surface: var(--brand-color-earth-sand);
-  --color-background: var(--brand-color-earth-cream);
+  --color-surface: var(--brand-color-earth-dark);
+  --color-background: var(--brand-color-earth-dark);
   --color-on-primary: #FFFFFF;
-  --color-on-surface: var(--brand-color-earth-dark);
+  --color-on-surface: var(--brand-color-earth-cream);
   --color-accent-star: #C2185B;
   --color-secondary-hover: #558B2F;
-  --color-espresso: #4E342E;
+  --color-espresso: #241611;
 
   /* Radius — Mapped from Generated Tokens */
   --radius-sm: var(--brand-radius-sm);
@@ -182,7 +182,7 @@
 
 /* ── Form Error Alerts (implements form-input.error from UI state matrix + checkpoint task 1; centralizes repeated error <span> atoms per coding-standards UI Component Constraint; earth-clay for palette fit + WCAG on sand/cream vs legacy red-600) ── */
 .form-error {
-  @apply text-[10px] font-medium ml-1 text-earth-clay dark:text-earth-clay/90;
+  @apply text-[10px] font-bold ml-1 text-earth-accent;
 }
 
 /* ── Warm Search Focus Glow ── */

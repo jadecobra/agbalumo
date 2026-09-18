@@ -5,319 +5,319 @@
 {{/* No extra scripts — sandbox is now a pure visual state matrix (no dialog top-layer, no global scroll locks) */}}
 
 {{ define "content" }}
-<div class="max-w-7xl mx-auto px-4 py-12">
-    <header class="mb-12 border-b-4 border-earth-dark pb-6">
-        <h1 class="text-5xl font-black uppercase tracking-tighter text-earth-dark">UI Element State Matrix</h1>
-        <p class="text-earth-dark/80 font-medium mt-2">Precise contract surface for human ↔ agent communication about customizable UI elements.</p>
+<div class="max-w-7xl mx-auto px-4 py-12 bg-earth-dark text-earth-cream">
+    <header class="mb-12 border-b border-earth-accent/30 pb-6">
+        <h1 class="text-5xl font-black uppercase tracking-tighter text-white font-serif">UI Element State Matrix</h1>
+        <p class="text-earth-sand/80 font-medium mt-2">Precise contract surface for human ↔ agent communication about customizable UI elements.</p>
     </header>
 
-    <div class="mb-8 p-6 bg-earth-sand/10 border-4 border-earth-dark text-[10px]">
-        <div class="font-bold capitalize tracking-widest text-earth-dark mb-2">How to give precise instructions</div>
-        <div class="text-earth-dark/80">
-            Reference any element + state using the stable name shown above each matrix (e.g. <span class="font-mono">button_sharp.primary.hover</span>).<br>
-            Copy the exact <span class="font-mono">Classes</span> string or token and tell the agent exactly what to change it to.<br>
-            Example: "Change <span class="font-mono">button_sharp.primary.hover</span> from <span class="font-mono">hover:bg-earth-dark/90</span> to <span class="font-mono">hover:bg-earth-ochre</span>."
+    <div class="mb-8 p-6 bg-earth-espresso/60 border border-earth-accent/30 text-[10px] rounded-none">
+        <div class="font-bold capitalize tracking-widest text-white mb-2">How to give precise instructions</div>
+        <div class="text-earth-sand/80">
+            Reference any element + state using the stable name shown above each matrix (e.g. <span class="font-mono text-earth-accent">button_sharp.primary.hover</span>).<br>
+            Copy the exact <span class="font-mono text-earth-accent">Classes</span> string or token and tell the agent exactly what to change it to.<br>
+            Example: "Change <span class="font-mono text-earth-accent">button_sharp.primary.hover</span> from <span class="font-mono text-earth-accent">hover:bg-earth-dark/90</span> to <span class="font-mono text-earth-accent">hover:bg-earth-ochre</span>."
         </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
         <!-- Buttons: Explicit State Matrix (precise contract surface for agent↔human) -->
         <section class="space-y-6">
-            <div class="flex items-center gap-3 border-l-8 border-earth-accent pl-4">
+            <div class="flex items-center gap-3 border-l-4 border-earth-accent pl-4">
                 <span class="material-symbols-outlined text-earth-accent" aria-hidden="true">smart_button</span>
-                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Buttons — State Matrix</h2>
+                <h2 class="text-2xl font-black capitalize tracking-tight text-white font-serif">Buttons — State Matrix</h2>
             </div>
-            <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] space-y-8 text-[10px]">
+            <div class="bg-earth-espresso/50 border border-earth-accent/20 shadow-xl p-8 space-y-8 text-[10px] rounded-none">
                 <div>
-                    <div class="font-bold capitalize tracking-wider text-earth-dark mb-2">button_sharp.primary</div>
+                    <div class="font-bold capitalize tracking-wider text-white mb-2">button_sharp.primary</div>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">.rest</div>
-                            {{ template "button_sharp" (dict "Label" "Primary" "Classes" "px-6 py-3 bg-earth-dark text-white font-black capitalize tracking-widest transition-all" "Type" "button") }}
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">.rest</div>
+                            {{ template "button_sharp" (dict "Label" "Primary" "Classes" "px-6 py-3 bg-gradient-to-r from-earth-accent to-earth-ochre text-earth-dark font-extrabold capitalize tracking-widest transition-all rounded-none" "Type" "button") }}
                         </div>
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">.hover</div>
-                            {{ template "button_sharp" (dict "Label" "Primary" "Classes" "px-6 py-3 bg-earth-dark hover:bg-earth-dark/90 text-white font-black capitalize tracking-widest transition-all" "Type" "button") }}
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">.hover</div>
+                            {{ template "button_sharp" (dict "Label" "Primary" "Classes" "px-6 py-3 bg-gradient-to-r from-earth-accent to-earth-ochre hover:brightness-110 text-earth-dark font-extrabold capitalize tracking-widest transition-all rounded-none" "Type" "button") }}
                         </div>
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">.active</div>
-                            {{ template "button_sharp" (dict "Label" "Primary" "Classes" "px-6 py-3 bg-earth-dark text-white font-black capitalize tracking-widest active:translate-y-1 transition-all" "Type" "button") }}
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">.active</div>
+                            {{ template "button_sharp" (dict "Label" "Primary" "Classes" "px-6 py-3 bg-gradient-to-r from-earth-accent to-earth-ochre text-earth-dark font-extrabold capitalize tracking-widest active:scale-[0.98] transition-all rounded-none" "Type" "button") }}
                         </div>
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">.disabled</div>
-                            {{ template "button_sharp" (dict "Label" "Primary" "Classes" "px-6 py-3 bg-earth-dark/50 text-white/70 font-black capitalize tracking-widest opacity-50 cursor-not-allowed transition-all" "Type" "button") }}
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">.disabled</div>
+                            {{ template "button_sharp" (dict "Label" "Primary" "Classes" "px-6 py-3 bg-earth-accent/20 text-earth-cream/40 font-extrabold capitalize tracking-widest opacity-50 cursor-not-allowed transition-all rounded-none" "Type" "button") }}
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <div class="font-bold capitalize tracking-wider text-earth-dark mb-2">button_sharp.accent</div>
+                    <div class="font-bold capitalize tracking-wider text-white mb-2">button_sharp.accent</div>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">.rest</div>
-                            {{ template "button_sharp" (dict "Label" "Accent" "Classes" "px-6 py-3 bg-earth-accent/10 border-4 border-earth-accent text-earth-dark font-black capitalize tracking-widest transition-all" "Type" "button") }}
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">.rest</div>
+                            {{ template "button_sharp" (dict "Label" "Accent" "Classes" "px-6 py-3 bg-earth-accent/10 border border-earth-accent text-earth-accent font-extrabold capitalize tracking-widest transition-all rounded-none" "Type" "button") }}
                         </div>
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">.hover</div>
-                            {{ template "button_sharp" (dict "Label" "Accent" "Classes" "px-6 py-3 bg-earth-accent/10 hover:bg-earth-accent/20 border-4 border-earth-accent text-earth-dark font-black capitalize tracking-widest transition-all" "Type" "button") }}
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">.hover</div>
+                            {{ template "button_sharp" (dict "Label" "Accent" "Classes" "px-6 py-3 bg-earth-accent/20 border border-earth-accent text-earth-accent font-extrabold capitalize tracking-widest transition-all rounded-none" "Type" "button") }}
                         </div>
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">.active</div>
-                            {{ template "button_sharp" (dict "Label" "Accent" "Classes" "px-6 py-3 bg-earth-accent/10 border-4 border-earth-accent text-earth-dark font-black capitalize tracking-widest active:scale-[0.985] transition-all" "Type" "button") }}
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">.active</div>
+                            {{ template "button_sharp" (dict "Label" "Accent" "Classes" "px-6 py-3 bg-earth-accent/10 border border-earth-accent text-earth-accent font-extrabold capitalize tracking-widest active:scale-[0.98] transition-all rounded-none" "Type" "button") }}
                         </div>
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">.disabled</div>
-                            {{ template "button_sharp" (dict "Label" "Accent" "Classes" "px-6 py-3 bg-earth-accent/5 border-4 border-earth-accent/40 text-earth-clay font-black capitalize tracking-widest opacity-50 cursor-not-allowed transition-all" "Type" "button") }}
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">.disabled</div>
+                            {{ template "button_sharp" (dict "Label" "Accent" "Classes" "px-6 py-3 bg-earth-accent/5 border border-earth-accent/40 text-earth-sand/50 font-extrabold capitalize tracking-widest opacity-50 cursor-not-allowed transition-all rounded-none" "Type" "button") }}
                         </div>
                     </div>
                 </div>
             </div>
-            <p class="text-[10px] text-text-sub px-1">Reference format: <span class="font-mono">button_sharp.&lt;variant&gt;.&lt;state&gt;</span>. Copy the exact Classes string when instructing the agent on a precise change.</p>
+            <p class="text-[10px] text-earth-sand/70 px-1">Reference format: <span class="font-mono">button_sharp.&lt;variant&gt;.&lt;state&gt;</span>. Copy the exact Classes string when instructing the agent on a precise change.</p>
         </section>
 
         <!-- Badges: Explicit State Matrix (precise contract surface) -->
         <section class="space-y-6">
-            <div class="flex items-center gap-3 border-l-8 border-earth-sand pl-4">
-                <span class="material-symbols-outlined text-earth-ochre" aria-hidden="true">badge</span>
-                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Badges — State Matrix</h2>
+            <div class="flex items-center gap-3 border-l-4 border-earth-accent pl-4">
+                <span class="material-symbols-outlined text-earth-accent" aria-hidden="true">badge</span>
+                <h2 class="text-2xl font-black capitalize tracking-tight text-white font-serif">Badges — State Matrix</h2>
             </div>
-            <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] space-y-6 text-[10px]">
+            <div class="bg-earth-espresso/50 border border-earth-accent/20 shadow-xl p-8 space-y-6 text-[10px] rounded-none">
                 <div>
-                    <div class="font-bold capitalize tracking-wider text-earth-dark mb-2">status_badge_sharp.verified</div>
+                    <div class="font-bold capitalize tracking-wider text-white mb-2">status_badge_sharp.verified</div>
                     <div class="flex flex-wrap gap-4">
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">.rest</div>
-                            {{ template "status_badge_sharp" (dict "Label" "Verified" "ColorClasses" "px-3 py-1 bg-earth-dark text-white text-xs font-black uppercase tracking-tighter") }}
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">.rest</div>
+                            {{ template "status_badge_sharp" (dict "Label" "Verified" "ColorClasses" "px-3 py-1 bg-earth-dark border border-earth-accent/40 text-earth-accent text-xs font-black uppercase tracking-tight rounded-none") }}
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <div class="font-bold capitalize tracking-wider text-earth-dark mb-2">status_badge_sharp.new-listing</div>
+                    <div class="font-bold capitalize tracking-wider text-white mb-2">status_badge_sharp.new-listing</div>
                     <div class="flex flex-wrap gap-4">
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">.rest</div>
-                            {{ template "status_badge_sharp" (dict "Label" "New" "ColorClasses" "px-3 py-1 bg-earth-ochre/10 text-earth-dark border border-earth-ochre/20 text-xs font-bold") }}
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">.rest</div>
+                            {{ template "status_badge_sharp" (dict "Label" "New" "ColorClasses" "px-3 py-1 bg-earth-accent text-earth-dark text-xs font-extrabold rounded-none") }}
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <div class="font-bold capitalize tracking-wider text-earth-dark mb-2">status_badge_sharp.active-pulse</div>
+                    <div class="font-bold capitalize tracking-wider text-white mb-2">status_badge_sharp.active-pulse</div>
                     <div class="flex flex-wrap gap-4">
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">.rest</div>
-                            {{ template "status_badge_sharp" (dict "Label" "Active" "ColorClasses" "px-3 py-1 bg-earth-accent/10 text-earth-dark text-xs font-bold capitalize tracking-widest flex items-center gap-1") }}
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">.rest</div>
+                            {{ template "status_badge_sharp" (dict "Label" "Active" "ColorClasses" "px-3 py-1 bg-emerald-950/40 text-emerald-400 border border-emerald-500/30 text-xs font-bold capitalize tracking-widest flex items-center gap-1 rounded-none") }}
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <div class="font-bold capitalize tracking-wider text-earth-dark mb-2">status_badge_sharp.featured</div>
+                    <div class="font-bold capitalize tracking-wider text-white mb-2">status_badge_sharp.featured</div>
                     <div class="flex flex-wrap gap-4">
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">.rest</div>
-                            {{ template "status_badge_sharp" (dict "Label" "Featured" "ColorClasses" "px-3 py-1 bg-earth-accent text-earth-dark text-xs font-black uppercase tracking-widest") }}
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">.rest</div>
+                            {{ template "status_badge_sharp" (dict "Label" "Featured" "ColorClasses" "px-3 py-1 bg-earth-accent text-earth-dark text-xs font-black uppercase tracking-widest rounded-none") }}
                         </div>
                     </div>
                 </div>
             </div>
-            <p class="text-[10px] text-text-sub px-1">Reference format: <span class="font-mono">status_badge_sharp.&lt;variant&gt;</span>. Badges are mostly static; customize via ColorClasses.</p>
+            <p class="text-[10px] text-earth-sand/70 px-1">Reference format: <span class="font-mono">status_badge_sharp.&lt;variant&gt;</span>. Badges are mostly static; customize via ColorClasses.</p>
         </section>
 
         <!-- Core Interactive Atoms — Hover & Close States (precise contract) -->
         <section class="space-y-6">
-            <div class="flex items-center gap-3 border-l-8 border-earth-ochre pl-4">
-                <span class="material-symbols-outlined text-earth-ochre" aria-hidden="true">touch_app</span>
-                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Core Interactive Atoms — States</h2>
+            <div class="flex items-center gap-3 border-l-4 border-earth-accent pl-4">
+                <span class="material-symbols-outlined text-earth-accent" aria-hidden="true">touch_app</span>
+                <h2 class="text-2xl font-black capitalize tracking-tight text-white font-serif">Core Interactive Atoms — States</h2>
             </div>
-            <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] space-y-8 text-[10px]">
+            <div class="bg-earth-espresso/50 border border-earth-accent/20 shadow-xl p-8 space-y-8 text-[10px] rounded-none">
                 <div>
-                    <div class="font-bold capitalize tracking-wider text-earth-dark mb-2">btn_close</div>
+                    <div class="font-bold capitalize tracking-wider text-white mb-2">btn_close</div>
                     <div class="flex flex-wrap gap-6 items-center">
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">.rest</div>
-                            <div class="w-12 h-12 flex items-center justify-center border-4 border-earth-dark">
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">.rest</div>
+                            <div class="w-12 h-12 flex items-center justify-center border border-earth-accent/30 bg-earth-dark/60 rounded-none">
                                 {{ template "btn_close" (dict "Action" "close") }}
                             </div>
                         </div>
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">.hover</div>
-                            <div class="w-12 h-12 flex items-center justify-center border-4 border-earth-dark">
-                                {{ template "btn_close" (dict "Action" "close" "Classes" "text-text-sub hover:text-text-main") }}
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">.hover</div>
+                            <div class="w-12 h-12 flex items-center justify-center border border-earth-accent/30 bg-earth-dark/60 rounded-none">
+                                {{ template "btn_close" (dict "Action" "close" "Classes" "text-earth-sand/70 hover:text-white") }}
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <div class="font-bold capitalize tracking-wider text-earth-dark mb-2">admin_tool_btn_sharp</div>
+                    <div class="font-bold capitalize tracking-wider text-white mb-2">admin_tool_btn_sharp</div>
                     <div class="flex flex-wrap gap-6 items-center">
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">.rest</div>
-                            {{ template "admin_tool_btn_sharp" (dict "Icon" "settings" "Label" "Tool" "IconBgClass" "bg-earth-dark" "IconColorClass" "text-white") }}
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">.rest</div>
+                            {{ template "admin_tool_btn_sharp" (dict "Icon" "settings" "Label" "Tool" "IconBgClass" "bg-earth-dark" "IconColorClass" "text-earth-accent") }}
                         </div>
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">.hover</div>
-                            {{ template "admin_tool_btn_sharp" (dict "Icon" "settings" "Label" "Tool" "IconBgClass" "bg-earth-dark" "IconColorClass" "text-white" "HXGet" "#" "HXTarget" "#" "HXSwap" "none") }}
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">.hover</div>
+                            {{ template "admin_tool_btn_sharp" (dict "Icon" "settings" "Label" "Tool" "IconBgClass" "bg-earth-dark" "IconColorClass" "text-earth-accent" "HXGet" "#" "HXTarget" "#" "HXSwap" "none") }}
                         </div>
                     </div>
-                    <div class="text-[10px] text-text-sub mt-1 font-mono">Hover state uses group-hover:bg-earth-ochre/10 on container</div>
+                    <div class="text-[10px] text-earth-sand/70 mt-1 font-mono">Hover state uses group-hover:bg-earth-accent/10 on container</div>
                 </div>
             </div>
-            <p class="text-[10px] text-text-sub px-1">Reference: <span class="font-mono">btn_close.hover</span>, <span class="font-mono">admin_tool_btn_sharp.hover</span>. These are high-frequency atoms in modals and admin UI.</p>
+            <p class="text-[10px] text-earth-sand/70 px-1">Reference: <span class="font-mono">btn_close.hover</span>, <span class="font-mono">admin_tool_btn_sharp.hover</span>. These are high-frequency atoms in modals and admin UI.</p>
         </section>
 
         <!-- Chips, CTAs & Feedback Atoms — State Matrix (extends precise dotted-name contract to CSS atoms + save/rating per checkpoint §5; direct partial calls also advance parity coverage) -->
         <section class="space-y-6 col-span-full">
-            <div class="flex items-center gap-3 border-l-8 border-earth-ochre pl-4">
-                <span class="material-symbols-outlined text-earth-ochre" aria-hidden="true">category</span>
-                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Chips, CTAs & Feedback — State Matrix</h2>
+            <div class="flex items-center gap-3 border-l-4 border-earth-accent pl-4">
+                <span class="material-symbols-outlined text-earth-accent" aria-hidden="true">category</span>
+                <h2 class="text-2xl font-black capitalize tracking-tight text-white font-serif">Chips, CTAs & Feedback — State Matrix</h2>
             </div>
-            <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] space-y-8 text-[10px]">
+            <div class="bg-earth-espresso/50 border border-earth-accent/20 shadow-xl p-8 space-y-8 text-[10px] rounded-none">
                 <!-- chip-fruit (pure CSS atom from input.css; no partial yet) -->
                 <div>
-                    <div class="font-bold capitalize tracking-wider text-earth-dark mb-2">chip-fruit.default</div>
+                    <div class="font-bold capitalize tracking-wider text-white mb-2">chip-fruit.default</div>
                     <div class="flex flex-wrap gap-4 items-end">
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">.rest (hover live on page)</div>
-                            <div class="chip-fruit inline-flex items-center gap-1 px-3 py-1 bg-white border border-earth-ochre/40 text-earth-dark text-xs font-bold tracking-widest">🍲 Nigerian</div>
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">.rest (hover live on page)</div>
+                            <div class="chip-fruit inline-flex items-center gap-1 px-3 py-1 bg-earth-dark/60 border border-earth-accent/40 text-earth-cream text-xs font-bold tracking-widest rounded-none">🍲 Nigerian</div>
                         </div>
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">.hover</div>
-                            <div class="chip-fruit inline-flex items-center gap-1 px-3 py-1 bg-white border border-earth-ochre/40 text-earth-dark text-xs font-bold tracking-widest">🍲 Nigerian</div>
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">.hover</div>
+                            <div class="chip-fruit inline-flex items-center gap-1 px-3 py-1 bg-earth-dark/60 border border-earth-accent/40 text-earth-cream text-xs font-bold tracking-widest rounded-none">🍲 Nigerian</div>
                         </div>
                     </div>
-                    <div class="text-[10px] text-text-sub mt-1 font-mono">Hover rule (input.css:112): .chip-fruit:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 6px 20px -4px rgba(255,138,0,0.18); + base transition }. Live hover the .rest chip above.</div>
+                    <div class="text-[10px] text-earth-sand/70 mt-1 font-mono">Hover rule (input.css:112): .chip-fruit:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 6px 20px -4px rgba(255,138,0,0.18); + base transition }. Live hover the .rest chip above.</div>
                 </div>
 
                 <!-- btn-leaf (CSS + button_sharp partial for semantic render; no inline/hex in source) -->
                 <div>
-                    <div class="font-bold capitalize tracking-wider text-earth-dark mb-2">btn-leaf</div>
+                    <div class="font-bold capitalize tracking-wider text-white mb-2">btn-leaf</div>
                     <div class="flex flex-wrap gap-4 items-end">
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">.rest (hover/active live on page)</div>
-                            {{ template "button_sharp" (dict "Label" "Find African Food" "Classes" "btn-leaf px-6 py-3 text-sm font-black tracking-widest" "Type" "button") }}
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">.rest (hover/active live on page)</div>
+                            {{ template "button_sharp" (dict "Label" "Find African Food" "Classes" "btn-leaf px-6 py-3 text-sm font-black tracking-widest rounded-none" "Type" "button") }}
                         </div>
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">.hover</div>
-                            <div class="text-[10px] text-text-sub font-mono px-3 py-1 border border-dashed border-earth-clay/30">pseudo (see rule)</div>
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">.hover</div>
+                            <div class="text-[10px] text-earth-sand/70 font-mono px-3 py-1 border border-dashed border-earth-accent/30">pseudo (see rule)</div>
                         </div>
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">.active</div>
-                            <div class="text-[10px] text-text-sub font-mono px-3 py-1 border border-dashed border-earth-clay/30">pseudo (see rule)</div>
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">.active</div>
+                            <div class="text-[10px] text-earth-sand/70 font-mono px-3 py-1 border border-dashed border-earth-accent/30">pseudo (see rule)</div>
                         </div>
                     </div>
-                    <div class="text-[10px] text-text-sub mt-1 font-mono">Base (input.css:118): var(--color-secondary) !imp + color !imp + rounded-none + transitions. Hover: hard-coded value in input.css:128 + green shadow. Active: scale(0.95). Use via Classes override on button_sharp or direct .btn-leaf.</div>
+                    <div class="text-[10px] text-earth-sand/70 mt-1 font-mono">Base (input.css:118): var(--color-secondary) !imp + color !imp + rounded-none + transitions. Hover: hard-coded value in input.css:128 + green shadow. Active: scale(0.95). Use via Classes override on button_sharp or direct .btn-leaf.</div>
                 </div>
 
                 <!-- save_button states (direct partial calls for explicit contract) -->
                 <div>
-                    <div class="font-bold capitalize tracking-wider text-earth-dark mb-2">save_button</div>
+                    <div class="font-bold capitalize tracking-wider text-white mb-2">save_button</div>
                     <div class="flex flex-wrap gap-6 items-center">
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">.unsaved</div>
-                            {{ template "save_button" (dict "ListingID" "sb-unsaved" "IsSaved" false "Classes" "relative" "TextColorClass" "text-earth-clay/50 hover:text-earth-clay" "IDPrefix" "sandbox-" "OOB" false) }}
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">.unsaved</div>
+                            {{ template "save_button" (dict "ListingID" "sb-unsaved" "IsSaved" false "Classes" "relative" "TextColorClass" "text-earth-sand/60 hover:text-white" "IDPrefix" "sandbox-" "OOB" false) }}
                         </div>
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">.saved</div>
-                            {{ template "save_button" (dict "ListingID" "sb-saved" "IsSaved" true "Classes" "relative" "TextColorClass" "text-white/80" "IDPrefix" "sandbox-" "OOB" false) }}
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">.saved</div>
+                            {{ template "save_button" (dict "ListingID" "sb-saved" "IsSaved" true "Classes" "relative" "TextColorClass" "text-earth-accent" "IDPrefix" "sandbox-" "OOB" false) }}
                         </div>
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">.active</div>
-                            {{ template "save_button" (dict "ListingID" "sb-active" "IsSaved" false "Classes" "relative active:scale-90" "TextColorClass" "text-earth-clay/50 hover:text-earth-clay" "IDPrefix" "sandbox-" "OOB" false) }}
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">.active</div>
+                            {{ template "save_button" (dict "ListingID" "sb-active" "IsSaved" false "Classes" "relative active:scale-90" "TextColorClass" "text-earth-accent" "IDPrefix" "sandbox-" "OOB" false) }}
                         </div>
                     </div>
-                    <div class="text-[10px] text-text-sub mt-1 font-mono">IsSaved controls icon fill (font-variation 'FILL'_1) + color. Built-in: active:scale-90 on button, hover:fill on icon span when !saved. See save_button.html:8-11. HX posts to /listings/{id}/save.</div>
+                    <div class="text-[10px] text-earth-sand/70 mt-1 font-mono">IsSaved controls icon fill (font-variation 'FILL'_1) + color. Built-in: active:scale-90 on button, hover:fill on icon span when !saved. See save_button.html:8-11. HX posts to /listings/{id}/save.</div>
                 </div>
 
                 <!-- rating_stars states (driven by Rating value; reuse mocks with >0) -->
                 <div>
-                    <div class="font-bold capitalize tracking-wider text-earth-dark mb-2">rating_stars</div>
+                    <div class="font-bold capitalize tracking-wider text-white mb-2">rating_stars</div>
                     <div class="flex flex-wrap gap-6 items-end">
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">high (from MockListingNormal)</div>
-                            {{ template "rating_stars" (dict "Listing" .MockListingNormal "TextColorClass" "text-earth-dark") }}
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">high (from MockListingNormal)</div>
+                            {{ template "rating_stars" (dict "Listing" .MockListingNormal "TextColorClass" "text-earth-accent") }}
                         </div>
                         <div>
-                            <div class="font-mono text-[10px] text-text-sub mb-1">alt (from MockListingJob)</div>
-                            {{ template "rating_stars" (dict "Listing" .MockListingJob "TextColorClass" "text-earth-dark") }}
+                            <div class="font-mono text-[10px] text-earth-sand/70 mb-1">alt (from MockListingJob)</div>
+                            {{ template "rating_stars" (dict "Listing" .MockListingJob "TextColorClass" "text-earth-accent") }}
                         </div>
                     </div>
-                    <div class="text-[10px] text-text-sub mt-1 font-mono">0.5-step fill via 🍊 + opacity/grayscale (full 1.0, half 0.5, empty 0.3). Skips render if Rating==0. See rating_stars.html:11-17. ReviewCount appended.</div>
+                    <div class="text-[10px] text-earth-sand/70 mt-1 font-mono">0.5-step fill via 🍊 + opacity/grayscale (full 1.0, half 0.5, empty 0.3). Skips render if Rating==0. See rating_stars.html:11-17. ReviewCount appended.</div>
                 </div>
             </div>
-            <p class="text-[10px] text-text-sub px-1">Reference format: <span class="font-mono">chip-fruit.default.hover</span>, <span class="font-mono">btn-leaf.active</span>, <span class="font-mono">save_button.saved</span>, <span class="font-mono">rating_stars.high</span>. Copy exact rule or prop for zero-ambiguity changes.</p>
+            <p class="text-[10px] text-earth-sand/70 px-1">Reference format: <span class="font-mono">chip-fruit.default.hover</span>, <span class="font-mono">btn-leaf.active</span>, <span class="font-mono">save_button.saved</span>, <span class="font-mono">rating_stars.high</span>. Copy exact rule or prop for zero-ambiguity changes.</p>
         </section>
 
         <!-- Cards — State Matrix (remaining "more card variants" + card-juicy per checkpoint §5; small dedicated using partials only; large diverse grid + admin bloat trimmed as unnecessary) -->
         <section class="space-y-6 col-span-full">
-            <div class="flex items-center gap-3 border-l-8 border-earth-clay pl-4">
-                <span class="material-symbols-outlined text-earth-clay" aria-hidden="true">dashboard_customize</span>
-                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Cards — State Matrix</h2>
+            <div class="flex items-center gap-3 border-l-4 border-earth-accent pl-4">
+                <span class="material-symbols-outlined text-earth-accent" aria-hidden="true">dashboard_customize</span>
+                <h2 class="text-2xl font-black capitalize tracking-tight text-white font-serif">Cards — State Matrix</h2>
             </div>
-            <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] space-y-6 text-[10px]">
+            <div class="bg-earth-espresso/50 border border-earth-accent/20 shadow-xl p-8 space-y-6 text-[10px] rounded-none">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <div class="font-mono text-[10px] text-text-sub mb-1">listing_card (food) .card-juicy</div>
+                        <div class="font-mono text-[10px] text-earth-sand/70 mb-1">listing_card (food) .card-juicy</div>
                         {{ template "listing_card" (dict "Listing" .MockListingNormal "User" .MockUser "SavedIDs" .MockSavedIDs "IDPrefix" "sandbox-card-" "GridClass" "w-full" "UserLat" 0.0 "UserLng" 0.0) }}
-                        <div class="text-[10px] text-text-sub font-mono mt-1">Hover: translateY(-4px) + juicy shadow (input.css .card-juicy:hover)</div>
+                        <div class="text-[10px] text-earth-sand/70 font-mono mt-1">Hover: translateY(-4px) + juicy shadow (input.css .card-juicy:hover)</div>
                     </div>
                     <div>
-                        <div class="font-mono text-[10px] text-text-sub mb-1">listing_card (job variant)</div>
+                        <div class="font-mono text-[10px] text-earth-sand/70 mb-1">listing_card (job variant)</div>
                         {{ template "listing_card" (dict "Listing" .MockListingJob "User" .MockUser "SavedIDs" .MockSavedIDs "IDPrefix" "sandbox-cardjob-" "GridClass" "w-full" "UserLat" 0.0 "UserLng" 0.0) }}
                     </div>
                 </div>
                 <div>
-                    <div class="font-mono text-[10px] text-text-sub mb-1">featured_card (carousel variant)</div>
+                    <div class="font-mono text-[10px] text-earth-sand/70 mb-1">featured_card (carousel variant)</div>
                     <div class="h-48">
                         {{ template "featured_card" (dict "Listing" .MockListingFeatured) }}
                     </div>
-                    <div class="text-[10px] text-text-sub font-mono">card-juicy + hover:shadow-lifted</div>
+                    <div class="text-[10px] text-earth-sand/70 font-mono">card-juicy + hover:shadow-lifted</div>
                 </div>
             </div>
-            <p class="text-[10px] text-text-sub px-1">Reference: <span class="font-mono">card-juicy.hover</span>, <span class="font-mono">listing_card</span>, <span class="font-mono">featured_card</span>. Small surface for variants (trimmed large grid).</p>
+            <p class="text-[10px] text-earth-sand/70 px-1">Reference: <span class="font-mono">card-juicy.hover</span>, <span class="font-mono">listing_card</span>, <span class="font-mono">featured_card</span>. Small surface for variants (trimmed large grid).</p>
         </section>
 
         <!-- Form & Search Inputs — State Matrix (form control states per checkpoint §5 + primary discovery/search + create title inputs; small dedicated using markup from navigation.html + listing_form_common_fields.html; no new partials/mocks; follows exact pattern of prior §5 atoms) -->
         <section class="space-y-6 col-span-full">
-            <div class="flex items-center gap-3 border-l-8 border-earth-ochre pl-4">
-                <span class="material-symbols-outlined text-earth-ochre" aria-hidden="true">edit</span>
-                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Form & Search Inputs — State Matrix</h2>
+            <div class="flex items-center gap-3 border-l-4 border-earth-accent pl-4">
+                <span class="material-symbols-outlined text-earth-accent" aria-hidden="true">edit</span>
+                <h2 class="text-2xl font-black capitalize tracking-tight text-white font-serif">Form & Search Inputs — State Matrix</h2>
             </div>
-            <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] space-y-6 text-[10px]">
+            <div class="bg-earth-espresso/50 border border-earth-accent/20 shadow-xl p-8 space-y-6 text-[10px] rounded-none">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <div class="font-mono text-[10px] text-text-sub mb-1">search input (nav) .default / .focus-within</div>
-                        <div class="search-glow relative flex items-center h-10 bg-earth-sand/30 shadow-sm border border-earth-clay/10 w-full max-w-xs">
+                        <div class="font-mono text-[10px] text-earth-sand/70 mb-1">search input (nav) .default / .focus-within</div>
+                        <div class="search-glow relative flex items-center h-10 bg-earth-dark/60 shadow-sm border border-earth-accent/30 w-full max-w-xs rounded-none">
                             <div class="grid place-items-center h-full w-8 text-earth-accent">
                                 <span class="material-symbols-outlined text-[16px]">search</span>
                             </div>
-                            <input id="demo-search-input" class="peer h-full w-full border-none outline-none text-sm text-text-main bg-transparent pr-3 placeholder:text-text-sub/70 font-medium" placeholder="Search... (e.g. 'Jollof', 'Tailor')" type="search" />
+                            <input id="demo-search-input" class="peer h-full w-full border-none outline-none text-sm text-white bg-transparent pr-3 placeholder:text-stone-400 font-medium focus:ring-0" placeholder="Search... (e.g. 'Jollof', 'Tailor')" type="search" />
                         </div>
-                        <div class="text-[10px] text-text-sub font-mono mt-1">From navigation.html:39 + input.css:173: .search-glow:focus-within { box-shadow: 0 0 0 3px rgba(255, 138, 0, 0.25); border-color: var(--color-primary) !important; } (inner :focus-visible outline suppressed per 157; wrapper gets border-earth-accent on focus-within)</div>
+                        <div class="text-[10px] text-earth-sand/70 font-mono mt-1">From navigation.html:39 + input.css:173: .search-glow:focus-within { box-shadow: 0 0 0 3px rgba(255, 138, 0, 0.25); border-color: var(--color-primary) !important; } (inner :focus-visible outline suppressed per 157; wrapper gets border-earth-accent on focus-within)</div>
                     </div>
                     <div>
-                        <div class="font-mono text-[10px] text-text-sub mb-1">form input (title) .default / .error</div>
+                        <div class="font-mono text-[10px] text-earth-sand/70 mb-1">form input (title) .default / .error</div>
                         <div class="flex flex-col gap-1 w-full max-w-xs">
-                            <label for="demo-form-title" class="text-[10px] font-bold capitalize tracking-widest text-text-sub ml-1">Title</label>
-                            <div class="bg-stone-50 dark:bg-earth-dark/30 border border-stone-200 dark:border-white/10 p-1 flex items-center">
-                                <input id="demo-form-title" class="w-full h-9 bg-transparent border-none px-3 focus:ring-0 text-text-main font-light text-sm outline-none transition-all placeholder:text-text-sub/70" placeholder="e.g., Mama's Kitchen" type="text" />
+                            <label for="demo-form-title" class="text-[10px] font-bold capitalize tracking-widest text-earth-sand/90 ml-1">Title</label>
+                            <div class="bg-earth-dark/40 border border-earth-accent/30 p-1 flex items-center rounded-none">
+                                <input id="demo-form-title" class="w-full h-9 bg-transparent border-none px-3 focus:ring-0 text-white font-light text-sm outline-none transition-all placeholder:text-stone-400" placeholder="e.g., Mama's Kitchen" type="text" />
                             </div>
                             <span class="form-error" role="alert">This field is required</span>
                         </div>
-                        <div class="text-[10px] text-text-sub font-mono mt-1">From listing_form_title (listing_form_common_fields.html:4): bg-stone-50 dark:bg-earth-dark/30 border-stone-200 p-1; input focus:ring-0 ... ; error uses .form-error (text-earth-clay via input.css; WCAG on sand, centralized prod forms per matrix)</div>
+                        <div class="text-[10px] text-earth-sand/70 font-mono mt-1">From listing_form_title (listing_form_common_fields.html:4): bg-earth-dark/40 border-earth-accent/30 p-1; input focus:ring-0 ... ; error uses .form-error</div>
                     </div>
                 </div>
                 <div>
-                    <div class="font-mono text-[10px] text-text-sub mb-1">form input .disabled</div>
-                    <div class="bg-stone-50 dark:bg-earth-dark/30 border border-stone-200/60 p-1 flex items-center opacity-60 w-full max-w-xs">
-                        <input id="demo-disabled" class="w-full h-9 bg-transparent border-none px-3 text-text-main/60 font-light text-sm outline-none" placeholder="Disabled field (e.g. in context)" type="text" disabled />
+                    <div class="font-mono text-[10px] text-earth-sand/70 mb-1">form input .disabled</div>
+                    <div class="bg-earth-dark/20 border border-earth-accent/20 p-1 flex items-center opacity-60 w-full max-w-xs rounded-none">
+                        <input id="demo-disabled" class="w-full h-9 bg-transparent border-none px-3 text-stone-400 font-light text-sm outline-none" placeholder="Disabled field (e.g. in context)" type="text" disabled />
                     </div>
-                    <div class="text-[10px] text-text-sub font-mono mt-1">Standard disabled + reduced opacity; matches patterns in create/edit + conditional fields (job/event).</div>
+                    <div class="text-[10px] text-earth-sand/70 font-mono mt-1">Standard disabled + reduced opacity; matches patterns in create/edit + conditional fields (job/event).</div>
                 </div>
             </div>
-            <p class="text-[10px] text-text-sub px-1">Reference format: <span class="font-mono">search-input.focus-within</span>, <span class="font-mono">form-input.error</span> (now .form-error in input.css), <span class="font-mono">form-input.disabled</span>. Copy exact wrapper/input classes or css rule for zero-ambiguity changes.</p>
+            <p class="text-[10px] text-earth-sand/70 px-1">Reference format: <span class="font-mono">search-input.focus-within</span>, <span class="font-mono">form-input.error</span> (now .form-error in input.css), <span class="font-mono">form-input.disabled</span>. Copy exact wrapper/input classes or css rule for zero-ambiguity changes.</p>
         </section>
 
         <!-- Minimal hidden references to satisfy sandbox-parity for modal content inners
@@ -333,17 +333,17 @@
 
         <!-- Icons Grid -->
         <section class="space-y-6 col-span-full">
-            <div class="flex items-center gap-3 border-l-8 border-earth-accent pl-4">
+            <div class="flex items-center gap-3 border-l-4 border-earth-accent pl-4">
                 <span class="material-symbols-outlined text-earth-accent" aria-hidden="true">category</span>
-                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Icons</h2>
+                <h2 class="text-2xl font-black capitalize tracking-tight text-white font-serif">Icons</h2>
             </div>
-            <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] grid grid-cols-4 md:grid-cols-8 gap-8">
+            <div class="bg-earth-espresso/50 border border-earth-accent/20 shadow-xl p-8 grid grid-cols-4 md:grid-cols-8 gap-8 rounded-none">
                 {{ range (split "search,home,person,favorite,add,close,edit,delete,location_on,restaurant_menu,business,payments,schedule,mail,call,chat,download,share,tune,info,warning,error,check_circle,workspace_premium" ",") }}
                 <div class="flex flex-col items-center gap-2 group">
-                    <div class="w-12 h-12 flex items-center justify-center border-2 border-stone-100 group-hover:border-earth-accent transition-colors">
-                        <span class="material-symbols-outlined text-2xl text-earth-dark group-hover:text-earth-accent">{{ . }}</span>
+                    <div class="w-12 h-12 flex items-center justify-center border border-earth-accent/20 bg-earth-dark/40 group-hover:border-earth-accent transition-colors rounded-none">
+                        <span class="material-symbols-outlined text-2xl text-earth-cream group-hover:text-earth-accent">{{ . }}</span>
                     </div>
-                    <span class="text-[10px] font-mono text-text-sub dark:text-stone-400 capitalize">{{ . }}</span>
+                    <span class="text-[10px] font-mono text-earth-sand/70 capitalize">{{ . }}</span>
                 </div>
                 {{ end }}
             </div>
@@ -351,48 +351,48 @@
 
         <!-- Empty States -->
         <section class="space-y-6 col-span-full">
-            <div class="flex items-center gap-3 border-l-8 border-stone-300 pl-4">
-                <span class="material-symbols-outlined text-stone-300" aria-hidden="true">search_off</span>
-                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">Empty States</h2>
+            <div class="flex items-center gap-3 border-l-4 border-earth-accent pl-4">
+                <span class="material-symbols-outlined text-earth-accent" aria-hidden="true">search_off</span>
+                <h2 class="text-2xl font-black capitalize tracking-tight text-white font-serif">Empty States</h2>
             </div>
-            <div class="bg-white dark:bg-background-dark p-12 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] flex flex-col items-center text-center">
-                <div class="w-24 h-24 bg-stone-50 flex items-center justify-center mb-6">
-                    <span class="material-symbols-outlined text-5xl text-stone-200">search_off</span>
+            <div class="bg-earth-espresso/50 border border-earth-accent/20 shadow-xl p-12 flex flex-col items-center text-center rounded-none">
+                <div class="w-24 h-24 bg-earth-dark/60 border border-earth-accent/20 flex items-center justify-center mb-6 rounded-none">
+                    <span class="material-symbols-outlined text-5xl text-earth-accent/40">search_off</span>
                 </div>
-                <h3 class="text-2xl font-black capitalize tracking-tight text-earth-dark mb-2">No listings found</h3>
-                <p class="text-text-sub dark:text-stone-500 max-w-md text-sm">We couldn't find anything matching your criteria. Try adjusting your filters or expanding your search area.</p>
+                <h3 class="text-2xl font-black capitalize tracking-tight text-white font-serif mb-2">No listings found</h3>
+                <p class="text-earth-sand/70 max-w-md text-sm">We couldn't find anything matching your criteria. Try adjusting your filters or expanding your search area.</p>
                 <div class="mt-8">
-                    {{ template "button_sharp" (dict "Label" "Clear all filters" "Classes" "px-8 py-3 bg-earth-dark text-white font-bold capitalize tracking-widest hover:bg-earth-ochre transition-colors" "Type" "button") }}
+                    {{ template "button_sharp" (dict "Label" "Clear all filters" "Classes" "px-8 py-3 bg-gradient-to-r from-earth-accent to-earth-ochre hover:brightness-110 active:scale-[0.98] text-earth-dark font-extrabold capitalize tracking-widest transition-all rounded-none" "Type" "button") }}
                 </div>
             </div>
         </section>
 
         <!-- System Primitives (Verification Only) -->
         <section class="space-y-6 col-span-full">
-            <div class="flex items-center gap-3 border-l-8 border-earth-dark pl-4">
-                <span class="material-symbols-outlined" aria-hidden="true">build</span>
-                <h2 class="text-2xl font-black capitalize tracking-tight text-earth-dark">System Primitives</h2>
+            <div class="flex items-center gap-3 border-l-4 border-earth-accent pl-4">
+                <span class="material-symbols-outlined text-earth-accent" aria-hidden="true">build</span>
+                <h2 class="text-2xl font-black capitalize tracking-tight text-white font-serif">System Primitives</h2>
             </div>
-            <div class="bg-white dark:bg-background-dark p-8 border-4 border-earth-dark shadow-[8px_8px_0px_0px_rgba(45,35,18,1)] flex flex-wrap gap-8 items-center">
+            <div class="bg-earth-espresso/50 border border-earth-accent/20 shadow-xl p-8 flex flex-wrap gap-8 items-center rounded-none">
                 <div class="flex flex-col gap-2">
-                    <span class="text-[10px] font-black capitalize tracking-widest text-text-sub">button_sharp</span>
-                    {{ template "button_sharp" (dict "Label" "Sharp Button" "Classes" "bg-earth-dark text-white" "Type" "button") }}
+                    <span class="text-[10px] font-black capitalize tracking-widest text-earth-sand/80">button_sharp</span>
+                    {{ template "button_sharp" (dict "Label" "Sharp Button" "Classes" "bg-gradient-to-r from-earth-accent to-earth-ochre text-earth-dark font-extrabold rounded-none" "Type" "button") }}
                 </div>
                 <div class="flex flex-col gap-2">
-                    <span class="text-[10px] font-black capitalize tracking-widest text-text-sub">admin_tool_btn_sharp</span>
-                    {{ template "admin_tool_btn_sharp" (dict "Icon" "settings" "Label" "Admin Tool" "IconBgClass" "bg-earth-sand" "IconColorClass" "text-earth-dark") }}
+                    <span class="text-[10px] font-black capitalize tracking-widest text-earth-sand/80">admin_tool_btn_sharp</span>
+                    {{ template "admin_tool_btn_sharp" (dict "Icon" "settings" "Label" "Admin Tool" "IconBgClass" "bg-earth-dark" "IconColorClass" "text-earth-accent") }}
                 </div>
                 <div class="flex flex-col gap-2">
-                    <span class="text-[10px] font-black capitalize tracking-widest text-text-sub">status_badge_sharp</span>
-                    {{ template "status_badge_sharp" (dict "Label" "Sharp Badge" "ColorClasses" "bg-earth-accent text-earth-dark") }}
+                    <span class="text-[10px] font-black capitalize tracking-widest text-earth-sand/80">status_badge_sharp</span>
+                    {{ template "status_badge_sharp" (dict "Label" "Sharp Badge" "ColorClasses" "bg-earth-accent text-earth-dark rounded-none") }}
                 </div>
                 <div class="flex flex-col gap-2">
-                    <span class="text-[10px] font-black capitalize tracking-widest text-text-sub">metric_stat_sharp</span>
+                    <span class="text-[10px] font-black capitalize tracking-widest text-earth-sand/80">metric_stat_sharp</span>
                     {{ template "metric_stat_sharp" (dict "Label" "Total Count" "Value" "1,234" "Icon" "analytics" "Link" "#") }}
                 </div>
                 <div class="flex flex-col gap-2">
-                    <span class="text-[10px] font-black capitalize tracking-widest text-text-sub">btn_close</span>
-                    <div class="w-12 h-12 flex items-center justify-center border-4 border-earth-dark">
+                    <span class="text-[10px] font-black capitalize tracking-widest text-earth-sand/80">btn_close</span>
+                    <div class="w-12 h-12 flex items-center justify-center border border-earth-accent/30 bg-earth-dark/60 rounded-none">
                         {{ template "btn_close" (dict "Action" "close") }}
                     </div>
                 </div>

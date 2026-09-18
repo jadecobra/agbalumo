@@ -2,49 +2,48 @@
 
 {{ define "modal_feedback_content" }}
         <!-- Header -->
-        <div class="flex items-center justify-between p-4 border-b border-stone-200 bg-stone-50">
-            <h2 id="modal-title-feedback-modal" class="text-xl font-bold font-serif text-text-main flex items-center gap-2">
+        <div class="flex items-center justify-between p-4 border-b border-earth-accent/20 bg-earth-espresso">
+            <h2 id="modal-title-feedback-modal" class="text-xl font-bold font-serif text-white flex items-center gap-2">
                 <span class="material-symbols-outlined text-earth-accent" aria-hidden="true">feedback</span>
                 Submit Feedback
             </h2>
-            {{ template "btn_close" dict "Classes" "text-stone-400 hover:text-text-main hover:bg-surface-dark/5" }}
+            {{ template "btn_close" dict "Classes" "text-earth-sand/70 hover:text-white" }}
         </div>
 
         <!-- Form Content -->
-        <div class="p-6 space-y-4">
+        <div class="p-6 space-y-4 bg-gradient-to-b from-earth-espresso to-earth-dark text-earth-cream">
             <!-- Type -->
             <div class="space-y-1">
-                <span class="block text-sm font-bold text-text-sub">Feedback Type</span>
+                <span class="block text-sm font-bold text-earth-sand/90">Feedback Type</span>
                 <div class="flex gap-4">
                     <label for="feedback-type-issue" class="flex items-center gap-2 cursor-pointer">
                         <input id="feedback-type-issue" type="radio" name="type" value="Issue" class="text-earth-accent focus:ring-earth-accent"
                             checked>
-                        <span class="text-sm font-medium text-text-main">Issue</span>
+                        <span class="text-sm font-medium text-earth-cream">Issue</span>
                     </label>
                     <label for="feedback-type-feature" class="flex items-center gap-2 cursor-pointer">
                         <input id="feedback-type-feature" type="radio" name="type" value="Feature" class="text-earth-accent focus:ring-earth-accent">
-                        <span class="text-sm font-medium text-text-main">Feature Request</span>
+                        <span class="text-sm font-medium text-earth-cream">Feature Request</span>
                     </label>
                     <label for="feedback-type-other" class="flex items-center gap-2 cursor-pointer">
                         <input id="feedback-type-other" type="radio" name="type" value="Other" class="text-earth-accent focus:ring-earth-accent">
-                        <span class="text-sm font-medium text-text-main">Other</span>
+                        <span class="text-sm font-medium text-earth-cream">Other</span>
                     </label>
                 </div>
             </div>
 
             <!-- Content -->
             <div class="space-y-1">
-                <label for="feedback-content" class="block text-sm font-bold text-text-sub">Message</label>
+                <label for="feedback-content" class="block text-sm font-bold text-earth-sand/90">Message</label>
                 <textarea id="feedback-content" name="content" rows="4" required
-                    class="w-full border border-stone-200 bg-white focus:border-earth-accent focus:ring-1 focus:ring-earth-accent outline-none transition-all text-sm resize-none text-text-main placeholder:text-text-sub/70"
+                    class="w-full border border-earth-accent/30 bg-surface-dark/40 focus:border-earth-accent outline-none transition-all text-sm resize-none text-white placeholder:text-stone-400 p-3 rounded-none"
                     placeholder="Tell us about the issue or feature..."></textarea>
             </div>
 
             <!-- Actions -->
             <div class="flex justify-end gap-3 pt-2">
-
                 <button type="submit"
-                    class="px-5 py-2.5 bg-earth-accent text-white font-bold shadow-soft hover:shadow-lg hover:bg-earth-accent/90 transition-all text-sm flex items-center gap-2">
+                    class="px-5 py-2.5 bg-gradient-to-r from-earth-accent to-earth-ochre hover:brightness-110 active:scale-[0.98] text-earth-dark font-extrabold shadow-md transition-all text-sm flex items-center gap-2 rounded-none">
                     <span class="material-symbols-outlined text-[18px]" aria-hidden="true">send</span>
                     Submit
                 </button>

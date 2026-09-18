@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html class="dark" lang="en">
 
 <head>
     <meta charset="utf-8" />
@@ -16,15 +16,15 @@
 <body
     class="bg-earth-dark font-sans text-earth-cream antialiased h-screen flex items-center justify-center selection:bg-earth-accent/20">
     <div
-        class="w-full max-w-md p-8 bg-earth-dark/95 backdrop-blur-xl border border-white/10 shadow-2xl relative overflow-hidden">
+        class="w-full max-w-md p-8 bg-earth-dark/95 backdrop-blur-xl border border-earth-accent/30 shadow-2xl relative overflow-hidden rounded-none">
         <div class="flex flex-col items-center justify-center gap-6">
             <div class="flex flex-col items-center gap-2">
-                <h1 class="text-3xl font-bold font-serif text-earth-cream tracking-tight">Admin Access</h1>
+                <h1 class="text-3xl font-bold font-serif text-white tracking-tight">Admin Access</h1>
             </div>
 
             <form method="POST" action="/admin/login" class="flex flex-col gap-5 w-full mt-2">
                 {{if .Error}}
-                <div class="bg-red-900/40 text-red-300 p-3 text-sm border border-red-800 text-center font-medium">
+                <div class="bg-red-900/40 text-red-300 p-3 text-sm border border-red-800 text-center font-medium rounded-none">
                     {{.Error}}
                 </div>
                 {{end}}
@@ -32,11 +32,11 @@
                 <div class="flex flex-col gap-1">
                     <input type="hidden" name="_csrf" value="{{.CSRF}}">
                     <input type="password" name="code" placeholder="Access Code" required
-                        class="w-full bg-transparent border-0 border-b border-white/20 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-earth-cream font-medium placeholder:text-earth-cream/40">
+                        class="w-full bg-transparent border-0 border-b border-earth-accent/30 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-white font-medium placeholder:text-stone-400">
                 </div>
 
                 <button type="submit"
-                    class="h-12 w-full mt-4 bg-earth-accent text-white font-bold hover:bg-earth-accent/90 active:scale-[0.98] transition-all shadow-lg shadow-black/20">
+                    class="h-12 w-full mt-4 bg-gradient-to-r from-earth-accent to-earth-ochre hover:brightness-110 active:scale-[0.98] text-earth-dark font-extrabold shadow-md rounded-none transition-all">
                     Enter Dashboard
                 </button>
             </form>

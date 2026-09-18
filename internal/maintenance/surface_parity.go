@@ -8,9 +8,9 @@ import (
 )
 
 var requiredTokens = []string{
-	"bg-white dark:bg-surface-dark",
-	"border-stone-200 dark:border-stone-800",
-	"text-text-main dark:text-earth-cream",
+	"bg-gradient-to-b from-earth-espresso to-earth-dark",
+	"bg-earth-accent/20 text-earth-accent border border-earth-accent/40",
+	"text-white",
 }
 
 var forbiddenStyles = []struct {
@@ -22,6 +22,7 @@ var forbiddenStyles = []struct {
 	{"shadow-[3px_3px_", "neobrutalist hard offset shadow"},
 	{"shadow-[4px_4px_", "neobrutalist hard offset shadow"},
 	{"shadow-[5px_5px_", "neobrutalist hard offset shadow"},
+	{"bg-earth-clay", "legacy terracotta clay background"},
 }
 
 // CheckSurfaceParity ensures that key UI tokens are consistent between listing cards and modal details.
