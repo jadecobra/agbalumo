@@ -16,10 +16,11 @@
 <body
     class="bg-earth-dark font-sans text-earth-cream antialiased h-screen flex items-center justify-center selection:bg-earth-accent/20">
     <div
-        class="w-full max-w-md p-8 bg-earth-dark/95 backdrop-blur-xl border border-earth-accent/30 shadow-2xl relative overflow-hidden rounded-none">
+        class="w-full max-w-md p-8 bg-gradient-to-b from-earth-espresso to-earth-dark border border-earth-accent/30 shadow-2xl relative overflow-hidden rounded-none">
         <div class="flex flex-col items-center justify-center gap-6">
-            <div class="flex flex-col items-center gap-2">
+            <div class="flex flex-col items-center gap-1.5 text-center">
                 <h1 class="text-3xl font-bold font-serif text-white tracking-tight">Admin Access</h1>
+                <p class="text-xs text-earth-sand/80 font-medium">Enter your administrative authorization code</p>
             </div>
 
             <form method="POST" action="/admin/login" class="flex flex-col gap-5 w-full mt-2">
@@ -29,16 +30,21 @@
                 </div>
                 {{end}}
 
-                <div class="flex flex-col gap-1">
-                    <input type="hidden" name="_csrf" value="{{.CSRF}}">
-                    <input type="password" name="code" placeholder="Access Code" required
-                        class="w-full bg-transparent border-0 border-b border-earth-accent/30 px-0 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-white font-medium placeholder:text-stone-400">
+                <div class="flex flex-col gap-2">
+                    <input type="hidden" id="admin-login-csrf" name="_csrf" value="{{.CSRF}}">
+                    <label for="admin-code" class="text-xs font-bold text-earth-sand/90 uppercase tracking-wider">Access Code</label>
+                    <input id="admin-code" type="password" name="code" placeholder="Enter code" required
+                        class="w-full bg-earth-dark/60 border border-earth-accent/30 px-4 py-3 text-sm focus:ring-0 focus:border-earth-accent outline-none transition-all text-white font-medium placeholder:text-stone-400 rounded-none">
                 </div>
 
                 <button type="submit"
-                    class="h-12 w-full mt-4 bg-gradient-to-r from-earth-accent to-earth-ochre hover:brightness-110 active:scale-[0.98] text-earth-dark font-extrabold shadow-md rounded-none transition-all">
+                    class="h-12 w-full mt-2 bg-gradient-to-r from-earth-accent to-earth-ochre hover:brightness-110 active:scale-[0.98] text-earth-dark font-extrabold shadow-md rounded-none transition-all text-xs uppercase tracking-wider">
                     Enter Dashboard
                 </button>
+
+                <a href="/" class="text-xs font-bold text-earth-sand/70 hover:text-earth-accent uppercase tracking-wider transition-colors mt-2 text-center">
+                    ← Return to Directory
+                </a>
             </form>
         </div>
     </div>
