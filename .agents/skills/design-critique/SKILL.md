@@ -1,7 +1,7 @@
 ---
 name: "Design Critique"
-description: "3-phase design critique — deterministic audit, Flash grading, optional taste review."
-triggers: ["/design-critique", "critique design", "review ui", "harsh review"]
+description: "3-phase design critique covering full-page redesigns, modals, and dynamic overlays — deterministic audit, Flash grading, optional taste review."
+triggers: ["/design-critique", "critique design", "review ui", "harsh review", "redesigns", "modals", "overlays"]
 mutating: false
 ---
 # /design-critique (v3)

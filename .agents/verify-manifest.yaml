@@ -202,7 +202,7 @@ skills:
     path: .agents/skills/flash-plan/SKILL.md
 
   - name: design-critique
-    trigger: /design-critique, critique design, review ui, harsh review
+    trigger: /design-critique, critique design, review ui, harsh review, redesigns, modals, overlays
     path: .agents/skills/design-critique/SKILL.md
 
   - name: flash-review

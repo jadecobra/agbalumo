@@ -14,6 +14,7 @@ mutating: true
 ## Execution Strategy: Scoped vs. Full
 - **Local Scoped Execution**: You are encouraged to run targeted, scoped Playwright commands (e.g., `go run ./cmd/verify browser -- --grep "YourTestName"` or `npx playwright test visual.spec.ts`) during local UI iteration to maintain near-instant feedback cycles.
 - **Automated Verification**: Use `browser_subagent` for targeted manual review or aesthetic checks, and **always save a screenshot** of any mutated UI component to prove compliance.
+- **Unauthenticated Context Isolation**: When targeting logged-out or auth surfaces (e.g., `/admin/login`), Playwright scripts MUST instantiate an isolated browser context (`browser.newContext()` without shared session cookies or storage) and assert unauthenticated form selectors to prevent developer session pollution from triggering silent redirects to authenticated dashboards.
 - **Full-Suite Gate**: The complete Omni-Surface Matrix (`go run ./cmd/verify browser`) remains mandatory at the git pre-commit/CI boundary.
 
 ## Step 1.0: Static A11y Gate (NEW — run FIRST)
@@ -89,7 +90,7 @@ For ANY layout change, you MUST verify at:
 3. **Internal State Audit**: If the DOM doesn't reflect a change, query `window.filterState` to determine if the logic layer is the bottleneck.
 ## Post-flight
 1. Document each check result in `task.md` with pass/fail
-2. For layout changes: capture before/after screenshots, save them as artifacts, and embed them in walkthrough
+2. For layout changes: capture before/after screenshots, save them as artifacts, and embed them in walkthrough. **Bust IDE Markdown Webview Image Cache**: When regenerating screenshots or visual evidence after iterative fixes, always append a version suffix (e.g. `_v2.png`, `_v3.png`) to the filename before updating `walkthrough.md`. Overwriting files in-place causes markdown webviews to serve stale cached images by file URI.
 3. For interactive changes: describe the state transition verified
 4. **Automated Fix Loop**: If a visual regression or design violation is found during the audit, you MUST NOT stop at reporting the error. Instead, you must automatically apply the minimal CSS/Tailwind fix, commit it atomically using the `style(design): <fix description>` conventional format, and capture an "After" screenshot to prove the resolution.
 
