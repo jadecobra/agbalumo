@@ -82,9 +82,6 @@ func printSessionStrictLessons(rootDir string, domain string) {
 	}
 
 	codingStandardsPath := filepath.Join(rootDir, ".agents/coding-standards.md")
-	if _, err := os.Stat(codingStandardsPath); os.IsNotExist(err) {
-		codingStandardsPath = filepath.Join(rootDir, ".agents/workflows/coding-standards.md")
-	}
 	lessons, err := extractLessons(codingStandardsPath, sections)
 	if err != nil {
 		return

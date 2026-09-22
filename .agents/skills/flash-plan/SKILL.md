@@ -31,7 +31,7 @@ You are the **Lead System Architect** using an expensive reasoning model (Opus 4
 ## Session Start (MANDATORY)
 Before any architectural reasoning:
 1. Read `.agents/invariants.json` — project constants (port, protocol, DB engine).
-2. Read `.agents/workflows/coding-standards.md` — scan Strict Lessons for trigger tags relevant to the feature.
+2. Read `.agents/coding-standards.md` — scan Strict Lessons for trigger tags relevant to the feature.
 3. Scan `docs/adr/` — past architectural decisions that constrain the design space.
 4. Read `.agents/verify-manifest.yaml` — identify which `verify` subcommands Flash should invoke.
 

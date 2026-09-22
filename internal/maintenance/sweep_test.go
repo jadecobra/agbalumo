@@ -27,7 +27,6 @@ func setupTestEnvironment(t *testing.T, tmpDir string) {
 	dirs := []string{
 		"docs",
 		".agents/skills",
-		".agents/workflows",
 		"cmd/verify",
 		"internal/maintenance",
 	}

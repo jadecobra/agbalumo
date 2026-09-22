@@ -82,11 +82,11 @@ func createTestFiles(t *testing.T, tempDir string) {
 }
 
 func createAgentsAndStandards(t *testing.T, tempDir string) {
-	if errDir := os.MkdirAll(filepath.Join(tempDir, ".agents/workflows"), 0750); errDir != nil {
+	if errDir := os.MkdirAll(filepath.Join(tempDir, ".agents"), 0750); errDir != nil {
 		t.Fatal(errDir)
 	}
 	content := "### UI & Frontend\n* UI lesson 1\n### Testing\n* Test lesson 1\n"
-	if errFile := os.WriteFile(filepath.Join(tempDir, ".agents/workflows/coding-standards.md"), []byte(content), 0600); errFile != nil {
+	if errFile := os.WriteFile(filepath.Join(tempDir, ".agents/coding-standards.md"), []byte(content), 0600); errFile != nil {
 		t.Fatal(errFile)
 	}
 	if errDir := os.MkdirAll(filepath.Join(tempDir, "internal/handler"), 0750); errDir != nil {

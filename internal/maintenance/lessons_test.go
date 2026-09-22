@@ -94,14 +94,14 @@ description: Test standards
 func runLessonsConformanceTestCase(t *testing.T, codingStandards, expectedMsgSubstr string, expectViolations bool) {
 	tmpDir := t.TempDir()
 
-	// Create .agents/workflows directory (G301: permissions 0700 is secure)
-	workflowsDir := filepath.Join(tmpDir, ".agents", "workflows")
-	if err := os.MkdirAll(workflowsDir, 0700); err != nil {
-		t.Fatalf("failed to create workflows dir: %v", err)
+	// Create .agents directory (G301: permissions 0700 is secure)
+	agentsDir := filepath.Join(tmpDir, ".agents")
+	if err := os.MkdirAll(agentsDir, 0700); err != nil {
+		t.Fatalf("failed to create .agents dir: %v", err)
 	}
 
 	// Write mock coding-standards.md (G306: permissions 0600 is secure)
-	standardsPath := filepath.Join(workflowsDir, "coding-standards.md")
+	standardsPath := filepath.Join(agentsDir, "coding-standards.md")
 	if err := os.WriteFile(standardsPath, []byte(codingStandards), 0600); err != nil {
 		t.Fatalf("failed to write coding-standards.md: %v", err)
 	}

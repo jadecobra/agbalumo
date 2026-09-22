@@ -380,7 +380,7 @@ commands:
     description: "List all feedback submissions locally"
 skills:
   - name: go-tdd
-    trigger: test_authoring, feature_implementation, bug_fix
+    trigger: test_authoring, feature_implementation, bug_fix, hotfix, refactor, debug, /hotfix, /refactor, /debug
     path: .agents/skills/go-tdd/SKILL.md
   - name: browser-verify
     trigger: ui_change, browser_subagent
@@ -398,7 +398,7 @@ skills:
     trigger: flash_review, after_flash_implementation
     path: .agents/skills/flash-review/SKILL.md
   - name: verify-authoring
-    trigger: add_verify_subcommand, new_verify_tool, automate_check, tool_creation
+    trigger: add_verify_subcommand, new_verify_tool, automate_check, tool_creation, skill_audit, /skill-audit
     path: .agents/skills/verify-authoring/SKILL.md
   - name: codebase-audit
     trigger: audit_codebase, health_check, review_infrastructure

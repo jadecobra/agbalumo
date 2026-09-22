@@ -14,12 +14,13 @@ Integrate `hotfix`, `refactor`, and `debug` triage into `go-tdd`.
 Integrate the 7-item skill completeness checklist into `verify-authoring`.
 Migrate `learn`, `red-team`, `doc-prune`, `deploy-secrets`, and `stress-test` as independent modern skills.
 Reclassify `coding-standards.md` from a pseudo-workflow into canonical repository standards at `.agents/coding-standards.md`.
-Update maintenance tools (`preflight`, `lessons`, `session_context`, `minify_context`) to resolve `.agents/coding-standards.md` with fallback support.
+Completely delete the `.agents/workflows/` directory and purge all `.bak` files.
+Update maintenance tools (`preflight`, `lessons`, `session_context`, `minify_context`) to resolve `.agents/coding-standards.md` directly with zero legacy fallback code.
 
 ## 3. The Complexity Kill-Switch (Rationale)
 * **User Value**: The user retains every slash command with faster command discovery, zero duplicate steps, and unified guidance.
 * **Performance Budget**: Reduces total context token footprint by pruning 8 redundant workflow files and collapsing 3 multi-phase files.
-* **Minimalism Check**: Deleted 14 legacy workflow files and replaced them with 6 clean modern skills and 2 skill enhancements.
+* **Minimalism Check**: Completely removed the `.agents/workflows/` directory and eliminated backwards-compatibility shim logic.
 
 ## 4. Consequences
 * **Technical Tradeoffs**: Skill directories require strict YAML frontmatter (`name`, `description`, `triggers`, `mutating`) enforced by `verify skill-conformance`.
@@ -28,3 +29,4 @@ Update maintenance tools (`preflight`, `lessons`, `session_context`, `minify_con
 
 ## 5. Alternatives Considered
 * Direct 1-to-1 migration of all 14 files into 14 skills. Rejected because it preserves dead weight and creates single-caller pseudo-skills.
+* Maintaining backwards-compatible symlinks and Go fallback paths. Rejected because maintaining legacy compatibility layers preserves tech debt when modern skills are the active standard.

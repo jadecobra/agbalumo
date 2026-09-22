@@ -113,9 +113,6 @@ func printStrictLessons(rootDir string, domains []string, matchedTriggers map[st
 	}
 
 	codingStandardsPath := filepath.Join(rootDir, ".agents/coding-standards.md")
-	if _, err := os.Stat(codingStandardsPath); os.IsNotExist(err) {
-		codingStandardsPath = filepath.Join(rootDir, ".agents/workflows/coding-standards.md")
-	}
 	lessons, err := extractLessons(codingStandardsPath, sections)
 	if err != nil {
 		return

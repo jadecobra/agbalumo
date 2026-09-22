@@ -72,7 +72,7 @@ func setupSessionContextTestEnv(t *testing.T, rootDir string) {
 		"internal/repository",
 		"internal/handler",
 		"docs/adr",
-		".agents/workflows",
+		".agents",
 	}
 	for _, d := range dirs {
 		if err := os.MkdirAll(filepath.Join(rootDir, d), 0750); err != nil {
@@ -94,7 +94,7 @@ func setupSessionContextTestEnv(t *testing.T, rootDir string) {
 ### UI & Frontend
 * Frontend Lesson
 `
-	writeFile(t, filepath.Join(rootDir, ".agents/workflows/coding-standards.md"), codingContent)
+	writeFile(t, filepath.Join(rootDir, ".agents/coding-standards.md"), codingContent)
 
 	// Create invariants.json
 	writeFile(t, filepath.Join(rootDir, ".agents/invariants.json"), `{"db_engine": "sqlite"}`)
