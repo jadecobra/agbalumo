@@ -18,6 +18,7 @@ Codify mistakes and user feedback directly into repository assets to prevent rec
 2. Check for duplicate coverage across `.agents/coding-standards.md`, existing skills, and verify commands.
 3. Apply the determinism test. If the check can be verified by a command with an objective pass or fail result, create a verify tool.
 4. Apply the procedure test. If the correction requires two or more sequential steps, define or update a skill.
+5. Apply the risk and blast radius test. Verify that the proposed lesson or rule does not conflict with existing invariants, bypass essential safety rails, or create unintended secondary failures.
 
 ## Phase 2: Codify the Correction
 Choose exactly one destination based on classification.
