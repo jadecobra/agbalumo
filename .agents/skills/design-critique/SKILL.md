@@ -1,7 +1,7 @@
 ---
 name: "Design Critique"
-description: "3-phase design critique covering full-page redesigns, modals, and dynamic overlays — deterministic audit, Flash grading, optional taste review."
-triggers: ["/design-critique", "critique design", "review ui", "harsh review", "redesigns", "modals", "overlays"]
+description: "3-phase design critique covering full-page redesigns, modals, dynamic overlays, and design variant generation — deterministic audit, Flash grading, optional taste review."
+triggers: ["/design-critique", "critique design", "review ui", "harsh review", "redesigns", "modals", "overlays", "design variants", "theme harmonization"]
 mutating: false
 ---
 # /design-critique (v3)
@@ -27,6 +27,13 @@ mutating: false
 2. Apply the Subtract Mandate — identify ONE element to delete.
 3. Override or adjust Phase 2 scores with visual judgment.
 4. Output: Final scores + subtract targets.
+
+---
+
+**Design Tool Autonomy (StitchMCP)**:
+When tasked with redesigning, restyling, or harmonizing UI components (cards, navigation, backgrounds) to match a theme or hero asset:
+- Autonomously query available design MCPs (`StitchMCP:list_projects`, `list_screens`, `get_screen`) before drafting code changes.
+- Generate or inspect visual layout variants (`StitchMCP:generate_variants`) rather than proposing unanchored text descriptions or waiting for user tool directives.
 
 ---
 
