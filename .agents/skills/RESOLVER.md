@@ -5,31 +5,37 @@ Read this file at session start. Match intent against triggers. Read the skill f
 ## Workflow Commands
 | Trigger | Skill |
 |---------|-------|
-| `/build-feature` | `.agents/workflows/build-feature.md` |
-| `/learn` | `.agents/workflows/learn.md` |
-| `/coding-standards` | `.agents/workflows/coding-standards.md` |
-| `/stress-test` | `.agents/workflows/stress-test.md` |
-| `/deploy-secrets` | `.agents/workflows/deploy-secrets.md` |
-| `/skill-audit` | `.agents/workflows/skill-audit.md` |
-| `/refactor` | `.agents/workflows/refactor.md` |
-| `/doc-prune` | `.agents/workflows/doc-prune.md` |
-| `/debug` | `.agents/workflows/debug.md` |
-| `/hotfix` | `.agents/workflows/hotfix.md` |
-| `/red-team`, `/challenge` | `.agents/workflows/red-team.md` |
+| `/build-feature` | `.agents/skills/build-feature/SKILL.md` |
+| `/learn` | `.agents/skills/learn/SKILL.md` |
+| `/coding-standards` | `.agents/coding-standards.md` |
+| `/stress-test` | `.agents/skills/stress-test/SKILL.md` |
+| `/deploy-secrets` | `.agents/skills/deploy-secrets/SKILL.md` |
+| `/skill-audit` | `.agents/skills/verify-authoring/SKILL.md` |
+| `/refactor` | `.agents/skills/go-tdd/SKILL.md` |
+| `/doc-prune` | `.agents/skills/doc-prune/SKILL.md` |
+| `/debug` | `.agents/skills/go-tdd/SKILL.md` |
+| `/hotfix` | `.agents/skills/go-tdd/SKILL.md` |
+| `/red-team`, `/challenge` | `.agents/skills/red-team/SKILL.md` |
 
 ## Procedural Skills
 | Trigger | Skill |
 |---------|-------|
-| Writing tests, fixing bugs, implementing features, TDD | `.agents/skills/go-tdd/SKILL.md` |
+| Writing tests, fixing bugs, implementing features, TDD, /hotfix, /refactor, /debug | `.agents/skills/go-tdd/SKILL.md` |
 | UI change, browser verification, layout check, viewport audit | `.agents/skills/browser-verify/SKILL.md` |
 | Push changes, CI failure, production parity | `.agents/skills/ci-parity/SKILL.md` |
-| /plan, /architect, let's plan, plan for flash, break this down, split into prompts, decompose, flash prompt, design for | .agents/skills/flash-plan/SKILL.md |
+| /plan, /architect, let's plan, plan for flash, break this down, split into prompts, decompose, flash prompt, design for | `.agents/skills/flash-plan/SKILL.md` |
 | /design-critique, critique design, review ui, harsh review, redesigns, modals, overlays, design variants, theme harmonization | `.agents/skills/design-critique/SKILL.md` |
 | review flash output, check implementation, verify flash changes | `.agents/skills/flash-review/SKILL.md` |
-| add verify subcommand, new verify tool, automate this check | `.agents/skills/verify-authoring/SKILL.md` |
+| add verify subcommand, new verify tool, automate this check, /skill-audit | `.agents/skills/verify-authoring/SKILL.md` |
 | audit codebase, health check, score the codebase, review infrastructure, how healthy is the codebase | `.agents/skills/codebase-audit/SKILL.md` |
 | migrate handler, typed viewmodel, fix deprecated map, viewmodel migration | `.agents/skills/viewmodel-migration/SKILL.md` |
 | asynchronous task, background command, polling, sleep, wait | `.agents/skills/turn-cost/SKILL.md` |
+| /build-feature, build feature, implement feature, new feature | `.agents/skills/build-feature/SKILL.md` |
+| /learn, learn, codify lesson, record mistake | `.agents/skills/learn/SKILL.md` |
+| /red-team, /challenge, red team, challenge idea | `.agents/skills/red-team/SKILL.md` |
+| /doc-prune, doc prune, prune documentation, prune docs | `.agents/skills/doc-prune/SKILL.md` |
+| /deploy-secrets, deploy secrets, rotate keys, push secrets | `.agents/skills/deploy-secrets/SKILL.md` |
+| /stress-test, stress test, benchmark system, load test | `.agents/skills/stress-test/SKILL.md` |
 
 
 

@@ -6,6 +6,8 @@ triggers:
   - "new verify tool"
   - "automate this check"
   - "create verify command"
+  - "/skill-audit"
+  - "skill audit"
 mutating: true
 ---
 
@@ -80,5 +82,15 @@ go run ./cmd/verify check-resolvable
 go build ./...
 ```
 
+## Skill Completeness Audit (7-Item Checklist)
+When authoring or auditing a skill (`/skill-audit <name>`), confirm all seven requirements.
+1. `SKILL.md` exists with valid YAML frontmatter containing `name`, `description`, `triggers`, and `mutating`.
+2. Procedural steps or executable instructions are clearly specified.
+3. Any deterministic logic has corresponding unit tests in `internal/maintenance/`.
+4. Resolver entry exists in `.agents/skills/RESOLVER.md` under `## Procedural Skills`.
+5. `go run ./cmd/verify skill-conformance` passes cleanly.
+6. `go run ./cmd/verify check-resolvable` passes cleanly.
+7. Registration entry exists in `.agents/verify-manifest.yaml` under `skills:`.
+
 ## Commit Convention
-`feat(maintenance): add verify <name> for <purpose>`
+`feat(maintenance): add verify <name> for <purpose>` or `chore(agents): skill-audit <name> to 7/7`

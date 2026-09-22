@@ -13,10 +13,10 @@ Act as a terse, highly technical Senior Staff Engineer pair-programming with a p
 - **Teach the Intricacies**: When writing specific logic (e.g., a Go concurrency pattern, SQLite WAL-mode quirk, or HTMX lifecycle hook), include a brief `*Insight:*` bullet explaining *why* it works under the hood.
 - **Expose Tradeoffs**: Never make an architectural decision silently. Explicitly state the tradeoff (e.g., "Trading higher memory allocation here to avoid a database round-trip").
 - **Tone**: Clinical, objective, and strictly focused on system performance, constraints, and architecture.
-## STRICT ARCHITECTURE RULES (HEXAGONAL)
+## STRICT ARCHITECTURE RULES (HEXAGONAL & MODULAR)
 Maintain these boundaries to ensure the system remains easy to pivot and scale:
 - `internal/domain/`: Core types, structs, and interfaces only. No external dependencies.
-- `internal/handler/`: HTTP routing, payload binding, and friction-minimization logic.
+- `internal/module/`: Vertical-slice HTTP handlers, payload binding, and routing. Thin handlers (<50 lines).
 - `internal/service/`: Pure business logic layer (The "Product Engine").
 - `internal/repository/`: Data access (Production: SQLite) and external API calls only.
 ## GIT RULES (UNIQUE ADDITIONS)
@@ -30,6 +30,7 @@ Maintain these boundaries to ensure the system remains easy to pivot and scale:
 - **Timer Floor & Reactive Yield**: For `run_command` background tasks, the runtime **guarantees** a reactive wakeup on task completion. Therefore: (1) **Reactive-sufficient** (any `run_command` background task): Do NOT schedule a timer. Yield the turn immediately and trust the reactive wakeup. (2) **Timer-required** (network-dependent monitors like `gh run watch` that may silently hang): Set a single fail-safe timer at the **floor minimum** — Remote CI ≥ 300s, Local compilation ≥ 90s. Any timer below these floors is a protocol violation. (3) **Guessing durations is forbidden**: If you do not know the exact expected duration, use the floor minimum. Never estimate.
 - **Zero-Status Rule**: Do NOT call `manage_task status` on a running task. Yield and trust reactive wakeup. Status checks are only permitted after a fail-safe timer expires.
 - **Tool Over Reasoning**: If a `verify` subcommand exists for a check, you are FORBIDDEN from performing that check manually. Run the tool.
+- **KISS / Determinism First**: Move every deterministic process to a `verify` tool or script. Reserve model context exclusively for work that requires reasoning (judgment, tradeoff analysis, ambiguity resolution). Model-driven steps that perform mechanical counting, pattern detection, or file scanning are a protocol violation when a tool exists or can be created. When evaluating a new step: if the output is deterministic given the inputs, it belongs in a tool. If it requires judgment, it belongs in the model. Complexity that shifts token waste to maintenance overhead is not an improvement — prefer removing steps over adding infrastructure.
 ## SESSION START (Mandatory)
 Before any task execution, you MUST:
 - Run `go run ./cmd/verify preflight`
@@ -56,30 +57,36 @@ Read this file at session start. Match intent against triggers. Read the skill f
 ## Workflow Commands
 | Trigger | Skill |
 |---------|-------|
-| `/build-feature` | `.agents/workflows/build-feature.md` |
-| `/learn` | `.agents/workflows/learn.md` |
-| `/coding-standards` | `.agents/workflows/coding-standards.md` |
-| `/stress-test` | `.agents/workflows/stress-test.md` |
-| `/deploy-secrets` | `.agents/workflows/deploy-secrets.md` |
-| `/skill-audit` | `.agents/workflows/skill-audit.md` |
-| `/refactor` | `.agents/workflows/refactor.md` |
-| `/doc-prune` | `.agents/workflows/doc-prune.md` |
-| `/debug` | `.agents/workflows/debug.md` |
-| `/hotfix` | `.agents/workflows/hotfix.md` |
-| `/red-team`, `/challenge` | `.agents/workflows/red-team.md` |
+| `/build-feature` | `.agents/skills/build-feature/SKILL.md` |
+| `/learn` | `.agents/skills/learn/SKILL.md` |
+| `/coding-standards` | `.agents/coding-standards.md` |
+| `/stress-test` | `.agents/skills/stress-test/SKILL.md` |
+| `/deploy-secrets` | `.agents/skills/deploy-secrets/SKILL.md` |
+| `/skill-audit` | `.agents/skills/verify-authoring/SKILL.md` |
+| `/refactor` | `.agents/skills/go-tdd/SKILL.md` |
+| `/doc-prune` | `.agents/skills/doc-prune/SKILL.md` |
+| `/debug` | `.agents/skills/go-tdd/SKILL.md` |
+| `/hotfix` | `.agents/skills/go-tdd/SKILL.md` |
+| `/red-team`, `/challenge` | `.agents/skills/red-team/SKILL.md` |
 ## Procedural Skills
 | Trigger | Skill |
 |---------|-------|
-| Writing tests, fixing bugs, implementing features, TDD | `.agents/skills/go-tdd/SKILL.md` |
+| Writing tests, fixing bugs, implementing features, TDD, /hotfix, /refactor, /debug | `.agents/skills/go-tdd/SKILL.md` |
 | UI change, browser verification, layout check, viewport audit | `.agents/skills/browser-verify/SKILL.md` |
 | Push changes, CI failure, production parity | `.agents/skills/ci-parity/SKILL.md` |
-| /plan, /architect, let's plan, plan for flash, break this down, split into prompts, decompose, flash prompt, design for | .agents/skills/flash-plan/SKILL.md |
-| /design-critique, critique design, review ui, harsh review | `.agents/skills/design-critique/SKILL.md` |
+| /plan, /architect, let's plan, plan for flash, break this down, split into prompts, decompose, flash prompt, design for | `.agents/skills/flash-plan/SKILL.md` |
+| /design-critique, critique design, review ui, harsh review, redesigns, modals, overlays, design variants, theme harmonization | `.agents/skills/design-critique/SKILL.md` |
 | review flash output, check implementation, verify flash changes | `.agents/skills/flash-review/SKILL.md` |
-| add verify subcommand, new verify tool, automate this check | `.agents/skills/verify-authoring/SKILL.md` |
+| add verify subcommand, new verify tool, automate this check, /skill-audit | `.agents/skills/verify-authoring/SKILL.md` |
 | audit codebase, health check, score the codebase, review infrastructure, how healthy is the codebase | `.agents/skills/codebase-audit/SKILL.md` |
 | migrate handler, typed viewmodel, fix deprecated map, viewmodel migration | `.agents/skills/viewmodel-migration/SKILL.md` |
 | asynchronous task, background command, polling, sleep, wait | `.agents/skills/turn-cost/SKILL.md` |
+| /build-feature, build feature, implement feature, new feature | `.agents/skills/build-feature/SKILL.md` |
+| /learn, learn, codify lesson, record mistake | `.agents/skills/learn/SKILL.md` |
+| /red-team, /challenge, red team, challenge idea | `.agents/skills/red-team/SKILL.md` |
+| /doc-prune, doc prune, prune documentation, prune docs | `.agents/skills/doc-prune/SKILL.md` |
+| /deploy-secrets, deploy secrets, rotate keys, push secrets | `.agents/skills/deploy-secrets/SKILL.md` |
+| /stress-test, stress test, benchmark system, load test | `.agents/skills/stress-test/SKILL.md` |
 ## Disambiguation
 1. Slash command → Workflow Commands table.
 2. Modifying `*_test.go` or user says "test" → `go-tdd`.
@@ -246,6 +253,9 @@ commands:
   - name: design
     trigger: template_change
     description: Verify brand compliance and design tokens
+  - name: design-evidence
+    trigger: design_critique
+    description: Output raw design and accessibility violations as pattern IDs (no rubric coupling)
   - name: map
     trigger: architectural_discovery
     description: Map system symbols, routes, and templates
@@ -365,6 +375,9 @@ commands:
   - name: surface-parity
     trigger: ui_change, template_change
     description: "Verify visual token parity between listing cards and modal details"
+  - name: feedback-list
+    trigger: session_start
+    description: "List all feedback submissions locally"
 skills:
   - name: go-tdd
     trigger: test_authoring, feature_implementation, bug_fix
@@ -379,7 +392,7 @@ skills:
     trigger: /plan, /architect, let's plan, plan for flash, break this down, split into prompts, decompose, flash prompt, design for
     path: .agents/skills/flash-plan/SKILL.md
   - name: design-critique
-    trigger: /design-critique, critique design, review ui, harsh review
+    trigger: /design-critique, critique design, review ui, harsh review, redesigns, modals, overlays, design variants, theme harmonization
     path: .agents/skills/design-critique/SKILL.md
   - name: flash-review
     trigger: flash_review, after_flash_implementation
@@ -396,6 +409,24 @@ skills:
   - name: turn-cost
     trigger: asynchronous_task, background_command, polling, sleep, wait
     path: .agents/skills/turn-cost/SKILL.md
+  - name: build-feature
+    trigger: /build-feature, build_feature, implement_feature, new_feature
+    path: .agents/skills/build-feature/SKILL.md
+  - name: learn
+    trigger: /learn, learn, codify_lesson, record_mistake
+    path: .agents/skills/learn/SKILL.md
+  - name: red-team
+    trigger: /red-team, /challenge, red_team, challenge_idea
+    path: .agents/skills/red-team/SKILL.md
+  - name: doc-prune
+    trigger: /doc-prune, doc_prune, prune_documentation, prune_docs
+    path: .agents/skills/doc-prune/SKILL.md
+  - name: deploy-secrets
+    trigger: /deploy-secrets, deploy_secrets, rotate_keys, push_secrets
+    path: .agents/skills/deploy-secrets/SKILL.md
+  - name: stress-test
+    trigger: /stress-test, stress_test, benchmark_system, load_test
+    path: .agents/skills/stress-test/SKILL.md
 tools:
   - name: schema
     trigger: database_comprehension
@@ -412,3 +443,9 @@ tools:
   - name: deprecated
     trigger: after_implementation
     description: "Scan for deprecated patterns (map[string]interface{}, RenderWithBaseContext)"
+  - name: api-spec
+    trigger: api_change
+    description: "Detect drift between Code, OpenAPI, and Markdown docs"
+  - name: template-drift
+    trigger: template_change
+    description: "Detect undefined template functions in HTML templates"

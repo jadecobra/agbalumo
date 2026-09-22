@@ -225,6 +225,30 @@ skills:
     trigger: asynchronous_task, background_command, polling, sleep, wait
     path: .agents/skills/turn-cost/SKILL.md
 
+  - name: build-feature
+    trigger: /build-feature, build_feature, implement_feature, new_feature
+    path: .agents/skills/build-feature/SKILL.md
+
+  - name: learn
+    trigger: /learn, learn, codify_lesson, record_mistake
+    path: .agents/skills/learn/SKILL.md
+
+  - name: red-team
+    trigger: /red-team, /challenge, red_team, challenge_idea
+    path: .agents/skills/red-team/SKILL.md
+
+  - name: doc-prune
+    trigger: /doc-prune, doc_prune, prune_documentation, prune_docs
+    path: .agents/skills/doc-prune/SKILL.md
+
+  - name: deploy-secrets
+    trigger: /deploy-secrets, deploy_secrets, rotate_keys, push_secrets
+    path: .agents/skills/deploy-secrets/SKILL.md
+
+  - name: stress-test
+    trigger: /stress-test, stress_test, benchmark_system, load_test
+    path: .agents/skills/stress-test/SKILL.md
+
 tools:
   - name: schema
     trigger: database_comprehension

@@ -18,11 +18,12 @@ type LessonsViolation struct {
 
 // CheckLessonsConformance verifies the integrity of the strict lessons.
 func CheckLessonsConformance(rootDir string) ([]LessonsViolation, error) {
-	standardsPath := filepath.Join(rootDir, ".agents", "workflows", "coding-standards.md")
-
-	// If the file doesn't exist, return no violations (graceful fallback)
+	standardsPath := filepath.Join(rootDir, ".agents", "coding-standards.md")
 	if _, err := os.Stat(standardsPath); os.IsNotExist(err) {
-		return nil, nil
+		standardsPath = filepath.Join(rootDir, ".agents", "workflows", "coding-standards.md")
+		if _, err := os.Stat(standardsPath); os.IsNotExist(err) {
+			return nil, nil
+		}
 	}
 
 	// #nosec G304 - rootDir is trusted within the context of the maintenance tool chain
