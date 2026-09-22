@@ -143,19 +143,18 @@ test.describe('Design Integrity & Cohesion', () => {
     expect(featuredBadgeClassList).not.toContain('bg-earth-cream/20');
     expect(featuredBadgeClassList).toContain('rounded-none');
     
-    // 2. Listing Card Badge: Uppercase, sophisticated sand/clay styling
+    // 2. Listing Card Badge: Uppercase, radiant amber styling
     const listingCard = page.locator('[data-testid="ag-listing-card"]').first();
     // Locate the category tag container
-    const listingBadge = listingCard.locator('span.bg-earth-sand\\/60, span.bg-earth-accent').first();
+    const listingBadge = listingCard.locator('span.bg-earth-accent\\/20, span.bg-earth-accent').first();
     await expect(listingBadge).toBeVisible();
     const listingBadgeText = await listingBadge.innerText();
     expect(listingBadgeText).toBe(listingBadgeText.toUpperCase());
     
     const listingBadgeClassList = await listingBadge.evaluate(el => el.className);
-    expect(listingBadgeClassList).toContain('bg-earth-sand/60');
-    expect(listingBadgeClassList).toContain('text-earth-clay');
-    expect(listingBadgeClassList).toContain('border-earth-clay/20');
-    expect(listingBadgeClassList).not.toContain('bg-earth-accent');
+    expect(listingBadgeClassList).toContain('bg-earth-accent/20');
+    expect(listingBadgeClassList).toContain('text-earth-accent');
+    expect(listingBadgeClassList).toContain('border-earth-accent/40');
     expect(listingBadgeClassList).not.toContain('capitalize');
     expect(listingBadgeClassList).toContain('uppercase');
     expect(listingBadgeClassList).toContain('rounded-none');
@@ -179,9 +178,10 @@ test.describe('Design Integrity & Cohesion', () => {
     const navPostBtn = page.locator('[data-testid="ag-nav-post-btn-desktop"]');
     if (await navPostBtn.isVisible()) {
       const navPostBtnClasses = await navPostBtn.evaluate(el => el.className);
-      expect(navPostBtnClasses).toContain('bg-earth-clay');
-      expect(navPostBtnClasses).toContain('text-white');
+      expect(navPostBtnClasses).toContain('from-earth-accent');
+      expect(navPostBtnClasses).toContain('text-earth-dark');
       expect(navPostBtnClasses).toContain('capitalize');
+      expect(navPostBtnClasses).toContain('rounded-none');
       await navPostBtn.click();
     } else {
       // On mobile, trigger the modal via mobile post button
@@ -196,9 +196,10 @@ test.describe('Design Integrity & Cohesion', () => {
     const submitBtn = modal.locator('#create-listing-submit');
     await expect(submitBtn).toBeVisible();
     const submitBtnClasses = await submitBtn.evaluate(el => el.className);
-    expect(submitBtnClasses).toContain('bg-earth-clay');
-    expect(submitBtnClasses).toContain('text-white');
+    expect(submitBtnClasses).toContain('from-earth-accent');
+    expect(submitBtnClasses).toContain('text-earth-dark');
     expect(submitBtnClasses).toContain('capitalize');
+    expect(submitBtnClasses).toContain('rounded-none');
   });
 });
 
