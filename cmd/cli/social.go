@@ -215,7 +215,7 @@ func buildTrackedURL(path, campaign string, extraParams ...[2]string) string {
 			q.Set(p[0], p[1])
 		}
 	}
-	q.Set("utm_source", "cli")
+	q.Set("utm_source", "facebook")
 	q.Set("utm_medium", "social")
 	if campaign != "" {
 		q.Set("utm_campaign", strings.ToLower(campaign))

@@ -44,7 +44,7 @@ agbalumo social draft [flags]
 - **Exposure over Star-Sort**: Draft generation prioritizes exposure over star-sorting so the same few listings do not dominate every week.
 - **Pillars 1, 2, 4, 5**: Listings round-robin within the filtered candidate set across successive CLI runs.
 - **Pillar 3**: If `--listing-id` is provided, that merchant is spotlighted directly. If omitted, the CLI rotates through listings while excluding recently featured merchants.
-- **Honest Attribution**: Generated links use clean, honest UTM attribution (`utm_source=cli&utm_medium=social&utm_campaign=<pillar>`), with no fabricated platform variants.
+- **Honest Attribution**: Generated links use clean, honest UTM attribution (`utm_source=facebook&utm_medium=social&utm_campaign=<pillar>`), with no fabricated platform variants.
 
 **Examples:**
 
