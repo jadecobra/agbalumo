@@ -64,5 +64,5 @@ func TestMobileFilterBottomSheet(t *testing.T) {
 	assert.Contains(t, body, "max-h-90vh")
 	assert.Contains(t, body, "md:max-h-80")
 	assert.Contains(t, body, "rounded-none")
-	assert.Contains(t, body, "bg-earth-dark/10")
+	assert.Contains(t, body, "bg-earth-sand/20")
 }
