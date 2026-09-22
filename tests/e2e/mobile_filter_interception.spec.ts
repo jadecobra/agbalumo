@@ -27,7 +27,7 @@ test.describe('Mobile Filter Interaction', () => {
     await expect(closeBtn).toBeVisible();
 
     // 3. Verify handle click-through (should not close panel, should not trigger accordions)
-    const handle = page.locator('.w-12.h-1.bg-earth-dark\\/10').first();
+    const handle = page.locator('.w-12.h-1.bg-earth-sand\\/20').first();
     const handleBox = await handle.boundingBox();
     if (handleBox) {
         // Click exactly on the handle bar

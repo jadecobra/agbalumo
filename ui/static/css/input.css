@@ -40,6 +40,14 @@
       object-position: center;
     }
   }
+
+  .max-h-90vh {
+    max-height: 90vh;
+  }
+
+  .max-h-70vh {
+    max-height: 70vh;
+  }
 }
 
 @layer components {
