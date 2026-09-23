@@ -71,6 +71,33 @@ func scanListing(s Scanner) (domain.Listing, error) {
 	return l, nil
 }
 
+var isoTimeLayouts = []string{
+	time.RFC3339Nano,
+	time.RFC3339,
+	"2006-01-02T15:04:05Z07:00",
+}
+
+var spaceTimeLayouts = []string{
+	"2006-01-02 15:04:05.999999999 -0700 MST",
+	"2006-01-02 15:04:05 -0700 MST",
+	"2006-01-02 15:04:05.999999999",
+	"2006-01-02 15:04:05-07:00",
+	"2006-01-02 15:04:05",
+	"2006-01-02",
+}
+
+func parseTimeWithLayouts(s string, layouts []string) (*time.Time, error) {
+	var lastErr error
+	for _, layout := range layouts {
+		t, err := time.Parse(layout, s)
+		if err == nil {
+			return &t, nil
+		}
+		lastErr = err
+	}
+	return nil, lastErr
+}
+
 func parseNullableTime(s string) *time.Time {
 	if s == "" {
 		return nil
@@ -78,33 +105,18 @@ func parseNullableTime(s string) *time.Time {
 	if idx := strings.Index(s, " m="); idx != -1 {
 		s = s[:idx]
 	}
-	var lastErr error
+
+	layouts := spaceTimeLayouts
 	if len(s) > 10 && (s[10] == 'T' || s[10] == 't') {
-		for _, layout := range []string{time.RFC3339Nano, time.RFC3339, "2006-01-02T15:04:05Z07:00"} {
-			if t, err := time.Parse(layout, s); err == nil {
-				return &t
-			} else {
-				lastErr = err
-			}
-		}
-	} else {
-		for _, layout := range []string{
-			"2006-01-02 15:04:05.999999999 -0700 MST",
-			"2006-01-02 15:04:05 -0700 MST",
-			"2006-01-02 15:04:05.999999999",
-			"2006-01-02 15:04:05-07:00",
-			"2006-01-02 15:04:05",
-			"2006-01-02",
-		} {
-			if t, err := time.Parse(layout, s); err == nil {
-				return &t
-			} else {
-				lastErr = err
-			}
-		}
+		layouts = isoTimeLayouts
 	}
 
-	slog.Warn("Failed to parse enrichment_attempted_at", slog.String("value", s), slog.Any("error", lastErr))
+	t, err := parseTimeWithLayouts(s, layouts)
+	if err == nil {
+		return t
+	}
+
+	slog.Warn("Failed to parse enrichment_attempted_at", slog.String("value", s), slog.Any("error", err))
 	return nil
 }
 
