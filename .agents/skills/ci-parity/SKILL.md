@@ -27,6 +27,13 @@ To avoid CI Matrix Bloat and exorbitant local time costs, you MUST NOT run the e
 
 2. Fix any local violations before pushing.
 
+### Scoped Local E2E Reproduction
+For targeted debugging of single Playwright specs (e.g., reproducing a remote failure on a specific spec), run natively:
+```bash
+npx playwright test <path/to/spec.ts>
+```
+_Insight: `playwright.config.ts` automatically manages server lifecycle under HTTPS (`https://localhost:8443`) and `AGBALUMO_ENV=test` via its `webServer` block. Do not spin up separate background servers or Docker containers for single-spec local debugging loops. Reserve full containerized verification (`go run ./cmd/verify ci --with-docker`) for pre-push validation._
+
 ## Linux Snapshot Synchronization (MANDATORY after any UI change touching snapshots)
 
 Visual snapshots are platform-specific. Darwin snapshots generated locally will always diverge from the Linux CI environment. Run this after any change that affects snapshot-covered templates (`sandbox.html`, `modal_detail.html`):
@@ -76,7 +83,7 @@ go run ./cmd/verify snapshot-parity
 
 5. If the run fails:
    - Identify the failed job and step.
-   - Run `gh run view <run-id> --log-failed` to extract the traceback.
+   - Run `gh run view <run-id> --log-failed` to extract the traceback across the run. To query a specific failed matrix job, use the job ID exclusively: `gh run view --job <job-id> --log-failed` (do NOT combine `<run-id>` and `--job <job-id>` in the same invocation, as GitHub CLI will throw an argument conflict).
    - Fix and re-push. Repeat from Step 1.
    - Do NOT mark the task as complete until the remote CI passes.
 

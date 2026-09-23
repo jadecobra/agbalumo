@@ -67,3 +67,4 @@ When triggered via `/debug <symptom>`:
 - Do NOT use `t.Parallel()` with `os.Setenv/os.Unsetenv` because it causes flaky CI.
 - Do NOT lower coverage thresholds in `.agents/coverage.json`.
 - Do NOT skip `check-gates` because it enforces RED-before-GREEN ordering.
+- Do NOT replace implicit SQLite rowid tiebreakers (e.g. `rowid ASC`) with explicit string ID tiebreakers (e.g. `id ASC`) in pagination or default ordering clauses unless explicitly required by domain specifications. Secondary indexes on rowid tables implicitly append `rowid ASC`; substituting string IDs alters natural insertion-order sorting and breaks index-order dependent E2E assertions.

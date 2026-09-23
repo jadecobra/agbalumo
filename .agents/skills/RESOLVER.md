@@ -35,7 +35,7 @@ Read this file at session start. Match intent against triggers. Read the skill f
 | /red-team, /challenge, red team, challenge idea | `.agents/skills/red-team/SKILL.md` |
 | /doc-prune, doc prune, prune documentation, prune docs | `.agents/skills/doc-prune/SKILL.md` |
 | /deploy-secrets, deploy secrets, rotate keys, push secrets | `.agents/skills/deploy-secrets/SKILL.md` |
-| /stress-test, stress test, benchmark system, load test | `.agents/skills/stress-test/SKILL.md` |
+| /stress-test, stress test, benchmark system, load test, performance optimization | `.agents/skills/stress-test/SKILL.md` |
 
 
 

@@ -246,7 +246,7 @@ skills:
     path: .agents/skills/deploy-secrets/SKILL.md
 
   - name: stress-test
-    trigger: /stress-test, stress_test, benchmark_system, load_test
+    trigger: /stress-test, stress_test, benchmark_system, load_test, performance_optimization
     path: .agents/skills/stress-test/SKILL.md
 
 tools:
