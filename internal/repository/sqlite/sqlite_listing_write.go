@@ -119,7 +119,11 @@ func (r *SQLiteRepository) fillListingArgs(args []interface{}, offset int, l dom
 	args[offset+9] = l.Address
 	args[offset+10] = l.HoursOfOperation
 	args[offset+11] = l.IsActive
-	args[offset+12] = l.CreatedAt
+	if !l.CreatedAt.IsZero() {
+		args[offset+12] = l.CreatedAt.UTC().Format(time.RFC3339Nano)
+	} else {
+		args[offset+12] = time.Now().UTC().Format(time.RFC3339Nano)
+	}
 	args[offset+13] = l.ImageURL
 	args[offset+14] = l.ContactEmail
 	args[offset+15] = l.ContactPhone
@@ -141,11 +145,19 @@ func (r *SQLiteRepository) fillListingArgs(args []interface{}, offset int, l dom
 	args[offset+31] = l.MenuURL
 	args[offset+32] = l.Latitude
 	args[offset+33] = l.Longitude
-	args[offset+34] = l.EnrichmentAttemptedAt
+	if l.EnrichmentAttemptedAt != nil && !l.EnrichmentAttemptedAt.IsZero() {
+		args[offset+34] = l.EnrichmentAttemptedAt.UTC().Format(time.RFC3339Nano)
+	} else {
+		args[offset+34] = nil
+	}
 	args[offset+35] = l.DeliveryPlatforms
 	args[offset+36] = l.Rating
 	args[offset+37] = l.ReviewCount
-	args[offset+38] = l.RatingUpdatedAt
+	if l.RatingUpdatedAt != nil && !l.RatingUpdatedAt.IsZero() {
+		args[offset+38] = l.RatingUpdatedAt.UTC().Format(time.RFC3339Nano)
+	} else {
+		args[offset+38] = nil
+	}
 	args[offset+39] = l.StructuredHours
 }
 

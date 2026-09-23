@@ -105,3 +105,35 @@ func TestTemplateRenderer_HotReload(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Contains(t, rec2.Body.String(), "goodbye")
 }
+
+func TestTemplateRenderer_ProductionCachesTemplates(t *testing.T) {
+	tempDir := t.TempDir()
+	tmplPath := filepath.Join(tempDir, "test.html")
+
+	err := os.WriteFile(tmplPath, []byte("cached-original"), 0600)
+	assert.NoError(t, err)
+
+	pattern := filepath.Join(tempDir, "*.html")
+	renderer, err := NewTemplateRenderer(pattern)
+	assert.NoError(t, err)
+
+	e := echo.New()
+	rec := httptest.NewRecorder()
+	c := e.NewContext(httptest.NewRequest(http.MethodGet, "/", nil), rec)
+
+	t.Setenv(domain.EnvKeyAppEnv, domain.EnvProduction)
+
+	err = renderer.Render(rec, "test.html", map[string]interface{}{}, c)
+	assert.NoError(t, err)
+	assert.Contains(t, rec.Body.String(), "cached-original")
+
+	// Overwrite template file content on disk
+	err = os.WriteFile(tmplPath, []byte("disk-modified"), 0600)
+	assert.NoError(t, err)
+
+	// Render again in production -> must retain cached-original
+	rec2 := httptest.NewRecorder()
+	err = renderer.Render(rec2, "test.html", map[string]interface{}{}, c)
+	assert.NoError(t, err)
+	assert.Contains(t, rec2.Body.String(), "cached-original", "Production environment must cache parsed templates and ignore disk mutations")
+}

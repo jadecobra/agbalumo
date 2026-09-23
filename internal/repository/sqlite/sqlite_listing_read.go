@@ -78,19 +78,33 @@ func parseNullableTime(s string) *time.Time {
 	if idx := strings.Index(s, " m="); idx != -1 {
 		s = s[:idx]
 	}
-	formats := []string{
-		time.RFC3339,
-		"2006-01-02 15:04:05.999999999 -0700 MST",
-		"2006-01-02 15:04:05-07:00",
-		"2006-01-02 15:04:05",
-		"2006-01-02T15:04:05Z07:00",
-	}
-	for _, fmt := range formats {
-		if t, err := time.Parse(fmt, s); err == nil {
-			return &t
+	var lastErr error
+	if len(s) > 10 && (s[10] == 'T' || s[10] == 't') {
+		for _, layout := range []string{time.RFC3339Nano, time.RFC3339, "2006-01-02T15:04:05Z07:00"} {
+			if t, err := time.Parse(layout, s); err == nil {
+				return &t
+			} else {
+				lastErr = err
+			}
+		}
+	} else {
+		for _, layout := range []string{
+			"2006-01-02 15:04:05.999999999 -0700 MST",
+			"2006-01-02 15:04:05 -0700 MST",
+			"2006-01-02 15:04:05.999999999",
+			"2006-01-02 15:04:05-07:00",
+			"2006-01-02 15:04:05",
+			"2006-01-02",
+		} {
+			if t, err := time.Parse(layout, s); err == nil {
+				return &t
+			} else {
+				lastErr = err
+			}
 		}
 	}
-	slog.Warn("Failed to parse enrichment_attempted_at", slog.String("value", s))
+
+	slog.Warn("Failed to parse enrichment_attempted_at", slog.String("value", s), slog.Any("error", lastErr))
 	return nil
 }
 
@@ -199,7 +213,7 @@ func (r *SQLiteRepository) buildListingWhere(filters ListingFilters) (string, []
 
 func (r *SQLiteRepository) buildOrderClause(sortField, sortOrder string) string {
 	if sortField == "" {
-		return "featured DESC, CASE WHEN (regional_specialty LIKE '%Nigerian%' OR owner_origin LIKE '%Nigerian%') THEN 0 ELSE 1 END, heat_level DESC, rating DESC, created_at DESC, rowid ASC"
+		return "featured DESC, origin_priority ASC, heat_level DESC, rating DESC, created_at DESC, id ASC"
 	}
 
 	field := "created_at"
