@@ -35,7 +35,7 @@ func TestMigration_OriginPriorityAndIndex(t *testing.T) {
 	assert.Equal(t, 1, idxExists, "Index 'idx_listings_default_feed' should exist")
 
 	// Verify the default feed query plan uses idx_listings_default_feed and no temp B-tree
-	query := `EXPLAIN QUERY PLAN SELECT rowid FROM listings WHERE 1=1 AND is_active = 1 AND status = 'Approved' ORDER BY featured DESC, origin_priority ASC, heat_level DESC, rating DESC, created_at DESC, id ASC LIMIT 30 OFFSET 0`
+	query := `EXPLAIN QUERY PLAN SELECT rowid FROM listings WHERE 1=1 AND is_active = 1 AND status = 'Approved' ORDER BY featured DESC, origin_priority ASC, heat_level DESC, rating DESC, created_at DESC, rowid ASC LIMIT 30 OFFSET 0`
 	rows, err := repo.readDB.Query(query)
 	assert.NoError(t, err)
 	defer func() { _ = rows.Close() }()

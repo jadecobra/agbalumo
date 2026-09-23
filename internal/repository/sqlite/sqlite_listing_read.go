@@ -225,7 +225,7 @@ func (r *SQLiteRepository) buildListingWhere(filters ListingFilters) (string, []
 
 func (r *SQLiteRepository) buildOrderClause(sortField, sortOrder string) string {
 	if sortField == "" {
-		return "featured DESC, origin_priority ASC, heat_level DESC, rating DESC, created_at DESC, id ASC"
+		return "featured DESC, origin_priority ASC, heat_level DESC, rating DESC, created_at DESC, rowid ASC"
 	}
 
 	field := "created_at"
