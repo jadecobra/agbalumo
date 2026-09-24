@@ -215,20 +215,54 @@ func (h *ListingHandler) logZeroResults(ctx context.Context, source string, tota
 	}
 }
 
-func (h *ListingHandler) fetchFragmentListings(ctx context.Context, params *queryParams, limit, offset int) ([]domain.Listing, int, error) {
-	listings, totalCount, err := h.App.DB.FindAll(ctx, params.Type, params.Query, params.City, params.Lat, params.Lng, params.Radius, "", "", false, limit, offset)
-	if err != nil {
-		return nil, 0, err
+func (h *ListingHandler) fetchFragmentData(ctx context.Context, c echo.Context, params *queryParams, limit, offset int, includeFeatured bool) (homeData, error) {
+	var (
+		data         homeData
+		listingsErr  error
+		featuredErr  error
+		locationsErr error
+		wg           sync.WaitGroup
+	)
+
+	featuredType := params.Type
+	featuredCity := params.City
+
+	wg.Add(4)
+	go func() {
+		defer wg.Done()
+		data.listings, data.totalCount, listingsErr = h.App.DB.FindAll(ctx, params.Type, params.Query, params.City, params.Lat, params.Lng, params.Radius, "", "", false, limit, offset)
+		if listingsErr == nil && data.totalCount == 0 && params.Type != "" {
+			data.listings, data.totalCount, listingsErr = h.App.DB.FindAll(ctx, "", params.Query, params.City, params.Lat, params.Lng, params.Radius, "", "", false, limit, offset)
+			if listingsErr == nil {
+				params.Type = ""
+			}
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		if includeFeatured {
+			data.featured, featuredErr = h.App.DB.GetFeaturedListings(ctx, featuredType, featuredCity)
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		data.locations, locationsErr = h.App.DB.GetLocations(ctx)
+	}()
+	go func() {
+		defer wg.Done()
+		data.savedIDs = h.getSavedIDs(c)
+	}()
+
+	wg.Wait()
+
+	_ = featuredErr
+	_ = locationsErr
+
+	if listingsErr != nil {
+		return homeData{}, listingsErr
 	}
 
-	if totalCount == 0 && params.Type != "" {
-		listings, totalCount, err = h.App.DB.FindAll(ctx, "", params.Query, params.City, params.Lat, params.Lng, params.Radius, "", "", false, limit, offset)
-		if err != nil {
-			return nil, 0, err
-		}
-		params.Type = ""
-	}
-	return listings, totalCount, nil
+	return data, nil
 }
 
 // Fragment Handler (HTMX)
@@ -240,34 +274,32 @@ func (h *ListingHandler) HandleFragment(c echo.Context) error {
 	params.Lat = lat
 	params.Lng = lng
 
-	listings, totalCount, err := h.fetchFragmentListings(c.Request().Context(), &params, p.Limit, p.Offset)
+	data, err := h.fetchFragmentData(c.Request().Context(), c, &params, p.Limit, p.Offset, p.Page == 1)
 	if err != nil {
 		return ui.RespondErrorMsg(c, http.StatusInternalServerError, err.Error())
 	}
 
-	var featured []domain.Listing
-	if p.Page == 1 {
-		featured, _ = h.App.DB.GetFeaturedListings(c.Request().Context(), params.Type, params.City)
-	}
+	listings := data.listings
+	totalCount := data.totalCount
+
 	h.processListings(listings)
-	if len(featured) > 0 {
-		h.processListings(featured)
+	if len(data.featured) > 0 {
+		h.processListings(data.featured)
 	}
 
 	var fallbackCity string
-	if locations, locationsErr := h.App.DB.GetLocations(c.Request().Context()); locationsErr == nil {
-		listings, totalCount, fallbackCity = h.resolveFallback(c.Request().Context(), totalCount, lat, lng, locations, listings, &params)
+	if len(data.locations) > 0 {
+		listings, totalCount, fallbackCity = h.resolveFallback(c.Request().Context(), totalCount, lat, lng, data.locations, listings, &params)
 	}
 
-	savedIDs := h.getSavedIDs(c)
 	savedMap := make(map[string]bool)
-	for _, id := range savedIDs {
+	for _, id := range data.savedIDs {
 		savedMap[id] = true
 	}
 
 	vm := ListingFragmentViewModel{
 		Listings:   listings,
-		Featured:   featured,
+		Featured:   data.featured,
 		SavedIDs:   savedMap,
 		Query:      params.Query,
 		City:       params.City,

@@ -195,7 +195,7 @@ func TestGeolocatedListing_Fallback(t *testing.T) {
 			Return([]domain.Listing{}, 0, nil).Once()
 
 		// GetFeaturedListings is called in HandleFragment on page 1 (with fallback type "")
-		mockStore.On("GetFeaturedListings", mock.Anything, "", "").Return([]domain.Listing{}, nil)
+		mockStore.On("GetFeaturedListings", mock.Anything, "Food", "").Return([]domain.Listing{}, nil)
 
 		// GetLocations gets called in fragment empty state check since it's not pre-fetched
 		mockStore.On("GetLocations", mock.Anything).Return(locations, nil).Once()
