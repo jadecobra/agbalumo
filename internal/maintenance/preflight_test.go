@@ -25,10 +25,17 @@ func TestPreflight(t *testing.T) {
 	createAgentsAndStandards(t, tempDir)
 	createVerifyManifest(t, tempDir)
 
-	// Capture output
+	// Capture output concurrently to prevent pipe buffer deadlocks
 	oldStdout := os.Stdout
 	r, w, _ := os.Pipe()
 	os.Stdout = w
+
+	outChan := make(chan string)
+	go func() {
+		var buf bytes.Buffer
+		_, _ = io.Copy(&buf, r)
+		outChan <- buf.String()
+	}()
 
 	errRun := RunPreflight(tempDir)
 
@@ -39,7 +46,8 @@ func TestPreflight(t *testing.T) {
 		t.Fatalf("RunPreflight failed: %v", errRun)
 	}
 
-	validatePreflightOutput(t, r)
+	output := <-outChan
+	validatePreflightOutput(t, strings.NewReader(output))
 }
 
 func setupPreflightTestRepo(t *testing.T, dir string) {
