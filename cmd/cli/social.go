@@ -5,21 +5,25 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
+	"github.com/jadecobra/agbalumo/internal/repository/sqlite"
 	"github.com/spf13/cobra"
 )
 
 var (
-	flagSocialPillar    int
-	flagSocialListingID string
-	flagSocialCity      string
-	flagSocialOutput    string
+	flagSocialPillar       int
+	flagSocialListingID    string
+	flagSocialCity         string
+	flagSocialOutput       string
+	flagSocialFailBadLinks bool
 )
 
 var SocialCmd = &cobra.Command{
@@ -44,18 +48,24 @@ var socialDraftCmd = &cobra.Command{
   # Save the draft directly to a text file for quick editing
   agbalumo social draft --pillar 5 --output post_draft.txt`,
 	Run: func(cmd *cobra.Command, args []string) {
-		repo := InitRepo()
+		repo, err := InitSocialRepo()
+		ExitOnErr(err, "Failed to initialize database for social draft")
 
 		var out io.Writer = cmd.OutOrStdout()
 		if flagSocialOutput != "" {
 			cleanPath := filepath.Clean(flagSocialOutput)
-			f, err := os.Create(cleanPath) // #nosec G304 -- user-supplied CLI output path
-			ExitOnErr(err, "Failed to create output file")
+			f, createErr := os.Create(cleanPath) // #nosec G304 -- user-supplied CLI output path
+			ExitOnErr(createErr, "Failed to create output file")
 			defer func() { _ = f.Close() }()
 			out = io.MultiWriter(cmd.OutOrStdout(), f)
 		}
 
-		err := GenerateSocialDraft(repo, flagSocialPillar, flagSocialListingID, flagSocialCity, out)
+		var opts []SocialOption
+		if flagSocialFailBadLinks {
+			opts = append(opts, WithFailBadLinks(true))
+		}
+
+		err = GenerateSocialDraft(repo, flagSocialPillar, flagSocialListingID, flagSocialCity, out, opts...)
 		ExitOnErr(err, "Failed to generate social draft")
 
 		if flagSocialOutput != "" {
@@ -71,6 +81,7 @@ func init() {
 	socialDraftCmd.Flags().StringVarP(&flagSocialListingID, "listing-id", "l", "", "Target listing ID (for pillar 3 spotlight; rotates if omitted)")
 	socialDraftCmd.Flags().StringVar(&flagSocialCity, "city", "Dallas", "Target city or metro anchor")
 	socialDraftCmd.Flags().StringVarP(&flagSocialOutput, "output", "o", "", "Optional output file path to save the draft")
+	socialDraftCmd.Flags().BoolVar(&flagSocialFailBadLinks, "fail-bad-links", false, "Fail draft immediately if any listing deep link returns non-2xx (default: omit link with loud stderr; pillar 3 always fails)")
 }
 
 // SocialState tracks rotation offsets and recently spotlighted listings.
@@ -168,9 +179,188 @@ func filterListingsByCity(raw []domain.Listing, city string) []domain.Listing {
 	return filtered
 }
 
+func isProhibitedTesterDB(path string) bool {
+	clean := filepath.Clean(path)
+	return clean == filepath.Clean(domain.DefaultDatabaseURL) ||
+		clean == ".tester/data/agbalumo.db" ||
+		strings.HasSuffix(clean, filepath.Join(".tester", "data", "agbalumo.db"))
+}
+
+// GetSocialDatabaseURL resolves the database URL for social drafts.
+// It prefers AGBALUMO_SOCIAL_DB, falls back to DATABASE_URL, or defaults to local prod_snapshot.db.
+// It explicitly prohibits using .tester/data/agbalumo.db for shipping deep links.
+func GetSocialDatabaseURL() (string, error) {
+	if db := os.Getenv("AGBALUMO_SOCIAL_DB"); db != "" {
+		if isProhibitedTesterDB(db) {
+			return "", fmt.Errorf("AGBALUMO_SOCIAL_DB points to prohibited local tester database (%s); prod-parity database required", db)
+		}
+		return db, nil
+	}
+	if db := os.Getenv(domain.EnvKeyDatabaseURL); db != "" {
+		if isProhibitedTesterDB(db) {
+			return "", fmt.Errorf("DATABASE_URL points to prohibited local tester database (%s); prod-parity database required (prefer AGBALUMO_SOCIAL_DB)", db)
+		}
+		return db, nil
+	}
+	defaultSnapshot := filepath.Join(".tester", "data", "prod_snapshot.db")
+	if _, err := os.Stat(defaultSnapshot); err == nil {
+		return defaultSnapshot, nil
+	}
+	return "", fmt.Errorf("social draft requires a prod-parity database with matching UUIDs: %s is prohibited; set AGBALUMO_SOCIAL_DB or sync to %s", domain.DefaultDatabaseURL, defaultSnapshot)
+}
+
+// InitSocialRepo connects to the prod-parity database for social drafts.
+func InitSocialRepo() (*sqlite.SQLiteRepository, error) {
+	dbPath, err := GetSocialDatabaseURL()
+	if err != nil {
+		return nil, err
+	}
+	repo, err := sqlite.NewSQLiteRepository(dbPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open social database at %s: %w", dbPath, err)
+	}
+	return repo, nil
+}
+
+// LinkVerifier checks whether a listing deep link is live and reachable.
+type LinkVerifier interface {
+	Verify(ctx context.Context, listingID string) (ok bool, statusCode int, err error)
+}
+
+// LinkVerifierFunc allows plain functions to act as LinkVerifier.
+type LinkVerifierFunc func(ctx context.Context, listingID string) (bool, int, error)
+
+func (f LinkVerifierFunc) Verify(ctx context.Context, listingID string) (bool, int, error) {
+	return f(ctx, listingID)
+}
+
+// HTTPLinkVerifier performs live HTTP probes (HEAD, falling back to GET) against agbalumo deep links.
+type HTTPLinkVerifier struct {
+	Client  *http.Client
+	BaseURL string
+}
+
+func NewHTTPLinkVerifier(baseURL string, client *http.Client) *HTTPLinkVerifier {
+	if baseURL == "" {
+		baseURL = os.Getenv("AGBALUMO_BASE_URL")
+	}
+	if baseURL == "" {
+		baseURL = os.Getenv(domain.EnvKeyAppURL)
+	}
+	if baseURL == "" {
+		baseURL = "https://agbalumo.com"
+	}
+	if client == nil {
+		client = &http.Client{
+			Timeout: 5 * time.Second,
+		}
+	}
+	return &HTTPLinkVerifier{BaseURL: strings.TrimRight(baseURL, "/"), Client: client}
+}
+
+func (h *HTTPLinkVerifier) probeHEAD(ctx context.Context, targetURL string) bool {
+	req, err := http.NewRequestWithContext(ctx, http.MethodHead, targetURL, nil)
+	if err != nil {
+		return false
+	}
+	resp, doErr := h.Client.Do(req)
+	if doErr != nil {
+		return false
+	}
+	_ = resp.Body.Close()
+	return resp.StatusCode >= 200 && resp.StatusCode < 300
+}
+
+func (h *HTTPLinkVerifier) probeGET(ctx context.Context, targetURL string) (bool, int, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, targetURL, nil)
+	if err != nil {
+		return false, 0, err
+	}
+	resp, doErr := h.Client.Do(req)
+	if doErr != nil {
+		return false, 0, doErr
+	}
+	_ = resp.Body.Close()
+	return resp.StatusCode >= 200 && resp.StatusCode < 300, resp.StatusCode, nil
+}
+
+func (h *HTTPLinkVerifier) Verify(ctx context.Context, listingID string) (bool, int, error) {
+	targetURL := fmt.Sprintf("%s/listings/%s", h.BaseURL, listingID)
+	if h.probeHEAD(ctx, targetURL) {
+		return true, http.StatusOK, nil
+	}
+	return h.probeGET(ctx, targetURL)
+}
+
+type socialConfig struct {
+	verifier     LinkVerifier
+	stderr       io.Writer
+	failBadLinks bool
+}
+
+type SocialOption func(*socialConfig)
+
+func WithLinkVerifier(v LinkVerifier) SocialOption {
+	return func(c *socialConfig) {
+		c.verifier = v
+	}
+}
+
+func WithStderr(w io.Writer) SocialOption {
+	return func(c *socialConfig) {
+		c.stderr = w
+	}
+}
+
+func WithFailBadLinks(fail bool) SocialOption {
+	return func(c *socialConfig) {
+		c.failBadLinks = fail
+	}
+}
+
+func handleBadLink(stderr io.Writer, s domain.Listing, deepLink string, statusCode int, vErr error, failBadLinks bool) error {
+	var detail string
+	if vErr != nil {
+		detail = vErr.Error()
+	} else {
+		detail = fmt.Sprintf("%s returned status %d", deepLink, statusCode)
+	}
+
+	if failBadLinks {
+		return fmt.Errorf("deep link verification failed for listing %q (%s): %s", s.ID, s.Title, detail)
+	}
+	if stderr != nil {
+		_, _ = fmt.Fprintf(stderr, "WARNING: deep link verification failed for listing %q (%s): %s; omitting link from draft\n", s.ID, s.Title, detail)
+	}
+	return nil
+}
+
+func verifyListingLink(ctx context.Context, verifier LinkVerifier, stderr io.Writer, s domain.Listing, campaign string, failBadLinks bool) (bool, error) {
+	if verifier == nil {
+		return true, nil
+	}
+	ok, statusCode, vErr := verifier.Verify(ctx, s.ID)
+	if !ok || vErr != nil {
+		deepLink := buildTrackedURL("/listings/"+s.ID, campaign)
+		err := handleBadLink(stderr, s, deepLink, statusCode, vErr, failBadLinks)
+		return false, err
+	}
+	return true, nil
+}
+
 // GenerateSocialDraft queries verified listings and renders a publication-ready post draft.
-func GenerateSocialDraft(repo domain.ListingRepository, pillar int, listingID, city string, w io.Writer) error {
+func GenerateSocialDraft(repo domain.ListingRepository, pillar int, listingID, city string, w io.Writer, opts ...SocialOption) error {
 	ctx := context.Background()
+
+	cfg := &socialConfig{
+		stderr: os.Stderr,
+	}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+	if cfg.verifier == nil && os.Getenv("AGBALUMO_SKIP_LINK_VERIFY") != "true" {
+		cfg.verifier = NewHTTPLinkVerifier("", nil)
+	}
 
 	rawListings, _, err := repo.FindAll(ctx, string(domain.Food), "", "", 0, 0, 0, "", "", false, 100, 0)
 	if err != nil {
@@ -182,15 +372,15 @@ func GenerateSocialDraft(repo domain.ListingRepository, pillar int, listingID, c
 
 	switch pillar {
 	case 1:
-		err = renderPillar1QualityIndex(listings, city, &state, w)
+		err = renderPillar1QualityIndex(ctx, listings, city, &state, w, cfg)
 	case 2:
-		err = renderPillar2AirportArrival(listings, city, &state, w)
+		err = renderPillar2AirportArrival(ctx, listings, city, &state, w, cfg)
 	case 3:
-		err = renderPillar3MerchantSpotlight(listings, listingID, &state, w)
+		err = renderPillar3MerchantSpotlight(ctx, repo, listings, listingID, &state, w, cfg)
 	case 4:
-		err = renderPillar4SubMetroCorridor(listings, city, &state, w)
+		err = renderPillar4SubMetroCorridor(ctx, listings, city, &state, w, cfg)
 	case 5:
-		err = renderPillar5CoverageGaps(listings, city, &state, w)
+		err = renderPillar5CoverageGaps(ctx, listings, city, &state, w, cfg)
 	default:
 		return fmt.Errorf("unknown pillar: %d (supported: 1-5)", pillar)
 	}
@@ -237,14 +427,16 @@ func filterCandidatesByRating(listings []domain.Listing, minRating float64) []do
 	return candidates
 }
 
-func writeSpotItem(b *strings.Builder, idx int, s domain.Listing, campaign string) {
+func writeSpotItem(b *strings.Builder, idx int, s domain.Listing, campaign string, includeLink bool) {
 	specialty := s.RegionalSpecialty
 	if specialty == "" {
 		specialty = "West African"
 	}
 	b.WriteString(fmt.Sprintf("%d. %s (%s)\n", idx+1, s.Title, s.City))
 	b.WriteString(fmt.Sprintf("   ★ %.1f (%d reviews) · %s\n", s.Rating, s.ReviewCount, specialty))
-	b.WriteString(fmt.Sprintf("   Reviews & Details: %s\n", buildTrackedURL("/listings/"+s.ID, campaign)))
+	if includeLink {
+		b.WriteString(fmt.Sprintf("   Reviews & Details: %s\n", buildTrackedURL("/listings/"+s.ID, campaign)))
+	}
 	if s.ContactPhone != "" {
 		b.WriteString(fmt.Sprintf("   Phone: %s\n", s.ContactPhone))
 	}
@@ -254,7 +446,7 @@ func writeSpotItem(b *strings.Builder, idx int, s domain.Listing, campaign strin
 	b.WriteString("\n")
 }
 
-func renderPillar1QualityIndex(listings []domain.Listing, city string, state *SocialState, w io.Writer) error {
+func renderPillar1QualityIndex(ctx context.Context, listings []domain.Listing, city string, state *SocialState, w io.Writer, cfg *socialConfig) error {
 	candidates := filterCandidatesByRating(listings, 4.0)
 	spots := rotateListings(candidates, "pillar_1_"+strings.ToLower(city), 4, state)
 	campaign := "quality_index"
@@ -268,7 +460,11 @@ func renderPillar1QualityIndex(listings []domain.Listing, city string, state *So
 	b.WriteString("Here are verified West African spots in DFW where quality is backed by real community reviews:\n\n")
 
 	for idx, s := range spots {
-		writeSpotItem(&b, idx, s, campaign)
+		includeLink, err := verifyListingLink(ctx, cfg.verifier, cfg.stderr, s, campaign, cfg.failBadLinks)
+		if err != nil {
+			return err
+		}
+		writeSpotItem(&b, idx, s, campaign, includeLink)
 	}
 
 	b.WriteString("Find verified spots, directions, and direct contact in under 60 seconds:\n")
@@ -292,16 +488,18 @@ type corridorConfig struct {
 	addPrompt    string
 }
 
-func writeCorridorSpotItem(b *strings.Builder, idx int, s domain.Listing, campaign string) {
+func writeCorridorSpotItem(b *strings.Builder, idx int, s domain.Listing, campaign string, includeLink bool) {
 	b.WriteString(fmt.Sprintf("%d. %s (%s)\n", idx+1, s.Title, s.City))
 	if s.Rating > 0 {
 		b.WriteString(fmt.Sprintf("   ★ %.1f (%d reviews)\n", s.Rating, s.ReviewCount))
 	}
-	detailLabel := "Reviews & Details"
-	if campaign == "sub_metro_corridor" {
-		detailLabel = "Reviews & Menu"
+	if includeLink {
+		detailLabel := "Reviews & Details"
+		if campaign == "sub_metro_corridor" {
+			detailLabel = "Reviews & Menu"
+		}
+		b.WriteString(fmt.Sprintf("   %s: %s\n", detailLabel, buildTrackedURL("/listings/"+s.ID, campaign)))
 	}
-	b.WriteString(fmt.Sprintf("   %s: %s\n", detailLabel, buildTrackedURL("/listings/"+s.ID, campaign)))
 	if s.ContactPhone != "" {
 		phoneLabel := "Phone"
 		if campaign == "airport_corridor" {
@@ -315,7 +513,7 @@ func writeCorridorSpotItem(b *strings.Builder, idx int, s domain.Listing, campai
 	b.WriteString("\n")
 }
 
-func renderCorridorDraft(spots []domain.Listing, cfg corridorConfig, w io.Writer) error {
+func renderCorridorDraft(ctx context.Context, spots []domain.Listing, cfg corridorConfig, w io.Writer, sCfg *socialConfig) error {
 	var b strings.Builder
 	b.WriteString("================================================================================\n")
 	b.WriteString(cfg.headerTitle + "\n")
@@ -325,7 +523,11 @@ func renderCorridorDraft(spots []domain.Listing, cfg corridorConfig, w io.Writer
 	b.WriteString(cfg.introList + "\n\n")
 
 	for idx, s := range spots {
-		writeCorridorSpotItem(&b, idx, s, cfg.campaign)
+		includeLink, err := verifyListingLink(ctx, sCfg.verifier, sCfg.stderr, s, cfg.campaign, sCfg.failBadLinks)
+		if err != nil {
+			return err
+		}
+		writeCorridorSpotItem(&b, idx, s, cfg.campaign, includeLink)
 	}
 
 	b.WriteString(cfg.exploreLabel + "\n")
@@ -352,10 +554,10 @@ func filterAirportCandidates(listings []domain.Listing) []domain.Listing {
 	return candidates
 }
 
-func renderPillar2AirportArrival(listings []domain.Listing, city string, state *SocialState, w io.Writer) error {
+func renderPillar2AirportArrival(ctx context.Context, listings []domain.Listing, city string, state *SocialState, w io.Writer, cfg *socialConfig) error {
 	candidates := filterAirportCandidates(listings)
 	airportSpots := rotateListings(candidates, "pillar_2", 3, state)
-	return renderCorridorDraft(airportSpots, corridorConfig{
+	return renderCorridorDraft(ctx, airportSpots, corridorConfig{
 		campaign:     "airport_corridor",
 		headerTitle:  "[DRAFT - Pillar 2: Airport Corridor Cities (Arlington, Grand Prairie, Irving)]",
 		destination:  "DFW Diaspora Groups / Community Feed",
@@ -364,7 +566,7 @@ func renderPillar2AirportArrival(listings []domain.Listing, city string, state *
 		exploreLabel: "Explore all airport corridor African food spots in under 60 seconds:",
 		exploreCity:  "Arlington",
 		addPrompt:    "Know another African-owned spot near the airport corridor we missed? Add it directly to the network:",
-	}, w)
+	}, w, cfg)
 }
 
 func findListingByID(listings []domain.Listing, id string) (*domain.Listing, error) {
@@ -402,12 +604,21 @@ func rotateSpotlight(listings []domain.Listing, state *SocialState) *domain.List
 	return &chosen
 }
 
-func selectSpotlight(listings []domain.Listing, listingID string, state *SocialState) (*domain.Listing, error) {
+func selectSpotlight(ctx context.Context, repo domain.ListingRepository, listings []domain.Listing, listingID string, state *SocialState) (*domain.Listing, error) {
+	if listingID != "" {
+		if l, err := findListingByID(listings, listingID); err == nil {
+			return l, nil
+		}
+		if repo != nil {
+			l, err := repo.FindByID(ctx, listingID)
+			if err == nil && l.ID != "" {
+				return &l, nil
+			}
+		}
+		return nil, fmt.Errorf("listing with ID %q not found", listingID)
+	}
 	if len(listings) == 0 {
 		return nil, fmt.Errorf("no listings available for spotlight")
-	}
-	if listingID != "" {
-		return findListingByID(listings, listingID)
 	}
 	return rotateSpotlight(listings, state), nil
 }
@@ -419,14 +630,24 @@ func recordSpotlightFeatured(state *SocialState, id string) {
 	}
 }
 
-func renderPillar3MerchantSpotlight(listings []domain.Listing, listingID string, state *SocialState, w io.Writer) error {
-	spotlight, err := selectSpotlight(listings, listingID, state)
+func renderPillar3MerchantSpotlight(ctx context.Context, repo domain.ListingRepository, listings []domain.Listing, listingID string, state *SocialState, w io.Writer, cfg *socialConfig) error {
+	spotlight, err := selectSpotlight(ctx, repo, listings, listingID, state)
 	if err != nil {
 		return err
 	}
-	recordSpotlightFeatured(state, spotlight.ID)
 
 	campaign := "merchant_spotlight"
+
+	// Verify deep link before emit: for Pillar 3, non-2xx must fail the draft!
+	includeLink, err := verifyListingLink(ctx, cfg.verifier, cfg.stderr, *spotlight, campaign, true)
+	if err != nil {
+		return err
+	}
+	if !includeLink {
+		return fmt.Errorf("deep link verification failed for listing %q (%s)", spotlight.ID, spotlight.Title)
+	}
+
+	recordSpotlightFeatured(state, spotlight.ID)
 
 	var b strings.Builder
 	b.WriteString("================================================================================\n")
@@ -478,10 +699,10 @@ func filterCollinCandidates(listings []domain.Listing) []domain.Listing {
 	return candidates
 }
 
-func renderPillar4SubMetroCorridor(listings []domain.Listing, city string, state *SocialState, w io.Writer) error {
+func renderPillar4SubMetroCorridor(ctx context.Context, listings []domain.Listing, city string, state *SocialState, w io.Writer, cfg *socialConfig) error {
 	candidates := filterCollinCandidates(listings)
 	collinSpots := rotateListings(candidates, "pillar_4", 4, state)
-	return renderCorridorDraft(collinSpots, corridorConfig{
+	return renderCorridorDraft(ctx, collinSpots, corridorConfig{
 		campaign:     "sub_metro_corridor",
 		headerTitle:  "[DRAFT - Pillar 4: Sub-Metro Corridor Guide (Collin County)]",
 		destination:  "DFW Diaspora Groups (Plano / Frisco / North Dallas)",
@@ -490,10 +711,43 @@ func renderPillar4SubMetroCorridor(listings []domain.Listing, city string, state
 		exploreLabel: "Explore all North DFW and Collin County spots in under 60 seconds:",
 		exploreCity:  "Plano",
 		addPrompt:    "Know another African-owned kitchen in Collin County? Add it directly to the network:",
-	}, w)
+	}, w, cfg)
 }
 
-func renderPillar5CoverageGaps(listings []domain.Listing, city string, state *SocialState, w io.Writer) error {
+func renderCitySpotItem(b *strings.Builder, s domain.Listing, campaign string, includeLink bool) {
+	ratingStr := ""
+	if s.Rating > 0 {
+		ratingStr = fmt.Sprintf("★ %.1f (%d reviews)", s.Rating, s.ReviewCount)
+	}
+	if !includeLink {
+		if ratingStr != "" {
+			b.WriteString(fmt.Sprintf("  - %s: %s\n", s.Title, ratingStr))
+		} else {
+			b.WriteString(fmt.Sprintf("  - %s\n", s.Title))
+		}
+		return
+	}
+	if ratingStr != "" {
+		ratingStr += " · "
+	}
+	link := buildTrackedURL("/listings/"+s.ID, campaign)
+	b.WriteString(fmt.Sprintf("  - %s: %s%s\n", s.Title, ratingStr, link))
+}
+
+func renderCitySection(ctx context.Context, b *strings.Builder, city string, spots []domain.Listing, campaign string, cfg *socialConfig) error {
+	b.WriteString(fmt.Sprintf("• %s:\n", city))
+	for _, s := range spots {
+		includeLink, err := verifyListingLink(ctx, cfg.verifier, cfg.stderr, s, campaign, cfg.failBadLinks)
+		if err != nil {
+			return err
+		}
+		renderCitySpotItem(b, s, campaign, includeLink)
+	}
+	b.WriteString("\n")
+	return nil
+}
+
+func renderPillar5CoverageGaps(ctx context.Context, listings []domain.Listing, city string, state *SocialState, w io.Writer, cfg *socialConfig) error {
 	campaign := "coverage_gaps"
 	var b strings.Builder
 	b.WriteString("================================================================================\n")
@@ -516,17 +770,9 @@ func renderPillar5CoverageGaps(listings []domain.Listing, city string, state *So
 
 	for _, c := range cities {
 		spots := rotateCitySpots(cityMap[c], c, state)
-
-		b.WriteString(fmt.Sprintf("• %s:\n", c))
-		for _, s := range spots {
-			ratingStr := ""
-			if s.Rating > 0 {
-				ratingStr = fmt.Sprintf("★ %.1f (%d reviews) · ", s.Rating, s.ReviewCount)
-			}
-			link := buildTrackedURL("/listings/"+s.ID, campaign)
-			b.WriteString(fmt.Sprintf("  - %s: %s%s\n", s.Title, ratingStr, link))
+		if err := renderCitySection(ctx, &b, c, spots, campaign, cfg); err != nil {
+			return err
 		}
-		b.WriteString("\n")
 	}
 
 	b.WriteString("We know there are blind spots in Frisco, Garland, Denton, and Fort Worth.\n\n")

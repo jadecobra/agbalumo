@@ -18,6 +18,7 @@ mutating: true
 # Go TDD Skill
 ## Session Start
 > **Loop-Budget & Fail-Fast Guard**: If you are using a reasoning model (Pro/Opus) and executing coding/TDD, you are capped at **max 3 serial execution loops (compiles/tests)**. If compilation or a unit test fails **2 times consecutively**, you MUST HALT immediately, output a structured clinical diagnosis, and await human direction.
+> **Subagent Delegation Guard**: When delegating TDD or refactoring tasks to subagents, the parent MUST explicitly paste these loop budget, fail-fast triggers, and precommit constraints into the prompt; subagents do not inherit unprompted parent rules.
 1. Run `go run ./cmd/verify preflight` to review active rules.
 2. Run `go run ./cmd/verify check-gates` to check active gates.
 
@@ -37,7 +38,7 @@ To minimize token consumption, reduce serial git overhead, and maintain TDD disc
 When triggered via `/hotfix <description>`:
 1. Confirm failing test exists or write reproduction test first.
 2. Write minimal fix to make the test pass.
-3. Run `go run ./cmd/verify precommit`. If UI was modified, run `go run ./cmd/verify browser`.
+3. Stage modified files (`git add <files>`) before running verification. `go run ./cmd/verify precommit` requires a clean working tree and tests only packages with staged files. If UI was modified, run `go run ./cmd/verify browser`.
 4. Push via `./scripts/pushw.sh` and monitor `gh run watch --exit-status`.
 5. Skip Phase 1 planning, Phase 3 chaos tests, and ADR generation. Commit: `fix(<scope>): <description>`.
 
@@ -67,4 +68,5 @@ When triggered via `/debug <symptom>`:
 - Do NOT use `t.Parallel()` with `os.Setenv/os.Unsetenv` because it causes flaky CI.
 - Do NOT lower coverage thresholds in `.agents/coverage.json`.
 - Do NOT skip `check-gates` because it enforces RED-before-GREEN ordering.
+- Do NOT force environment flag overrides (e.g. `AGBALUMO_ENV=production`) inside unit tests or local benchmarks to bypass dev-mode penalties (like template recompilation); test fidelity requires proper mock/cache injection rather than masking environment behavior.
 - Do NOT replace implicit SQLite rowid tiebreakers (e.g. `rowid ASC`) with explicit string ID tiebreakers (e.g. `id ASC`) in pagination or default ordering clauses unless explicitly required by domain specifications. Secondary indexes on rowid tables implicitly append `rowid ASC`; substituting string IDs alters natural insertion-order sorting and breaks index-order dependent E2E assertions.

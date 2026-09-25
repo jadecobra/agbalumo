@@ -26,6 +26,11 @@ To avoid CI Matrix Bloat and exorbitant local time costs, you MUST NOT run the e
    - **Rule:** When in doubt, use Fast Path first. Escalate to Full Path only if Fast Path reveals a dependency failure.
 
 2. Fix any local violations before pushing.
+3. **Diagnosing Local Test Hangs (Darwin/macOS)**: If a test hangs or approaches the runner timeout during local CI, capture thread stack traces non-destructively rather than killing blindly:
+   ```bash
+   sample <pid> 1 | grep -A 25 "Call graph:"
+   ```
+   _Insight: This identifies blocking syscalls (e.g. `internal/poll.(*FD).Write` pipe deadlock) immediately without needing to wait for a 10-minute test runner timeout._
 
 ### Scoped Local E2E Reproduction
 For targeted debugging of single Playwright specs (e.g., reproducing a remote failure on a specific spec), run natively:
@@ -48,7 +53,7 @@ docker run --rm -v $(pwd):/app -w /app \
   -e "AGBALUMO_ENV=test" \
   "mcr.microsoft.com/playwright:v${PW_VER}-noble" \
   sh -c "npx playwright test visual.spec.ts --update-snapshots" && \
-rm server-linux
+  rm server-linux
 ```
 _Insight: The version is sourced from `package.json` so the image tag automatically tracks Playwright version bumps without requiring a manual edit to this skill._
 
@@ -97,8 +102,9 @@ go run ./cmd/verify snapshot-parity
 
 ## Post-Execution Health Check
 
-1. Verify that the local server is running and healthy:
-   `go run ./cmd/verify uptime`
-   _Insight: This ensures the local dev environment is not left in a broken or stopped state after agent activity._
+1. Verify that the server is running and healthy:
+   - For local development: `go run ./cmd/verify uptime` (probes local port defined in `.agents/invariants.json`).
+   - For remote deployment: `APP_URL=https://agbalumo.fly.dev go run ./cmd/verify uptime` (overrides default localhost target).
+   _Insight: Default `verify uptime` checks local dev server state. When checking post-deploy health after pushing, provide `APP_URL` to avoid false failures if local dev server is stopped._
 
-2. If it fails, restore the server using `go run ./cmd/verify watch`.
+2. If the local check fails and local testing is still active, restore the server using `go run ./cmd/verify watch`.

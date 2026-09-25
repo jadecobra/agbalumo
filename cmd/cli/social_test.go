@@ -18,6 +18,8 @@ func setupTestRepoWithState(t *testing.T) (domain.ListingRepository, string) {
 	tempDir := t.TempDir()
 	tempDB := filepath.Join(tempDir, "test_social_cli.db")
 	t.Setenv("DATABASE_URL", tempDB)
+	t.Setenv("AGBALUMO_SOCIAL_DB", tempDB)
+	t.Setenv("AGBALUMO_SKIP_LINK_VERIFY", "true")
 	statePath := filepath.Join(tempDir, "social_state.json")
 	t.Setenv("AGBALUMO_SOCIAL_STATE", statePath)
 
@@ -268,4 +270,113 @@ func TestSocialDraft_RotationAcrossListings(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.NotEqual(t, buf1.String(), buf2.String(), "Pillar 1 should rotate listings across calls so different spots get exposure")
+}
+
+func TestGetSocialDatabaseURL(t *testing.T) {
+	tempDir := t.TempDir()
+	validDB := filepath.Join(tempDir, "prod_snapshot.db")
+	require.NoError(t, os.WriteFile(validDB, []byte("sqlite"), 0600))
+
+	t.Run("rejects_tester_agbalumo_db_via_social_env", func(t *testing.T) {
+		t.Setenv("AGBALUMO_SOCIAL_DB", ".tester/data/agbalumo.db")
+		_, err := cli.GetSocialDatabaseURL()
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "prohibited")
+	})
+
+	t.Run("rejects_tester_agbalumo_db_via_database_url", func(t *testing.T) {
+		t.Setenv("AGBALUMO_SOCIAL_DB", "")
+		t.Setenv("DATABASE_URL", ".tester/data/agbalumo.db")
+		_, err := cli.GetSocialDatabaseURL()
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "prohibited")
+	})
+
+	t.Run("prefers_agbalumo_social_db_over_database_url", func(t *testing.T) {
+		fallbackDB := filepath.Join(tempDir, "fallback.db")
+		t.Setenv("AGBALUMO_SOCIAL_DB", validDB)
+		t.Setenv("DATABASE_URL", fallbackDB)
+
+		res, err := cli.GetSocialDatabaseURL()
+		require.NoError(t, err)
+		assert.Equal(t, validDB, res)
+	})
+
+	t.Run("falls_back_to_database_url_when_social_db_unset", func(t *testing.T) {
+		t.Setenv("AGBALUMO_SOCIAL_DB", "")
+		t.Setenv("DATABASE_URL", validDB)
+
+		res, err := cli.GetSocialDatabaseURL()
+		require.NoError(t, err)
+		assert.Equal(t, validDB, res)
+	})
+}
+
+func TestSocialDraft_DeepLinkVerification(t *testing.T) {
+	repo := setupTestRepo(t)
+
+	t.Run("known_good_id_200_emits_link_pillar_3", func(t *testing.T) {
+		buf := new(bytes.Buffer)
+		mockVerifier := cli.LinkVerifierFunc(func(ctx context.Context, id string) (bool, int, error) {
+			if id == "test-dallas-1" {
+				return true, 200, nil
+			}
+			return false, 404, nil
+		})
+
+		err := cli.GenerateSocialDraft(repo, 3, "test-dallas-1", "Dallas", buf, cli.WithLinkVerifier(mockVerifier))
+		require.NoError(t, err)
+		assert.Contains(t, buf.String(), "https://agbalumo.com/listings/test-dallas-1?utm_campaign=merchant_spotlight")
+	})
+
+	t.Run("wrong_id_404_fails_draft_pillar_3", func(t *testing.T) {
+		buf := new(bytes.Buffer)
+		mockVerifier := cli.LinkVerifierFunc(func(ctx context.Context, id string) (bool, int, error) {
+			return false, 404, nil
+		})
+
+		err := cli.GenerateSocialDraft(repo, 3, "test-dallas-1", "Dallas", buf, cli.WithLinkVerifier(mockVerifier))
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "deep link verification failed")
+	})
+
+	t.Run("wrong_id_404_omits_link_with_loud_stderr_pillar_1", func(t *testing.T) {
+		buf := new(bytes.Buffer)
+		stderrBuf := new(bytes.Buffer)
+
+		mockVerifier := cli.LinkVerifierFunc(func(ctx context.Context, id string) (bool, int, error) {
+			if id == "test-dallas-1" {
+				return false, 404, nil
+			}
+			return true, 200, nil
+		})
+
+		err := cli.GenerateSocialDraft(repo, 1, "", "Dallas", buf,
+			cli.WithLinkVerifier(mockVerifier),
+			cli.WithStderr(stderrBuf),
+		)
+		require.NoError(t, err)
+
+		// Mama Put Dallas (test-dallas-1) must still appear as a spot
+		assert.Contains(t, buf.String(), "Mama Put Dallas")
+		// But its deep link must be omitted!
+		assert.NotContains(t, buf.String(), "https://agbalumo.com/listings/test-dallas-1")
+		// Loud stderr must be recorded!
+		assert.Contains(t, stderrBuf.String(), "WARNING")
+		assert.Contains(t, stderrBuf.String(), "test-dallas-1")
+	})
+
+	t.Run("fail_bad_links_flag_fails_pillar_1", func(t *testing.T) {
+		buf := new(bytes.Buffer)
+		mockVerifier := cli.LinkVerifierFunc(func(ctx context.Context, id string) (bool, int, error) {
+			return false, 404, nil
+		})
+
+		err := cli.GenerateSocialDraft(repo, 1, "", "Dallas", buf,
+			cli.WithLinkVerifier(mockVerifier),
+			cli.WithFailBadLinks(true),
+		)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "deep link verification failed")
+	})
 }
