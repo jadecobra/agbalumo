@@ -53,7 +53,7 @@ func buildLinterCommand(opts ChiefCriticOptions) []string {
 		if rev == "" {
 			rev = "HEAD~1"
 		}
-		args = append(args, "--new-from-rev", rev)
+		args = append(args, "--new-from-rev", rev, "--whole-files")
 	}
 
 	if opts.Verbose {
