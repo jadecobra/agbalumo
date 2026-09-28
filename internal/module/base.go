@@ -107,5 +107,9 @@ func (h *BaseHandler) populateCSRF(c echo.Context, data *BaseViewData) {
 
 // RenderTyped is the preferred way to render templates with typed ViewModels.
 func (h *BaseHandler) RenderTyped(c echo.Context, tmpl string, data interface{}) error {
+	if c.Request().Method == http.MethodHead {
+		c.Response().Header().Set(echo.HeaderContentType, echo.MIMETextHTMLCharsetUTF8)
+		return c.NoContent(http.StatusOK)
+	}
 	return c.Render(http.StatusOK, tmpl, data)
 }

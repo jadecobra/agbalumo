@@ -165,38 +165,112 @@ func extractRouteDefinitions(files []*ast.File, groupPaths map[string]string) []
 	var routes []Route
 	for _, node := range files {
 		ast.Inspect(node, func(n ast.Node) bool {
-			method, path := parseRouteCall(n, groupPaths)
-			if method != "" {
-				routes = append(routes, NewRoute(method, path))
-			}
+			found := parseRouteCalls(n, groupPaths)
+			routes = append(routes, found...)
 			return true
 		})
 	}
 	return routes
 }
 
-func parseRouteCall(n ast.Node, groupPaths map[string]string) (method, path string) {
+func parseRouteCalls(n ast.Node, groupPaths map[string]string) []Route {
 	callExpr, ok := n.(*ast.CallExpr)
 	if !ok || len(callExpr.Args) == 0 {
-		return "", ""
+		return nil
 	}
 
 	selExpr, ok := callExpr.Fun.(*ast.SelectorExpr)
-	if !ok || !isHttpMethod(selExpr.Sel.Name) {
-		return "", ""
+	if !ok {
+		return nil
 	}
 
 	receiver, ok := selExpr.X.(*ast.Ident)
 	if !ok {
-		return "", ""
+		return nil
 	}
 
-	val, ok := resolveArgString(callExpr.Args[0])
+	if isHttpMethod(selExpr.Sel.Name) {
+		return parseStandardRouteCall(selExpr.Sel.Name, receiver.Name, callExpr.Args, groupPaths)
+	}
+
+	if selExpr.Sel.Name == "Match" && len(callExpr.Args) >= 2 {
+		return parseMatchRouteCall(receiver.Name, callExpr.Args, groupPaths)
+	}
+
+	return nil
+}
+
+func parseStandardRouteCall(method, receiver string, args []ast.Expr, groupPaths map[string]string) []Route {
+	val, ok := resolveArgString(args[0])
 	if !ok {
-		return "", ""
+		return nil
 	}
+	return []Route{NewRoute(method, groupPaths[receiver]+val)}
+}
 
-	return selExpr.Sel.Name, groupPaths[receiver.Name] + val
+func parseMatchRouteCall(receiver string, args []ast.Expr, groupPaths map[string]string) []Route {
+	val, ok := resolveArgString(args[1])
+	if !ok {
+		return nil
+	}
+	var routes []Route
+	for _, m := range parseMatchMethods(args[0]) {
+		if isHttpMethod(m) && m != "HEAD" {
+			routes = append(routes, NewRoute(m, groupPaths[receiver]+val))
+		}
+	}
+	return routes
+}
+
+func parseMatchMethods(expr ast.Expr) []string {
+	compLit, ok := expr.(*ast.CompositeLit)
+	if !ok {
+		return nil
+	}
+	var methods []string
+	for _, elt := range compLit.Elts {
+		if m := resolveMethodExpr(elt); m != "" {
+			methods = append(methods, m)
+		}
+	}
+	return methods
+}
+
+func resolveMethodExpr(elt ast.Expr) string {
+	switch e := elt.(type) {
+	case *ast.BasicLit:
+		if e.Kind == token.STRING {
+			return strings.Trim(e.Value, "\"")
+		}
+	case *ast.SelectorExpr:
+		return resolveHTTPMethodIdent(e)
+	}
+	return ""
+}
+
+func resolveHTTPMethodIdent(sel *ast.SelectorExpr) string {
+	ident, ok := sel.X.(*ast.Ident)
+	if !ok || ident.Name != "http" {
+		return ""
+	}
+	methodMap := map[string]string{
+		"MethodGet":     "GET",
+		"MethodHead":    "HEAD",
+		"MethodPost":    "POST",
+		"MethodPut":     "PUT",
+		"MethodDelete":  "DELETE",
+		"MethodPatch":   "PATCH",
+		"MethodOptions": "OPTIONS",
+	}
+	return methodMap[sel.Sel.Name]
+}
+
+func parseRouteCall(n ast.Node, groupPaths map[string]string) (method, path string) {
+	routes := parseRouteCalls(n, groupPaths)
+	if len(routes) > 0 {
+		return routes[0].Method, routes[0].Path
+	}
+	return "", ""
 }
 
 func isHttpMethod(method string) bool {

@@ -33,9 +33,9 @@ func NewListingHandler(app *env.AppEnv) *ListingHandler {
 // RegisterRoutes wires up all HTTP endpoints relating to the Listing domain.
 func (h *ListingHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddleware) {
 	// Public Routes
-	e.GET("/", h.HandleHome)
-	e.GET("/listings/fragment", h.HandleFragment)
-	e.GET(domain.PathListingID, h.HandleDetail)
+	e.Match([]string{http.MethodGet, http.MethodHead}, "/", h.HandleHome)
+	e.Match([]string{http.MethodGet, http.MethodHead}, "/listings/fragment", h.HandleFragment)
+	e.Match([]string{http.MethodGet, http.MethodHead}, domain.PathListingID, h.HandleDetail)
 	e.POST("/api/metrics", h.HandleMetricsIngestion)
 
 	// Authenticated Routes

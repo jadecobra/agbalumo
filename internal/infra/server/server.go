@@ -102,6 +102,7 @@ func Setup(cfg *config.Config) (*echo.Echo, func(), error) {
 
 func setupMiddleware(e *echo.Echo, cfg *config.Config) {
 	e.Pre(customMiddleware.CanonicalPath)
+	e.Use(customMiddleware.SuppressHeadBody)
 	e.Use(middleware.Gzip())
 	e.Use(customMiddleware.SecureHeaders)
 
@@ -159,7 +160,7 @@ func setupRoutes(e *echo.Echo, app *env.AppEnv) {
 	fbHandler := feedback.NewFeedbackHandler(app)
 	pageHandler := common.NewPageHandler(app)
 
-	e.GET("/healthz", func(c echo.Context) error {
+	e.Match([]string{http.MethodGet, http.MethodHead}, "/healthz", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
 	})
 
@@ -179,16 +180,16 @@ func setupRoutes(e *echo.Echo, app *env.AppEnv) {
 		module.RegisterRoutes(e, authMw)
 	}
 
-	e.GET("/about", pageHandler.HandleAbout)
-	e.GET("/login", func(c echo.Context) error {
+	e.Match([]string{http.MethodGet, http.MethodHead}, "/about", pageHandler.HandleAbout)
+	e.Match([]string{http.MethodGet, http.MethodHead}, "/login", func(c echo.Context) error {
 		return c.Redirect(http.StatusMovedPermanently, "/auth/google/login")
 	})
-	e.GET("/dev/login", func(c echo.Context) error {
+	e.Match([]string{http.MethodGet, http.MethodHead}, "/dev/login", func(c echo.Context) error {
 		return c.Redirect(http.StatusMovedPermanently, "/auth/dev")
 	})
 
 	if app.Cfg.Env != domain.EnvProduction {
-		e.GET("/sandbox", pageHandler.HandleSandbox)
+		e.Match([]string{http.MethodGet, http.MethodHead}, "/sandbox", pageHandler.HandleSandbox)
 	}
 }
 

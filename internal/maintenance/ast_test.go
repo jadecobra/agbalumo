@@ -113,3 +113,39 @@ func Register(e *echo.Echo) {
 
 	verifyExtractedRoutes(t, expected, routes)
 }
+
+func TestExtractRoutes_WithMatch(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "extract_routes_match_test")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer func() { _ = os.RemoveAll(tmpDir) }()
+
+	goCode := `
+package test
+import (
+	"net/http"
+	"github.com/labstack/echo/v4"
+)
+func Register(e *echo.Echo) {
+	e.Match([]string{http.MethodGet, http.MethodHead}, "/health", nil)
+	e.Match([]string{"GET", "HEAD"}, "/about", nil)
+}
+`
+	err = os.WriteFile(filepath.Join(tmpDir, "routes.go"), []byte(goCode), 0600)
+	if err != nil {
+		t.Fatalf("failed to write test file: %v", err)
+	}
+
+	routes, err := ExtractRoutes(tmpDir)
+	if err != nil {
+		t.Fatalf("ExtractRoutes failed: %v", err)
+	}
+
+	expected := []Route{
+		{Method: "GET", Path: "/about"},
+		{Method: "GET", Path: "/health"},
+	}
+
+	verifyExtractedRoutes(t, expected, routes)
+}

@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/jadecobra/agbalumo/internal/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
@@ -53,4 +54,42 @@ func TestStaticCacheHeaders(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestPublicRoutes_HeadRequest(t *testing.T) {
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+
+	e := echo.New()
+	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewMainTemplate()}
+	setupMiddleware(e, app.Cfg)
+	setupRoutes(e, app)
+
+	// Seed a test listing
+	listingID := "5e195713-5a55-4f0b-b145-9741d3583660"
+	testutil.SaveTestListing(t, app.DB, listingID, "Mama Put Dallas")
+
+	// 1. HEAD /listings/{id} should return 200 OK with empty body
+	req := httptest.NewRequest(http.MethodHead, "/listings/"+listingID, nil)
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Empty(t, rec.Body.String())
+
+	// 2. HEAD / (home) should return 200 OK with empty body
+	reqHome := httptest.NewRequest(http.MethodHead, "/", nil)
+	recHome := httptest.NewRecorder()
+	e.ServeHTTP(recHome, reqHome)
+
+	assert.Equal(t, http.StatusOK, recHome.Code)
+	assert.Empty(t, recHome.Body.String())
+
+	// 3. HEAD to admin route should redirect to login (302/307)
+	adminReq := httptest.NewRequest(http.MethodHead, "/admin", nil)
+	adminRec := httptest.NewRecorder()
+	e.ServeHTTP(adminRec, adminReq)
+
+	assert.True(t, adminRec.Code == http.StatusFound || adminRec.Code == http.StatusTemporaryRedirect, "expected redirect status, got: %d", adminRec.Code)
+	assert.Contains(t, adminRec.Header().Get("Location"), "/auth/google/login")
 }

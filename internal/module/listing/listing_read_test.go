@@ -49,6 +49,25 @@ func TestHandleDetail(t *testing.T) {
 	assert.Contains(t, rec.Body.String(), "Detail View")
 }
 
+func TestHandleDetail_Head(t *testing.T) {
+	t.Parallel()
+	c, rec := testutil.SetupModuleContext(http.MethodHead, "/listings/1", nil)
+	c.SetParamNames("id")
+	c.SetParamValues("1")
+
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
+	testutil.SaveTestListing(t, env.App.DB, "1", "Detail View")
+
+	if err := h.HandleDetail(c); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Empty(t, rec.Body.String())
+}
+
 func TestHandleProfile(t *testing.T) {
 	t.Parallel()
 	c, rec := testutil.SetupModuleContext(http.MethodGet, "/profile", nil)

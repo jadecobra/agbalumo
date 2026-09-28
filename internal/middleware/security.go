@@ -40,3 +40,22 @@ func CanonicalPath(next echo.HandlerFunc) echo.HandlerFunc {
 		return next(c)
 	}
 }
+
+// SuppressHeadBody ensures HEAD responses never write a message body to the client
+// while preserving all status codes and response headers.
+func SuppressHeadBody(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		if c.Request().Method == http.MethodHead {
+			c.Response().Writer = &headDiscardWriter{ResponseWriter: c.Response().Writer}
+		}
+		return next(c)
+	}
+}
+
+type headDiscardWriter struct {
+	http.ResponseWriter
+}
+
+func (w *headDiscardWriter) Write(b []byte) (int, error) {
+	return len(b), nil
+}
