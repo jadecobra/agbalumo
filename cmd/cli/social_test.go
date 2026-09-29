@@ -96,7 +96,7 @@ func TestSocialDraftCmd(t *testing.T) {
 				"4.7",
 				"128 reviews",
 				"https://agbalumo.com/listings/test-dallas-1?utm_campaign=quality_index&utm_medium=social&utm_source=facebook",
-				"https://agbalumo.com/?city=Dallas&utm_campaign=quality_index&utm_medium=social&utm_source=facebook",
+				"https://agbalumo.com/?utm_campaign=quality_index&utm_medium=social&utm_source=facebook",
 				"https://agbalumo.com/?action=post&utm_campaign=quality_index&utm_medium=social&utm_source=facebook",
 				"Yoruba",
 			},
@@ -112,7 +112,7 @@ func TestSocialDraftCmd(t *testing.T) {
 				"T's Buka",
 				"+16822766400",
 				"https://agbalumo.com/listings/test-arlington-1?utm_campaign=airport_corridor&utm_medium=social&utm_source=facebook",
-				"https://agbalumo.com/?city=Arlington&utm_campaign=airport_corridor&utm_medium=social&utm_source=facebook",
+				"https://agbalumo.com/?utm_campaign=airport_corridor&utm_medium=social&utm_source=facebook",
 				"https://agbalumo.com/?action=post&utm_campaign=airport_corridor&utm_medium=social&utm_source=facebook",
 			},
 			omits: []string{
@@ -144,7 +144,7 @@ func TestSocialDraftCmd(t *testing.T) {
 				"Collin County",
 				"BOXOCHOPS",
 				"https://agbalumo.com/listings/test-plano-1?utm_campaign=sub_metro_corridor&utm_medium=social&utm_source=facebook",
-				"https://agbalumo.com/?city=Plano&utm_campaign=sub_metro_corridor&utm_medium=social&utm_source=facebook",
+				"https://agbalumo.com/?utm_campaign=sub_metro_corridor&utm_medium=social&utm_source=facebook",
 				"https://agbalumo.com/?action=post&utm_campaign=sub_metro_corridor&utm_medium=social&utm_source=facebook",
 			},
 			omits: []string{
@@ -379,4 +379,47 @@ func TestSocialDraft_DeepLinkVerification(t *testing.T) {
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "deep link verification failed")
 	})
+}
+
+func TestSocialDraft_RegionalExploreLinksContainNoCity(t *testing.T) {
+	repo := setupTestRepo(t)
+
+	tests := []struct {
+		name     string
+		city     string
+		campaign string
+		pillar   int
+	}{
+		{
+			name:     "pillar_1_quality_index",
+			city:     "Dallas",
+			campaign: "quality_index",
+			pillar:   1,
+		},
+		{
+			name:     "pillar_2_airport_corridor",
+			city:     "Dallas",
+			campaign: "airport_corridor",
+			pillar:   2,
+		},
+		{
+			name:     "pillar_4_sub_metro_corridor",
+			city:     "Plano",
+			campaign: "sub_metro_corridor",
+			pillar:   4,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			buf := new(bytes.Buffer)
+			err := cli.GenerateSocialDraft(repo, tc.pillar, "", tc.city, buf)
+			require.NoError(t, err)
+
+			output := buf.String()
+			expectedExploreURL := "https://agbalumo.com/?utm_campaign=" + tc.campaign + "&utm_medium=social&utm_source=facebook"
+			assert.Contains(t, output, expectedExploreURL)
+			assert.NotContains(t, output, "city=")
+		})
+	}
 }

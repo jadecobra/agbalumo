@@ -90,8 +90,8 @@ AGBALUMO_SOCIAL_DB=.tester/data/prod_snapshot.db agbalumo social draft --pillar 
 # 5. Spotlight next merchant via rotation (Pillar 3)
 AGBALUMO_SOCIAL_DB=.tester/data/prod_snapshot.db agbalumo social draft --pillar 3
 
-# 6. Explore Collin County corridor guide (Pillar 4) in Plano
-AGBALUMO_SOCIAL_DB=.tester/data/prod_snapshot.db agbalumo social draft --pillar 4 --city Plano
+# 6. Generate Collin County corridor guide (Pillar 4)
+AGBALUMO_SOCIAL_DB=.tester/data/prod_snapshot.db agbalumo social draft --pillar 4
 
 # 7. Save draft to file with strict link failure enforcement
 AGBALUMO_SOCIAL_DB=.tester/data/prod_snapshot.db agbalumo social draft --pillar 5 --fail-bad-links --output post_draft.txt

@@ -468,7 +468,7 @@ func renderPillar1QualityIndex(ctx context.Context, listings []domain.Listing, c
 	}
 
 	b.WriteString("Find verified spots, directions, and direct contact in under 60 seconds:\n")
-	b.WriteString(fmt.Sprintf("%s\n\n", buildTrackedURL("/", campaign, [2]string{"city", city})))
+	b.WriteString(fmt.Sprintf("%s\n\n", buildTrackedURL("/", campaign)))
 	b.WriteString("If we missed your trusted spot in DFW, add it directly to the network in under 60 seconds:\n")
 	b.WriteString(fmt.Sprintf("%s\n", buildTrackedURL("/", campaign, [2]string{"action", "post"})))
 	b.WriteString("================================================================================\n")
@@ -483,7 +483,6 @@ type corridorConfig struct {
 	destination  string
 	introLead    string
 	introList    string
-	exploreCity  string
 	exploreLabel string
 	addPrompt    string
 }
@@ -531,7 +530,7 @@ func renderCorridorDraft(ctx context.Context, spots []domain.Listing, cfg corrid
 	}
 
 	b.WriteString(cfg.exploreLabel + "\n")
-	b.WriteString(fmt.Sprintf("%s\n\n", buildTrackedURL("/", cfg.campaign, [2]string{"city", cfg.exploreCity})))
+	b.WriteString(fmt.Sprintf("%s\n\n", buildTrackedURL("/", cfg.campaign)))
 	b.WriteString(cfg.addPrompt + "\n")
 	b.WriteString(fmt.Sprintf("%s\n", buildTrackedURL("/", cfg.campaign, [2]string{"action", "post"})))
 	b.WriteString("================================================================================\n")
@@ -564,7 +563,6 @@ func renderPillar2AirportArrival(ctx context.Context, listings []domain.Listing,
 		introLead:    "When landing at DFW or navigating the mid-cities corridor, finding African food shouldn't mean driving across the entire metroplex.",
 		introList:    "Here are verified spots in the airport corridor cities (Arlington, Grand Prairie, Irving) with direct contact information:",
 		exploreLabel: "Explore all airport corridor African food spots in under 60 seconds:",
-		exploreCity:  "Arlington",
 		addPrompt:    "Know another African-owned spot near the airport corridor we missed? Add it directly to the network:",
 	}, w, cfg)
 }
@@ -709,7 +707,6 @@ func renderPillar4SubMetroCorridor(ctx context.Context, listings []domain.Listin
 		introLead:    "We don't need to head all the way into Central Dallas when craving authentic West African food.",
 		introList:    "Collin County has a trusted cluster of verified African kitchens across Plano, Allen, McKinney, and Frisco:",
 		exploreLabel: "Explore all North DFW and Collin County spots in under 60 seconds:",
-		exploreCity:  "Plano",
 		addPrompt:    "Know another African-owned kitchen in Collin County? Add it directly to the network:",
 	}, w, cfg)
 }
