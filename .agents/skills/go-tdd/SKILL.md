@@ -33,6 +33,7 @@ To minimize token consumption, reduce serial git overhead, and maintain TDD disc
    - Do NOT continue making guessing edits.
    - Present a structured diagnosis of the traceback to the user with hypotheses.
 6. **Atomic Commit**: Once the test passes locally (GREEN), stage and commit both the test and implementation files together as a single atomic commit: `feat(scope): implement X with unit tests` or `fix(scope): resolve Y with unit tests`.
+7. **Proceed to REFACTOR Phase**: Do not stop or yield after the atomic commit. Proceed immediately to the REFACTOR Phase to check for documentation drift and run the Proactive Improvement Scan.
 
 ## Surgical Hotfix Path (/hotfix)
 When triggered via `/hotfix <description>`:
@@ -56,8 +57,9 @@ When triggered via `/debug <symptom>`:
    - You MUST compare the output to ensure the total number of issues (especially Duplication/Clone Groups) is LESS THAN OR EQUAL TO the baseline. If violations increased, you MUST revert or fix the regression before committing.
 2. Run `go run ./cmd/verify heal` to auto-fix structural issues.
 3. Run `go test ./path/to/package/` to confirm nothing broke.
-4. Stage and commit: `git add . && git commit -m "refactor(scope): clean up X"`.
-5. **Proactive Improvement Scan**: On modified packages, evaluate:
+4. **Documentation Drift Check**: Identify any textual documentation (e.g. `docs/cli/*.md`, API specs, or module READMEs) corresponding to modified packages or features and update them to accurately reflect the new code behavior. Verify against `git diff` before committing.
+5. Stage and commit: `git add . && git commit -m "refactor(scope): clean up X"`.
+6. **Proactive Improvement Scan**: On modified packages, evaluate:
    - `go run ./cmd/verify context-cost` (file size and token density).
    - `go run ./cmd/verify deprecated` (new migration opportunities).
    - `go run ./cmd/verify agents-coverage` (missing package AGENTS.md).
@@ -70,3 +72,4 @@ When triggered via `/debug <symptom>`:
 - Do NOT skip `check-gates` because it enforces RED-before-GREEN ordering.
 - Do NOT force environment flag overrides (e.g. `AGBALUMO_ENV=production`) inside unit tests or local benchmarks to bypass dev-mode penalties (like template recompilation); test fidelity requires proper mock/cache injection rather than masking environment behavior.
 - Do NOT replace implicit SQLite rowid tiebreakers (e.g. `rowid ASC`) with explicit string ID tiebreakers (e.g. `id ASC`) in pagination or default ordering clauses unless explicitly required by domain specifications. Secondary indexes on rowid tables implicitly append `rowid ASC`; substituting string IDs alters natural insertion-order sorting and breaks index-order dependent E2E assertions.
+- Do NOT alter test inputs, parameters, or environment variables to bypass upstream domain logic or regional filters (e.g. passing `city=""` to dodge an active `isDFW` check) just to force local assertions to pass; test fixtures must supply realistic mock data that satisfies production filters.

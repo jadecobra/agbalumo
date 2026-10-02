@@ -73,9 +73,10 @@ go run ./cmd/verify snapshot-parity
    ```bash
    gh run watch <run-id> --exit-status
    ```
-   Set a single **300-second (5 minutes)** fail-safe timer via the `schedule` tool to capture hangs, then immediately yield the turn. The system's high-priority reactive completion will automatically wake you up with the final status when the pipeline concludes.
+   Set a single **300-second (5 minutes)** fail-safe timer via the `schedule` tool to capture hangs, then immediately yield the turn. Note: when setting `TimerCondition`, you MUST construct the fully qualified task ID (`<conversation-id>/task-<id>`) matching the background task; shorthand `task-<id>` will fail to match the runtime notification sender. The system's high-priority reactive completion will automatically wake you up with the final status when the pipeline concludes.
    - Exit code `0` = all jobs passed. You may proceed.
    - Any non-zero exit = pipeline failed. Do NOT declare the task complete; analyze failure logs via `gh run view <run-id> --log-failed` and resolve.
+   - If the fail-safe timer expires while the task is still running: inspect `gh run view` to confirm active progress. If the job is still actively progressing (not hung), schedule a subsequent 300s fail-safe timer and yield; do not revert to continuous polling loops.
 
 3. **Flaky API Bad Gateway Mitigation**: If a `gh run` command fails with a transient `HTTP 502/503/504 Bad Gateway` server error from the GitHub API, do NOT abort the task. Wait 10 seconds and retry the query/command up to 3 times before raising a failure.
 
