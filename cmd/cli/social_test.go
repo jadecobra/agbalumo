@@ -3,8 +3,10 @@ package cli_test
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/jadecobra/agbalumo/cmd/cli"
@@ -408,6 +410,12 @@ func TestSocialDraft_RegionalExploreLinksContainNoCity(t *testing.T) {
 			campaign: "sub_metro_corridor",
 			pillar:   4,
 		},
+		{
+			name:     "pillar_5_coverage_gaps",
+			city:     "Dallas",
+			campaign: "coverage_gaps",
+			pillar:   5,
+		},
 	}
 
 	for _, tc := range tests {
@@ -422,4 +430,149 @@ func TestSocialDraft_RegionalExploreLinksContainNoCity(t *testing.T) {
 			assert.NotContains(t, output, "city=")
 		})
 	}
+}
+
+func TestSocialDraft_Pillar5CoverageGaps_OneSpotPerCityAndCount(t *testing.T) {
+	repo, _ := setupTestRepoWithState(t)
+	ctx := context.Background()
+
+	// Seed Arlington with 2 additional listings so it has 3 listings total
+	_ = repo.Save(ctx, domain.Listing{
+		ID:          "test-arlington-2",
+		Title:       "Arlington Suya Spot",
+		Type:        domain.Food,
+		City:        "Arlington",
+		Rating:      4.9,
+		ReviewCount: 150,
+		Status:      domain.ListingStatusApproved,
+		IsActive:    true,
+	})
+	_ = repo.Save(ctx, domain.Listing{
+		ID:          "test-arlington-3",
+		Title:       "Arlington Jollof Joint",
+		Type:        domain.Food,
+		City:        "Arlington",
+		Rating:      4.5,
+		ReviewCount: 50,
+		Status:      domain.ListingStatusApproved,
+		IsActive:    true,
+	})
+
+	buf := new(bytes.Buffer)
+	err := cli.GenerateSocialDraft(repo, 5, "", "Dallas", buf)
+	require.NoError(t, err)
+
+	out := buf.String()
+	// Arlington has 3 listings: should show top-rated spot (Arlington Suya Spot) and "+2 more in Arlington"
+	assert.Contains(t, out, "Arlington Suya Spot")
+	assert.Contains(t, out, "+2 more in Arlington")
+	// Arlington's other 2 spots should NOT have deep links in the output
+	assert.NotContains(t, out, "https://agbalumo.com/listings/test-arlington-1")
+	assert.NotContains(t, out, "https://agbalumo.com/listings/test-arlington-3")
+}
+
+func TestSocialDraft_Pillar5CoverageGaps_NoBlindSpotWithTwoOrMoreListings(t *testing.T) {
+	repo, _ := setupTestRepoWithState(t)
+	ctx := context.Background()
+
+	// Seed Fort Worth with 2 listings
+	_ = repo.Save(ctx, domain.Listing{
+		ID:          "test-fw-1",
+		Title:       "Fort Worth Spot 1",
+		Type:        domain.Food,
+		City:        "Fort Worth",
+		Rating:      4.8,
+		ReviewCount: 80,
+		Status:      domain.ListingStatusApproved,
+		IsActive:    true,
+	})
+	_ = repo.Save(ctx, domain.Listing{
+		ID:          "test-fw-2",
+		Title:       "Fort Worth Spot 2",
+		Type:        domain.Food,
+		City:        "Fort Worth",
+		Rating:      4.2,
+		ReviewCount: 30,
+		Status:      domain.ListingStatusApproved,
+		IsActive:    true,
+	})
+
+	buf := new(bytes.Buffer)
+	err := cli.GenerateSocialDraft(repo, 5, "", "Dallas", buf)
+	require.NoError(t, err)
+
+	out := buf.String()
+	// Fort Worth has 2 listings, so it is an active city and MUST NOT be named as a blind spot
+	assert.Contains(t, out, "• Fort Worth:")
+	assert.NotContains(t, out, "blind spots in Fort Worth")
+	assert.NotContains(t, out, "blind spots in Frisco, Garland, Denton, and Fort Worth")
+	assert.NotContains(t, out, "Fort Worth.")
+	// But watchlist cities with 0 listings (like Frisco, Garland, Denton) should still be in blind spots
+	assert.Contains(t, out, "Frisco")
+}
+
+func TestSocialDraft_Pillar5CoverageGaps_CapFoldsExtraCities(t *testing.T) {
+	repo, _ := setupTestRepoWithState(t)
+	ctx := context.Background()
+
+	// Existing repo has Dallas (1), Plano (1), Arlington (1).
+	// Add 7 more cities to make 10 cities total:
+	// Grand Prairie, Irving, Fort Worth, McKinney, Allen, Frisco, Garland
+	moreCities := []string{"Grand Prairie", "Irving", "Fort Worth", "McKinney", "Allen", "Frisco", "Garland"}
+	for i, c := range moreCities {
+		_ = repo.Save(ctx, domain.Listing{
+			ID:          fmt.Sprintf("test-city-%d", i),
+			Title:       fmt.Sprintf("%s Spot", c),
+			Type:        domain.Food,
+			City:        c,
+			Rating:      4.5,
+			ReviewCount: 20,
+			Status:      domain.ListingStatusApproved,
+			IsActive:    true,
+		})
+	}
+
+	buf := new(bytes.Buffer)
+	err := cli.GenerateSocialDraft(repo, 5, "", "", buf)
+	require.NoError(t, err)
+
+	out := buf.String()
+	// At most 8 cities shown as full sections
+	assert.Contains(t, out, "Also mapped in")
+	// Total "• " city headers should be at most 8
+	countHeaders := strings.Count(out, "• ")
+	assert.LessOrEqual(t, countHeaders, 8)
+}
+
+func TestSocialDraft_Pillar5CoverageGaps_AllWatchlistCoveredDropsBlindSpotsLine(t *testing.T) {
+	repo, _ := setupTestRepoWithState(t)
+	ctx := context.Background()
+
+	// Fixed watchlist: Frisco, Garland, Denton, Mesquite, Richardson, Carrollton, Lewisville, Fort Worth
+	watchlist := []string{
+		"Frisco", "Garland", "Denton", "Mesquite", "Richardson", "Carrollton", "Lewisville", "Fort Worth",
+	}
+	// Seed each with 2 listings so all have >= 2 listings
+	for _, c := range watchlist {
+		for j := 1; j <= 2; j++ {
+			_ = repo.Save(ctx, domain.Listing{
+				ID:          fmt.Sprintf("test-%s-%d", strings.ToLower(c), j),
+				Title:       fmt.Sprintf("%s Kitchen %d", c, j),
+				Type:        domain.Food,
+				City:        c,
+				Rating:      4.6,
+				ReviewCount: 50,
+				Status:      domain.ListingStatusApproved,
+				IsActive:    true,
+			})
+		}
+	}
+
+	buf := new(bytes.Buffer)
+	err := cli.GenerateSocialDraft(repo, 5, "", "", buf)
+	require.NoError(t, err)
+
+	out := buf.String()
+	// When all watchlist cities have >= 2 listings, the blind spots line must be dropped completely
+	assert.NotContains(t, out, "blind spots")
 }

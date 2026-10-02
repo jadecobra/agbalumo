@@ -744,35 +744,161 @@ func renderCitySection(ctx context.Context, b *strings.Builder, city string, spo
 	return nil
 }
 
-func renderPillar5CoverageGaps(ctx context.Context, listings []domain.Listing, city string, state *SocialState, w io.Writer, cfg *socialConfig) error {
-	campaign := "coverage_gaps"
-	var b strings.Builder
+func joinNatural(items []string) string {
+	switch len(items) {
+	case 0:
+		return ""
+	case 1:
+		return items[0]
+	case 2:
+		return items[0] + " and " + items[1]
+	default:
+		return strings.Join(items[:len(items)-1], ", ") + ", and " + items[len(items)-1]
+	}
+}
+
+type cityGroup struct {
+	name  string
+	spots []domain.Listing
+}
+
+func groupAndSortCities(listings []domain.Listing) []cityGroup {
+	cityMap := make(map[string][]domain.Listing)
+	for _, l := range listings {
+		c := strings.TrimSpace(l.City)
+		if c == "" {
+			continue
+		}
+		cityMap[c] = append(cityMap[c], l)
+	}
+
+	groups := make([]cityGroup, 0, len(cityMap))
+	for c, spots := range cityMap {
+		groups = append(groups, cityGroup{name: c, spots: spots})
+	}
+
+	sort.SliceStable(groups, func(i, j int) bool {
+		if len(groups[i].spots) != len(groups[j].spots) {
+			return len(groups[i].spots) > len(groups[j].spots)
+		}
+		return groups[i].name < groups[j].name
+	})
+	return groups
+}
+
+func sortCitySpots(spots []domain.Listing) []domain.Listing {
+	sorted := make([]domain.Listing, len(spots))
+	copy(sorted, spots)
+	sort.SliceStable(sorted, func(i, j int) bool {
+		if sorted[i].Rating != sorted[j].Rating {
+			return sorted[i].Rating > sorted[j].Rating
+		}
+		if sorted[i].ReviewCount != sorted[j].ReviewCount {
+			return sorted[i].ReviewCount > sorted[j].ReviewCount
+		}
+		return sorted[i].Title < sorted[j].Title
+	})
+	return sorted
+}
+
+func renderCitySpotWithCount(ctx context.Context, b *strings.Builder, g cityGroup, state *SocialState, campaign string, cfg *socialConfig) error {
+	spots := sortCitySpots(g.spots)
+	leadSpot := rotateCitySpots(spots, g.name, state)[0]
+
+	b.WriteString(fmt.Sprintf("• %s:\n", g.name))
+	includeLink, err := verifyListingLink(ctx, cfg.verifier, cfg.stderr, leadSpot, campaign, cfg.failBadLinks)
+	if err != nil {
+		return err
+	}
+	renderCitySpotItem(b, leadSpot, campaign, includeLink)
+	if len(g.spots) > 1 {
+		b.WriteString(fmt.Sprintf("  +%d more in %s\n", len(g.spots)-1, g.name))
+	}
+	b.WriteString("\n")
+	return nil
+}
+
+func qualifyBlindSpots(listings []domain.Listing) []string {
+	watchlist := []string{
+		"Frisco",
+		"Garland",
+		"Denton",
+		"Mesquite",
+		"Richardson",
+		"Carrollton",
+		"Lewisville",
+		"Fort Worth",
+	}
+
+	cityCounts := make(map[string]int)
+	for _, l := range listings {
+		cityCounts[strings.ToLower(strings.TrimSpace(l.City))]++
+	}
+
+	var qualifying []string
+	for _, wCity := range watchlist {
+		if cityCounts[strings.ToLower(wCity)] <= 1 {
+			qualifying = append(qualifying, wCity)
+		}
+	}
+	return qualifying
+}
+
+func writePillar5Intro(b *strings.Builder, displayedGroups []cityGroup) {
 	b.WriteString("================================================================================\n")
 	b.WriteString("[DRAFT - Pillar 5: Radical Transparency & Coverage Gaps]\n")
 	b.WriteString("Recommended Destination: DFW Diaspora Groups / Facebook Feed (High Comment Volume)\n")
 	b.WriteString("================================================================================\n")
-	b.WriteString("We started Agbalumo to map African-owned businesses where we don't have to explain ourselves, starting with food. Right now, Dallas-Fort Worth is our strongest network with verified spots across Dallas, Plano, Arlington, Grand Prairie, and McKinney.\n\n")
+
+	if len(displayedGroups) == 0 {
+		b.WriteString("We started Agbalumo to map African-owned businesses where we don't have to explain ourselves, starting with food. Right now, Dallas-Fort Worth is our strongest network.\n\n")
+		b.WriteString("Here are verified spots mapped so far with community reviews:\n\n")
+		return
+	}
+
+	names := make([]string, len(displayedGroups))
+	for i, g := range displayedGroups {
+		names[i] = g.name
+	}
+	b.WriteString(fmt.Sprintf("We started Agbalumo to map African-owned businesses where we don't have to explain ourselves, starting with food. Right now, Dallas-Fort Worth is our strongest network with verified spots across %s.\n\n", joinNatural(names)))
 	b.WriteString("Here are verified spots mapped so far with community reviews:\n\n")
+}
 
-	cityMap := make(map[string][]domain.Listing)
-	for _, l := range listings {
-		cityMap[l.City] = append(cityMap[l.City], l)
+func renderPillar5CoverageGaps(ctx context.Context, listings []domain.Listing, city string, state *SocialState, w io.Writer, cfg *socialConfig) error {
+	campaign := "coverage_gaps"
+	groups := groupAndSortCities(listings)
+
+	maxCities := 8
+	if len(groups) < maxCities {
+		maxCities = len(groups)
 	}
+	displayedGroups := groups[:maxCities]
+	extraGroups := groups[maxCities:]
 
-	var cities []string
-	for c := range cityMap {
-		cities = append(cities, c)
-	}
-	sort.Strings(cities)
+	var b strings.Builder
+	writePillar5Intro(&b, displayedGroups)
 
-	for _, c := range cities {
-		spots := rotateCitySpots(cityMap[c], c, state)
-		if err := renderCitySection(ctx, &b, c, spots, campaign, cfg); err != nil {
+	for _, g := range displayedGroups {
+		if err := renderCitySpotWithCount(ctx, &b, g, state, campaign, cfg); err != nil {
 			return err
 		}
 	}
 
-	b.WriteString("We know there are blind spots in Frisco, Garland, Denton, and Fort Worth.\n\n")
+	if len(extraGroups) > 0 {
+		names := make([]string, len(extraGroups))
+		for i, g := range extraGroups {
+			names[i] = g.name
+		}
+		b.WriteString(fmt.Sprintf("Also mapped in %s.\n\n", joinNatural(names)))
+	}
+
+	blindSpots := qualifyBlindSpots(listings)
+	if len(blindSpots) > 0 {
+		b.WriteString(fmt.Sprintf("We know there are blind spots in %s.\n\n", joinNatural(blindSpots)))
+	}
+
+	b.WriteString("Find verified spots, directions, and direct contact in under 60 seconds:\n")
+	b.WriteString(fmt.Sprintf("%s\n\n", buildTrackedURL("/", campaign)))
 	b.WriteString("Who are we missing? Add your favorite auntie's spot or suya joint directly to the network in under 60 seconds:\n")
 	b.WriteString(fmt.Sprintf("%s\n", buildTrackedURL("/", campaign, [2]string{"action", "post"})))
 	b.WriteString("================================================================================\n")
