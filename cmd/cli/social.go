@@ -731,19 +731,6 @@ func renderCitySpotItem(b *strings.Builder, s domain.Listing, campaign string, i
 	b.WriteString(fmt.Sprintf("  - %s: %s%s\n", s.Title, ratingStr, link))
 }
 
-func renderCitySection(ctx context.Context, b *strings.Builder, city string, spots []domain.Listing, campaign string, cfg *socialConfig) error {
-	b.WriteString(fmt.Sprintf("• %s:\n", city))
-	for _, s := range spots {
-		includeLink, err := verifyListingLink(ctx, cfg.verifier, cfg.stderr, s, campaign, cfg.failBadLinks)
-		if err != nil {
-			return err
-		}
-		renderCitySpotItem(b, s, campaign, includeLink)
-	}
-	b.WriteString("\n")
-	return nil
-}
-
 func joinNatural(items []string) string {
 	switch len(items) {
 	case 0:

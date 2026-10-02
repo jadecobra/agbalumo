@@ -63,7 +63,7 @@ To guarantee that public deep links (`https://agbalumo.com/listings/{id}`) never
 2. **Pillar 2: Airport Corridor Cities** — Verified spots in corridor cities (Arlington, Grand Prairie, Irving).
 3. **Pillar 3: Merchant Spotlight** — Dedicated spotlight on an individual merchant. Specify `--listing-id` to target a venue, or omit to rotate through unfeatured listings.
 4. **Pillar 4: Sub-Metro Corridor Guide** — Highlights North DFW and Collin County spots (Plano, Allen, McKinney, Frisco).
-5. **Pillar 5: Radical Transparency & Coverage Gaps** — City-by-city breakdown of mapped spots and open call for missing community gems.
+5. **Pillar 5: Radical Transparency & Coverage Gaps** — Top spot per city with counts, blind spots built from the data, and an open call for missing spots.
 
 **Exposure & Rotation Engine:**
 
