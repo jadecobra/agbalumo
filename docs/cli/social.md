@@ -31,6 +31,7 @@ agbalumo social draft [flags]
 | `--city` | | "Dallas" | Target city or metro anchor |
 | `--output` | `-o` | "" | Optional path to write drafted copy |
 | `--fail-bad-links` | | false | Fail draft immediately if any deep link returns non-2xx (default: omit bad links with loud stderr; pillar 3 always fails) |
+| `--strict` | | false | Fail draft immediately if any draft lint check fails (default: warn to stderr and emit draft) |
 
 **Dual-Gate Data Integrity:**
 

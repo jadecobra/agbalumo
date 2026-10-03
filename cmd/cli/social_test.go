@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/jadecobra/agbalumo/cmd/cli"
 	"github.com/jadecobra/agbalumo/internal/domain"
@@ -575,4 +576,173 @@ func TestSocialDraft_Pillar5CoverageGaps_AllWatchlistCoveredDropsBlindSpotsLine(
 	out := buf.String()
 	// When all watchlist cities have >= 2 listings, the blind spots line must be dropped completely
 	assert.NotContains(t, out, "blind spots")
+}
+
+func TestSocialDraft_Lint_MessyMenuLinks(t *testing.T) {
+	repo, _ := setupTestRepoWithState(t)
+	ctx := context.Background()
+
+	_ = repo.Save(ctx, domain.Listing{
+		ID:          "test-shopify-1",
+		Title:       "LeAnna Chop Grill",
+		Type:        domain.Food,
+		City:        "Fort Worth",
+		Rating:      4.9,
+		ReviewCount: 200,
+		WebsiteURL:  "https://g2igzc-as.myshopify.com/",
+		Status:      domain.ListingStatusApproved,
+		IsActive:    true,
+	})
+
+	stderrBuf := new(bytes.Buffer)
+	outBuf := new(bytes.Buffer)
+	err := cli.GenerateSocialDraft(repo, 3, "test-shopify-1", "Fort Worth", outBuf, cli.WithStderr(stderrBuf))
+	require.NoError(t, err)
+
+	stderr := stderrBuf.String()
+	assert.Contains(t, stderr, "lint: menu link is raw myshopify — LeAnna Chop Grill (test-shopify-1)")
+	assert.Contains(t, outBuf.String(), "LeAnna Chop Grill")
+}
+
+func TestSocialDraft_Lint_TrackingParamsCleaned(t *testing.T) {
+	repo, _ := setupTestRepoWithState(t)
+	ctx := context.Background()
+
+	_ = repo.Save(ctx, domain.Listing{
+		ID:          "test-tracking-1",
+		Title:       "Kanny's Restaurant",
+		Type:        domain.Food,
+		City:        "Dallas",
+		Rating:      4.9,
+		ReviewCount: 250,
+		WebsiteURL:  "https://kannysrestaurant.com/catering-services/?v=28886f13f578",
+		Status:      domain.ListingStatusApproved,
+		IsActive:    true,
+	})
+
+	stderrBuf := new(bytes.Buffer)
+	outBuf := new(bytes.Buffer)
+	err := cli.GenerateSocialDraft(repo, 3, "test-tracking-1", "Dallas", outBuf, cli.WithStderr(stderrBuf))
+	require.NoError(t, err)
+
+	stderr := stderrBuf.String()
+	assert.Contains(t, stderr, "lint: menu link carries tracking params — Kanny's Restaurant (test-tracking-1) (cleaned: https://kannysrestaurant.com/catering-services/)")
+}
+
+func TestSocialDraft_Lint_CityListedAndBlindSpot(t *testing.T) {
+	repo, _ := setupTestRepoWithState(t)
+	ctx := context.Background()
+
+	_ = repo.Save(ctx, domain.Listing{
+		ID:          "test-fw-single",
+		Title:       "Fort Worth Suya Spot",
+		Type:        domain.Food,
+		City:        "Fort Worth",
+		Rating:      4.9,
+		ReviewCount: 150,
+		Status:      domain.ListingStatusApproved,
+		IsActive:    true,
+	})
+
+	stderrBuf := new(bytes.Buffer)
+	outBuf := new(bytes.Buffer)
+	err := cli.GenerateSocialDraft(repo, 5, "", "", outBuf, cli.WithStderr(stderrBuf))
+	require.NoError(t, err)
+
+	stderr := stderrBuf.String()
+	assert.Contains(t, stderr, "lint: city Fort Worth is both listed and called a blind spot")
+}
+
+func TestSocialDraft_Lint_RepeatFeatures(t *testing.T) {
+	repo, statePath := setupTestRepoWithState(t)
+	ctx := context.Background()
+
+	_ = repo.Save(ctx, domain.Listing{
+		ID:          "test-repeat-1",
+		Title:       "Recent Spot",
+		Type:        domain.Food,
+		City:        "Dallas",
+		Rating:      4.9,
+		ReviewCount: 100,
+		Status:      domain.ListingStatusApproved,
+		IsActive:    true,
+	})
+
+	yesterday := time.Now().Add(-24 * time.Hour).Format(time.RFC3339)
+	initialJSON := fmt.Sprintf(`{
+  "offsets": {},
+  "recently_featured": [
+    {"id": "test-repeat-1", "featured_at": "%s"}
+  ]
+}`, yesterday)
+	require.NoError(t, os.WriteFile(statePath, []byte(initialJSON), 0600))
+
+	stderrBuf := new(bytes.Buffer)
+	outBuf := new(bytes.Buffer)
+	err := cli.GenerateSocialDraft(repo, 3, "test-repeat-1", "Dallas", outBuf, cli.WithStderr(stderrBuf))
+	require.NoError(t, err)
+
+	stderr := stderrBuf.String()
+	assert.Contains(t, stderr, "lint: spot test-repeat-1 was featured in the last 3 days")
+}
+
+func TestSocialDraft_Lint_TooLong(t *testing.T) {
+	repo, _ := setupTestRepoWithState(t)
+	ctx := context.Background()
+
+	for i := 1; i <= 12; i++ {
+		_ = repo.Save(ctx, domain.Listing{
+			ID:          fmt.Sprintf("test-long-%02d", i),
+			Title:       fmt.Sprintf("Long Spot %02d", i),
+			Type:        domain.Food,
+			City:        fmt.Sprintf("City%02d", i),
+			Rating:      4.9,
+			ReviewCount: 100,
+			Status:      domain.ListingStatusApproved,
+			IsActive:    true,
+		})
+	}
+
+	stderrBuf := new(bytes.Buffer)
+	outBuf := new(bytes.Buffer)
+	err := cli.GenerateSocialDraft(repo, 5, "", "", outBuf, cli.WithStderr(stderrBuf))
+	require.NoError(t, err)
+
+	stderr := stderrBuf.String()
+	assert.True(t, strings.Contains(stderr, "lint: draft has more than 10 listing links") || strings.Contains(stderr, "lint: draft body exceeds 2000 characters"))
+}
+
+func TestSocialDraft_Lint_StrictModeFailsAndPreservesState(t *testing.T) {
+	repo, statePath := setupTestRepoWithState(t)
+	ctx := context.Background()
+
+	_ = repo.Save(ctx, domain.Listing{
+		ID:         "test-shopify-strict",
+		Title:      "LeAnna Chop Grill",
+		Type:       domain.Food,
+		City:       "Fort Worth",
+		Rating:     4.9,
+		WebsiteURL: "https://g2igzc-as.myshopify.com/",
+		Status:     domain.ListingStatusApproved,
+		IsActive:   true,
+	})
+
+	initialJSON := "{\n  \"offsets\": {\n    \"pillar_3\": 0\n  }\n}"
+	require.NoError(t, os.WriteFile(statePath, []byte(initialJSON), 0600))
+	infoBefore, err := os.Stat(statePath)
+	require.NoError(t, err)
+
+	stderrBuf := new(bytes.Buffer)
+	outBuf := new(bytes.Buffer)
+	err = cli.GenerateSocialDraft(repo, 3, "test-shopify-strict", "Fort Worth", outBuf, cli.WithStderr(stderrBuf), cli.WithStrictMode(true))
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "lint check failed")
+
+	infoAfter, err := os.Stat(statePath)
+	require.NoError(t, err)
+	assert.Equal(t, infoBefore.ModTime(), infoAfter.ModTime())
+
+	contentAfter, err := os.ReadFile(filepath.Clean(statePath))
+	require.NoError(t, err)
+	assert.Equal(t, initialJSON, string(contentAfter))
 }
