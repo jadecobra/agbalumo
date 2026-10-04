@@ -8,8 +8,9 @@ import (
 )
 
 const (
-	extGo   = ".go"
-	vVendor = "vendor"
+	extGo        = ".go"
+	vVendor      = "vendor"
+	vNodeModules = "node_modules"
 )
 
 // CheckGosecRationale verifies that all // #nosec directives include a rationale comment.
