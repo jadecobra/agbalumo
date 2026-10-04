@@ -60,6 +60,10 @@ commands:
     trigger: before_commit, code_refactoring
     description: Early cognitive complexity profiling and diagnostics
 
+  - name: handler-concurrency
+    trigger: before_commit, architectural_audit
+    description: Audit HTTP handlers in internal/module/ for unbounded or excessive database concurrency
+
   - name: skill-conformance
     trigger: skill_change
     description: Validate SKILL.md YAML frontmatter completeness
