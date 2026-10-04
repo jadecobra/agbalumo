@@ -60,6 +60,7 @@ When triggered via `/debug <symptom>`:
 4. **Documentation Drift Check**: Identify any textual documentation (e.g. `docs/cli/*.md`, API specs, or module READMEs) corresponding to modified packages or features and update them to accurately reflect the new code behavior. Verify against `git diff` before committing.
 5. Stage and commit: `git add . && git commit -m "refactor(scope): clean up X"`.
 6. **Proactive Improvement Scan**: On modified packages, evaluate:
+   - `go run ./cmd/verify complexity` (early cognitive complexity profiling before precommit).
    - `go run ./cmd/verify context-cost` (file size and token density).
    - `go run ./cmd/verify deprecated` (new migration opportunities).
    - `go run ./cmd/verify agents-coverage` (missing package AGENTS.md).

@@ -63,6 +63,19 @@ func TestPipeDrainCmdRegistered(t *testing.T) {
 	}
 }
 
+func TestComplexityCmdRegistered(t *testing.T) {
+	found := false
+	for _, cmd := range rootCmd.Commands() {
+		if cmd.Name() == "complexity" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatal("complexity subcommand is not registered")
+	}
+}
+
 func TestGetVerificationOpts(t *testing.T) {
 	origDir, err := os.Getwd()
 	if err != nil {

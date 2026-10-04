@@ -463,3 +463,12 @@ Verify CSS cache buster hash matches output.css.
 ```bash
 agbalumo verify cache-buster
 ```
+
+##### complexity
+
+Early profiling of cognitive complexity across Go functions.
+
+```bash
+agbalumo verify complexity [--threshold=10] [--top=20] [--diagnostics]
+```
+

@@ -282,6 +282,9 @@ commands:
   - name: context-cost
     trigger: after_refactor
     description: Monitor token density regression
+  - name: complexity
+    trigger: before_commit, code_refactoring
+    description: Early cognitive complexity profiling and diagnostics
   - name: skill-conformance
     trigger: skill_change
     description: Validate SKILL.md YAML frontmatter completeness

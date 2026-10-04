@@ -93,6 +93,7 @@ func init() {
 		enrichCmd,
 
 		// Misc Domain
+		complexityCmd,
 		costCmd,
 		coverageCmd,
 		auditCmd,
