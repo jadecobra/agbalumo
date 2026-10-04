@@ -27,7 +27,7 @@ func ProfileComplexity(rootDir string, opts ComplexityProfileOptions) ([]gocogni
 		if err != nil {
 			return err
 		}
-		if shouldSkipComplexityDir(d) {
+		if shouldSkipComplexityDir(path, d) {
 			return filepath.SkipDir
 		}
 		if !isCandidateGoFile(d) {
@@ -47,11 +47,14 @@ func ProfileComplexity(rootDir string, opts ComplexityProfileOptions) ([]gocogni
 	return limitStats(allStats, opts.Top), nil
 }
 
-func shouldSkipComplexityDir(d fs.DirEntry) bool {
+func shouldSkipComplexityDir(path string, d fs.DirEntry) bool {
 	if !d.IsDir() {
 		return false
 	}
 	name := d.Name()
+	if name == "." {
+		return false
+	}
 	return strings.HasPrefix(name, ".") || name == vVendor || name == vNodeModules
 }
 
