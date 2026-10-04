@@ -76,6 +76,19 @@ func TestComplexityCmdRegistered(t *testing.T) {
 	}
 }
 
+func TestHandlerConcurrencyCmdRegistered(t *testing.T) {
+	found := false
+	for _, cmd := range rootCmd.Commands() {
+		if cmd.Name() == "handler-concurrency" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatal("handler-concurrency subcommand is not registered")
+	}
+}
+
 func TestGetVerificationOpts(t *testing.T) {
 	origDir, err := os.Getwd()
 	if err != nil {

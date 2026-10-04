@@ -140,6 +140,7 @@ func init() {
 		surfaceParityCmd,
 		cachebusterCmd,
 		feedbackListCmd,
+		handlerConcurrencyCmd,
 	)
 }
 

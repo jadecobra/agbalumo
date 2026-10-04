@@ -472,3 +472,12 @@ Early profiling of cognitive complexity across Go functions.
 agbalumo verify complexity [--threshold=10] [--top=20] [--diagnostics]
 ```
 
+##### handler-concurrency
+
+Audit HTTP handlers in `internal/module/` for unbounded or excessive database concurrency.
+
+```bash
+agbalumo verify handler-concurrency [--limit=4]
+```
+
+
