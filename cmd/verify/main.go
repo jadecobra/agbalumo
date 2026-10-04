@@ -126,6 +126,7 @@ func init() {
 		agentsCoverageCmd,
 		playwrightConfigCmd,
 		testIsolationCmd,
+		pipeDrainCmd,
 		snapshotParityCmd,
 		uptimeCmd,
 		playwrightVersionCmd,

@@ -50,6 +50,19 @@ func TestBrowserCmdRegistered(t *testing.T) {
 	}
 }
 
+func TestPipeDrainCmdRegistered(t *testing.T) {
+	found := false
+	for _, cmd := range rootCmd.Commands() {
+		if cmd.Name() == "pipe-drain" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatal("pipe-drain subcommand is not registered")
+	}
+}
+
 func TestGetVerificationOpts(t *testing.T) {
 	origDir, err := os.Getwd()
 	if err != nil {

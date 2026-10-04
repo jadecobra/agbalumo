@@ -86,7 +86,7 @@ Read this file at session start. Match intent against triggers. Read the skill f
 | /red-team, /challenge, red team, challenge idea | `.agents/skills/red-team/SKILL.md` |
 | /doc-prune, doc prune, prune documentation, prune docs | `.agents/skills/doc-prune/SKILL.md` |
 | /deploy-secrets, deploy secrets, rotate keys, push secrets | `.agents/skills/deploy-secrets/SKILL.md` |
-| /stress-test, stress test, benchmark system, load test | `.agents/skills/stress-test/SKILL.md` |
+| /stress-test, stress test, benchmark system, load test, performance optimization | `.agents/skills/stress-test/SKILL.md` |
 ## Disambiguation
 1. Slash command → Workflow Commands table.
 2. Modifying `*_test.go` or user says "test" → `go-tdd`.
@@ -345,6 +345,9 @@ commands:
   - name: test-isolation
     trigger: test_authoring
     description: Verify test files isolate git environments properly
+  - name: pipe-drain
+    trigger: test_authoring
+    description: Verify test files using os.Pipe drain concurrently
   - name: janitor
     trigger: root_directory_clutter
     description: Move stale root artifacts to .tester/
@@ -425,7 +428,7 @@ skills:
     trigger: /deploy-secrets, deploy_secrets, rotate_keys, push_secrets
     path: .agents/skills/deploy-secrets/SKILL.md
   - name: stress-test
-    trigger: /stress-test, stress_test, benchmark_system, load_test
+    trigger: /stress-test, stress_test, benchmark_system, load_test, performance_optimization
     path: .agents/skills/stress-test/SKILL.md
 tools:
   - name: schema

@@ -1,11 +1,12 @@
 package maintenance
 
 import (
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/jadecobra/agbalumo/internal/testutil"
 )
 
 func TestRunSessionContext(t *testing.T) {
@@ -109,23 +110,5 @@ func writeFile(t *testing.T, path, content string) {
 
 func captureStdout(t *testing.T, fn func() error) string {
 	t.Helper()
-	old := os.Stdout
-	r, w, _ := os.Pipe()
-	os.Stdout = w
-
-	err := fn()
-
-	if errClose := w.Close(); errClose != nil {
-		t.Fatal(errClose)
-	}
-	os.Stdout = old
-
-	var buf strings.Builder
-	_, _ = io.Copy(&buf, r)
-	output := buf.String()
-
-	if err != nil {
-		t.Errorf("Capture failed: %v", err)
-	}
-	return output
+	return testutil.CaptureStdout(t, fn)
 }

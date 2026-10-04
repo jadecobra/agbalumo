@@ -140,6 +140,10 @@ commands:
     trigger: test_authoring
     description: Verify test files isolate git environments properly
 
+  - name: pipe-drain
+    trigger: test_authoring
+    description: Verify test files using os.Pipe drain concurrently
+
   - name: janitor
     trigger: root_directory_clutter
     description: Move stale root artifacts to .tester/

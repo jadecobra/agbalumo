@@ -226,6 +226,14 @@ Verify that test files properly isolate git environments from the parent process
 agbalumo verify test-isolation
 ```
 
+##### pipe-drain
+
+Verify that test files using os.Pipe drain concurrently in a goroutine to prevent buffer deadlocks.
+
+```bash
+agbalumo verify pipe-drain
+```
+
 ##### playwright-config
 
 Verify that Playwright configuration prevents port exhaustion by mandating `open: 'never'`.
