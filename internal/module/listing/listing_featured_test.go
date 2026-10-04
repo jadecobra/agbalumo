@@ -156,7 +156,3 @@ func setupFeaturedTest(t *testing.T, method, target string) (echo.Context, *http
 	h := listing.NewListingHandler(env.App)
 	return c, rec, env, h
 }
-
-func assertFeaturedStatus(t *testing.T, db domain.ListingRepository, id string, expected bool) {
-	testutil.AssertFeaturedStatus(t, db, id, expected)
-}

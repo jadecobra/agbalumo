@@ -265,14 +265,6 @@ func resolveHTTPMethodIdent(sel *ast.SelectorExpr) string {
 	return methodMap[sel.Sel.Name]
 }
 
-func parseRouteCall(n ast.Node, groupPaths map[string]string) (method, path string) {
-	routes := parseRouteCalls(n, groupPaths)
-	if len(routes) > 0 {
-		return routes[0].Method, routes[0].Path
-	}
-	return "", ""
-}
-
 func isHttpMethod(method string) bool {
 	switch method {
 	case "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD":

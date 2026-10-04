@@ -34,29 +34,6 @@ func (s *stubListingStore) GetLocations(ctx context.Context) ([]domain.Location,
 	return []domain.Location{{City: "Lagos"}, {City: "London"}}, nil
 }
 
-func assertCacheCounts(t *testing.T, stub *stubListingStore, result map[domain.Category]int, wantCalls int) {
-	t.Helper()
-	if stub.getCountsCalls != wantCalls {
-		t.Errorf("expected %d call(s) to underlying store, got %d", wantCalls, stub.getCountsCalls)
-	}
-	if result[domain.Business] != 5 {
-		t.Errorf("expected Business=5, got %d", result[domain.Business])
-	}
-	if result[domain.Food] != 3 {
-		t.Errorf("expected Food=3, got %d", result[domain.Food])
-	}
-}
-
-func assertCacheLocations(t *testing.T, stub *stubListingStore, result []domain.Location, wantCalls int) {
-	t.Helper()
-	if stub.getLocationsCalls != wantCalls {
-		t.Errorf("expected %d call(s) to underlying store, got %d", wantCalls, stub.getLocationsCalls)
-	}
-	if len(result) != 2 || result[0].City != "Lagos" || result[1].City != "London" {
-		t.Errorf("unexpected locations: %v", result)
-	}
-}
-
 func testCacheMiss(t *testing.T, prefix string, getFn func(Store *CachedListingStore) (int, error)) {
 	t.Run(prefix+"_CacheMiss", func(t *testing.T) {
 		stub := &stubListingStore{}

@@ -217,11 +217,3 @@ func scanAll[T any](rows *sql.Rows, scanFunc func(Scanner) (T, error)) ([]T, err
 	}
 	return results, rows.Err()
 }
-
-func scanStrings(rows *sql.Rows) ([]string, error) {
-	return scanAll(rows, func(s Scanner) (string, error) {
-		var str string
-		err := s.Scan(&str)
-		return str, err
-	})
-}

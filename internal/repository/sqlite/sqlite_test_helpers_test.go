@@ -2,12 +2,10 @@ package sqlite_test
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
-	"github.com/jadecobra/agbalumo/internal/testutil"
 )
 
 // saveTestListing is a helper that wraps repo.Save and calls t.Fatal on error.
@@ -45,24 +43,4 @@ func saveTestCategory(t *testing.T, ctx context.Context, repo domain.CategorySto
 	if err := repo.SaveCategory(ctx, cat); err != nil {
 		t.Fatalf("Failed to save test category %q: %v", cat.ID, err)
 	}
-}
-
-// setupBenchmarkDB seeds the DB with n listings for benchmarks.
-func setupBenchmarkDB(b *testing.B, n int) (domain.ListingRepository, context.Context, func()) {
-	b.Helper()
-	repo, _ := testutil.SetupTestRepositoryUnique(b)
-	ctx := context.Background()
-
-	for i := 0; i < n; i++ {
-		_ = repo.Save(ctx, domain.Listing{
-			ID:          fmt.Sprintf("l%d", i),
-			Title:       fmt.Sprintf("Listing %d", i),
-			Type:        domain.Business,
-			OwnerOrigin: "Nigeria",
-			Address:     "123 St",
-			Description: "Desc",
-			IsActive:    true,
-		})
-	}
-	return repo, ctx, func() { _ = repo.Close() }
 }
