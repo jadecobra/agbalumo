@@ -207,17 +207,6 @@ func (s *WebsiteScraper) mapHeatLevel(count int) int {
 	return count
 }
 
-func (s *WebsiteScraper) isLikelySignature(text string) bool {
-	lower := strings.ToLower(text)
-	indicators := []string{"signature", "special", "popular", "recommended", "famous", "dish"}
-	for _, ind := range indicators {
-		if strings.Contains(lower, ind) {
-			return true
-		}
-	}
-	return false
-}
-
 func (s *WebsiteScraper) isMenuLink(link string) bool {
 	if s.isExcluded(link) {
 		return false

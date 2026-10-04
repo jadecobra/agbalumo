@@ -888,16 +888,6 @@ func selectSpotlight(ctx context.Context, repo domain.ListingRepository, listing
 	return rotateSpotlight(listings, state), nil
 }
 
-func recordSpotlightFeatured(state *SocialState, id string) {
-	state.RecentlyFeatured = append(state.RecentlyFeatured, FeaturedSpot{
-		ID:         id,
-		FeaturedAt: time.Now().UTC(),
-	})
-	if len(state.RecentlyFeatured) > 50 {
-		state.RecentlyFeatured = state.RecentlyFeatured[len(state.RecentlyFeatured)-50:]
-	}
-}
-
 func renderPillar3MerchantSpotlight(ctx context.Context, repo domain.ListingRepository, listings []domain.Listing, listingID string, state *SocialState, w io.Writer, cfg *socialConfig, draft *draftData) error {
 	spotlight, err := selectSpotlight(ctx, repo, listings, listingID, state)
 	if err != nil {

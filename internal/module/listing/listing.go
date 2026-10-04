@@ -443,14 +443,6 @@ func (h *ListingHandler) getSavedIDs(c echo.Context) []string {
 	return nil
 }
 
-func (h *ListingHandler) mapCounts(counts map[domain.Category]int) map[string]int {
-	strCounts := make(map[string]int)
-	for cat, count := range counts {
-		strCounts[string(cat)] = count
-	}
-	return strCounts
-}
-
 func (h *ListingHandler) getFileHeader(c echo.Context, key string) *multipart.FileHeader {
 	file, err := c.FormFile(key)
 	if err != nil {

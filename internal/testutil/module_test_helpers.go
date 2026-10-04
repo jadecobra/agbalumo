@@ -86,8 +86,3 @@ func containsHTMXMarkers(body string) bool {
 		(strings.Contains(body, `hx-target`)) ||
 		(strings.Contains(body, `hx-trigger`)))
 }
-
-// Re-implementing contains to avoid depending on it or using standard library
-func contains(s, substr string) bool {
-	return strings.Contains(s, substr)
-}
