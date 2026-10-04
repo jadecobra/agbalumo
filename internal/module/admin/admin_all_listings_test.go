@@ -111,7 +111,7 @@ func TestAdminHandler_HandleAllListings_EnrichmentAttemptedAt(t *testing.T) {
 	defer env.Cleanup()
 	ctx := context.Background()
 
-	now := time.Now()
+	now := time.Now().UTC()
 	_ = env.App.DB.Save(ctx, domain.Listing{
 		ID:                    "l1",
 		Title:                 "Enriched Listing",
