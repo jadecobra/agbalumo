@@ -14,7 +14,6 @@ type snapshotParityTestCase struct {
 	wantViol  bool
 }
 
-//nolint:gocognit
 func TestCheckSnapshotParity(t *testing.T) {
 	tests := []snapshotParityTestCase{
 		{
@@ -57,22 +56,27 @@ func TestCheckSnapshotParity(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tmpDir := t.TempDir()
-			var fileMap map[string]string
-			if err := json.Unmarshal([]byte(tt.files), &fileMap); err != nil {
-				t.Fatalf("failed to unmarshal files: %v", err)
-			}
-			setupSnapshots(t, tmpDir, fileMap)
-
-			violations, err := CheckSnapshotParity(tmpDir)
-			if err != nil {
-				t.Fatalf("CheckSnapshotParity failed: %v", err)
-			}
-
-			if (len(violations) > 0) != tt.wantViol || len(violations) != tt.wantCount {
-				t.Errorf("got %d violations, want %d", len(violations), tt.wantCount)
-			}
+			runSnapshotParityTest(t, tt)
 		})
+	}
+}
+
+func runSnapshotParityTest(t *testing.T, tt snapshotParityTestCase) {
+	t.Helper()
+	tmpDir := t.TempDir()
+	var fileMap map[string]string
+	if err := json.Unmarshal([]byte(tt.files), &fileMap); err != nil {
+		t.Fatalf("failed to unmarshal files: %v", err)
+	}
+	setupSnapshots(t, tmpDir, fileMap)
+
+	violations, err := CheckSnapshotParity(tmpDir)
+	if err != nil {
+		t.Fatalf("CheckSnapshotParity failed: %v", err)
+	}
+
+	if (len(violations) > 0) != tt.wantViol || len(violations) != tt.wantCount {
+		t.Errorf("got %d violations, want %d", len(violations), tt.wantCount)
 	}
 }
 
