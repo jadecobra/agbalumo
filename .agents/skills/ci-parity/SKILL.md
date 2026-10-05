@@ -20,10 +20,11 @@ To avoid CI Matrix Bloat and exorbitant local time costs, you MUST NOT run the e
    ```
    Use the output to select the execution path:
    - **Fast Path:** Only `ui/templates/`, `ui/static/`, or `internal/handler/` files changed → run targeted tests:
-     `go run ./cmd/verify ci --with-docker --focus=visual.spec.ts`
+     `go run ./cmd/verify ci --with-docker --focus="visual.spec.ts|viewport-matrix.spec.ts"`
    - **Full Path:** Any `internal/domain/`, `internal/repository/`, `go.mod`, `Dockerfile`, or `.github/` files changed → run the full suite:
      `go run ./cmd/verify ci --with-docker`
    - **Rule:** When in doubt, use Fast Path first. Escalate to Full Path only if Fast Path reveals a dependency failure.
+   - **Template Semantic Container Rule:** New or standalone page templates wrapped in `base.html` must include a top-level semantic container element (`main > div`, `main > section`, or `section`) to satisfy viewport matrix layout assertions (`expect(hero).toBeVisible()`).
 
 2. Fix any local violations before pushing.
 3. **Diagnosing Local Test Hangs (Darwin/macOS)**: If a test hangs or approaches the runner timeout during local CI, capture thread stack traces non-destructively rather than killing blindly:
