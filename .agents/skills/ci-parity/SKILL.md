@@ -65,6 +65,8 @@ go run ./cmd/verify snapshot-parity
 
 ## Push & Remote Monitoring
 
+0. **Branch + PR only**: Never push directly to `main`. If `main` diverged, rebase the feature branch and open/update a PR (`gh pr create`). After opening, watch lifecycle autonomously (`gh pr view <n> --json state,reviewDecision,mergedAt`) instead of halting for the user to announce approval/merge. No completion summary before CI is green.
+
 1. Execute the push and automated monitoring wrapper:
    `./scripts/pushw.sh`
    _Insight: This atomically executes the push and polls the GitHub API for the specific commit's CI run ID to resolve race conditions._
@@ -73,6 +75,7 @@ go run ./cmd/verify snapshot-parity
    ```bash
    gh run watch <run-id> --exit-status
    ```
+   Never omit `<run-id>`: bare `gh run watch` prompts interactively and hangs the background task. Resolve it with `gh run list --commit $(git rev-parse HEAD) -L1 --json databaseId -q '.[0].databaseId'`.
    Set a single **300-second (5 minutes)** fail-safe timer via the `schedule` tool to capture hangs, then immediately yield the turn. Note: when setting `TimerCondition`, you MUST construct the fully qualified task ID (`<conversation-id>/task-<id>`) matching the background task; shorthand `task-<id>` will fail to match the runtime notification sender. The system's high-priority reactive completion will automatically wake you up with the final status when the pipeline concludes.
    - Exit code `0` = all jobs passed. You may proceed.
    - Any non-zero exit = pipeline failed. Do NOT declare the task complete; analyze failure logs via `gh run view <run-id> --log-failed` and resolve.
@@ -90,6 +93,7 @@ go run ./cmd/verify snapshot-parity
 5. If the run fails:
    - Identify the failed job and step.
    - Run `gh run view <run-id> --log-failed` to extract the traceback across the run. To query a specific failed matrix job, use the job ID exclusively: `gh run view --job <job-id> --log-failed` (do NOT combine `<run-id>` and `--job <job-id>` in the same invocation, as GitHub CLI will throw an argument conflict).
+   - For a failed Go test, reproduce in one shot: `go test -run '^TestX$' -count=1 ./pkg/ 2>&1 | grep -E 'Error Trace|Error:|FAIL'` (no `-v`; do not page verbose output).
    - Fix and re-push. Repeat from Step 1.
    - Do NOT mark the task as complete until the remote CI passes.
 

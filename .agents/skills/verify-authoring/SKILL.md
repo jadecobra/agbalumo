@@ -16,6 +16,8 @@ mutating: true
 ## Trigger
 When a manual check should be automated as a `verify` subcommand.
 
+**Pre-check (cheapest route first)**: Before authoring, confirm no existing `verify` subcommand or `.golangci.yml` linter (e.g. `unused`, `gocognit`) already covers the class. Enabling a linter beats a new subcommand.
+
 ## File Structure (5 files, always the same)
 
 ### 1. `internal/maintenance/<name>.go`
@@ -74,13 +76,18 @@ Add `rootCmd.AddCommand(<name>Cmd)` in the `init()` function.
 ```
 
 ## Verification Checklist
+Registration surface (miss one = precommit/api-spec failure): `cmd/verify/<name>.go`, `cmd/verify/main.go`, `cmd/verify/main_test.go`, `.agents/verify-manifest.yaml`, `docs/cli/verify.md`, then `go run ./cmd/verify minify-context` to refresh `.agents/bundle.min.md`.
+
 ```bash
 go test ./internal/maintenance/ -run TestCheck<Name> -v
 go run ./cmd/verify <name>
 go run ./cmd/verify skill-conformance
 go run ./cmd/verify check-resolvable
+go run ./cmd/verify api-spec
 go build ./...
 ```
+
+**Gate proof (post-flight)**: A check not invoked by `precommit` or `ci` enforces nothing. Wire it into the precommit or ci gate in `cmd/verify/ci.go` (or document why it is manual-only) and confirm it appears in `go run ./cmd/verify ci` output.
 
 ## Skill Completeness Audit (7-Item Checklist)
 When authoring or auditing a skill (`/skill-audit <name>`), confirm all seven requirements.

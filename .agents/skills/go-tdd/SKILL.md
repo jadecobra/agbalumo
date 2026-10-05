@@ -32,7 +32,9 @@ To minimize token consumption, reduce serial git overhead, and maintain TDD disc
    - HALT immediately.
    - Do NOT continue making guessing edits.
    - Present a structured diagnosis of the traceback to the user with hypotheses.
+   - Count failures **per test target**, not per edit: editing the test or code between runs does not reset the counter. Interleaving exploratory probes (`go run -x`, `-exec`, ad-hoc scripts) mid-cycle is itself a halt signal.
 6. **Atomic Commit**: Once the test passes locally (GREEN), stage and commit both the test and implementation files together as a single atomic commit: `feat(scope): implement X with unit tests` or `fix(scope): resolve Y with unit tests`.
+   - **Bugfix exception (reproduction commit first)**: The precommit hook rejects failing tests. Commit the RED reproduction with `t.Skip("RED: #<issue>")` as the first line of the test, after proving locally it fails without the skip. The GREEN commit removes the skip. `git commit --no-verify` is FORBIDDEN; if the hook still blocks, emit a CONSTRAINT CONFLICT and halt.
 7. **Proceed to REFACTOR Phase**: Do not stop or yield after the atomic commit. Proceed immediately to the REFACTOR Phase to check for documentation drift and run the Proactive Improvement Scan.
 
 ## Surgical Hotfix Path (/hotfix)
