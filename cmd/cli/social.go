@@ -269,17 +269,17 @@ func InitSocialRepo() (*sqlite.SQLiteRepository, error) {
 
 // LinkVerifier checks whether a listing deep link is live and reachable.
 type LinkVerifier interface {
-	Verify(ctx context.Context, listingID string) (ok bool, statusCode int, err error)
+	Verify(ctx context.Context, listingID string, title ...string) (ok bool, statusCode int, err error)
 }
 
 // LinkVerifierFunc allows plain functions to act as LinkVerifier.
-type LinkVerifierFunc func(ctx context.Context, listingID string) (bool, int, error)
+type LinkVerifierFunc func(ctx context.Context, listingID string, title ...string) (bool, int, error)
 
-func (f LinkVerifierFunc) Verify(ctx context.Context, listingID string) (bool, int, error) {
-	return f(ctx, listingID)
+func (f LinkVerifierFunc) Verify(ctx context.Context, listingID string, title ...string) (bool, int, error) {
+	return f(ctx, listingID, title...)
 }
 
-// HTTPLinkVerifier performs live HTTP probes (HEAD, falling back to GET) against agbalumo deep links.
+// HTTPLinkVerifier performs live HTTP probes (GET) against agbalumo deep links.
 type HTTPLinkVerifier struct {
 	Client  *http.Client
 	BaseURL string
@@ -303,20 +303,7 @@ func NewHTTPLinkVerifier(baseURL string, client *http.Client) *HTTPLinkVerifier 
 	return &HTTPLinkVerifier{BaseURL: strings.TrimRight(baseURL, "/"), Client: client}
 }
 
-func (h *HTTPLinkVerifier) probeHEAD(ctx context.Context, targetURL string) bool {
-	req, err := http.NewRequestWithContext(ctx, http.MethodHead, targetURL, nil)
-	if err != nil {
-		return false
-	}
-	resp, doErr := h.Client.Do(req)
-	if doErr != nil {
-		return false
-	}
-	_ = resp.Body.Close()
-	return resp.StatusCode >= 200 && resp.StatusCode < 300
-}
-
-func (h *HTTPLinkVerifier) probeGET(ctx context.Context, targetURL string) (bool, int, error) {
+func (h *HTTPLinkVerifier) probeGET(ctx context.Context, targetURL string, expectedTitle string) (bool, int, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, targetURL, nil)
 	if err != nil {
 		return false, 0, err
@@ -325,16 +312,36 @@ func (h *HTTPLinkVerifier) probeGET(ctx context.Context, targetURL string) (bool
 	if doErr != nil {
 		return false, 0, doErr
 	}
-	_ = resp.Body.Close()
-	return resp.StatusCode >= 200 && resp.StatusCode < 300, resp.StatusCode, nil
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return false, resp.StatusCode, nil
+	}
+
+	bodyBytes, err := io.ReadAll(io.LimitReader(resp.Body, 1024*1024))
+	if err != nil {
+		return false, resp.StatusCode, err
+	}
+	body := string(bodyBytes)
+
+	if !strings.Contains(strings.ToLower(body), "<html") {
+		return false, resp.StatusCode, fmt.Errorf("response missing <html")
+	}
+
+	if expectedTitle != "" && !strings.Contains(body, expectedTitle) {
+		return false, resp.StatusCode, fmt.Errorf("response missing listing title %q", expectedTitle)
+	}
+
+	return true, resp.StatusCode, nil
 }
 
-func (h *HTTPLinkVerifier) Verify(ctx context.Context, listingID string) (bool, int, error) {
+func (h *HTTPLinkVerifier) Verify(ctx context.Context, listingID string, title ...string) (bool, int, error) {
 	targetURL := fmt.Sprintf("%s/listings/%s", h.BaseURL, listingID)
-	if h.probeHEAD(ctx, targetURL) {
-		return true, http.StatusOK, nil
+	expectedTitle := ""
+	if len(title) > 0 {
+		expectedTitle = title[0]
 	}
-	return h.probeGET(ctx, targetURL)
+	return h.probeGET(ctx, targetURL, expectedTitle)
 }
 
 type socialConfig struct {
@@ -391,7 +398,7 @@ func verifyListingLink(ctx context.Context, verifier LinkVerifier, stderr io.Wri
 	if verifier == nil {
 		return true, nil
 	}
-	ok, statusCode, vErr := verifier.Verify(ctx, s.ID)
+	ok, statusCode, vErr := verifier.Verify(ctx, s.ID, s.Title)
 	if !ok || vErr != nil {
 		deepLink := buildTrackedURL("/listings/"+s.ID, campaign)
 		err := handleBadLink(stderr, s, deepLink, statusCode, vErr, failBadLinks)

@@ -48,6 +48,14 @@ var TemplateMockRegistry = map[string]interface{}{
 		Listings:     []domain.Listing{mockListing},
 		Pagination:   domain.Pagination{Page: 1, TotalPages: 1},
 	},
+	"detail.html": listing.DetailViewModel{
+		BaseViewData:  baseData,
+		Listing:       mockListing,
+		Category:      domain.CategoryData{Name: "Food"},
+		CanClaim:      true,
+		SavedIDs:      map[string]bool{},
+		CloseRedirect: "/",
+	},
 	"profile.html": listing.ProfileViewModel{
 		BaseViewData: baseData,
 		Listings:     []domain.Listing{mockListing},

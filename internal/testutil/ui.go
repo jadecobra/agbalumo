@@ -63,7 +63,8 @@ type RealTemplateRenderer = TemplateRenderer
 func NewMainTemplate() *template.Template {
 	return template.Must(template.New("main").Funcs(ui.BuildGlobalFuncMap()).Parse(`
 		{{define "` + domain.TemplateIndex + `"}}<div ag-test-id="home-page">{{.TotalCount}} {{range .Listings}}{{.Title}}{{end}}</div>{{end}}
-		{{define "modal_detail"}}<div ag-test-id="modal-detail" data-agent-template="modal_detail"><h1>{{.Listing.Title}}</h1><p>{{.Listing.Description}}</p></div>{{end}}
+		{{define "detail.html"}}<!DOCTYPE html><html><head><title>{{.MetaTitle}}</title></head><body>{{template "modal_detail" .}}</body></html>{{end}}
+		{{define "modal_detail"}}<div ag-test-id="modal-detail" data-agent-template="modal_detail" id="detail-modal-{{.Listing.ID}}" {{if .CloseRedirect}}data-close-redirect="{{.CloseRedirect}}"{{end}}><h1>{{.Listing.Title}}</h1><p>{{.Listing.Description}}</p></div>{{end}}
 		{{define "listing_list"}}<div ag-test-id="listing-list"><span>Context: {{.FilterType}} in {{.City}}</span><div id="featured-section" hx-swap-oob="true">{{range .Featured}}<div ag-test-id="listing-{{.ID}}">{{.Title}} (Featured)</div>{{end}}</div>{{if .Listings}}{{range .Listings}}<div ag-test-id="listing-{{.ID}}">{{.Title}}</div>{{end}}{{else}}{{if eq .Source "saved"}}No saved listings yet{{else}}No listings found{{end}}{{end}}</div>{{template "pagination_controls" dict "OOB" true}}{{end}}
 		{{define "pagination_controls"}}{{if .OOB}}id="pagination" hx-swap-oob="true"{{end}}{{end}}
 		{{define "listing_card"}}<div ag-test-id="listing-{{.Listing.ID}}">{{.Listing.Title}}</div>{{end}}

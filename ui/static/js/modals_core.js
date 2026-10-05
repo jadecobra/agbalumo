@@ -32,6 +32,11 @@ document.addEventListener('DOMContentLoaded', function () {
     // Auto-open detail modals
     document.querySelectorAll('dialog[id^="detail-modal-"]').forEach(modal => {
         modal.showModal();
+        if (modal.dataset.closeRedirect || window.location.pathname.startsWith('/listings/')) {
+            modal.addEventListener('close', function () {
+                window.location.href = modal.dataset.closeRedirect || '/';
+            });
+        }
     });
 
     // Auto-open feedback modal

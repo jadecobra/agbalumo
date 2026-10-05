@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
@@ -320,7 +322,7 @@ func TestSocialDraft_DeepLinkVerification(t *testing.T) {
 
 	t.Run("known_good_id_200_emits_link_pillar_3", func(t *testing.T) {
 		buf := new(bytes.Buffer)
-		mockVerifier := cli.LinkVerifierFunc(func(ctx context.Context, id string) (bool, int, error) {
+		mockVerifier := cli.LinkVerifierFunc(func(ctx context.Context, id string, _ ...string) (bool, int, error) {
 			if id == "test-dallas-1" {
 				return true, 200, nil
 			}
@@ -334,7 +336,7 @@ func TestSocialDraft_DeepLinkVerification(t *testing.T) {
 
 	t.Run("wrong_id_404_fails_draft_pillar_3", func(t *testing.T) {
 		buf := new(bytes.Buffer)
-		mockVerifier := cli.LinkVerifierFunc(func(ctx context.Context, id string) (bool, int, error) {
+		mockVerifier := cli.LinkVerifierFunc(func(ctx context.Context, id string, _ ...string) (bool, int, error) {
 			return false, 404, nil
 		})
 
@@ -347,7 +349,7 @@ func TestSocialDraft_DeepLinkVerification(t *testing.T) {
 		buf := new(bytes.Buffer)
 		stderrBuf := new(bytes.Buffer)
 
-		mockVerifier := cli.LinkVerifierFunc(func(ctx context.Context, id string) (bool, int, error) {
+		mockVerifier := cli.LinkVerifierFunc(func(ctx context.Context, id string, _ ...string) (bool, int, error) {
 			if id == "test-dallas-1" {
 				return false, 404, nil
 			}
@@ -371,7 +373,7 @@ func TestSocialDraft_DeepLinkVerification(t *testing.T) {
 
 	t.Run("fail_bad_links_flag_fails_pillar_1", func(t *testing.T) {
 		buf := new(bytes.Buffer)
-		mockVerifier := cli.LinkVerifierFunc(func(ctx context.Context, id string) (bool, int, error) {
+		mockVerifier := cli.LinkVerifierFunc(func(ctx context.Context, id string, _ ...string) (bool, int, error) {
 			return false, 404, nil
 		})
 
@@ -382,6 +384,79 @@ func TestSocialDraft_DeepLinkVerification(t *testing.T) {
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "deep link verification failed")
 	})
+}
+
+func TestHTTPLinkVerifier(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name          string
+		body          string
+		expectedTitle string
+		statusCode    int
+		wantStatus    int
+		wantOk        bool
+		wantErr       bool
+	}{
+		{
+			name:          "200_with_html_and_matching_title_passes",
+			statusCode:    http.StatusOK,
+			body:          "<!DOCTYPE html><html><head><title>Lagos Kitchen | agbalumo</title></head><body><h1>Lagos Kitchen</h1></body></html>",
+			expectedTitle: "Lagos Kitchen",
+			wantOk:        true,
+			wantStatus:    http.StatusOK,
+			wantErr:       false,
+		},
+		{
+			name:          "200_missing_html_fails",
+			statusCode:    http.StatusOK,
+			body:          `{"status":"ok","title":"Lagos Kitchen"}`,
+			expectedTitle: "Lagos Kitchen",
+			wantOk:        false,
+			wantStatus:    http.StatusOK,
+			wantErr:       true,
+		},
+		{
+			name:          "200_with_html_but_missing_title_fails",
+			statusCode:    http.StatusOK,
+			body:          "<!DOCTYPE html><html><head><title>Something Else</title></head><body></body></html>",
+			expectedTitle: "Lagos Kitchen",
+			wantOk:        false,
+			wantStatus:    http.StatusOK,
+			wantErr:       true,
+		},
+		{
+			name:          "404_status_fails",
+			statusCode:    http.StatusNotFound,
+			body:          "<!DOCTYPE html><html><body>Not Found</body></html>",
+			expectedTitle: "Lagos Kitchen",
+			wantOk:        false,
+			wantStatus:    http.StatusNotFound,
+			wantErr:       false,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(tc.statusCode)
+				_, _ = w.Write([]byte(tc.body))
+			}))
+			defer server.Close()
+
+			verifier := cli.NewHTTPLinkVerifier(server.URL, server.Client())
+			ok, status, err := verifier.Verify(context.Background(), "test-id", tc.expectedTitle)
+			assert.Equal(t, tc.wantOk, ok)
+			assert.Equal(t, tc.wantStatus, status)
+			if tc.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
 }
 
 func TestSocialDraft_RegionalExploreLinksContainNoCity(t *testing.T) {
