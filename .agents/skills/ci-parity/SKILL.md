@@ -110,7 +110,7 @@ go run ./cmd/verify snapshot-parity
 
 1. Verify that the server is running and healthy:
    - For local development: `go run ./cmd/verify uptime` (probes local port defined in `.agents/invariants.json`).
-   - For remote deployment: `APP_URL=https://agbalumo.fly.dev go run ./cmd/verify uptime` (overrides default localhost target).
-   _Insight: Default `verify uptime` checks local dev server state. When checking post-deploy health after pushing, provide `APP_URL` to avoid false failures if local dev server is stopped._
+   - For remote deployment: `APP_URL=https://agbalumo.com go run ./cmd/verify uptime` (or `APP_URL=https://agbalumo.fly.dev` fallback).
+   _Insight: Default `verify uptime` checks local dev server state. When checking post-deploy health after pushing, provide canonical `APP_URL` to avoid false failures if local dev server is stopped or platform host proxy times out._
 
 2. If the local check fails and local testing is still active, restore the server using `go run ./cmd/verify watch`.
