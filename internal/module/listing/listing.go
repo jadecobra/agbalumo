@@ -368,7 +368,12 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 	vm.MetaURL = fmt.Sprintf("https://agbalumo.com/listings/%s", listing.ID)
 	vm.MetaType = "restaurant"
 
-	return h.RenderTyped(c, "modal_detail", vm)
+	if c.Request().Header.Get("HX-Request") != "" {
+		return h.RenderTyped(c, "modal_detail", vm)
+	}
+
+	vm.CloseRedirect = "/"
+	return h.RenderTyped(c, "detail.html", vm)
 }
 
 // HandleEdit renders the edit modal

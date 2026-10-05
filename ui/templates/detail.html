@@ -1,0 +1,9 @@
+{{ template "base.html" . }}
+
+{{ define "title" }}{{ .MetaTitle }}{{ end }}
+
+{{ define "content" }}
+<section class="w-full flex-1 min-h-96" data-template-file="ui/templates/detail.html">
+{{ template "modal_detail" . }}
+</section>
+{{ end }}

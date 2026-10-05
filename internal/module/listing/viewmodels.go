@@ -64,6 +64,7 @@ type DetailViewModel struct {
 	GoogleMapsApiKey string
 	Category         domain.CategoryData
 	SavedIDs         map[string]bool
+	CloseRedirect    string
 	module.BaseViewData
 	Listing  domain.Listing
 	CanClaim bool
