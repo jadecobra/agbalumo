@@ -43,6 +43,8 @@ func TestLoadConfig(t *testing.T) {
 		t.Setenv("RATE_LIMIT_RATE", "50")
 		t.Setenv("RATE_LIMIT_BURST", "100")
 
+		t.Setenv("GA_MEASUREMENT_ID", "G-TEST123456")
+
 		cfg := config.LoadConfig()
 		require.Equal(t, "production", cfg.Env)
 		require.Equal(t, "prod.db", cfg.DatabaseURL)
@@ -51,6 +53,7 @@ func TestLoadConfig(t *testing.T) {
 		require.Equal(t, "test@example.com", cfg.DevAuthEmail)
 		require.Equal(t, 50, cfg.RateLimitRate)
 		require.Equal(t, 100, cfg.RateLimitBurst)
+		require.Equal(t, "G-TEST123456", cfg.GAMeasurementID)
 	})
 
 	t.Run("invalid int fallback", func(t *testing.T) {

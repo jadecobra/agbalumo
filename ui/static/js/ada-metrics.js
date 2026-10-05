@@ -2,12 +2,29 @@
     const ADA_SESSION_START = 'ada_session_start';
     const DISCOVERY_EVENT = 'discovery_success';
 
-    // Initialize session start time if not present
     if (!sessionStorage.getItem(ADA_SESSION_START)) {
         sessionStorage.setItem(ADA_SESSION_START, Date.now());
     }
 
-    // Capture inbound campaign parameters if present
+    const gaMeta = document.querySelector('meta[name="ga-measurement-id"]');
+    const gaMeasurementId = gaMeta ? gaMeta.getAttribute('content') : null;
+
+    if (gaMeasurementId && !window.gtag) {
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function() {
+            window.dataLayer.push(arguments);
+        };
+        window.gtag('js', new Date());
+        window.gtag('config', gaMeasurementId, {
+            send_page_view: true
+        });
+
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gaMeasurementId)}`;
+        document.head.appendChild(script);
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const utmSource = urlParams.get('utm_source');
     if (utmSource) {
@@ -28,9 +45,7 @@
         }
     }
 
-    // Capture contact clicks
     document.addEventListener('click', (e) => {
-        // We look for any link or button with data-ada-discovery
         const contactLink = e.target.closest('[data-ada-discovery]');
         if (contactLink) {
             const startTime = sessionStorage.getItem(ADA_SESSION_START);
@@ -49,10 +64,6 @@
                 
                 sendMetric(DISCOVERY_EVENT, duration, metadata);
                 
-                // To measure "First discovery", we could clear the session start,
-                // but usually we want to see if they find multiple things.
-                // For the 60s goal, we care about the FIRST one.
-                // Let's add a "first" flag if they haven't discovered yet.
                 if (!sessionStorage.getItem('ada_discovered')) {
                     sessionStorage.setItem('ada_discovered', 'true');
                     sendMetric('first_discovery_success', duration, metadata);
@@ -61,7 +72,30 @@
         }
     });
 
+    let currentPath = window.location.pathname;
+    document.body.addEventListener('htmx:afterSwap', () => {
+        if (window.location.pathname !== currentPath) {
+            currentPath = window.location.pathname;
+            if (typeof window.gtag === 'function' && gaMeasurementId) {
+                window.gtag('event', 'page_view', {
+                    page_path: currentPath,
+                    page_location: window.location.href,
+                    page_title: document.title
+                });
+            }
+        }
+    });
+
     async function sendMetric(event, value, metadata) {
+        if (typeof window.gtag === 'function') {
+            try {
+                window.gtag('event', event, {
+                    value: value,
+                    ...(metadata || {})
+                });
+            } catch (_) {}
+        }
+
         try {
             const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
             await fetch('/api/metrics', {
@@ -72,8 +106,6 @@
                 },
                 body: JSON.stringify({ event, value, metadata })
             });
-        } catch (err) {
-            // Silently fail to not disturb user
-        }
+        } catch (err) {}
     }
 })();

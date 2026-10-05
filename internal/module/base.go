@@ -11,16 +11,17 @@ import (
 type BaseViewData struct {
 	User             *domain.User
 	Counts           map[string]int
-	Env              string
-	CSRF             string
+	MetaDescription  string
+	MetaImage        string
 	FilterType       string
 	City             string
 	GoogleMapsApiKey string
 	MetaTitle        string
-	MetaDescription  string
-	MetaImage        string
+	Env              string
+	CSRF             string
 	MetaURL          string
 	MetaType         string
+	GAMeasurementID  string
 	Categories       []domain.CategoryData
 	Radius           float64
 	DevMode          bool
@@ -47,6 +48,7 @@ func (h *BaseHandler) PopulateBase(c echo.Context) BaseViewData {
 		DevMode:          h.App.Cfg.Env == "development",
 		HasGoogleAuth:    h.App.Cfg.HasGoogleAuth,
 		GoogleMapsApiKey: h.App.Cfg.GoogleMapsAPIKey,
+		GAMeasurementID:  h.App.Cfg.GAMeasurementID,
 		MetaTitle:        "agbalumo - Find African Food in <60s",
 		MetaDescription:  "Verified Nigerian and West African food in Dallas and beyond. Authentic dishes, real contact details, and directions in under 60 seconds.",
 		MetaImage:        "https://agbalumo.com/static/icons/favicon.png",

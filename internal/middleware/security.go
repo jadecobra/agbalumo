@@ -9,11 +9,11 @@ import (
 func SecureHeaders(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		csp := "default-src 'self'; " +
-			"script-src 'self' https://maps.googleapis.com; " +
+			"script-src 'self' https://maps.googleapis.com https://www.googletagmanager.com; " +
 			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
 			"font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; " +
-			"img-src 'self' data: https://*.googleusercontent.com https://lh3.googleusercontent.com https://ui-avatars.com https://maps.googleapis.com https://*.gstatic.com https://accounts.google.com; " +
-			"connect-src 'self' https://accounts.google.com https://maps.googleapis.com https://lh3.googleusercontent.com;"
+			"img-src 'self' data: https://*.googleusercontent.com https://lh3.googleusercontent.com https://ui-avatars.com https://maps.googleapis.com https://*.gstatic.com https://accounts.google.com https://*.google-analytics.com https://*.googletagmanager.com; " +
+			"connect-src 'self' https://accounts.google.com https://maps.googleapis.com https://lh3.googleusercontent.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com;"
 
 		c.Response().Header().Set("Content-Security-Policy", csp)
 		c.Response().Header().Set("X-Content-Type-Options", "nosniff")

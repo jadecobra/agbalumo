@@ -47,6 +47,12 @@ func TestSecureHeaders(t *testing.T) {
 		t.Error("Expected Content-Security-Policy header")
 	} else {
 		checkScriptSrc(t, got)
+		if !strings.Contains(got, "https://www.googletagmanager.com") {
+			t.Errorf("Expected CSP to include googletagmanager.com in script-src, got %q", got)
+		}
+		if !strings.Contains(got, "https://*.google-analytics.com") {
+			t.Errorf("Expected CSP to include google-analytics.com in connect-src / img-src, got %q", got)
+		}
 	}
 
 	if perm := headers.Get("Permissions-Policy"); perm == "" {

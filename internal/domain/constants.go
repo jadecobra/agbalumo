@@ -22,6 +22,7 @@ const (
 	EnvKeyRateLimitRate      = "RATE_LIMIT_RATE"
 	EnvKeyRateLimitBurst     = "RATE_LIMIT_BURST"
 	EnvKeySlowQueryThreshold = "SLOW_QUERY_THRESHOLD_MS"
+	EnvKeyGAMeasurementID    = "GA_MEASUREMENT_ID"
 
 	// Audit
 	SeparatorLine = "--------------------------------"

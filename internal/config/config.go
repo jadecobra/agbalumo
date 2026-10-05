@@ -12,19 +12,20 @@ import (
 const EnvBaseURL = "BASE_URL"
 
 type Config struct {
-	Env                  string
-	DatabaseURL          string
+	GoogleMapsAPIKey     string
 	SessionSecret        string
 	AdminCode            string
 	DevAuthEmail         string
 	UploadDir            string
-	GoogleMapsAPIKey     string
+	Env                  string
+	DatabaseURL          string
+	GAMeasurementID      string
 	RateLimitRate        int
 	RateLimitBurst       int
 	SlowQueryThresholdMs int
-	HasGoogleAuth        bool
-	MockAuth             bool
 	TraceMode            bool
+	MockAuth             bool
+	HasGoogleAuth        bool
 }
 
 func LoadConfig() *Config {
@@ -57,6 +58,7 @@ func LoadConfig() *Config {
 		MockAuth:             MockAuth,
 		SlowQueryThresholdMs: getEnvAsInt(domain.EnvKeySlowQueryThreshold, 50),
 		TraceMode:            traceMode,
+		GAMeasurementID:      getEnv(domain.EnvKeyGAMeasurementID, ""),
 	}
 }
 
