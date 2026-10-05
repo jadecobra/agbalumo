@@ -173,6 +173,27 @@ func saveSocialState(s SocialState) {
 	}
 }
 
+func selectDistinctCitySpots(pool []domain.Listing, limit int) []domain.Listing {
+	var distinct, duplicates []domain.Listing
+	seenCities := make(map[string]bool)
+
+	for _, l := range pool {
+		c := strings.ToLower(strings.TrimSpace(l.City))
+		if c != "" && !seenCities[c] {
+			seenCities[c] = true
+			distinct = append(distinct, l)
+		} else {
+			duplicates = append(duplicates, l)
+		}
+	}
+
+	combined := append(distinct, duplicates...)
+	if len(combined) > limit {
+		return combined[:limit]
+	}
+	return combined
+}
+
 func rotateListings(candidates []domain.Listing, key string, limit int, state *SocialState) []domain.Listing {
 	if len(candidates) == 0 {
 		return nil
@@ -181,12 +202,13 @@ func rotateListings(candidates []domain.Listing, key string, limit int, state *S
 		return candidates
 	}
 	offset := state.Offsets[key] % len(candidates)
-	result := make([]domain.Listing, limit)
-	for i := 0; i < limit; i++ {
-		result[i] = candidates[(offset+i)%len(candidates)]
-	}
 	state.Offsets[key] = (offset + limit) % len(candidates)
-	return result
+
+	cycled := make([]domain.Listing, len(candidates))
+	for i := 0; i < len(candidates); i++ {
+		cycled[i] = candidates[(offset+i)%len(candidates)]
+	}
+	return selectDistinctCitySpots(cycled, limit)
 }
 
 func rotateCitySpots(spots []domain.Listing, city string, state *SocialState) []domain.Listing {
@@ -727,8 +749,8 @@ func renderPillar1QualityIndex(ctx context.Context, listings []domain.Listing, c
 	b.WriteString("[DRAFT - Pillar 1: The DFW African Food Quality Index]\n")
 	b.WriteString("Recommended Destination: DFW Diaspora Facebook Groups / Page Feed\n")
 	b.WriteString("================================================================================\n")
-	b.WriteString("We built agbalumo because landing in a new city or moving across town shouldn't mean gambling on food quality. Right now our strongest network is in Dallas and Fort Worth.\n\n")
-	b.WriteString("Here are verified West African spots in DFW where quality is backed by real community reviews:\n\n")
+	b.WriteString("Landing in a new city or moving across town shouldn't mean gambling on food quality. Right now our strongest network is in Dallas and Fort Worth.\n\n")
+	b.WriteString("Here are places in DFW where quality is backed by real Google reviews:\n\n")
 
 	for idx, s := range spots {
 		includeLink, err := verifyListingLink(ctx, cfg.verifier, cfg.stderr, s, campaign, cfg.failBadLinks)
@@ -738,9 +760,9 @@ func renderPillar1QualityIndex(ctx context.Context, listings []domain.Listing, c
 		writeSpotItem(&b, idx, s, campaign, includeLink)
 	}
 
-	b.WriteString("Find verified spots, directions, and direct contact in under 60 seconds:\n")
+	b.WriteString("Find what you want in under 60 seconds:\n")
 	b.WriteString(fmt.Sprintf("%s\n\n", buildTrackedURL("/", campaign)))
-	b.WriteString("If we missed your trusted spot in DFW, add it directly to the network in under 60 seconds:\n")
+	b.WriteString("If we missed places you like in DFW, add it directly to the network:\n")
 	b.WriteString(fmt.Sprintf("%s\n", buildTrackedURL("/", campaign, [2]string{"action", "post"})))
 	b.WriteString("================================================================================\n")
 
@@ -840,10 +862,10 @@ func renderPillar2AirportArrival(ctx context.Context, listings []domain.Listing,
 		campaign:     "airport_corridor",
 		headerTitle:  "[DRAFT - Pillar 2: Airport Corridor Cities (Arlington, Grand Prairie, Irving)]",
 		destination:  "DFW Diaspora Groups / Community Feed",
-		introLead:    "When landing at DFW or navigating the mid-cities corridor, finding African food shouldn't mean driving across the entire metroplex.",
-		introList:    "Here are verified spots in the airport corridor cities (Arlington, Grand Prairie, Irving) with direct contact information:",
-		exploreLabel: "Explore all airport corridor African food spots in under 60 seconds:",
-		addPrompt:    "Know another African-owned spot near the airport corridor we missed? Add it directly to the network:",
+		introLead:    "You don't have to drive or search the entire metroplex to find African food when you land at DFW.",
+		introList:    "Here are verified food places in the Arlington, Grand Prairie, Irving area with direct contact information: The reviews are from google",
+		exploreLabel: "Explore more African food in the DFW airport corridor at",
+		addPrompt:    "If you know other African-owned places near DFW airport that we missed, add it directly at:",
 	}, w, cfg, draft)
 }
 
@@ -930,23 +952,18 @@ func renderPillar3MerchantSpotlight(ctx context.Context, repo domain.ListingRepo
 	b.WriteString("[DRAFT - Pillar 3: Merchant Spotlight]\n")
 	b.WriteString("Recommended Destination: Facebook Page / Tag Venue on Instagram / X\n")
 	b.WriteString("================================================================================\n")
-	b.WriteString(fmt.Sprintf("Spotlight: %s (%s, TX)\n", spotlight.Title, spotlight.City))
-	b.WriteString(fmt.Sprintf("★ %.1f rating across %d community reviews.\n\n", spotlight.Rating, spotlight.ReviewCount))
-
-	specialty := spotlight.RegionalSpecialty
-	if specialty == "" {
-		specialty = "West African"
-	}
-	b.WriteString(fmt.Sprintf("Serving authentic %s dishes with verified contact:\n", specialty))
+	b.WriteString(fmt.Sprintf("Have you been to %s in %s\n", spotlight.Title, spotlight.City))
+	b.WriteString(fmt.Sprintf("they have a ★ %.1f rating across %d Google reviews.\n\n", spotlight.Rating, spotlight.ReviewCount))
 	if spotlight.ContactPhone != "" {
-		b.WriteString(fmt.Sprintf("• Direct Line: %s\n", spotlight.ContactPhone))
+		b.WriteString(fmt.Sprintf("%s\n", spotlight.ContactPhone))
 	}
 	if spotlight.WebsiteURL != "" {
-		b.WriteString(fmt.Sprintf("• Menu/Ordering: %s\n", spotlight.WebsiteURL))
+		b.WriteString(fmt.Sprintf("%s\n", spotlight.WebsiteURL))
 	}
-	b.WriteString("\nView reviews, hours, and directions on agbalumo:\n")
-	b.WriteString(fmt.Sprintf("%s\n\n", buildTrackedURL("/listings/"+spotlight.ID, campaign)))
-	b.WriteString(fmt.Sprintf("Tagging %s — thank you for serving the diaspora.\n", spotlight.Title))
+	if spotlight.ContactPhone != "" || spotlight.WebsiteURL != "" {
+		b.WriteString("\n")
+	}
+	b.WriteString(fmt.Sprintf("See more at %s\n", buildTrackedURL("/listings/"+spotlight.ID, campaign)))
 	b.WriteString("================================================================================\n")
 
 	_, err = io.WriteString(w, b.String())
@@ -982,9 +999,9 @@ func renderPillar4SubMetroCorridor(ctx context.Context, listings []domain.Listin
 		campaign:     "sub_metro_corridor",
 		headerTitle:  "[DRAFT - Pillar 4: Sub-Metro Corridor Guide (Collin County)]",
 		destination:  "DFW Diaspora Groups (Plano / Frisco / North Dallas)",
-		introLead:    "We don't need to head all the way into Central Dallas when craving authentic West African food.",
-		introList:    "Collin County has a trusted cluster of verified African kitchens across Plano, Allen, McKinney, and Frisco:",
-		exploreLabel: "Explore all North DFW and Collin County spots in under 60 seconds:",
+		introLead:    "Craving authentic West African food?",
+		introList:    "There is a trusted cluster of verified African kitchens with Google Reviews in Plano, Allen, McKinney, and Frisco:",
+		exploreLabel: "Explore North DFW and Collin County food places at",
 		addPrompt:    "Know another African-owned kitchen in Collin County? Add it directly to the network:",
 	}, w, cfg, draft)
 }
@@ -1124,7 +1141,7 @@ func writePillar5Intro(b *strings.Builder, displayedGroups []cityGroup) {
 
 	if len(displayedGroups) == 0 {
 		b.WriteString("We started Agbalumo to map African-owned businesses where we don't have to explain ourselves, starting with food. Right now, Dallas-Fort Worth is our strongest network.\n\n")
-		b.WriteString("Here are verified spots mapped so far with community reviews:\n\n")
+		b.WriteString("Here are places with Google reviews:\n\n")
 		return
 	}
 
@@ -1133,7 +1150,7 @@ func writePillar5Intro(b *strings.Builder, displayedGroups []cityGroup) {
 		names[i] = g.name
 	}
 	b.WriteString(fmt.Sprintf("We started Agbalumo to map African-owned businesses where we don't have to explain ourselves, starting with food. Right now, Dallas-Fort Worth is our strongest network with verified spots across %s.\n\n", joinNatural(names)))
-	b.WriteString("Here are verified spots mapped so far with community reviews:\n\n")
+	b.WriteString("Here are places with Google reviews:\n\n")
 }
 
 func renderPillar5CoverageGaps(ctx context.Context, listings []domain.Listing, city string, state *SocialState, w io.Writer, cfg *socialConfig, draft *draftData) error {
@@ -1167,12 +1184,12 @@ func renderPillar5CoverageGaps(ctx context.Context, listings []domain.Listing, c
 	blindSpots := qualifyBlindSpots(listings)
 	draft.BlindSpots = blindSpots
 	if len(blindSpots) > 0 {
-		b.WriteString(fmt.Sprintf("We know there are blind spots in %s.\n\n", joinNatural(blindSpots)))
+		b.WriteString(fmt.Sprintf("We know we are missing places in %s.\n\n", joinNatural(blindSpots)))
 	}
 
-	b.WriteString("Find verified spots, directions, and direct contact in under 60 seconds:\n")
+	b.WriteString("Find other places at\n")
 	b.WriteString(fmt.Sprintf("%s\n\n", buildTrackedURL("/", campaign)))
-	b.WriteString("Who are we missing? Add your favorite auntie's spot or suya joint directly to the network in under 60 seconds:\n")
+	b.WriteString("Who are we missing? Add a place you like:\n")
 	b.WriteString(fmt.Sprintf("%s\n", buildTrackedURL("/", campaign, [2]string{"action", "post"})))
 	b.WriteString("================================================================================\n")
 

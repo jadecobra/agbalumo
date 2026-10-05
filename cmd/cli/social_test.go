@@ -97,15 +97,24 @@ func TestSocialDraftCmd(t *testing.T) {
 			listingID: "",
 			contains: []string{
 				"[DRAFT - Pillar 1: The DFW African Food Quality Index]",
+				"Landing in a new city or moving across town shouldn't mean gambling on food quality.",
+				"Here are places in DFW where quality is backed by real Google reviews:",
 				"Mama Put Dallas",
 				"4.7",
 				"128 reviews",
-				"https://agbalumo.com/listings/test-dallas-1?utm_campaign=quality_index&utm_medium=social&utm_source=facebook",
+				"Reviews & Details: https://agbalumo.com/listings/test-dallas-1?utm_campaign=quality_index&utm_medium=social&utm_source=facebook",
+				"Phone: +12145551001",
+				"Menu/Order: https://mamaputdallas.com",
+				"Find what you want in under 60 seconds:",
 				"https://agbalumo.com/?utm_campaign=quality_index&utm_medium=social&utm_source=facebook",
+				"If we missed places you like in DFW, add it directly to the network:",
 				"https://agbalumo.com/?action=post&utm_campaign=quality_index&utm_medium=social&utm_source=facebook",
 				"Yoruba",
 			},
-			omits:  nil,
+			omits: []string{
+				"community reviews",
+				"add it directly to the network in under 60 seconds",
+			},
 			pillar: 1,
 		},
 		{
@@ -114,10 +123,14 @@ func TestSocialDraftCmd(t *testing.T) {
 			listingID: "",
 			contains: []string{
 				"[DRAFT - Pillar 2: Airport Corridor Cities (Arlington, Grand Prairie, Irving)]",
+				"You don't have to drive or search the entire metroplex to find African food when you land at DFW.",
+				"Here are verified food places in the Arlington, Grand Prairie, Irving area with direct contact information: The reviews are from google",
 				"T's Buka",
-				"+16822766400",
-				"https://agbalumo.com/listings/test-arlington-1?utm_campaign=airport_corridor&utm_medium=social&utm_source=facebook",
+				"Reviews & Details: https://agbalumo.com/listings/test-arlington-1?utm_campaign=airport_corridor&utm_medium=social&utm_source=facebook",
+				"Direct Phone: +16822766400",
+				"Explore more African food in the DFW airport corridor at",
 				"https://agbalumo.com/?utm_campaign=airport_corridor&utm_medium=social&utm_source=facebook",
+				"If you know other African-owned places near DFW airport that we missed, add it directly at:",
 				"https://agbalumo.com/?action=post&utm_campaign=airport_corridor&utm_medium=social&utm_source=facebook",
 			},
 			omits: []string{
@@ -125,6 +138,8 @@ func TestSocialDraftCmd(t *testing.T) {
 				"kitchen is still open",
 				"within 20 minutes",
 				"after 8 PM",
+				"community reviews",
+				"under 60 seconds",
 			},
 			pillar: 2,
 		},
@@ -134,10 +149,19 @@ func TestSocialDraftCmd(t *testing.T) {
 			listingID: "test-dallas-1",
 			contains: []string{
 				"[DRAFT - Pillar 3: Merchant Spotlight]",
-				"Mama Put Dallas",
-				"https://agbalumo.com/listings/test-dallas-1?utm_campaign=merchant_spotlight&utm_medium=social&utm_source=facebook",
+				"Have you been to Mama Put Dallas in Dallas",
+				"they have a ★ 4.7 rating across 128 Google reviews.",
+				"+12145551001",
+				"https://mamaputdallas.com",
+				"See more at https://agbalumo.com/listings/test-dallas-1?utm_campaign=merchant_spotlight&utm_medium=social&utm_source=facebook",
 			},
-			omits:  nil,
+			omits: []string{
+				"Spotlight:",
+				"Serving authentic",
+				"Tagging",
+				"thank you for serving",
+				"community reviews",
+			},
 			pillar: 3,
 		},
 		{
@@ -146,14 +170,22 @@ func TestSocialDraftCmd(t *testing.T) {
 			listingID: "",
 			contains: []string{
 				"[DRAFT - Pillar 4: Sub-Metro Corridor Guide (Collin County)]",
-				"Collin County",
+				"Craving authentic West African food?",
+				"There is a trusted cluster of verified African kitchens with Google Reviews in Plano, Allen, McKinney, and Frisco:",
 				"BOXOCHOPS",
-				"https://agbalumo.com/listings/test-plano-1?utm_campaign=sub_metro_corridor&utm_medium=social&utm_source=facebook",
+				"Reviews & Menu: https://agbalumo.com/listings/test-plano-1?utm_campaign=sub_metro_corridor&utm_medium=social&utm_source=facebook",
+				"Phone: +14692940003",
+				"Online Order: https://toasttab.com/boxochops",
+				"Explore North DFW and Collin County food places at",
 				"https://agbalumo.com/?utm_campaign=sub_metro_corridor&utm_medium=social&utm_source=facebook",
+				"Know another African-owned kitchen in Collin County? Add it directly to the network:",
 				"https://agbalumo.com/?action=post&utm_campaign=sub_metro_corridor&utm_medium=social&utm_source=facebook",
 			},
 			omits: []string{
 				"45 minutes",
+				"community reviews",
+				"under 60 seconds",
+				"Direct Phone",
 			},
 			pillar: 4,
 		},
@@ -163,15 +195,22 @@ func TestSocialDraftCmd(t *testing.T) {
 			listingID: "",
 			contains: []string{
 				"[DRAFT - Pillar 5: Radical Transparency & Coverage Gaps]",
-				"verified",
+				"Here are places with Google reviews:",
 				"Mama Put Dallas",
 				"4.7",
 				"128 reviews",
 				"https://agbalumo.com/listings/test-dallas-1?utm_campaign=coverage_gaps&utm_medium=social&utm_source=facebook",
-				"Who are we missing",
+				"Find other places at",
+				"https://agbalumo.com/?utm_campaign=coverage_gaps&utm_medium=social&utm_source=facebook",
+				"Who are we missing? Add a place you like:",
 				"https://agbalumo.com/?action=post&utm_campaign=coverage_gaps&utm_medium=social&utm_source=facebook",
 			},
-			omits:  nil,
+			omits: []string{
+				"community reviews",
+				"under 60 seconds",
+				"favorite auntie's spot",
+				"suya joint",
+			},
 			pillar: 5,
 		},
 	}
@@ -275,6 +314,34 @@ func TestSocialDraft_RotationAcrossListings(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.NotEqual(t, buf1.String(), buf2.String(), "Pillar 1 should rotate listings across calls so different spots get exposure")
+}
+
+func TestSocialDraft_RotateDistinctCities(t *testing.T) {
+	repo, _ := setupTestRepoWithState(t)
+	ctx := context.Background()
+
+	// Seed multiple listings across cities with some repeats:
+	// Dallas (3 spots), Fort Worth (1 spot), Plano (1 spot), Arlington (already has 1)
+	listings := []domain.Listing{
+		{ID: "dallas-repeat-1", Title: "Dallas Spot A", Type: domain.Food, City: "Dallas", Rating: 4.8, ReviewCount: 50, Status: domain.ListingStatusApproved, IsActive: true},
+		{ID: "dallas-repeat-2", Title: "Dallas Spot B", Type: domain.Food, City: "Dallas", Rating: 4.7, ReviewCount: 40, Status: domain.ListingStatusApproved, IsActive: true},
+		{ID: "fw-distinct-1", Title: "FW Spot A", Type: domain.Food, City: "Fort Worth", Rating: 4.6, ReviewCount: 30, Status: domain.ListingStatusApproved, IsActive: true},
+	}
+	for _, l := range listings {
+		_ = repo.Save(ctx, l)
+	}
+
+	buf := new(bytes.Buffer)
+	err := cli.GenerateSocialDraft(repo, 1, "", "Dallas", buf)
+	require.NoError(t, err)
+
+	out := buf.String()
+	// Total spots selected for Pillar 1 is 4.
+	// Since we have Dallas, Plano, Arlington, and Fort Worth, all 4 cities must be represented (max 1 per city when possible).
+	assert.Contains(t, out, "(Dallas)")
+	assert.Contains(t, out, "(Plano)")
+	assert.Contains(t, out, "(Arlington)")
+	assert.Contains(t, out, "(Fort Worth)")
 }
 
 func TestGetSocialDatabaseURL(t *testing.T) {
@@ -578,12 +645,11 @@ func TestSocialDraft_Pillar5CoverageGaps_NoBlindSpotWithTwoOrMoreListings(t *tes
 	require.NoError(t, err)
 
 	out := buf.String()
-	// Fort Worth has 2 listings, so it is an active city and MUST NOT be named as a blind spot
+	// Fort Worth has 2 listings, so it is an active city and MUST NOT be named in missing places
 	assert.Contains(t, out, "• Fort Worth:")
-	assert.NotContains(t, out, "blind spots in Fort Worth")
-	assert.NotContains(t, out, "blind spots in Frisco, Garland, Denton, and Fort Worth")
+	assert.NotContains(t, out, "missing places in Fort Worth")
 	assert.NotContains(t, out, "Fort Worth.")
-	// But watchlist cities with 0 listings (like Frisco, Garland, Denton) should still be in blind spots
+	// But watchlist cities with 0 listings (like Frisco, Garland, Denton) should still be in missing places
 	assert.Contains(t, out, "Frisco")
 }
 
@@ -649,8 +715,8 @@ func TestSocialDraft_Pillar5CoverageGaps_AllWatchlistCoveredDropsBlindSpotsLine(
 	require.NoError(t, err)
 
 	out := buf.String()
-	// When all watchlist cities have >= 2 listings, the blind spots line must be dropped completely
-	assert.NotContains(t, out, "blind spots")
+	// When all watchlist cities have >= 2 listings, the missing places line must be dropped completely
+	assert.NotContains(t, out, "missing places in")
 }
 
 func TestSocialDraft_Lint_MessyMenuLinks(t *testing.T) {
