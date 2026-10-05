@@ -3,6 +3,7 @@ package cli
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -296,8 +297,13 @@ func NewHTTPLinkVerifier(baseURL string, client *http.Client) *HTTPLinkVerifier 
 		baseURL = "https://agbalumo.com"
 	}
 	if client == nil {
+		tr := http.DefaultTransport.(*http.Transport).Clone()
+		if strings.Contains(baseURL, "localhost") || strings.Contains(baseURL, "127.0.0.1") {
+			tr.TLSClientConfig = &tls.Config{InsecureSkipVerify: true} //nolint:gosec // allows local dev server self-signed verification
+		}
 		client = &http.Client{
-			Timeout: 5 * time.Second,
+			Transport: tr,
+			Timeout:   5 * time.Second,
 		}
 	}
 	return &HTTPLinkVerifier{BaseURL: strings.TrimRight(baseURL, "/"), Client: client}
