@@ -60,10 +60,21 @@ type FeedbackStore interface {
 	ResolveFeedback(ctx context.Context, id string) error
 }
 
+// DashboardMetrics aggregates system-wide statistics for the admin dashboard.
+type DashboardMetrics struct {
+	FeedbackCounts  map[FeedbackType]int
+	ListingGrowth   []DailyMetric
+	UserGrowth      []DailyMetric
+	ListingCount    int
+	UserCount       int
+	AdaDiscoveryAvg float64
+}
+
 // AdminStore handles admin-specific queries.
 type AdminStore interface {
 	GetUserCount(ctx context.Context) (int, error)
 	GetAllUsers(ctx context.Context, limit int, offset int) ([]User, error)
+	GetDashboardMetrics(ctx context.Context) (DashboardMetrics, error)
 }
 
 // ClaimRequestStore handles claim request persistence.

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 )
@@ -59,4 +60,40 @@ func (r *SQLiteRepository) GetListingGrowth(ctx context.Context) ([]domain.Daily
 // GetUserGrowth returns the count of new users per day for the last 30 days.
 func (r *SQLiteRepository) GetUserGrowth(ctx context.Context) ([]domain.DailyMetric, error) {
 	return r.queryDailyMetrics(ctx, dailyGrowthSQL("users"))
+}
+
+// GetDashboardMetrics aggregates statistics for the admin dashboard.
+func (r *SQLiteRepository) GetDashboardMetrics(ctx context.Context) (domain.DashboardMetrics, error) {
+	var metrics domain.DashboardMetrics
+	var err error
+
+	metrics.UserCount, err = r.GetUserCount(ctx)
+	if err != nil {
+		return metrics, err
+	}
+
+	metrics.FeedbackCounts, err = r.GetFeedbackCounts(ctx)
+	if err != nil {
+		return metrics, err
+	}
+
+	metrics.ListingGrowth, err = r.GetListingGrowth(ctx)
+	if err != nil {
+		return metrics, err
+	}
+
+	metrics.UserGrowth, err = r.GetUserGrowth(ctx)
+	if err != nil {
+		return metrics, err
+	}
+
+	counts, _ := r.GetCounts(ctx)
+	for _, count := range counts {
+		metrics.ListingCount += count
+	}
+
+	since := time.Now().Add(-24 * time.Hour)
+	metrics.AdaDiscoveryAvg, _ = r.GetAverageValue(ctx, "discovery_success", since)
+
+	return metrics, nil
 }

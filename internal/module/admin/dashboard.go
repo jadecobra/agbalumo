@@ -2,7 +2,6 @@ package admin
 
 import (
 	"context"
-	"time"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	customMiddleware "github.com/jadecobra/agbalumo/internal/middleware"
@@ -71,35 +70,21 @@ func (h *AdminHandler) loadDashboardData(ctx context.Context, c echo.Context) (A
 		return data, err
 	}
 
-	data.UserCount, err = h.App.DB.GetUserCount(ctx)
-	if err != nil {
-		return data, err
-	}
-
-	data.FeedbackCounts, err = h.App.DB.GetFeedbackCounts(ctx)
-	if err != nil {
-		return data, err
-	}
-
-	data.ListingGrowth, err = h.App.DB.GetListingGrowth(ctx)
-	if err != nil {
-		return data, err
-	}
-
-	data.UserGrowth, err = h.App.DB.GetUserGrowth(ctx)
-	if err != nil {
-		return data, err
-	}
-
 	data.Feedbacks, err = h.App.DB.GetAllFeedback(ctx)
 	if err != nil {
 		return data, err
 	}
 
-	counts, _ := h.App.DB.GetCounts(ctx)
-	for _, count := range counts {
-		data.ListingCount += count
+	metrics, err := h.App.DB.GetDashboardMetrics(ctx)
+	if err != nil {
+		return data, err
 	}
+	data.UserCount = metrics.UserCount
+	data.FeedbackCounts = metrics.FeedbackCounts
+	data.ListingGrowth = metrics.ListingGrowth
+	data.UserGrowth = metrics.UserGrowth
+	data.ListingCount = metrics.ListingCount
+	data.AdaDiscoveryAvg = metrics.AdaDiscoveryAvg
 
 	data.Categories, err = h.App.CategorizationSvc.GetCategories(ctx, domain.CategoryFilter{})
 	if err != nil {
@@ -111,13 +96,6 @@ func (h *AdminHandler) loadDashboardData(ctx context.Context, c echo.Context) (A
 	if err != nil {
 		c.Logger().Errorf("failed to get users: %v", err)
 		data.Users = []domain.User{}
-	}
-
-	// Fetch Ada Metrics (Last 24h)
-	since := time.Now().Add(-24 * time.Hour)
-	data.AdaDiscoveryAvg, err = h.App.DB.GetAverageValue(ctx, "discovery_success", since)
-	if err != nil {
-		c.Logger().Errorf("failed to get Ada metrics: %v", err)
 	}
 
 	return data, nil

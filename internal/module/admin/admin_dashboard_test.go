@@ -76,3 +76,28 @@ func TestAdminHandler_HandleDashboard_GrowthMetrics(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
 }
+
+func TestAdminHandler_HandleDashboard_Characterization(t *testing.T) {
+	t.Parallel()
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := admin.NewAdminHandler(env.App)
+	ctx := context.Background()
+
+	_ = env.App.DB.SaveUser(ctx, domain.User{ID: "u1", GoogleID: "g1", Role: domain.UserRoleAdmin})
+	_ = env.App.DB.SaveUser(ctx, domain.User{ID: "u2", GoogleID: "g2", Role: domain.UserRoleUser})
+	_ = env.App.DB.Save(ctx, domain.Listing{ID: "l1", Title: "Business A", Type: domain.Business, IsActive: true})
+	_ = env.App.DB.Save(ctx, domain.Listing{ID: "l2", Title: "Job B", Type: domain.Job, IsActive: true})
+	_ = env.App.DB.SaveClaimRequest(ctx, domain.ClaimRequest{ID: "c1", UserID: "u2", ListingID: "l1", Status: domain.ClaimStatusPending})
+	_ = env.App.DB.SaveFeedback(ctx, domain.Feedback{ID: "f1", Type: domain.FeedbackTypeIssue, Content: "Bug report"})
+	_ = env.App.DB.SaveCategory(ctx, domain.CategoryData{ID: "food", Name: "Food"})
+	_ = env.App.DB.SaveMetric(ctx, domain.Metric{EventType: "discovery_success", Value: 1.5, CreatedAt: time.Now()})
+
+	c, rec := testutil.SetupAdminContext(http.MethodGet, "/admin", nil)
+	err := h.HandleDashboard(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
+
+	body := rec.Body.String()
+	assert.Contains(t, body, "Admin Dashboard")
+}
