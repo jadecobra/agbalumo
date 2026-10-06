@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"image"
 	_ "image/png"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -83,4 +85,38 @@ func TestService_Generate_WarmPerformance(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.Less(t, duration, 500*time.Millisecond, "Warm rendering must execute well under 500ms budget")
+}
+
+func TestService_ExportArtifacts(t *testing.T) {
+	outDir := "/Users/johnnyblase/.gemini/antigravity/brain/b9436bc0-55c6-4582-aa73-286f63a9c27c"
+	svc := ogcard.NewService()
+
+	sampleData := ogcard.CardData{
+		Title:       "Aria Suya Kitchen",
+		City:        "Arlington, TX",
+		Category:    "West African Restaurant",
+		Rating:      4.8,
+		ReviewCount: 124,
+		Tagline:     "Find African food in under 60 seconds.",
+		UpdatedAt:   time.Now(),
+	}
+	sampleBytes, err := svc.Generate(sampleData)
+	require.NoError(t, err)
+	_ = os.WriteFile(filepath.Join(outDir, "og_card_sample.png"), sampleBytes, 0600)
+
+	longData := ogcard.CardData{
+		Title:       "Mama Put Authentic Nigerian Kitchen & Suya Spot",
+		City:        "Dallas, TX",
+		Category:    "Restaurant",
+		Rating:      4.9,
+		ReviewCount: 312,
+		Tagline:     "Find African food in under 60 seconds.",
+		UpdatedAt:   time.Now(),
+	}
+	longBytes, err := svc.Generate(longData)
+	require.NoError(t, err)
+	_ = os.WriteFile(filepath.Join(outDir, "og_card_long_title.png"), longBytes, 0600)
+
+	fallbackBytes := svc.GenerateFallback()
+	_ = os.WriteFile(filepath.Join(outDir, "og_card_fallback.png"), fallbackBytes, 0600)
 }

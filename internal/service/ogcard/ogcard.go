@@ -8,6 +8,7 @@ import (
 	"image/color"
 	"image/draw"
 	"image/png"
+	"math"
 	"strings"
 	"sync"
 	"time"
@@ -235,14 +236,17 @@ func (s *Service) drawBody(img *image.RGBA, data CardData) {
 	if locText == "" {
 		locText = "Verified Location"
 	}
-	s.drawString(img, s.subFace, "📍 "+locText, logoX, metaY, colorSand)
+	drawPin(img, logoX+8, metaY-10, colorOrange)
+	s.drawString(img, s.subFace, locText, logoX+26, metaY, colorSand)
 
 	if data.Rating > 0 {
-		ratingStr := fmt.Sprintf("★ %.1f", data.Rating)
+		ratingX := logoX + 380
+		drawStar(img, ratingX+10, metaY-10, 11, 5, colorOrange)
+		ratingStr := fmt.Sprintf("%.1f", data.Rating)
 		if data.ReviewCount > 0 {
 			ratingStr += fmt.Sprintf(" (%d reviews)", data.ReviewCount)
 		}
-		s.drawString(img, s.subFace, ratingStr, logoX+380, metaY, colorOrange)
+		s.drawString(img, s.subFace, ratingStr, ratingX+28, metaY, colorCream)
 	}
 }
 
@@ -307,6 +311,64 @@ func scaleDraw(dst *image.RGBA, targetRect image.Rectangle, src image.Image) {
 			}
 		}
 	}
+}
+
+func drawPin(dst *image.RGBA, cx, cy int, col color.Color) {
+	for y := -8; y <= 3; y++ {
+		for x := -7; x <= 7; x++ {
+			distSq := x*x + y*y
+			if distSq <= 49 && distSq >= 5 {
+				dst.Set(cx+x, cy+y, col)
+			}
+		}
+	}
+	for y := 2; y <= 9; y++ {
+		halfW := (9 - y) / 2
+		for x := -halfW; x <= halfW; x++ {
+			dst.Set(cx+x, cy+y, col)
+		}
+	}
+}
+
+func drawStar(dst *image.RGBA, cx, cy int, rOuter, rInner float64, col color.Color) {
+	var poly [10][2]float64
+	for i := 0; i < 10; i++ {
+		angle := -math.Pi/2 + float64(i)*math.Pi/5
+		r := rInner
+		if i%2 == 0 {
+			r = rOuter
+		}
+		poly[i][0] = float64(cx) + r*math.Cos(angle)
+		poly[i][1] = float64(cy) + r*math.Sin(angle)
+	}
+
+	minX := int(math.Floor(float64(cx) - rOuter))
+	maxX := int(math.Ceil(float64(cx) + rOuter))
+	minY := int(math.Floor(float64(cy) - rOuter))
+	maxY := int(math.Ceil(float64(cy) + rOuter))
+
+	for y := minY; y <= maxY; y++ {
+		for x := minX; x <= maxX; x++ {
+			if pointInPoly(float64(x)+0.5, float64(y)+0.5, poly[:]) {
+				dst.Set(x, y, col)
+			}
+		}
+	}
+}
+
+func pointInPoly(x, y float64, poly [][2]float64) bool {
+	inside := false
+	n := len(poly)
+	j := n - 1
+	for i := 0; i < n; i++ {
+		xi, yi := poly[i][0], poly[i][1]
+		xj, yj := poly[j][0], poly[j][1]
+		if ((yi > y) != (yj > y)) && (x < (xj-xi)*(y-yi)/(yj-yi)+xi) {
+			inside = !inside
+		}
+		j = i
+	}
+	return inside
 }
 
 func wrapText(text string, maxLen int) []string {
