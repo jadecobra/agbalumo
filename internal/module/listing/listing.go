@@ -16,17 +16,20 @@ import (
 	"github.com/jadecobra/agbalumo/internal/infra/env"
 	"github.com/jadecobra/agbalumo/internal/module"
 	"github.com/jadecobra/agbalumo/internal/module/user"
+	"github.com/jadecobra/agbalumo/internal/service/ogcard"
 	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
 )
 
 type ListingHandler struct {
+	ogSvc ogcard.Generator
 	module.BaseHandler
 }
 
 func NewListingHandler(app *env.AppEnv) *ListingHandler {
 	return &ListingHandler{
 		BaseHandler: module.BaseHandler{App: app},
+		ogSvc:       ogcard.NewService(),
 	}
 }
 
@@ -35,6 +38,7 @@ func (h *ListingHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddlewa
 	// Public Routes
 	e.Match([]string{http.MethodGet, http.MethodHead}, "/", h.HandleHome)
 	e.Match([]string{http.MethodGet, http.MethodHead}, "/listings/fragment", h.HandleFragment)
+	e.Match([]string{http.MethodGet, http.MethodHead}, domain.PathListingID+"/og.png", h.HandleOGImage)
 	e.Match([]string{http.MethodGet, http.MethodHead}, domain.PathListingID, h.HandleDetail)
 	e.POST("/api/metrics", h.HandleMetricsIngestion)
 
@@ -362,9 +366,7 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 	} else {
 		vm.MetaDescription = fmt.Sprintf("View authentic details, location, and contact information for %s on agbalumo.", listing.Title)
 	}
-	if listing.ImageURL != "" {
-		vm.MetaImage = listing.ImageURL
-	}
+	vm.MetaImage = fmt.Sprintf("https://agbalumo.com/listings/%s/og.png", listing.ID)
 	vm.MetaURL = fmt.Sprintf("https://agbalumo.com/listings/%s", listing.ID)
 	vm.MetaType = "restaurant"
 

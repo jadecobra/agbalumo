@@ -42,6 +42,7 @@ No authentication required.
 | GET | `/about` | About page |
 | GET | `/listings/fragment` | HTMX partial for listings |
 | GET | `/listings/:id` | Listing detail page |
+| GET | `/listings/:id/og.png` | Branded Open Graph card preview image |
 
 ### Query Parameters
 

@@ -71,6 +71,9 @@ paths:
   /listings/{id}:
     $ref: './openapi/paths/listings.yaml#/single'
 
+  /listings/{id}/og.png:
+    $ref: './openapi/paths/listings.yaml#/og_image'
+
   /listings/{id}/edit:
     $ref: './openapi/paths/listings.yaml#/edit'
 

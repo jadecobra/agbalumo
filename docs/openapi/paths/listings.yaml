@@ -282,3 +282,24 @@ save_toggle:
         description: Unauthorized
       '404':
         description: Listing not found
+
+og_image:
+  get:
+    summary: Get branded Open Graph share image
+    description: Returns a 1200x630 branded Open Graph card PNG image for the listing
+    tags:
+      - Public
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Open Graph PNG card image
+        content:
+          image/png:
+            schema:
+              type: string
+              format: binary

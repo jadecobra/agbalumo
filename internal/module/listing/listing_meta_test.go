@@ -4,11 +4,13 @@ import (
 	"context"
 	"io"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/jadecobra/agbalumo/internal/domain"
 	"github.com/jadecobra/agbalumo/internal/module/listing"
 	"github.com/jadecobra/agbalumo/internal/testutil"
+	"github.com/jadecobra/agbalumo/internal/ui"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -116,7 +118,44 @@ func TestHandleDetail_DynamicMetaTags(t *testing.T) {
 
 	assert.Equal(t, "Aria Suya Kitchen | agbalumo", vm.MetaTitle)
 	assert.Equal(t, "Finest smoked suya and jollof in Arlington.", vm.MetaDescription)
-	assert.Equal(t, "https://agbalumo.com/static/uploads/aria.jpg", vm.MetaImage)
+	assert.Equal(t, "https://agbalumo.com/listings/detail-meta-1/og.png", vm.MetaImage)
 	assert.Equal(t, "https://agbalumo.com/listings/detail-meta-1", vm.MetaURL)
 	assert.Equal(t, "restaurant", vm.MetaType)
+}
+
+func TestHandleDetail_RenderedHTML_OGImageTag(t *testing.T) {
+	t.Parallel()
+
+	renderer, err := ui.NewTemplateRenderer(
+		"../../../ui/templates/*.html",
+		"../../../ui/templates/partials/*.html",
+		"../../../ui/templates/components/*.html",
+	)
+	require.NoError(t, err)
+
+	req := httptest.NewRequest(http.MethodGet, "/listings/aria-html-1", nil)
+	rec := httptest.NewRecorder()
+	e := echo.New()
+	e.Renderer = renderer
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues("aria-html-1")
+
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
+
+	testutil.SaveTestListing(t, env.App.DB, "aria-html-1", "Aria Suya Kitchen", func(l *domain.Listing) {
+		l.Type = domain.Food
+		l.City = "Plano"
+		l.Description = "Smoked suya and jollof in Plano."
+	})
+	_ = env.App.DB.SaveCategory(context.Background(), domain.CategoryData{ID: string(domain.Food), Name: "Food", Active: true})
+
+	err = h.HandleDetail(c)
+	require.NoError(t, err)
+
+	htmlBody := rec.Body.String()
+	assert.Contains(t, htmlBody, `<meta property="og:image" content="https://agbalumo.com/listings/aria-html-1/og.png" />`)
+	assert.Contains(t, htmlBody, `<meta name="twitter:image" content="https://agbalumo.com/listings/aria-html-1/og.png" />`)
 }
