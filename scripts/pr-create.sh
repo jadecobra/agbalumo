@@ -73,19 +73,25 @@ fi
 echo "🔍 Verifying remote synchronization for branch '$CURRENT_BRANCH'..."
 LOCAL_SHA=$(git rev-parse HEAD)
 
-# Fetch latest branch ref from origin
-REMOTE_SHA=$(git ls-remote origin "refs/heads/$CURRENT_BRANCH" 2>/dev/null | awk '{print $1}')
-
-if [ -z "$REMOTE_SHA" ]; then
-    echo "❌ Error: Remote branch 'refs/heads/$CURRENT_BRANCH' does not exist on origin."
-    echo "   Run ./scripts/pushw.sh first to push and synchronize."
+# Verify upstream tracking branch is configured
+UPSTREAM_REF=$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null || true)
+if [ -z "$UPSTREAM_REF" ]; then
+    echo "❌ Error: Upstream tracking branch is not configured for '$CURRENT_BRANCH'."
+    echo "   Run ./scripts/pushw.sh -u origin $CURRENT_BRANCH first to push and synchronize."
     exit 1
 fi
 
-if [ "$LOCAL_SHA" != "$REMOTE_SHA" ]; then
+UPSTREAM_SHA=$(git rev-parse '@{u}' 2>/dev/null || true)
+if [ -z "$UPSTREAM_SHA" ]; then
+    echo "❌ Error: Could not resolve SHA for upstream '$UPSTREAM_REF'."
+    echo "   Run ./scripts/pushw.sh to synchronize."
+    exit 1
+fi
+
+if [ "$LOCAL_SHA" != "$UPSTREAM_SHA" ]; then
     echo "❌ Error: Remote branch is out of sync with local HEAD."
-    echo "   Local SHA:  $LOCAL_SHA"
-    echo "   Remote SHA: $REMOTE_SHA"
+    echo "   Local SHA:    $LOCAL_SHA"
+    echo "   Upstream SHA: $UPSTREAM_SHA"
     echo "   Run ./scripts/pushw.sh to synchronize before creating PR."
     exit 1
 fi
