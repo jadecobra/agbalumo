@@ -1,0 +1,110 @@
+#!/bin/sh
+# scripts/pr-create.sh
+# Deterministic PR creation with sync verification and commit assertion.
+
+set -e
+
+usage() {
+    echo "Usage: $0 --title <title> --body-file <path-to-markdown-file> [--base <base-branch>]"
+    echo "   or: $0 <title> <path-to-markdown-file> [<base-branch>]"
+    exit "${1:-1}"
+}
+
+TITLE=""
+BODY_FILE=""
+BASE_BRANCH="main"
+
+# Parse arguments
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --title)
+            TITLE="$2"
+            shift 2
+            ;;
+        --body-file)
+            BODY_FILE="$2"
+            shift 2
+            ;;
+        --base)
+            BASE_BRANCH="$2"
+            shift 2
+            ;;
+        -h|--help)
+            usage 0
+            ;;
+        *)
+            if [ -z "$TITLE" ]; then
+                TITLE="$1"
+                shift
+            elif [ -z "$BODY_FILE" ]; then
+                BODY_FILE="$1"
+                shift
+            elif [ "$BASE_BRANCH" = "main" ]; then
+                BASE_BRANCH="$1"
+                shift
+            else
+                usage
+            fi
+            ;;
+    esac
+done
+
+if [ -z "$TITLE" ] || [ -z "$BODY_FILE" ]; then
+    echo "❌ Error: Both title and body-file are required."
+    usage
+fi
+
+if [ ! -r "$BODY_FILE" ]; then
+    echo "❌ Error: Body file not found or not readable at: $BODY_FILE"
+    exit 1
+fi
+
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ "$CURRENT_BRANCH" = "HEAD" ] || [ -z "$CURRENT_BRANCH" ]; then
+    echo "❌ Error: Detached HEAD state. Please checkout a feature branch."
+    exit 1
+fi
+
+if [ "$CURRENT_BRANCH" = "$BASE_BRANCH" ]; then
+    echo "❌ Error: Cannot create PR from '$BASE_BRANCH' into '$BASE_BRANCH'."
+    exit 1
+fi
+
+echo "🔍 Verifying remote synchronization for branch '$CURRENT_BRANCH'..."
+LOCAL_SHA=$(git rev-parse HEAD)
+
+# Fetch latest branch ref from origin
+REMOTE_SHA=$(git ls-remote origin "refs/heads/$CURRENT_BRANCH" 2>/dev/null | awk '{print $1}')
+
+if [ -z "$REMOTE_SHA" ]; then
+    echo "❌ Error: Remote branch 'refs/heads/$CURRENT_BRANCH' does not exist on origin."
+    echo "   Run ./scripts/pushw.sh first to push and synchronize."
+    exit 1
+fi
+
+if [ "$LOCAL_SHA" != "$REMOTE_SHA" ]; then
+    echo "❌ Error: Remote branch is out of sync with local HEAD."
+    echo "   Local SHA:  $LOCAL_SHA"
+    echo "   Remote SHA: $REMOTE_SHA"
+    echo "   Run ./scripts/pushw.sh to synchronize before creating PR."
+    exit 1
+fi
+
+echo "✅ Remote branch is synchronized ($LOCAL_SHA)."
+echo "🚀 Creating pull request into '$BASE_BRANCH'..."
+
+PR_URL=$(gh pr create --base "$BASE_BRANCH" --head "$CURRENT_BRANCH" --title "$TITLE" --body-file "$BODY_FILE")
+
+echo "✅ Pull request created: $PR_URL"
+echo "🔍 Validating PR commits and metadata..."
+
+PR_DATA=$(gh pr view "$CURRENT_BRANCH" --json number,url,commits)
+PR_NUMBER=$(echo "$PR_DATA" | jq -r '.number')
+COMMITS_COUNT=$(echo "$PR_DATA" | jq -r '.commits | length')
+
+if [ "$COMMITS_COUNT" -eq 0 ]; then
+    echo "❌ Error: PR #$PR_NUMBER was created but contains 0 commits between '$CURRENT_BRANCH' and '$BASE_BRANCH'."
+    exit 1
+fi
+
+echo "🎉 PR #$PR_NUMBER verified with $COMMITS_COUNT commit(s): $PR_URL"

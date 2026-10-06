@@ -66,11 +66,11 @@ go run ./cmd/verify snapshot-parity
 
 ## Push & Remote Monitoring
 
-0. **Branch + PR only**: Never push directly to `main`. If `main` diverged, rebase the feature branch and open/update a PR (`gh pr create`). After opening, watch lifecycle autonomously (`gh pr view <n> --json state,reviewDecision,mergedAt`) instead of halting for the user to announce approval/merge. No completion summary before CI is green.
+0. **Branch + PR only**: Never push directly to `main`. If `main` diverged, rebase the feature branch and open/update a PR. Use `./scripts/pr-create.sh` to create and verify the PR (ensures remote synchronization and validates non-zero commits). After opening, watch lifecycle autonomously (`gh pr view <n> --json state,reviewDecision,mergedAt`) instead of halting for the user to announce approval/merge. No completion summary before CI is green.
 
 1. Execute the push and automated monitoring wrapper:
    `./scripts/pushw.sh`
-   _Insight: This atomically executes the push and polls the GitHub API for the specific commit's CI run ID to resolve race conditions._
+   _Insight: This atomically executes the push and polls the GitHub API for the specific commit's CI run ID to resolve race conditions. Do NOT run a separate `git push` beforehand — `scripts/pushw.sh` already executes `git push "$@"`, and running manual `git push` prior triggers duplicate pre-push verification runs._
 
 2. **Reactive Monitoring with Fail-Safe (MANDATORY):** After the push, do NOT poll using short-interval timers. Instead, launch the monitoring command in the background:
    ```bash
