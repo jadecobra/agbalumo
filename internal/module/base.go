@@ -13,6 +13,7 @@ type BaseViewData struct {
 	Counts           map[string]int
 	MetaDescription  string
 	MetaImage        string
+	MetaImageAlt     string
 	FilterType       string
 	City             string
 	GoogleMapsApiKey string
@@ -23,6 +24,8 @@ type BaseViewData struct {
 	MetaType         string
 	GAMeasurementID  string
 	Categories       []domain.CategoryData
+	MetaImageWidth   int
+	MetaImageHeight  int
 	Radius           float64
 	DevMode          bool
 	HasGoogleAuth    bool

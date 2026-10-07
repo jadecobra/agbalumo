@@ -19,9 +19,10 @@ func TestHeadMeta_OpenGraphTags(t *testing.T) {
 	require.NoError(t, err)
 
 	tests := []struct {
-		name     string
-		contains []string
-		data     module.BaseViewData
+		name        string
+		contains    []string
+		notContains []string
+		data        module.BaseViewData
 	}{
 		{
 			name: "default_fallback_tags",
@@ -40,6 +41,11 @@ func TestHeadMeta_OpenGraphTags(t *testing.T) {
 				`<meta name="twitter:description" content="Find authentic Nigerian and West African food in under 60 seconds. Verified Dallas spots, directions, and direct contact."`,
 				`<meta name="twitter:image" content="https://agbalumo.com/static/icons/favicon.png"`,
 			},
+			notContains: []string{
+				`og:image:width`,
+				`og:image:height`,
+				`og:image:alt`,
+			},
 		},
 		{
 			name: "custom_meta_tags",
@@ -48,6 +54,9 @@ func TestHeadMeta_OpenGraphTags(t *testing.T) {
 				MetaTitle:       "Authentic Suya in Dallas | agbalumo",
 				MetaDescription: "Top 3 suya spots in Dallas rated for authentic spice and minimal wait time.",
 				MetaImage:       "https://agbalumo.com/static/uploads/suya.jpg",
+				MetaImageWidth:  1200,
+				MetaImageHeight: 630,
+				MetaImageAlt:    "Authentic Suya in Dallas on agbalumo",
 				MetaURL:         "https://agbalumo.com/?q=suya&city=Dallas",
 				MetaType:        "restaurant",
 			},
@@ -57,6 +66,9 @@ func TestHeadMeta_OpenGraphTags(t *testing.T) {
 				`<meta property="og:description" content="Top 3 suya spots in Dallas rated for authentic spice and minimal wait time."`,
 				`<meta property="og:url" content="https://agbalumo.com/?q=suya&amp;city=Dallas"`,
 				`<meta property="og:image" content="https://agbalumo.com/static/uploads/suya.jpg"`,
+				`<meta property="og:image:width" content="1200"`,
+				`<meta property="og:image:height" content="630"`,
+				`<meta property="og:image:alt" content="Authentic Suya in Dallas on agbalumo"`,
 				`<meta name="twitter:title" content="Authentic Suya in Dallas | agbalumo"`,
 				`<meta name="twitter:description" content="Top 3 suya spots in Dallas rated for authentic spice and minimal wait time."`,
 				`<meta name="twitter:image" content="https://agbalumo.com/static/uploads/suya.jpg"`,
@@ -73,6 +85,9 @@ func TestHeadMeta_OpenGraphTags(t *testing.T) {
 			output := buf.String()
 			for _, expected := range tc.contains {
 				assert.Contains(t, output, expected)
+			}
+			for _, unexpected := range tc.notContains {
+				assert.NotContains(t, output, unexpected)
 			}
 		})
 	}
