@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/jadecobra/agbalumo/internal/maintenance"
 	"github.com/spf13/cobra"
@@ -228,6 +229,13 @@ var uptimeCmd = &cobra.Command{
 			} else {
 				targetURL = "https://localhost:8443"
 			}
+		}
+		path, _ := cmd.Flags().GetString("path")
+		if path != "" {
+			if !strings.HasPrefix(path, "/") {
+				path = "/" + path
+			}
+			targetURL = strings.TrimRight(targetURL, "/") + path
 		}
 		return maintenance.CheckServerUptime(targetURL)
 	},

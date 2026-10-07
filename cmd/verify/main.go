@@ -73,6 +73,7 @@ func init() {
 	critiqueCmd.Flags().Bool("full", false, "Run full audit instead of incremental")
 	critiqueCmd.Flags().String("baseline", "", "Git revision to compare against (default: HEAD~1)")
 	critiqueCmd.Flags().Bool("verbose", false, "Restore full linter logs (disables summarization)")
+	uptimeCmd.Flags().String("path", "", "Optional URL path to probe (e.g. /healthz or /listings/1/og.png)")
 
 	rootCmd.AddCommand(
 		// CI Domain

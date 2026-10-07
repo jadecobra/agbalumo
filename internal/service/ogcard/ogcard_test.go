@@ -120,3 +120,41 @@ func TestService_ExportArtifacts(t *testing.T) {
 	fallbackBytes := svc.GenerateFallback()
 	_ = os.WriteFile(filepath.Join(outDir, "og_card_fallback.png"), fallbackBytes, 0600)
 }
+
+func BenchmarkService_Generate_Cold(b *testing.B) {
+	svc := ogcard.NewService()
+	data := ogcard.CardData{
+		Title:       "Aria Suya Kitchen",
+		City:        "Dallas, TX",
+		Category:    "Restaurant",
+		Rating:      4.9,
+		ReviewCount: 50,
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		data.UpdatedAt = time.Unix(int64(i+1), 0)
+		_, err := svc.Generate(data)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkService_Generate_Warm(b *testing.B) {
+	svc := ogcard.NewService()
+	data := ogcard.CardData{
+		Title:       "Aria Suya Kitchen",
+		City:        "Dallas, TX",
+		Category:    "Restaurant",
+		Rating:      4.9,
+		ReviewCount: 50,
+	}
+	_, _ = svc.Generate(data)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := svc.Generate(data)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}

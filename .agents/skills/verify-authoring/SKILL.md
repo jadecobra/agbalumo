@@ -1,6 +1,6 @@
 ---
 name: "Verify Authoring"
-description: "Boilerplate pattern for creating new verify CLI subcommands with TDD."
+description: "Boilerplate pattern for creating new verify CLI subcommands and custom verification checks with TDD."
 triggers:
   - "add verify subcommand"
   - "new verify tool"
@@ -8,6 +8,10 @@ triggers:
   - "create verify command"
   - "/skill-audit"
   - "skill audit"
+  - "verify-* check"
+  - "verify check"
+  - "custom verify check"
+  - "verify-agbalumo check"
 mutating: true
 ---
 

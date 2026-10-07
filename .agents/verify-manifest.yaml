@@ -222,7 +222,7 @@ skills:
     path: .agents/skills/flash-review/SKILL.md
 
   - name: verify-authoring
-    trigger: add_verify_subcommand, new_verify_tool, automate_check, tool_creation, skill_audit, /skill-audit
+    trigger: add_verify_subcommand, new_verify_tool, automate_check, tool_creation, skill_audit, /skill-audit, verify_check, custom_verify_check
     path: .agents/skills/verify-authoring/SKILL.md
 
   - name: codebase-audit

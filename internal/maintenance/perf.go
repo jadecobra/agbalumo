@@ -33,6 +33,7 @@ func getPerfChecks() []perfCheck {
 		{checkSQLitePragmas, "SQLite Configuration"},
 		{runSearchBenchmark, "Search Smoke Benchmark"},
 		{runBulkInsertBenchmark, "Bulk Insert Benchmark (10k items)"},
+		{runOGCardBenchmark, "OG Card Generation Benchmark"},
 	}
 }
 
@@ -140,6 +141,20 @@ func runBulkInsertBenchmark(rootDir string) error {
 	cmd.Dir = rootDir
 	if out, err := cmd.CombinedOutput(); err != nil {
 		return fmt.Errorf("bulk insert benchmark failed: %w\nOutput: %s", err, string(out))
+	}
+	return nil
+}
+
+func runOGCardBenchmark(rootDir string) error {
+	benchFile := filepath.Join(rootDir, "internal/service/ogcard/ogcard_test.go")
+	if _, err := os.Stat(benchFile); os.IsNotExist(err) {
+		return nil
+	}
+
+	cmd := exec.Command("go", "test", "-bench=BenchmarkService_Generate_Cold", "-run=^#", "-benchtime=100ms", "./internal/service/ogcard")
+	cmd.Dir = rootDir
+	if out, err := cmd.CombinedOutput(); err != nil {
+		return fmt.Errorf("ogcard benchmark failed: %w\nOutput: %s", err, string(out))
 	}
 	return nil
 }

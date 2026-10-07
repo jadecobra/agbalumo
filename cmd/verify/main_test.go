@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
@@ -16,6 +18,42 @@ func TestCICmdHasWithDockerFlag(t *testing.T) {
 	}
 	if flag.DefValue != "false" {
 		t.Errorf("expected default false, got %s", flag.DefValue)
+	}
+}
+
+func TestUptimeCmdHasPathFlag(t *testing.T) {
+	flag := uptimeCmd.Flags().Lookup("path")
+	if flag == nil {
+		t.Fatal("uptimeCmd should have a --path flag")
+	}
+	if flag.DefValue != "" {
+		t.Errorf("expected default empty string, got %s", flag.DefValue)
+	}
+}
+
+func TestUptimeCmdPathFlagExecution(t *testing.T) {
+	var receivedPath string
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		receivedPath = r.URL.Path
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer ts.Close()
+
+	t.Setenv("APP_URL", ts.URL)
+	defer func() {
+		_ = uptimeCmd.Flags().Set("path", "")
+	}()
+
+	if err := uptimeCmd.Flags().Set("path", "/listings/1/og.png"); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := uptimeCmd.RunE(uptimeCmd, nil); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if receivedPath != "/listings/1/og.png" {
+		t.Fatalf("expected path /listings/1/og.png, got %s", receivedPath)
 	}
 }
 
