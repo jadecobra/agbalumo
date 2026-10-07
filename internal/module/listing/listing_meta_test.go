@@ -129,6 +129,37 @@ func TestHandleDetail_DynamicMetaTags(t *testing.T) {
 	assert.Equal(t, "restaurant", vm.MetaType)
 }
 
+func TestHandleDetail_DataDrivenMetaDescription(t *testing.T) {
+	t.Parallel()
+
+	c, _ := testutil.SetupModuleContext(http.MethodGet, "/listings/detail-meta-data-driven", nil)
+	c.SetParamNames("id")
+	c.SetParamValues("detail-meta-data-driven")
+	renderer := &metaCaptureRenderer{}
+	c.Echo().Renderer = renderer
+
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
+
+	testutil.SaveTestListing(t, env.App.DB, "detail-meta-data-driven", "Asafo Market", func(l *domain.Listing) {
+		l.Type = domain.Food
+		l.City = "Grand Prairie"
+		l.Description = "Restaurant"
+		l.Rating = 4.4
+		l.ReviewCount = 440
+	})
+	_ = env.App.DB.SaveCategory(context.Background(), domain.CategoryData{ID: string(domain.Food), Name: "Food", Active: true})
+
+	err := h.HandleDetail(c)
+	require.NoError(t, err)
+
+	vm, ok := renderer.CapturedData.(listing.DetailViewModel)
+	require.True(t, ok, "Captured data must be DetailViewModel")
+
+	assert.Equal(t, "Grand Prairie · ★ 4.4 from 440 Google reviews · find it on agbalumo", vm.MetaDescription)
+}
+
 func TestHandleDetail_RenderedHTML_OGImageTag(t *testing.T) {
 	t.Parallel()
 
@@ -167,6 +198,45 @@ func TestHandleDetail_RenderedHTML_OGImageTag(t *testing.T) {
 	assert.Contains(t, htmlBody, `<meta property="og:image:height" content="630" />`)
 	assert.Contains(t, htmlBody, `<meta property="og:image:alt" content="Aria Suya Kitchen in Plano on agbalumo" />`)
 	assert.Contains(t, htmlBody, `<meta name="twitter:image" content="https://agbalumo.com/listings/aria-html-1/og.png" />`)
+}
+
+func TestHandleDetail_RenderedHTML_DataDrivenDescription(t *testing.T) {
+	t.Parallel()
+
+	renderer, err := ui.NewTemplateRenderer(
+		"../../../ui/templates/*.html",
+		"../../../ui/templates/partials/*.html",
+		"../../../ui/templates/components/*.html",
+	)
+	require.NoError(t, err)
+
+	req := httptest.NewRequest(http.MethodGet, "/listings/asafo-html-1", nil)
+	rec := httptest.NewRecorder()
+	e := echo.New()
+	e.Renderer = renderer
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues("asafo-html-1")
+
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
+
+	testutil.SaveTestListing(t, env.App.DB, "asafo-html-1", "Asafo Market", func(l *domain.Listing) {
+		l.Type = domain.Food
+		l.City = "Grand Prairie"
+		l.Description = ""
+		l.Rating = 4.4
+		l.ReviewCount = 440
+	})
+	_ = env.App.DB.SaveCategory(context.Background(), domain.CategoryData{ID: string(domain.Food), Name: "Food", Active: true})
+
+	err = h.HandleDetail(c)
+	require.NoError(t, err)
+
+	htmlBody := rec.Body.String()
+	assert.Contains(t, htmlBody, `<meta property="og:description" content="Grand Prairie · ★ 4.4 from 440 Google reviews · find it on agbalumo" />`)
+	assert.Contains(t, htmlBody, `<meta name="twitter:description" content="Grand Prairie · ★ 4.4 from 440 Google reviews · find it on agbalumo" />`)
 }
 
 func TestHandleHome_RenderedHTML_NoImageSizeTags(t *testing.T) {

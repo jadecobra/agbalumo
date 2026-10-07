@@ -2,6 +2,8 @@ package domain
 
 import (
 	"errors"
+	"fmt"
+	"strings"
 	"time"
 )
 
@@ -73,3 +75,36 @@ const (
 	ListingStatusApproved ListingStatus = "Approved"
 	ListingStatusRejected ListingStatus = "Rejected"
 )
+
+const minSubstantiveDescriptionLen = 40
+
+func (l *Listing) MetaDescription() string {
+	if l == nil {
+		return "Find authentic African food in under 60 seconds on agbalumo."
+	}
+	desc := strings.TrimSpace(l.Description)
+	if len(desc) >= minSubstantiveDescriptionLen {
+		return desc
+	}
+
+	var parts []string
+	city := strings.TrimSpace(l.City)
+	if city != "" {
+		parts = append(parts, city)
+	} else if strings.TrimSpace(l.Title) != "" {
+		parts = append(parts, strings.TrimSpace(l.Title))
+	}
+
+	if l.Rating > 0 {
+		if l.ReviewCount > 1 {
+			parts = append(parts, fmt.Sprintf("★ %.1f from %d Google reviews", l.Rating, l.ReviewCount))
+		} else if l.ReviewCount == 1 {
+			parts = append(parts, fmt.Sprintf("★ %.1f from 1 Google review", l.Rating))
+		} else {
+			parts = append(parts, fmt.Sprintf("★ %.1f", l.Rating))
+		}
+	}
+
+	parts = append(parts, "find it on agbalumo")
+	return strings.Join(parts, " · ")
+}

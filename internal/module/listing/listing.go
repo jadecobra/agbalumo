@@ -361,11 +361,7 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 		SavedIDs:         savedMap,
 	}
 	vm.MetaTitle = fmt.Sprintf("%s | agbalumo", listing.Title)
-	if listing.Description != "" {
-		vm.MetaDescription = listing.Description
-	} else {
-		vm.MetaDescription = fmt.Sprintf("View authentic details, location, and contact information for %s on agbalumo.", listing.Title)
-	}
+	vm.MetaDescription = listing.MetaDescription()
 	vm.MetaImage = fmt.Sprintf("https://agbalumo.com/listings/%s/og.png", listing.ID)
 	vm.MetaImageWidth = 1200
 	vm.MetaImageHeight = 630
