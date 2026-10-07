@@ -367,6 +367,13 @@ func (h *ListingHandler) HandleDetail(c echo.Context) error {
 		vm.MetaDescription = fmt.Sprintf("View authentic details, location, and contact information for %s on agbalumo.", listing.Title)
 	}
 	vm.MetaImage = fmt.Sprintf("https://agbalumo.com/listings/%s/og.png", listing.ID)
+	vm.MetaImageWidth = 1200
+	vm.MetaImageHeight = 630
+	if listing.City != "" {
+		vm.MetaImageAlt = fmt.Sprintf("%s in %s on agbalumo", listing.Title, listing.City)
+	} else {
+		vm.MetaImageAlt = fmt.Sprintf("%s on agbalumo", listing.Title)
+	}
 	vm.MetaURL = fmt.Sprintf("https://agbalumo.com/listings/%s", listing.ID)
 	vm.MetaType = "restaurant"
 

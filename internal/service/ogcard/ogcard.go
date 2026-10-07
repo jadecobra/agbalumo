@@ -88,7 +88,7 @@ func NewService() *Service {
 	fBold, err := opentype.Parse(gobold.TTF)
 	if err == nil {
 		s.titleFace, _ = opentype.NewFace(fBold, &opentype.FaceOptions{
-			Size:    46,
+			Size:    76,
 			DPI:     72,
 			Hinting: font.HintingFull,
 		})
@@ -97,7 +97,7 @@ func NewService() *Service {
 	fReg, err := opentype.Parse(goregular.TTF)
 	if err == nil {
 		s.subFace, _ = opentype.NewFace(fReg, &opentype.FaceOptions{
-			Size:    28,
+			Size:    40,
 			DPI:     72,
 			Hinting: font.HintingFull,
 		})
@@ -207,7 +207,9 @@ func (s *Service) drawHeader(img *image.RGBA, data CardData) {
 	if data.Category != "" {
 		badgeText = strings.ToUpper(data.Category)
 	}
-	s.drawString(img, s.smallFace, badgeText, CardWidth-margin-320, logoY+32, colorOchre)
+	badgeW := font.MeasureString(s.smallFace, badgeText).Ceil()
+	badgeX := CardWidth - 75 - badgeW
+	s.drawString(img, s.smallFace, badgeText, badgeX, logoY+32, colorOchre)
 
 	divY := margin + 104
 	divRect := image.Rect(logoX, divY, CardWidth-margin-48, divY+1)
@@ -216,37 +218,49 @@ func (s *Service) drawHeader(img *image.RGBA, data CardData) {
 
 func (s *Service) drawBody(img *image.RGBA, data CardData) {
 	logoX := margin + 48
-	titleY := margin + 184
 	title := data.Title
 	if title == "" {
 		title = "agbalumo"
 	}
 
-	lines := wrapText(title, 32)
-	for i, line := range lines {
-		s.drawString(img, s.titleFace, line, logoX, titleY+(i*56), colorCream)
+	maxTitleWidth := CardWidth - 75 - logoX
+	lines := s.wrapTitle(title, maxTitleWidth)
+
+	var titleY int
+	lineSpacing := 84
+	subGap := 68
+
+	if len(lines) == 1 {
+		titleY = 320
+	} else {
+		titleY = 276
 	}
 
-	metaY := titleY + (len(lines) * 56) + 24
-	if len(lines) == 1 {
-		metaY += 28
+	for i, line := range lines {
+		s.drawString(img, s.titleFace, line, logoX, titleY+(i*lineSpacing), colorCream)
 	}
+
+	metaY := titleY + ((len(lines) - 1) * lineSpacing) + subGap
 
 	locText := data.City
 	if locText == "" {
 		locText = "Verified Location"
 	}
-	drawPin(img, logoX+8, metaY-10, colorOrange)
-	s.drawString(img, s.subFace, locText, logoX+26, metaY, colorSand)
+
+	pinX := logoX + 12
+	drawPin(img, pinX, metaY-14, colorOrange)
+	cityX := pinX + 22
+	s.drawString(img, s.subFace, locText, cityX, metaY, colorSand)
 
 	if data.Rating > 0 {
-		ratingX := logoX + 380
-		drawStar(img, ratingX+10, metaY-10, 11, 5, colorOrange)
+		cityW := font.MeasureString(s.subFace, locText).Ceil()
+		starX := cityX + cityW + 36 + 14
+		drawStar(img, starX, metaY-14, 15, 6.5, colorOrange)
 		ratingStr := fmt.Sprintf("%.1f", data.Rating)
 		if data.ReviewCount > 0 {
 			ratingStr += fmt.Sprintf(" (%d reviews)", data.ReviewCount)
 		}
-		s.drawString(img, s.subFace, ratingStr, ratingX+28, metaY, colorCream)
+		s.drawString(img, s.subFace, ratingStr, starX+24, metaY, colorCream)
 	}
 }
 
@@ -261,7 +275,8 @@ func (s *Service) drawFooter(img *image.RGBA, data CardData) {
 	}
 	footerY := CardHeight - margin - 28
 	s.drawString(img, s.bodyFace, tagline, logoX, footerY, colorMuted)
-	s.drawString(img, s.smallFace, "agbalumo.com", CardWidth-margin-180, footerY, colorOrange)
+	siteW := font.MeasureString(s.smallFace, "agbalumo.com").Ceil()
+	s.drawString(img, s.smallFace, "agbalumo.com", CardWidth-75-siteW, footerY, colorOrange)
 }
 
 func (s *Service) drawString(dst *image.RGBA, face font.Face, text string, x, y int, col color.Color) {
@@ -314,16 +329,16 @@ func scaleDraw(dst *image.RGBA, targetRect image.Rectangle, src image.Image) {
 }
 
 func drawPin(dst *image.RGBA, cx, cy int, col color.Color) {
-	for y := -8; y <= 3; y++ {
-		for x := -7; x <= 7; x++ {
+	for y := -10; y <= 4; y++ {
+		for x := -9; x <= 9; x++ {
 			distSq := x*x + y*y
-			if distSq <= 49 && distSq >= 5 {
+			if distSq <= 81 && distSq >= 8 {
 				dst.Set(cx+x, cy+y, col)
 			}
 		}
 	}
-	for y := 2; y <= 9; y++ {
-		halfW := (9 - y) / 2
+	for y := 3; y <= 12; y++ {
+		halfW := (12 - y) / 2
 		for x := -halfW; x <= halfW; x++ {
 			dst.Set(cx+x, cy+y, col)
 		}
@@ -371,46 +386,89 @@ func pointInPoly(x, y float64, poly [][2]float64) bool {
 	return inside
 }
 
-func wrapText(text string, maxLen int) []string {
-	if len(text) <= maxLen {
-		return []string{text}
+func (s *Service) wrapTitle(title string, maxWidth int) []string {
+	if s.titleFace == nil || font.MeasureString(s.titleFace, title).Ceil() <= maxWidth {
+		return []string{title}
 	}
 
-	words := strings.Fields(text)
+	words := strings.Fields(title)
 	if len(words) == 0 {
 		return []string{""}
 	}
 
-	lines := groupWords(words, maxLen)
-	if len(lines) > 2 {
-		lines = lines[:2]
-		lines[1] = truncate(lines[1], maxLen)
+	line1, nextIdx := s.fillFirstLine(words, maxWidth)
+	if nextIdx >= len(words) {
+		return []string{line1}
 	}
-	return lines
+
+	line2 := s.fillSecondLine(words[nextIdx:], maxWidth)
+	return []string{line1, line2}
 }
 
-func groupWords(words []string, maxLen int) []string {
-	var lines []string
-	curr := ""
+func (s *Service) fillFirstLine(words []string, maxWidth int) (string, int) {
+	var line string
+	for i, w := range words {
+		candidate := joinWords(line, w)
+		if font.MeasureString(s.titleFace, candidate).Ceil() <= maxWidth {
+			line = candidate
+			continue
+		}
+		if line == "" {
+			split1, rem := splitLongWord(s.titleFace, w, maxWidth)
+			if rem != "" {
+				words[i] = rem
+				return split1, i
+			}
+			return split1, i + 1
+		}
+		return line, i
+	}
+	return line, len(words)
+}
+
+func (s *Service) fillSecondLine(words []string, maxWidth int) string {
+	var line string
 	for _, w := range words {
-		if curr == "" {
-			curr = w
-		} else if len(curr)+1+len(w) <= maxLen {
-			curr += " " + w
-		} else {
-			lines = append(lines, curr)
-			curr = w
+		candidate := joinWords(line, w)
+		if font.MeasureString(s.titleFace, candidate).Ceil() <= maxWidth {
+			line = candidate
+			continue
+		}
+		return truncateToFit(s.titleFace, candidate, maxWidth, "…")
+	}
+	return line
+}
+
+func joinWords(a, b string) string {
+	if a == "" {
+		return b
+	}
+	return a + " " + b
+}
+
+func splitLongWord(face font.Face, word string, maxWidth int) (string, string) {
+	runes := []rune(word)
+	for i := len(runes) - 1; i >= 1; i-- {
+		part1 := string(runes[:i])
+		if font.MeasureString(face, part1).Ceil() <= maxWidth {
+			return part1, string(runes[i:])
 		}
 	}
-	if curr != "" {
-		lines = append(lines, curr)
-	}
-	return lines
+	return word, ""
 }
 
-func truncate(s string, maxLen int) string {
-	if len(s) > maxLen-3 {
-		return s[:maxLen-3] + "..."
+func truncateToFit(face font.Face, text string, maxWidth int, suffix string) string {
+	text = strings.TrimSpace(text)
+	if font.MeasureString(face, text+suffix).Ceil() <= maxWidth {
+		return text + suffix
 	}
-	return s + "..."
+	runes := []rune(text)
+	for len(runes) > 0 {
+		runes = runes[:len(runes)-1]
+		candidate := strings.TrimSpace(string(runes)) + suffix
+		if font.MeasureString(face, candidate).Ceil() <= maxWidth {
+			return candidate
+		}
+	}
+	return suffix
 }
