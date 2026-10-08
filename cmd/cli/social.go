@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"html"
 	"io"
 	"net/http"
 	"net/url"
@@ -325,20 +326,39 @@ func NewHTTPLinkVerifier(baseURL string, client *http.Client) *HTTPLinkVerifier 
 		}
 		client = &http.Client{
 			Transport: tr,
-			Timeout:   5 * time.Second,
+			Timeout:   10 * time.Second,
 		}
 	}
 	return &HTTPLinkVerifier{BaseURL: strings.TrimRight(baseURL, "/"), Client: client}
 }
 
-func (h *HTTPLinkVerifier) probeGET(ctx context.Context, targetURL string, expectedTitle string) (bool, int, error) {
+func (h *HTTPLinkVerifier) doRequestWithRetry(ctx context.Context, targetURL string) (*http.Response, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, targetURL, nil)
 	if err != nil {
-		return false, 0, err
+		return nil, err
 	}
 	resp, doErr := h.Client.Do(req)
-	if doErr != nil {
-		return false, 0, doErr
+	if doErr == nil {
+		return resp, nil
+	}
+
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	case <-time.After(1 * time.Second):
+	}
+
+	reqRetry, retryErr := http.NewRequestWithContext(ctx, http.MethodGet, targetURL, nil)
+	if retryErr != nil {
+		return nil, retryErr
+	}
+	return h.Client.Do(reqRetry)
+}
+
+func (h *HTTPLinkVerifier) probeGET(ctx context.Context, targetURL string, expectedTitle string) (bool, int, error) {
+	resp, err := h.doRequestWithRetry(ctx, targetURL)
+	if err != nil {
+		return false, 0, err
 	}
 	defer func() { _ = resp.Body.Close() }()
 
@@ -356,6 +376,7 @@ func (h *HTTPLinkVerifier) probeGET(ctx context.Context, targetURL string, expec
 		return false, resp.StatusCode, fmt.Errorf("response missing <html")
 	}
 
+	body = html.UnescapeString(body)
 	if expectedTitle != "" && !strings.Contains(body, expectedTitle) {
 		return false, resp.StatusCode, fmt.Errorf("response missing listing title %q", expectedTitle)
 	}

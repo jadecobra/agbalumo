@@ -528,7 +528,6 @@ func TestHTTPLinkVerifier(t *testing.T) {
 }
 
 func TestHTTPLinkVerifier_HTMLEntitiesInTitlePasses(t *testing.T) {
-	t.Skip("RED: html entities in title")
 	t.Parallel()
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -545,7 +544,6 @@ func TestHTTPLinkVerifier_HTMLEntitiesInTitlePasses(t *testing.T) {
 }
 
 func TestHTTPLinkVerifier_HangsOnFirstRequestRetriesAndPasses(t *testing.T) {
-	t.Skip("RED: retry on timeout")
 	t.Parallel()
 
 	var reqCount int32
