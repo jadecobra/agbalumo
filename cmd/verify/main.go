@@ -69,6 +69,7 @@ func init() {
 
 	auditCmd.Flags().String("mode", "", "Audit mode: 'static' (no server required) or 'dynamic' (requires live server). Default runs all checks.")
 	ciCmd.Flags().Bool("with-docker", false, "Run docker build + trivy image scan (mirrors production CI). Requires Docker and trivy.")
+	ciCmd.Flags().String("focus", "", "Regex pattern to focus Playwright tests in Docker")
 	ciCmd.Flags().Bool("verbose", false, "Restore full linter logs in summary steps")
 	critiqueCmd.Flags().Bool("full", false, "Run full audit instead of incremental")
 	critiqueCmd.Flags().String("baseline", "", "Git revision to compare against (default: HEAD~1)")
@@ -122,6 +123,7 @@ func init() {
 		lessonsConformanceCmd,
 		mapCmd,
 		schemaCmd,
+		dbPathCmd,
 		traceCmd,
 		rootHygieneCmd,
 		resolveCmd,

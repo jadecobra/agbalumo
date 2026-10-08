@@ -3,6 +3,12 @@
 # Git Push & Watch wrapper
 # Automatically monitors the remote CI run for the pushed commit.
 
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ "$CURRENT_BRANCH" = "main" ] && [ "$ALLOW_MAIN_PUSH" != "1" ]; then
+    echo "❌ Error: Direct push to 'main' is prohibited. Work on a feature branch and open a PR."
+    exit 1
+fi
+
 git push "$@"
 if [ $? -eq 0 ]; then
     COMMIT_SHA=$(git rev-parse HEAD)
@@ -18,8 +24,14 @@ if [ $? -eq 0 ]; then
     done
 
     if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
-        echo "⚠️ Could not find CI run for commit ${COMMIT_SHA}. Falling back to default watch..."
-        gh run watch --exit-status
+        PR_NUM=$(gh pr view "$CURRENT_BRANCH" --json number -q '.number' 2>/dev/null || true)
+        if [ -z "$PR_NUM" ] && [ "$CURRENT_BRANCH" != "main" ]; then
+            echo "ℹ️ No open PR found for branch '$CURRENT_BRANCH'. Remote CI triggers on pull_request."
+            echo "   Run ./scripts/pr-create.sh to open a PR and start CI."
+            exit 0
+        fi
+        echo "⚠️ Could not find CI run for commit ${COMMIT_SHA}."
+        exit 1
     else
         echo "🔍 Found CI run ${RUN_ID}. Monitoring progress..."
         gh run watch "$RUN_ID" --exit-status
