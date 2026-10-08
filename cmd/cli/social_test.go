@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -524,6 +525,90 @@ func TestHTTPLinkVerifier(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestHTTPLinkVerifier_HTMLEntitiesInTitlePasses(t *testing.T) {
+	t.Parallel()
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("<!DOCTYPE html><html><head><title>Mabel&#39;s African Cuisine &amp; Bar | agbalumo</title></head><body><h1>Mabel&#39;s African Cuisine &amp; Bar</h1></body></html>"))
+	}))
+	defer server.Close()
+
+	verifier := cli.NewHTTPLinkVerifier(server.URL, server.Client())
+	ok, status, err := verifier.Verify(context.Background(), "test-id", "Mabel's African Cuisine & Bar")
+	assert.True(t, ok)
+	assert.Equal(t, http.StatusOK, status)
+	assert.NoError(t, err)
+}
+
+func TestHTTPLinkVerifier_HangsOnFirstRequestRetriesAndPasses(t *testing.T) {
+	t.Parallel()
+
+	var reqCount int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		count := atomic.AddInt32(&reqCount, 1)
+		if count == 1 {
+			select {
+			case <-r.Context().Done():
+			case <-time.After(500 * time.Millisecond):
+			}
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("<!DOCTYPE html><html><head><title>Mabel's African Cuisine & Bar</title></head><body></body></html>"))
+	}))
+	defer server.Close()
+
+	client := server.Client()
+	client.Timeout = 50 * time.Millisecond
+
+	verifier := cli.NewHTTPLinkVerifier(server.URL, client)
+
+	ok, status, err := verifier.Verify(context.Background(), "test-id", "Mabel's African Cuisine & Bar")
+	assert.True(t, ok)
+	assert.Equal(t, http.StatusOK, status)
+	assert.NoError(t, err)
+	assert.Equal(t, int32(2), atomic.LoadInt32(&reqCount))
+}
+
+func TestHTTPLinkVerifier_NotFoundDoesNotRetry(t *testing.T) {
+	t.Parallel()
+
+	var reqCount int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		atomic.AddInt32(&reqCount, 1)
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte("<!DOCTYPE html><html><body>Not Found</body></html>"))
+	}))
+	defer server.Close()
+
+	verifier := cli.NewHTTPLinkVerifier(server.URL, server.Client())
+	ok, status, err := verifier.Verify(context.Background(), "test-id", "Mabel's African Cuisine & Bar")
+	assert.False(t, ok)
+	assert.Equal(t, http.StatusNotFound, status)
+	assert.NoError(t, err)
+	assert.Equal(t, int32(1), atomic.LoadInt32(&reqCount))
+}
+
+func TestHTTPLinkVerifier_MissingTitleDoesNotRetry(t *testing.T) {
+	t.Parallel()
+
+	var reqCount int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		atomic.AddInt32(&reqCount, 1)
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("<!DOCTYPE html><html><body><h1>Other Place</h1></body></html>"))
+	}))
+	defer server.Close()
+
+	verifier := cli.NewHTTPLinkVerifier(server.URL, server.Client())
+	ok, status, err := verifier.Verify(context.Background(), "test-id", "Mabel's African Cuisine & Bar")
+	assert.False(t, ok)
+	assert.Equal(t, http.StatusOK, status)
+	assert.Error(t, err)
+	assert.Equal(t, int32(1), atomic.LoadInt32(&reqCount))
 }
 
 func TestSocialDraft_RegionalExploreLinksContainNoCity(t *testing.T) {
