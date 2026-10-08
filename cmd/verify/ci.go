@@ -53,11 +53,12 @@ var ciCmd = &cobra.Command{
 			{Name: "Dynamic Server Startup Audit", Fn: func() error { return maintenance.VerifyServerStartup(".") }},
 		}
 
+		focus, _ := cmd.Flags().GetString("focus")
 		withDocker, _ := cmd.Flags().GetBool("with-docker")
 		if withDocker {
 			tasks = append(tasks, maintenance.CITask{
 				Name: "Running Playwright E2E Tests (Linux via Docker)",
-				Fn:   func() error { return maintenance.RunPlaywrightInDocker(".") },
+				Fn:   func() error { return maintenance.RunPlaywrightInDocker(".", focus) },
 			})
 		}
 

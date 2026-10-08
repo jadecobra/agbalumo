@@ -80,10 +80,9 @@ func QuietRunCmd(name string, args ...string) error {
 }
 
 // RunPlaywrightInDocker executes Playwright tests inside a Linux Docker container to ensure platform parity.
-func RunPlaywrightInDocker(cwd string) error {
+func RunPlaywrightInDocker(cwd string, focus ...string) error {
 	fmt.Println("🐳 Running Playwright E2E Tests in Linux Container...")
 
-	// 1. Cross-compile the server for Linux (matching host architecture for Docker parity)
 	fmt.Println("🦀 Cross-compiling server for Linux...")
 	buildCmd := exec.Command("go", "build", "-o", "server-linux", "main.go")
 	buildCmd.Env = append(os.Environ(), "GOOS=linux", "GOARCH="+runtime.GOARCH)
@@ -93,19 +92,20 @@ func RunPlaywrightInDocker(cwd string) error {
 	}
 	defer func() { _ = os.Remove(filepath.Join(cwd, "server-linux")) }()
 
-	// 2. Resolve Docker tag dynamically from package.json
 	image := getPlaywrightDockerTag(cwd)
 
-	// 3. Run Playwright in Docker using the pre-built binary
-	// We use -e AGBALUMO_TEST_SERVER_COMMAND to point to the linux binary.
-	// We run 'npm ci' first to ensure node_modules parity.
+	testCmd := "npm ci && npx playwright test"
+	if len(focus) > 0 && strings.TrimSpace(focus[0]) != "" {
+		testCmd = fmt.Sprintf("npm ci && npx playwright test --grep %q", strings.TrimSpace(focus[0]))
+	}
+
 	return QuietRunCmd("docker", "run", "--rm",
 		"-v", cwd+":/app",
 		"-w", "/app",
 		"-e", "AGBALUMO_TEST_SERVER_COMMAND=./server-linux serve",
 		"-e", "AGBALUMO_ENV=test",
 		image,
-		"sh", "-c", "npm ci && npx playwright test",
+		"sh", "-c", testCmd,
 	)
 }
 

@@ -266,6 +266,10 @@ tools:
     trigger: database_comprehension
     description: "Dumps the active SQLite schema deterministically"
 
+  - name: db-path
+    trigger: database_comprehension, fixture_discovery
+    description: "Resolves the canonical path to the populated SQLite snapshot/database"
+
   - name: doc-drift
     trigger: documentation_change
     description: "Detects stale file path references in architecture docs"

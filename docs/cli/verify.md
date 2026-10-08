@@ -338,6 +338,14 @@ Dumps the active SQLite schema deterministically.
 agbalumo verify schema
 ```
 
+##### db-path
+
+Prints the canonical path to the populated SQLite snapshot/database.
+
+```bash
+agbalumo verify db-path
+```
+
 ##### trace
 
 Observe the request lifecycle (Middleware -> DB -> UI) with aggressive logging.

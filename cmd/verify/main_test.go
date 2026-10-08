@@ -195,3 +195,28 @@ func performVerificationTest(t *testing.T, files []string, expected string) {
 		t.Errorf("expected path %s, got %s", expected, path)
 	}
 }
+
+func TestCICmdHasFocusFlag(t *testing.T) {
+	t.Parallel()
+	flag := ciCmd.Flags().Lookup("focus")
+	if flag == nil {
+		t.Fatal("ciCmd should have a --focus flag")
+	}
+	if flag.DefValue != "" {
+		t.Errorf("expected default empty string, got %s", flag.DefValue)
+	}
+}
+
+func TestDBPathCmdRegistered(t *testing.T) {
+	t.Parallel()
+	found := false
+	for _, cmd := range rootCmd.Commands() {
+		if cmd.Name() == "db-path" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatal("db-path command should be registered in rootCmd")
+	}
+}

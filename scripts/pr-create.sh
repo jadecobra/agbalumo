@@ -5,16 +5,19 @@
 set -e
 
 usage() {
-    echo "Usage: $0 --title <title> --body-file <path-to-markdown-file> [--base <base-branch>]"
-    echo "   or: $0 <title> <path-to-markdown-file> [<base-branch>]"
+    echo "Usage: $0 --title <title> (--body-file <path> | --body <text>) [--base <base-branch>]"
+    echo "   or: $0 <title> (<path-to-file> | --body <text>) [<base-branch>]"
     exit "${1:-1}"
 }
 
 TITLE=""
 BODY_FILE=""
+BODY_TEXT=""
 BASE_BRANCH="main"
+CLEANUP_FILE=""
 
-# Parse arguments
+trap 'if [ -n "$CLEANUP_FILE" ] && [ -f "$CLEANUP_FILE" ]; then rm -f "$CLEANUP_FILE"; fi' EXIT INT TERM
+
 while [ $# -gt 0 ]; do
     case "$1" in
         --title)
@@ -23,6 +26,10 @@ while [ $# -gt 0 ]; do
             ;;
         --body-file)
             BODY_FILE="$2"
+            shift 2
+            ;;
+        --body)
+            BODY_TEXT="$2"
             shift 2
             ;;
         --base)
@@ -36,7 +43,7 @@ while [ $# -gt 0 ]; do
             if [ -z "$TITLE" ]; then
                 TITLE="$1"
                 shift
-            elif [ -z "$BODY_FILE" ]; then
+            elif [ -z "$BODY_FILE" ] && [ -z "$BODY_TEXT" ]; then
                 BODY_FILE="$1"
                 shift
             elif [ "$BASE_BRANCH" = "main" ]; then
@@ -49,8 +56,15 @@ while [ $# -gt 0 ]; do
     esac
 done
 
+if [ -n "$BODY_TEXT" ] && [ -z "$BODY_FILE" ]; then
+    mkdir -p tmp
+    BODY_FILE="tmp/pr_body_$$.md"
+    printf "%s\n" "$BODY_TEXT" > "$BODY_FILE"
+    CLEANUP_FILE="$BODY_FILE"
+fi
+
 if [ -z "$TITLE" ] || [ -z "$BODY_FILE" ]; then
-    echo "❌ Error: Both title and body-file are required."
+    echo "❌ Error: Title and either --body or --body-file are required."
     usage
 fi
 
