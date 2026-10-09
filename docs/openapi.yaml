@@ -65,6 +65,9 @@ paths:
   /listings:
     $ref: './openapi/paths/listings.yaml#/listings'
 
+  /og.png:
+    $ref: './openapi/paths/listings.yaml#/brand_og_image'
+
   /listings/fragment:
     $ref: './openapi/paths/listings.yaml#/fragment'
 

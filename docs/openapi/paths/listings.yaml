@@ -303,3 +303,18 @@ og_image:
             schema:
               type: string
               format: binary
+
+brand_og_image:
+  get:
+    summary: Get site-wide brand Open Graph share image
+    description: Returns a 1200x630 branded Open Graph card PNG image for the site
+    tags:
+      - Public
+    responses:
+      '200':
+        description: Open Graph PNG card image
+        content:
+          image/png:
+            schema:
+              type: string
+              format: binary
