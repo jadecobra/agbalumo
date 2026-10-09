@@ -13,60 +13,69 @@ import (
 
 const localCIImageTag = "agbalumo:local-ci-check"
 
+func buildCITasks(cmd *cobra.Command, args []string) []maintenance.CITask {
+	tasks := []maintenance.CITask{
+		{Name: "Verifying Repository Cleanliness", Fn: func() error { return maintenance.VerifyGitClean(".") }},
+		{Name: "Verifying GitHub Action SHAs", Fn: func() error { return maintenance.VerifyActionSHAs(".") }},
+		{Name: "Verifying CI Toolset", Fn: func() error { return maintenance.VerifyCITools(".") }},
+		{Name: "Verifying JS Syntax", Fn: func() error { return maintenance.VerifyJSSyntax(".") }},
+		{Name: "Running Lint", Fn: func() error {
+			return runCmd("go", "run", "github.com/golangci/golangci-lint/v2/cmd/golangci-lint", "run")
+		}},
+		{Name: "Enforcing Struct Alignment", Fn: func() error {
+			return runCmd("go", "run", "golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest", "./...")
+		}},
+		{Name: "Running Vulncheck", Fn: func() error {
+			return runCmd("go", "run", "golang.org/x/vuln/cmd/govulncheck", "./...")
+		}},
+		{Name: "Running Heavy Tests (with -race, TZ=UTC)", Fn: func() error {
+			return runCmdWithEnv([]string{"TZ=UTC"}, "go", "test", "-race", "-cover", "-count=1", "./...")
+		}},
+		{Name: "Running Heavy Tests (with -race, TZ=America/Chicago)", Fn: func() error {
+			return runCmdWithEnv([]string{"TZ=America/Chicago"}, "go", "test", "-race", "-cover", "-count=1", "./...")
+		}},
+		{Name: "Checking ChiefCritic Robustness", Fn: func() error {
+			verbose, _ := cmd.Flags().GetBool("verbose")
+			return maintenance.RunChiefCriticAudit(".", maintenance.ChiefCriticOptions{
+				Full:    true,
+				Verbose: verbose,
+			})
+		}},
+		{Name: "Checking API/CLI Contract Drift", Fn: func() error { return apiSpecCmd.RunE(cmd, args) }},
+		{Name: "Checking Template Drift", Fn: func() error { return templateDriftCmd.RunE(cmd, args) }},
+		{Name: "Checking UI Design standards", Fn: func() error { return designCmd.RunE(cmd, args) }},
+		{Name: "Checking Visual Snapshot Parity", Fn: func() error { return snapshotParityCmd.RunE(cmd, args) }},
+		{Name: "Checking Playwright Docker Parity", Fn: func() error { return playwrightVersionCmd.RunE(cmd, args) }},
+		{Name: "Checking Coverage Threshold", Fn: func() error { return coverageCmd.RunE(cmd, args) }},
+		{Name: "Running Performance Audit (Benchmarks)", Fn: func() error { return perfCmd.RunE(cmd, args) }},
+		{Name: "Dynamic Server Startup Audit", Fn: func() error { return maintenance.VerifyServerStartup(".") }},
+	}
+
+	focus, _ := cmd.Flags().GetString("focus")
+	withDocker, _ := cmd.Flags().GetBool("with-docker")
+	if withDocker {
+		tasks = append(tasks, maintenance.CITask{
+			Name: "Running Playwright E2E Tests (Linux via Docker)",
+			Fn:   func() error { return maintenance.RunPlaywrightInDocker(".", focus) },
+		})
+	}
+
+	return tasks
+}
+
 var ciCmd = &cobra.Command{
 	Use:   "ci",
 	Short: "Run the full CI pipeline in parallel with dynamic concurrency",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := cmd.Context()
-
-		tasks := []maintenance.CITask{
-			{Name: "Verifying Repository Cleanliness", Fn: func() error { return maintenance.VerifyGitClean(".") }},
-			{Name: "Verifying GitHub Action SHAs", Fn: func() error { return maintenance.VerifyActionSHAs(".") }},
-			{Name: "Verifying CI Toolset", Fn: func() error { return maintenance.VerifyCITools(".") }},
-			{Name: "Verifying JS Syntax", Fn: func() error { return maintenance.VerifyJSSyntax(".") }},
-			{Name: "Running Lint", Fn: func() error {
-				return runCmd("go", "run", "github.com/golangci/golangci-lint/v2/cmd/golangci-lint", "run")
-			}},
-			{Name: "Enforcing Struct Alignment", Fn: func() error {
-				return runCmd("go", "run", "golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest", "./...")
-			}},
-			{Name: "Running Vulncheck", Fn: func() error {
-				return runCmd("go", "run", "golang.org/x/vuln/cmd/govulncheck", "./...")
-			}},
-			{Name: "Running Heavy Tests (with -race)", Fn: func() error {
-				return runCmd("go", "test", "-race", "-cover", "-count=1", "./...")
-			}},
-			{Name: "Checking ChiefCritic Robustness", Fn: func() error {
-				verbose, _ := cmd.Flags().GetBool("verbose")
-				return maintenance.RunChiefCriticAudit(".", maintenance.ChiefCriticOptions{
-					Full:    true,
-					Verbose: verbose,
-				})
-			}},
-			{Name: "Checking API/CLI Contract Drift", Fn: func() error { return apiSpecCmd.RunE(cmd, args) }},
-			{Name: "Checking Template Drift", Fn: func() error { return templateDriftCmd.RunE(cmd, args) }},
-			{Name: "Checking UI Design standards", Fn: func() error { return designCmd.RunE(cmd, args) }},
-			{Name: "Checking Visual Snapshot Parity", Fn: func() error { return snapshotParityCmd.RunE(cmd, args) }},
-			{Name: "Checking Playwright Docker Parity", Fn: func() error { return playwrightVersionCmd.RunE(cmd, args) }},
-			{Name: "Checking Coverage Threshold", Fn: func() error { return coverageCmd.RunE(cmd, args) }},
-			{Name: "Running Performance Audit (Benchmarks)", Fn: func() error { return perfCmd.RunE(cmd, args) }},
-			{Name: "Dynamic Server Startup Audit", Fn: func() error { return maintenance.VerifyServerStartup(".") }},
-		}
-
-		focus, _ := cmd.Flags().GetString("focus")
-		withDocker, _ := cmd.Flags().GetBool("with-docker")
-		if withDocker {
-			tasks = append(tasks, maintenance.CITask{
-				Name: "Running Playwright E2E Tests (Linux via Docker)",
-				Fn:   func() error { return maintenance.RunPlaywrightInDocker(".", focus) },
-			})
-		}
+		tasks := buildCITasks(cmd, args)
 
 		// Run group 1: All checks in parallel (scaled by NumCPU)
 		if err := maintenance.RunParallelCI(ctx, tasks); err != nil {
 			return err
 		}
 
+		withDocker, _ := cmd.Flags().GetBool("with-docker")
 		if withDocker {
 			fmt.Println("\n=== Docker Build & Security Scan ===")
 			if err := runDockerBuild(); err != nil {
