@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -24,8 +25,36 @@ func makeSimpleCmd(use, short string, fn func() error) *cobra.Command {
 	}
 }
 
+func appendOrOverrideEnv(base []string, overrides ...string) []string {
+	result := make([]string, 0, len(base)+len(overrides))
+	keys := make(map[string]bool)
+	for _, o := range overrides {
+		parts := strings.SplitN(o, "=", 2)
+		if len(parts) == 2 {
+			keys[parts[0]] = true
+		}
+	}
+	for _, e := range base {
+		parts := strings.SplitN(e, "=", 2)
+		if len(parts) == 2 && keys[parts[0]] {
+			continue
+		}
+		result = append(result, e)
+	}
+	result = append(result, overrides...)
+	return result
+}
+
 func runCmd(name string, args ...string) error {
 	cmd := exec.Command(name, args...) //nolint:gosec // maintenance utility runs trusted commands
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
+func runCmdWithEnv(env []string, name string, args ...string) error {
+	cmd := exec.Command(name, args...) //nolint:gosec // maintenance utility runs trusted commands
+	cmd.Env = appendOrOverrideEnv(os.Environ(), env...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()

@@ -220,3 +220,46 @@ func TestDBPathCmdRegistered(t *testing.T) {
 		t.Fatal("db-path command should be registered in rootCmd")
 	}
 }
+
+func TestAppendOrOverrideEnv(t *testing.T) {
+	base := []string{"FOO=bar", "BAZ=qux", "KEY=val1"}
+	overrides := []string{"KEY=val2", "NEW=entry"}
+
+	result := appendOrOverrideEnv(base, overrides...)
+
+	expected := []string{"FOO=bar", "BAZ=qux", "KEY=val2", "NEW=entry"}
+	if len(result) != len(expected) {
+		t.Fatalf("expected len %d, got %d: %v", len(expected), len(result), result)
+	}
+	for i, v := range expected {
+		if result[i] != v {
+			t.Errorf("at index %d: expected %q, got %q", i, v, result[i])
+		}
+	}
+}
+
+func TestBuildCITasksIncludesTZMatrix(t *testing.T) {
+	tasks := buildCITasks(ciCmd, nil)
+
+	var hasUTC, hasChicago, hasOld bool
+	for _, task := range tasks {
+		switch task.Name {
+		case "Running Heavy Tests (with -race, TZ=UTC)":
+			hasUTC = true
+		case "Running Heavy Tests (with -race, TZ=America/Chicago)":
+			hasChicago = true
+		case "Running Heavy Tests (with -race)":
+			hasOld = true
+		}
+	}
+
+	if !hasUTC {
+		t.Error("missing task: 'Running Heavy Tests (with -race, TZ=UTC)'")
+	}
+	if !hasChicago {
+		t.Error("missing task: 'Running Heavy Tests (with -race, TZ=America/Chicago)'")
+	}
+	if hasOld {
+		t.Error("legacy task 'Running Heavy Tests (with -race)' should not be present")
+	}
+}
