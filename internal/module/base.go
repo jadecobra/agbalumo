@@ -54,7 +54,10 @@ func (h *BaseHandler) PopulateBase(c echo.Context) BaseViewData {
 		GAMeasurementID:  h.App.Cfg.GAMeasurementID,
 		MetaTitle:        "agbalumo - Find African Food in <60s",
 		MetaDescription:  "Verified Nigerian and West African food in Dallas and beyond. Authentic dishes, real contact details, and directions in under 60 seconds.",
-		MetaImage:        "https://agbalumo.com/static/icons/favicon.png",
+		MetaImage:        "https://agbalumo.com/og.png",
+		MetaImageAlt:     "agbalumo, find African food in DFW in under 60 seconds",
+		MetaImageWidth:   1200,
+		MetaImageHeight:  630,
 		MetaURL:          "https://agbalumo.com",
 		MetaType:         "website",
 	}

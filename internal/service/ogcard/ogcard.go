@@ -56,6 +56,7 @@ type CardData struct {
 type Generator interface {
 	Generate(data CardData) ([]byte, error)
 	GenerateFallback() []byte
+	GenerateBrandCard() []byte
 }
 
 // Service renders branded 1200x630 OG share cards with in-process caching.
@@ -147,6 +148,11 @@ func (s *Service) Generate(data CardData) ([]byte, error) {
 func (s *Service) GenerateFallback() []byte {
 	s.ensureFallback()
 	return s.fallbackPNG
+}
+
+// GenerateBrandCard returns the pre-rendered site-wide brand card.
+func (s *Service) GenerateBrandCard() []byte {
+	return s.GenerateFallback()
 }
 
 func (s *Service) ensureFallback() {

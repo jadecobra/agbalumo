@@ -93,3 +93,47 @@ func TestPublicRoutes_HeadRequest(t *testing.T) {
 	assert.True(t, adminRec.Code == http.StatusFound || adminRec.Code == http.StatusTemporaryRedirect, "expected redirect status, got: %d", adminRec.Code)
 	assert.Contains(t, adminRec.Header().Get("Location"), "/auth/google/login")
 }
+
+func TestHomepage_OpenGraphSharingMeta_WithUTM(t *testing.T) {
+	app, cleanup := testutil.SetupTestAppEnv(t)
+	defer cleanup()
+
+	e := echo.New()
+	e.Renderer = &testutil.TestRenderer{Templates: testutil.NewRealTemplate(t)}
+	setupMiddleware(e, app.Cfg)
+	setupRoutes(e, app)
+
+	// Homepage with ?action=post and UTM parameters
+	req := httptest.NewRequest(http.MethodGet, "/?action=post&utm_source=facebook&utm_medium=social&utm_campaign=quality_index", nil)
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	body := rec.Body.String()
+
+	assert.Contains(t, body, `<meta property="og:image" content="https://agbalumo.com/og.png" />`)
+	assert.Contains(t, body, `<meta property="og:image:width" content="1200" />`)
+	assert.Contains(t, body, `<meta property="og:image:height" content="630" />`)
+	assert.Contains(t, body, `<meta property="og:image:alt" content="agbalumo, find African food in DFW in under 60 seconds" />`)
+	assert.Contains(t, body, `<meta name="twitter:image" content="https://agbalumo.com/og.png" />`)
+
+	// Also verify /og.png serves the brand card via server routing
+	ogReq := httptest.NewRequest(http.MethodGet, "/og.png", nil)
+	ogRec := httptest.NewRecorder()
+	e.ServeHTTP(ogRec, ogReq)
+
+	assert.Equal(t, http.StatusOK, ogRec.Code)
+	assert.Equal(t, "image/png", ogRec.Header().Get("Content-Type"))
+	assert.Equal(t, "public, max-age=86400", ogRec.Header().Get("Cache-Control"))
+	assert.True(t, len(ogRec.Body.Bytes()) >= 8)
+
+	// HEAD /og.png
+	ogHeadReq := httptest.NewRequest(http.MethodHead, "/og.png", nil)
+	ogHeadRec := httptest.NewRecorder()
+	e.ServeHTTP(ogHeadRec, ogHeadReq)
+
+	assert.Equal(t, http.StatusOK, ogHeadRec.Code)
+	assert.Equal(t, "image/png", ogHeadRec.Header().Get("Content-Type"))
+	assert.Equal(t, "public, max-age=86400", ogHeadRec.Header().Get("Cache-Control"))
+	assert.Empty(t, ogHeadRec.Body.String())
+}

@@ -41,6 +41,14 @@ func (h *ListingHandler) HandleOGImage(c echo.Context) error {
 	return c.Blob(http.StatusOK, "image/png", pngBytes)
 }
 
+// HandleBrandOGImage returns the 1200x630 brand Open Graph card.
+func (h *ListingHandler) HandleBrandOGImage(c echo.Context) error {
+	c.Response().Header().Set("Content-Type", "image/png")
+	c.Response().Header().Set("Cache-Control", "public, max-age=86400")
+	card := h.ogSvc.GenerateBrandCard()
+	return c.Blob(http.StatusOK, "image/png", card)
+}
+
 // SetOGCardService allows injecting a custom or mock generator for testing.
 func (h *ListingHandler) SetOGCardService(s ogcard.Generator) {
 	h.ogSvc = s

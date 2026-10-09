@@ -66,6 +66,25 @@ func TestService_GenerateFallback_MagicBytesAndDimensions(t *testing.T) {
 	assert.Equal(t, 630, cfg.Height)
 }
 
+func TestService_GenerateBrandCard_MagicBytesAndDimensions(t *testing.T) {
+	t.Parallel()
+
+	svc := ogcard.NewService()
+
+	pngBytes := svc.GenerateBrandCard()
+	require.NotEmpty(t, pngBytes)
+
+	expectedMagic := []byte{0x89, 'P', 'N', 'G', '\r', '\n', 0x1a, '\n'}
+	require.True(t, len(pngBytes) >= 8)
+	assert.Equal(t, expectedMagic, pngBytes[:8])
+
+	cfg, format, err := image.DecodeConfig(bytes.NewReader(pngBytes))
+	require.NoError(t, err)
+	assert.Equal(t, "png", format)
+	assert.Equal(t, 1200, cfg.Width)
+	assert.Equal(t, 630, cfg.Height)
+}
+
 func TestService_Generate_WarmPerformance(t *testing.T) {
 	t.Parallel()
 

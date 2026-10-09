@@ -85,11 +85,37 @@ func TestHandleHome_DynamicMetaTags(t *testing.T) {
 			assert.Equal(t, tc.expectedTitle, vm.MetaTitle)
 			assert.Equal(t, tc.expectedDesc, vm.MetaDescription)
 			assert.Equal(t, tc.expectedURL, vm.MetaURL)
-			assert.Equal(t, 0, vm.MetaImageWidth)
-			assert.Equal(t, 0, vm.MetaImageHeight)
-			assert.Empty(t, vm.MetaImageAlt)
+			assert.Equal(t, "https://agbalumo.com/og.png", vm.MetaImage)
+			assert.Equal(t, 1200, vm.MetaImageWidth)
+			assert.Equal(t, 630, vm.MetaImageHeight)
+			assert.Equal(t, "agbalumo, find African food in DFW in under 60 seconds", vm.MetaImageAlt)
 		})
 	}
+}
+
+func TestHandleHome_MetaImage_ActionPostWithUTM(t *testing.T) {
+	t.Parallel()
+
+	targetURL := "/?action=post&utm_source=facebook&utm_medium=social&utm_campaign=quality_index"
+	c, _ := testutil.SetupModuleContext(http.MethodGet, targetURL, nil)
+	renderer := &metaCaptureRenderer{}
+	c.Echo().Renderer = renderer
+
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+	h := listing.NewListingHandler(env.App)
+	_ = env.App.DB.SaveCategory(context.Background(), domain.CategoryData{ID: string(domain.Food), Name: "Food", Active: true})
+
+	err := h.HandleHome(c)
+	require.NoError(t, err)
+
+	vm, ok := renderer.CapturedData.(listing.HomeViewModel)
+	require.True(t, ok, "Captured data must be HomeViewModel")
+
+	assert.Equal(t, "https://agbalumo.com/og.png", vm.MetaImage)
+	assert.Equal(t, 1200, vm.MetaImageWidth)
+	assert.Equal(t, 630, vm.MetaImageHeight)
+	assert.Equal(t, "agbalumo, find African food in DFW in under 60 seconds", vm.MetaImageAlt)
 }
 
 func TestHandleDetail_DynamicMetaTags(t *testing.T) {
@@ -239,7 +265,7 @@ func TestHandleDetail_RenderedHTML_DataDrivenDescription(t *testing.T) {
 	assert.Contains(t, htmlBody, `<meta name="twitter:description" content="Grand Prairie · ★ 4.4 from 440 Google reviews · find it on agbalumo" />`)
 }
 
-func TestHandleHome_RenderedHTML_NoImageSizeTags(t *testing.T) {
+func TestHandleHome_RenderedHTML_BrandCardMetaTags(t *testing.T) {
 	t.Parallel()
 
 	renderer, err := ui.NewTemplateRenderer(
@@ -264,7 +290,9 @@ func TestHandleHome_RenderedHTML_NoImageSizeTags(t *testing.T) {
 	require.NoError(t, err)
 
 	htmlBody := rec.Body.String()
-	assert.NotContains(t, htmlBody, "og:image:width")
-	assert.NotContains(t, htmlBody, "og:image:height")
-	assert.NotContains(t, htmlBody, "og:image:alt")
+	assert.Contains(t, htmlBody, `<meta property="og:image" content="https://agbalumo.com/og.png" />`)
+	assert.Contains(t, htmlBody, `<meta property="og:image:width" content="1200" />`)
+	assert.Contains(t, htmlBody, `<meta property="og:image:height" content="630" />`)
+	assert.Contains(t, htmlBody, `<meta property="og:image:alt" content="agbalumo, find African food in DFW in under 60 seconds" />`)
+	assert.Contains(t, htmlBody, `<meta name="twitter:image" content="https://agbalumo.com/og.png" />`)
 }

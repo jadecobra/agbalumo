@@ -91,3 +91,95 @@ func TestHandleOGImage_UnknownListing(t *testing.T) {
 	assert.Equal(t, 1200, cfg.Width)
 	assert.Equal(t, 630, cfg.Height)
 }
+
+func TestHandleBrandOGImage_GET(t *testing.T) {
+	t.Parallel()
+
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/og.png", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	h := listing.NewListingHandler(env.App)
+	err := h.HandleBrandOGImage(c)
+	require.NoError(t, err)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "image/png", rec.Header().Get("Content-Type"))
+	assert.Equal(t, "public, max-age=86400", rec.Header().Get("Cache-Control"))
+
+	body := rec.Body.Bytes()
+	require.True(t, len(body) >= 8)
+	expectedMagic := []byte{0x89, 'P', 'N', 'G', '\r', '\n', 0x1a, '\n'}
+	assert.Equal(t, expectedMagic, body[:8])
+
+	cfg, format, err := image.DecodeConfig(bytes.NewReader(body))
+	require.NoError(t, err)
+	assert.Equal(t, "png", format)
+	assert.Equal(t, 1200, cfg.Width)
+	assert.Equal(t, 630, cfg.Height)
+}
+
+func TestHandleBrandOGImage_HEAD(t *testing.T) {
+	t.Parallel()
+
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodHead, "/og.png", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	h := listing.NewListingHandler(env.App)
+	err := h.HandleBrandOGImage(c)
+	require.NoError(t, err)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "image/png", rec.Header().Get("Content-Type"))
+	assert.Equal(t, "public, max-age=86400", rec.Header().Get("Cache-Control"))
+}
+
+type mockAuthMiddleware struct{}
+
+func (m *mockAuthMiddleware) OptionalAuth(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error { return next(c) }
+}
+
+func (m *mockAuthMiddleware) RequireAuth(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error { return next(c) }
+}
+
+func TestBrandOGImage_RouteIntegration(t *testing.T) {
+	t.Parallel()
+
+	env := testutil.SetupTestModuleEnv(t)
+	defer env.Cleanup()
+
+	e := echo.New()
+	authMw := &mockAuthMiddleware{}
+	h := listing.NewListingHandler(env.App)
+	h.RegisterRoutes(e, authMw)
+
+	// GET /og.png
+	req := httptest.NewRequest(http.MethodGet, "/og.png", nil)
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "image/png", rec.Header().Get("Content-Type"))
+	assert.Equal(t, "public, max-age=86400", rec.Header().Get("Cache-Control"))
+	assert.True(t, len(rec.Body.Bytes()) >= 8)
+
+	// HEAD /og.png
+	reqHead := httptest.NewRequest(http.MethodHead, "/og.png", nil)
+	recHead := httptest.NewRecorder()
+	e.ServeHTTP(recHead, reqHead)
+
+	assert.Equal(t, http.StatusOK, recHead.Code)
+	assert.Equal(t, "image/png", recHead.Header().Get("Content-Type"))
+	assert.Equal(t, "public, max-age=86400", recHead.Header().Get("Cache-Control"))
+}

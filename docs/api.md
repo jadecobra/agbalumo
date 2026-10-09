@@ -40,6 +40,7 @@ No authentication required.
 |--------|------|-------------|
 | GET | `/` | Homepage with featured listings |
 | GET | `/about` | About page |
+| GET | `/og.png` | Site-wide brand Open Graph card preview image |
 | GET | `/listings/fragment` | HTMX partial for listings |
 | GET | `/listings/:id` | Listing detail page |
 | GET | `/listings/:id/og.png` | Branded Open Graph card preview image |

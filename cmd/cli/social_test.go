@@ -233,6 +233,40 @@ func TestSocialDraftCmd(t *testing.T) {
 	}
 }
 
+func TestSocialDraft_LinkOrder_Pillars1245(t *testing.T) {
+	repo := setupTestRepo(t)
+
+	// In pillars 1, 2, 4, and 5, listing link must appear before explore and add-a-place links
+	// so that social platform preview shows a real restaurant card.
+	pillars := []struct {
+		city   string
+		pillar int
+	}{
+		{city: "Dallas", pillar: 1},
+		{city: "Dallas", pillar: 2},
+		{city: "Plano", pillar: 4},
+		{city: "Dallas", pillar: 5},
+	}
+
+	for _, p := range pillars {
+		buf := new(bytes.Buffer)
+		err := cli.GenerateSocialDraft(repo, p.pillar, "", p.city, buf)
+		require.NoError(t, err)
+
+		output := buf.String()
+		listingIdx := strings.Index(output, "https://agbalumo.com/listings/")
+		exploreIdx := strings.Index(output, "https://agbalumo.com/?utm_campaign=")
+		addPlaceIdx := strings.Index(output, "https://agbalumo.com/?action=post")
+
+		require.True(t, listingIdx != -1, "Pillar %d must contain a listing link", p.pillar)
+		require.True(t, exploreIdx != -1, "Pillar %d must contain an explore link", p.pillar)
+		require.True(t, addPlaceIdx != -1, "Pillar %d must contain an add-a-place link", p.pillar)
+
+		assert.Less(t, listingIdx, exploreIdx, "Pillar %d: listing link must appear before explore link", p.pillar)
+		assert.Less(t, listingIdx, addPlaceIdx, "Pillar %d: listing link must appear before add-a-place link", p.pillar)
+	}
+}
+
 func TestSocialDraft_Pillar3NotFound(t *testing.T) {
 	repo := setupTestRepo(t)
 	buf := new(bytes.Buffer)

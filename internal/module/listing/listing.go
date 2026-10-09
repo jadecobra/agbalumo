@@ -37,6 +37,7 @@ func NewListingHandler(app *env.AppEnv) *ListingHandler {
 func (h *ListingHandler) RegisterRoutes(e *echo.Echo, authMw domain.AuthMiddleware) {
 	// Public Routes
 	e.Match([]string{http.MethodGet, http.MethodHead}, "/", h.HandleHome)
+	e.Match([]string{http.MethodGet, http.MethodHead}, "/og.png", h.HandleBrandOGImage)
 	e.Match([]string{http.MethodGet, http.MethodHead}, "/listings/fragment", h.HandleFragment)
 	e.Match([]string{http.MethodGet, http.MethodHead}, domain.PathListingID+"/og.png", h.HandleOGImage)
 	e.Match([]string{http.MethodGet, http.MethodHead}, domain.PathListingID, h.HandleDetail)
