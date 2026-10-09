@@ -488,4 +488,12 @@ Audit HTTP handlers in `internal/module/` for unbounded or excessive database co
 agbalumo verify handler-concurrency [--limit=4]
 ```
 
+##### error-swallow
+
+Verify that error return values are not swallowed with blank identifier in `internal/` packages.
+
+```bash
+agbalumo verify error-swallow
+```
+
 

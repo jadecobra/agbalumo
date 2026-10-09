@@ -71,7 +71,10 @@ type scrapeState struct {
 func (s *WebsiteScraper) parseHTML(r io.Reader, baseURL string) AdaSignals {
 	var signals AdaSignals
 	z := html.NewTokenizer(r)
-	parsedBase, _ := url.Parse(baseURL)
+	parsedBase, err := url.Parse(baseURL)
+	if err != nil {
+		parsedBase = nil
+	}
 
 	state := &scrapeState{
 		heatKeywords:    []string{"spicy", "hot", "pepper", "habanero", "scotch bonnet", "chili"},

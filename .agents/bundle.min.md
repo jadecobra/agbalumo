@@ -77,7 +77,7 @@ Read this file at session start. Match intent against triggers. Read the skill f
 | /plan, /architect, let's plan, plan for flash, break this down, split into prompts, decompose, flash prompt, design for | `.agents/skills/flash-plan/SKILL.md` |
 | /design-critique, critique design, review ui, harsh review, redesigns, modals, overlays, design variants, theme harmonization | `.agents/skills/design-critique/SKILL.md` |
 | review flash output, check implementation, verify flash changes | `.agents/skills/flash-review/SKILL.md` |
-| add verify subcommand, new verify tool, automate this check, /skill-audit | `.agents/skills/verify-authoring/SKILL.md` |
+| add verify subcommand, new verify tool, automate this check, verify-* check, custom verify check, /skill-audit | `.agents/skills/verify-authoring/SKILL.md` |
 | audit codebase, health check, score the codebase, review infrastructure, how healthy is the codebase | `.agents/skills/codebase-audit/SKILL.md` |
 | migrate handler, typed viewmodel, fix deprecated map, viewmodel migration | `.agents/skills/viewmodel-migration/SKILL.md` |
 | asynchronous task, background command, polling, sleep, wait | `.agents/skills/turn-cost/SKILL.md` |
@@ -387,6 +387,9 @@ commands:
   - name: feedback-list
     trigger: session_start
     description: "List all feedback submissions locally"
+  - name: error-swallow
+    trigger: before_commit, architectural_audit
+    description: "Verify that error return values are not swallowed with blank identifier in internal/"
 skills:
   - name: go-tdd
     trigger: test_authoring, feature_implementation, bug_fix, hotfix, refactor, debug, /hotfix, /refactor, /debug
@@ -407,7 +410,7 @@ skills:
     trigger: flash_review, after_flash_implementation
     path: .agents/skills/flash-review/SKILL.md
   - name: verify-authoring
-    trigger: add_verify_subcommand, new_verify_tool, automate_check, tool_creation, skill_audit, /skill-audit
+    trigger: add_verify_subcommand, new_verify_tool, automate_check, tool_creation, skill_audit, /skill-audit, verify_check, custom_verify_check
     path: .agents/skills/verify-authoring/SKILL.md
   - name: codebase-audit
     trigger: audit_codebase, health_check, review_infrastructure
@@ -440,6 +443,9 @@ tools:
   - name: schema
     trigger: database_comprehension
     description: "Dumps the active SQLite schema deterministically"
+  - name: db-path
+    trigger: database_comprehension, fixture_discovery
+    description: "Resolves the canonical path to the populated SQLite snapshot/database"
   - name: doc-drift
     trigger: documentation_change
     description: "Detects stale file path references in architecture docs"

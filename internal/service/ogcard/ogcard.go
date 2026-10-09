@@ -80,42 +80,61 @@ func NewService() *Service {
 	}
 
 	if len(logoPNG) > 0 {
-		img, err := png.Decode(bytes.NewReader(logoPNG))
-		if err == nil {
+		if img, err := png.Decode(bytes.NewReader(logoPNG)); err == nil {
 			s.logoImg = img
 		}
 	}
 
-	fBold, err := opentype.Parse(gobold.TTF)
-	if err == nil {
-		s.titleFace, _ = opentype.NewFace(fBold, &opentype.FaceOptions{
-			Size:    76,
-			DPI:     72,
-			Hinting: font.HintingFull,
-		})
-	}
-
-	fReg, err := opentype.Parse(goregular.TTF)
-	if err == nil {
-		s.subFace, _ = opentype.NewFace(fReg, &opentype.FaceOptions{
-			Size:    40,
-			DPI:     72,
-			Hinting: font.HintingFull,
-		})
-		s.bodyFace, _ = opentype.NewFace(fReg, &opentype.FaceOptions{
-			Size:    22,
-			DPI:     72,
-			Hinting: font.HintingFull,
-		})
-		s.smallFace, _ = opentype.NewFace(fBold, &opentype.FaceOptions{
-			Size:    18,
-			DPI:     72,
-			Hinting: font.HintingFull,
-		})
-	}
-
+	loadServiceFonts(s)
 	s.ensureFallback()
 	return s
+}
+
+func loadServiceFonts(s *Service) {
+	loadBoldFaces(s)
+	loadRegularFaces(s)
+}
+
+func loadBoldFaces(s *Service) {
+	fBold, err := opentype.Parse(gobold.TTF)
+	if err != nil {
+		return
+	}
+	if face, faceErr := opentype.NewFace(fBold, &opentype.FaceOptions{
+		Size:    76,
+		DPI:     72,
+		Hinting: font.HintingFull,
+	}); faceErr == nil {
+		s.titleFace = face
+	}
+	if face, faceErr := opentype.NewFace(fBold, &opentype.FaceOptions{
+		Size:    18,
+		DPI:     72,
+		Hinting: font.HintingFull,
+	}); faceErr == nil {
+		s.smallFace = face
+	}
+}
+
+func loadRegularFaces(s *Service) {
+	fReg, err := opentype.Parse(goregular.TTF)
+	if err != nil {
+		return
+	}
+	if face, faceErr := opentype.NewFace(fReg, &opentype.FaceOptions{
+		Size:    40,
+		DPI:     72,
+		Hinting: font.HintingFull,
+	}); faceErr == nil {
+		s.subFace = face
+	}
+	if face, faceErr := opentype.NewFace(fReg, &opentype.FaceOptions{
+		Size:    22,
+		DPI:     72,
+		Hinting: font.HintingFull,
+	}); faceErr == nil {
+		s.bodyFace = face
+	}
 }
 
 // Generate renders or fetches from cache a 1200x630 PNG card.
