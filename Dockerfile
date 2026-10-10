@@ -28,6 +28,7 @@ RUN git clone --depth 1 --branch v0.5.10 https://github.com/benbjohnson/litestre
 # Patch dependencies and build with caching
 RUN --mount=type=cache,target=/go/pkg/mod \
     go mod edit -replace google.golang.org/grpc=google.golang.org/grpc@v1.83.2 && \
+    go mod edit -replace golang.org/x/net=golang.org/x/net@v0.61.0 && \
     go get github.com/go-jose/go-jose/v4@v4.1.4 && \
     go get go.opentelemetry.io/otel/sdk@v1.43.0 && \
     go get golang.org/x/net@v0.61.0 && \
