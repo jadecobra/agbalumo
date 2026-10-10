@@ -42,6 +42,7 @@ func buildCITasks(cmd *cobra.Command, args []string) []maintenance.CITask {
 			})
 		}},
 		{Name: "Checking API/CLI Contract Drift", Fn: func() error { return apiSpecCmd.RunE(cmd, args) }},
+		{Name: "Checking for Discarded Error Returns", Fn: func() error { return errorSwallowCmd.RunE(cmd, args) }},
 		{Name: "Checking Template Drift", Fn: func() error { return templateDriftCmd.RunE(cmd, args) }},
 		{Name: "Checking UI Design standards", Fn: func() error { return designCmd.RunE(cmd, args) }},
 		{Name: "Checking Visual Snapshot Parity", Fn: func() error { return snapshotParityCmd.RunE(cmd, args) }},
@@ -161,6 +162,21 @@ var precommitCmd = &cobra.Command{
 		opts := maintenance.ChiefCriticOptions{Full: false, NewFromRev: "HEAD", Verbose: false}
 		if err := maintenance.RunChiefCriticAudit(".", opts); err != nil {
 			return fmt.Errorf("robustness audit failed: %w", err)
+		}
+
+		// 5b. Error swallow check (if repository or service Go files staged)
+		hasTargetFiles := false
+		for _, f := range stagedGoFiles {
+			if strings.HasPrefix(f, "internal/repository/") || strings.HasPrefix(f, "internal/service/") {
+				hasTargetFiles = true
+				break
+			}
+		}
+		if hasTargetFiles {
+			fmt.Println("🔍 Checking for swallowed error returns in internal/repository and internal/service...")
+			if err := errorSwallowCmd.RunE(cmd, args); err != nil {
+				return err
+			}
 		}
 
 		// 6. Test only staged packages (fast path)

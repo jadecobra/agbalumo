@@ -35,7 +35,9 @@ func (j *RatingEnricherJob) EnrichRatings(ctx context.Context, limit int) (int, 
 		if err != nil {
 			slog.Warn("[RatingEnricherJob] Failed to fetch Places API metrics", slog.String("id", l.ID), slog.String("title", l.Title), slog.Any("error", err))
 			// Still save to set RatingUpdatedAt so we don't spam retry until the 30-day window passes
-			_ = j.repo.Save(ctx, l)
+			if saveErr := j.repo.Save(ctx, l); saveErr != nil {
+				slog.Warn("[RatingEnricherJob] Failed to save rating update timestamp", slog.String("id", l.ID), slog.Any("error", saveErr))
+			}
 			continue
 		}
 

@@ -127,6 +127,19 @@ func TestHandlerConcurrencyCmdRegistered(t *testing.T) {
 	}
 }
 
+func TestErrorSwallowCmdRegistered(t *testing.T) {
+	found := false
+	for _, cmd := range rootCmd.Commands() {
+		if cmd.Name() == "error-swallow" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatal("error-swallow subcommand is not registered")
+	}
+}
+
 func TestGetVerificationOpts(t *testing.T) {
 	origDir, err := os.Getwd()
 	if err != nil {

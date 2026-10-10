@@ -40,6 +40,24 @@ func (j *ScraperJob) EnrichListings(ctx context.Context, limit int) (int, error)
 	return successCount, nil
 }
 
+func (j *ScraperJob) extractListingHours(ctx context.Context, l *domain.Listing) {
+	if l.HoursOfOperation == "" || j.hoursExtractor == nil {
+		return
+	}
+	structured, extractErr := j.hoursExtractor.ExtractHours(ctx, l.HoursOfOperation)
+	if extractErr == nil {
+		l.StructuredHours = structured
+	} else {
+		slog.Error("[ScraperJob] Failed to extract structured hours", slog.String("id", l.ID), slog.Any("error", extractErr))
+	}
+}
+
+func (j *ScraperJob) savePartial(ctx context.Context, l domain.Listing) {
+	if saveErr := j.repo.Save(ctx, l); saveErr != nil {
+		slog.Error("[ScraperJob] Failed to save partial state", slog.String("id", l.ID), slog.Any("error", saveErr))
+	}
+}
+
 func (j *ScraperJob) enrichSingle(ctx context.Context, l domain.Listing) bool {
 	slog.Info("[ScraperJob] Enriching listing", slog.String("id", l.ID), slog.String("title", l.Title), slog.String("url", l.WebsiteURL))
 
@@ -47,23 +65,17 @@ func (j *ScraperJob) enrichSingle(ctx context.Context, l domain.Listing) bool {
 	now := time.Now()
 	l.EnrichmentAttemptedAt = &now
 
-	if l.HoursOfOperation != "" && j.hoursExtractor != nil {
-		if structured, extractErr := j.hoursExtractor.ExtractHours(ctx, l.HoursOfOperation); extractErr == nil {
-			l.StructuredHours = structured
-		} else {
-			slog.Error("[ScraperJob] Failed to extract structured hours", slog.String("id", l.ID), slog.Any("error", extractErr))
-		}
-	}
+	j.extractListingHours(ctx, &l)
 
 	if err != nil {
 		slog.Error("[ScraperJob] Failed to scrape", slog.String("id", l.ID), slog.Any("error", err))
-		_ = j.repo.Save(ctx, l)
+		j.savePartial(ctx, l)
 		return false
 	}
 
 	if j.isEmpty(signals) {
 		slog.Info("[ScraperJob] No signals found for listing", slog.String("id", l.ID))
-		_ = j.repo.Save(ctx, l)
+		j.savePartial(ctx, l)
 		return false
 	}
 

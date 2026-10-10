@@ -196,6 +196,10 @@ commands:
     trigger: session_start
     description: "List all feedback submissions locally"
 
+  - name: error-swallow
+    trigger: before_commit, architectural_audit
+    description: "Verify that error return values are not swallowed with blank identifier in internal/"
+
 skills:
   - name: go-tdd
     trigger: test_authoring, feature_implementation, bug_fix, hotfix, refactor, debug, /hotfix, /refactor, /debug

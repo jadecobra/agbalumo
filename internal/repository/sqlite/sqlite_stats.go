@@ -87,13 +87,19 @@ func (r *SQLiteRepository) GetDashboardMetrics(ctx context.Context) (domain.Dash
 		return metrics, err
 	}
 
-	counts, _ := r.GetCounts(ctx)
+	counts, err := r.GetCounts(ctx)
+	if err != nil {
+		return metrics, err
+	}
 	for _, count := range counts {
 		metrics.ListingCount += count
 	}
 
 	since := time.Now().Add(-24 * time.Hour)
-	metrics.AdaDiscoveryAvg, _ = r.GetAverageValue(ctx, "discovery_success", since)
+	metrics.AdaDiscoveryAvg, err = r.GetAverageValue(ctx, "discovery_success", since)
+	if err != nil {
+		return metrics, err
+	}
 
 	return metrics, nil
 }

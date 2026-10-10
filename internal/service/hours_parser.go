@@ -100,6 +100,18 @@ func isTimeOpen(hoursText string, currentTime time.Time) bool {
 	return currentMinutes >= openMinutes && currentMinutes < closeMinutes
 }
 
+func adjustImplicitPM(openHourStr, closeHourStr string, openMinutes int) int {
+	openHour, err1 := strconv.Atoi(openHourStr)
+	closeHour, err2 := strconv.Atoi(closeHourStr)
+	if err1 != nil || err2 != nil {
+		return openMinutes
+	}
+	if openHour < closeHour && openHour < 12 {
+		return openMinutes + 12*60
+	}
+	return openMinutes
+}
+
 func extractOpenCloseMinutes(matches [][]string) (int, int, bool) {
 	openMatch := matches[0]
 	closeMatch := matches[1]
@@ -112,15 +124,7 @@ func extractOpenCloseMinutes(matches [][]string) (int, int, bool) {
 	}
 
 	if openMatch[3] == "" && closeMatch[3] == "pm" {
-		openHour, _ := strconv.Atoi(openMatch[1])
-		closeHour, _ := strconv.Atoi(closeMatch[1])
-		if openHour > closeHour {
-			openMinutes += 0
-		} else if openHour < closeHour {
-			if openHour < 12 {
-				openMinutes += 12 * 60
-			}
-		}
+		openMinutes = adjustImplicitPM(openMatch[1], closeMatch[1], openMinutes)
 	}
 	return openMinutes, closeMinutes, true
 }
@@ -152,7 +156,11 @@ func parseTimeToMinutes(hourStr, minStr, ampmStr string) (int, bool) {
 	}
 	min := 0
 	if minStr != "" {
-		min, _ = strconv.Atoi(minStr)
+		parsedMin, err := strconv.Atoi(minStr)
+		if err != nil {
+			return 0, false
+		}
+		min = parsedMin
 	}
 
 	ampm := strings.ToLower(ampmStr)

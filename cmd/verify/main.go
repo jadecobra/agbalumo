@@ -173,6 +173,7 @@ func init() {
 		cachebusterCmd,
 		feedbackListCmd,
 		handlerConcurrencyCmd,
+		errorSwallowCmd,
 	)
 }
 
